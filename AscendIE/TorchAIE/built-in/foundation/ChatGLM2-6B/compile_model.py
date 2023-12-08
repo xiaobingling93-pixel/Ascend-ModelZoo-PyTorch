@@ -61,7 +61,7 @@ def main():
             inputs=[torch_aie.Input([1, 128], dtype = torch.int64),
                     torch_aie.Input([1, 128], dtype = torch.int64),
                     torch_aie.Input([1, 128], dtype = torch.int64),
-                    torch_aie.Input([28, 2, 0, 1, 2, 128], dtype = torch.float64),
+                    torch_aie.Input([28, 2, 0, 1, 2, 128], dtype = torch.float32),
                     ],
             precision_policy=_enums.PrecisionPolicy.FP32,
             allow_tensor_replace_int=True,
