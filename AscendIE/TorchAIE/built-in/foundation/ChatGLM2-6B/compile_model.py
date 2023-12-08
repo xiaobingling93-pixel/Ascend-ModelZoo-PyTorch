@@ -56,8 +56,6 @@ def main():
 
     with torch.inference_mode():
         jit_model = torch.jit.trace(model, example_kwarg_inputs=input_dict)
-        aie_input_spec = [torch_aie.Input(
-            accept_size, dtype=torch_aie.dtype.INT64),]
         aie_model = torch_aie.compile(
             jit_model,
             inputs=[torch_aie.Input([1, 128], dtype = torch.int64),
