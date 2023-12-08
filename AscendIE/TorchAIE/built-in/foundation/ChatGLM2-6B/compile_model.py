@@ -55,7 +55,7 @@ def main():
     torch_aie.set_device(device)
 
     with torch.inference_mode():
-        jit_model = torch.jit.trace(model, input_dict)
+        jit_model = torch.jit.trace(model, example_kwarg_inputs=input_dict)
         aie_input_spec = [torch_aie.Input(
             accept_size, dtype=torch_aie.dtype.INT64),]
         aie_model = torch_aie.compile(
