@@ -66,7 +66,7 @@ def main():
     # stage2: model compile
     if need_compile == "true":
         ## load origin traced model
-        traced_model_path = ./chatglm2_6b_batch" + str(batch_size) + "_traced.pt"
+        traced_model_path = "./chatglm2_6b_batch" + str(batch_size) + "_traced.pt"
         try:
             traced_model = torch.jit.load(traced_model_path)
         except Exception as e:
@@ -87,12 +87,12 @@ def main():
         inputs.append(torch_aie.Input(min_shape = input0_min_shape, max_shape = input0_max_shape, dtype = torch.int64))
         inputs.append(torch_aie.Input(min_shape = input1_min_shape, max_shape = input1_max_shape, dtype = torch.int64))
         inputs.append(torch_aie.Input(min_shape = input2_min_shape, max_shape = input2_max_shape, dtype = torch.int64))
-        inputs.append(torch_aie.Input(min_shape = input3_min_shape, max_shape = input3_max_shape, dtype = torch.int64))
+        inputs.append(torch_aie.Input(min_shape = input3_min_shape, max_shape = input3_max_shape, dtype = torch.float32))
 
         ## compile
         print("===================== start to compile model ==========================")
-        compiled_model = torch_aie.compile(
-            jit_model,
+        compiled_module = torch_aie.compile(
+            traced_model,
             inputs=inputs,
             precision_policy=_enums.PrecisionPolicy.FP32,
             allow_tensor_replace_int=True,
@@ -101,7 +101,7 @@ def main():
         print("===================== model compile success ==========================")
         ## save compiled result
         aie_model_path = "./chatglm2_6b_batch" + str(batch_size) + "_compiled.ts"
-        compiled_model.save(aie_model_path)
+        compiled_module.save(aie_model_path)
         print("===================== save compiled model success ======================")
         
 

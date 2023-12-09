@@ -1391,7 +1391,7 @@ class ChatGLMForConditionalGeneration(ChatGLMPreTrainedModel):
         has_default_max_length = kwargs.get("max_length") is None and generation_config.max_length is not None
         if has_default_max_length and generation_config.max_new_tokens is None:
             warnings.warn(
-                f"Using `max_length`'s default ({generation_config.max_length}) to control the generation length.) "
+                f"Using `max_length`'s default ({generation_config.max_length}) to control the generation length. "
                 "This behaviour is deprecated and will be removed from the config in v5 of Transformers -- we"
                 " recommend using `max_new_tokens` to control the maximum length of the generation.",
                 UserWarning,
@@ -1412,7 +1412,7 @@ class ChatGLMForConditionalGeneration(ChatGLMPreTrainedModel):
                 f" the maximum length({generation_config.max_length})"
             )
         if input_ids_seq_length >= generation_config.max_length:
-            input_ids_string = "decocer_input_ids" if self.config.is_encoder_decoder else "input_ids"
+            input_ids_string = "decoder_input_ids" if self.config.is_encoder_decoder else "input_ids"
             logger.warning(
                 f"Input length of {input_ids_string} is {input_ids_seq_length}, but `max_length` is set to "
                 f"{generation_config.max_length}. This can lead to unexpected behavior. You should consider"
