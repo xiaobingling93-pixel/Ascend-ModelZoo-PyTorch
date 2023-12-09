@@ -16,7 +16,7 @@ from torch.nn.utils import skip_init
 from typing import Optional, Tuple, Union, List, Callable, Dict, Any
 from transformers.modeling_outputs import (
     BaseModelOutputWithPast,
-    CausualLMOutputWithPast,
+    CausalLMOutputWithPast,
     SequenceClassifierOutputWithPast,
 )
 from transformers.utils import logging
