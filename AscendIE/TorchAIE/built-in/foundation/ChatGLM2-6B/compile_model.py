@@ -44,7 +44,7 @@ def main():
     model = AutoModel.from_pretrained(model_path, trust_remote_code=True, torchscript=True).float()
     model.eval()
 
-
+    torch_aie.set_device(device)
     # stage1: model trace
     if need_trace == "true":
         print("===================== start to trace model ==========================")
