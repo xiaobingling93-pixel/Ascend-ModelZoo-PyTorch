@@ -241,11 +241,12 @@ class CoreAttention(torch.nn.Module):
         L, S = query.size(-2), key.size(-2)
         scale_factor = 1 / math.sqrt(query.size(-1)) if scale is None else scale
         attn_bias = torch.zeros(L, S, dtype=query.dtype)
-        if is_causal:
-            assert attn_mask is None
-            temp_mask = torch.ones(L, S, dtype=torch.bool).tril(diagonal=0)
-            attn_bias.masked_fill_(temp_mask.logical_not(), float("-inf"))
-            attn_bias.to(query.dtype)
+        temp_seqlen = torch.tensor(temp_seqlen)
+        temp_mask = torch.ones(L, S, dtype=torch.bool).tril(diagonal=0)
+        attn_bias.masked_fill_(temp_mask.logical_not(), float("-1000000000.0"))
+        temp_scale = ~temp_seqlen.bool()
+        attn_bias.to(query.dtype)
+        attn_bias = attn_bias * temp_scale.to(query.dtype)
 
         if attn_mask is not None:
             if attn_mask.dtype == torch.bool:
@@ -413,7 +414,9 @@ class SelfAttention(torch.nn.Module):
         # =====================
 
         # Attention heads [sq, b, h] --> [sq, b, (np * 3 * hn)]
+        hidden_states = hidden_states.transpose(0, 1)
         mixed_x_layer = self.query_key_value(hidden_states)
+        mixed_x_layer = mixed_x_layer.transpose(0, 1)
 
         if self.multi_query_attention:
             (query_layer, key_layer, value_layer) = mixed_x_layer.split(
@@ -447,10 +450,12 @@ class SelfAttention(torch.nn.Module):
         if rotary_pos_emb is not None:
             query_layer = apply_rotary_pos_emb(query_layer, rotary_pos_emb)
             key_layer = apply_rotary_pos_emb(key_layer, rotary_pos_emb)
-
+        
+        temp_kv_cache = kv_cache
+        temp_seqlen = temp_kv_cache.shape[1]
         # adjust key and value for inference
         if kv_cache is not None:
-            cache_k, cache_v = kv_cache
+            cache_k, cache_v = kv_cache[0], kv_cache[1]
             key_layer = torch.cat((cache_k, key_layer), dim=0)
             value_layer = torch.cat((cache_v, value_layer), dim=0)
         if use_cache:
@@ -477,14 +482,14 @@ class SelfAttention(torch.nn.Module):
         # ==================================
         # core attention computation
         # ==================================
-
-        context_layer = self.core_attention(query_layer, key_layer, value_layer, attention_mask)
+        context_layer = self.core_attention(query_layer, key_layer, value_layer, attention_mask, temp_seqlen)
 
         # =================
         # Output. [sq, b, h]
         # =================
-
+        context_layer = context_layer.transpose(0, 1)
         output = self.dense(context_layer)
+        output = output.transpose(0, 1)
 
         return output, kv_cache
 
@@ -600,10 +605,11 @@ class GLMBlock(torch.nn.Module):
 
         # Layer norm post the self attention.
         layernorm_output = self.post_attention_layernorm(layernorm_input)
+        layernorm_output = layernorm_output.transpose(0, 1)
 
         # MLP.
         mlp_output = self.mlp(layernorm_output)
-
+        mlp_output = mlp_output.transpose(0, 1)
         # Second residual connection.
         if self.apply_residual_connection_post_layernorm:
             residual = layernorm_output
@@ -650,7 +656,7 @@ class GLMTransformer(torch.nn.Module):
             use_cache: Optional[bool] = True,
             output_hidden_states: Optional[bool] = False,
     ):
-        if not kv_caches:
+        if kv_caches is None:
             kv_caches = [None for _ in range(self.num_layers)]
         presents = () if use_cache else None
         if self.gradient_checkpointing and self.training:
@@ -719,7 +725,7 @@ class ChatGLMPreTrainedModel(PreTrainedModel):
         full_attention_mask = torch.ones(batch_size, seq_length, seq_length, device=input_ids.device)
         full_attention_mask.tril_()
         past_length = 0
-        if past_key_values:
+        if past_key_values is not None:
             past_length = past_key_values[0][0].shape[0]
         if past_length:
             full_attention_mask = torch.cat((torch.ones(batch_size, seq_length, past_length,
@@ -854,10 +860,6 @@ class ChatGLMModel(ChatGLMPreTrainedModel):
                 attention_mask = torch.cat([attention_mask.new_ones((batch_size, self.pre_seq_len)),
                                             attention_mask], dim=-1)
 
-        if full_attention_mask is None:
-            if (attention_mask is not None and not attention_mask.all()) or (past_key_values and seq_length != 1):
-                full_attention_mask = self.get_masks(input_ids, past_key_values, padding_mask=attention_mask)
-
         # Rotary positional embeddings
         rotary_pos_emb = self.rotary_pos_emb(self.seq_length)
         if position_ids is not None:
@@ -966,56 +968,71 @@ class ChatGLMForConditionalGeneration(ChatGLMPreTrainedModel):
             inputs_embeds: Optional[torch.Tensor] = None,
             labels: Optional[torch.Tensor] = None,
             use_cache: Optional[bool] = None,
-            output_attentions: Optional[bool] = None,
-            output_hidden_states: Optional[bool] = None,
+            output_attentions: Optional[bool] = False,
+            output_hidden_states: Optional[bool] = False,
             return_dict: Optional[bool] = None,
             return_last_logit: Optional[bool] = False,
+            aie_model=None
     ):
         use_cache = use_cache if use_cache is not None else self.config.use_cache
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
+        if aie_model is None:
+            transformer_outputs = self.transformer(
+                input_ids=input_ids,
+                position_ids=position_ids,
+                attention_mask=attention_mask,
+                past_key_values=past_key_values,
+                inputs_embeds=inputs_embeds,
+                use_cache=use_cache,
+                output_hidden_states=output_hidden_states,
+                return_dict=return_dict,
+            )
 
-        transformer_outputs = self.transformer(
-            input_ids=input_ids,
-            position_ids=position_ids,
-            attention_mask=attention_mask,
-            past_key_values=past_key_values,
-            inputs_embeds=inputs_embeds,
-            use_cache=use_cache,
-            output_hidden_states=output_hidden_states,
-            return_dict=return_dict,
-        )
+            hidden_states = transformer_outputs[0]
+            if return_last_logit:
+                hidden_states = hidden_states[-1:]
+            hidden_states = hidden_states.transpose(0, 1).contiguous()
+            lm_logits = self.transformer.output_layer(hidden_states)
+            return lm_logits, transformer_outputs[1]
+        else:
+            # npu
+            input_ids_npu = input_ids.to("npu:0")
+            position_ids_npu = position_ids.to("npu:0")
+            attention_mask_npu = attention_mask.to("npu:0")
+            if past_key_values is None:
+                past_key_values_input = torch.empty([28, 2, 0, 1, 2, 128], dtype = torch.float)
+            else:
+                past_key_values_input = torch.stack([ \
+                    torch.stack([past_key_values[i][j] for j in range(len(past_key_values[i]))
+                    ]) for i in range(len(past_key_values))])
+            past_key_values_input_npu = past_key_values_input.to("npu:0")
+            lm_logits, past_key_values = aie_model.forward(input_ids_npu, position_ids_npu, attention_mask_npu, past_key_values_input_npu)
+            loss = None
+            if labels is not None:
+                lm_logits = lm_logits.to(torch.float32)
 
-        hidden_states = transformer_outputs[0]
-        if return_last_logit:
-            hidden_states = hidden_states[-1:]
-        lm_logits = self.transformer.output_layer(hidden_states)
-        lm_logits = lm_logits.transpose(0, 1).contiguous()
+                # Shift so that tokens < n predict n
+                shift_logits = lm_logits[..., :-1, :].contiguous()
+                shift_labels = labels[..., 1:].contiguous()
+                # Flatten the tokens
+                loss_fct = CrossEntropyLoss(ignore_index=-100)
+                loss = loss_fct(shift_logits.view(-1, shift_logits.size(-1)), shift_labels.view(-1))
 
-        loss = None
-        if labels is not None:
-            lm_logits = lm_logits.to(torch.float32)
+                lm_logits = lm_logits.to(hidden_states.dtype)
+                loss = loss.to(hidden_states.dtype)
 
-            # Shift so that tokens < n predict n
-            shift_logits = lm_logits[..., :-1, :].contiguous()
-            shift_labels = labels[..., 1:].contiguous()
-            # Flatten the tokens
-            loss_fct = CrossEntropyLoss(ignore_index=-100)
-            loss = loss_fct(shift_logits.view(-1, shift_logits.size(-1)), shift_labels.view(-1))
+            return_dict = True
+            if not return_dict:
+                output = (lm_logits,) + past_key_values
+                return ((loss,) + output) if loss is not None else output
 
-            lm_logits = lm_logits.to(hidden_states.dtype)
-            loss = loss.to(hidden_states.dtype)
-
-        if not return_dict:
-            output = (lm_logits,) + transformer_outputs[1:]
-            return ((loss,) + output) if loss is not None else output
-
-        return CausalLMOutputWithPast(
-            loss=loss,
-            logits=lm_logits,
-            past_key_values=transformer_outputs.past_key_values,
-            hidden_states=transformer_outputs.hidden_states,
-            attentions=transformer_outputs.attentions,
-        )
+            return CausalLMOutputWithPast(
+                loss=None,
+                logits=lm_logits.to("cpu"),
+                past_key_values=past_key_values,
+                hidden_states=None,
+                attentions=None,
+            )
 
     @staticmethod
     def _reorder_cache(
@@ -1078,7 +1095,7 @@ class ChatGLMForConditionalGeneration(ChatGLMPreTrainedModel):
         return response, history
 
     @torch.inference_mode()
-    def stream_chat(self, tokenizer, query: str, history: List[Tuple[str, str]] = None, past_key_values=None,
+    def stream_chat(self, tokenizer, aie_model, query: str, history: List[Tuple[str, str]] = None, past_key_values=None,
                     max_length: int = 8192, do_sample=True, top_p=0.8, temperature=0.8, logits_processor=None,
                     return_past_key_values=False, **kwargs):
         if history is None:
@@ -1100,7 +1117,7 @@ class ChatGLMForConditionalGeneration(ChatGLMPreTrainedModel):
             attention_mask = inputs.attention_mask
             attention_mask = torch.cat((attention_mask.new_ones(1, past_length), attention_mask), dim=1)
             inputs['attention_mask'] = attention_mask
-        for outputs in self.stream_generate(**inputs, past_key_values=past_key_values,
+        for outputs in self.stream_generate(**inputs, aie_model=aie_model, past_key_values=past_key_values,
                                             return_past_key_values=return_past_key_values, **gen_kwargs):
             if return_past_key_values:
                 outputs, past_key_values = outputs
@@ -1122,6 +1139,7 @@ class ChatGLMForConditionalGeneration(ChatGLMPreTrainedModel):
             logits_processor: Optional[LogitsProcessorList] = None,
             stopping_criteria: Optional[StoppingCriteriaList] = None,
             prefix_allowed_tokens_fn: Optional[Callable[[int, torch.Tensor], List[int]]] = None,
+            aie_model=None,
             return_past_key_values=False,
             **kwargs,
     ):
@@ -1131,6 +1149,9 @@ class ChatGLMForConditionalGeneration(ChatGLMPreTrainedModel):
             generation_config = self.generation_config
         generation_config = copy.deepcopy(generation_config)
         model_kwargs = generation_config.update(**kwargs)
+        inputs_tensor, model_input_name, model_kwargs = self.prepare_model_inputs(
+            input_ids, generation_config.bos_token_id, model_kwargs
+        )
         model_kwargs["use_cache"] = generation_config.use_cache
         bos_token_id, eos_token_id = generation_config.bos_token_id, generation_config.eos_token_id
 
@@ -1186,14 +1207,38 @@ class ChatGLMForConditionalGeneration(ChatGLMPreTrainedModel):
         while True:
             model_inputs = self.prepare_inputs_for_generation(input_ids, **model_kwargs)
             # forward pass to get next token
-            outputs = self(
-                **model_inputs,
-                return_dict=True,
-                output_attentions=False,
-                output_hidden_states=False,
+            if aie_model is None:
+                lm_logits, past_key_values = self(
+                    **model_inputs,
+                    return_dict=True,
+                    output_attentions=False,
+                    output_hidden_states=False,
+                )
+            
+            else:
+                input_ids_npu = model_inputs["input_ids"].to("npu:0")
+                position_ids_npu = model_inputs["position_ids"].to("npu:0")
+                attention_mask_npu = model_inputs["attention_mask"].to("npu:0")
+                if model_inputs["past_key_values"] is None:
+                    past_key_values_input = torch.empty([28, 2, 0, 1, 2, 128], dtype = torch.float)
+                else:
+                    past_key_values_input = torch.stack([ \
+                        torch.stack([model_inputs["past_key_values"][i][j] for j in range(len(model_inputs["past_key_values"][i]))
+                        ]) for i in range(len(model_inputs["past_key_values"]))])
+                if past_key_values_input.shape[0] == 1:
+                    past_key_values_input = torch.cat([past_key_values_input for i in range(28)], 0)
+                past_key_values_input_npu = past_key_values_input.to("npu:0")
+                lm_logits, past_key_values = aie_model.forward(input_ids_npu, position_ids_npu, attention_mask_npu, past_key_values_input_npu)
+                lm_logits = torch.unsqeeze(lm_logits[:, -1. :], 1)
+            
+            outputs = CausalLMOutputWithPast(
+                loss=None,
+                logits=lm_logits.to("cpu"),
+                past_key_values=past_key_values,
+                hidden_states=None,
+                attentions=None,
             )
-
-            next_token_logits = outputs.logits[:, -1, :]
+            next_token_logits = lm_logits[:, -1. :]
 
             # pre-process distribution
             next_token_scores = logits_processor(input_ids, next_token_logits)
@@ -1208,122 +1253,18 @@ class ChatGLMForConditionalGeneration(ChatGLMPreTrainedModel):
 
             # update generated ids, model inputs, and length for next step
             input_ids = torch.cat([input_ids, next_tokens[:, None]], dim=-1)
+            unfinished_sequences = unfinished_sequences.mul((sum(next_tokens != i for i in eos_token_id)).long())
             model_kwargs = self._update_model_kwargs_for_generation(
                 outputs, model_kwargs, is_encoder_decoder=self.config.is_encoder_decoder
             )
-            unfinished_sequences = unfinished_sequences.mul((sum(next_tokens != i for i in eos_token_id)).long())
             if return_past_key_values:
-                yield input_ids, outputs.past_key_values
+                yield input_ids, past_key_values
             else:
                 yield input_ids
             # stop when each sentence is finished, or if we exceed the maximum length
             if unfinished_sequences.max() == 0 or stopping_criteria(input_ids, scores):
                 break
 
-    def quantize(self, bits: int, empty_init=False, device=None, **kwargs):
-        if bits == 0:
-            return
-
-        from .quantization import quantize
-
-        if self.quantized:
-            logger.info("Already quantized.")
-            return self
-
-        self.quantized = True
-
-        self.config.quantization_bit = bits
-
-        self.transformer.encoder = quantize(self.transformer.encoder, bits, empty_init=empty_init, device=device,
-                                            **kwargs)
-        return self
-
-
-class ChatGLMForSequenceClassification(ChatGLMPreTrainedModel):
-    def __init__(self, config: ChatGLMConfig, empty_init=True, device=None):
-        super().__init__(config)
-
-        self.num_labels = config.num_labels
-        self.transformer = ChatGLMModel(config, empty_init=empty_init, device=device)
-
-        self.classifier_head = nn.Linear(config.hidden_size, config.num_labels, bias=True, dtype=torch.half)
-        if config.classifier_dropout is not None:
-            self.dropout = nn.Dropout(config.classifier_dropout)
-        else:
-            self.dropout = None
-        self.config = config
-
-        if self.config.quantization_bit:
-            self.quantize(self.config.quantization_bit, empty_init=True)
-
-    def forward(
-            self,
-            input_ids: Optional[torch.LongTensor] = None,
-            position_ids: Optional[torch.LongTensor] = None,
-            attention_mask: Optional[torch.Tensor] = None,
-            full_attention_mask: Optional[torch.Tensor] = None,
-            past_key_values: Optional[Tuple[Tuple[torch.Tensor, torch.Tensor], ...]] = None,
-            inputs_embeds: Optional[torch.LongTensor] = None,
-            labels: Optional[torch.LongTensor] = None,
-            use_cache: Optional[bool] = None,
-            output_hidden_states: Optional[bool] = None,
-            return_dict: Optional[bool] = None,
-    ) -> Union[Tuple[torch.Tensor, ...], SequenceClassifierOutputWithPast]:
-        return_dict = return_dict if return_dict is not None else self.config.use_return_dict
-
-        transformer_outputs = self.transformer(
-            input_ids=input_ids,
-            position_ids=position_ids,
-            attention_mask=attention_mask,
-            full_attention_mask=full_attention_mask,
-            past_key_values=past_key_values,
-            inputs_embeds=inputs_embeds,
-            use_cache=use_cache,
-            output_hidden_states=output_hidden_states,
-            return_dict=return_dict,
-        )
-
-        hidden_states = transformer_outputs[0]
-        pooled_hidden_states = hidden_states[-1]
-        if self.dropout is not None:
-            pooled_hidden_states = self.dropout(pooled_hidden_states)
-        logits = self.classifier_head(pooled_hidden_states)
-
-        loss = None
-        if labels is not None:
-            if self.config.problem_type is None:
-                if self.num_labels == 1:
-                    self.config.problem_type = "regression"
-                elif self.num_labels > 1 and (labels.dtype == torch.long or labels.dtype == torch.int):
-                    self.config.problem_type = "single_label_classification"
-                else:
-                    self.config.problem_type = "multi_label_classification"
-
-            if self.config.problem_type == "regression":
-                loss_fct = MSELoss()
-                if self.num_labels == 1:
-                    loss = loss_fct(logits.squeeze().float(), labels.squeeze())
-                else:
-                    loss = loss_fct(logits.float(), labels)
-            elif self.config.problem_type == "single_label_classification":
-                loss_fct = CrossEntropyLoss()
-                loss = loss_fct(logits.view(-1, self.num_labels).float(), labels.view(-1))
-            elif self.config.problem_type == "multi_label_classification":
-                loss_fct = BCEWithLogitsLoss()
-                loss = loss_fct(logits.float(), labels.view(-1, self.num_labels))
-
-        if not return_dict:
-            output = (logits,) + transformer_outputs[1:]
-            return ((loss,) + output) if loss is not None else output
-
-        return SequenceClassifierOutputWithPast(
-            loss=loss,
-            logits=logits,
-            past_key_values=transformer_outputs.past_key_values,
-            hidden_states=transformer_outputs.hidden_states,
-            attentions=transformer_outputs.attentions,
-        )
-    
     @torch.no_grad()
     def generate(
         self,
@@ -2142,3 +2083,110 @@ class ChatGLMForSequenceClassification(ChatGLMPreTrainedModel):
                 )
         else:
             return input_ids
+
+
+    def quantize(self, bits: int, empty_init=False, device=None, **kwargs):
+        if bits == 0:
+            return
+
+        from .quantization import quantize
+
+        if self.quantized:
+            logger.info("Already quantized.")
+            return self
+
+        self.quantized = True
+
+        self.config.quantization_bit = bits
+
+        self.transformer.encoder = quantize(self.transformer.encoder, bits, empty_init=empty_init, device=device,
+                                            **kwargs)
+        return self
+
+
+class ChatGLMForSequenceClassification(ChatGLMPreTrainedModel):
+    def __init__(self, config: ChatGLMConfig, empty_init=True, device=None):
+        super().__init__(config)
+
+        self.num_labels = config.num_labels
+        self.transformer = ChatGLMModel(config, empty_init=empty_init, device=device)
+
+        self.classifier_head = nn.Linear(config.hidden_size, config.num_labels, bias=True, dtype=torch.half)
+        if config.classifier_dropout is not None:
+            self.dropout = nn.Dropout(config.classifier_dropout)
+        else:
+            self.dropout = None
+        self.config = config
+
+        if self.config.quantization_bit:
+            self.quantize(self.config.quantization_bit, empty_init=True)
+
+    def forward(
+            self,
+            input_ids: Optional[torch.LongTensor] = None,
+            position_ids: Optional[torch.LongTensor] = None,
+            attention_mask: Optional[torch.Tensor] = None,
+            full_attention_mask: Optional[torch.Tensor] = None,
+            past_key_values: Optional[Tuple[Tuple[torch.Tensor, torch.Tensor], ...]] = None,
+            inputs_embeds: Optional[torch.LongTensor] = None,
+            labels: Optional[torch.LongTensor] = None,
+            use_cache: Optional[bool] = None,
+            output_hidden_states: Optional[bool] = None,
+            return_dict: Optional[bool] = None,
+    ) -> Union[Tuple[torch.Tensor, ...], SequenceClassifierOutputWithPast]:
+        return_dict = return_dict if return_dict is not None else self.config.use_return_dict
+
+        transformer_outputs = self.transformer(
+            input_ids=input_ids,
+            position_ids=position_ids,
+            attention_mask=attention_mask,
+            full_attention_mask=full_attention_mask,
+            past_key_values=past_key_values,
+            inputs_embeds=inputs_embeds,
+            use_cache=use_cache,
+            output_hidden_states=output_hidden_states,
+            return_dict=return_dict,
+        )
+
+        hidden_states = transformer_outputs[0]
+        pooled_hidden_states = hidden_states[-1]
+        if self.dropout is not None:
+            pooled_hidden_states = self.dropout(pooled_hidden_states)
+        logits = self.classifier_head(pooled_hidden_states)
+
+        loss = None
+        if labels is not None:
+            if self.config.problem_type is None:
+                if self.num_labels == 1:
+                    self.config.problem_type = "regression"
+                elif self.num_labels > 1 and (labels.dtype == torch.long or labels.dtype == torch.int):
+                    self.config.problem_type = "single_label_classification"
+                else:
+                    self.config.problem_type = "multi_label_classification"
+
+            if self.config.problem_type == "regression":
+                loss_fct = MSELoss()
+                if self.num_labels == 1:
+                    loss = loss_fct(logits.squeeze().float(), labels.squeeze())
+                else:
+                    loss = loss_fct(logits.float(), labels)
+            elif self.config.problem_type == "single_label_classification":
+                loss_fct = CrossEntropyLoss()
+                loss = loss_fct(logits.view(-1, self.num_labels).float(), labels.view(-1))
+            elif self.config.problem_type == "multi_label_classification":
+                loss_fct = BCEWithLogitsLoss()
+                loss = loss_fct(logits.float(), labels.view(-1, self.num_labels))
+
+        if not return_dict:
+            output = (logits,) + transformer_outputs[1:]
+            return ((loss,) + output) if loss is not None else output
+
+        return SequenceClassifierOutputWithPast(
+            loss=loss,
+            logits=logits,
+            past_key_values=transformer_outputs.past_key_values,
+            hidden_states=transformer_outputs.hidden_states,
+            attentions=transformer_outputs.attentions,
+        )
+    
+    
