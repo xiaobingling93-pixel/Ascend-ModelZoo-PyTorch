@@ -1,14 +1,17 @@
 import os
+import torch
+import sys
 import platform
 import signal
+import argparse
+import torch_aie
 from transformers import AutoTokenizer, AutoModel
-import readline
 
-tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True)
-model = AutoModel.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True).cuda()
-# 多显卡支持，使用下面两行代替上面一行，将num_gpus改为你实际的显卡数量
-# from utils import load_model_on_gpus
-# model = load_model_on_gpus("THUDM/chatglm2-6b", num_gpus=2)
+sys.path.append(os.path.expanduser("/root/.cache/huggingface/modules"))
+model_pth = "./model/"
+
+tokenizer = AutoTokenizer.from_pretrained(model_pth, trust_remote_code=True)
+model = AutoModel.from_pretrained(model_pth, trust_remote_code=True, torchscript=True).float()
 model = model.eval()
 
 os_name = platform.system()
@@ -29,9 +32,28 @@ def signal_handler(signal, frame):
     stop_stream = True
 
 
+def parse_arg():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--device", default="cpu", help="cpu/npu")
+    parser.add_argument("--batch_size", default=1, type=int,
+                        required=False, help='batch size')
+    args = parser.parse_args()
+    return args
+
 def main():
     past_key_values, history = None, []
     global stop_stream
+    args = parse_arg()
+    device = args.device
+    print("device:", device)
+    batch_size = args.batch_size
+    aie_model = None
+    if device == "npu":
+        torch_aie.set_device(0)
+        aie_model_path = "./chatglm2_6b_batch" + str(batch_size) + "_compiled.ts"
+        aie_model = torch.jit.load(aie_model_path)
+        aie_model.eval()
+    
     print("欢迎使用 ChatGLM2-6B 模型，输入内容即可进行对话，clear 清空对话历史，stop 终止程序")
     while True:
         query = input("\n用户：")
@@ -44,9 +66,10 @@ def main():
             continue
         print("\nChatGLM：", end="")
         current_length = 0
-        for response, history, past_key_values in model.stream_chat(tokenizer, query, history=history,
+        result = model.stream_chat(tokenizer, aie_model, query, history=history,
                                                                     past_key_values=past_key_values,
-                                                                    return_past_key_values=True):
+                                                                    return_past_key_values=True)
+        for response, history, past_key_values in result:
             if stop_stream:
                 stop_stream = False
                 break

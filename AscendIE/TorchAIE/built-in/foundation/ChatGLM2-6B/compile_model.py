@@ -30,43 +30,80 @@ def main():
                         required=False, help='batch size')
     parser.add_argument('--device', default=0, type=int,
                         required=False, help='npu device')
+    parser.add_argument('--need_trace', default="true",
+                        required=False, help='If you have traced the model before then set false')
+    parser.add_argument('--need_compile', default="true",
+                        required=False, help='If you have compiled the model before then set false')
 
     args = parser.parse_args()
     device = args.device
     batch_size = args.batch_size
     model_path = args.pretrained_model
+    need_trace = args.need_trace
+    need_compile = args.need_compile
     model = AutoModel.from_pretrained(model_path, trust_remote_code=True, torchscript=True).float()
     model.eval()
 
-    ## set input
-    input_ids = torch.randint(1, 64970, [1, 128], dtype = torch.int64)
-    position_ids = model.get_position_ids(input_ids, device = "cpu")
-    attention_mask = torch.ones((1, 128), dtype = torch.int64)
-    past_key_values = torch.rand([28, 2, 0, 1, 2, 128], dtype = torch.float32)
-    input_dict = {
-        "input_ids": input_ids,
-        "position_ids": position_ids,
-        "attention_mask": attention_mask,
-        "past_key_values": past_key_values
-    }
 
-    aie_model_path = "chatglm2_6b_" + str(batch_size) + ".ts"
+    # stage1: model trace
+    if need_trace == "true":
+        print("===================== start to trace model ==========================")
+        input_ids = torch.randint(1, 64970, [1, 128], dtype = torch.int64)
+        position_ids = model.get_position_ids(input_ids, device = "cpu")
+        attention_mask = torch.ones((1, 128), dtype = torch.int64)
+        past_key_values = torch.rand([28, 2, 0, 1, 2, 128], dtype = torch.float32)
+        input_dict = {
+            "input_ids": input_ids,
+            "position_ids": position_ids,
+            "attention_mask": attention_mask,
+            "past_key_values": past_key_values
+        }
+        traced_model = torch.jit.trace(model, example_kwarg_inputs=input_dict)
+        traced_model_path = "./chatglm2_6b_batch" + str(batch_size) + "_traced.pt"
+        torch.jit.save(traced_model, traced_model_path)
+        print("===================== model trace success ==========================")
 
-    torch_aie.set_device(device)
+    # stage2: model compile
+    if need_compile == "true":
+        ## load origin traced model
+        traced_model_path = ./chatglm2_6b_batch" + str(batch_size) + "_traced.pt"
+        try:
+            traced_model = torch.jit.load(traced_model_path)
+        except Exception as e:
+            print("load model failed, please trace first.")
 
-    with torch.inference_mode():
-        jit_model = torch.jit.trace(model, example_kwarg_inputs=input_dict)
-        aie_model = torch_aie.compile(
+        ## set compile config
+        inputs = []
+        max_seqlen = 32768
+        input0_min_shape = (batch_size, 1)
+        input0_max_shape = (batch_size, max_seqlen)
+        input1_min_shape = (batch_size, 1)
+        input1_max_shape = (batch_size, max_seqlen)
+        input2_min_shape = (batch_size, 1)
+        input2_max_shape = (batch_size, max_seqlen)
+        input3_min_shape = (batch_size, 2, 0, batch_size, 2, 128)
+        input3_max_shape = (batch_size, 2, max_seqlen, batch_size, 2, 128)
+
+        inputs.append(torch_aie.Input(min_shape = input0_min_shape, max_shape = input0_max_shape, dtype = torch.int64))
+        inputs.append(torch_aie.Input(min_shape = input1_min_shape, max_shape = input1_max_shape, dtype = torch.int64))
+        inputs.append(torch_aie.Input(min_shape = input2_min_shape, max_shape = input2_max_shape, dtype = torch.int64))
+        inputs.append(torch_aie.Input(min_shape = input3_min_shape, max_shape = input3_max_shape, dtype = torch.int64))
+
+        ## compile
+        print("===================== start to compile model ==========================")
+        compiled_model = torch_aie.compile(
             jit_model,
-            inputs=[torch_aie.Input([1, 128], dtype = torch.int64),
-                    torch_aie.Input([1, 128], dtype = torch.int64),
-                    torch_aie.Input([1, 128], dtype = torch.int64),
-                    torch_aie.Input([28, 2, 0, 1, 2, 128], dtype = torch.float32),
-                    ],
+            inputs=inputs,
             precision_policy=_enums.PrecisionPolicy.FP32,
             allow_tensor_replace_int=True,
-            soc_version="Ascend910B4")
-        aie_model.save(aie_model_path)
+            soc_version="Ascend910B4"
+        )
+        print("===================== model compile success ==========================")
+        ## save compiled result
+        aie_model_path = "./chatglm2_6b_batch" + str(batch_size) + "_compiled.ts"
+        compiled_model.save(aie_model_path)
+        print("===================== save compiled model success ======================")
+        
 
 if __name__ == '__main__':
     main()
