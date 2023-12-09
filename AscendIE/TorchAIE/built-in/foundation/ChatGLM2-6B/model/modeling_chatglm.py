@@ -16,7 +16,7 @@ from torch.nn.utils import skip_init
 from typing import Optional, Tuple, Union, List, Callable, Dict, Any
 from transformers.modeling_outputs import (
     BaseModelOutputWithPast,
-    CasualLMOutputWithPast,
+    CausualLMOutputWithPast,
     SequenceClassifierOutputWithPast,
 )
 from transformers.utils import logging
@@ -236,18 +236,40 @@ class CoreAttention(torch.nn.Module):
 
         self.attention_dropout = torch.nn.Dropout(config.attention_dropout)
 
-    def forward(self, query_layer, key_layer, value_layer, attention_mask):
+    def scaled_dot_product_attention(query, key, value, attn_mask=None, dropout_p=0.0, is_causal=False, scale=None) -> torch.Tensor:
+        # Efficient implementation equivalent to the following:
+        L, S = query.size(-2), key.size(-2)
+        scale_factor = 1 / math.sqrt(query.size(-1)) if scale is None else scale
+        attn_bias = torch.zeros(L, S, dtype=query.dtype)
+        if is_causal:
+            assert attn_mask is None
+            temp_mask = torch.ones(L, S, dtype=torch.bool).tril(diagonal=0)
+            attn_bias.masked_fill_(temp_mask.logical_not(), float("-inf"))
+            attn_bias.to(query.dtype)
+
+        if attn_mask is not None:
+            if attn_mask.dtype == torch.bool:
+                attn_mask.masked_fill_(attn_mask.logical_not(), float("-inf"))
+            else:
+                attn_bias += attn_mask
+        attn_weight = query @ key.transpose(-2, -1) * scale_factor
+        attn_weight += attn_bias
+        attn_weight = torch.softmax(attn_weight, dim=-1)
+        attn_weight = torch.dropout(attn_weight, dropout_p, train=True)
+        return attn_weight @ value
+    
+    def forward(self, query_layer, key_layer, value_layer, attention_mask, temp_seqlen):
         pytorch_major_version = int(torch.__version__.split('.')[0])
         if pytorch_major_version >= 2:
             query_layer, key_layer, value_layer = [k.permute(1, 2, 0, 3) for k in [query_layer, key_layer, value_layer]]
             if attention_mask is None and query_layer.shape[2] == key_layer.shape[2]:
-                context_layer = torch.nn.functional.scaled_dot_product_attention(query_layer, key_layer, value_layer,
-                                                                                 is_causal=True)
+                context_layer = self.scaled_dot_product_attention(query_layer, key_layer, value_layer,
+                                                                                temp_seqlen, is_causal=True)
             else:
                 if attention_mask is not None:
                     attention_mask = ~attention_mask
-                context_layer = torch.nn.functional.scaled_dot_product_attention(query_layer, key_layer, value_layer,
-                                                                                 attention_mask)
+                context_layer = self.scaled_dot_product_attention(query_layer, key_layer, value_layer, temp_seqlen,
+                                                                                attention_mask)
             context_layer = context_layer.permute(2, 0, 1, 3)
             new_context_layer_shape = context_layer.size()[:-2] + (self.hidden_size_per_partition,)
             context_layer = context_layer.reshape(*new_context_layer_shape)
