@@ -18,7 +18,6 @@
 #include <vector>
 #include <string>
 #include <iostream>
-#include <sys/time.h>
 #include <torch/torch.h>
 #include <torch/script.h>
 #include <torch/csrc/jit/api/module.h>
@@ -64,7 +63,40 @@ auto getCompileSpec() -> torch_aie::torchscript::CompileSpec
 
 torch::jit::Module compileModule()
 {
-    
+    std::cout << "start to load module" << std::endl;
+    // Load Module
+    torch::jit::script::Module module = torch::jit::load(MODULE_DIR, torch::kCPU);
+    module.eval;
+
+    // set compile spec
+    auto compile_spec = getCompileSpec();
+
+    // torch_aie compile
+    std::cout << "start to compile module" << std::endl;
+    auto torchAieModule = torch_aie::torchscript::compile(module, compile_spec);
+    std::cout << "compile success" << std::endl;
+
+    return torchAieModule;
 }
 
+void saveModule(torch::jit::Module torchAieModule)
+{
+    torchAieModule.save(TORCHAIE_MODULE_DIR);
+    std::cout << "torch_aie save done" << std::endl;
+}
+} //namespace
+
+int main(int argc, char* argv[])
+{
+    std::cout << "enter chatglm2_test" << std::endl;
+    if (argc != 2) {
+        std::cout << "[ERROR] please specify your device id" << std::endl;
+    }
+    int device_id = atoi(argv[1]);
+    std::cout << "you are using device" << device_id << std::endl;
+    torch_aie::set_device(device_id);
+    torch::jit::Module torchAieModule = compileModule();
+    saveModule(torchAieModule);
+    torch_aie::finalize();
+    return 0;
 }
