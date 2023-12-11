@@ -58,7 +58,7 @@ def main():
         traced_model = torch.jit.trace(model, example_kwarg_inputs=input_dict)
         traced_model_path = "./chatglm2_6b_batch_1_traced.pt"
         torch.jit.save(traced_model, traced_model_path)
-        print("===================== model trace success ==========================")
+        print("===================== model trace success ==========================") 
 
     # stage2: model compile
     if need_compile == "true":
