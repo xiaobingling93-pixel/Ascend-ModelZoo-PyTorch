@@ -26,8 +26,6 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--pretrained_model', default='./model/',
                         type=str, required=False, help='model checkpoint path')
-    parser.add_argument('--batch_size', default=1, type=int,
-                        required=False, help='batch size')
     parser.add_argument('--device', default=0, type=int,
                         required=False, help='npu device')
     parser.add_argument('--need_trace', default="true",
@@ -37,7 +35,6 @@ def main():
 
     args = parser.parse_args()
     device = args.device
-    batch_size = args.batch_size
     model_path = args.pretrained_model
     need_trace = args.need_trace
     need_compile = args.need_compile
@@ -59,14 +56,14 @@ def main():
             "past_key_values": past_key_values
         }
         traced_model = torch.jit.trace(model, example_kwarg_inputs=input_dict)
-        traced_model_path = "./chatglm2_6b_batch" + str(batch_size) + "_traced.pt"
+        traced_model_path = "./chatglm2_6b_batch_1_traced.pt"
         torch.jit.save(traced_model, traced_model_path)
         print("===================== model trace success ==========================")
 
     # stage2: model compile
     if need_compile == "true":
         ## load origin traced model
-        traced_model_path = "./chatglm2_6b_batch" + str(batch_size) + "_traced.pt"
+        traced_model_path = "./chatglm2_6b_batch_1_traced.pt"
         try:
             traced_model = torch.jit.load(traced_model_path)
         except Exception as e:
@@ -75,14 +72,14 @@ def main():
         ## set compile config
         inputs = []
         max_seqlen = 32768
-        input0_min_shape = (batch_size, 1)
-        input0_max_shape = (batch_size, max_seqlen)
-        input1_min_shape = (batch_size, 1)
-        input1_max_shape = (batch_size, max_seqlen)
-        input2_min_shape = (batch_size, 1)
-        input2_max_shape = (batch_size, max_seqlen)
-        input3_min_shape = (batch_size, 2, 0, batch_size, 2, 128)
-        input3_max_shape = (batch_size, 2, max_seqlen, batch_size, 2, 128)
+        input0_min_shape = (1, 1)
+        input0_max_shape = (1, max_seqlen)
+        input1_min_shape = (1, 1)
+        input1_max_shape = (1, max_seqlen)
+        input2_min_shape = (1, 1)
+        input2_max_shape = (1, max_seqlen)
+        input3_min_shape = (1, 2, 0, 1, 2, 128)
+        input3_max_shape = (1, 2, max_seqlen, 1, 2, 128)
 
         inputs.append(torch_aie.Input(min_shape = input0_min_shape, max_shape = input0_max_shape, dtype = torch.int64))
         inputs.append(torch_aie.Input(min_shape = input1_min_shape, max_shape = input1_max_shape, dtype = torch.int64))
@@ -100,7 +97,7 @@ def main():
         )
         print("===================== model compile success ==========================")
         ## save compiled result
-        aie_model_path = "./chatglm2_6b_batch" + str(batch_size) + "_compiled.ts"
+        aie_model_path = "./chatglm2_6b_batch_1_compiled.ts"
         compiled_module.save(aie_model_path)
         print("===================== save compiled model success ======================")
         

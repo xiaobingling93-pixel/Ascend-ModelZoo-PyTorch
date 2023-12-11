@@ -34,9 +34,7 @@ def signal_handler(signal, frame):
 
 def parse_arg():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--device", default="cpu", help="cpu/npu")
-    parser.add_argument("--batch_size", default=1, type=int,
-                        required=False, help='batch size')
+    parser.add_argument("--device", default="npu", help="cpu/npu")
     args = parser.parse_args()
     return args
 
@@ -50,7 +48,7 @@ def main():
     aie_model = None
     if device == "npu":
         torch_aie.set_device(0)
-        aie_model_path = "./chatglm2_6b_batch" + str(batch_size) + "_compiled.ts"
+        aie_model_path = "./chatglm2_6b_batch_1_compiled.ts"
         aie_model = torch.jit.load(aie_model_path)
         aie_model.eval()
     
