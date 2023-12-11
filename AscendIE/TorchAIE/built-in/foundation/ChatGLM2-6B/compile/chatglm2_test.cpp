@@ -75,15 +75,11 @@ torch::jit::Module compileModule()
     std::cout << "start to compile module" << std::endl;
     auto torchAieModule = torch_aie::torchscript::compile(module, compile_spec);
     std::cout << "compile success" << std::endl;
-
+    torchAieModule.save(TORCHAIE_MODULE_DIR);
+    std::cout << "torch_aie save done" << std::endl;
     return torchAieModule;
 }
 
-void saveModule(torch::jit::Module torchAieModule)
-{
-    torchAieModule.save(TORCHAIE_MODULE_DIR);
-    std::cout << "torch_aie save done" << std::endl;
-}
 } //namespace
 
 int main(int argc, char* argv[])
@@ -96,7 +92,6 @@ int main(int argc, char* argv[])
     std::cout << "you are using device" << device_id << std::endl;
     torch_aie::set_device(device_id);
     torch::jit::Module torchAieModule = compileModule();
-    saveModule(torchAieModule);
     torch_aie::finalize();
     return 0;
 }
