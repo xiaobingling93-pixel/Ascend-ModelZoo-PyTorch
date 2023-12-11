@@ -1230,6 +1230,7 @@ class ChatGLMForConditionalGeneration(ChatGLMPreTrainedModel):
                     past_key_values_input = torch.cat([past_key_values_input for i in range(28)], 0)
                 past_key_values_input_npu = past_key_values_input.to("npu:0")
                 lm_logits, past_key_values = aie_model.forward(input_ids_npu, position_ids_npu, attention_mask_npu, past_key_values_input_npu)
+                lm_logits = lm_logits.to("cpu")
                 lm_logits = torch.unsqueeze(lm_logits[:, -1, :], 1)
             
             outputs = CausalLMOutputWithPast(
@@ -1584,6 +1585,7 @@ class ChatGLMForConditionalGeneration(ChatGLMPreTrainedModel):
                 if past_key_values_input.shape[0] == 1:
                     past_key_values_input = torch.cat([past_key_values_input for i in range(28)], 0)
                 past_key_values_input_npu = past_key_values_input.to("npu:0")
+                lm_logits = lm_logits.to("cpu")
                 lm_logits, past_key_values = aie_model.forward(input_ids_npu, position_ids_npu, attention_mask_npu, past_key_values_input_npu)
                 lm_logits = torch.unsqueeze(lm_logits[:, -1, :], 1)
 

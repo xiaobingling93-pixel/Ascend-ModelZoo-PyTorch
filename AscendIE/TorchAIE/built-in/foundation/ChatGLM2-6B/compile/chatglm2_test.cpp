@@ -58,8 +58,13 @@ auto getCompileSpec() -> torch_aie::torchscript::CompileSpec
     std::string soc_version = "Ascend910B4";
     compileSpec.soc_version = soc_version;
     compileSpec.allow_tensor_replace_int = true;
-    compileSpec
+    compileSpec.precision_policy = torch_aie::PrecisionPolicy::PREF_FP32;
+    return std::move(compileSpec);
+}
 
+torch::jit::Module compileModule()
+{
+    
 }
 
 }
