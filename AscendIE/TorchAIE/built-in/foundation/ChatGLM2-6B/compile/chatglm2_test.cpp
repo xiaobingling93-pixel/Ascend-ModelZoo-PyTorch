@@ -37,10 +37,10 @@ auto getCompileSpec() -> torch_aie::torchscript::CompileSpec
     std::vector<int64_t> Shape1Max = {batch, MAX_SEQLEN};
     std::vector<int64_t> Shape2Min = {1, 1}; // position_id
     std::vector<int64_t> Shape2Max = {batch, MAX_SEQLEN};
-    std::vector<int64_t> Shape1Min = {1, 1}; // attention_mask
-    std::vector<int64_t> Shape1Max = {batch, MAX_SEQLEN};
-    std::vector<int64_t> Shape1Min = {1, 2, 0, 1, 2, 128}; // past_key_values
-    std::vector<int64_t> Shape1Max = {28, 2, MAX_SEQLEN, batch, 2, 128};
+    std::vector<int64_t> Shape3Min = {1, 1}; // attention_mask
+    std::vector<int64_t> Shape3Max = {batch, MAX_SEQLEN};
+    std::vector<int64_t> Shape4Min = {1, 2, 0, 1, 2, 128}; // past_key_values
+    std::vector<int64_t> Shape4Max = {28, 2, MAX_SEQLEN, batch, 2, 128};
 
     //dynamic shape
     std::vector<torch_aie::Input> inputs;
@@ -66,7 +66,7 @@ torch::jit::Module compileModule()
     std::cout << "start to load module" << std::endl;
     // Load Module
     torch::jit::script::Module module = torch::jit::load(MODULE_DIR, torch::kCPU);
-    module.eval;
+    module.eval();
 
     // set compile spec
     auto compile_spec = getCompileSpec();
