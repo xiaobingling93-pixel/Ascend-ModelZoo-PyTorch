@@ -44,7 +44,6 @@ def main():
     args = parse_arg()
     device = args.device
     print("device:", device)
-    batch_size = args.batch_size
     aie_model = None
     if device == "npu":
         torch_aie.set_device(0)
