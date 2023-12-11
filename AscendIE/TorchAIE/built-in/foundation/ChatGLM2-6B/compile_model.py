@@ -16,8 +16,6 @@
 import sys
 from transformers import AutoTokenizer, AutoModel
 import torch
-import torch_aie
-from torch_aie import _enums
 import numpy as np
 import argparse
 
@@ -41,7 +39,6 @@ def main():
     model = AutoModel.from_pretrained(model_path, trust_remote_code=True, torchscript=True).float()
     model.eval()
 
-    torch_aie.set_device(device)
     # stage1: model trace
     if need_trace == "true":
         print("===================== start to trace model ==========================")
@@ -60,46 +57,6 @@ def main():
         torch.jit.save(traced_model, traced_model_path)
         print("===================== model trace success ==========================") 
 
-    # stage2: model compile
-    if need_compile == "true":
-        ## load origin traced model
-        traced_model_path = "./chatglm2_6b_batch_1_traced.pt"
-        try:
-            traced_model = torch.jit.load(traced_model_path)
-        except Exception as e:
-            print("load model failed, please trace first.")
-
-        ## set compile config
-        inputs = []
-        max_seqlen = 32768
-        input0_min_shape = (1, 1)
-        input0_max_shape = (1, max_seqlen)
-        input1_min_shape = (1, 1)
-        input1_max_shape = (1, max_seqlen)
-        input2_min_shape = (1, 1)
-        input2_max_shape = (1, max_seqlen)
-        input3_min_shape = (1, 2, 0, 1, 2, 128)
-        input3_max_shape = (1, 2, max_seqlen, 1, 2, 128)
-
-        inputs.append(torch_aie.Input(min_shape = input0_min_shape, max_shape = input0_max_shape, dtype = torch.int64))
-        inputs.append(torch_aie.Input(min_shape = input1_min_shape, max_shape = input1_max_shape, dtype = torch.int64))
-        inputs.append(torch_aie.Input(min_shape = input2_min_shape, max_shape = input2_max_shape, dtype = torch.int64))
-        inputs.append(torch_aie.Input(min_shape = input3_min_shape, max_shape = input3_max_shape, dtype = torch.float32))
-
-        ## compile
-        print("===================== start to compile model ==========================")
-        compiled_module = torch_aie.compile(
-            traced_model,
-            inputs=inputs,
-            precision_policy=_enums.PrecisionPolicy.FP32,
-            allow_tensor_replace_int=True,
-            soc_version="Ascend910B4"
-        )
-        print("===================== model compile success ==========================")
-        ## save compiled result
-        aie_model_path = "./chatglm2_6b_batch_1_compiled.ts"
-        compiled_module.save(aie_model_path)
-        print("===================== save compiled model success ======================")
         
 
 if __name__ == '__main__':

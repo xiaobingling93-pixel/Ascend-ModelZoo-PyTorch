@@ -27,7 +27,7 @@
 static const int deviceId = 0;
 namespace {
 const std::string MODULE_DIR = "../chatglm2_6b_batch_1_traced.pt";
-const std::string TORCHAIE_MODULE_DIR = "../chatglm2_6b_batch_1_compiled.pt";
+const std::string TORCHAIE_MODULE_DIR = "../chatglm2_6b_batch_1_compiled.ts";
 const int MAX_SEQLEN = 32768;
 
 auto getCompileSpec() -> torch_aie::torchscript::CompileSpec
