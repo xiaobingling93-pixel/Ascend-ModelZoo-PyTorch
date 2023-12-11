@@ -61,7 +61,7 @@ auto getCompileSpec() -> torch_aie::torchscript::CompileSpec
     return std::move(compileSpec);
 }
 
-torch::jit::Module compileModule()
+torch::jit::Module compileAndSaveModule()
 {
     std::cout << "start to load module" << std::endl;
     // Load Module
@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
     int device_id = atoi(argv[1]);
     std::cout << "you are using device" << device_id << std::endl;
     torch_aie::set_device(device_id);
-    torch::jit::Module torchAieModule = compileModule();
+    torch::jit::Module torchAieModule = compileAndSaveModule();
     torch_aie::finalize();
     return 0;
 }
