@@ -995,7 +995,7 @@ class ChatGLMForConditionalGeneration(ChatGLMPreTrainedModel):
             lm_logits = self.transformer.output_layer(hidden_states)
             return lm_logits, transformer_outputs[1]
         else:
-            # npu
+            #  npu
             input_ids_npu = input_ids.to("npu:0")
             position_ids_npu = position_ids.to("npu:0")
             attention_mask_npu = attention_mask.to("npu:0")
