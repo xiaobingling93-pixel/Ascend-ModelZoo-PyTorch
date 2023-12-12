@@ -28,8 +28,6 @@ def main():
                         required=False, help='npu device')
     parser.add_argument('--need_trace', default="true",
                         required=False, help='If you have traced the model before then set false')
-    parser.add_argument('--need_compile', default="true",
-                        required=False, help='If you have compiled the model before then set false')
 
     args = parser.parse_args()
     device = args.device
