@@ -26,7 +26,9 @@
 
 static const int deviceId = 0;
 namespace {
+// 导入pt的路径
 const std::string MODULE_DIR = "../chatglm2_6b_batch_1_traced.pt";
+// 生成ts的路径
 const std::string TORCHAIE_MODULE_DIR = "../chatglm2_6b_batch_1_compiled.ts";
 const int MAX_SEQLEN = 32768;
 
@@ -75,6 +77,7 @@ torch::jit::Module compileAndSaveModule()
     std::cout << "start to compile module" << std::endl;
     auto torchAieModule = torch_aie::torchscript::compile(module, compile_spec);
     std::cout << "compile success" << std::endl;
+    // torch_aie save ts
     torchAieModule.save(TORCHAIE_MODULE_DIR);
     std::cout << "torch_aie save done" << std::endl;
     return torchAieModule;
