@@ -33,7 +33,6 @@ def main():
     device = args.device
     model_path = args.pretrained_model
     need_trace = args.need_trace
-    need_compile = args.need_compile
     model = AutoModel.from_pretrained(model_path, trust_remote_code=True, torchscript=True).float()
     model.eval()
 
