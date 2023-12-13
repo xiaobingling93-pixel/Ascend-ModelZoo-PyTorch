@@ -989,8 +989,7 @@ class ChatGLMForConditionalGeneration(ChatGLMPreTrainedModel):
             )
 
             hidden_states = transformer_outputs[0]
-            if return_last_logit:
-                hidden_states = hidden_states[-1:]
+            hidden_states = hidden_states[-1:]
             hidden_states = hidden_states.transpose(0, 1).contiguous()
             lm_logits = self.transformer.output_layer(hidden_states)
             return lm_logits, transformer_outputs[1]
