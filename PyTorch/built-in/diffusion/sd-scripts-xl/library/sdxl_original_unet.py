@@ -1,3 +1,4 @@
+# Copyright 2023 Huawei Technologies Co., Ltd
 # Diffusersのコードをベースとした sd_xl_baseのU-Net
 # state dictの形式をSDXLに合わせてある
 
@@ -30,6 +31,8 @@ import torch.utils.checkpoint
 from torch import nn
 from torch.nn import functional as F
 from einops import rearrange
+
+import torch_npu
 
 
 IN_CHANNELS: int = 4
@@ -408,6 +411,7 @@ class CrossAttention(nn.Module):
         self.to_out.append(nn.Linear(inner_dim, query_dim))
         # no dropout here
 
+        self.use_npu_flash_attention = False
         self.use_memory_efficient_attention_xformers = False
         self.use_memory_efficient_attention_mem_eff = False
         self.use_sdpa = False
@@ -416,6 +420,9 @@ class CrossAttention(nn.Module):
         self.use_memory_efficient_attention_xformers = xformers
         self.use_memory_efficient_attention_mem_eff = mem_eff
 
+    def set_use_npu_flash_attention(self, npu_fa):
+        self.use_npu_flash_attention = npu_fa
+
     def set_use_sdpa(self, sdpa):
         self.use_sdpa = sdpa
 
@@ -423,19 +430,21 @@ class CrossAttention(nn.Module):
         batch_size, seq_len, dim = tensor.shape
         head_size = self.heads
         tensor = tensor.reshape(batch_size, seq_len, head_size, dim // head_size)
-        tensor = tensor.permute(0, 2, 1, 3).reshape(batch_size * head_size, seq_len, dim // head_size)
+        tensor = tensor.permute(0, 2, 1, 3).reshape(batch_size * head_size, seq_len, dim // head_size).contiguous()
         return tensor
 
     def reshape_batch_dim_to_heads(self, tensor):
         batch_size, seq_len, dim = tensor.shape
         head_size = self.heads
         tensor = tensor.reshape(batch_size // head_size, head_size, seq_len, dim)
-        tensor = tensor.permute(0, 2, 1, 3).reshape(batch_size // head_size, seq_len, dim * head_size)
+        tensor = tensor.permute(0, 2, 1, 3).reshape(batch_size // head_size, seq_len, dim * head_size).contiguous()
         return tensor
 
     def forward(self, hidden_states, context=None, mask=None):
         if self.use_memory_efficient_attention_xformers:
             return self.forward_memory_efficient_xformers(hidden_states, context, mask)
+        if self.use_npu_flash_attention:
+            return self.forward_npu_flash_attention(hidden_states, context, mask)
         if self.use_memory_efficient_attention_mem_eff:
             return self.forward_memory_efficient_mem_eff(hidden_states, context, mask)
         if self.use_sdpa:
@@ -481,7 +490,6 @@ class CrossAttention(nn.Module):
         hidden_states = self.reshape_batch_dim_to_heads(hidden_states)
         return hidden_states
 
-    # TODO support Hypernetworks
     def forward_memory_efficient_xformers(self, x, context=None, mask=None):
         import xformers.ops
 
@@ -504,6 +512,52 @@ class CrossAttention(nn.Module):
         out = rearrange(out, "b n h d -> b n (h d)", h=h)
 
         out = self.to_out[0](out)
+        return out
+
+    # TODO support Hypernetworks
+    def forward_npu_flash_attention(self, hidden_states, context=None, mask=None):
+        q_in = self.to_q(hidden_states)
+        context = context if context is not None else hidden_states
+        context_org = context
+        context = context.to(hidden_states.dtype)
+        k_in = self.to_k(context)
+        v_in = self.to_v(context)
+
+        if q_in.shape[1] % 256 == 0 and k_in.shape[1] % 256 == 0 and q_in.shape[1] > 2000:
+            h = self.heads
+            q, k, v = map(lambda t: rearrange(t, "b n (h d) -> b h n d", h=h), (q_in, k_in, v_in))
+            del q_in, k_in, v_in
+
+            q = q.contiguous()
+            k = k.contiguous()
+            v = v.contiguous()
+
+            hidden_states = torch_npu.npu_fusion_attention(
+                q, k, v, h, input_layout="BNSD",
+                pse=None,
+                atten_mask=None,
+                scale=self.scale,
+                pre_tockens=65536,
+                next_tockens=65536,
+                keep_prob=1.,
+                sync=False,
+                inner_precise=0,
+            )[0]
+
+            del q, k, v
+
+            hidden_states = rearrange(hidden_states, "b h n d -> b n (h d)", h=h)
+        else:
+            key = self.to_k(context_org)
+            value = self.to_v(context_org)
+
+            query = self.reshape_heads_to_batch_dim(q_in)
+            key = self.reshape_heads_to_batch_dim(key)
+            value = self.reshape_heads_to_batch_dim(value)
+
+            hidden_states = self._attention(query, key, value)
+
+        out = self.to_out[0](hidden_states)
         return out
 
     def forward_memory_efficient_mem_eff(self, x, context=None, mask=None):
@@ -632,6 +686,10 @@ class BasicTransformerBlock(nn.Module):
         self.attn1.set_use_memory_efficient_attention(xformers, mem_eff)
         self.attn2.set_use_memory_efficient_attention(xformers, mem_eff)
 
+    def set_use_npu_flash_attention(self, npu_fa: bool):
+        self.attn1.set_use_npu_flash_attention(npu_fa)
+        self.attn2.set_use_npu_flash_attention(npu_fa)
+
     def set_use_sdpa(self, sdpa: bool):
         self.attn1.set_use_sdpa(sdpa)
         self.attn2.set_use_sdpa(sdpa)
@@ -721,6 +779,10 @@ class Transformer2DModel(nn.Module):
         for transformer in self.transformer_blocks:
             transformer.set_use_memory_efficient_attention(xformers, mem_eff)
 
+    def set_use_npu_flash_attention(self, npu_fa):
+        for transformer in self.transformer_blocks:
+            transformer.set_use_npu_flash_attention(npu_fa)
+
     def set_use_sdpa(self, sdpa):
         for transformer in self.transformer_blocks:
             transformer.set_use_sdpa(sdpa)
@@ -734,10 +796,10 @@ class Transformer2DModel(nn.Module):
         if not self.use_linear_projection:
             hidden_states = self.proj_in(hidden_states)
             inner_dim = hidden_states.shape[1]
-            hidden_states = hidden_states.permute(0, 2, 3, 1).reshape(batch, height * weight, inner_dim)
+            hidden_states = hidden_states.permute(0, 2, 3, 1).reshape(batch, height * weight, inner_dim).contiguous()
         else:
             inner_dim = hidden_states.shape[1]
-            hidden_states = hidden_states.permute(0, 2, 3, 1).reshape(batch, height * weight, inner_dim)
+            hidden_states = hidden_states.permute(0, 2, 3, 1).reshape(batch, height * weight, inner_dim).contiguous()
             hidden_states = self.proj_in(hidden_states)
 
         # 2. Blocks
@@ -1048,6 +1110,14 @@ class SdxlUNet2DConditionModel(nn.Module):
                 if hasattr(module, "set_use_memory_efficient_attention"):
                     # print(module.__class__.__name__)
                     module.set_use_memory_efficient_attention(xformers, mem_eff)
+
+    def set_use_npu_flash_attention(self, npu_fa: bool) -> None:
+        blocks = self.input_blocks + [self.middle_block] + self.output_blocks
+        for block in blocks:
+            for module in block:
+                if hasattr(module, "set_use_npu_flash_attention"):
+                    # print(module.__class__.__name__)
+                    module.set_use_npu_flash_attention(npu_fa)
 
     def set_use_sdpa(self, sdpa: bool) -> None:
         blocks = self.input_blocks + [self.middle_block] + self.output_blocks
