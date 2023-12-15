@@ -20,6 +20,7 @@ import time
 from typing import List
 from dataclasses import dataclass
 
+
 @dataclass
 class RuntimeIOInfo:
     input_shapes: List[tuple]
@@ -27,46 +28,55 @@ class RuntimeIOInfo:
     output_shapes: List[tuple]
     output_dtypes: List[type]
 
+
 class BackgroundRuntime:
-    def __init__(
-        self,
-        device_id: int,
-        model_path: str,
-        io_info: RuntimeIOInfo
-    ):
+    def __init__(self, device_id: int, model_path: str, io_info: RuntimeIOInfo):
         # Create a pipe for process synchronization
         self.sync_pipe, sync_pipe_peer = mp.Pipe(duplex=True)
 
         # Create shared buffers
-        input_spaces = self.create_shared_buffers(io_info.input_shapes,
-                                                  io_info.input_dtypes)
-        output_spaces = self.create_shared_buffers(io_info.output_shapes,
-                                                   io_info.output_dtypes)
+        input_spaces = self.create_shared_buffers(
+            io_info.input_shapes, io_info.input_dtypes
+        )
+        output_spaces = self.create_shared_buffers(
+            io_info.output_shapes, io_info.output_dtypes
+        )
 
         # Build numpy arrays on the shared buffers
         self.input_arrays = [
-            np.frombuffer(b, dtype=t).reshape(s) for (b, s, t) in zip(
-                input_spaces, io_info.input_shapes, io_info.input_dtypes)
+            np.frombuffer(b, dtype=t).reshape(s)
+            for (b, s, t) in zip(
+                input_spaces, io_info.input_shapes, io_info.input_dtypes
+            )
         ]
         self.output_arrays = [
-            np.frombuffer(b, dtype=t).reshape(s) for (b, s, t) in zip(
-                output_spaces, io_info.output_shapes, io_info.output_dtypes)
+            np.frombuffer(b, dtype=t).reshape(s)
+            for (b, s, t) in zip(
+                output_spaces, io_info.output_shapes, io_info.output_dtypes
+            )
         ]
 
-        mp.set_start_method('spawn', force=True)
-        self.p = mp.Process(target=self.run_infer,
-                            args=[
-                                sync_pipe_peer, input_spaces, output_spaces,
-                                io_info, device_id, model_path
-                            ])
+        mp.set_start_method("spawn", force=True)
+        self.p = mp.Process(
+            target=self.run_infer,
+            args=[
+                sync_pipe_peer,
+                input_spaces,
+                output_spaces,
+                io_info,
+                device_id,
+                model_path,
+            ],
+        )
         self.p.start()
 
         # Wait until the sub process is ready
         self.wait()
 
     @staticmethod
-    def create_shared_buffers(shapes: List[tuple],
-                              dtypes: List[type]) -> List[mp.RawArray]:
+    def create_shared_buffers(
+        shapes: List[tuple], dtypes: List[type]
+    ) -> List[mp.RawArray]:
         buffers = []
         for shape, dtype in zip(shapes, dtypes):
             size = 1
@@ -80,11 +90,11 @@ class BackgroundRuntime:
 
     def infer_asyn(self, feeds: List[np.ndarray]) -> None:
         for i, _ in enumerate(self.input_arrays):
-            print(f'bg input shape: {self.input_arrays[i].shape}')
-            print(f'feeds shape: {feeds[i].shape}')
+            print(f"bg input shape: {self.input_arrays[i].shape}")
+            print(f"feeds shape: {feeds[i].shape}")
             self.input_arrays[i][:] = feeds[i][:]
 
-        self.sync_pipe.send('')
+        self.sync_pipe.send("")
 
     def wait(self) -> None:
         self.sync_pipe.recv()
@@ -102,20 +112,19 @@ class BackgroundRuntime:
 
     def stop(self):
         # Stop the sub process
-        self.sync_pipe.send('STOP')
+        self.sync_pipe.send("STOP")
 
     @staticmethod
     def run_infer(
-            sync_pipe: mp.connection.Connection,
-            input_spaces: List[np.ndarray],
-            output_spaces: List[np.ndarray],
-            io_info: RuntimeIOInfo,
-            device_id: int,
-            model_path: str,
+        sync_pipe: mp.connection.Connection,
+        input_spaces: List[np.ndarray],
+        output_spaces: List[np.ndarray],
+        io_info: RuntimeIOInfo,
+        device_id: int,
+        model_path: str,
     ) -> None:
         # The sub process function
 
-        # Create a runtime
         # Create a runtime
         torch_aie.set_device(device_id)
         print(f"[info] bg device id: {device_id}")
@@ -125,35 +134,43 @@ class BackgroundRuntime:
 
         # Build numpy arrays on the shared buffers
         input_arrays = [
-            np.frombuffer(b, dtype=t).reshape(s) for (b, s, t) in zip(
-                input_spaces, io_info.input_shapes, io_info.input_dtypes)
+            np.frombuffer(b, dtype=t).reshape(s)
+            for (b, s, t) in zip(
+                input_spaces, io_info.input_shapes, io_info.input_dtypes
+            )
         ]
 
         output_arrays = [
-            np.frombuffer(b, dtype=t).reshape(s) for (b, s, t) in zip(
-                output_spaces, io_info.output_shapes, io_info.output_dtypes)
+            np.frombuffer(b, dtype=t).reshape(s)
+            for (b, s, t) in zip(
+                output_spaces, io_info.output_shapes, io_info.output_dtypes
+            )
         ]
 
         # Tell the main function that we are ready
-        sync_pipe.send('')
+        sync_pipe.send("")
 
         infer_num = 0
         preprocess_time = 0
         infer_time = 0
 
         # Keep looping until recived a 'STOP'
-        while sync_pipe.recv() != 'STOP':
+        while sync_pipe.recv() != "STOP":
             start = time.time()
             sample, timestep, encoder_hidden_states = [
                 torch.Tensor(input_array) for input_array in input_arrays
             ]
             sample_npu = sample.to(torch.float32).to(f"npu:{device_id}")
             timestep_npu = timestep.to(torch.int64).to(f"npu:{device_id}")
-            encoder_hidden_states_npu = encoder_hidden_states.to(torch.float32).to(f"npu:{device_id}")
+            encoder_hidden_states_npu = encoder_hidden_states.to(torch.float32).to(
+                f"npu:{device_id}"
+            )
             preprocess_time += time.time() - start
 
             start2 = time.time()
-            output_npu = model(sample_npu, timestep_npu, encoder_hidden_states_npu).to("cpu")
+            output_npu = model(sample_npu, timestep_npu, encoder_hidden_states_npu).to(
+                "cpu"
+            )
             infer_time += time.time() - start2
 
             for i, _ in enumerate(output_arrays):
@@ -161,16 +178,19 @@ class BackgroundRuntime:
                 output_arrays[i][:] = output[i][:]
 
             infer_num += 1
-            sync_pipe.send('')
+            sync_pipe.send("")
 
-        infer_num/=50
-        print(f""
-              f"bg preprocess_time time: {preprocess_time / infer_num:.3f}s\n"
-              f"bg infer time: {infer_time / infer_num:.3f}s\n"
-              )
+        infer_num /= 50
+        print(
+            f""
+            f"bg preprocess_time time: {preprocess_time / infer_num:.3f}s\n"
+            f"bg infer time: {infer_time / infer_num:.3f}s\n"
+        )
 
     @classmethod
-    def clone(cls, device_id: int, model_path: str, runtime_info: RuntimeIOInfo) -> 'BackgroundRuntime':
+    def clone(
+        cls, device_id: int, model_path: str, runtime_info: RuntimeIOInfo
+    ) -> "BackgroundRuntime":
         # Get shapes, datatypes from an existed engine,
         # then use them to create a BackgroundRuntime
         return cls(device_id, model_path, runtime_info)

@@ -20,14 +20,19 @@ import diffusers
 def main():
     transformers_path = transformers.__path__
     transformers_version = transformers.__version__
-    
-    assert transformers_version is not '4.26.1', "expectation transformers==4.26.1"        
-    os.system(f'patch -p0 {transformers_path[0]}/models/clip/modeling_clip.py clip.patch')
-    
+
+    assert transformers_version is not "4.26.1", "expectation transformers==4.26.1"
+    os.system(
+        f"patch -p0 {transformers_path[0]}/models/clip/modeling_clip.py clip.patch"
+    )
+
     diffusers_path = diffusers.__path__
     diffusers_version = diffusers.__version__
-    assert diffusers_version is not '0.14.0', "expectation diffusers==0.14.0"        
-    os.system(f'patch -p0 {diffusers_path[0]}/models/cross_attention.py cross_attention.patch')
-    
-if __name__ == '__main__':
+    assert diffusers_version is not "0.14.0", "expectation diffusers==0.14.0"
+    os.system(
+        f"patch -p0 {diffusers_path[0]}/models/cross_attention.py cross_attention.patch"
+    )
+
+
+if __name__ == "__main__":
     main()
