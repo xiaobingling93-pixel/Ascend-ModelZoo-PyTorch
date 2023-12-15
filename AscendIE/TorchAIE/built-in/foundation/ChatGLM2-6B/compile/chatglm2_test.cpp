@@ -30,7 +30,7 @@ namespace {
 const std::string MODULE_DIR = "../chatglm2_6b_batch_1_traced.pt";
 // 生成ts的路径
 const std::string TORCHAIE_MODULE_DIR = "../chatglm2_6b_batch_1_compiled.ts";
-const int MAX_SEQLEN = 32768;
+const int MAX_SEQLEN = 10000;
 
 auto getCompileSpec() -> torch_aie::torchscript::CompileSpec
 {
