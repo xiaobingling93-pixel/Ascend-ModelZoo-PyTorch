@@ -369,13 +369,18 @@ class Attention(nn.Module):
 
     def get_attention_scores(self, query, key, attention_mask=None):
         dtype = query.dtype
+        if self.upcast_attention:
+            query = query.float()
+            key = key.float()
 
-        if attention_mask is None:
-            attention_scores = torch.mul(self.scale, torch.bmm(query, key.transpose(-1, -2)))
-        else:
-            beta = 1
-            attention_scores = torch.add(torch.mul(beta, attention_mask),
-                                        torch.mul(self.scale, torch.bmm(query, key.transpose(-1, -2))))
+        with torch.cuda.amp.autocast(enabled=False):
+            if attention_mask is None:
+                attention_scores = torch.mul(self.scale, torch.bmm(query, key.transpose(-1, -2)))
+            else:
+                beta = 1
+                attention_scores = torch.add(torch.mul(beta, attention_mask),
+                                            torch.mul(self.scale, torch.bmm(query, key.transpose(-1, -2))))
+
 
         attention_probs = attention_scores.softmax(dim=-1)
         del attention_scores

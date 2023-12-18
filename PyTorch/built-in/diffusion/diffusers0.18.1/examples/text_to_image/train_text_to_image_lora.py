@@ -18,6 +18,7 @@ import argparse
 import logging
 import math
 import os
+import time
 import random
 import shutil
 from pathlib import Path
@@ -25,6 +26,7 @@ from pathlib import Path
 import datasets
 import numpy as np
 import torch
+import torch_npu
 import torch.nn.functional as F
 import torch.utils.checkpoint
 import transformers
@@ -45,7 +47,7 @@ from diffusers.models.attention_processor import LoRAAttnProcessor
 from diffusers.optimization import get_scheduler
 from diffusers.utils import check_min_version, is_wandb_available
 from diffusers.utils.import_utils import is_xformers_available
-
+from torch_npu.contrib import transfer_to_npu
 
 # Will error if the minimal version of diffusers is not installed. Remove at your own risks.
 check_min_version("0.18.0")
@@ -728,7 +730,9 @@ def main():
     for epoch in range(first_epoch, args.num_train_epochs):
         unet.train()
         train_loss = 0.0
+        step_end_time = time.time()
         for step, batch in enumerate(train_dataloader):
+            step_data_time = time.time() - step_end_time
             # Skip steps until we reach the resumed step
             if args.resume_from_checkpoint and epoch == first_epoch and step < resume_step:
                 if step % args.gradient_accumulation_steps == 0:
@@ -844,6 +848,14 @@ def main():
             if global_step >= args.max_train_steps:
                 break
 
+            step_total_time = time.time() - step_end_time
+
+            logger.info(f"step_train_time: {step_total_time}")
+            logger.info(f"step_data_time: {step_data_time}")
+            logger.info(f"FPS: {args.train_batch_size * accelerator.num_processes /(step_total_time-step_data_time)}")
+
+            step_end_time = time.time()
+
         if accelerator.is_main_process:
             if args.validation_prompt is not None and epoch % args.validation_epochs == 0:
                 logger.info(
@@ -861,7 +873,7 @@ def main():
                 pipeline.set_progress_bar_config(disable=True)
 
                 # run inference
-                generator = torch.Generator(device=accelerator.device)
+                generator = torch.Generator() # 在CPU侧设置Genterator，控制随机性
                 if args.seed is not None:
                     generator = generator.manual_seed(args.seed)
                 images = []
@@ -908,39 +920,40 @@ def main():
                 ignore_patterns=["step_*", "epoch_*"],
             )
 
-    # Final inference
-    # Load previous pipeline
-    pipeline = DiffusionPipeline.from_pretrained(
-        args.pretrained_model_name_or_path, revision=args.revision, torch_dtype=weight_dtype
-    )
-    pipeline = pipeline.to(accelerator.device)
+    if args.validation_prompt is not None:
+        # Final inference
+        # Load previous pipeline
+        pipeline = DiffusionPipeline.from_pretrained(
+            args.pretrained_model_name_or_path, revision=args.revision, torch_dtype=weight_dtype
+        )
+        pipeline = pipeline.to(accelerator.device)
 
-    # load attention processors
-    pipeline.unet.load_attn_procs(args.output_dir)
+        # load attention processors
+        pipeline.unet.load_attn_procs(args.output_dir)
 
-    # run inference
-    generator = torch.Generator(device=accelerator.device)
-    if args.seed is not None:
-        generator = generator.manual_seed(args.seed)
-    images = []
-    for _ in range(args.num_validation_images):
-        images.append(pipeline(args.validation_prompt, num_inference_steps=30, generator=generator).images[0])
+        # run inference
+        generator = torch.Generator() # 在CPU侧设置Genterator，控制随机性
+        if args.seed is not None:
+            generator = generator.manual_seed(args.seed)
+        images = []
+        for _ in range(args.num_validation_images):
+            images.append(pipeline(args.validation_prompt, num_inference_steps=30, generator=generator).images[0])
 
-    if accelerator.is_main_process:
-        for tracker in accelerator.trackers:
-            if len(images) != 0:
-                if tracker.name == "tensorboard":
-                    np_images = np.stack([np.asarray(img) for img in images])
-                    tracker.writer.add_images("test", np_images, epoch, dataformats="NHWC")
-                if tracker.name == "wandb":
-                    tracker.log(
-                        {
-                            "test": [
-                                wandb.Image(image, caption=f"{i}: {args.validation_prompt}")
-                                for i, image in enumerate(images)
-                            ]
-                        }
-                    )
+        if accelerator.is_main_process:
+            for tracker in accelerator.trackers:
+                if len(images) != 0:
+                    if tracker.name == "tensorboard":
+                        np_images = np.stack([np.asarray(img) for img in images])
+                        tracker.writer.add_images("test", np_images, epoch, dataformats="NHWC")
+                    if tracker.name == "wandb":
+                        tracker.log(
+                            {
+                                "test": [
+                                    wandb.Image(image, caption=f"{i}: {args.validation_prompt}")
+                                    for i, image in enumerate(images)
+                                ]
+                            }
+                        )
 
     accelerator.end_training()
 

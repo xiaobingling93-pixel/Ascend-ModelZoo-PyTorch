@@ -136,6 +136,12 @@
      ```shell
      bash test/train_full_1p_text_to_image.sh  # 单卡精度
      ```
+    - 单机单卡lora训练
+
+     ```shell
+     bash test/train_full_1p_text_to_image_sd2-1_lora_fp16.sh  # 单卡精度
+     bash test/train_full_1p_text_to_image_sd2-1_lora_fp16.sh --max_train_steps 200 # 单卡性能
+     ```
      
    - 单机8卡训练
    
@@ -155,35 +161,7 @@
      ```
      bash test/pretrain_full_8p_text_to_image_sd2-1_fp16_fa.sh # 8卡精度，SD2.1，fp16+FA
      ```
-     
-   - 注意：跑fp16不带FA时，由于attention模块中bmm算子走fp16会有溢出，需修改以下代码，使bmm算子走fp32计算：（适配FA后不走bmm算子，因此不会溢出）
-   
-     将src/diffusers/models/attention_processor.py中get_attention_scores方法里的
-   
-     ```
-     if attention_mask is None:
-         attention_scores = torch.mul(self.scale, torch.bmm(query, key.transpose(-1, -2)))
-     else:
-         beta = 1
-         attention_scores = torch.add(torch.mul(beta, attention_mask),
-                                     torch.mul(self.scale, torch.bmm(query, key.transpose(-1, -2))))
-     ```
-   
-     修改为：
-   
-     ```
-     if self.upcast_attention:
-         query = query.float()
-         key = key.float()
-     
-     with torch.cuda.amp.autocast(enabled=False):
-         if attention_mask is None:
-             attention_scores = torch.mul(self.scale, torch.bmm(query, key.transpose(-1, -2)))
-         else:
-             beta = 1
-             attention_scores = torch.add(torch.mul(beta, attention_mask),
-                                         torch.mul(self.scale, torch.bmm(query, key.transpose(-1, -2))))
-     ```
+
    
    
    模型训练python训练脚本参数说明如下。
