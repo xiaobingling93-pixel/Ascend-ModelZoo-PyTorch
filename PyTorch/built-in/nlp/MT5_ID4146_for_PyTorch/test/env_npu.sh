@@ -45,6 +45,8 @@ export DYNAMIC_OP="ADD#MUL"
 export HCCL_WHITELIST_DISABLE=1
 # HCCL默认超时时间120s较少，当前算子编译时间过长，设置为3600
 export HCCL_CONNECT_TIMEOUT=3600
+# HCCL同步等待时间，设置为5400s
+export HCCL_EXEC_TIMEOUT=5400
 
 ulimit -SHn 512000
 
