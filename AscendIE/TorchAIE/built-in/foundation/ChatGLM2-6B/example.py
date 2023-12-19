@@ -34,7 +34,7 @@ def signal_handler(signal, frame):
 
 def parse_arg():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--device", default="npu", help="cpu/npu")
+    parser.add_argument("--device", default=0, type=int, help="npu device")
     args = parser.parse_args()
     return args
 
@@ -44,12 +44,10 @@ def main():
     args = parse_arg()
     device = args.device
     print("device:", device)
-    aie_model = None
-    if device == "npu":
-        torch_aie.set_device(0)
-        aie_model_path = "./chatglm2_6b_batch_1_compiled.ts"
-        aie_model = torch.jit.load(aie_model_path)
-        aie_model.eval()
+    torch_aie.set_device(device)
+    aie_model_path = "./chatglm2_6b_batch_1_compiled.ts"
+    aie_model = torch.jit.load(aie_model_path)
+    aie_model.eval()
     
     print("欢迎使用 ChatGLM2-6B 模型，输入内容即可进行对话，clear 清空对话历史，stop 终止程序")
     while True:
