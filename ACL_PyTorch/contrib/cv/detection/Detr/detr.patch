@@ -1,16 +1,3 @@
-diff --git a/README.md b/README.md
-index cd8ac02..b749204 100644
---- a/README.md
-+++ b/README.md
-@@ -20,7 +20,7 @@ definitions with standard training loops.
- Additionnally, we provide a Detectron2 wrapper in the d2/ folder. See the readme there for more information.
- 
- For details see [End-to-End Object Detection with Transformers](https://ai.facebook.com/research/publications/end-to-end-object-detection-with-transformers) by Nicolas Carion, Francisco Massa, Gabriel Synnaeve, Nicolas Usunier, Alexander Kirillov, and Sergey Zagoruyko.
--
-
- # Model Zoo
- We provide baseline DETR and DETR-DC5 models, and plan to include more in future.
- AP is computed on COCO 2017 val5k, and inference time is over the first 100 val5k COCO images,
 diff --git a/d2/converter.py b/d2/converter.py
 index 6fa5ff4..42882ce 100644
 --- a/d2/converter.py

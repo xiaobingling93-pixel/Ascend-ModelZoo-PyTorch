@@ -162,7 +162,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <td>72.15%</td>
         <td>90.4%</td>
     <td></td>
-    <td>8933.6(bs16)</td>
+    <td>8929(bs32)</td>
     <td>bs x 3 x 224 x 224</td>
     </tr>
     <tr>
