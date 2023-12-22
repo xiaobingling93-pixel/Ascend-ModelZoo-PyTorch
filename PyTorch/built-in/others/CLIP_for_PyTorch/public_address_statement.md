@@ -2884,3 +2884,11 @@
 | 开发引入 | / |  CLIP_for_PyTorch/transformers/tests/utils/test_utils_check_copies.py	|  https://arxiv.org/abs/1909.119  | 模型相关说明 |
 | 开发引入 | / |  CLIP_for_PyTorch/transformers/tests/utils/test_utils_check_copies.py	|  https://huggingface.co/transformers/master/model_doc/albert.html  | 模型相关说明 |
 | 开发引入 | / |  CLIP_for_PyTorch/transformers/tests/vit_mae/test_modeling_vit_mae.py	|  https://discuss.pytorch.org/t/random-seed-that-spans-across-devices/197  | 模型相关说明 |
+| 开发引入 | / |CLIP_for_PyTorch/transformers/examples/flax/vision/requirements.txt | https://download.pytorch.org/whl/torch_stable.html | 相关依赖 |
+| 开发引入 | / |CLIP_for_PyTorch/transformers/examples/research_projects/jax-projects/big_bird/requirements.txt | https://github.com/huggingface/transformers@master | 相关依赖 |
+| 开发引入 | / |CLIP_for_PyTorch/transformers/examples/research_projects/jax-projects/hybrid_clip/requirements.txt | https://download.pytorch.org/whl/torch_stable.html | 相关依赖 |
+| 开发引入 | / |CLIP_for_PyTorch/transformers/examples/research_projects/lxmert/requirements.txt | https://github.com/huggingface/transformers.git | 相关依赖 |
+| 开发引入 | / |CLIP_for_PyTorch/transformers/examples/research_projects/movement-pruning/requirements.txt | https://github.com/huggingface/transformers.git@352d5472b0c1dec0f420d606d16747d851b4bda8#egg=transformers | 相关依赖 |
+| 开发引入 | / |CLIP_for_PyTorch/transformers/examples/research_projects/visual_bert/requirements.txt | https://github.com/huggingface/transformers.git | 相关依赖 |
+| 开发引入 | / |CLIP_for_PyTorch/transformers/tests/sagemaker/scripts/pytorch/requirements.txt | https://github.com/huggingface/transformers.git@master | 相关依赖 |
+| 开发引入 | / |CLIP_for_PyTorch/transformers/tests/sagemaker/scripts/tensorflow/requirements.txt | https://github.com/huggingface/transformers.git@master | 相关依赖 |

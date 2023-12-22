@@ -151,3 +151,7 @@
 | 开源代码引入 | https://github.com/xingyizhou/CenterNet2/blob/68c0a468254b013e1d08309cd7a506756120ca62/detectron2/layers/csrc/deformable/deform_conv_cuda_kernel.cu | centernet2/detectron2/layers/csrc/deformable/deform_conv_cuda_kernel.cu | https://arxiv.org/abs/1703.06211 | 论文地址 |
 | 开源代码引入 | https://github.com/xingyizhou/CenterNet2/blob/68c0a468254b013e1d08309cd7a506756120ca62/tests/modeling/test_matcher.py | centernet2/tests/modeling/test_matcher.py | https://github.com/pytorch/pytorch/issues/38964 | 相关说明 |
 | 开源代码引入 | https://github.com/xingyizhou/CenterNet2/blob/68c0a468254b013e1d08309cd7a506756120ca62/detectron2/utils/visualizer.py | centernet2/detectron2/utils/visualizer.py | https://github.com/matplotlib/matplotlib/issues/15363 | 相关说明 |
+| 开发引入 | / | centernet2/docs/requirements.txt | https://github.com/sphinx-doc/sphinx/commit/7acd3ada3f38076af7b2b5c9f3b60bb9c2587a3d | 相关依赖 |
+| 开发引入 | / | centernet2/docs/requirements.txt | https://download.pytorch.org/whl/cpu/torch-1.7.0%2Bcpu-cp37-cp37m-linux_x86_64.whl | 相关依赖 |
+| 开发引入 | / | centernet2/docs/requirements.txt | https://download.pytorch.org/whl/cpu/torchvision-0.8.1%2Bcpu-cp37-cp37m-linux_x86_64.whl | 相关依赖 |
+| 开发引入 | / | centernet2/docs/requirements.txt | https://pytorch.org/tutorials/advanced/cpp_frontend.html | 相关依赖 |

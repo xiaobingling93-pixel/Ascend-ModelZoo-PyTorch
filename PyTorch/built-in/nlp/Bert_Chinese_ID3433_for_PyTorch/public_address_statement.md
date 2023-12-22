@@ -2812,3 +2812,11 @@
 | 开源代码引入 | https://github.com/huggingface/transformers/blob/master/examples/flax/language-modeling/run_mlm_flax.py | Bert_Chinese_ID3433_for_PyTorch/run_mlm.py | https://huggingface.co/models?filter=fill-mask | 模型相关说明 |
 | 开源代码引入 | https://github.com/huggingface/transformers/blob/master/examples/flax/speech-recognition/README.md | Bert_Chinese_ID3433_for_PyTorch/run_mlm.py | https://huggingface.co/datasets/ | 模型相关说明 |
 | 开源代码引入 | https://github.com/huggingface/transformers/blob/master/examples/flax/image-captioning/README.md | Bert_Chinese_ID3433_for_PyTorch/run_mlm.py | https://huggingface.co/docs/datasets/loading_datasets.html | 模型相关说明 |
+| 开发引入 | / |Bert_Chinese_ID3433_for_PyTorch/transformers/examples/flax/vision/requirements.txt | https://download.pytorch.org/whl/torch_stable.html | 相关依赖 |
+| 开发引入 | / |Bert_Chinese_ID3433_for_PyTorch/transformers/examples/research_projects/jax-projects/big_bird/requirements.txt | https://github.com/huggingface/transformers@master | 相关依赖 |
+| 开发引入 | / |Bert_Chinese_ID3433_for_PyTorch/transformers/examples/research_projects/jax-projects/hybrid_clip/requirements.txt | https://download.pytorch.org/whl/torch_stable.html | 相关依赖 |
+| 开发引入 | / |Bert_Chinese_ID3433_for_PyTorch/transformers/examples/research_projects/lxmert/requirements.txt | https://github.com/huggingface/transformers.git | 相关依赖 |
+| 开发引入 | / |Bert_Chinese_ID3433_for_PyTorch/transformers/examples/research_projects/movement-pruning/requirements.txt | https://github.com/huggingface/transformers.git@352d5472b0c1dec0f420d606d16747d851b4bda8#egg=transformers | 相关依赖 |
+| 开发引入 | / |Bert_Chinese_ID3433_for_PyTorch/transformers/examples/research_projects/visual_bert/requirements.txt | https://github.com/huggingface/transformers.git | 相关依赖 |
+| 开发引入 | / |Bert_Chinese_ID3433_for_PyTorch/transformers/tests/sagemaker/scripts/pytorch/requirements.txt | https://github.com/huggingface/transformers.git@master | 相关依赖 |
+| 开发引入 | / |Bert_Chinese_ID3433_for_PyTorch/transformers/tests/sagemaker/scripts/tensorflow/requirements.txt | https://github.com/huggingface/transformers.git@master | 相关依赖 |

@@ -4,3 +4,9 @@
 | 开发引入 | / | SlowFast_ID0646_for_PyTorch/detectron2/docs/requirements.txt | git://github.com/facebookresearch/fvcore.git | 相关依赖 |
 | 开发引入 | / | SlowFast_ID0646_for_PyTorch/detectron2/docs/requirements.txt | https://download.pytorch.org/whl/cpu/torch-1.7.0%2Bcpu-cp37-cp37m-linux_x86_64.whl | 相关依赖 |
 | 开发引入 | / | SlowFast_ID0646_for_PyTorch/detectron2/docs/requirements.txt | https://download.pytorch.org/whl/cpu/torchvision-0.8.1%2Bcpu-cp37-cp37m-linux_x86_64.whl | 相关依赖 |
+| 开发引入 | / | SlowFast_ID0646_for_PyTorch/detectron2/tools/deploy/CMakeLists.txt | https://pytorch.org/tutorials/advanced/cpp_frontend.html | 相关依赖 |
+| 开发引入 | / | SlowFast_ID0646_for_PyTorch/requirements.txt | https://github.com/facebookresearch/fvcore | 相关依赖 |
+| 开发引入 | / | SlowFast_ID0646_for_PyTorch/requirements.txt | https://github.com/facebookresearch/fvcore.git | 相关依赖 |
+| 开发引入 | / | SlowFast_ID0646_for_PyTorch/requirements.txt | https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI | 相关依赖 |
+| 开发引入 | / | SlowFast_ID0646_for_PyTorch/requirements.txt | https://github.com/facebookresearch/detectron2 | 相关依赖 |
+| 开发引入 | / | SlowFast_ID0646_for_PyTorch/requirements.txt | https://github.com/facebookresearch/detectron2/blob/master/INSTALL.md | 相关说明 |

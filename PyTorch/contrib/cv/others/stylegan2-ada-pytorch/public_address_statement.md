@@ -26,3 +26,4 @@
 | 开源代码引入 | https://github.com/NVlabs/stylegan2-ada-pytorch/README.md | stylegan2-ada-pytorch/generate.py | https://nvlabs-fi-cdn.nvidia.com/stylegan2-ada-pytorch/pretrained/cifar10.pkl | 相关数据 |
 | 开源代码引入 | https://github.com/NVlabs/stylegan2-ada-pytorch/README.md | stylegan2-ada-pytorch/legacy.py | https://nvlabs-fi-cdn.nvidia.com/stylegan2/networks/stylegan2-cat-config-f.pkl | 相关数据 |
 | 开源代码引入 | https://github.com/NVlabs/stylegan2-ada-pytorch/README.md | stylegan2-ada-pytorch/calc_metrics.py | https://nvlabs-fi-cdn.nvidia.com/stylegan2-ada-pytorch/pretrained/ffhq.pkl | 相关数据 |
+| 开发引入 | / | stylegan2-ada-pytorch/inception/download_inception.txt | https://pan.baidu.com/s/1CBiKXaBzS8A0IGxcBivbTA | 预训练权重 |

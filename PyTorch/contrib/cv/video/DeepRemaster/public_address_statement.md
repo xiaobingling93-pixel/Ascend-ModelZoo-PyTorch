@@ -4,3 +4,4 @@
 | 开发引入 | / | DeepRemaster/remaster.py | https://esslab.jp/~ess/ | 相关说明 |
 | 开发引入 | / | DeepRemaster/download_model.sh | http://iizuka.cs.tsukuba.ac.jp/data/remasternet.pth.tar | 预训练模型 |
 | 开发引入 | / | DeepRemaster/remaster.py | http://iizuka.cs.tsukuba.ac.jp/index_eng.html | 相关说明 |
+| 开发引入 | / | DeepRemaster/example/测试下载链接.txt | https://pan.baidu.com/s/112FiG-RE0dCfQ4RZoSi9pg | 预训练模型 |

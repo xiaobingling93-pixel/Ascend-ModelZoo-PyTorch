@@ -38,3 +38,6 @@
 | 开源代码引入 | https://github.com/LikeLy-Journey/SegmenTron.git/segmentron/data/downloader/mscoco.py | FastSCNN/segmentron/data/downloader/mscoco.py | http://images.cocodataset.org/annotations/stuff_annotations_trainval2017.zip | 数据集地址 |
 | 开源代码引入 | https://github.com/LikeLy-Journey/SegmenTron.git/segmentron/utils/parallel.py | FastSCNN/segmentron/utils/parallel.py | https://github.com/zhanghang1989/PyTorch-Encoding/blob/master/encoding/parallel.py | 源码实现 |
 | 开源代码引入 | https://github.com/LikeLy-Journey/SegmenTron.git/segmentron/models/unet.py | FastSCNN/segmentron/models/unet.py | https://github.com/HaiyongJiang/U-Net-Pytorch-Unstructured-Buggy/commit/0e854509c2cea854e247a9c615f175f76fbb2e3a | 源码实现 |
+| 开发引入 | / | FastSCNN/requirements.txt | http://github.com/jinfagang/DCNv2_latest.git@c14535d60cf781927dbce96e4f809630d424c6b5#egg=DCNv2 | 相关依赖 |
+| 开发引入 | / | FastSCNN/requirements.txt | https://github.com/svenkreiss/poseval.git@3128c5cbcf90946e5164ff438ad651e113e64613 | 相关依赖 |
+| 开发引入 | / | FastSCNN/requirements.txt | https://github.com/rwightman/pytorch-image-models.git@5aca7c01e53e4a2d4c8773d90dd86ed23574d755 | 相关依赖 |

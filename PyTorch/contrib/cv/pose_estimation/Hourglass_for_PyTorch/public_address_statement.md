@@ -105,3 +105,5 @@
 | 开发引入 | / | Hourglass_for_PyTorch/mmpose-master/mmpose/models/losses/multi_loss_factory.py | https://github.com/HRNet/HigherHRNet-Human-Pose-Estimation | 源码实现 |
 | 开源代码引入 | https://github.com/open-mmlab/mmpose.git/tests/test_apis/test_inferencers/test_pose3d_inferencer.py | Hourglass_for_PyTorch/mmpose-master/configs/top_down/hrnet/mpii/hrnet_w48_mpii_256x256.py | https://download.openmmlab.com/mmpose/ | 数据集地址 |
 | 开源代码引入 | https://github.com/open-mmlab/mmpose.git/docs/zh_cn/user_guides/inference.md | Hourglass_for_PyTorch/mmpose-master/configs/top_down/darkpose/coco-wholebody/hrnet_w48_coco_wholebody_384x288_dark_plus.py | https://download.openmmlab.com/mmpose/top_down/ | 数据集地址 |
+| 开发引入 | / | Hourglass_for_PyTorch/mmpose-master/requirements/optional.txt | https://github.com/svenkreiss/poseval.git | 相关依赖 |
+| 开发引入 | / | Hourglass_for_PyTorch/mmpose-master/requirements/readthedocs.txt | https://github.com/svenkreiss/poseval.git | 相关依赖 |

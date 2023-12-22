@@ -1264,3 +1264,5 @@
 | 开源代码引入 | https://github.com/open-mmlab/mmsegmentation/blob/main/configs/convnext/upernet_convnext_tiny_fp16_512x512_160k_ade20k.py|MMseg-swin/configs/convnext/upernet_convnext_tiny_fp16_512x512_160k_ade20k.py | https://download.openmmlab.com/mmclassification/v0/convnext/downstream/convnext-tiny_3rdparty_32xb128-noema_in1k_20220301-795e9634.pth | 预训练模型|
 | 开源代码引入 | https://github.com/open-mmlab/mmsegmentation/blob/main/configs/convnext/upernet_convnext_xlarge_fp16_640x640_160k_ade20k.py|MMseg-swin/configs/convnext/upernet_convnext_xlarge_fp16_640x640_160k_ade20k.py | https://download.openmmlab.com/mmclassification/v0/convnext/downstream/convnext-xlarge_3rdparty_in21k_20220301-08aa5ddc.pth | 预训练模型|
 | 开源代码引入 | https://github.com/open-mmlab/mmsegmentation/blob/main/configs/_base_/datasets/isaid.pyy|MMseg-swin/configs/_base_/datasets/isaid.py | https://arxiv.org/pdf/2103.06564.pdf | 论文地址|
+| 开发引入 | /|MMseg-swin/mmcv/requirements/docs.txt | https://github.com/open-mmlab/pytorch_sphinx_theme.git#egg=pytorch_sphinx_theme | 相关依赖|
+| 开发引入 | /|MMseg-swin/requirements/docs.txt | https://github.com/gaotongxiao/pytorch_sphinx_theme.git#egg=pytorch_sphinx_theme | 相关依赖|

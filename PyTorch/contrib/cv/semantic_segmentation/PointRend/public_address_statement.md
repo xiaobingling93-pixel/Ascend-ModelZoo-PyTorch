@@ -153,4 +153,8 @@
 | 开源代码引入 | https://github.com/facebookresearch/detectron2      | PointRend/configs/COCO-InstanceSegmentation/mask_rcnn_regnety_4gf_dds_fpn_1x.py | https://dl.fbaipublicfiles.com/pycls/dds_baselines/160906838/RegNetY-4.0GF_dds_8gpu.pyth | 模型权重 |
 | 开源代码引入 | https://github.com/facebookresearch/detectron2      | PointRend/configs/COCO-InstanceSegmentation/mask_rcnn_regnetx_4gf_dds_fpn_1x.py | https://github.com/facebookresearch/pycls/blob/2c152a6e5d913e898cca4f0a758f41e6b976714d/configs/dds_baselines/regnetx/RegNetX-4.0GF_dds_8gpu.yaml#L4-L9 | 相关配置 |
 | 开源代码引入 | https://github.com/facebookresearch/detectron2      | PointRend/configs/COCO-InstanceSegmentation/mask_rcnn_regnetx_4gf_dds_fpn_1x.py | https://dl.fbaipublicfiles.com/pycls/dds_baselines/160906383/RegNetX-4.0GF_dds_8gpu.pyth | 模型权重 |
+| 开发引入 | /      | PointRend/docs/requirements.txt | git://github.com/facebookresearch/fvcore.git | 相关依赖 |
+| 开发引入 | /      | PointRend/docs/requirements.txt | https://download.pytorch.org/whl/cpu/torch-1.7.0%2Bcpu-cp37-cp37m-linux_x86_64.whl | 相关依赖 |
+| 开发引入 | /      | PointRend/docs/requirements.txt | https://download.pytorch.org/whl/cpu/torchvision-0.8.1%2Bcpu-cp37-cp37m-linux_x86_64.whl | 相关依赖 |
+| 开发引入 | /      | PointRend/tools/deploy/CMakeLists.txt | https://pytorch.org/tutorials/advanced/cpp_frontend.html | 相关依赖 |
 

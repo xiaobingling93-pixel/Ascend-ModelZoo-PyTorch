@@ -67,3 +67,5 @@
 | 开源代码引入 | https://github.com/WongKinYiu/yolor/utils/torch_utils.py | YOLOR/utils/torch_utils.py | https://tehnokv.com/posts/fusing-batchnorm-and-conv/ | 相关说明 |
 | 开源代码引入 | https://github.com/WongKinYiu/yolor/utils/plots.py | YOLOR/utils/plots.py | https://stackoverflow.com/questions/51350872/python-from-color-name-to-rgb | 相关说明 |
 | 开发引入 | / | YOLOR/train.py | https://github.com/NVIDIA/apex | 相关依赖 |
+| 开发引入 | / | YOLOR/requirements-GPU.txt | https://github.com/NVIDIA/apex | 相关依赖 |
+| 开发引入 | / | YOLOR/requirements-GPU.txt | https://github.com/onnx/onnx#linux-and-macos | 相关依赖 |

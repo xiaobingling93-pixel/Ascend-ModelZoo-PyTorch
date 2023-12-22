@@ -12,4 +12,6 @@
 | 开发引入 | / | DETR/hubconf.py | https://dl.fbaipublicfiles.com/detr/detr-r101-2c7b67e5.pth | 预训练模型 |
 | 开源代码引入 | https://github.com/facebookresearch/detr/util/box_ops.py | DETR/util/box_ops.py | https://giou.stanford.edu/ | 相关链接 |
 | 开源代码引入 | https://github.com/facebookresearch/detr/hubconf.py | DETR/hubconf.py | https://dl.fbaipublicfiles.com/detr/detr-r50-panoptic-00ce5173.pth | 预训练模型 |
+| 开发引入 | / | detection/DETR/1.5_requirements.txt | https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI&egg=pycocotools | 相关依赖 |
+| 开发引入 | / | detection/DETR/1.8_requirements.txt | https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI&egg=pycocotools | 相关依赖 |
 
