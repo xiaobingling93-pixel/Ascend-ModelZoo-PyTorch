@@ -74,7 +74,8 @@ def parse_arguments():
     parser.add_argument(
         "--image_resolution",
         type=int,
-        default=512,
+        nargs=2,
+        default=[512, 576],
         help="image resolution"
     )
     parser.add_argument(
@@ -153,13 +154,36 @@ def parse_arguments():
     return parser.parse_args()
 
 
+def resize_and_pad_image(orig_img, shape):
+    h_ratio = shape[0] / orig_img.shape[0]
+    w_ratio = shape[1] / orig_img.shape[1]
+    scale_factor = min(h_ratio, w_ratio)
+    img_data = cv2.resize(
+        orig_img, None, fx=scale_factor, fy=scale_factor,
+        interpolation=cv2.INTER_LANCZOS4 if scale_factor > 1 else cv2.INTER_AREA
+    )
+    resized_shape = img_data.shape[:2]
+    pad_w = max(shape[1] - img_data.shape[1], 0)
+    pad_h = max(shape[0] - img_data.shape[0], 0)
+    img_data = cv2.copyMakeBorder(
+        img_data, 0, pad_h, 0, pad_w, cv2.BORDER_CONSTANT, value=0)
+    return img_data[:shape[0], :shape[1], :], resized_shape
+
+
+def resume_results(results, detected_map, resized_shape):
+    detected_map = detected_map[:resized_shape[0], :resized_shape[1], :]
+    results = [result[:resized_shape[0], :resized_shape[1], :] for result in results]
+    detected_map = 255 - detected_map
+    return [detected_map, *results]
+
+
 def process(model, ddim_sampler, sd_session, control_session, input_image, 
             prompt, a_prompt, n_prompt, num_samples, image_resolution, 
             ddim_steps, guess_mode, strength, scale, seed, eta, low_threshold, 
             high_threshold,
             ):
     with torch.no_grad():
-        img = resize_image(HWC3(input_image), image_resolution)
+        img, resized_shape = resize_and_pad_image(HWC3(input_image), image_resolution)
         H, W, C = img.shape
 
         apply_canny = CannyDetector()
@@ -209,7 +233,7 @@ def process(model, ddim_sampler, sd_session, control_session, input_image,
 
         results = [x_samples[i] for i in range(num_samples)]
 
-    return [255 - detected_map] + results
+    return resume_results(results, detected_map, resized_shape)
 
 
 def main():

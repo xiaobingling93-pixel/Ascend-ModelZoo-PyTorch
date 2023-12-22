@@ -208,7 +208,7 @@
     
       python3 ControlNet_infer.py \
               --model ./models/control_sd15_canny.pth \
-              --image test_imgs/dog.png
+              --image test_imgs/dog.png \
               --prompt "cute dog" \
               --device 0 \
               --control_model_dir om/control/control.om \
