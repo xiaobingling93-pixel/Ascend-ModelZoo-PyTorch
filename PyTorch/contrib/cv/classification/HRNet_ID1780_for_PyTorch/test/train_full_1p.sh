@@ -124,7 +124,8 @@ FPS=`grep -a 'Fps_Avg'  ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCE
 echo "Final Performance images/sec : $FPS"
 
 # 输出训练精度,需要模型审视修改
-train_accuracy=`grep -a 'Accuracy@1' ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log|awk -F " " '{print $11}'|awk 'END {print}'`
+train_accuracy=`grep -o 'Accuracy@1 [0-9.]*' ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log | awk '{print $NF}' | tail -n 1`
+
 # 打印，不需要修改
 echo "Final Train Accuracy : ${train_accuracy}"
 echo "E2E Training Duration sec : $e2e_time"
