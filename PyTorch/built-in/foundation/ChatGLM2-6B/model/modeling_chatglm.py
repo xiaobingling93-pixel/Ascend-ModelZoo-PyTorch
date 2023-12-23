@@ -176,7 +176,6 @@ class RotaryEmbedding(nn.Module):
         )
 
 
-@torch.jit.script
 def apply_rotary_pos_emb(x: torch.Tensor, rope_cache: torch.Tensor) -> torch.Tensor:
     # x: [sq, b, np, hn]
     # Tag：q, k: [sq, b, np, hn], hn=128
@@ -248,50 +247,37 @@ class CoreAttention(torch.nn.Module):
 
     def forward(self, query_layer, key_layer, value_layer, attention_mask):
         pytorch_major_version = int(torch.__version__.split('.')[0])
-        if pytorch_major_version >= 2:
-            query_layer, key_layer, value_layer = [k.permute(1, 2, 0, 3) for k in [query_layer, key_layer, value_layer]]
-            if attention_mask is None and query_layer.shape[2] == key_layer.shape[2]:
-                context_layer = torch.nn.functional.scaled_dot_product_attention(query_layer, key_layer, value_layer,
-                                                                                 is_causal=True)
-            else:
-                if attention_mask is not None:
-                    attention_mask = ~attention_mask
-                context_layer = torch.nn.functional.scaled_dot_product_attention(query_layer, key_layer, value_layer,
-                                                                                 attention_mask)
-            context_layer = context_layer.permute(2, 0, 1, 3)
-            new_context_layer_shape = context_layer.size()[:-2] + (self.hidden_size_per_partition,)
-            context_layer = context_layer.reshape(*new_context_layer_shape)
-        else:
-            # Raw attention scores
-            # [b, np, sq, sk]
+        if USE_FLASH:
             output_size = (query_layer.size(1), query_layer.size(2), query_layer.size(0), key_layer.size(0))
-
             alpha = (1.0 / self.norm_factor)
             query_layer = query_layer * alpha
-            if USE_FLASH:
-                # Tag:-1表示自动计算该维度的大小, 合并维度
-                query_layer = query_layer.view(output_size[2], output_size[0], -1)
-                # (8192, 1, 4096
-                key_layer = key_layer.view(output_size[2], output_size[0], -1)
-                value_layer = value_layer.view(output_size[2], output_size[0], -1)
-                input_layout = "SBH"
-                scale = self.coeff
-                keep_prob = 1.0
-                N = output_size[1]
-                out = torch_npu.npu_flash_attention( \
-                    query_layer, key_layer, value_layer, N, \
-                    pse=None, \
-                    padding_mask=None, \
-                    atten_mask=attention_mask, \
-                    scale=scale, \
-                    keep_prob=keep_prob, \
-                    input_layout=input_layout, \
-                    pre_tockens=65536, \
-                    next_tockens=0)[0]
-                # Tag: [SBH] -> [sq, b , np, hn]
-                # (8192, 1, 4096
-                context_layer = out.view(output_size[2], output_size[0], output_size[1], -1)
+            query_layer = query_layer.view(output_size[2], output_size[0], -1)
+            key_layer = key_layer.view(output_size[2], output_size[0], -1)
+            value_layer = value_layer.view(output_size[2], output_size[0], -1)
+            out = torch_npu.npu_fusion_attention( \
+                query_layer, key_layer, value_layer, output_size[1], "SBH", \
+                pse=None, \
+                padding_mask=None, \
+                atten_mask=attention_mask, \
+                scale=self.coeff, \
+                keep_prob=1.0, \
+                pre_tockens=key_layer.shape[0], \
+                next_tockens=0)[0]
+            context_layer = out.view(output_size[2], output_size[0], output_size[1], -1)
+        else:
+            if pytorch_major_version >= 2:
+                query_layer, key_layer, value_layer = [k.permute(1, 2, 0, 3) for k in [query_layer, key_layer, value_layer]]
+                if attention_mask is None and query_layer.shape[2] == key_layer.shape[2]:
+                    context_layer = torch.nn.functional.scaled_dot_product_attention(query_layer, key_layer, value_layer, is_causal=True)
+                else:
+                    if attention_mask is not None:
+                        attention_mask = ~attention_mask
+                    context_layer = torch.nn.functional.scaled_dot_product_attention(query_layer, key_layer, value_layer, attention_mask)
+                context_layer = context_layer.permute(2, 0, 1, 3)
             else:
+                output_size = (query_layer.size(1), query_layer.size(2), query_layer.size(0), key_layer.size(0))
+                alpha = (1.0 / self.norm_factor)
+                query_layer = query_layer * alpha
                 query_layer = query_layer.view(output_size[2], output_size[0] * output_size[1], -1)
                 # [sk, b, np, hn] -> [sk, b * np, hn]
                 key_layer = key_layer.view(output_size[3], output_size[0] * output_size[1], -1)
@@ -303,11 +289,9 @@ class CoreAttention(torch.nn.Module):
                 # Attention probs and dropout
                 # ===========================
                 # attention scores and attention mask [b, np, sq, sk]
-
                 if USE_SCALED_SOFTMAX:
                     assert self.coeff, attention_mask
-                    attention_probs = torch_npu.npu_scaled_masked_softmax(attention_scores, attention_mask, self.coeff,
-                                                                          False)
+                    attention_probs = torch_npu.npu_scaled_masked_softmax(attention_scores, attention_mask, self.coeff, False)
                 else:
                     if attention_mask is not None:
                         attention_scores = attention_scores.masked_fill(attention_mask, float("-inf"))
@@ -337,8 +321,8 @@ class CoreAttention(torch.nn.Module):
                 # context_layer = context_layer.permute(2, 0, 1, 3).contiguous()
                 context_layer = torch.npu_confusion_transpose(context_layer, [2, 0, 1, 3], [*output_size], False)
                 # [sq, b, np, hn] --> [sq, b, hp]
-            new_context_layer_shape = context_layer.size()[:-2] + (self.hidden_size_per_partition,)
-            context_layer = context_layer.view(*new_context_layer_shape)
+        new_context_layer_shape = context_layer.size()[:-2] + (self.hidden_size_per_partition,)
+        context_layer = context_layer.reshape(*new_context_layer_shape)
         return context_layer
 
 
