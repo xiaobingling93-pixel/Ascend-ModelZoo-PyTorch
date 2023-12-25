@@ -94,8 +94,10 @@ LLaMA是由Meta AI发布的大语言系列模型，完整的名字是Large Langu
 这里可以参考原始仓库上的readme.md通过权重转换获取预训练模型，也可以从huggingface上获取预训练模型。注意保存预训练模型的位置，训练时修改脚本中的预训练模型路径。
 
 参考预训练模型（huggingface上获取）：
+
 llama2-7b:llama2-7b-hf； llama2-13b:llama2-13b-hf
-   vicuna-7b:lmsys/vicuna-7b-v1.5；vicuna-13b:lmsys/vicuna-13b-v1.5。
+
+vicuna-7b:lmsys/vicuna-7b-v1.5；vicuna-13b:lmsys/vicuna-13b-v1.5。
 # 开始训练
 1. 进入解压后的源码包根目录。
 
@@ -104,6 +106,7 @@ llama2-7b:llama2-7b-hf； llama2-13b:llama2-13b-hf
    ```
 
 1. 运行训练脚本。
+   
    模型训练脚本参数说明如下，训练前注意修改预训练参数路径、数据集路径。
    ```
    --model_name_or_path                       // 预训练参数路径 
@@ -128,6 +131,7 @@ llama2-7b:llama2-7b-hf； llama2-13b:llama2-13b-hf
    ```
 
    模型支持单机8卡训练和双机16卡训练。
+   
    注意事项：
    模型训练时会自动加载模型保存路径中的checkpoint进行断点续训，从头开始训练要删除或转移之前保存的checkpoint。
    - 训练前注意修改环境变量路径，source环境信息
@@ -171,6 +175,7 @@ llama2-7b:llama2-7b-hf； llama2-13b:llama2-13b-hf
 # 训练结果展示
 FPS计算方法：
 per_bs * grad_acc * seq_len / time
+
     - `per_bs`：每张卡上的训练batch size；
     - `grad_acc`：梯度累积的步数；
     - `seq_len`：模型训练的sequence length；
@@ -186,6 +191,7 @@ per_bs * grad_acc * seq_len / time
 |  13B-竞品A(单机20层) | 1896  |  3 |
 
 注：13B单机20层训练计算性能时要除以2
+
 **表 3** 训练结果展示表（vicuna 7B/13B）
 
 |  NAME | FPS(tokens/s/p)  | Epochs  |
