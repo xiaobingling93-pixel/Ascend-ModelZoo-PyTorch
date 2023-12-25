@@ -79,6 +79,16 @@ class LlamaRMSNorm(nn.Module):
         self.variance_epsilon = eps
 
     def forward(self, hidden_states):
+        input_dtype = hidden_states.dtype
+        hidden_states = hidden_states.to(torch.float32)
+        variance = hidden_states.pow(2).mean(-1, keepdim=True)
+        hidden_states = hidden_states * torch.rsqrt(variance + self.variance_epsilon)
+        return self.weight * hidden_states.to(input_dtype)
+
+
+
+class LlamaFusionRMSNorm(LlamaRMSNorm):
+    def forward(self, hidden_states):
         return torch_npu.npu_rms_norm(hidden_states, self.weight, epsilon = self.variance_epsilon)[0]
 
 
@@ -207,6 +217,11 @@ def apply_rotary_pos_emb(q, k, cos, sin, position_ids):
 def apply_fused_rotary_pos_emb(q, k, cos, sin, position_ids):
     q_embed =torch_npu.npu_rotary_mul(q, cos, sin)
     k_embed =torch_npu.npu_rotary_mul(k, cos, sin)
+    return q_embed, k_embed
+
+def apply_rotary_pos_emb_fa(q, k, cos, sin, position_ids):
+    q_embed = (q * cos) + (rotate_half(q) * sin)
+    k_embed = (k * cos) + (rotate_half(k) * sin)
     return q_embed, k_embed
 
 class LlamaMLP(nn.Module):
@@ -417,12 +432,25 @@ class LlamaAttention(nn.Module):
             if self.is_fused_rotary:
                 query_states, key_states = apply_fused_rotary_pos_emb(query_states, key_states, cos, sin, position_ids)
             else:
-                query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos, sin, position_ids)
+                query_states, key_states = apply_rotary_pos_emb_fa(query_states, key_states, cos, sin, position_ids)
 
             hidden_head_num = query_states.size(2)
-            # q, k, v = [rearrange(x, 'b h s d -> b s (h d)').contiguous() for x in (query_states, key_states, value_states)] # BSH
-            q, k, v = [rearrange(x, 'b s h d -> b s (h d)').contiguous() for x in (query_states, key_states, value_states)] # BSH
-            attn_output = self.flash_attention(q, k, v, hidden_head_num, attention_mask) 
+            if self.layerout == 'BSH':
+                q, k, v = [rearrange(x, 'b s h d -> b s (h d)').contiguous() for x in (query_states, key_states, value_states)] # BSH
+                attn_output = self.flash_attention(q, k, v, hidden_head_num, attention_mask) 
+                
+                
+            elif self.layerout == 'BSND':
+                attn_output = self.flash_attention(query_states, key_states, value_states, hidden_head_num, attention_mask) 
+                attn_output = attn_output.reshape(bsz, q_len, self.hidden_size)
+            
+            
+            attn_output = self.o_proj(attn_output)
+
+            if not output_attentions:
+                attn_weights = None
+
+            return attn_output, attn_weights, past_key_value
 
 
         else:
@@ -482,8 +510,14 @@ class LlamaDecoderLayer(nn.Module):
         self.hidden_size = config.hidden_size
         self.self_attn = LlamaAttention(config=config)
         self.mlp = LlamaMLP(config)
-        self.input_layernorm = LlamaRMSNorm(config.hidden_size, eps=config.rms_norm_eps)
-        self.post_attention_layernorm = LlamaRMSNorm(config.hidden_size, eps=config.rms_norm_eps)
+        self.is_fusion_rms = True
+        if self.is_fusion_rms:
+            self.input_layernorm = LlamaFusionRMSNorm(config.hidden_size, eps=config.rms_norm_eps)
+            self.post_attention_layernorm = LlamaFusionRMSNorm(config.hidden_size, eps=config.rms_norm_eps)
+        else:
+
+            self.input_layernorm = LlamaRMSNorm(config.hidden_size, eps=config.rms_norm_eps)
+            self.post_attention_layernorm = LlamaRMSNorm(config.hidden_size, eps=config.rms_norm_eps)
 
     def forward(
         self,
@@ -781,7 +815,7 @@ class LlamaModel(LlamaPreTrainedModel):
 
             past_key_value = past_key_values[idx] if past_key_values is not None else None
 
-            if self.gradient_checkpointing and self.training and idx:
+            if self.gradient_checkpointing and self.training:
 
                 def create_custom_forward(module):
                     def custom_forward(*inputs):

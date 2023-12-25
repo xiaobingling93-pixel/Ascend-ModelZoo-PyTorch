@@ -37,7 +37,7 @@ LLaMA是由Meta AI发布的大语言系列模型，完整的名字是Large Langu
     | ------------ | ------------ |
     |  Pytorch |  2.1.0 |
 
-- 这里要替换transformers库中的部分文件，使用下面命令时注意修改安装环境的路径。
+- 这里要替换transformers（transformers=4.33.0）库中的部分文件，使用下面命令时注意修改安装环境的路径。
    ```bash
     conda create -n test python==3.8
     conda activate test
@@ -94,7 +94,8 @@ LLaMA是由Meta AI发布的大语言系列模型，完整的名字是Large Langu
 这里可以参考原始仓库上的readme.md通过权重转换获取预训练模型，也可以从huggingface上获取预训练模型。注意保存预训练模型的位置，训练时修改脚本中的预训练模型路径。
 
 参考预训练模型（huggingface上获取）：
-   llama-7b:lmsys/vicuna-7b-v1.5；llama-13b:lmsys/vicuna-13b-v1.5。
+llama2-7b:llama2-7b-hf； llama2-13b:llama2-13b-hf
+   vicuna-7b:lmsys/vicuna-7b-v1.5；vicuna-13b:lmsys/vicuna-13b-v1.5。
 # 开始训练
 1. 进入解压后的源码包根目录。
 
@@ -102,37 +103,10 @@ LLaMA是由Meta AI发布的大语言系列模型，完整的名字是Large Langu
    cd /${模型文件夹名称} 
    ```
 
-2. 运行训练脚本。
-
-   模型支持单机8卡训练和双机16卡训练，重复训练时要删除之前训练保存的权重。
-
-   - LLaMA-7B训练（单机8卡）
-
-     ```
-     bash ./scripts/train_vicuna_7b.sh    
-     ```
-
-   - LLaMA-13B训练（单机8卡）
-
-     ```
-     bash ./scripts/train_vicuna_13b.sh
-     ```
-   - LLaMA-13B双机训练要修改scripts/train_vicuna_13b.sh脚本
-
-     ```
-     torchrun --nproc_per_node=8 --master_port=20001 --nproc_per_node=8 --nnodes=2 --node_rank=0 --master_addr=90.90.3.79 fastchat/train/train_mem.py
-     ```
-     --nnodes：节点数；
-     --node_rank：节点顺序(如0，1)；
-     --master_addr：主节点ip。
-   - 训练前注意修改环境变量路径，source环境信息
-     ```
-     source set_env.sh
-     ```
-    模型训练脚本参数说明如下，训练前注意修改预训练参数路径、数据集路径。
-
+1. 运行训练脚本。
+   模型训练脚本参数说明如下，训练前注意修改预训练参数路径、数据集路径。
    ```
-    --model_name_or_path                       // 预训练参数路径 
+   --model_name_or_path                       // 预训练参数路径 
     --data_path                                // 数据集路径 
     --bf16                                     // 参数使用bf16保存
     --num_train_epochs                         // 训练epoch数
@@ -150,8 +124,38 @@ LLaMA是由Meta AI发布的大语言系列模型，完整的名字是Large Langu
     --logging_steps                            // 训练日志打印间隔步数
     --tf32 True                                // 使用tf32训练
     --model_max_length                         // 模型训练的sequence length
-    --gradient_checkpointing                   // 是否开启重计算 
-3. llama-33b 多机启动脚本配置（使用vicuna权重）
+    --gradient_checkpointing                   // 是否开启重计算  
+   ```
+
+   模型支持单机8卡训练和双机16卡训练。
+   注意事项：
+   模型训练时会自动加载模型保存路径中的checkpoint进行断点续训，从头开始训练要删除或转移之前保存的checkpoint。
+   - 训练前注意修改环境变量路径，source环境信息
+     ```
+     source set_env.sh
+     ```
+
+   - LLaMA2-7B/Vicuna-7B训练（单机8卡）
+
+     ```
+     bash ./scripts/train_vicuna_7b.sh    
+     ```
+
+   - LLaMA2-13B/Vicuna-13B训练（单机8卡）
+
+     ```
+     bash ./scripts/train_vicuna_13b.sh
+     ```
+   - LLaMA2-13B/Vicuna-13B双机训练要修改scripts/train_vicuna_13b.sh脚本
+
+     ```
+     torchrun --nproc_per_node=8 --master_port=20001 --nproc_per_node=8 --nnodes=2 --node_rank=0 --master_addr=90.90.3.79 fastchat/train/train_mem.py
+     ```
+     --nnodes：节点数；
+     --node_rank：节点顺序(如0，1)；
+     --master_addr：主节点ip。
+    
+3. LLaMA-33b 多机启动脚本配置（使用vicuna权重）
 
    多机微调启动脚本：`scripts/train_vicuna_33b_nnodes.sh`
    
@@ -165,8 +169,14 @@ LLaMA是由Meta AI发布的大语言系列模型，完整的名字是Large Langu
    启动时，各个节点都要执行`train_vicuna_33b_nnodes.sh`脚本来拉起微调任务。
 
 # 训练结果展示
-**表 2** 训练结果展示表
+FPS计算方法：
+per_bs * grad_acc * seq_len / time
+    - `per_bs`：每张卡上的训练batch size；
+    - `grad_acc`：梯度累积的步数；
+    - `seq_len`：模型训练的sequence length；
+    - `time`：一个global_step训练的时间。
 
+**表 2** 训练结果展示表（llama2 7B/13B）
 
 |  NAME | FPS(tokens/s/p)  | Epochs  |
 | ------------ | ------------ | ------------ |
@@ -174,6 +184,18 @@ LLaMA是由Meta AI发布的大语言系列模型，完整的名字是Large Langu
 |   7B-竞品A| 3120  |  3 |
 | 13B-NPU(单机20层) | 1730 | 3  |
 |  13B-竞品A(单机20层) | 1896  |  3 |
+
+注：13B单机20层训练计算性能时要除以2
+**表 3** 训练结果展示表（vicuna 7B/13B）
+
+|  NAME | FPS(tokens/s/p)  | Epochs  |
+| ------------ | ------------ | ------------ |
+|  7B-NPU |  2818 | 3  |
+|   7B-竞品A| 3070  |  3 |
+| 13B-NPU(单机20层) | 1619 | 3  |
+|  13B-竞品A(单机20层) | 1740  |  3 |
+
+注：这里vicuna 7B/13B在NPU上使用910B3（313T）训练，竞品使用A800训练
 # 推理
 ## 推理环境搭建
 这里要替换transformers库中的部分文件，用于推理（评估）场景，后续如果要进行训练再更改为transformers_modify中的文件。

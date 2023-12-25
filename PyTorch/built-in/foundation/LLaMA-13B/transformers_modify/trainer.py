@@ -1658,9 +1658,8 @@ class Trainer:
             self.model.gradient_checkpointing_enable()
 
         model = self._wrap_model(self.model_wrapped)
-
-        if (is_sagemaker_mp_enabled() or self.is_fsdp_enabled) and resume_from_checkpoint is not None:
-            self._load_from_checkpoint(resume_from_checkpoint, model)
+        #if (is_sagemaker_mp_enabled() or self.is_fsdp_enabled) and resume_from_checkpoint is not None and (self.sharded_ddp or args.fsdp_config["xla"]):
+            #self._load_from_checkpoint(resume_from_checkpoint, model)
 
         # as the model is wrapped, don't use `accelerator.prepare`
         # this is for unhandled cases such as
@@ -1671,7 +1670,6 @@ class Trainer:
             if use_accelerator_prepare:
                 self.model = self.accelerator.prepare(self.model)
             self.create_optimizer_and_scheduler(num_training_steps=max_steps)
-
         # prepare using `accelerator` prepare
         if use_accelerator_prepare:
             self.model.train()
@@ -1686,6 +1684,9 @@ class Trainer:
                     self.model, self.optimizer, self.lr_scheduler
                 )
 
+        if (is_sagemaker_mp_enabled() or self.is_fsdp_enabled) and resume_from_checkpoint is not None :
+            self._load_from_checkpoint(resume_from_checkpoint, model)
+            
         if self.is_fsdp_enabled:
             self.model = model
 
@@ -1934,8 +1935,8 @@ class Trainer:
                 if self.control.should_epoch_stop or self.control.should_training_stop:
                     break
 
-                if torch.distributed.get_rank() == 0:
-                    print("time cost: {}".format(time.time() - step_start_time))
+                if torch.distributed.get_rank() == 0 and step % args.gradient_accumulation_steps == 0:
+                    print("time cost: {} self.state.global_step {} step {}".format(time.time() - step_start_time , self.state.global_step, step))
                     step_start_time = time.time()
             if step < 0:
                 logger.warning(
