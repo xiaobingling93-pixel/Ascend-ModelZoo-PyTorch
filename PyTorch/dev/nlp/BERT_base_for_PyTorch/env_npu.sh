@@ -43,7 +43,7 @@ msnpureport -g error -d 7
 msnpureport -e disable
 
 
-path_lib=$(python3.7 -c """
+path_lib=$(python3 -c """
 import sys
 import re
 result=''

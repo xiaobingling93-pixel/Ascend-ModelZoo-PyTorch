@@ -51,7 +51,7 @@ export ASCEND_WAIT_NO_PREP_PATH=0
 
 ulimit -SHn 512000
 
-path_lib=$(python3.7 -c """
+path_lib=$(python3 -c """
 import sys
 import re
 result=''

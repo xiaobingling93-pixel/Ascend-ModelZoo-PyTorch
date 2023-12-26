@@ -46,7 +46,7 @@ export HCCL_WHITELIST_DISABLE=1
 
 ulimit -SHn 512000
 
-path_lib=$(python3.7 -c """
+path_lib=$(python3 -c """
 import sys
 import re
 result=''

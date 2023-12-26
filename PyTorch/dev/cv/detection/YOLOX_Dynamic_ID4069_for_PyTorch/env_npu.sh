@@ -41,7 +41,7 @@ export HCCL_WHITELIST_DISABLE=1
 export HCCL_IF_IP=$(hostname -I |awk '{print $1}')
 
 
-path_lib=$(python3.7 -c """
+path_lib=$(python3 -c """
 import sys
 import re
 result=''

@@ -43,7 +43,7 @@ export TRI_COMBINED_ENABLE=1
 ulimit -SHn 512000
 
 :<<COM
-path_lib=$(python3.7 -c """
+path_lib=$(python3 -c """
 import sys
 import re
 result=''
