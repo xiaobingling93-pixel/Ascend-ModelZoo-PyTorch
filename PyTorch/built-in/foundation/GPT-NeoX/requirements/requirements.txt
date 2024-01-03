@@ -5,7 +5,7 @@ protobuf==3.20.3
 pybind11>=2.6.2
 regex
 sentencepiece
-best_download
+best_download==0.0.9
 cloudpickle==2.2.1
 decorator==5.1.1
 psutil==5.9.5

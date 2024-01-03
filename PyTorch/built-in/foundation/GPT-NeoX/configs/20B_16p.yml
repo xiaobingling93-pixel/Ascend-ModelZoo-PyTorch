@@ -15,7 +15,7 @@
   "data-path": "/home/GPT-NeoX/datasets/pile/pile2_text_document",
   # parallelism settings ( you will want to change these based on your cluster setup, ideally scheduling pipeline stages
   # across the node boundaries )
-  "pipe-parallel-size": 1,
+  "pipe-parallel-size": 2,
   "model-parallel-size": 4,
   
   "hostfile": "./hostfile",
@@ -62,7 +62,7 @@
   },
 
   # batch / data settings (assuming 96 GPUs)
-  "train_micro_batch_size_per_gpu": 2,
+  "train_micro_batch_size_per_gpu": 4,
   "gradient_accumulation_steps": 64,
   "data-impl": "mmap",
   "split": "995,4,1",
