@@ -21,7 +21,7 @@ export ASCEND_GLOBAL_LOG_LEVEL=3
 #设置Event日志开启标志,0-关闭/1-开启
 export ASCEND_GLOBAL_EVENT_ENABLE=0
 #设置是否开启taskque,0-关闭/1-开启
-export TASK_QUEUE_ENABLE=0
+export TASK_QUEUE_ENABLE=1
 #设置是否开启2个非连续combined标志,0-关闭/1-开启
 export COMBINED_ENABLE=1
 #设置特殊场景是否需要重新编译,不需要修改
@@ -30,11 +30,12 @@ export DYNAMIC_OP="ADD#MUL"
 export HCCL_WHITELIST_DISABLE=1
 # HCCL默认超时时间120s较少，修改为1800s对齐PyTorch默认设置
 export HCCL_CONNECT_TIMEOUT=3600
-export HCCL_EXEC_TIMEOUT=1200
+export HCCL_EXEC_TIMEOUT=1800
 
 export BMMV2_ENABLE=0
 export SCALAR_TO_HOST_MEM=1
-export INF_NAN_MODE_ENABLE=0
+# 扩大ACLNN缓存个数，提高性能
+export ACLNN_CACHE_LIMIT=100000
 
 ulimit -SHn 512000
 
