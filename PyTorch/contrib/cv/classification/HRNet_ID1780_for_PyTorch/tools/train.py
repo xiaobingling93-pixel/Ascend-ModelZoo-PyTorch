@@ -187,9 +187,10 @@ def main():
     # copy model file
     this_dir = os.path.dirname(__file__)
     models_dst_dir = os.path.join(final_output_dir, 'models')
-    if os.path.exists(models_dst_dir):
-        shutil.rmtree(models_dst_dir)
-    shutil.copytree(os.path.join(this_dir, '../lib/models'), models_dst_dir)
+    if device_num > 1 and torch.distributed.get_rank() == 0 or device_num == 1:
+        if os.path.exists(models_dst_dir):
+            shutil.rmtree(models_dst_dir)
+        shutil.copytree(os.path.join(this_dir, '../lib/models'), models_dst_dir)
 
     writer_dict = {
         'writer': SummaryWriter(log_dir=tb_log_dir),
