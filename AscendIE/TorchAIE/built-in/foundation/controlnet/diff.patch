@@ -1,0 +1,73 @@
+diff -uprN ControlNet-main/cldm/ddim_hacked.py ControlNet-main-md/cldm/ddim_hacked.py
+--- ControlNet-main/cldm/ddim_hacked.py	2024-01-04 09:26:17.000000000 +0000
++++ ControlNet-main-md/cldm/ddim_hacked.py	2024-01-04 12:44:35.000000000 +0000
+@@ -16,8 +16,8 @@ class DDIMSampler(object):
+ 
+     def register_buffer(self, name, attr):
+         if type(attr) == torch.Tensor:
+-            if attr.device != torch.device("cuda"):
+-                attr = attr.to(torch.device("cuda"))
++            if attr.device != torch.device("cpu"):
++                attr = attr.to(torch.device("cpu"))
+         setattr(self, name, attr)
+ 
+     def make_schedule(self, ddim_num_steps, ddim_discretize="uniform", ddim_eta=0., verbose=True):
+diff -uprN ControlNet-main/ldm/modules/attention.py ControlNet-main-md/ldm/modules/attention.py
+--- ControlNet-main/ldm/modules/attention.py	2024-01-04 09:26:21.000000000 +0000
++++ ControlNet-main-md/ldm/modules/attention.py	2024-01-04 09:34:14.000000000 +0000
+@@ -174,7 +174,7 @@ class CrossAttention(nn.Module):
+         if _ATTN_PRECISION =="fp32":
+             with torch.autocast(enabled=False, device_type = 'cuda'):
+                 q, k = q.float(), k.float()
+-                sim = einsum('b i d, b j d -> b i j', q, k) * self.scale
++                sim = einsum('bid,bjd->bij', q, k) * self.scale
+         else:
+             sim = einsum('b i d, b j d -> b i j', q, k) * self.scale
+         
+@@ -189,7 +189,7 @@ class CrossAttention(nn.Module):
+         # attention, what we cannot get enough of
+         sim = sim.softmax(dim=-1)
+ 
+-        out = einsum('b i j, b j d -> b i d', sim, v)
++        out = einsum('bij,bjd->bid', sim, v)
+         out = rearrange(out, '(b h) n d -> b n (h d)', h=h)
+         return self.to_out(out)
+ 
+diff -uprN ControlNet-main/ldm/modules/diffusionmodules/util.py ControlNet-main-md/ldm/modules/diffusionmodules/util.py
+--- ControlNet-main/ldm/modules/diffusionmodules/util.py	2024-01-04 09:26:21.000000000 +0000
++++ ControlNet-main-md/ldm/modules/diffusionmodules/util.py	2024-01-04 09:34:42.000000000 +0000
+@@ -109,11 +109,7 @@ def checkpoint(func, inputs, params, fla
+                    explicitly take as arguments.
+     :param flag: if False, disable gradient checkpointing.
+     """
+-    if flag:
+-        args = tuple(inputs) + tuple(params)
+-        return CheckpointFunction.apply(func, len(inputs), *args)
+-    else:
+-        return func(*inputs)
++    return func(*inputs)
+ 
+ 
+ class CheckpointFunction(torch.autograd.Function):
+diff -uprN ControlNet-main/ldm/modules/encoders/modules.py ControlNet-main-md/ldm/modules/encoders/modules.py
+--- ControlNet-main/ldm/modules/encoders/modules.py	2024-01-04 09:26:21.000000000 +0000
++++ ControlNet-main-md/ldm/modules/encoders/modules.py	2024-01-04 09:35:02.000000000 +0000
+@@ -92,7 +92,7 @@ class FrozenCLIPEmbedder(AbstractEncoder
+         "pooled",
+         "hidden"
+     ]
+-    def __init__(self, version="openai/clip-vit-large-patch14", device="cuda", max_length=77,
++    def __init__(self, version="openai/clip-vit-large-patch14", device="cpu", max_length=77,
+                  freeze=True, layer="last", layer_idx=None):  # clip-vit-base-patch32
+         super().__init__()
+         assert layer in self.LAYERS
+diff -uprN ControlNet-main/models/cldm_v15.yaml ControlNet-main-md/models/cldm_v15.yaml
+--- ControlNet-main/models/cldm_v15.yaml	2024-01-04 09:26:22.000000000 +0000
++++ ControlNet-main-md/models/cldm_v15.yaml	2024-01-04 09:35:50.000000000 +0000
+@@ -1,5 +1,5 @@
+ model:
+-  target: cldm.cldm.ControlLDM
++  target: torch_aie_cldm.TorchAIEControlLDM
+   params:
+     linear_start: 0.00085
+     linear_end: 0.0120
