@@ -100,8 +100,8 @@ class AscendStableDiffusionXLPipeline(StableDiffusionXLPipeline):
                 text_input_ids, untruncated_ids
             ):
                 removed_text = tokenizer.batch_decode(untruncated_ids[:, tokenizer.model_max_length - 1 : -1])
-            else:
-                prompt_embeds = text_encoder.infer(text_input_ids.to("cpu").numpy())
+    
+            prompt_embeds = text_encoder.infer(text_input_ids.to("cpu").numpy())
 
             prompt_embeds = [torch.from_numpy(text) for text in prompt_embeds]
 

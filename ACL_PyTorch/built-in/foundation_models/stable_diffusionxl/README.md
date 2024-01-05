@@ -185,7 +185,7 @@
 
          ```bash
          # text_encoder
-         cd ./model_bs1/text_encoder
+         cd ./models_bs1/text_encoder
          atc --framework=5 \
              --model=./text_encoder.onnx \
              --output=./text_encoder \
@@ -255,10 +255,30 @@
          ```
        
 2. 开始推理验证。
+    
+    安装绑核工具并根据NUMA亲和性配置任务进程与NUMA node 的映射关系是为了排除cpu的影响
+
+     安装绑核工具
+      ```
+      yum install numactl
+      ```
+      查询卡的NUMA node
+      ```
+      lspci -vs bus-id
+      ```
+      bus-id可通过npu-smi info获得，查询到NUMA node，在推理命令前加上对应的数字
+      ```
+      NUMA node0: 0-23
+      NUMA node1: 24-47
+      NUMA node2: 48-71
+      NUMA node3: 72-95
+      ```
+
+     当前查到NUMA node是3，对应72-95
 
    1. 执行推理脚本。
       ```bash
-      python3 stable_diffusionxl_ascend_infer.py \
+      numactl -C 72-95 python3 stable_diffusionxl_ascend_infer.py \
               --model ${model_base} \
               --model_dir ./models_bs1 \
               --prompt_file ./prompts.txt \

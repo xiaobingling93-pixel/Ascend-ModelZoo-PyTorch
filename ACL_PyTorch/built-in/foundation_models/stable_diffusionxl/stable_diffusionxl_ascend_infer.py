@@ -229,7 +229,7 @@ def main():
                                  args.num_images_per_prompt,
                                  args.max_num_prompts)
 
-    prompts_2 = " "                             
+    prompts_2 = ""
     infer_num = 0
     image_info = []
     current_prompt = None
