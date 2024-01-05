@@ -142,6 +142,13 @@ bash ds_train_finetune.sh
   ```
   bash train.sh
   ```
+
+- Lora 
+   启动Lora微调
+   ```shell
+   bash ds_train_lora.sh
+   ```
+
 3. 全参数finetune验证
 
     运行以下命令
@@ -150,6 +157,9 @@ bash ds_train_finetune.sh
     cd /${模型文件夹名称}/ptuning
     bash evaluate_fintune.sh
 	```
+
+
+
 模型训练脚本部分参数说明如下。
 
    ```

@@ -12,3 +12,4 @@ sentencepiece
 accelerate
 sse-starlette
 datasets
+peft
