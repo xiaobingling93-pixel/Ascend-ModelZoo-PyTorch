@@ -169,9 +169,9 @@ HiFiGAN是一种基于GAN的声码器，HiFiGAN同时拥有多尺度判别器（
 3. 性能验证  
    可使用`ais_bench`推理工具的纯推理模式验证不同`batch_size`的`OM`模型的性能，参考命令如下：
    ```
-   python3 -m ais_bench --model output/generator_v2_bs${bs}.om --loop 1000 --batchsize ${bs} --dymDims "mel_spec:${bs},80,1,${mel_len}" --outputSize "10000000"
+   python3 -m ais_bench --model output/generator_v2_bs${bs}.om --loop 1000 --batchsize ${bs} --dymDims "mel_spec:${bs},80,1,${mel_len}" --outputSize "$((4*bs*wav_len))"
    ```
-   其中，`bs`为模型`batch_size`，`mel_len`为输入数据的长度。
+   其中，`bs`为模型`batch_size`，`mel_len`为输入数据的长度，`wav_len`为mel_len对应的语音输出长度。用户也可以统一取mel_len最大分档对应的wav_len的长度为512000，outputsize值是16384000。
 
 # 模型推理性能&精度
 
