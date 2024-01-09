@@ -302,12 +302,9 @@ class GEGLU(nn.Module):
         return F.gelu(gate.to(dtype=torch.float32)).to(dtype=gate.dtype)
 
     def forward(self, hidden_states):
-        if is_torch_version("==", "1.11") and hidden_states.dtype == torch.float16:
-            hidden_states = self.proj(hidden_states)
-            return torch_npu.npu_geglu(hidden_states, dim=-1, approximate=1)[0]
-        else:
-            hidden_states, gate = self.proj(hidden_states).chunk(2, dim=-1)
-            return hidden_states * self.gelu(gate)
+        hidden_states = self.proj(hidden_states)
+        return torch_npu.npu_geglu(hidden_states, dim=-1, approximate=1)[0]
+
 
 
 class ApproximateGELU(nn.Module):
