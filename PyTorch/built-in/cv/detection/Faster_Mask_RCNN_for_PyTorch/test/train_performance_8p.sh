@@ -212,7 +212,7 @@ echo "------------------ Final result ------------------"
 #输出性能FPS，需要模型审视修改
 ##Time=`grep total_loss $cur_path/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log|awk -F 'time: ' '{print $2}'|awk '{print $1}'|awk 'NR>1'|awk '{sum+=$1} END {print sum/NR}'|sed s/[[:space:]]//g`
 #FPS=`awk 'BEGIN{printf "%.2f\n",'${batch_size}'/'${Time}'}'`
-FPS=`grep FPS $test_path_dir/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log | awk 'NR==2'|awk '{print $3}'`
+FPS=`grep FPS $test_path_dir/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log|awk '{print $NF}'|awk '{sum+=$1} END {print  sum/NR}'`
 #打印，不需要修改
 echo "Final Performance images/sec : $FPS"
 
