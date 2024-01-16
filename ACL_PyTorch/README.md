@@ -505,6 +505,17 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td></td>
     <td>77.4(bs64)</td>
     <td>bs x 3 x 640 x 640</td>
+    <tr>
+        <td> 100399
+        </td><td>
+        <a href=https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/GLIP> GLIP </a>
+        </td>
+        <td>coco</td>
+    <td>46.3%</td>
+        <td></td>
+        <td></td>
+    <td>0.62(bs1)</td>
+    <td>bs x 3 x H x W</td>
 </table>
 
 <p>CV-segmentation</p>

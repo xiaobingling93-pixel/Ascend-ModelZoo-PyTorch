@@ -1,0 +1,961 @@
+diff -uprN a/GLIP/maskrcnn_benchmark/config/defaults.py b/GLIP/maskrcnn_benchmark/config/defaults.py
+--- a/GLIP/maskrcnn_benchmark/config/defaults.py	2024-01-15 11:50:16.776000000 +0000
++++ b/GLIP/maskrcnn_benchmark/config/defaults.py	2024-01-15 11:51:24.140000000 +0000
+@@ -24,7 +24,7 @@ _C.MODEL.RPN_ONLY = False
+ _C.MODEL.BOX_ON = True
+ _C.MODEL.MASK_ON = False
+ _C.MODEL.KEYPOINT_ON = False
+-_C.MODEL.DEVICE = "cuda"
++_C.MODEL.DEVICE = "cpu"
+ 
+ _C.MODEL.META_ARCHITECTURE = "GeneralizedRCNN"
+ 
+diff -uprN a/GLIP/maskrcnn_benchmark/data/datasets/evaluation/coco/coco_eval.py b/GLIP/maskrcnn_benchmark/data/datasets/evaluation/coco/coco_eval.py
+--- a/GLIP/maskrcnn_benchmark/data/datasets/evaluation/coco/coco_eval.py	2024-01-15 11:50:16.776000000 +0000
++++ b/GLIP/maskrcnn_benchmark/data/datasets/evaluation/coco/coco_eval.py	2024-01-15 11:51:24.140000000 +0000
+@@ -8,7 +8,6 @@ import json
+ from collections import OrderedDict
+ from tqdm import tqdm
+ 
+-from maskrcnn_benchmark.modeling.roi_heads.mask_head.inference import Masker
+ from maskrcnn_benchmark.structures.bounding_box import BoxList
+ from maskrcnn_benchmark.structures.boxlist_ops import boxlist_iou
+ 
+diff -uprN a/GLIP/maskrcnn_benchmark/data/datasets/evaluation/__init__.py b/GLIP/maskrcnn_benchmark/data/datasets/evaluation/__init__.py
+--- a/GLIP/maskrcnn_benchmark/data/datasets/evaluation/__init__.py	2024-01-15 11:50:16.776000000 +0000
++++ b/GLIP/maskrcnn_benchmark/data/datasets/evaluation/__init__.py	2024-01-15 11:51:24.140000000 +0000
+@@ -3,8 +3,6 @@ from maskrcnn_benchmark.data import data
+ from .coco import coco_evaluation
+ from .voc import voc_evaluation
+ from .vg import vg_evaluation
+-from .box_aug import im_detect_bbox_aug
+-from .od_to_grounding import od_to_grounding_evaluation
+ 
+ 
+ def evaluate(dataset, predictions, output_folder, **kwargs):
+diff -uprN a/GLIP/maskrcnn_benchmark/data/datasets/evaluation/lvis/lvis_eval.py b/GLIP/maskrcnn_benchmark/data/datasets/evaluation/lvis/lvis_eval.py
+--- a/GLIP/maskrcnn_benchmark/data/datasets/evaluation/lvis/lvis_eval.py	2024-01-15 11:50:16.780000000 +0000
++++ b/GLIP/maskrcnn_benchmark/data/datasets/evaluation/lvis/lvis_eval.py	2024-01-15 11:51:24.140000000 +0000
+@@ -9,7 +9,6 @@ from collections import OrderedDict, def
+ import numpy as np
+ import pycocotools.mask as mask_util
+ import torch
+-import torch._six
+ 
+ import maskrcnn_benchmark.utils.mdetr_dist  as dist
+ 
+diff -uprN a/GLIP/maskrcnn_benchmark/data/datasets/refexp.py b/GLIP/maskrcnn_benchmark/data/datasets/refexp.py
+--- a/GLIP/maskrcnn_benchmark/data/datasets/refexp.py	2024-01-15 11:50:16.780000000 +0000
++++ b/GLIP/maskrcnn_benchmark/data/datasets/refexp.py	2024-01-15 11:51:24.144000000 +0000
+@@ -6,7 +6,6 @@ import torch
+ import torch.utils.data
+ 
+ import maskrcnn_benchmark.utils.dist as dist
+-from maskrcnn_benchmark.layers.set_loss import generalized_box_iou
+ 
+ from .modulated_coco import ModulatedDataset
+ 
+diff -uprN a/GLIP/maskrcnn_benchmark/engine/inference.py b/GLIP/maskrcnn_benchmark/engine/inference.py
+--- a/GLIP/maskrcnn_benchmark/engine/inference.py	2024-01-15 11:50:16.780000000 +0000
++++ b/GLIP/maskrcnn_benchmark/engine/inference.py	2024-01-15 11:51:24.144000000 +0000
+@@ -9,7 +9,7 @@ import torch
+ from tqdm import tqdm
+ from collections import defaultdict
+ 
+-from maskrcnn_benchmark.data.datasets.evaluation import evaluate, im_detect_bbox_aug
++from maskrcnn_benchmark.data.datasets.evaluation import evaluate
+ from ..utils.comm import is_main_process
+ from ..utils.comm import all_gather
+ from ..utils.comm import synchronize
+diff -uprN a/GLIP/maskrcnn_benchmark/layers/__init__.py b/GLIP/maskrcnn_benchmark/layers/__init__.py
+--- a/GLIP/maskrcnn_benchmark/layers/__init__.py	2024-01-15 11:50:16.780000000 +0000
++++ b/GLIP/maskrcnn_benchmark/layers/__init__.py	2024-01-15 11:51:24.144000000 +0000
+@@ -1,34 +1,8 @@
+ # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
+ import torch
+-
+-from .batch_norm import FrozenBatchNorm2d, NaiveSyncBatchNorm2d
+-from .misc import Conv2d, _NewEmptyTensorOp
+-from .misc import ConvTranspose2d
+-from .misc import DFConv2d
+-from .misc import interpolate
+-from .misc import Scale
+-from .nms import nms
+-from .nms import ml_nms
+-from .nms import soft_nms
+-from .roi_align import ROIAlign
+-from .roi_align import roi_align
+-from .roi_align import ROIAlignV2
+-from .roi_pool import ROIPool
+-from .roi_pool import roi_pool
+-from .smooth_l1_loss import smooth_l1_loss
+-from .sigmoid_focal_loss import SigmoidFocalLoss, TokenSigmoidFocalLoss
+-from .iou_loss import IOULoss, IOUWHLoss
+-from .deform_conv import DeformConv, ModulatedDeformConv
+-from .dropblock import DropBlock2D, DropBlock3D
+-from .evonorm import EvoNorm2d
++from .misc import Conv2d
+ from .dyrelu import DYReLU, swish
+-from .se import SELayer, SEBlock
+-from .dyhead import DyHead
+-from .set_loss import HungarianMatcher, SetCriterion
++from .dropblock import DropBlock2D
++from .misc import Scale
+ 
+-__all__ = ["nms", "ml_nms", "soft_nms", "roi_align", "ROIAlign", "roi_pool", "ROIPool",
+-           "smooth_l1_loss", "Conv2d", "ConvTranspose2d", "interpolate", "swish",
+-           "FrozenBatchNorm2d", "NaiveSyncBatchNorm2d", "SigmoidFocalLoss", "TokenSigmoidFocalLoss", "IOULoss",
+-           "IOUWHLoss", "Scale", "DeformConv", "ModulatedDeformConv", "DyHead",
+-           "DropBlock2D", "DropBlock3D", "EvoNorm2d", "DYReLU", "SELayer", "SEBlock",
+-           "HungarianMatcher", "SetCriterion", "ROIAlignV2", "_NewEmptyTensorOp"]
++__all__ = [ "DYReLU", "Conv2d", "DropBlock2D", "Scale"]
+\ No newline at end of file
+diff -uprN a/GLIP/maskrcnn_benchmark/modeling/backbone/__init__.py b/GLIP/maskrcnn_benchmark/modeling/backbone/__init__.py
+--- a/GLIP/maskrcnn_benchmark/modeling/backbone/__init__.py	2024-01-15 11:50:16.784000000 +0000
++++ b/GLIP/maskrcnn_benchmark/modeling/backbone/__init__.py	2024-01-15 11:51:24.168000000 +0000
+@@ -4,12 +4,12 @@ from torch import nn
+ 
+ from maskrcnn_benchmark.modeling import registry
+ from maskrcnn_benchmark.modeling.make_layers import conv_with_kaiming_uniform
+-from maskrcnn_benchmark.layers import DropBlock2D, DyHead
++from maskrcnn_benchmark.layers import DropBlock2D
+ from . import fpn as fpn_module
+-from . import bifpn
+-from . import resnet
+-from . import efficientnet
+-from . import efficientdet
++# from . import bifpn
++# from . import resnet
++# from . import efficientnet
++# from . import efficientdet
+ from . import swint
+ from . import swint_v2
+ from . import swint_vl
+diff -uprN a/GLIP/maskrcnn_benchmark/modeling/backbone/swint.py b/GLIP/maskrcnn_benchmark/modeling/backbone/swint.py
+--- a/GLIP/maskrcnn_benchmark/modeling/backbone/swint.py	2024-01-15 11:50:16.784000000 +0000
++++ b/GLIP/maskrcnn_benchmark/modeling/backbone/swint.py	2024-01-15 11:51:24.172000000 +0000
+@@ -352,9 +352,13 @@ class BasicLayer(nn.Module):
+         """
+ 
+         # calculate attention mask for SW-MSA
+-        Hp = int(np.ceil(H / self.window_size)) * self.window_size
+-        Wp = int(np.ceil(W / self.window_size)) * self.window_size
+-        img_mask = torch.zeros((1, Hp, Wp, 1), device=x.device)  # 1 Hp Wp 1
++        # Hp = int(np.ceil(H / self.window_size)) * self.window_size
++        # Wp = int(np.ceil(W / self.window_size)) * self.window_size
++        # img_mask = torch.zeros((1, Hp, Wp, 1), device=x.device)  # 1 Hp Wp 1
++        Hp = torch.ceil(H / self.window_size).long() * self.window_size
++        Wp = torch.ceil(W / self.window_size).long() * self.window_size
++        img_mask = torch.zeros((1, 1, 1, 1), device='cpu')
++        img_mask = img_mask.repeat(1, Hp, Wp, 1)
+         h_slices = (slice(0, -self.window_size),
+                     slice(-self.window_size, -self.shift_size),
+                     slice(-self.shift_size, None))
+@@ -374,10 +378,7 @@ class BasicLayer(nn.Module):
+ 
+         for blk in self.blocks:
+             blk.H, blk.W = H, W
+-            if self.use_checkpoint:
+-                x = checkpoint.checkpoint(blk, x, attn_mask)
+-            else:
+-                x = blk(x, attn_mask)
++            x = blk(x, attn_mask)
+         if self.downsample is not None:
+             x_down = self.downsample(x, H, W)
+             Wh, Ww = (H + 1) // 2, (W + 1) // 2
+@@ -413,10 +414,10 @@ class PatchEmbed(nn.Module):
+         """Forward function."""
+         # padding
+         _, _, H, W = x.size()
+-        if W % self.patch_size[1] != 0:
+-            x = F.pad(x, (0, self.patch_size[1] - W % self.patch_size[1]))
+-        if H % self.patch_size[0] != 0:
+-            x = F.pad(x, (0, 0, 0, self.patch_size[0] - H % self.patch_size[0]))
++        # if W % self.patch_size[1] != 0:
++        #     x = F.pad(x, (0, self.patch_size[1] - W % self.patch_size[1]))
++        # if H % self.patch_size[0] != 0:
++        #     x = F.pad(x, (0, 0, 0, self.patch_size[0] - H % self.patch_size[0]))
+ 
+         x = self.proj(x)  # B C Wh Ww
+         if self.norm is not None:
+diff -uprN a/GLIP/maskrcnn_benchmark/modeling/detector/generalized_vl_rcnn.py b/GLIP/maskrcnn_benchmark/modeling/detector/generalized_vl_rcnn.py
+--- a/GLIP/maskrcnn_benchmark/modeling/detector/generalized_vl_rcnn.py	2024-01-15 11:50:16.784000000 +0000
++++ b/GLIP/maskrcnn_benchmark/modeling/detector/generalized_vl_rcnn.py	2024-01-15 11:51:24.176000000 +0000
+@@ -13,7 +13,6 @@ from maskrcnn_benchmark.structures.boxli
+ 
+ from ..backbone import build_backbone
+ from ..rpn import build_rpn
+-from ..roi_heads import build_roi_heads
+ 
+ from ..language_backbone import build_language_backbone
+ from transformers import AutoTokenizer
+@@ -96,7 +95,6 @@ class GeneralizedVLRCNN(nn.Module):
+         self.language_backbone = build_language_backbone(cfg)
+ 
+         self.rpn = build_rpn(cfg)
+-        self.roi_heads = build_roi_heads(cfg)
+         self.DEBUG = cfg.MODEL.DEBUG
+ 
+         self.freeze_backbone = cfg.MODEL.BACKBONE.FREEZE
+@@ -283,38 +281,9 @@ class GeneralizedVLRCNN(nn.Module):
+         else:
+             proposals, proposal_losses, fused_visual_features = self.rpn(images, visual_features, targets, language_dict_features, positive_map,
+                                               captions, swint_feature_c4)
+-        if self.roi_heads:
+-            if self.cfg.MODEL.ROI_MASK_HEAD.PREDICTOR.startswith("VL"):
+-                if self.training:
+-                    # "Only support VL mask head right now!!"
+-                    assert len(targets) == 1 and len(targets[0]) == len(positive_map), "shape match assert for mask head!!"
+-                    # Not necessary but as a safe guard:
+-                    # use the binary 0/1 positive map to replace the normalized positive map
+-                    targets[0].add_field("positive_map", positive_map)
+-            # TODO: make sure that this use of language_dict_features is correct!! Its content should be changed in self.rpn
+-            if self.cfg.MODEL.RPN.RETURN_FUSED_FEATURES:
+-                x, result, detector_losses = self.roi_heads(
+-                    fused_visual_features, proposals, targets,
+-                    language_dict_features=language_dict_features,
+-                    positive_map_label_to_token=positive_map if not self.training else None
+-                )
+-            else:
+-                x, result, detector_losses = self.roi_heads(
+-                    visual_features, proposals, targets,
+-                    language_dict_features=language_dict_features,
+-                    positive_map_label_to_token=positive_map if not self.training else None
+-                )
+-        else:
+-            # RPN-only models don't have roi_heads
+-            x = visual_features
+-            result = proposals
+-            detector_losses = {}
+-
+-        if self.training:
+-            losses = {}
+-            losses.update(detector_losses)
+-            losses.update(proposal_losses)
+-            return losses
++        x = visual_features
++        result = proposals
++        detector_losses = {}
+ 
+         return result
+ 
+diff -uprN a/GLIP/maskrcnn_benchmark/modeling/detector/__init__.py b/GLIP/maskrcnn_benchmark/modeling/detector/__init__.py
+--- a/GLIP/maskrcnn_benchmark/modeling/detector/__init__.py	2024-01-15 11:50:16.784000000 +0000
++++ b/GLIP/maskrcnn_benchmark/modeling/detector/__init__.py	2024-01-15 11:51:24.176000000 +0000
+@@ -1,7 +1,6 @@
+-from .generalized_rcnn import GeneralizedRCNN
+ from .generalized_vl_rcnn import GeneralizedVLRCNN
+ 
+-_DETECTION_META_ARCHITECTURES = {"GeneralizedRCNN": GeneralizedRCNN,
++_DETECTION_META_ARCHITECTURES = {
+                                  "GeneralizedVLRCNN": GeneralizedVLRCNN
+                                  }
+ 
+diff -uprN a/GLIP/maskrcnn_benchmark/modeling/make_layers.py b/GLIP/maskrcnn_benchmark/modeling/make_layers.py
+--- a/GLIP/maskrcnn_benchmark/modeling/make_layers.py	2024-01-15 11:50:16.788000000 +0000
++++ b/GLIP/maskrcnn_benchmark/modeling/make_layers.py	2024-01-15 11:51:24.180000000 +0000
+@@ -8,7 +8,6 @@ from torch import nn
+ from torch.nn import functional as F
+ from maskrcnn_benchmark.config import cfg
+ from maskrcnn_benchmark.layers import Conv2d, DYReLU
+-from maskrcnn_benchmark.modeling.poolers import Pooler
+ 
+ 
+ def get_group_gn(dim, dim_per_gp, num_groups):
+diff -uprN a/GLIP/maskrcnn_benchmark/modeling/rpn/inference.py b/GLIP/maskrcnn_benchmark/modeling/rpn/inference.py
+--- a/GLIP/maskrcnn_benchmark/modeling/rpn/inference.py	2024-01-15 11:50:16.788000000 +0000
++++ b/GLIP/maskrcnn_benchmark/modeling/rpn/inference.py	2024-01-15 11:51:24.188000000 +0000
+@@ -689,6 +689,9 @@ class ATSSPostProcessor(torch.nn.Module)
+ 
+             per_box_cls, top_k_indices = per_box_cls.topk(per_pre_nms_top_n, sorted=False)
+ 
++            top_k_indices, x = torch.sort(top_k_indices)
++            per_box_cls = per_box_cls[x]
++
+             per_candidate_nonzeros = per_candidate_inds.nonzero()[top_k_indices, :]
+ 
+             per_box_loc = per_candidate_nonzeros[:, 0]
+@@ -704,8 +707,8 @@ class ATSSPostProcessor(torch.nn.Module)
+             boxlist = BoxList(detections, per_anchors.size, mode="xyxy")
+             boxlist.add_field("labels", per_class)
+             boxlist.add_field("scores", torch.sqrt(per_box_cls))
+-            boxlist = boxlist.clip_to_image(remove_empty=False)
+-            boxlist = remove_small_boxes(boxlist, self.min_size)
++            # boxlist = boxlist.clip_to_image(remove_empty=False)
++            # boxlist = remove_small_boxes(boxlist, self.min_size)
+             results.append(boxlist)
+ 
+         return results
+@@ -728,13 +731,14 @@ class ATSSPostProcessor(torch.nn.Module)
+                 t = token_logits[idx]
+             if dot_product_logits is not None:
+                 d = dot_product_logits[idx]
+-
+             sampled_boxes.append(
+                 self.forward_for_single_feature_map(b, c, a, o, t, d, positive_map)
+             )
+ 
+         boxlists = list(zip(*sampled_boxes))
+         boxlists = [cat_boxlist(boxlist) for boxlist in boxlists]
++        boxlists[0] = boxlists[0].clip_to_image(remove_empty=False)
++        boxlists[0] = remove_small_boxes(boxlists[0], self.min_size)
+         if not (self.bbox_aug_enabled and not self.bbox_aug_vote):
+             boxlists = self.select_over_all_levels(boxlists)
+ 
+diff -uprN a/GLIP/maskrcnn_benchmark/modeling/rpn/__init__.py b/GLIP/maskrcnn_benchmark/modeling/rpn/__init__.py
+--- a/GLIP/maskrcnn_benchmark/modeling/rpn/__init__.py	2024-01-15 11:50:16.788000000 +0000
++++ b/GLIP/maskrcnn_benchmark/modeling/rpn/__init__.py	2024-01-15 11:51:24.188000000 +0000
+@@ -1,17 +1,8 @@
+ # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
+ # from .rpn import build_rpn
+-from .rpn import RPNModule
+-from .retina import RetinaNetModule
+-from .fcos import FCOSModule
+-from .atss import ATSSModule
+-from .dyhead import DyHeadModule
+ from .vldyhead import VLDyHeadModule
+ 
+-_RPN_META_ARCHITECTURES = {"RPN": RPNModule,
+-                           "RETINA": RetinaNetModule,
+-                           "FCOS": FCOSModule,
+-                           "ATSS": ATSSModule,
+-                           "DYHEAD": DyHeadModule,
++_RPN_META_ARCHITECTURES = {
+                            "VLDYHEAD": VLDyHeadModule
+                            }
+ 
+diff -uprN a/GLIP/maskrcnn_benchmark/modeling/rpn/vldyhead.py b/GLIP/maskrcnn_benchmark/modeling/rpn/vldyhead.py
+--- a/GLIP/maskrcnn_benchmark/modeling/rpn/vldyhead.py	2024-01-15 11:50:16.792000000 +0000
++++ b/GLIP/maskrcnn_benchmark/modeling/rpn/vldyhead.py	2024-01-15 11:51:24.192000000 +0000
+@@ -1,16 +1,16 @@
+ import torch
++import onnx
++from torch import Tensor
++import torchvision
+ import torch.nn.functional as F
+ from torch import nn
+ from collections import defaultdict
+ 
+ from .inference import make_atss_postprocessor
+-from .loss import make_atss_loss_evaluator
+ from .anchor_generator import make_anchor_generator_complex
+ 
+ from maskrcnn_benchmark.structures.boxlist_ops import cat_boxlist
+-from maskrcnn_benchmark.layers import Scale, DYReLU, SELayer, ModulatedDeformConv
+-from maskrcnn_benchmark.layers import NaiveSyncBatchNorm2d, FrozenBatchNorm2d
+-from maskrcnn_benchmark.modeling.backbone.fbnet import *
++from maskrcnn_benchmark.layers import Scale, DYReLU
+ from maskrcnn_benchmark.engine.inference import create_positive_map_label_to_token_from_positive_map
+ from ..utils import cat, concat_box_prediction_layers, permute_and_flatten
+ 
+@@ -24,6 +24,8 @@ import pdb
+ 
+ from maskrcnn_benchmark.modeling.language_backbone.clip_model import QuickGELU, LayerNorm, DropPath
+ from timm.models.layers import DropPath, trunc_normal_
++from torchvision.ops import DeformConv2d
++import math
+ 
+ class h_sigmoid(nn.Module):
+     def __init__(self, inplace=True, h_max=1):
+@@ -85,15 +87,68 @@ class BoxCoder(object):
+         pred_w = torch.exp(dw) * widths[:, None]
+         pred_h = torch.exp(dh) * heights[:, None]
+ 
+-        pred_boxes = torch.zeros_like(preds)
+-        pred_boxes[:, 0::4] = pred_ctr_x - 0.5 * (pred_w - 1)
+-        pred_boxes[:, 1::4] = pred_ctr_y - 0.5 * (pred_h - 1)
+-        pred_boxes[:, 2::4] = pred_ctr_x + 0.5 * (pred_w - 1)
+-        pred_boxes[:, 3::4] = pred_ctr_y + 0.5 * (pred_h - 1)
++        # pred_boxes = torch.zeros_like(preds)
++        # pred_boxes[:, 0::4] = pred_ctr_x - 0.5 * (pred_w - 1)
++        # pred_boxes[:, 1::4] = pred_ctr_y - 0.5 * (pred_h - 1)
++        # pred_boxes[:, 2::4] = pred_ctr_x + 0.5 * (pred_w - 1)
++        # pred_boxes[:, 3::4] = pred_ctr_y + 0.5 * (pred_h - 1)
++        x = pred_ctr_x - 0.5 * (pred_w - 1)
++        y = pred_ctr_y - 0.5 * (pred_h - 1)
++        z = pred_ctr_x + 0.5 * (pred_w - 1)
++        g = pred_ctr_y + 0.5 * (pred_h - 1)
++        pred_boxes = torch.cat((x,y,z,g), dim=1)
+ 
+         return pred_boxes
+ 
+ 
++class AscendDeformConv(torch.autograd.Function):
++    @staticmethod
++    def forward(ctx,
++                input,
++                weight,
++                offset,
++                bias,
++                stride=1,
++                padding=0,
++                dilation=1,
++                groups=1,
++                deform_groups=1,
++                with_bias = True,
++                im2col_step=1):
++        batch, in_channels, in_height, in_width = input.shape
++        if len(padding) == 2:
++            pad_top, pad_bottom, pad_left, pad_right = \
++                padding[0], padding[0], padding[1], padding[1]
++        elif len(padding) == 4:
++            pad_top, pad_bottom, pad_left, pad_right = padding
++
++        dilation_h, dilation_w = dilation[-2:]
++        filter_height, filter_width = weight.shape[-2:]
++        stride_h, stride_w = stride[-2:]
++
++        out_channels = weight.size(0)
++        out_height = (in_height + pad_top + pad_bottom - \
++                     (dilation_h * (filter_height - 1) + 1)) / stride_h + 1 
++        out_width = (in_width + pad_left + pad_right - \
++                     (dilation_w * (filter_width - 1) + 1)) / stride_w + 1
++        
++        # return a random tensor with output shape
++        return torch.randn(batch, out_channels, int(out_height), int(out_width))
++
++    @staticmethod
++    def symbolic(g, input, weight, offset, bias, stride, padding, dilation, groups, 
++                 deform_groups, with_bias=True, im2col_step=32):
++        return g.op('ascend::DeformableConv2D', input, weight, offset, bias,
++                    strides_i=stride,
++                    pads_i=padding,
++                    dilations_i=dilation,
++                    groups_i=groups,
++                    deformable_groups_i=deform_groups,
++                    bias_i=with_bias,
++                    im2col_step_i=im2col_step,
++                    data_format_s="NCHW")
++
++
+ class Conv3x3Norm(torch.nn.Module):
+     def __init__(self,
+                  in_channels,
+@@ -105,8 +160,7 @@ class Conv3x3Norm(torch.nn.Module):
+         super(Conv3x3Norm, self).__init__()
+ 
+         if deformable:
+-            self.conv = ModulatedDeformConv(in_channels, out_channels, kernel_size=3, stride=stride, padding=1,
+-                                            groups=groups)
++            self.conv = DeformConv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=3, stride=stride, padding=1)
+         else:
+             self.conv = nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=1, groups=groups)
+ 
+@@ -131,8 +185,14 @@ class Conv3x3Norm(torch.nn.Module):
+         else:
+             self.bn = None
+ 
+-    def forward(self, input, **kwargs):
+-        x = self.conv(input, **kwargs)
++    def forward(self, input, offset):
++        if torch.onnx.is_in_onnx_export():
++            x = AscendDeformConv.apply(input, self.conv.weight, offset, self.conv.bias,
++                    self.conv.stride, (1,1), 
++                    self.conv.dilation, self.conv.groups, 
++                    1)
++        else:
++            x = self.conv(input, **kwargs)
+         if self.bn:
+             x = self.bn(x)
+         return x
+@@ -197,18 +257,71 @@ class DyConv(torch.nn.Module):
+ 
+             conv_args = dict()
+             if self.offset is not None:
+-                offset_mask = self.offset(feature)
+-                offset = offset_mask[:, :18, :, :]
+-                mask = offset_mask[:, 18:, :, :].sigmoid()
+-                conv_args = dict(offset=offset, mask=mask)
+-
+-            temp_fea = [self.DyConv[1](feature, **conv_args)]
++                if torch.onnx.is_in_onnx_export():
++                    offset_mask = self.offset(feature)
++                    offset = offset_mask[:, :18, :, :]
++                    mask = offset_mask[:, 18:, :, :].sigmoid()
++                    n, offset_c, h, w = offset.shape
++                    offset_ = offset.reshape(n, -1, 2, h, w)
++                    offset_y = offset_[:, :, 0, ...].reshape(n, offset_c // 2, h, w)
++                    offset_x = offset_[:, :, 1, ...].reshape(n, offset_c // 2, h, w)
++                    offset = torch.cat((offset_x, offset_y, mask), 1)
++                    conv_args = dict(offset=offset)
++                    temp_fea = [self.DyConv[1](feature, offset)]
++                else:
++                    offset_mask = self.offset(feature)
++                    offset = offset_mask[:, :18, :, :]
++                    mask = offset_mask[:, 18:, :, :].sigmoid()
++                    conv_args = dict(offset=offset, mask=mask)
++                    temp_fea = [self.DyConv[1](feature, **conv_args)]
+ 
+             if level > 0:
+-                temp_fea.append(self.DyConv[2](visual_feats[level - 1], **conv_args))
++                if torch.onnx.is_in_onnx_export():
++                    h = visual_feats[level - 1].shape[2]
++                    w = visual_feats[level - 1].shape[3]
++                    offset_mask = self.offset(feature)
++                    offset = offset_mask[:, :18, :h, :w]
++                    mask = offset_mask[:, 18:, :h, :w].sigmoid()
++                    n, offset_c, h, w = offset.shape
++                    offset_ = offset.reshape(n, -1, 2, h, w)
++                    offset_y = offset_[:, :, 0, ...].reshape(n, offset_c // 2, h, w)
++                    offset_x = offset_[:, :, 1, ...].reshape(n, offset_c // 2, h, w)
++                    offset = torch.cat((offset_x, offset_y, mask), 1)
++                    conv_args = dict(offset=offset)      
++                    temp_fea.append(self.DyConv[2](visual_feats[level - 1], offset))
++                else:
++                    w = visual_feats[level - 1].shape[2]
++                    h = visual_feats[level - 1].shape[3]
++                    offset_mask = self.offset(feature)
++                    offset = offset_mask[:, :18, :w, :h]
++                    mask = offset_mask[:, 18:, :w, :h].sigmoid()
++                    conv_args = dict(offset=offset, mask=mask)                
++                    temp_fea.append(self.DyConv[2](visual_feats[level - 1], **conv_args))
+             if level < len(visual_feats) - 1:
+-                temp_fea.append(F.upsample_bilinear(self.DyConv[0](visual_feats[level + 1], **conv_args),
+-                                                    size=[feature.size(2), feature.size(3)]))
++                if torch.onnx.is_in_onnx_export():
++
++                    h = visual_feats[level + 1].shape[2]
++                    w = visual_feats[level + 1].shape[3]
++                    offset_mask = self.offset(feature)
++                    offset = offset_mask[:, :18, :h, :w]
++                    mask = offset_mask[:, 18:, :h, :w].sigmoid()
++                    n, offset_c, _, _ = offset.shape
++                    offset_ = offset.reshape(n, -1, 2, h, w)
++                    offset_y = offset_[:, :, 0, ...].reshape(n, offset_c // 2, h, w)
++                    offset_x = offset_[:, :, 1, ...].reshape(n, offset_c // 2, h, w)
++                    offset = torch.cat((offset_x, offset_y, mask), 1)
++                    conv_args = dict(offset=offset)  
++                    temp_fea.append(F.upsample_bilinear(self.DyConv[0](visual_feats[level + 1], offset),
++                                                        size=[feature.size(2), feature.size(3)]))
++                else:
++                    w = visual_feats[level + 1].shape[2]
++                    h = visual_feats[level + 1].shape[3]
++                    offset_mask = self.offset(feature)
++                    offset = offset_mask[:, :18, :w, :h]
++                    mask = offset_mask[:, 18:, :w, :h].sigmoid()
++                    conv_args = dict(offset=offset, mask=mask)
++                    temp_fea.append(F.upsample_bilinear(self.DyConv[0](visual_feats[level + 1], **conv_args),
++                                                        size=[feature.size(2), feature.size(3)]))
+             mean_fea = torch.mean(torch.stack(temp_fea), dim=0, keepdim=False)
+ 
+             if self.AttnConv is not None:
+@@ -481,24 +594,14 @@ class VLFuse(torch.nn.Module):
+             fused_language_dict_features = language_dict_features
+ 
+         elif self.cfg.MODEL.DYHEAD.FUSE_CONFIG.TYPE == "MHA-B":
+-            if self.use_checkpoint:
+-                q0, q1, q2, q3, q4, l0, l1, l2, l3, l4 = checkpoint.checkpoint(self.b_attn,
+-                    visual_features[0], visual_features[1],
+-                    visual_features[2], visual_features[3],
+-                    visual_features[4],
+-                    language_dict_features['hidden'],
+-                    language_dict_features['masks'],
+-                    self.dummy_tensor
+-                )
+-            else:
+-                q0, q1, q2, q3, q4, l0, l1, l2, l3, l4 = self.b_attn(
+-                    visual_features[0], visual_features[1],
+-                    visual_features[2], visual_features[3],
+-                    visual_features[4],
+-                    language_dict_features['hidden'],
+-                    language_dict_features['masks'],
+-                    self.dummy_tensor
+-                )
++            q0, q1, q2, q3, q4, l0, l1, l2, l3, l4 = self.b_attn(
++                visual_features[0], visual_features[1],
++                visual_features[2], visual_features[3],
++                visual_features[4],
++                language_dict_features['hidden'],
++                language_dict_features['masks'],
++                self.dummy_tensor
++            )
+ 
+             fused_visual_features = [q0, q1, q2, q3, q4]
+             if self.cfg.MODEL.DYHEAD.FUSE_CONFIG.SEPARATE_BIDIRECTIONAL and self.cfg.MODEL.DYHEAD.FUSE_CONFIG.DO_LANG_PROJ_OUTSIDE_CHECKPOINT:
+@@ -558,9 +661,10 @@ class VLFuse(torch.nn.Module):
+ 
+ 
+ class VLDyHead(torch.nn.Module):
+-    def __init__(self, cfg):
++    def __init__(self, cfg, onnx_export):
+         super(VLDyHead, self).__init__()
+         self.cfg = cfg
++        self.onnx_export = onnx_export
+         # bert_cfg = BertConfig.from_pretrained(cfg.MODEL.LANGUAGE_BACKBONE.MODEL_TYPE)
+         if cfg.MODEL.LANGUAGE_BACKBONE.MODEL_TYPE == "bert-base-uncased":
+             lang_cfg = BertConfig.from_pretrained(cfg.MODEL.LANGUAGE_BACKBONE.MODEL_TYPE)
+@@ -719,122 +823,58 @@ class VLDyHead(torch.nn.Module):
+                         torch.nn.init.normal_(l.weight, std=0.01)
+                         torch.nn.init.constant_(l.bias, bias_value)
+         
+-        if self.cfg.MODEL.DYHEAD.FUSE_CONFIG.MLM_LOSS:
+-            if cfg.MODEL.LANGUAGE_BACKBONE.MODEL_TYPE == "clip":
+-                lang_cfg = BertConfig.from_pretrained("bert-base-uncased")
+-                lang_cfg.hidden_size = cfg.MODEL.CLIP.WIDTH
+-                lang_cfg.vocab_size = cfg.MODEL.CLIP.VOCAB_SIZE
+-            self.mlm_head = BertLMPredictionHead(
+-                lang_cfg
+-            ) #nn.Linear(hidden_size, config.vocab_size, bias=False)
+ 
+     def forward(self, x, language_dict_features=None, embedding=None, swint_feature_c4=None):
+         logits = []
+         bbox_reg = []
+         centerness = []
+ 
+-        feat_inputs = {"visual": x,
+-                       "lang": language_dict_features}
+-
+-        dyhead_tower = self.dyhead_tower(feat_inputs)
++        if self.onnx_export == "rpn_head":
++            feat_inputs = {"visual": x,
++                        "lang": language_dict_features}            
++            dyhead_tower = self.dyhead_tower(feat_inputs)
++            return dyhead_tower["visual"][0], dyhead_tower["visual"][1], dyhead_tower["visual"][2], dyhead_tower["visual"][3], \
++                   dyhead_tower["visual"][4], dyhead_tower["lang"]["hidden"]
+ 
+-        # soft token
+-        t_logits = None
+-        if self.cfg.MODEL.DYHEAD.FUSE_CONFIG.USE_TOKEN_LOSS:
+-            t_logits = []
+-        
+-        if self.cfg.MODEL.DYHEAD.FUSE_CONFIG.USE_FUSED_FEATURES_DOT_PRODUCT:
+-            embedding = dyhead_tower["lang"]["hidden"]
+-        
+-        # MLM loss
+-        if self.cfg.MODEL.DYHEAD.FUSE_CONFIG.MLM_LOSS:
+-            mlm_logits = self.mlm_head(embedding)
+-        else:
++        if self.onnx_export == "select":
++            embedding = x[5]
+             mlm_logits = None
+ 
+         # contrastive
+-        contrastive_logits = None
+-        proj_tokens = None
+-        if self.cfg.MODEL.DYHEAD.FUSE_CONFIG.USE_CONTRASTIVE_ALIGN_LOSS:
+-            contrastive_logits = []
+-            # follow MDETR's way
+-            proj_tokens = F.normalize(
+-                self.contrastive_align_projection_text(embedding), p=2, dim=-1
+-            )
++            contrastive_logits = None
++            proj_tokens = None
+ 
+-        # dot product soft token
+-        dot_product_logits = None
+-        dot_product_proj_tokens = None
+-        dot_product_proj_tokens_bias = None
+-        if self.cfg.MODEL.DYHEAD.FUSE_CONFIG.USE_DOT_PRODUCT_TOKEN_LOSS:
++            # dot product soft token
++            dot_product_logits = None
++            dot_product_proj_tokens = None
++            dot_product_proj_tokens_bias = None
+             dot_product_logits = []
+             # norm
+             embedding = F.normalize(embedding, p=2, dim=-1)
+             dot_product_proj_tokens = self.dot_product_projection_text(embedding / 2.0)
+-            # w/o norm
+-            # dot_product_proj_tokens = self.dot_product_projection_text(embedding / 28.0)
+ 
+             dot_product_proj_tokens_bias = torch.matmul(embedding, self.bias_lang) + self.bias0
+ 
+-        # shallow contrastive (original feature from image & text encoder)
+-        shallow_img_emb_feats = None
+-        shallow_text_emb = None
+-        if self.cfg.MODEL.DYHEAD.FUSE_CONFIG.USE_SHALLOW_CONTRASTIVE_LOSS \
+-                or self.cfg.MODEL.DYHEAD.FUSE_CONFIG.USE_BACKBONE_SHALLOW_CONTRASTIVE_LOSS:
+-            shallow_img_emb_feats = []
+-            shallow_text_emb = embedding
+-
+-        # print([v.shape for v in x])
+-        # shallow contrastive: use the feature from swint backbone
+-        if self.cfg.MODEL.DYHEAD.FUSE_CONFIG.USE_BACKBONE_SHALLOW_CONTRASTIVE_LOSS:
+-            for b, feature in enumerate(swint_feature_c4):
+-                # BF, CF, HF, WF = feat.shape
+-                # shallow_img_emb = permute_and_flatten(feat, BF, -1, CF, HF, WF)
+-                shallow_img_emb_feats.append(feature)
++            shallow_img_emb_feats = None
++            shallow_text_emb = None
+ 
+-        fused_visual_features = None
+-        if self.cfg.MODEL.RPN.RETURN_FUSED_FEATURES:
+-            fused_visual_features = []
++            fused_visual_features = None
+ 
+         # use the feature from FPN
+-        for l, feature in enumerate(x):
+-            logits.append(self.cls_logits(dyhead_tower["visual"][l]))
++            for l in range(5):
++                logits.append(self.cls_logits(x[l]))
+ 
+-            bbox_pred = self.scales[l](self.bbox_pred(dyhead_tower["visual"][l]))
+-            bbox_reg.append(bbox_pred)
++                bbox_pred = self.scales[l](self.bbox_pred(x[l]))
++                bbox_reg.append(bbox_pred)
+ 
+-            centerness.append(self.centerness(dyhead_tower["visual"][l]))
++                centerness.append(self.centerness(x[l]))
+ 
+-            if self.cfg.MODEL.DYHEAD.FUSE_CONFIG.USE_TOKEN_LOSS:
+-                t_logits.append(self.token_logits(dyhead_tower["visual"][l]))
+-
+-                # ABLATION
+-                # b = self.bias.unsqueeze(0).unsqueeze(-1).unsqueeze(-1)
+-                # x = dyhead_tower["visual"][l]
+-                # B, C, H, W = x.shape
+-                # bias = b.repeat(B, 1, H, W)
+-                # t_logits.append(self.token_logits(dyhead_tower["visual"][l] + bias) + self.bias0)
+-
+-            if self.cfg.MODEL.DYHEAD.FUSE_CONFIG.USE_CONTRASTIVE_ALIGN_LOSS:
+-                x = dyhead_tower["visual"][l]
+-                B, _, H, W = x.shape
+-                C = proj_tokens.shape[2]
+-                proj_queries = self.contrastive_align_projection_image(dyhead_tower["visual"][l])
+-                proj_queries = permute_and_flatten(proj_queries, B, -1, C, H, W)
+-                normalized_img_emb = F.normalize(proj_queries, p=2, dim=-1)
+-                normalized_text_emb = proj_tokens
+-                contrastive_logit = (
+-                        torch.matmul(normalized_img_emb, normalized_text_emb.transpose(-1, -2)) / self.log_scale.exp())
+-                contrastive_logits.append(contrastive_logit)
+-
+-            if self.cfg.MODEL.DYHEAD.FUSE_CONFIG.USE_DOT_PRODUCT_TOKEN_LOSS:
+-                x = dyhead_tower["visual"][l]
+-                if self.cfg.MODEL.RPN.RETURN_FUSED_FEATURES:
+-                    fused_visual_features.append(x)
+-                B, C, H, W = x.shape
++                y = x[l]
++
++                B, C, H, W = y.shape
+ 
+                 # add bias (language)
+-                dot_product_proj_queries = self.dot_product_projection_image(x)
++                dot_product_proj_queries = self.dot_product_projection_image(y)
+                 dot_product_proj_queries = permute_and_flatten(dot_product_proj_queries, B, -1, C, H, W)
+ 
+                 A = dot_product_proj_queries.shape[1]
+@@ -846,27 +886,17 @@ class VLDyHead(torch.nn.Module):
+                     dot_product_logit = torch.clamp(dot_product_logit, min=-50000)
+                 dot_product_logits.append(dot_product_logit)
+ 
+-            if self.cfg.MODEL.DYHEAD.FUSE_CONFIG.USE_SHALLOW_CONTRASTIVE_LOSS:
+-                feat = feature
+-                BF, CF, HF, WF = feat.shape
+-                shallow_img_emb = permute_and_flatten(feat, BF, -1, CF, HF, WF)
+-                shallow_img_emb_feats.append(shallow_img_emb)
+-
+-        # no matter the feature is from backboone or from fpn, we use shallow_img_embs all the time
+-        if shallow_img_emb_feats is not None and shallow_text_emb is not None:
+-            # shallow_img_embs = torch.cat(shallow_img_embs, dim=1)
+-            proj_tokens = shallow_text_emb
+-        return logits, bbox_reg, centerness, t_logits, proj_tokens, contrastive_logits, dot_product_logits, mlm_logits, shallow_img_emb_feats, fused_visual_features
++            return logits, bbox_reg, centerness, None, proj_tokens, contrastive_logits, dot_product_logits, mlm_logits, shallow_img_emb_feats, fused_visual_features
+ 
+ 
+ class VLDyHeadModule(torch.nn.Module):
+ 
+-    def __init__(self, cfg):
++    def __init__(self, cfg, onnx_export):
+         super(VLDyHeadModule, self).__init__()
+         self.cfg = cfg
+-        self.head = VLDyHead(cfg)
++        self.head = VLDyHead(cfg, onnx_export)
++        self.onnx_export = onnx_export
+         box_coder = BoxCoder(cfg)
+-        self.loss_evaluator = make_atss_loss_evaluator(cfg, box_coder)
+         self.box_selector_train = make_atss_postprocessor(cfg, box_coder, is_train=True)
+         self.box_selector_test = make_atss_postprocessor(cfg, box_coder, is_train=False)
+         self.anchor_generator = make_anchor_generator_complex(cfg)
+@@ -895,51 +925,20 @@ class VLDyHeadModule(torch.nn.Module):
+                 captions=None,
+                 swint_feature_c4=None
+                 ):
+-
+-        if self.cfg.MODEL.DYHEAD.FUSE_CONFIG.USE_CONTRASTIVE_ALIGN_LOSS:
+-            # resizer needed
+-            embedding = language_dict_features['embedded']
+-            embedding = self.resizer(embedding)
+-        elif self.cfg.MODEL.DYHEAD.FUSE_CONFIG.USE_DOT_PRODUCT_TOKEN_LOSS:
+-            # no resizer needed
++        if self.onnx_export == "rpn_head":
+             embedding = language_dict_features['embedded']
+-        else:
+-            embedding = None
++            o1, o2, o3, o4, o5, o6 = self.head(features, language_dict_features, embedding, swint_feature_c4)
++            return o1, o2, o3, o4, o5, o6
++        if self.onnx_export == "select":
++            box_cls, box_regression, centerness, token_logits, \
++            proj_tokens, contrastive_logits, dot_product_logits, mlm_logits, shallow_img_emb_feats, fused_visual_features = self.head(features,
++                                                                            language_dict_features,
++                                                                            None,
++                                                                            swint_feature_c4
++                                                                            )
++            return  box_cls, box_regression, centerness, dot_product_logits
+ 
+-        if "masks" in language_dict_features:
+-            text_masks = language_dict_features["masks"]
+-        else:
+-            text_masks = None
+-        
+-        if self.cfg.MODEL.DYHEAD.FUSE_CONFIG.ADD_LINEAR_LAYER:
+-            embedding = self.tunable_linear.weight[:embedding.size(1), :].unsqueeze(0) + embedding
+-            language_dict_features['embedded'] = embedding
+-            language_dict_features['hidden'] = self.tunable_linear.weight[:embedding.size(1), :].unsqueeze(0) + language_dict_features['hidden']
+-
+-        box_cls, box_regression, centerness, token_logits, \
+-        proj_tokens, contrastive_logits, dot_product_logits, mlm_logits, shallow_img_emb_feats, fused_visual_features = self.head(features,
+-                                                                        language_dict_features,
+-                                                                        embedding,
+-                                                                        swint_feature_c4
+-                                                                        )
+-        anchors = self.anchor_generator(images, features)
+-
+-        if self.training:
+-            return self._forward_train(box_cls, box_regression, centerness, targets, anchors,
+-                                       captions,
+-                                       positive_map,
+-                                       token_logits,
+-                                       proj_tokens,
+-                                       contrastive_logits,
+-                                       dot_product_logits,
+-                                       text_masks,
+-                                       mlm_logits = mlm_logits,
+-                                       mlm_labels = language_dict_features["mlm_labels"],
+-                                       shallow_img_emb_feats=shallow_img_emb_feats,
+-                                       fused_visual_features=fused_visual_features
+-                                       )
+-        else:
+-            return self._forward_test(box_regression, centerness, anchors,
++        return self._forward_test(box_regression, centerness, anchors,
+                                       box_cls,
+                                       token_logits,
+                                       dot_product_logits,
+diff -uprN a/GLIP/maskrcnn_benchmark/structures/boxlist_ops.py b/GLIP/maskrcnn_benchmark/structures/boxlist_ops.py
+--- a/GLIP/maskrcnn_benchmark/structures/boxlist_ops.py	2024-01-15 11:50:16.792000000 +0000
++++ b/GLIP/maskrcnn_benchmark/structures/boxlist_ops.py	2024-01-15 11:51:24.192000000 +0000
+@@ -3,8 +3,7 @@ import torch
+ 
+ from .bounding_box import BoxList
+ 
+-from maskrcnn_benchmark.layers import nms as _box_nms
+-from maskrcnn_benchmark.layers import ml_nms as _box_ml_nms
++from torchvision.ops import boxes as box_ops
+ 
+ 
+ def boxlist_nms(boxlist, nms_thresh, max_proposals=-1, score_field="score"):
+@@ -54,19 +53,8 @@ def boxlist_ml_nms(boxlist, nms_thresh,
+     labels = boxlist.get_field(label_field)
+ 
+     if boxes.device==torch.device("cpu"):
+-        keep = []
+-        unique_labels = torch.unique(labels)
+-        print(unique_labels)
+-        for j in unique_labels:
+-            inds = (labels == j).nonzero().view(-1)
+-
+-            scores_j = scores[inds]
+-            boxes_j = boxes[inds, :].view(-1, 4)
+-            keep_j = _box_nms(boxes_j, scores_j, nms_thresh)
+-
+-            keep += keep_j
+-    else:
+-        keep = _box_ml_nms(boxes, scores, labels.float(), nms_thresh)
++        keep = box_ops.batched_nms(boxes, scores, labels, nms_thresh)
++        keep, _ = torch.sort(keep)
+         
+     if max_proposals > 0:
+         keep = keep[: max_proposals]
+diff -uprN a/GLIP/maskrcnn_benchmark/utils/fuse_helper.py b/GLIP/maskrcnn_benchmark/utils/fuse_helper.py
+--- a/GLIP/maskrcnn_benchmark/utils/fuse_helper.py	2024-01-15 11:50:16.792000000 +0000
++++ b/GLIP/maskrcnn_benchmark/utils/fuse_helper.py	2024-01-15 11:51:24.196000000 +0000
+@@ -261,7 +261,7 @@ class BiMultiHeadAttention(nn.Module):
+             assert (attention_mask_l.dim() == 2)
+             attention_mask = attention_mask_l.unsqueeze(1).unsqueeze(1)
+             attention_mask = attention_mask.expand(bsz, 1, tgt_len, src_len)
+-            attention_mask = attention_mask.masked_fill(attention_mask == 0, -9e15)
++            attention_mask = attention_mask.masked_fill(attention_mask == 0, -10000)
+ 
+             if attention_mask.size() != (bsz, 1, tgt_len, src_len):
+                 raise ValueError(
+@@ -500,7 +500,7 @@ class MultiHeadAttention(nn.Module):
+             assert (attention_mask.dim() == 2)
+             attention_mask = attention_mask.unsqueeze(1).unsqueeze(1)
+             attention_mask = attention_mask.expand(bsz, 1, tgt_len, src_len)
+-            attention_mask = attention_mask.masked_fill(attention_mask == 0, -9e15)
++            attention_mask = attention_mask.masked_fill(attention_mask == 0, -10000)
+ 
+             if attention_mask.size() != (bsz, 1, tgt_len, src_len):
+                 raise ValueError(
+diff -uprN a/GLIP/maskrcnn_benchmark/utils/imports.py b/GLIP/maskrcnn_benchmark/utils/imports.py
+--- a/GLIP/maskrcnn_benchmark/utils/imports.py	2024-01-15 11:50:16.792000000 +0000
++++ b/GLIP/maskrcnn_benchmark/utils/imports.py	2024-01-15 11:51:24.196000000 +0000
+@@ -1,23 +1,23 @@
+ # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
+ import torch
+ 
+-if torch._six.PY37:
+-    import importlib
+-    import importlib.util
+-    import sys
++# if torch._six.PY37:
++#     import importlib
++#     import importlib.util
++#     import sys
+ 
+ 
+-    # from https://stackoverflow.com/questions/67631/how-to-import-a-module-given-the-full-path?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+-    def import_file(module_name, file_path, make_importable=False):
+-        spec = importlib.util.spec_from_file_location(module_name, file_path)
+-        module = importlib.util.module_from_spec(spec)
+-        spec.loader.exec_module(module)
+-        if make_importable:
+-            sys.modules[module_name] = module
+-        return module
+-else:
+-    import imp
++#     # from https://stackoverflow.com/questions/67631/how-to-import-a-module-given-the-full-path?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
++#     def import_file(module_name, file_path, make_importable=False):
++#         spec = importlib.util.spec_from_file_location(module_name, file_path)
++#         module = importlib.util.module_from_spec(spec)
++#         spec.loader.exec_module(module)
++#         if make_importable:
++#             sys.modules[module_name] = module
++#         return module
++# else:
++import imp
+ 
+-    def import_file(module_name, file_path, make_importable=None):
+-        module = imp.load_source(module_name, file_path)
+-        return module
++def import_file(module_name, file_path, make_importable=None):
++    module = imp.load_source(module_name, file_path)
++    return module
+diff -uprN a/GLIP/maskrcnn_benchmark/utils/model_zoo.py b/GLIP/maskrcnn_benchmark/utils/model_zoo.py
+--- a/GLIP/maskrcnn_benchmark/utils/model_zoo.py	2024-01-15 11:50:16.792000000 +0000
++++ b/GLIP/maskrcnn_benchmark/utils/model_zoo.py	2024-01-15 11:51:24.196000000 +0000
+@@ -3,7 +3,6 @@ import os
+ import sys
+ 
+ try:
+-    from torch.hub import _download_url_to_file
+     from torch.hub import urlparse
+     from torch.hub import HASH_REGEX
+ except ImportError:
+diff -uprN a/GLIP/tools/test_grounding_net.py b/GLIP/tools/test_grounding_net.py
+--- a/GLIP/tools/test_grounding_net.py	2024-01-15 11:50:16.792000000 +0000
++++ b/GLIP/tools/test_grounding_net.py	2024-01-15 11:51:24.196000000 +0000
+@@ -1,7 +1,6 @@
+ # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
+ # Set up custom environment before nearly anything else is imported
+ # NOTE: this should be the first import (no not reorder)
+-from maskrcnn_benchmark.utils.env import setup_environment  # noqa F401 isort:skip
+ 
+ import argparse
+ import os
+@@ -16,7 +15,6 @@ from maskrcnn_benchmark.utils.collect_en
+ from maskrcnn_benchmark.utils.comm import synchronize, get_rank
+ from maskrcnn_benchmark.utils.logger import setup_logger
+ from maskrcnn_benchmark.utils.miscellaneous import mkdir
+-from maskrcnn_benchmark.utils.stats import get_model_complexity_info
+  
+ import os
+ import functools
