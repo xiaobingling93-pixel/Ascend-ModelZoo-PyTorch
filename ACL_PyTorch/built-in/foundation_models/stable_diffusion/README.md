@@ -51,8 +51,8 @@
   **表 1**  版本配套表
   | 配套                                                         | 版本    | 环境准备指导                                                 |
   | ------------------------------------------------------------ | ------- | ------------------------------------------------------------ |
-  | 固件与驱动                                                   | 23.0.rc1  | [Pytorch框架推理环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies) |
-  | CANN（+AscendIE）                                            | 7.0.RC1 | -                                                            |
+  | 固件与驱动                                                   | 23.0.0  | [Pytorch框架推理环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies) |
+  | CANN（+AscendIE）                                            | 7.0.0 | -                                                            |
   | Python                                                       | 3.9   | -                                                            |                                                           |
 如在优化模型时--FA不为None或--TOME_num不为0，需要安装与CANN包配套版本的AscendIE
 
@@ -167,22 +167,25 @@
                --model models_bs${bs}/unet/unet.onnx \
                --new_model models_bs${bs}/unet/unet_md.onnx \
                --FA_soc Duo \
-               --TOME_num 5
+               --TOME_num 5 \
+               --faster_gelu
 
          # 使用量化模型
          python3 modify_onnx.py \
                --model models_bs${bs}/unet_quant/unet.onnx \
                --new_model models_bs${bs}/unet/unet_md.onnx \
                --FA_soc Duo \
-               --TOME_num 4
+               --TOME_num 4 \
+               --faster_gelu
          ```
          参数说明：
          - --model：onnx模型路径。
          - --new_model：优化后生成的onnx模型路径。
          - --FA_soc：使用FA算子的硬件形态。目前FlashAttention算子支持Atlas 300I Duo/Pro，请设置参数为Duo，其他不支持硬件请设置为None。默认为None。
          - --TOME_num：插入TOME插件的数量，有效取值为[0, 5]。Tome插件目前支持Atlas 300I Duo/Pro，其他不支持硬件请设置为0。默认为0。
+         - --faster_gelu：使用slice+gelu的融合算子。
 
-         FA和TOME算子需通过安装与CANN版本对应的推理引擎包来获取，如未安装推理引擎或使用的版本不支持FA、TOME算子，FA_soc和TOME_num参数请使用默认配置。
+         FA、TOME、Gelu融合算子需通过安装与CANN版本对应的推理引擎包来获取，如未安装推理引擎或使用的版本不支持FA、TOME、SliceGelu算子，FA_soc和TOME_num参数请使用默认配置、不设置faster_gelu参数。
 
    
    3. 使用ATC工具将ONNX模型转OM模型。
@@ -411,7 +414,7 @@
 
 | 加速卡 | 服务器 |  运行方案 | 优化方案 | 迭代次数 | 平均耗时    |
 | :------: | :--: | :--: | :--: | :--: | :--------: |
-| Atlas 300I Duo  |  Atlas 800 3000 + 2路处理器，处理器规格：48核3.0GHz  |  并行  |  量化+FA+TOME*4  |  50  |  2.047s   |
+| Atlas 300I Duo  |  Atlas 800 3000 + 2路处理器，处理器规格：48核3.0GHz  |  并行  |  量化+FA+TOME*4+faster_gleu  |  50  |  1.947s   |
 
 迭代20次的参考精度结果如下：
 
