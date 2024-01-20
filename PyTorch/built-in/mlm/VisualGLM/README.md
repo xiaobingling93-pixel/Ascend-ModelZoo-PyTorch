@@ -182,7 +182,7 @@ python3 cli_demo.py \
 --chatglm_path glm/chatglm \
 --prompt_en "What's in the image?"
 ```
---english使用英文输入，--from_pretrained是训练保存的checkpoints，chatglm_path加载预训练chatglm地址，在glm/chatlglm路径下。
+--english使用英文输入，--from_pretrained是训练保存的checkpoints，chatglm_path加载预训练chatglm地址，在glm/chatglm路径下。
 
 # 训练结果展示
 
@@ -194,7 +194,11 @@ python3 cli_demo.py \
 
 
 ## 性能结果
-通过单步时间对比，平均性能为0.84 * 竞品。
+训练结果展示表
+|    NAME     | Torch Version | Total Steps | Batch Size |  FPS  | Train Loss |
+| :---------: |:--:           | :---:       | :--------: |:--:   | :--:       |
+|  8p-竞品    |  1.11         |   20000   |     8     | 83.66  |       2.700  |
+| 8p-NPU      | 1.11         |  20000   |     8     | 70.33  |       2.714   |
 
 
 
