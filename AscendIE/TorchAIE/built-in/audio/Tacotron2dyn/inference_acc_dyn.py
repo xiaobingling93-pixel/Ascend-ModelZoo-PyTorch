@@ -24,6 +24,9 @@ import onnxruntime as rt
 from scipy.io.wavfile import write
 from scipy.special import expit
 from tacotron2.text import text_to_sequence
+import torch
+
+
 
 def pad_sequences(batch_seqs, batch_names):
     import copy
@@ -109,6 +112,7 @@ def get_mask_from_lengths(lengths):
     return mask
 
 
+
 def sigmoid(inx):
     return expit(inx)
 
@@ -131,22 +135,19 @@ def update_decoder_inputs(decoder_inputs, decoder_outputs):
 
 
 def inference_tacotron(seqs, seq_lens, encoder_model, decoder_model, posnet_model):
-    #infer encoder
+
     seqs = seqs.to("npu:0")
     seq_lens = seq_lens.to("npu:0")
     encoder_output = encoder_model(seqs, seq_lens)
 
-    #inder decoder
     seqs = seqs.cpu()
     seq_lens = seq_lens.cpu()
     seq_lens = seq_lens.numpy()
 
 
-    mask_from_length_tensor = get_mask_from_lengths(seq_lens).float().numpy()
+    mask_from_length_tensor = get_mask_from_lengths(seq_lens).numpy()
     mask_from_length_tensor = torch.from_numpy(mask_from_length_tensor)
 
-
-    #11 decoder inputs
     decoder_inputs = []
     decoder_inputs.append(torch.zeros((args.batch_size, 80), dtype=torch.float32))
     decoder_inputs.append(torch.zeros((args.batch_size, 1024), dtype=torch.float32))
@@ -171,7 +172,6 @@ def inference_tacotron(seqs, seq_lens, encoder_model, decoder_model, posnet_mode
     exec_seq = 0
     while True:
         exec_seq += 1
-
         
         input_1 = decoder_inputs[0].to("npu:0")
         input_2 = decoder_inputs[1].to("npu:0")
@@ -188,15 +188,8 @@ def inference_tacotron(seqs, seq_lens, encoder_model, decoder_model, posnet_mode
 
         decoder_iter_output_npu = decoder_model(input_1, input_2, input_3, input_4, input_5, input_6, input_7, input_8, input_9, input_10, input_11 )
         decoder_iter_output = []
-        decoder_iter_output.append(decoder_iter_output_npu[0].cpu())
-        decoder_iter_output.append(decoder_iter_output_npu[1].cpu())
-        decoder_iter_output.append(decoder_iter_output_npu[2].cpu())
-        decoder_iter_output.append(decoder_iter_output_npu[3].cpu())
-        decoder_iter_output.append(decoder_iter_output_npu[4].cpu())
-        decoder_iter_output.append(decoder_iter_output_npu[5].cpu())
-        decoder_iter_output.append(decoder_iter_output_npu[6].cpu())
-        decoder_iter_output.append(decoder_iter_output_npu[7].cpu())
-        decoder_iter_output.append(decoder_iter_output_npu[8].cpu())
+        for i in range(len(decoder_iter_output_npu)):
+            decoder_iter_output.append(decoder_iter_output_npu[i].cpu())
 
         decoder_inputs = update_decoder_inputs(decoder_inputs, decoder_iter_output)
 
@@ -206,7 +199,7 @@ def inference_tacotron(seqs, seq_lens, encoder_model, decoder_model, posnet_mode
         else:
             mel_outputs = np.concatenate((mel_outputs, np.expand_dims(decoder_iter_output[0], 2)), 2)
 
-        # decide whether stop decoder or not
+
         dec = torch.le(torch.Tensor(sigmoid(decoder_iter_output[1])), gate_threshold).to(torch.int32).squeeze(1)
         not_finished = not_finished * dec
         mel_lengths += not_finished
@@ -221,20 +214,12 @@ def inference_tacotron(seqs, seq_lens, encoder_model, decoder_model, posnet_mode
             print("Finished! Stop after ", mel_outputs.shape[2], " decoder steps")
             break
             
-    #infer posnet
+    print("Starting run Tacotron2 postnet ……")
+
     mel_outputs = torch.from_numpy(mel_outputs).to("npu:0")
 
-    #padmel_outputs to ensure posnet get static shape input 
-    _, _, x = mel_outputs.shape
-    target_shape = [1, 80, 620]
-    if (x < target_shape[2]):
-        pad_size = target_shape[2] - x
-        padding = (0, pad_size)
-        mel_outputs = mel_outputs.cpu()
-        mel_outputs = torch.nn.functional.pad(mel_outputs, padding, "constant", 0)
-        mel_outputs = mel_outputs.to("npu:0")
-
     mel_outputs_postnet = posnet_model(mel_outputs)
+
     mel_outputs_postnet = mel_outputs_postnet.cpu()
 
     print("Tacotron2 infer success")
@@ -242,18 +227,13 @@ def inference_tacotron(seqs, seq_lens, encoder_model, decoder_model, posnet_mode
 
 def inference_waveglow(waveglow_model, tacotron2_output, mel_lengths, batch_size):
 
-    mel = torch.randn(batch_size, 80, 620)
-
+    mel = torch.randn(batch_size, 80, tacotron2_output.size(2))
     stride = 256 # value from waveglow upsample
     n_group = 8
     z_size2 = (mel.size(2)*stride)//n_group
     z = torch.randn(batch_size, n_group, z_size2)
 
-    tacotron2_output = tacotron2_output.to("npu:0")
-    z = z.to("npu:0")
-
     waveglow_output = waveglow_model(tacotron2_output, z)
-    waveglow_output = waveglow_output.cpu()
 
     return waveglow_output
 
@@ -268,7 +248,7 @@ if __name__ == '__main__':
 
     parser.add_argument('-i', '--input', type=str, required=True,
                         help='input text')
-    parser.add_argument('-o', '--output', required=False, default="output/audio", type=str,
+    parser.add_argument('-o', '--output', required=False, default="output/audio_dyn", type=str,
                        help='output folder to save autio')
     parser.add_argument('-bs', '--batch_size', default=1, type=int, help='Batch size')
     parser.add_argument('--max_input_len', default=256, type=int, help='max input len') 
@@ -292,6 +272,7 @@ if __name__ == '__main__':
     # load wav_texts data
     wav_names, wav_texts = load_wav_texts(args.input)
 
+
     while args.batch_size <= len(wav_texts):
         # data preprocess (prepare batch & load)
         batch_names, batch_texts = prepare_batch_wav(args.batch_size, wav_names, wav_texts, args.max_input_len)
@@ -306,9 +287,11 @@ if __name__ == '__main__':
         seq_lens = torch.from_numpy(seq_lens)
         #infer tacotron
         tacotron2_output, mel_lengths = inference_tacotron(seqs, seq_lens, encoder_model.eval(), decoder_model.eval(), posnet_model.eval())
+        print("mel_lengths:{}".format(mel_lengths))
         # generate wave file
         if args.gen_wave:
-            waveglow_output = inference_waveglow(waveglow_model.eval(), tacotron2_output, mel_lengths, args.batch_size).numpy().astype(np.float32)
+            waveglow_output = inference_waveglow(waveglow_model.eval(), tacotron2_output, mel_lengths, args.batch_size).detach().numpy().astype(np.float32)
+            waveglow_output = np.reshape(waveglow_output, (args.batch_size, -1))  
             for i, audio in enumerate(waveglow_output):
                 audio = audio[:mel_lengths[i] * args.stft_hop_length]
                 audio = audio / np.amax(np.absolute(audio))

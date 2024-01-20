@@ -127,8 +127,9 @@ source set_env.sh
    git clone https://github.com/NVIDIA/DeepLearningExamples.git
    cd DeepLearningExamples
    git reset --hard 7ce175430ff9af25b040ffe2bceb5dfc9d2e39ad
+   git apply --ignore-space-change --ignore-whitespace modify_model.patch
    cd PyTorch/SpeechSynthesis/Tacotron2
-   mkdir -p output/audio  # 新建output文件夹，作为模型结果的默认保存路径
+   mkdir -p output/audio_dyn  # 新建output文件夹，作为模型结果的默认保存路径
    mkdir checkpoints
    ```
 
@@ -163,11 +164,8 @@ source set_env.sh
 
     1. 先将tensorrt/tacotron2_torch2ts.py 和 tensorrt/waveglow_torch2ts.py脚本放在模型源码 /DeepLearningExamples/PyTorch/SpeechSynthesis/Tacotron2 路径下
 
-    2. 修改源码：
 
-      - 删掉/DeepLearningExamples/PyTorch/SpeechSynthesis/Tacotron2/tacotron2/model.py 里面第230行， （删掉Encoder类里面infer函数前面的@torch.jit.export）
-
-    3. 执行以下命令生成两个torchscript模型： tacotron2， waveglow
+    2. 执行以下命令生成两个torchscript模型： tacotron2， waveglow
     ```
     cd ./DeepLearningExamples/PyTorch/SpeechSynthesis/Tacotron2
 
@@ -185,50 +183,55 @@ source set_env.sh
 3. 模型编译
 
    ```bash
-   # 执行compile.py后经过torch-aie编译后的ts模型会保存到指定输出路径
+   # 执行compile_dyn.py后经过torch-aie编译后的ts模型会保存到指定输出路径
 
-   python compile.py --encoder_path ./tacotron2dyn/traced_tacotron2dyn_encoder.ts --decoder_path ./tacotron2dyn/traced_tacotron2dyn_decoder.ts --posnet_path ./tacotron2dyn/traced_tacotron2dyn_posnet.ts --waveglow_path ./tacotron2dyn/traced_waveglow.ts --compiled_models_folder ./tacotron2dyn/compiled_models --batchsize 1
+   python compile_dyn.py --encoder_path ./tacotron2dyn/traced_tacotron2dyn_encoder.ts --decoder_path ./tacotron2dyn/traced_tacotron2dyn_decoder.ts --posnet_path ./tacotron2dyn/traced_tacotron2dyn_posnet.ts --compiled_models_folder ./tacotron2dyn/compiled_model_dyn --batchsize 1
    ```
       - 参数说明：
-         - --encoder_path, --decoder_path, --posnet_path：由于tacotron模型需要分成三个部分分别编译， 此为各自torchscript模型路径。--waveglow_path 为waveglow模型的torchscript输入路径
-         - --compiled_models_folder ：模型编译后数据输出文件夹路径。执行该命令后将在此路径下生成四个对应的ts模型文件
+         - --encoder_path, --decoder_path, --posnet_path：由于tacotron模型需要分成三个部分分别编译， 此为各自torchscript模型路径。
+         - --compiled_models_folder ：模型编译后数据输出文件夹路径。执行该命令后将在此路径下生成3个对应的ts模型文件
          - --batchsize ：batch_size。根据实际情况修改
 
 
 4. 模型推理性能验证
 
     由于模型推理为多个子模型串联，仅测量单个子模型性能没有意义， 因此性能通过计算多个子模型推理的总耗时测得
+
+    执行perf_test_dyn.py 脚本放在模型源码 /DeepLearningExamples/PyTorch/SpeechSynthesis/Tacotron2 路径下
    ```bash
-   # 执行perf_test.py后对应batch_size的模型性能会打印到终端
-    python perf_test.py --encoder_model_path ./tacotron2dyn/compiled_models/bs1/encoder_model.ts --decoder_model_path ./tacotron2dyn/compiled_models/bs1/decoder_model.ts --posnet_model_path ./tacotron2dyn/compiled_models/bs1/posnet_model.ts --batch_size 1
+   export TORCH_AIE_NPU_CACHE_MAX_SIZE=6
+
+   # 执行perf_test_dyn.py后对应batch_size的模型性能会打印到终端
+    python perf_test_dyn.py --encoder_model_path ./tacotron2dyn/compiled_model_dyn/bs1/encoder_model.ts --decoder_model_path ./tacotron2dyn/compiled_model_dyn/bs1/decoder_model.ts --posnet_model_path ./tacotron2dyn/compiled_model_dyn/bs1/posnet_model.ts --input ./tacotron2dyn/DeepLearningExamples/PyTorch/SpeechSynthesis/Tacotron2/filelists/ljs_audio_text_test_filelist.txt --batch_size 1
    ```
    - 参数说明：
       - --encoder_model_path, --decoder_model_path,  --posnet_model_path: 各个子模型经过torch-aie编译后的ts模型路径
+      - --input： 数据集路径
       - --batch_size ：batch_size。根据实际情况修改
 
 5. 模型推理精度验证
 
-    先将inference_acc.py 脚本放在模型源码 /DeepLearningExamples/PyTorch/SpeechSynthesis/Tacotron2 路径下
+    先将inference_acc_dyn.py 脚本放在模型源码 /DeepLearningExamples/PyTorch/SpeechSynthesis/Tacotron2 路径下
 
    ```
     cd ./tacotron2dyn/DeepLearningExamples/PyTorch/SpeechSynthesis/Tacotron2
 
-    python inference.py --encoder_model_path ./tacotron2dyn/compiled_models/bs1/encoder_model.ts --decoder_model_path ./tacotron2dyn/compiled_models/bs1/decoder_model.ts --posnet_model_path ./tacotron2dyn/compiled_models/bs1/posnet_model.ts  --waveglow_model_path ./tacotron2dyn/compiled_models/bs1/waveglow_model.ts --input ./tacotron2dyn/DeepLearningExamples/PyTorch/SpeechSynthesis/Tacotron2/filelists/ljs_audio_text_test_filelist.txt -bs 1 --gen_wave --max_input_len 50
+    python inference_acc_dyn.py --encoder_model_path ./tacotron2dyn/compiled_model_dyn/bs1/encoder_model.ts --decoder_model_path ./tacotron2dyn/compiled_model_dyn/bs1/decoder_model.ts --posnet_model_path ./tacotron2dyn/compiled_model_dyn/bs1/posnet_model.ts  --waveglow_model_path ./tacotron2dyn/traced_waveglow.ts --input ./tacotron2dyn/DeepLearningExamples/PyTorch/SpeechSynthesis/Tacotron2/filelists/ljs_audio_text_test_filelist.txt -bs 1 --gen_wave
 
    ```
-   生成的wav文件默认放在./DeepLearningExamples/PyTorch/SpeechSynthesis/Tacotron2/output/audio 目录下
+   生成的wav文件默认放在./DeepLearningExamples/PyTorch/SpeechSynthesis/Tacotron2/output/audio_dyn 目录下
    - 参数说明：
-      - --encoder_model_path, --decoder_model_path, --posnet_model_path, --waveglow_model_path: 各个子模型经过torch-aie编译后的ts模型路径
+      - --encoder_model_path, --decoder_model_path, --posnet_model_path :  各个子模型经过torch-aie编译后的ts模型路径
+      - --waveglow_model_path: waveglow模型经过trace模型转换后的ts模型路径
       - --input： 数据集路径
       - -bs ：batch_size。根据实际情况修改
       - --gen_wave：添加此参数时将推理waveglow生成wav文件， 用于人工判断语音质量
-      - --max_input_len： 输入序列最大长度为50
 
 
 # 模型推理性能&精度
 
-   | NPU芯片型号 | Batch Size |  数据集   |  精度 |  性能| 
+   | NPU芯片型号 | Batch Size |  数据集   |  精度 |  性能(无缓存功能)| 
    | :-------:  | :--------: | :------: | :-----:           | :----: |
-   |Ascend310P3 |      1     | LJSpeech |  人工判断语音质量  |416   |  
-   |Ascend310P3 |      4     | LJSpeech |  人工判断语音质量  |1455  |  
+   |Ascend310P3 |      1     | LJSpeech |  人工判断语音质量  |1083   |  
+   |Ascend310P3 |      4     | LJSpeech |  人工判断语音质量  |3310  |  
 
