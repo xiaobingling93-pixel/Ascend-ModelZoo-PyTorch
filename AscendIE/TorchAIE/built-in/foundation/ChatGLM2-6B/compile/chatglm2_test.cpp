@@ -46,14 +46,14 @@ auto getCompileSpec() -> torch_aie::torchscript::CompileSpec
 
     //dynamic shape
     std::vector<torch_aie::Input> inputs;
-    inputs.emplace_back(torch_aie::Input(Shape1Min, Shape1Max, torch_aie::DataType::INT64,
-        torch_aie::TensorFormat::NCHW));
-    inputs.emplace_back(torch_aie::Input(Shape2Min, Shape2Max, torch_aie::DataType::INT64,
-        torch_aie::TensorFormat::NCHW));
-    inputs.emplace_back(torch_aie::Input(Shape3Min, Shape3Max, torch_aie::DataType::INT64,
-        torch_aie::TensorFormat::NCHW));
-    inputs.emplace_back(torch_aie::Input(Shape4Min, Shape4Max, torch_aie::DataType::FLOAT,
-        torch_aie::TensorFormat::NCHW));
+    inputs.emplace_back(torch_aie::Input(Shape1Min, Shape1Max, torch_aie::DataType(torch_aie::DataType::INT64),
+        torch_aie::TensorFormat(torch_aie::TensorFormat::NCHW)));
+    inputs.emplace_back(torch_aie::Input(Shape2Min, Shape2Max, torch_aie::DataType(torch_aie::DataType::INT64),
+        torch_aie::TensorFormat(torch_aie::TensorFormat::NCHW)));
+    inputs.emplace_back(torch_aie::Input(Shape3Min, Shape3Max, torch_aie::DataType(torch_aie::DataType::INT64),
+        torch_aie::TensorFormat(torch_aie::TensorFormat::NCHW)));
+    inputs.emplace_back(torch_aie::Input(Shape4Min, Shape4Max, torch_aie::DataType(torch_aie::DataType::FLOAT),
+        torch_aie::TensorFormat(torch_aie::TensorFormat::NCHW)));
     
     torch_aie::torchscript::CompileSpec compileSpec(inputs);
     std::string soc_version = "Ascend910B4";
