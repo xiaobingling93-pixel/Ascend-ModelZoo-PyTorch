@@ -15,12 +15,20 @@
 
 具体而言，此模型是一个*bert-large-cased*模型，在标准  [CoNLL-2003 命名实体识别](https://www.aclweb.org/anthology/W03-0419.pdf)数据集的英文版上进行了微调。如果要在同一数据集上使用较小的 BERT 模型进行微调，也可以使用[**基于 NER 的 BERT**](https://huggingface.co/dslim/bert-base-NER/)  版本。
 
-* 参考实现：
+* 模型权重：
 
   ```
   url = https://huggingface.co/dslim/bert-large-NER
-  commit_id =  95c62bc0d4109bd97d0578e5ff482e6b84c2b8b9
+  commit_id = 95c62bc0d4109bd97d0578e5ff482e6b84c2b8b9
   model_name = bert-large-NER
+  ```
+
+* 参考实现：
+
+  ```
+  git clone https://github.com/huggingface/transformers
+  cd transformers
+  git checkout -b v4.24.0 v4.24.0
   ```
 
 ## 1.1. 输入输出数据
@@ -65,43 +73,29 @@
 
 ## 3.1. 获取模型
 
-1.  获取开源模型。
-     1. 获取模型权重和配置文件
-        ```
-        git clone https://huggingface.co/dslim/bert-large-NER
-        ```
-      得到如下文件：
-      ```
-      bert-large-NER/
-      ├── config.json
-      ├── dslim_bert-large-NER #U00b7 Hugging Face_files
-      │   ├── 1655075923870-5e7565183d77a72421292d00.png
-      │   ├── analytics.js.#U4e0b#U8f7d
-      │   ├── css2
-      │   ├── css2(1)
-      │   ├── huggingface_logo-noborder.svg
-      │   ├── inner.html
-      │   ├── js
-      │   ├── katex.min.css
-      │   ├── m-outer-27c67c0d52761104439bb051c7856ab1.html
-      │   ├── m-outer-6576085ca35ee42f2f484cda6763e4aa.js.#U4e0b#U8f7d
-      │   ├── out-4.5.43.js.#U4e0b#U8f7d
-      │   ├── saved_resource
-      │   ├── script.js.#U4e0b#U8f7d
-      │   └── style.css
-      ├── dslim_bert-large-NER #U00b7 Hugging Face.html
-      ├── pytorch_model.bin
-      ├── README.md
-      ├── special_tokens_map.json
-      ├── tokenizer_config.json
-      └── vocab.txt
-      ```
-     模型文件只需要下载`pytorch_model.bin`即可。
+### 3.1.1.  获取开源模型。
+  获取模型权重和配置文件，下载地址：https://huggingface.co/dslim/bert-large-NER/tree/95c62bc0d4109bd97d0578e5ff482e6b84c2b8b9
 
-2.  安装依赖。
+  文件结构如下：
+      
+    
+    bert-large-NER/
+    ├── README.md
+    ├── config.json
+    ├── flax_model.mspack
+    ├── gitattributes
+    ├── pytorch_model.bin
+    ├── special_tokens_map.json
+    ├── tf_model.h5
+    ├── tokenizer_config.json
+    └── vocab.txt
+    
+
+### 3.1.2.  安装依赖
   
   ```
   pip install -r requirements.txt
+  说明：如果安装了torch_npu，需要先卸载掉，避免冲突。pip uninstall torch_npu
   ```
   
 ## 3.2. 准备数据集(请遵循数据集提供方要求使用)
@@ -122,59 +116,52 @@
    ├── test.txt
    └── valid.txt
    ```
+   修改离线数据集读取路径：
+```commandline
+vim /root/.cache/huggingface/modules/datasets_modules/datasets/conll2003/{95c62bc0d4109bd97d0578e5ff482e6b84c2b8b9...}/conll2003.py +193
+downloaded_file="path/to/conll2003"
+```
 
 ## 3.3. 模型推理                                                                                
-1. 导出torch script模型：
-  ```
-  python3 export_trace_model.py
-  ```
-  得到导出后的ts模型：`bert_large_ner.pt`
+### 3.3.1 模型推理
+```
+#拉取transformers源码
+git clone https://github.com/huggingface/transformers
+cd transformers
+git checkout -b v4.24.0 v4.24.0
 
-2. 修改`bert_large_ner.pt`
-  > 【注意】 因为`bert_large_ner`模型的`attention_mask`计算部分的`mul`算子的第二个初始化入参`CONSTANTS.c0)`被初始化为`float`数据类型的最小值，
-  > 该值超出了`fp16`数据类型能够表示的最小值的范围，出现了下溢，如果不做下面的模型修改，将导致模型的精度下降(经测acc=76%)。
-  > 经过下面的修改后，模型精度可以达到87.43%， 与om推理的版本仍然存在一定差距，该问题定位当中。
+cd transformers
+#将本仓库的补丁文件放到transformers/路径下
+git apply patchfile.patch
+pip install .
+cd examples/pytorch/token-classification
+python run_ner.py --model_name_or_path /path/to/bert-large-NER --dataset_name conll2003 --output_dir /tmp/test-ner --do_predict --overwrite_output_dir --no_cuda --jit_mode_eval --pad_to_max_length --max_seq_length 512 --torch_aie_enable --dataloader_drop_last --per_device_eval_batch_size 1
 
-   1. 解压 `bert_large_ner.pt`
-   ```
-   unzip -q bert_large_ner.pt
-   ```
-   得到`bert_large_ner`文件夹
-   2. 修改`bert_large_ner/code/__torch__/transformers/models/bert/modeling_bert.py`文件的第36行，
-   修改前：
-   ```
-   attention_mask0 = torch.mul(torch.rsub(_4, 1.), CONSTANTS.c0)
-   ```
-   修改后：
-   ```
-   attention_mask0 = torch.mul(torch.rsub(_4, 1.), -1000.0)
-   ```
-   保存修改内容。
-   3. 重新压缩，得到修改后的`bert_large_ner.pt`文件
-   ```
-    zip -r -q bert_large_ner.pt bert_large_ner/
-   ```
-
-
-3. 模型推理
-   ```
-   python3 run_torch_aie.py
-   ```
+# 其他参数说明：max_predict_samples表示控制推理的样本数量；per_device_eval_batch_size设置推理的batch_size大小。
+```
 
 # 4. 模型推理性能&精度
 
-1. 性能对比
+## 4.1. 性能对比
 
-| Batch Size | om推理（onnx改图匹配bert大kernel融合算子） | torch-aie推理 | torch-aie/om |
-| :--------: | :----------------------------------------: | :-----------: | :----------: |
-|     1      |                63.3062 it/s                |  39.69 it/s   |    0.6269    |
+| Batch Size |  om推理(QPS)   | torch-aie推理(QPS) | torch-aie/om |
+| :--------: |:------------:|:----------------:|:------------:|
+|     1      |   63.3062    |     43.5007      |    0.6871    |
+|     4      |   70.6858    |     42.2668      |    0.5980    |
+|     8      | 74.5971   |     37.7312      |    0.5058    |
+|     16      | 73.7290 |     35.8528      |    0.4863    |
+|     32     | 73.6084  |     35.1328      |    0.4773    |
+|     64     | 71.1308  |     36.2688      |    0.5099    |
 
 > 性能有改进空间，待通过aie接入bert优化pass。
 
-1. 精度对比
+## 4.2. 精度对比
 
 |      模型      | Batch Size | om推理 | torch-aie推理 |
 | :------------: | :--------: | :----: | :-----------: |
-| bert_large_NER |     1      | 90.74% |    87.43%     |
-
-> 原始模型在Pytorch CPU 框架下测试的精度为87.43，与PT插件精度一致。
+| bert_large_NER |     1      | 90.74% |    90.90%     |
+| bert_large_NER |     4      | 90.74% |    90.91%     |
+| bert_large_NER |     8      | 90.74% |    90.92%     |
+| bert_large_NER |     16      | 90.74% |    90.89%     |
+| bert_large_NER |     32     | 90.74% |    90.88%     |
+| bert_large_NER |     64     | 90.74% |    90.85%     |

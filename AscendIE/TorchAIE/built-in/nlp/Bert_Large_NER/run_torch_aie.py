@@ -105,12 +105,12 @@ def run_test(torchaie_model, test_dataset):
         tag = test_dataset['tags'][i]
 
         input_ids_npu = torch.tensor(np.array(input_id)).to(NPU_DEVICE)
-        token_type_ids_npu = torch.tensor(np.array(token_type_id)).to(NPU_DEVICE)
         attention_mask_npu = torch.tensor(np.array(attention_mask)).to(NPU_DEVICE)
+        token_type_ids_npu = torch.tensor(np.array(token_type_id)).to(NPU_DEVICE)
         stream = torch_aie.npu.Stream(NPU_DEVICE)
         with torch_aie.npu.stream(stream):
             inf_start = time.time()
-            result = torchaie_model(input_ids_npu, token_type_ids_npu, attention_mask_npu)
+            result = torchaie_model(input_ids_npu, attention_mask_npu, token_type_ids_npu)
             stream.synchronize()
             inf_end = time.time()
             inf_time = inf_end - inf_start
