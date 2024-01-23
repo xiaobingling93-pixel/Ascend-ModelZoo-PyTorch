@@ -208,7 +208,7 @@ class TrainingEpochLoop(loops.Loop[_OUTPUTS_TYPE]):
             step_start_time = time.time()
             with self.trainer.profiler.profile("run_training_batch"):
                 batch_output = self.batch_loop.run(batch, batch_idx)
-            print("step_time= ", time.time() - step_start_time)
+            print(f"id {batch_idx} step_time= ", time.time() - step_start_time, flush=True)
         self.batch_progress.increment_processed()
 
         # update non-plateau LR schedulers

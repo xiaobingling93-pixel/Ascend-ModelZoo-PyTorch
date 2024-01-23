@@ -34,7 +34,7 @@
 
   | Torch_Version      | 三方库依赖版本                                 |
   | :--------: | :----------------------------------------------------------: |
-  | PyTorch 2.1 | - |
+  | PyTorch 2.1 | numpy<=1.23.5 |
   
 - 环境准备指导。
 
@@ -86,6 +86,7 @@
   cp ./code_for_change/subprocess_script.py {pytorch_lightning_install_path}/strategies/launchers/subprocess_script.py
   cp ./code_for_change/training_epoch_loop.py {pytorch_lightning_install_path}/loops/epoch/training_epoch_loop.py
   cp ./code_for_change/types.py {pytorch_lightning_install_path}/utilities/types.py
+  cp ./code_for_change/accelerator_connector.py {pytorch_lightning_install_path}/trainer/connectors/accelerator_connector.py
   ```
 
 ### 准备数据集
@@ -135,15 +136,15 @@ bash ./test/train_performance_8p.sh # 8卡性能
 
 | Exp    |  mAP   |  mATE  |  mASE  |  mAOE  |  mAVE  |  mAAE  |  NDS   |
 |--------|:------:|:------:|:------:|:------:|:------:|:------:|:------:|
-| GPU_8p | 0.3322 | 0.6495 | 0.2767 | 0.4918 | 0.8780 | 0.2289 | 0.4137 | 
-| NPU_8p | 0.3265 | 0.6609 | 0.2720 | 0.5212 | 0.8621 | 0.2195 | 0.4097 |
+| GPU_8p | 0.3245 | 0.6546 | 0.2712 | 0.5572 | 0.8833 | 0.2288 | 0.4027 | 
+| NPU_8p | 0.3247 | 0.6555 | 0.2716 | 0.5251 | 0.8661 | 0.2316 | 0.4073 |
 
 **性能**
 
-| Exp    |   FPS   |
-|--------|:-------:|
-| GPU_8p | 45.6188 | 
-| NPU_8p | 39.1468 | 
+| Exp    | FPS  | Each epoch time  |
+|--------|:----:|:----------------:|
+| GPU_8p |  56  |      0.65 h      | 
+| NPU_8p |  45  |      0.81 h      | 
 
 ### FAQ
 **1.** 报错scikit_learning.libs/libgomp-d22c30c5.so.1.0.0: cannot allocate memory in static TLS block的问题，解决方案为：
@@ -158,8 +159,13 @@ bash ./test/train_performance_8p.sh # 8卡性能
  请下载链接中的源码压缩包，自行手动安装。同时修改mmdet3d的源码，进入mmdet3d的安装路径，修改内容有:
   ```
   1) cd /${mmdet3d-1.0.0rc4的安装路径}/mmdet3d/
-     将__init__.py中的文件第41行mmcv_maximum_version = '1.7.0'修改为mmcv_maximum_version = '1.7.1'
+     将__init__.py中的文件第41行mmcv_maximum_version = '1.7.0'修改为mmcv_maximum_version = '1.7.2'
   2) cd /${mmdet3d-1.0.0rc4的安装路径}/requirements/
      删除runtime.txt中的numba==0.53.0这一行。
   ```
+ 然后执行：
+ ```
+ cd /${mmdet3d-1.0.0rc4的安装路径}/
+ pip install -v -e .
+ ```
 

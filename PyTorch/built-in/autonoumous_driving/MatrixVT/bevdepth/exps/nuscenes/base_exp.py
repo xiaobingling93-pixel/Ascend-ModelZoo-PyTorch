@@ -25,7 +25,7 @@ import torch.utils.data
 import torch.utils.data.distributed
 import torchvision.models as models
 from pytorch_lightning.core import LightningModule
-from torch.cuda.amp.autocast_mode import autocast
+from torch_npu.npu.amp.autocast_mode import autocast
 from torch.optim.lr_scheduler import MultiStepLR
 
 from bevdepth.datasets.nusc_det_dataset import NuscDetDataset, collate_fn

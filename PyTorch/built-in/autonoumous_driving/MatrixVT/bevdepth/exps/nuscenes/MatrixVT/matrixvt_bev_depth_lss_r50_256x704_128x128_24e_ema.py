@@ -28,6 +28,7 @@ import torch
 import torch_npu
 from torch_npu.contrib import transfer_to_npu
 
+
 class MatrixVT_Exp(BaseExp):
 
     def __init__(self, *args, **kwargs):
@@ -43,11 +44,11 @@ class MatrixVT_Exp(BaseExp):
         optimizer = torch_npu.optim.NpuFusedAdamW(self.model.parameters(),
                                       lr=lr,
                                       weight_decay=1e-7)
-        scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, [19, 23])
-        return [[optimizer], [scheduler]]
+        return [optimizer]
 
 
 if __name__ == '__main__':
+    torch_npu.npu.set_compile_mode(jit_compile=False)
     run_cli(
         MatrixVT_Exp,
         'matrixvt_bev_depth_lss_r50_256x704_128x128_24e_ema_cbgs',

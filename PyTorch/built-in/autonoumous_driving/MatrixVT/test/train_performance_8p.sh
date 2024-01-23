@@ -24,8 +24,9 @@ data_path=""
 #删除outputs文件夹，不需要修改
 if [ -d ${cur_path}/outputs/ ];then
     rm -rf ${cur_path}/outputs/
-ckpt_path="./outputs/matrixvt_bev_depth_lss_r50_256x704_128x128_24e_ema_cbgs/lightning_logs/version_0/23.pth"
 fi
+ckpt_path="./outputs/matrixvt_bev_depth_lss_r50_256x704_128x128_24e_ema_cbgs/lightning_logs/version_0/23.pth"
+
 #基础参数，需要模型审视修改
 #网络名称，同目录名称
 Network="MatrixVT_for_PyTorch"
@@ -44,11 +45,10 @@ ASCEND_DEVICE_ID=0
 #创建DeviceID输出目录，不需要修改
 if [ -d ${test_path_dir}/output/${ASCEND_DEVICE_ID} ];then
     rm -rf ${test_path_dir}/output/${ASCEND_DEVICE_ID}
-    mkdir -p ${test_path_dir}/output/$ASCEND_DEVICE_ID/ckpt
+    mkdir -p ${test_path_dir}/output/$ASCEND_DEVICE_ID
 
 else
     mkdir -p ${test_path_dir}/output/$ASCEND_DEVICE_ID
-    mkdir -p ${test_path_dir}/output/$ASCEND_DEVICE_ID/ckpt
 fi
 
 #非平台场景时source 环境变量
@@ -82,14 +82,19 @@ e2e_time=$(( $end_time - $start_time ))
 #结果打印，不需要修改
 echo "------------------ Final result ------------------"
 #输出性能FPS，需要模型审视修改
-step_time=`grep -o 'step_time=\s*[0-90]\+\(\.[0-9]\+\)\?\s*' $test_path_dir/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log| sed 's/step_time= //g' | tail -n 50 | awk '{sum += $1} END {avg = sum / NR; print avg}'`
+step_time=`grep -o 'step_time=\s*[0-90]\+\(\.[0-9]\+\)\?\s*' $test_path_dir/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log| sed 's/step_time= //g' | tail -n 5000 | awk '{sum += $1} END {avg = sum / NR; print avg}'`
 FPS=`awk 'BEGIN{printf "%d\n", '$batch_size'/'$step_time'*'$RANK_SIZE'}'`
+#每回合训练迭代数，计数从0开始，需补1
+train_iteration=`grep 'step_time' $test_path_dir/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log | tail -1 | awk -F 'id ' '{print $2}' | awk -F ' step' '{print $1}'`
+train_iteration=$((train_iteration + 1))
+EpochTime=`awk 'BEGIN{printf "%.2f\n", '$step_time'*'$train_iteration'/'3600'}'`
 #排除功能问题导致计算溢出的异常，增加健壮性
 if [ x"${FPS}" == x"2147483647" ] || [ x"${FPS}" == x"-2147483647" ];then
     FPS=""
 fi
 #打印，不需要修改
 echo "Final Performance images/sec : $FPS"
+echo "Final Performance each_epoch_time : $EpochTime h"
 
 #打印，不需要修改
 echo "E2E Training Duration sec : $e2e_time"
@@ -104,7 +109,7 @@ CaseName=${Network}_bs${BatchSize}_${RANK_SIZE}'p'_'acc'
 #吞吐量
 ActualFPS=${FPS}
 #单迭代训练时长
-TrainingTime=`awk 'BEGIN{printf "%.2f\n",'${BatchSize}'*'${RANK_SIZE}'*1000/'${FPS}'}'`
+TrainingTime=`awk 'BEGIN{printf "%df\n",''3600*'${EpochTime}'}'`
 
 
 
