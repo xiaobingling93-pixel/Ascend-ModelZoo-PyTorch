@@ -2,8 +2,6 @@ import torch
 import torch.nn as nn
 from torch.autograd import Function, Variable
 
-from . import pointnet2_stack_cuda as pointnet2
-
 
 class BallQuery(Function):
 

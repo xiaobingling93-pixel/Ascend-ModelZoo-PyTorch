@@ -1,7 +1,6 @@
 from collections import OrderedDict
 from pathlib import Path
 from torch import hub
-import json
 
 import torch
 import torch.nn as nn
@@ -69,10 +68,7 @@ class DDNTemplate(nn.Module):
                 checkpoint = checkpoint_path.name
                 save_dir = checkpoint_path.parent
                 save_dir.mkdir(parents=True)
-                with open("tools/ckpt_config.json") as f:
-                    data = json.loads(f.read())
-                    ckpt_url = data.get("ckpt_url")
-                url = f'{ckpt_url}/{checkpoint}'
+                url = f'https://download.pytorch.org/models/{checkpoint}'
                 hub.load_state_dict_from_url(url, save_dir)
 
             # Get pretrained state dict

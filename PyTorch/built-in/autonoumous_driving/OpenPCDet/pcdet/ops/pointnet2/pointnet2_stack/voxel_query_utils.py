@@ -4,7 +4,6 @@ from torch.autograd import Function
 import torch.nn as nn
 from typing import List
 
-from . import pointnet2_stack_cuda as pointnet2
 from . import pointnet2_utils
 
 class VoxelQuery(Function):

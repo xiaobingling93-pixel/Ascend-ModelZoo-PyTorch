@@ -3,7 +3,8 @@ import io as sysio
 import numba
 import numpy as np
 
-from .rotate_iou import rotate_iou_gpu_eval
+from .rotate_iou import rotate_iou_cpu_eval
+import multiprocessing as mp
 
 
 @numba.jit
@@ -114,7 +115,7 @@ def image_box_overlap(boxes, query_boxes, criterion=-1):
 
 
 def bev_box_overlap(boxes, qboxes, criterion=-1):
-    riou = rotate_iou_gpu_eval(boxes, qboxes, criterion)
+    riou = rotate_iou_cpu_eval(boxes, qboxes, criterion)
     return riou
 
 
@@ -148,7 +149,7 @@ def d3_box_overlap_kernel(boxes, qboxes, rinc, criterion=-1):
 
 
 def d3_box_overlap(boxes, qboxes, criterion=-1):
-    rinc = rotate_iou_gpu_eval(boxes[:, [0, 2, 3, 5, 6]],
+    rinc = rotate_iou_cpu_eval(boxes[:, [0, 2, 3, 5, 6]],
                                qboxes[:, [0, 2, 3, 5, 6]], 2)
     d3_box_overlap_kernel(boxes, qboxes, rinc, criterion)
     return rinc
@@ -337,6 +338,47 @@ def fused_compute_statistics(overlaps,
         dc_num += dc_nums[i]
 
 
+def calculate_iou_partly_single(gt_annos, dt_annos, example_idx, split_parts, i, parted_overlaps, metric):
+    gt_annos_part = gt_annos[example_idx: example_idx + split_parts[i]]
+    dt_annos_part = dt_annos[example_idx: example_idx + split_parts[i]]
+    if metric == 0:
+        gt_boxes = np.concatenate([a["bbox"] for a in gt_annos_part], 0)
+        dt_boxes = np.concatenate([a["bbox"] for a in dt_annos_part], 0)
+        overlap_part = image_box_overlap(gt_boxes, dt_boxes)
+    elif metric == 1:
+        loc = np.concatenate(
+            [a["location"][:, [0, 2]] for a in gt_annos_part], 0)
+        dims = np.concatenate(
+            [a["dimensions"][:, [0, 2]] for a in gt_annos_part], 0)
+        rots = np.concatenate([a["rotation_y"] for a in gt_annos_part], 0)
+        gt_boxes = np.concatenate(
+            [loc, dims, rots[..., np.newaxis]], axis=1)
+        loc = np.concatenate(
+            [a["location"][:, [0, 2]] for a in dt_annos_part], 0)
+        dims = np.concatenate(
+            [a["dimensions"][:, [0, 2]] for a in dt_annos_part], 0)
+        rots = np.concatenate([a["rotation_y"] for a in dt_annos_part], 0)
+        dt_boxes = np.concatenate(
+            [loc, dims, rots[..., np.newaxis]], axis=1)
+        overlap_part = bev_box_overlap(gt_boxes, dt_boxes).astype(
+            np.float64)
+    elif metric == 2:
+        loc = np.concatenate([a["location"] for a in gt_annos_part], 0)
+        dims = np.concatenate([a["dimensions"] for a in gt_annos_part], 0)
+        rots = np.concatenate([a["rotation_y"] for a in gt_annos_part], 0)
+        gt_boxes = np.concatenate([loc, dims, rots[..., np.newaxis]], axis=1)
+        loc = np.concatenate([a["location"] for a in dt_annos_part], 0)
+        dims = np.concatenate([a["dimensions"] for a in dt_annos_part], 0)
+        rots = np.concatenate([a["rotation_y"] for a in dt_annos_part], 0)
+        dt_boxes = np.concatenate(
+            [loc, dims, rots[..., np.newaxis]], axis=1)
+        overlap_part = d3_box_overlap(gt_boxes, dt_boxes).astype(
+            np.float64)
+    else:
+        raise ValueError("unknown metric")
+    
+    parted_overlaps[i] = overlap_part
+
 def calculate_iou_partly(gt_annos, dt_annos, metric, num_parts=50):
     """fast iou algorithm. this function can be used independently to
     do result analysis. Must be used in CAMERA coordinate system.
@@ -354,47 +396,18 @@ def calculate_iou_partly(gt_annos, dt_annos, metric, num_parts=50):
     parted_overlaps = []
     example_idx = 0
 
-    for num_part in split_parts:
-        gt_annos_part = gt_annos[example_idx:example_idx + num_part]
-        dt_annos_part = dt_annos[example_idx:example_idx + num_part]
-        if metric == 0:
-            gt_boxes = np.concatenate([a["bbox"] for a in gt_annos_part], 0)
-            dt_boxes = np.concatenate([a["bbox"] for a in dt_annos_part], 0)
-            overlap_part = image_box_overlap(gt_boxes, dt_boxes)
-        elif metric == 1:
-            loc = np.concatenate(
-                [a["location"][:, [0, 2]] for a in gt_annos_part], 0)
-            dims = np.concatenate(
-                [a["dimensions"][:, [0, 2]] for a in gt_annos_part], 0)
-            rots = np.concatenate([a["rotation_y"] for a in gt_annos_part], 0)
-            gt_boxes = np.concatenate(
-                [loc, dims, rots[..., np.newaxis]], axis=1)
-            loc = np.concatenate(
-                [a["location"][:, [0, 2]] for a in dt_annos_part], 0)
-            dims = np.concatenate(
-                [a["dimensions"][:, [0, 2]] for a in dt_annos_part], 0)
-            rots = np.concatenate([a["rotation_y"] for a in dt_annos_part], 0)
-            dt_boxes = np.concatenate(
-                [loc, dims, rots[..., np.newaxis]], axis=1)
-            overlap_part = bev_box_overlap(gt_boxes, dt_boxes).astype(
-                np.float64)
-        elif metric == 2:
-            loc = np.concatenate([a["location"] for a in gt_annos_part], 0)
-            dims = np.concatenate([a["dimensions"] for a in gt_annos_part], 0)
-            rots = np.concatenate([a["rotation_y"] for a in gt_annos_part], 0)
-            gt_boxes = np.concatenate(
-                [loc, dims, rots[..., np.newaxis]], axis=1)
-            loc = np.concatenate([a["location"] for a in dt_annos_part], 0)
-            dims = np.concatenate([a["dimensions"] for a in dt_annos_part], 0)
-            rots = np.concatenate([a["rotation_y"] for a in dt_annos_part], 0)
-            dt_boxes = np.concatenate(
-                [loc, dims, rots[..., np.newaxis]], axis=1)
-            overlap_part = d3_box_overlap(gt_boxes, dt_boxes).astype(
-                np.float64)
-        else:
-            raise ValueError("unknown metric")
-        parted_overlaps.append(overlap_part)
-        example_idx += num_part
+    parted_overlaps = mp.Manager().list([None] * len(split_parts))
+    num_processes = len(split_parts)
+    processes = []
+    for i in range(num_processes):
+        p = mp.Process(target=calculate_iou_partly_single, args=(gt_annos, dt_annos, example_idx, split_parts, i, parted_overlaps, metric))
+        example_idx += split_parts[i]
+        processes.append(p)
+        p.start()
+    for p in processes:
+        p.join()
+        
+    parted_overlaps = list(parted_overlaps)
     overlaps = []
     example_idx = 0
     for j, num_part in enumerate(split_parts):

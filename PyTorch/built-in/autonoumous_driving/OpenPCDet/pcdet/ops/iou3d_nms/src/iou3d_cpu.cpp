@@ -9,23 +9,8 @@ All Rights Reserved 2020.
 #include <torch/serialize/tensor.h>
 #include <torch/extension.h>
 #include <vector>
-#include <cuda.h>
-#include <cuda_runtime_api.h>
 #include "iou3d_cpu.h"
 
-#define CHECK_CUDA(x) do { \
-  if (!x.type().is_cuda()) { \
-    fprintf(stderr, "%s must be CUDA tensor at %s:%d\n", #x, __FILE__, __LINE__); \
-    exit(-1); \
-  } \
-} while (0)
-#define CHECK_CONTIGUOUS(x) do { \
-  if (!x.is_contiguous()) { \
-    fprintf(stderr, "%s must be contiguous tensor at %s:%d\n", #x, __FILE__, __LINE__); \
-    exit(-1); \
-  } \
-} while (0)
-#define CHECK_INPUT(x) CHECK_CUDA(x);CHECK_CONTIGUOUS(x)
 
 inline float min(float a, float b){
     return a > b ? b : a;
@@ -38,20 +23,20 @@ inline float max(float a, float b){
 const float EPS = 1e-8;
 struct Point {
     float x, y;
-    __device__ Point() {}
-    __device__ Point(double _x, double _y){
+    Point() {}
+    Point(double _x, double _y){
         x = _x, y = _y;
     }
 
-    __device__ void set(float _x, float _y){
+    void set(float _x, float _y){
         x = _x; y = _y;
     }
 
-    __device__ Point operator +(const Point &b)const{
+    Point operator +(const Point &b)const{
         return Point(x + b.x, y + b.y);
     }
 
-    __device__ Point operator -(const Point &b)const{
+    Point operator -(const Point &b)const{
         return Point(x - b.x, y - b.y);
     }
 };
@@ -234,9 +219,6 @@ int boxes_iou_bev_cpu(at::Tensor boxes_a_tensor, at::Tensor boxes_b_tensor, at::
     // params boxes_b_tensor: (M, 7) [x, y, z, dx, dy, dz, heading]
     // params ans_iou_tensor: (N, M)
 
-    CHECK_CONTIGUOUS(boxes_a_tensor);
-    CHECK_CONTIGUOUS(boxes_b_tensor);
-
     int num_boxes_a = boxes_a_tensor.size(0);
     int num_boxes_b = boxes_b_tensor.size(0);
     const float *boxes_a = boxes_a_tensor.data<float>();
@@ -256,9 +238,6 @@ int boxes_aligned_iou_bev_cpu(at::Tensor boxes_a_tensor, at::Tensor boxes_b_tens
     // params boxes_b_tensor: (N, 7) [x, y, z, dx, dy, dz, heading]
     // params ans_iou_tensor: (N, 1)
 
-    CHECK_CONTIGUOUS(boxes_a_tensor);
-    CHECK_CONTIGUOUS(boxes_b_tensor);
-
     int num_boxes = boxes_a_tensor.size(0);
     int num_boxes_b = boxes_b_tensor.size(0);
     assert(num_boxes == num_boxes_b);
@@ -270,4 +249,34 @@ int boxes_aligned_iou_bev_cpu(at::Tensor boxes_a_tensor, at::Tensor boxes_b_tens
         ans_iou[i] = iou_bev(boxes_a + i * 7, boxes_b + i * 7);
     }
     return 1;
+}
+
+int nms_cpu(at::Tensor boxes, at::Tensor keep, float nms_overlap_thresh) {
+    int boxes_num = boxes.size(0);
+    const float * boxes_data = boxes.data<float>();
+    long * keep_data = keep.data<long>();
+
+    int num_to_keep = 0;
+
+    std::vector<int> boxIndex;
+    for (int i = 0; i < boxes_num; i++) {
+        boxIndex.push_back(i);
+    }
+
+    while (boxIndex.size() > 0) {
+        int keep_box_index = boxIndex[0];
+        keep[num_to_keep++] = keep_box_index;
+
+        boxIndex.erase(boxIndex.begin());
+
+        for (auto it = boxIndex.begin(); it != boxIndex.end(); ) {
+            float iou_bev_v = iou_bev(boxes_data + keep_box_index * 7, boxes_data + (*it) * 7);
+            if (iou_bev_v > nms_overlap_thresh) {
+                it = boxIndex.erase(it);
+            } else {
+                it++;
+            }
+        }
+    }
+    return num_to_keep;
 }

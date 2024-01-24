@@ -3,9 +3,8 @@
 
 #include <torch/serialize/tensor.h>
 #include <vector>
-#include <cuda.h>
-#include <cuda_runtime_api.h>
 
 int boxes_iou_bev_cpu(at::Tensor boxes_a_tensor, at::Tensor boxes_b_tensor, at::Tensor ans_iou_tensor);
 int boxes_aligned_iou_bev_cpu(at::Tensor boxes_a_tensor, at::Tensor boxes_b_tensor, at::Tensor ans_iou_tensor);
+int nms_cpu(at::Tensor boxes, at::Tensor keep, float nms_overlap_thresh);
 #endif
