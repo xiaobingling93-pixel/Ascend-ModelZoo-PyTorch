@@ -81,11 +81,7 @@ Conformer是将CNN用于增强Transformer来做ASR的结构
 将模型权重文件`.pth`转换为`.onnx`文件，再使用`ATC`工具将`.onnx`文件转为离线推理模型`.om`文件。
 
 1. 获取权重文件  
-   下载权重放在Conformer_for_Pytorch目录下。权重链接：https://zenodo.org/record/4105763#.X40xe2j7QUE
-   
-   指定参数为：Conformer + specaug + speed perturbation: feats=raw, n_fft=512, hop_length=128
-   
-   点击With Transformer LM中的Model link链接下载asr_train_asr_conformer3_raw_char_batch_bins4000000_accum_grad4_sp_valid.acc.ave.zip文件，将该文件和pth2onnx.py文件置于同一目录下
+   下载[权重](https://zenodo.org/records/4105763/files/asr_train_asr_conformer3_raw_char_batch_bins4000000_accum_grad4_sp_valid.acc.ave.zip?download=1)放在Conformer_for_Pytorch目录下。
 
 
 2. 导出`ONNX`模型    
