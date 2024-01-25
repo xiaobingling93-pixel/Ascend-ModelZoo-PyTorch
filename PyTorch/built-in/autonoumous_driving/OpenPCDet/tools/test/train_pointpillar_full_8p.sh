@@ -82,7 +82,7 @@ e2e_time=$(( $end_time - $start_time ))
 echo "------------------ Final result ------------------"
 #输出性能FPS，需要模型审视修改
 avg_time=`grep -a 'Batch time: ' ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log|awk -F 'Batch time: ' '{print $2}'|awk 'NR>10'|awk -F '(' '{print $1}'|awk '{a+=$1} END {if (NR != 0) printf("%.3f",a/NR)}'`
-FPS=`echo '$batch_size / $avg_time'|bc`
+FPS=`echo "$batch_size / $avg_time"|bc`
 
 #打印，不需要修改
 echo "Final Performance images/sec : $FPS"
@@ -107,7 +107,7 @@ metrics=([mAP_bbox]="bbox AP" [mAP_bev]="bev  AP" [mAP_3d]="3d   AP" [mAP_aos]="
 for metric_label in $(echo ${!metrics[*]}); do
     metric_name=${metrics[$metric_label]}
     metric_value=$(grep -o "${metric_name}:\s*[0-9]\+\(\.[0-9]\+\)\?\s*" ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log | awk -F':' '{print $2}')
-    map=$(awk 'BEGIN{printf "%.2f\n",('$(echo ${metric_value} | awk '{for(i=1;i<=NF;i++) sum+=$i; print sum}')'/'$num_metric')'})
+    map=$(awk 'BEGIN{printf "%.2f\n",('$(echo ${metric_value} | awk '{for(i=1;i<=NF;i++) sum+=$i; print sum}')'/'$num_metric')}')
     echo "${metric_label}: ${map}"
     echo "${metric_label} = ${map}" >> $test_path_dir/output/$ASCEND_DEVICE_ID/${CaseName}.log
 done

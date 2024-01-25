@@ -56,7 +56,7 @@ code_path=PyTorch/built-in/autonoumous_driving
       python setup.py bdist_wheel
       pip install dist/cumm-xxx.whl  # cumm包名在不同系统有差异
       ```
-   2. 编译安装cumm
+   2. 编译安装spconv
       ```python
       git clone https://github.com/traveller59/spconv.git -b v2.1.25
       # 1.删除spconv工程目录下pyproject.toml
@@ -96,10 +96,10 @@ code_path=PyTorch/built-in/autonoumous_driving
    ```
 4. 修改`tools/cfgs/kitti_models/pointpillar.yaml`，`USE_ROAD_PLANE: False`
 5. 序列化数据集生成数据信息
-  ```python
-  cd OpenPCDet/
-  python -m pcdet.datasets.kitti.kitti_dataset create_kitti_infos tools/cfgs/dataset_configs/kitti_dataset.yaml
-  ```
+   ```python
+   cd OpenPCDet/
+   python -m pcdet.datasets.kitti.kitti_dataset create_kitti_infos tools/cfgs/dataset_configs/kitti_dataset.yaml
+   ```
 
 ### 模型训练
 1. 进入OpenPCDet的根目录。
@@ -121,14 +121,14 @@ code_path=PyTorch/built-in/autonoumous_driving
 | Exp | mAP_bbox | mAP_3d | mAP_bev | mAP_aos |
 | - | - | - | - | - | 
 | 8p-竞品 | 80.19 | 76.58 | 79.27 | 73.58 |
-| 8p-NPU | 81.73 | 77.44 | 80.75 | 75.60 |
+| 8p-NPU | 80.93 | 76.67 | 79.52 | 74.91 |
 
 #### 性能
 训练性能结果展示表
 | Exp | FPS |
 | - | - |
 | 8p-竞品 | 51 |
-| 8p-NPU| 44 |
+| 8p-NPU| 47 |
 
 ### FAQ
 #### ImportError:/usr/local/gcc-7.5.0/lib64/libgomp.so.1:cannot allocate memory in static TLS block,
