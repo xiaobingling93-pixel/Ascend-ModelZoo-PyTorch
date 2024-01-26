@@ -178,8 +178,24 @@ ssh root@ip1
 ssh root@ip2
 ```
 
-## 开始训练 
+## 开始训练
 
+**单机启动**
+
+1、将项目根目录下的`run_baichuan_sft_1m.sh`、`ds_config_zero3.json`文件拷贝到`${模型文件夹名称}`路径下。
+```shell
+cp ../run_baichuan_sft_1m.sh .
+cp ../ds_config_zero3.json .
+```
+
+2、启动脚本
+该模型单机8卡微调，执行如下命令启动训练。
+```shell
+sh run_baichuan_sft_1m.sh
+``` 
+
+
+**双机启动**
 
 1、将项目根目录下的`run_baichuan_sft_2m.sh`、`ds_config_zero2.json`、`hostfile`文件拷贝到`${模型文件夹名称}`路径下。
 ```shell
@@ -193,6 +209,7 @@ cp ../hostfile .
 ```shell
 sh run_baichuan_sft_2m.sh
 ``` 
+
 模型训练部分参数说明如下：
 
    ```
@@ -207,7 +224,7 @@ sh run_baichuan_sft_2m.sh
 --fp16                          //使用fp16精度浮点数进行训练。
 
    ```
-   **注**：为确保双机训练成功，请保证双机环境及路径一致，包括项目路径、conda环境、cann和驱动等。
+   **注**：zero3策略下也可以双机执行训练。为确保双机训练成功，请保证双机环境及路径一致，包括项目路径、conda环境、cann和驱动等。
 训练完成后，权重文件保存`--output_dir`参数指定的路径下，并输出模型训练相关信息。
 
 ## 训练结果展示
@@ -231,7 +248,6 @@ sh run_baichuan_sft_2m.sh
 ├── generation_config.json
 ├── generation_utils.py
 ├── handler.py
-├── hf_pytorch_model.bin.index.json
 ├── modeling_baichuan.py
 ├── pytorch_model-00001-of-00003.bin
 ├── pytorch_model-00002-of-00003.bin

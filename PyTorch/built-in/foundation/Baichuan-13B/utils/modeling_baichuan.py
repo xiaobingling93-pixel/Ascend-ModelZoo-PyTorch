@@ -30,9 +30,11 @@ def _get_interleave(n):
         return _get_interleave_power_of_2(closest_power_of_2) + \
                _get_interleave(2 * closest_power_of_2)[0::2][:n - closest_power_of_2]
 
+
 def _fill_with_neg_inf(t):
     """FP16-compatible function that fills a tensor with -inf."""
     return t.float().fill_(float("-inf")).type_as(t)
+
 
 def _gen_alibi_mask(n_head, max_pos):
     """used in inference only"""
@@ -45,6 +47,7 @@ def _gen_alibi_mask(n_head, max_pos):
     )
     alibi_mask = alibi_mask.unsqueeze(0) + alibi
     return alibi_mask
+
 
 def _buffered_future_mask(tensor, maxpos, alibi, attn_heads):
     """used in training only"""
