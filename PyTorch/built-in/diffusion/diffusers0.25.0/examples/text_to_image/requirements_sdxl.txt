@@ -6,3 +6,6 @@ tensorboard
 Jinja2
 datasets
 peft==0.7.0
+toml
+voluptuous
+deepspeed==0.12.6

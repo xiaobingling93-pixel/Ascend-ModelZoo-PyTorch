@@ -1,248 +1,159 @@
-<!---
-Copyright 2022 - The HuggingFace Team. All rights reserved.
+# Diffusers for PyTorch
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
--->
-
-<p align="center">
-    <br>
-    <img src="https://raw.githubusercontent.com/huggingface/diffusers/main/docs/source/en/imgs/diffusers_library.jpg" width="400"/>
-    <br>
-<p>
-<p align="center">
-    <a href="https://github.com/huggingface/diffusers/blob/main/LICENSE">
-        <img alt="GitHub" src="https://img.shields.io/github/license/huggingface/datasets.svg?color=blue">
-    </a>
-    <a href="https://github.com/huggingface/diffusers/releases">
-        <img alt="GitHub release" src="https://img.shields.io/github/release/huggingface/diffusers.svg">
-    </a>
-    <a href="https://pepy.tech/project/diffusers">
-        <img alt="GitHub release" src="https://static.pepy.tech/badge/diffusers/month">
-    </a>
-    <a href="CODE_OF_CONDUCT.md">
-        <img alt="Contributor Covenant" src="https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg">
-    </a>
-    <a href="https://twitter.com/diffuserslib">
-        <img alt="X account" src="https://img.shields.io/twitter/url/https/twitter.com/diffuserslib.svg?style=social&label=Follow%20%40diffuserslib">
-    </a>
-</p>
-
-🤗 Diffusers is the go-to library for state-of-the-art pretrained diffusion models for generating images, audio, and even 3D structures of molecules. Whether you're looking for a simple inference solution or training your own diffusion models, 🤗 Diffusers is a modular toolbox that supports both. Our library is designed with a focus on [usability over performance](https://huggingface.co/docs/diffusers/conceptual/philosophy#usability-over-performance), [simple over easy](https://huggingface.co/docs/diffusers/conceptual/philosophy#simple-over-easy), and [customizability over abstractions](https://huggingface.co/docs/diffusers/conceptual/philosophy#tweakable-contributorfriendly-over-abstraction).
-
-🤗 Diffusers offers three core components:
-
-- State-of-the-art [diffusion pipelines](https://huggingface.co/docs/diffusers/api/pipelines/overview) that can be run in inference with just a few lines of code.
-- Interchangeable noise [schedulers](https://huggingface.co/docs/diffusers/api/schedulers/overview) for different diffusion speeds and output quality.
-- Pretrained [models](https://huggingface.co/docs/diffusers/api/models/overview) that can be used as building blocks, and combined with schedulers, for creating your own end-to-end diffusion systems.
-
-## Installation
-
-We recommend installing 🤗 Diffusers in a virtual environment from PyPI or Conda. For more details about installing [PyTorch](https://pytorch.org/get-started/locally/) and [Flax](https://flax.readthedocs.io/en/latest/#installation), please refer to their official documentation.
-
-### PyTorch
-
-With `pip` (official package):
-
-```bash
-pip install --upgrade diffusers[torch]
-```
-
-With `conda` (maintained by the community):
-
-```sh
-conda install -c conda-forge diffusers
-```
-
-### Flax
-
-With `pip` (official package):
-
-```bash
-pip install --upgrade diffusers[flax]
-```
-
-### Apple Silicon (M1/M2) support
-
-Please refer to the [How to use Stable Diffusion in Apple Silicon](https://huggingface.co/docs/diffusers/optimization/mps) guide.
-
-## Quickstart
-
-Generating outputs is super easy with 🤗 Diffusers. To generate an image from text, use the `from_pretrained` method to load any pretrained diffusion model (browse the [Hub](https://huggingface.co/models?library=diffusers&sort=downloads) for 16000+ checkpoints):
-
-```python
-from diffusers import DiffusionPipeline
-import torch
-
-pipeline = DiffusionPipeline.from_pretrained("runwayml/stable-diffusion-v1-5", torch_dtype=torch.float16)
-pipeline.to("cuda")
-pipeline("An image of a squirrel in Picasso style").images[0]
-```
-
-You can also dig into the models and schedulers toolbox to build your own diffusion system:
-
-```python
-from diffusers import DDPMScheduler, UNet2DModel
-from PIL import Image
-import torch
-
-scheduler = DDPMScheduler.from_pretrained("google/ddpm-cat-256")
-model = UNet2DModel.from_pretrained("google/ddpm-cat-256").to("cuda")
-scheduler.set_timesteps(50)
-
-sample_size = model.config.sample_size
-noise = torch.randn((1, 3, sample_size, sample_size), device="cuda")
-input = noise
-
-for t in scheduler.timesteps:
-    with torch.no_grad():
-        noisy_residual = model(input, t).sample
-        prev_noisy_sample = scheduler.step(noisy_residual, t, input).prev_sample
-        input = prev_noisy_sample
-
-image = (input / 2 + 0.5).clamp(0, 1)
-image = image.cpu().permute(0, 2, 3, 1).numpy()[0]
-image = Image.fromarray((image * 255).round().astype("uint8"))
-image
-```
-
-Check out the [Quickstart](https://huggingface.co/docs/diffusers/quicktour) to launch your diffusion journey today!
-
-## How to navigate the documentation
-
-| **Documentation**                                                   | **What can I learn?**                                                                                                                                                                           |
-|---------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [Tutorial](https://huggingface.co/docs/diffusers/tutorials/tutorial_overview)                                                            | A basic crash course for learning how to use the library's most important features like using models and schedulers to build your own diffusion system, and training your own diffusion model.  |
-| [Loading](https://huggingface.co/docs/diffusers/using-diffusers/loading_overview)                                                             | Guides for how to load and configure all the components (pipelines, models, and schedulers) of the library, as well as how to use different schedulers.                                         |
-| [Pipelines for inference](https://huggingface.co/docs/diffusers/using-diffusers/pipeline_overview)                                             | Guides for how to use pipelines for different inference tasks, batched generation, controlling generated outputs and randomness, and how to contribute a pipeline to the library.               |
-| [Optimization](https://huggingface.co/docs/diffusers/optimization/opt_overview)                                                        | Guides for how to optimize your diffusion model to run faster and consume less memory.                                                                                                          |
-| [Training](https://huggingface.co/docs/diffusers/training/overview) | Guides for how to train a diffusion model for different tasks with different training techniques.                                                                                               |
-## Contribution
-
-We ❤️  contributions from the open-source community!
-If you want to contribute to this library, please check out our [Contribution guide](https://github.com/huggingface/diffusers/blob/main/CONTRIBUTING.md).
-You can look out for [issues](https://github.com/huggingface/diffusers/issues) you'd like to tackle to contribute to the library.
-- See [Good first issues](https://github.com/huggingface/diffusers/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22) for general opportunities to contribute
-- See [New model/pipeline](https://github.com/huggingface/diffusers/issues?q=is%3Aopen+is%3Aissue+label%3A%22New+pipeline%2Fmodel%22) to contribute exciting new diffusion models / diffusion pipelines
-- See [New scheduler](https://github.com/huggingface/diffusers/issues?q=is%3Aopen+is%3Aissue+label%3A%22New+scheduler%22)
-
-Also, say 👋 in our public Discord channel <a href="https://discord.gg/G7tWnz98XR"><img alt="Join us on Discord" src="https://img.shields.io/discord/823813159592001537?color=5865F2&logo=discord&logoColor=white"></a>. We discuss the hottest trends about diffusion models, help each other with contributions, personal projects or just hang out ☕.
+-   [概述](概述.md)
+-   [准备训练环境](准备训练环境.md)
+-   [开始训练](开始训练.md)
+-   [训练结果展示](训练结果展示.md)
+-   [版本说明](版本说明.md)
 
 
-## Popular Tasks & Pipelines
 
-<table>
-  <tr>
-    <th>Task</th>
-    <th>Pipeline</th>
-    <th>🤗 Hub</th>
-  </tr>
-  <tr style="border-top: 2px solid black">
-    <td>Unconditional Image Generation</td>
-    <td><a href="https://huggingface.co/docs/diffusers/api/pipelines/ddpm"> DDPM </a></td>
-    <td><a href="https://huggingface.co/google/ddpm-ema-church-256"> google/ddpm-ema-church-256 </a></td>
-  </tr>
-  <tr style="border-top: 2px solid black">
-    <td>Text-to-Image</td>
-    <td><a href="https://huggingface.co/docs/diffusers/api/pipelines/stable_diffusion/text2img">Stable Diffusion Text-to-Image</a></td>
-      <td><a href="https://huggingface.co/runwayml/stable-diffusion-v1-5"> runwayml/stable-diffusion-v1-5 </a></td>
-  </tr>
-  <tr>
-    <td>Text-to-Image</td>
-    <td><a href="https://huggingface.co/docs/diffusers/api/pipelines/unclip">unCLIP</a></td>
-      <td><a href="https://huggingface.co/kakaobrain/karlo-v1-alpha"> kakaobrain/karlo-v1-alpha </a></td>
-  </tr>
-  <tr>
-    <td>Text-to-Image</td>
-    <td><a href="https://huggingface.co/docs/diffusers/api/pipelines/deepfloyd_if">DeepFloyd IF</a></td>
-      <td><a href="https://huggingface.co/DeepFloyd/IF-I-XL-v1.0"> DeepFloyd/IF-I-XL-v1.0 </a></td>
-  </tr>
-  <tr>
-    <td>Text-to-Image</td>
-    <td><a href="https://huggingface.co/docs/diffusers/api/pipelines/kandinsky">Kandinsky</a></td>
-      <td><a href="https://huggingface.co/kandinsky-community/kandinsky-2-2-decoder"> kandinsky-community/kandinsky-2-2-decoder </a></td>
-  </tr>
-  <tr style="border-top: 2px solid black">
-    <td>Text-guided Image-to-Image</td>
-    <td><a href="https://huggingface.co/docs/diffusers/api/pipelines/controlnet">ControlNet</a></td>
-      <td><a href="https://huggingface.co/lllyasviel/sd-controlnet-canny"> lllyasviel/sd-controlnet-canny </a></td>
-  </tr>
-  <tr>
-    <td>Text-guided Image-to-Image</td>
-    <td><a href="https://huggingface.co/docs/diffusers/api/pipelines/pix2pix">InstructPix2Pix</a></td>
-      <td><a href="https://huggingface.co/timbrooks/instruct-pix2pix"> timbrooks/instruct-pix2pix </a></td>
-  </tr>
-  <tr>
-    <td>Text-guided Image-to-Image</td>
-    <td><a href="https://huggingface.co/docs/diffusers/api/pipelines/stable_diffusion/img2img">Stable Diffusion Image-to-Image</a></td>
-      <td><a href="https://huggingface.co/runwayml/stable-diffusion-v1-5"> runwayml/stable-diffusion-v1-5 </a></td>
-  </tr>
-  <tr style="border-top: 2px solid black">
-    <td>Text-guided Image Inpainting</td>
-    <td><a href="https://huggingface.co/docs/diffusers/api/pipelines/stable_diffusion/inpaint">Stable Diffusion Inpainting</a></td>
-      <td><a href="https://huggingface.co/runwayml/stable-diffusion-inpainting"> runwayml/stable-diffusion-inpainting </a></td>
-  </tr>
-  <tr style="border-top: 2px solid black">
-    <td>Image Variation</td>
-    <td><a href="https://huggingface.co/docs/diffusers/api/pipelines/stable_diffusion/image_variation">Stable Diffusion Image Variation</a></td>
-      <td><a href="https://huggingface.co/lambdalabs/sd-image-variations-diffusers"> lambdalabs/sd-image-variations-diffusers </a></td>
-  </tr>
-  <tr style="border-top: 2px solid black">
-    <td>Super Resolution</td>
-    <td><a href="https://huggingface.co/docs/diffusers/api/pipelines/stable_diffusion/upscale">Stable Diffusion Upscale</a></td>
-      <td><a href="https://huggingface.co/stabilityai/stable-diffusion-x4-upscaler"> stabilityai/stable-diffusion-x4-upscaler </a></td>
-  </tr>
-  <tr>
-    <td>Super Resolution</td>
-    <td><a href="https://huggingface.co/docs/diffusers/api/pipelines/stable_diffusion/latent_upscale">Stable Diffusion Latent Upscale</a></td>
-      <td><a href="https://huggingface.co/stabilityai/sd-x2-latent-upscaler"> stabilityai/sd-x2-latent-upscaler </a></td>
-  </tr>
-</table>
+# 概述
 
-## Popular libraries using 🧨 Diffusers
+## 简述
 
-- https://github.com/microsoft/TaskMatrix
-- https://github.com/invoke-ai/InvokeAI
-- https://github.com/apple/ml-stable-diffusion
-- https://github.com/Sanster/lama-cleaner
-- https://github.com/IDEA-Research/Grounded-Segment-Anything
-- https://github.com/ashawkey/stable-dreamfusion
-- https://github.com/deep-floyd/IF
-- https://github.com/bentoml/BentoML
-- https://github.com/bmaltais/kohya_ss
-- +7000 other amazing GitHub repositories 💪
+扩散模型 (Diffusion Models) 是一种生成模型，可生成各种各样的高分辨率图像。Diffusers 是Huggingface发布的模型套件，包含基于扩散模型的多种下游任务训练与推理，可用于生成图像、音频，甚至分子的 3D 结构。
 
-Thank you for using us ❤️.
+- 参考实现：
 
-## Credits
+  ```
+  url=https://github.com/huggingface/diffusers
+  commit_id=7f551e29ff4ad05615cb38530a8940811f9e5936
+  ```
 
-This library concretizes previous work by many different authors and would not have been possible without their great research and implementations. We'd like to thank, in particular, the following implementations which have helped us in our development and without which the API could not have been as polished today:
+- 适配昇腾 AI 处理器的实现：
 
-- @CompVis' latent diffusion models library, available [here](https://github.com/CompVis/latent-diffusion)
-- @hojonathanho original DDPM implementation, available [here](https://github.com/hojonathanho/diffusion) as well as the extremely useful translation into PyTorch by @pesser, available [here](https://github.com/pesser/pytorch_diffusion)
-- @ermongroup's DDIM implementation, available [here](https://github.com/ermongroup/ddim)
-- @yang-song's Score-VE and Score-VP implementations, available [here](https://github.com/yang-song/score_sde_pytorch)
+  ```
+  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  code_path=PyTorch/built-in/diffusion0.25.0/
+  ```
 
-We also want to thank @heejkoo for the very helpful overview of papers, code and resources on diffusion models, available [here](https://github.com/heejkoo/Awesome-Diffusion-Models) as well as @crowsonkb and @rromb for useful discussions and insights.
+# 准备训练环境
 
-## Citation
+## 准备环境
 
-```bibtex
-@misc{von-platen-etal-2022-diffusers,
-  author = {Patrick von Platen and Suraj Patil and Anton Lozhkov and Pedro Cuenca and Nathan Lambert and Kashif Rasul and Mishig Davaadorj and Thomas Wolf},
-  title = {Diffusers: State-of-the-art diffusion models},
-  year = {2022},
-  publisher = {GitHub},
-  journal = {GitHub repository},
-  howpublished = {\url{https://github.com/huggingface/diffusers}}
-}
-```
+- 当前模型支持的 PyTorch 版本和已知三方库依赖如下表所示。
+
+  **表 1**  版本支持表
+
+  | Torch_Version      | 三方库依赖版本                                 |
+  | :--------: | :----------------------------------------------------------: |
+  | PyTorch 2.1 | diffusers==0.25.0 accelerate==0.25.0 deepspeed==0.12.6|
+  
+- 环境准备指导。
+
+  请参考《[Pytorch框架训练环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/ptes)》搭建torch环境。
+  
+- 安装依赖。
+
+  在模型根目录下执行命令，安装模型对应PyTorch版本需要的依赖。
+  ```shell
+  pip install -e .                    # 安装diffusers
+  cd examples/text_to_image/           # 根据下游任务安装对应依赖
+  pip install -r requirements_sdxl.txt  
+  ```
+  
+
+## 准备数据集
+
+
+1. 用户需自行获取并解压LAION_5B数据集，并在shell启动脚本中将`dataset_name`参数，设置为本地数据集的绝对路径，填写一级目录。
+
+   数据结构如下：
+
+   ```
+   $LAION5B
+   ├── 000000000.jpg
+   ├── 000000000.json
+   ├── 000000000.txt
+   └── ...
+   ```
+
+   > **说明：** 
+   >该数据集的训练过程脚本只作为一种参考示例。
+
+   
+
+## 获取预训练模型
+
+1. 联网情况下，预训练模型会自动下载。
+
+2. 无网络时，用户可访问huggingface官网自行下载，文件namespace如下：
+
+   ```
+   stabilityai/stable-diffusion-xl-base-1.0
+   madebyollin/sdxl-vae-fp16-fix
+   ```
+
+3. 获取对应的预训练模型后，在shell启动脚本中将`model_name`参数，设置为本地预训练模型路径，填写一级目录。
+
+# 开始训练
+
+## 训练模型
+
+本节以文生图下游任务为例，展示模型训练方法。
+
+1. 进入解压后的源码包根目录。
+
+   ```
+   cd /${模型文件夹名称} 
+   ```
+
+2. 运行预训练脚本。
+
+   该模型支持单机8卡训练。
+   
+  
+   - 单机8卡训练
+   
+     ```shell
+     bash test/train_8p_text_to_image_sdxl_pretrain.sh  # 8卡精度测试 ，SDXL_lora，fp16
+     bash test/train_8p_text_to_image_sdxl_pretrain.sh --max_train_steps=200 # 8卡性能测试 ，SDXL_lora，fp16
+     bash test/train_8p_text_to_image_sdxl_pretrain.sh --max_train_steps=150000 # 8卡训练 ，SDXL_lora，fp16
+     ```
+     
+   
+   - 模型训练python训练脚本参数说明如下。
+   
+   ```shell
+   train_text_to_image_sdxl_pretrain.py：
+   --max_train_steps                   //训练步数
+   --pretrained_model_name_or_path     //预训练模型名称或者地址
+   --dataset_name                      //加载数据集的方式，从官网或者本地cache中读取数据
+   --vae_name                          //预训练vae模型名称或者地址
+   --dataset_config_name               //数据集配置     
+   --train_batch_size                  //设置batch_size
+   --image_column                      //图片所在列
+   --caption_column                    //图片caption所在列
+   --max_train_samples                 //最大训练样本数
+   --validation_prompts                //验证提示词
+   --output_dir                        //输出路径
+   --resolution                        //分辨率
+   --num_train_epochs                  //训练epoch数
+   --gradient_accumulation_steps       //梯度累计步数
+   --mixed_precision                   //精度模式
+   --num_train_epochs                  //训练回合数
+   --enable_bucket                     //启动动态分辨率
+   --max_bucket_reso                   //设置最大动态分辨率桶，默认2048
+   --min_bucket_reso                   //设置最小动态分辨率桶，默认512
+   ```
+
+   - 预训练默认开启动态分辨率，如需使用静态分辨率需要使用1.数据集原图像分辨率大小足够大；2.设置最大、最小动态分辨率桶均为1024
+   
+   - 训练完成后，权重文件保存在`test/output`路径下，并输出模型训练精度和性能信息。
+
+
+
+# 公网地址说明
+代码涉及公网地址参考 public_address_statement.md
+
+# 版本说明
+
+## 变更
+
+2024.01.30：首次发布。
+
+## FAQ
+
+
+   
