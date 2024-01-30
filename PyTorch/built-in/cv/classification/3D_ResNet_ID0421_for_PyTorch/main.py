@@ -340,6 +340,7 @@ def main_worker(index, opt):
     os.environ['PYTHONHASHSEED'] = str(opt.manual_seed)
 
     device_id = int(opt.device_list.split(",")[index])
+    torch.npu.set_device(device_id)
     opt.device = torch.device(f'npu:{device_id}')
     print("***Device ID:", device_id)
     if opt.distributed:
