@@ -10,7 +10,7 @@ torchvision==0.16.0
 SharedArray
 opencv-python
 pyquaternion
-pccm=0.3.4
+pccm==0.3.4
 torch_scatter
 opencv-python-headless
 av2

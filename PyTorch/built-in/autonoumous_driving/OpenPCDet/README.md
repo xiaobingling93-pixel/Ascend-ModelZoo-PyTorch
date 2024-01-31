@@ -42,7 +42,6 @@ code_path=PyTorch/built-in/autonoumous_driving
   ```
   conda create -n env_name python=3.8
   pip install -r requirements.txt
-
   ```
 
   #### 2. 手动编译安装cumm和spconv
@@ -51,7 +50,7 @@ code_path=PyTorch/built-in/autonoumous_driving
       ```python
       git clone https://github.com/FindDefinition/cumm.git -b v0.2.9
       export CUMM_CUDA_VERSION=""
-      export SPCONV_DISABLE_JIT="1"
+      export CUMM_DISABLE_JIT="1"
       cd cumm/
       python setup.py bdist_wheel
       pip install dist/cumm-xxx.whl  # cumm包名在不同系统有差异
@@ -63,18 +62,22 @@ code_path=PyTorch/built-in/autonoumous_driving
       # 2.修改spconv工程目录下setup.py内REQUIRED = []
       # 3.注释掉spconv/core_cc/csrc/sparse/all/__init__.pyi中所有代码
       # 4.export环境变量
-      export CUMM_CUDA_VERSION=""
       export SPCONV_DISABLE_JIT="1"
-      pip install setup.py bdist_wheel
+      python setup.py bdist_wheel
       pip install dist/spconv-xxx.whl  # spconv包名在不同系统有差异
-      # 修改安装后的的spconv（在自己conda env环境的site-packages内），注释掉spconv/utils/__init__.py里所有代码
+      # 修改安装后的的spconv（在自己conda env环境的site-packages内），注释掉spconv/utils/__init__.py以下代码
+      if not CPU_ONLY_BUILD:
+         from spconv.core_cc.csrc.sparse.all.ops1d import Point2Voxel as Point2VoxelGPU1d
+         from spconv.core_cc.csrc.sparse.all.ops2d import Point2Voxel as Point2VoxelGPU2d
+         from spconv.core_cc.csrc.sparse.all.ops3d import Point2Voxel as Point2VoxelGPU3d
+         from spconv.core_cc.csrc.sparse.all.ops4d import Point2Voxel as Point2VoxelGPU4d
       ```
    #### 3. 编译安装OpenPCDet
    ```
    cd OpenPCDet/
    python setup.py develop
    ```
-   
+
 
 ### 准备数据集
 1. 下载kitti数据集，请自行前往Kitti官网下载3D检测数据集
@@ -137,6 +140,12 @@ glibc版本兼容性问题，升级glibc版本或者手动导入环境变量expo
 可能时网络不稳定导致数据集下载时缺失部分image或者.bin文件
 #### 报错：KeyError:'road_plane'
 修改`tools/cfgs/kitti_models/pointpillar.yaml`，`USE_ROAD_PLANE: False`
+#### 安装编译cumm时报错：TypeError: ccimport() got multiple values for argument 'std'
+```python
+pip install ccimport==0.3.7
+```
+#### 训练卡住，日志记录`Wait 30 seconds for next check`
+需要删除上次训练的存储，位置在`OpenPCDet/output/kitti_models/pointpillat/default`
 
 ## 版本说明
 [2024-01-24] **NEW:** PointPillar模型在NPU设备首次适配.
@@ -144,7 +153,3 @@ glibc版本兼容性问题，升级glibc版本或者手动导入环境变量expo
 ## 公网地址说明
 
 代码涉及公网地址及个人邮箱地址参考 ```./public_address_statement.md```
-
-
-
-

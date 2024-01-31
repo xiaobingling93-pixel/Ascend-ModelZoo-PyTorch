@@ -3,6 +3,7 @@ import torch.nn as nn
 from torch.autograd import Function
 
 from ...utils import common_utils
+from . import roiaware_pool3d_cuda
 
 
 def points_in_boxes_cpu(points, boxes):
@@ -19,6 +20,7 @@ def points_in_boxes_cpu(points, boxes):
     boxes, is_numpy = common_utils.check_numpy_to_torch(boxes)
 
     point_indices = points.new_zeros((boxes.shape[0], points.shape[0]), dtype=torch.int)
+    roiaware_pool3d_cuda.points_in_boxes_cpu(boxes.float().contiguous(), points.float().contiguous(), point_indices)
 
     return point_indices.numpy() if is_numpy else point_indices
 
