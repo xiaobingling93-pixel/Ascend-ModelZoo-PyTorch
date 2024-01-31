@@ -1,5 +1,5 @@
 # Copyright 2023 The HuggingFace Team. All rights reserved.
-#
+# Copyright 2023 Huawei Technologies Co., Ltd
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -13,10 +13,10 @@
 # limitations under the License.
 from importlib import import_module
 from typing import Callable, Optional, Union
+import math
 
 import torch
 import torch_npu
-import math
 import torch.nn.functional as F
 from torch import nn
 
@@ -1258,18 +1258,20 @@ class AttnProcessor2_0:
 
         # the output of sdp = (batch, num_heads, seq_len, head_dim)
         # TODO: add support for attn.scale when we move to Torch 2.1
-        if query.shape[-1] < 512:
+        if query.dtype in (torch.float16, torch.bfloat16):
             hidden_states = torch_npu.npu_fusion_attention(
                 query, key, value, attn.heads, input_layout="BNSD",
                 pse=None,
                 atten_mask=attention_mask,
-                scale=1.0/math.sqrt(query.shape[-1]),
+                scale=1.0 / math.sqrt(query.shape[-1]),
                 pre_tockens=65536,
                 next_tockens=65536,
-                keep_prob=1,
+                keep_prob=1.,
                 sync=False,
-                inner_precose=0,
+                inner_precise=0,
             )[0]
+
+
         else:
             hidden_states = F.scaled_dot_product_attention(
                 query, key, value, attn_mask=attention_mask, dropout_p=0.0, is_causal=False

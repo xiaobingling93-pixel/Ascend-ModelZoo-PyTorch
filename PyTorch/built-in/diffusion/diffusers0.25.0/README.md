@@ -50,13 +50,13 @@
   ```shell
   pip install -e .                    # 安装diffusers
   cd examples/text_to_image/           # 根据下游任务安装对应依赖
-  pip install -r requirements_sdxl.txt  
+  pip install -r requirements_sdxl.txt 
   ```
   
 
 ## 准备数据集
 
-
+### 预训练数据集准备
 1. 用户需自行获取并解压LAION_5B数据集，并在shell启动脚本中将`dataset_name`参数，设置为本地数据集的绝对路径，填写一级目录。
 
    数据结构如下：
@@ -69,6 +69,36 @@
    └── ...
    ```
 
+   > **说明：** 
+   >该数据集的训练过程脚本只作为一种参考示例。
+### 微调数据集准备
+#### LoRA
+
+   LoRA微调需要用户自行获取pokemon-blip-captions数据集，将pokemon-blip-captions数据集绝对路径传到`dataset_name`参数上，传参形式参考`train_8p_sdxl_lora.sh`。
+
+   pokemon-blip-captions数据集格式如下:
+   ```
+   pokemon-blip-captions
+   ├── dataset_infos.json
+   ├── README.MD
+   └── data
+        ├── dataset_infos.json
+        └── train-001.parquet
+   ```
+   > **说明：** 
+   >该数据集的训练过程脚本只作为一种参考示例。
+#### Controlnet
+
+   Controlnet微调需要用户自行获取fill50k数据集，将fill50k数据集绝对路径传到`dataset_name`参数上，传参形式参考`train_8p_controlnet_sdxl.sh`。
+   
+   fill50k数据集格式如下:
+   ```
+   fill50k
+   ├── images
+   ├── conditioning_images
+   ├── train.jsonl
+   └── fill50k.py
+   ```
    > **说明：** 
    >该数据集的训练过程脚本只作为一种参考示例。
 
@@ -89,7 +119,7 @@
 
 # 开始训练
 
-## 训练模型
+## 预训练任务
 
 本节以文生图下游任务为例，展示模型训练方法。
 
@@ -107,16 +137,16 @@
    - 单机8卡训练
    
      ```shell
-     bash test/train_8p_text_to_image_sdxl_pretrain.sh  # 8卡精度测试 ，SDXL_lora，fp16
-     bash test/train_8p_text_to_image_sdxl_pretrain.sh --max_train_steps=200 # 8卡性能测试 ，SDXL_lora，fp16
-     bash test/train_8p_text_to_image_sdxl_pretrain.sh --max_train_steps=150000 # 8卡训练 ，SDXL_lora，fp16
+     bash test/train_8p_text_to_image_sdxl_pretrain.sh  # 8卡训练 fp16
+     bash test/train_8p_text_to_image_sdxl_pretrain.sh --max_train_steps=200 # 8卡性能 fp16
+
      ```
      
    
    - 模型训练python训练脚本参数说明如下。
    
    ```shell
-   train_text_to_image_sdxl_pretrain.py：
+   train_text_to_image_sdxl_pretrain.py
    --max_train_steps                   //训练步数
    --pretrained_model_name_or_path     //预训练模型名称或者地址
    --dataset_name                      //加载数据集的方式，从官网或者本地cache中读取数据
@@ -141,6 +171,48 @@
    - 预训练默认开启动态分辨率，如需使用静态分辨率需要使用1.数据集原图像分辨率大小足够大；2.设置最大、最小动态分辨率桶均为1024
    
    - 训练完成后，权重文件保存在`test/output`路径下，并输出模型训练精度和性能信息。
+## 微调任务
+
+   目前支持模型微调任务分为LoRA微调和controlnet下游任务，下面进行说明。
+
+1. 进入解压后的源码包根目录。
+
+      ```
+   cd /${模型文件夹名称} 
+   ```
+
+
+2. 运行训练的脚本。
+- 单机八卡微调
+  ```shell
+  bash train_8p_controlnet_sdxl_deepspeed.sh      #8卡deepspeed训练 sdxl_controlnet fp16
+  bash train_8p_sdxl_lora_deepspeed.sh            #8卡deepspeed训练 sdxl_lora fp16
+  bash train_8p_controlnet_sdxl.sh                #8卡训练 sdxl_controlnet fp16
+  bash train_8p_sdxl_lora.sh                      #8卡训练 sdxl_lora fp16
+  ```
+ - 微调脚本参数说明如下
+ ```shell
+  train_text_to_image_lora_sdxl.py or train_controlnet_sdxl.py
+  --pretrained_model_name_or_path    //基础模型路径
+  --dataset_name                     //数据集名称
+  --resolution                       //分辨率大小
+  --train_batch_size                 //训练batchsize
+  --num_train_epochs                 //训练epochs次数
+  --checkpointing_steps              //每steps保存一次
+  --learning_rate                    //学习率
+  --lr_scheduler                     //学习率衰减策略
+  --lr_warmup_steps                  //warmup步数
+  --mixed_precision                  //混合精度
+  --max_train_steps                  //最大训练轮次
+  --validation_prompt                //验证的prompt
+  --validation_epochs                //每epochs验证一次
+  --validation_steps                 //每steps验证一次(仅controlnet微调脚本使用)
+  --seed                             //随机数种子
+  --output_dir                       //模型输出的路径
+  --gradient_accumulation_steps      //梯度累计步数
+  --validation_image                 //验证使用的图片(仅controlnet微调脚本使用)
+ ```
+
 
 
 

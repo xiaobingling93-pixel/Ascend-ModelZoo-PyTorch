@@ -1,21 +1,17 @@
-# 网络名称,同目录名称,需要模型审视修改
-Network="diffusers"
+Network="StableDiffusionXLLoRA"
 
-# 预训练模型
 model_name="stabilityai/stable-diffusion-xl-base-1.0"
-vae_name="madebyollin/sdxl-vae-fp16-fix"
-dataset_name="laion5b"
-batch_size=2
+dataset_name="pokemon-blip-captions"
+batch_size=3
 max_train_steps=2000
+checkpointing_steps=2000
+validation_epochs=5
 mixed_precision="fp16"
 resolution=1024
 
+
 for para in $*; do
-  if [[ $para == --model_name* ]]; then
-    model_name=$(echo ${para#*=})
-  elif [[ $para == --vae_name* ]]; then
-    vae_name=$(echo ${para#*=})
-  elif [[ $para == --batch_size* ]]; then
+  if [[ $para == --batch_size* ]]; then
     batch_size=$(echo ${para#*=})
   elif [[ $para == --max_train_steps* ]]; then
     max_train_steps=$(echo ${para#*=})
@@ -23,12 +19,13 @@ for para in $*; do
     mixed_precision=$(echo ${para#*=})
   elif [[ $para == --resolution* ]]; then
     resolution=$(echo ${para#*=})
-  elif [[ $para == --dataset_name* ]]; then
-    dataset_name=$(echo ${para#*=})
+  elif [[ $para == --checkpointing_steps* ]]; then
+    checkpointing_steps=$(echo ${para#*=})
+  elif [[ $para == --validation_epochs* ]]; then
+    validation_epochs=$(echo ${para#*=})
   fi
 done
 
-# cd到与test文件夹同层级目录下执行脚本，提高兼容性；test_path_dir为包含test文件夹的路径
 cur_path=$(pwd)
 cur_path_last_dirname=${cur_path##*/}
 if [ x"${cur_path_last_dirname}" == x"test" ]; then
@@ -39,35 +36,31 @@ else
   test_path_dir=${cur_path}/test
 fi
 
-echo ${test_path_dir}
 source ${test_path_dir}/env_npu.sh
 
-#创建DeviceID输出目录，不需要修改
 output_path=${cur_path}/test/output/${ASCEND_DEVICE_ID}
 
 
 mkdir -p ${output_path}
 
-#训练开始时间，不需要修改
+
 start_time=$(date +%s)
 echo "start_time: ${start_time}"
 
-accelerate launch --config_file ./test/pretrain_accelerate_config.yaml \
-  ./examples/text_to_image/train_text_to_image_sdxl_pretrain.py \
+accelerate launch --config_file ./test/lora_controlnet_accelerate_config.yaml  ./examples/text_to_image/train_text_to_image_lora_sdxl.py \
   --pretrained_model_name_or_path=$model_name \
-  --pretrained_vae_model_name_or_path=$vae_name \
   --dataset_name=$dataset_name --caption_column="text" \
+  --resolution=$resolution  \
   --train_batch_size=$batch_size \
-  --resolution=$resolution --random_flip \
-  --gradient_accumulation_steps=1 \
-  --gradient_checkpointing \
-  --max_train_steps=$max_train_steps \
-  --learning_rate=1e-06 --lr_scheduler="constant" --lr_warmup_steps=0 \
-  --max_grad_norm=1 \
-  --enable_bucket \
+  --num_train_epochs=2 \
+  --checkpointing_steps=$checkpointing_steps \
+  --learning_rate=1e-04 \
+  --lr_scheduler="constant" \
+  --lr_warmup_steps=0 \
   --mixed_precision=$mixed_precision \
-  --checkpointing_steps=500 \
-  --output_dir=${output_path} > ${output_path}train_${mixed_precision}_pretrain.log 2>&1 &
+  --max_train_steps=$max_train_steps \
+  --seed=1234 \
+  --output_dir=${output_path} > ${output_path}train_${mixed_precision}_sdxl_lora.log 2>&1 &
 wait
 
 #训练结束时间，不需要修改
@@ -78,7 +71,7 @@ e2e_time=$(($end_time - $start_time))
 echo "------------------ Final result ------------------"
 
 #输出性能FPS，需要模型审视修改
-FPS=$(grep "FPS: " ${output_path}/train_${mixed_precision}_pretrain.log | awk '{print $NF}' | sed -n '100,199p' | awk '{a+=$1}END{print a/NR}')
+FPS=$(grep "FPS: " ${output_path}/train_${mixed_precision}_sdxl_lora.log | awk '{print $NF}' | sed -n '100,199p' | awk '{a+=$1}END{print a/NR}')
 
 #获取性能数据，不需要修改
 #吞吐量
@@ -88,7 +81,7 @@ ActualFPS=$(awk 'BEGIN{printf "%.2f\n", '${FPS}'}')
 echo "Final Performance images/sec : $ActualFPS"
 
 #loss值，不需要修改
-ActualLoss=$(grep -o "step_loss=[0-9.]*" ${output_path}/train_${mixed_precision}_pretrain.log | awk 'END {print $NF}')
+ActualLoss=$(grep -o "step_loss=[0-9.]*" ${output_path}/train_${mixed_precision}_sdxl_lora.log | awk 'END {print $NF}')
 
 #打印，不需要修改
 echo "Final Train Loss : ${ActualLoss}"
