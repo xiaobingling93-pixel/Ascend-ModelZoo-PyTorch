@@ -59,8 +59,6 @@ accelerate launch --config_file ./test/lora_controlnet_accelerate_deepspeed_conf
   --lr_warmup_steps=0 \
   --mixed_precision=$mixed_precision \
   --max_train_steps=$max_train_steps \
-  --validation_prompt="cute dragon creature" \
-  --validation_epochs=$validation_epochs \
   --seed=1234 \
   --output_dir=${output_path} > ${output_path}train_${mixed_precision}_sdxl_lora_deepspeed.log 2>&1 &
 wait
