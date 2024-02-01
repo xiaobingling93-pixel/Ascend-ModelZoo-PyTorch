@@ -66,7 +66,6 @@
 - [Gluon_ResNet50_v1b_for_PyTorch](https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/built-in/cv/classification/Gluon_ResNet50_v1b_for_PyTorch)
 - [Gluon_ResNet50_v1c_for_PyTorch](https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/built-in/cv/classification/Gluon_ResNet50_v1c_for_PyTorch)
 - [Gluon_ResNet50_v1d_for_PyTorch](https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/built-in/cv/classification/Gluon_ResNet50_v1d_for_PyTorch)
-- [GOTURN_for_PyTorch](https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/built-in/cv/object_tracking/GOTURN_for_PyTorch)
 - [GRU_for_PyTorch](https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/built-in/nlp/GRU_for_PyTorch)
 - [GPT-2_for_PyTorch](https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/built-in/nlp/GPT-2_for_PyTorch)
 - [HRNet_ID1780_for_PyTorch](https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/contrib/cv/classification/HRNet_ID1780_for_PyTorch)
@@ -146,7 +145,7 @@
 
   
 ####  生态贡献模型
-    
+
 - [3D_Nested_Unet](https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/contrib/cv/others/3D_Nested_Unet)
 - [3Dmppe_RootNet](https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/contrib/cv/pose_estimation/3Dmppe_RootNet)
 - [albert_ID0335_for_PyTorch](https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/contrib/nlp/albert_ID0335_for_PyTorch)
