@@ -75,7 +75,7 @@ LAVIS 是一个多模态模型套件，包含CLIP、ALBEF、BLIP、BLIP2、Instr
 
 2. 获取数据集。
 
-   以coco2017数据集为例，用户可以通过执行如下脚本进行下载：
+   以coco2014数据集为例，用户可以通过执行如下脚本进行下载：
 
    ```
    cd lavis/datasets/download_scripts/ && python download_coco.py

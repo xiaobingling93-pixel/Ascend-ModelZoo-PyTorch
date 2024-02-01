@@ -27,3 +27,4 @@ safetensors==0.3.1
 transformers==4.30.2
 webdataset
 wheel
+numpy==1.23.0

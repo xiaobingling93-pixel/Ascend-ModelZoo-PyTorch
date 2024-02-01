@@ -719,7 +719,7 @@ class TrainingArguments:
         },
     )
     distributed_process_group_timeout: Optional[int] = field(
-        default=1800,
+        default=5400,
         metadata={
             "help": "Timeout(seconds) for operations executed against the process group, the value of the flag `timeout` passed to "
             "`init_process_group`."
