@@ -79,4 +79,7 @@ bash test/train_full_8p.sh
 2023.6.19 首次发布
 
 ### FAQ
-无
+1. 若遇到safetensors三方库报这个错误“safetensors_rust.SafetensorError: Error while deserializing header: HeaderTooLarge”，原因是accelerate版本 >= v0.25.0，会默认使用safetensors，导致报错。参考解决方法，安装0.24.1版本的accelerate。
+   ```
+   pip install accelerate==0.24.1
+   ```
