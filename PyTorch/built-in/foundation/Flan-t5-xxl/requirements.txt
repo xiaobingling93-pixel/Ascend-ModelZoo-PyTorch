@@ -1,0 +1,4 @@
+accelerate==0.25.0
+deepspeed==0.12.6
+datasets==2.16.0
+evaluate==0.4.1

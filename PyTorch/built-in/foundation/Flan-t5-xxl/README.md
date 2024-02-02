@@ -1,0 +1,222 @@
+# Flan-t5-xxl for Pytorch 
+
+-   [概述](#概述)
+-   [准备训练环境](#准备训练环境)
+-   [开始训练](#开始训练)
+-   [训练结果展示](#训练结果展示)
+-   [断点续训](#断点续训)
+
+# 概述
+
+## 简述
+
+Flan-T5是encoder-decoder结构，通过指令在超大规模的任务上进行微调，让语言模型具备了极强的泛化性能，适用于多种NLP任务。
+
+- 参考实现：
+
+  ```
+  url=https://github.com/huggingface/transformers.git
+  commit_id=345b9b1a6a308a1fa6559251eb33ead2211240ac
+  ```
+
+- 适配昇腾 AI 处理器的实现：
+
+  ```
+  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  code_path=PyTorch/built-in/foundation
+  ```
+
+
+# 准备训练环境
+
+## 准备环境
+
+- 当前模型支持的 PyTorch 版本和已知三方库依赖如下表所示。
+
+  **表 1**  版本支持表
+
+  | Torch_Version |                                            三方库依赖版本                                            |
+  |:-------------:|:---------------------------------------------------------------------------------------------:|
+  |  PyTorch 2.1  | transformers==4.37.2; accelerate=0.25.0; deepspeed==0.12.6; datasets==2.16.0; evaluate==0.4.1 |
+  
+- 环境准备指导。
+
+  请参考《[Pytorch框架训练环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/ptes)》。
+  
+- 安装依赖。
+
+  在模型源码包根目录下执行命令，安装模型对应PyTorch版本需要的依赖。
+  ```
+  pip install -r requirements.txt
+  ```
+  > **说明：** 
+  >只需执行一条对应的PyTorch版本依赖安装命令。
+
+- 源码下载Transformers库。
+  ```
+  下载源码链接： git clone -b v4.37.2 https://github.com/huggingface/transformers.git
+  进入源码一级目录：cd transformers
+  执行：pip install -e .
+  ```
+
+## 准备数据集
+
+1. 下载的数据集squad_v2(train), 数据集结构如下
+   ```
+   ├── squad_v2
+        ├── train-00000-of-00001.parquet
+        ├── validation-00000-of-00001.parquet
+
+   ```
+2. 下载数据集squad_v2(evaluation)，手动修改squad_v2(evaluation)的数据集名称
+   ```shell
+   #此处只修改squad_v2(evaluation)数据集，squad_v2(train)数据集保持不变
+   mv squad_v2 suqad_v2_eval
+   cd squad_v2_eval
+   mv squad_v2.py squad_v2_eval.py
+   ```
+   修改后squad_v2_eval数据集结构如下
+   ```
+   ├── squad_v2_eval
+        ├── app.py
+        ├── compute_score.py
+        ├── requirements.txt
+        ├── squad_v2.py
+        ├── README.md
+   ```
+
+## 准备预训练权重
+下载的权重google/flan-t5-xxl, 模型权重的结构如下:
+   ```
+   ├── flan-t5-xxl
+        ├── config.json
+        ├── generation_config.json
+        ├── special_tokens_map.json
+        ├── spiece.model
+        ├── tokenizer.json
+        ├── tokenizer_config.json
+        ├── model.safetensors.index.json
+        ├── model-00001-of-00005.safetensors
+        ├── model-00002-of-00005.safetensors
+        ...
+        ├── model-00005-of-00005.safetensors
+   ```
+
+# 开始训练
+
+## 训练模型
+1. 进入下载后的transformers对应路径
+   ```shell
+   cd transformers/examples/pytorch/question-answering
+   ```
+   
+2. 将数据集，权重，源码移动到transformers仓对应路径
+   ```shell
+   # 将源码deepspeed配置移动到对应路径
+   mv ds_config.json transformers/examples/pytorch/question-answering 
+   # 将下载的权重配置移动到对应路径
+   mv google/flan-t5-xxl transformers/examples/pytorch/question-answering
+   # 将源码运行文件移动到对应路径
+   mv scripts transformers/examples/pytorch/question-answering
+   # 将下载的数据集移动到对应路径
+   mv squad_v2 transformers/examples/pytorch/question-answering
+   mv squad_v2_eval transformers/examples/pytorch/question-answering
+   ```
+   
+   完成文件移动后，实际训练环境文件目录结构如下 
+
+   ```
+   ├── transformers/examples/pytorch/question-answering 
+        ├── google
+            ├── flan-t5-xxl
+        ├── scripts
+            ├── train_full_8p.sh
+        ├── squad_v2
+        ├── squad_v2_eval
+        ├── ds_config.json
+   ```
+
+3. 修改文件`transformers/examples/pytorch/question-answering/run_seq2seq_qa.py`适配eval数据集
+   ```shell
+   #修改前
+   metric = evaluate.load(
+        "squad_v2" if data_args.version_2_with_negative else "squad", cache_dir=model_args.cache_dir
+    )
+   
+   #修改后，修改的路径根据实际情况修正
+   metric = evaluate.load("squad_v2_eval")
+   ```
+3. 修改训练脚本参数
+    - 进入脚本所在目录
+    ```shell
+    cd transformers/examples/pytorch/question-answering/scripts
+    ```
+   - 模型训练脚本参数说明如下。
+
+   ```
+    --model_name_or_path          //模型权重路径
+    --deepspeed                   //deepspeed配置文件路径
+    --dataset_name                //squad_v2路径 
+    --version_2_with_negative     //squad_v2数据集处理参数，用于处理question-answer数据结构无answer情况
+    --context_column              //数据集context_column 
+    --question_column             //数据集question_column 
+    --answer_column               //数据集answer_column
+    --do_train                    //训练标识
+    --do_eval                     //评估标识
+    --per_device_train_batch_size //训练时单卡批次大小
+    --learning_rate 5e-6          //初始学习率
+    --gradient_accumulation_steps //梯度累计步数 
+    --num_train_epochs            //重复训练次数
+    --max_steps 2000              //训练最大步数
+    --max_seq_length              //seq_length 
+    --logging_steps 1             //日志打印步数
+    --doc_stride 128              //滑动步长
+    --seed 1234                   //随机种子
+    --bf16                        //混精bf16
+    --overwrite_output_dir        //覆盖输出目录
+   ```
+   - 修改`model_name_or_path`,`deepspeed`,`dataset_name`为绝对路径位置
+    
+   
+3. 运行训练脚本，该模型支持单机8卡训练。
+     
+    ```shell
+    bash train_full_8p.sh # 8卡精度及性能
+    ```
+
+
+   训练完成后，权重文件保存在`transformers/examples/pytorch/question-answering/output`路径下，模型训练精度和性能信息保存在`transformers/examples/pytorch/question-answering/scripts/output`文件夹下。
+
+# 训练结果展示
+
+  **表 2**  性能结果展示表(2000 steps)
+
+|  Name  | Train Samples Per Second | Iterations | DataType | Torch_Version |
+|:------:|:------------------------:|:----:|:--------:|:-------------:|
+| 8p-NPU |          16.479          |   2000   |     BF16      |     2.1.0      |
+| 8p-竞品A |          25.588          |   2000   |     BF16      |     2.1.0     |
+
+  **表 3** eval 结果展示表(2000 steps)
+
+|  Name  | eval loss | 
+|:------:|:---------:|
+| 8p-NPU |  0.3768   |
+| 8p-竞品A |  0.3778   | 
+
+
+# 断点续训
+断点续训是huggingface transformers仓库自带的功能，需要使用断点续训只需要在shell脚本中添加对应的参数即可。
+
+- 保存checkpoint，需要在`train_full_8p.sh`里添加参数`save_steps`，代表每隔多少步保存一次checkpoint
+
+    ```
+    --save_steps 50
+    ```
+
+- 上述参数添加后，训练完毕，脚本会在`transformers/examples/pytorch/question-answering/output`下生成checkpoint文件
+- 加载checkpoint，需要在`train_full_8p.sh`脚本里添加参数，其中`$PATH`在此流程下，一般指代的路径为`transformers/examples/pytorch/question-answering/output`下的checkpoint文件，例如tmp-checkpoint-80
+    ```shell
+    --resume_from_checkpoint $PATH
+    ```
+
+重新执行训练，就会从checkpoint之后的一步开始训练
