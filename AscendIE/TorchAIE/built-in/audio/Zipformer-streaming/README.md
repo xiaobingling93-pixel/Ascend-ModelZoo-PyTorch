@@ -51,8 +51,8 @@
     export K2_MAKE_ARGS="-j6"
     python3 setup.py install
     ```
-    若执行以上命令遇到错误，请参考[此链接](https://k2-fsa.github.io/k2/installation/from_source.html)。
-    3. (GPU) x86环境。从[此链接](https://k2-fsa.github.io/k2/cuda.html)下载对应CUDA版本的whl文件，然后使用pip进行安装。
+    若执行以上命令遇到错误，请参考[此链接](https://k2-fsa.github.io/k2/installation/from_source.html)。  
+    3. (GPU) x86环境。从[此链接](https://k2-fsa.github.io/k2/cuda.html)下载对应CUDA版本的whl文件，然后使用pip进行安装。  
     4. 验证k2是否安装成功  
     ```shell
     python3 -m k2.version
