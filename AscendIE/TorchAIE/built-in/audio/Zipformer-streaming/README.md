@@ -100,8 +100,8 @@
     cp egs/librispeech/ASR/zipformer/export-onnx-streaming.py egs/librispeech/ASR/zipformer/export-aie-streaming.py
     cp egs/librispeech/ASR/zipformer/onnx_pretrained-streaming.py egs/librispeech/ASR/zipformer/aie_pretrained-streaming.py
    
-    patch -p1 < export_onnx.diff
-    patch -p1 < export_aie.diff
+    patch -p1 < export_onnx.patch
+    patch -p1 < export_aie.patch
     patch -p1 < aie_streaming_infer.diff
     ```
 2. 将本代码仓的性能精度测试相关脚本（perf_test_aie.py, perf_test_onnx.py, precision_test.py, utils.py）
