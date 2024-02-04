@@ -126,7 +126,7 @@ sed -i "s|#checkpoint_utils.save_checkpoint(|checkpoint_utils.save_checkpoint(|g
 echo "------------------ Final result ------------------"
 #输出性能FPS，需要模型审视修改
 TrainingTime=0
-FPS=`grep -rn train_inner $cur_path/test/output/$ASCEND_DEVICE_ID/train_$ASCEND_DEVICE_ID.log | awk -F "wps=" '{print$2}' | awk -F "," '{print$1}' | tail -n+6 | awk '{sum+=$1} END {print"",sum/NR}' | sed s/[[:space:]]//g`
+FPS=`grep -rn train_inner $cur_path/test/output/$ASCEND_DEVICE_ID/train_$ASCEND_DEVICE_ID.log | awk -F "wps=" '{print$2}' | awk -F "," '{print$1}' | tail -10| awk '{a+=$1} END {if (NR != 0) printf("%.3f",a/NR)}' | sed s/[[:space:]]//g`
 TRAIN_WALL=`grep 'train_inner ' ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log|awk -F "train_wall=" '{print $NF}'|awk -F "," '{print $1}'|tail -n  20|awk '{sum+=$1} END {print"",sum/NR}'|sed s/[[:space:]]//g`
 
 #获取编译时间

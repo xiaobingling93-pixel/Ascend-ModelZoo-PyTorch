@@ -179,7 +179,7 @@ e2e_time=$(( $end_time - $start_time ))
 #结果打印，不需要修改
 echo "------------------ Final result ------------------"
 #输出性能FPS，需要模型审视修改
-time=`grep -a 'time:'  $test_path_dir/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log|awk -F "time: " '{print $2}'|awk -F "," '{print $1}'|awk 'END {print}'|sed 's/.$//'`
+time=`grep -a 'time:'  $test_path_dir/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log|tail -10|awk -F "time: " '{print $2}'|awk -F "," '{print $1}'|awk '{a+=$1} END {if (NR!=0) printf("%.3f",a/NR)}'|sed 's/.$//'`
 total_size=$((batch_size * RANK_SIZE))
 FPS=`awk 'BEGIN{printf "%.2f\n", '${total_size}'/'${time}'}'`
 #打印，不需要修改
