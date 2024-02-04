@@ -55,7 +55,9 @@ class AscendStableDiffusionPipeline(StableDiffusionPipeline):
         text_input_ids = text_inputs.input_ids
         untruncated_ids = self.tokenizer(prompt, padding="longest", return_tensors="pt").input_ids
 
-        if not torch.equal(text_input_ids, untruncated_ids):
+        if untruncated_ids.shape[-1] >= text_input_ids.shape[-1] and not torch.equal(
+            text_input_ids, untruncated_ids
+        ):
             removed_text = self.tokenizer.batch_decode(untruncated_ids[:, self.tokenizer.model_max_length - 1 : -1])
             print("[warning] The following part of your input was truncated"
                   " because CLIP can only handle sequences up to"
@@ -290,8 +292,6 @@ class AscendStableDiffusionPipeline(StableDiffusionPipeline):
  
  
         # 8. Post-processing
-        # image = self.decode_latents(latents)
-
         latents = 1 / self.vae.config.scaling_factor * latents
 
         latents = self.vae.post_quant_conv(latents)
