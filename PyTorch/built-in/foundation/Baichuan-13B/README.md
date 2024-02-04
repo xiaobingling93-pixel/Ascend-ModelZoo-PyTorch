@@ -41,11 +41,26 @@ LLaMA Factory是一个易于使用的LLM微调框架。它使用一个简单的W
 
   在模型源码包根目录下执行命令，安装模型对应PyTorch版本需要的依赖。
   ```python
-  pip install -r requirements.txt
+    # python3.8
+    conda create -n test python=3.8
+    conda activate test
+
+    # install torch and torch_npu
+    pip install torch2.0.1-cp38-XXX.whl
+    pip install torch_npu-2.0.1-XXX.whl
+    pip install apex-0.1_ascend_XXX.whl
+
+    # install deepspeed and deepspeed_npu
+    pip install deepspeed==0.9.2
+    git clone https://gitee.com/ascend/DeepSpeed.git -b v0.9.2 deepspeed_npu
+    cd deepspeed_npu
+    pip3 install -e ./
+    cd ..
+
+
+    # install other packages
+    pip install -r requirements.txt 
   
-  # 使用项目`utils`目录下的`train_bash.py`文件替换`./${模型文件夹名称}/src`路径下的`train_bash.py`.
-  # 使用项目`utils`目录下的`misc.py`文件替换`./${模型文件夹名称}/src/llmtuner/extras`路径下的`misc.py`.
-  # 使用项目`utils`目录下的`modeling_baichuan.py`文件替换`./${模型文件夹名称}/model_weight`路径下的`modeling_baichuan.py`.
   ```
 
 ### 准备数据集
@@ -182,10 +197,23 @@ ssh root@ip2
 
 **单机启动**
 
-1、将项目根目录下的`run_baichuan_sft_1m.sh`、`ds_config_zero3.json`文件拷贝到`${模型文件夹名称}`路径下。
+1、准备代码
+```
+git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+cd ModelZoo-PyTorch/PyTorch/built-in/foundation/Baichuan-13B
+
+git clone https://github.com/hiyouga/LLaMA-Factory/tree/7a5318804870b1f2bedec8d4a676e465b48d5c3e
+cd ${模型文件夹名称}
+```
+然后将`run_baichuan_sft_1m.sh`、`ds_config_zero3.json`文件拷贝到`${模型文件夹名称}`路径下。
+同时，使用`utils`目录下的`train_bash.py`文件替换`./${模型文件夹名称}/src`路径下的`train_bash.py`；使用`utils`目录下的`misc.py`文件替换`./${模型文件夹名称}/src/llmtuner/extras`路径下的`misc.py`；使用`utils`目录下的`modeling_baichuan.py`文件替换`./${模型文件夹名称}/model_weight`路径下的`modeling_baichuan.py`.
 ```shell
 cp ../run_baichuan_sft_1m.sh .
 cp ../ds_config_zero3.json .
+
+cp ../utils/train_bash.py ./src
+cp ../utils/misc.py ./src/llmtuner/extras
+cp ../utils/modeling_baichuan.py ./src/model_weight
 ```
 
 2、启动脚本
