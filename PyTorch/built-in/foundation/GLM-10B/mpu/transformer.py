@@ -282,12 +282,11 @@ class ParallelSelfAttention(torch.nn.Module):
             pad_q = torch.zeros([b, pad_s, h], dtype=pad_dtype, device=pad_device)
             pad_k = torch.zeros([b, pad_s, h], dtype=pad_dtype, device=pad_device)
             pad_v = torch.zeros([b, pad_s, h], dtype=pad_dtype, device=pad_device)
-            pad_m = torch.zeros([b, 1, pad_s, pad_s], dtype=pad_dtype, device=pad_device)
+            pad_m = torch.ones([b, 1, pad_s, pad_s], dtype=pad_dtype, device=pad_device).tril()
 
             pad_q[:, :s, :] = mixed_query_layer
             pad_k[:, :s, :] = mixed_key_layer
             pad_v[:, :s, :] = mixed_value_layer
-            pad_m[:, :, :s, :s] = ltor_mask
 
             context_layer = torch_npu.npu_fusion_attention(
                 pad_q.contiguous(),
