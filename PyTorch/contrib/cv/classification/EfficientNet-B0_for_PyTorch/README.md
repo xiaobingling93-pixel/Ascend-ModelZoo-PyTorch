@@ -1,269 +1,168 @@
-# EfficientNet PyTorch
+# EfficientNet-B0 for PyTorch
 
-### Quickstart
+-   [概述](#1)
+-   [准备训练环境](#2)
+-   [开始训练](#3)
+-   [训练结果展示](#4)
+-   [版本说明](#5)
 
-Install with `pip install efficientnet_pytorch` and load a pretrained EfficientNet with:
-```python
-from efficientnet_pytorch import EfficientNet
-model = EfficientNet.from_pretrained('efficientnet-b0')
-```
 
-### Updates
 
-#### Update (April 2, 2021)
+# 概述
 
-The [EfficientNetV2 paper](https://arxiv.org/abs/2104.00298) has been released! I am working on implementing it as you read this :) 
+## 简述
 
-About EfficientNetV2:
-> EfficientNetV2 is a new family of convolutional networks that have faster training speed and better parameter efficiency than previous models. To develop this family of models, we use a combination of training-aware neural architecture search and scaling, to jointly optimize training speed and parameter efficiency. The models were searched from the search space enriched with new ops such as Fused-MBConv. 
+EfficientNet是一个新的卷积网络家族，与之前的模型相比，具有更快的训练速度和更好的参数效率。
+该模型通过一组固定的缩放系数统一缩放这在网络深度，网络宽度，分辨率这三方面有明显优势。
+在EfficientNet中，这些特性是按更有原则的方式扩展的，也就是说，一切都是逐渐增加的。
 
-Here is a comparison: 
-> <img src="https://github.com/lukemelas/EfficientNet-PyTorch/releases/download/1.0/efficientnetv2-image.png" width="100%" />
+- 参考实现：
 
+  ```
+  url=https://github.com/lukemelas/EfficientNet-PyTorch
+  commit_id=7e8b0d312162f335785fb5dcfa1df29a75a1783a
+  ```
+  
+- 适配昇腾 AI 处理器的实现：
 
-#### Update (Aug 25, 2020)
+  ```
+  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  code_path=PyTorch/contrib/cv/classification
+  ```
 
-This update adds: 
- * A new `include_top` (default: `True`) option ([#208](https://github.com/lukemelas/EfficientNet-PyTorch/pull/208))
- * Continuous testing with [sotabench](https://sotabench.com/)
- * Code quality improvements and fixes ([#215](https://github.com/lukemelas/EfficientNet-PyTorch/pull/215) [#223](https://github.com/lukemelas/EfficientNet-PyTorch/pull/223))
+# 准备训练环境
 
-#### Update (May 14, 2020)
+## 准备环境
 
-This update adds comprehensive comments and documentation (thanks to @workingcoder).
+- 当前模型支持的 PyTorch 版本和已知三方库依赖如下表所示。
 
-#### Update (January 23, 2020)
+  **表 1**  版本支持表
 
-This update adds a new category of pre-trained model based on adversarial training, called _advprop_. It is important to note that the preprocessing required for the advprop pretrained models is slightly different from normal ImageNet preprocessing. As a result, by default, advprop models are not used. To load a model with advprop, use:
-```python
-model = EfficientNet.from_pretrained("efficientnet-b0", advprop=True)
-```
-There is also a new, large `efficientnet-b8` pretrained model that is only available in advprop form. When using these models, replace ImageNet preprocessing code as follows:
-```python
-if advprop:  # for models using advprop pretrained weights
-    normalize = transforms.Lambda(lambda img: img * 2.0 - 1.0)
-else:
-    normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                     std=[0.229, 0.224, 0.225])
-```
-This update also addresses multiple other issues ([#115](https://github.com/lukemelas/EfficientNet-PyTorch/issues/115), [#128](https://github.com/lukemelas/EfficientNet-PyTorch/issues/128)).
+  | Torch_Version      | 三方库依赖版本                                 |
+  | :--------: | :----------------------------------------------------------: |
+  | PyTorch 1.11 | - |
+  | PyTorch 2.1  | - |
+  
+- 环境准备指导。
 
-#### Update (October 15, 2019)
+  请参考《[Pytorch框架训练环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/ptes)》。
+  
+- 安装依赖。
 
-This update allows you to choose whether to use a memory-efficient Swish activation. The memory-efficient version is chosen by default, but it cannot be used when exporting using PyTorch JIT. For this purpose, we have also included a standard (export-friendly) swish activation function. To switch to the export-friendly version, simply call `model.set_swish(memory_efficient=False)` after loading your desired model. This update addresses issues [#88](https://github.com/lukemelas/EfficientNet-PyTorch/pull/88) and [#89](https://github.com/lukemelas/EfficientNet-PyTorch/pull/89).
+  在模型源码包根目录下执行命令，安装模型需要的依赖。
+  ```
+  pip install -r requirements.txt
+  ```
 
-#### Update (October 12, 2019)
 
-This update makes the Swish activation function more memory-efficient. It also addresses pull requests [#72](https://github.com/lukemelas/EfficientNet-PyTorch/pull/72), [#73](https://github.com/lukemelas/EfficientNet-PyTorch/pull/73), [#85](https://github.com/lukemelas/EfficientNet-PyTorch/pull/85), and [#86](https://github.com/lukemelas/EfficientNet-PyTorch/pull/86). Thanks to the authors of all the pull requests!
+## 准备数据集
 
-#### Update (July 31, 2019)
+1. 获取数据集。
 
-_Upgrade the pip package with_ `pip install --upgrade efficientnet-pytorch`
+   用户自行获取原始数据集imagenet2012，将数据集上传到服务器任意路径下并解压。
 
-The B6 and B7 models are now available. Additionally, _all_ pretrained models have been updated to use AutoAugment preprocessing, which translates to better performance across the board. Usage is the same as before:
-```python
-from efficientnet_pytorch import EfficientNet
-model = EfficientNet.from_pretrained('efficientnet-b7')
-```
+   数据集目录结构参考如下所示。
 
-#### Update (June 29, 2019)
+   ```
+   ├── ImageNet2012
+         ├──train
+              ├──类别1
+                    │──图片1
+                    │──图片2
+                    │   ...       
+              ├──类别2
+                    │──图片1
+                    │──图片2
+                    │   ...   
+              ├──...                     
+         ├──val  
+              ├──类别1
+                    │──图片1
+                    │──图片2
+                    │   ...       
+              ├──类别2
+                    │──图片1
+                    │──图片2
+                    │   ...              
+   ```
 
-This update adds easy model exporting ([#20](https://github.com/lukemelas/EfficientNet-PyTorch/issues/20)) and feature extraction ([#38](https://github.com/lukemelas/EfficientNet-PyTorch/issues/38)).
+   > **说明：** 
+   >该数据集的训练过程脚本只作为一种参考示例。
 
- * [Example: Export to ONNX](#example-export)
- * [Example: Extract features](#example-feature-extraction)
- * Also: fixed a CUDA/CPU bug ([#32](https://github.com/lukemelas/EfficientNet-PyTorch/issues/32))
 
-It is also now incredibly simple to load a pretrained model with a new number of classes for transfer learning:
-```python
-model = EfficientNet.from_pretrained('efficientnet-b1', num_classes=23)
-```
+# 开始训练
 
+## 训练模型
 
-#### Update (June 23, 2019)
+1. 进入解压后的源码包根目录。
 
-The B4 and B5 models are now available. Their usage is identical to the other models:
-```python
-from efficientnet_pytorch import EfficientNet
-model = EfficientNet.from_pretrained('efficientnet-b4')
-```
+   ```
+   cd /${模型文件夹名称} 
+   ```
 
-### Overview
-This repository contains an op-for-op PyTorch reimplementation of [EfficientNet](https://arxiv.org/abs/1905.11946), along with pre-trained models and examples.
+2. 运行训练脚本。
 
-The goal of this implementation is to be simple, highly extensible, and easy to integrate into your own projects. This implementation is a work in progress -- new features are currently being implemented.
+   该模型支持单机单卡训练和单机8卡训练。
 
-At the moment, you can easily:
- * Load pretrained EfficientNet models
- * Use EfficientNet models for classification or feature extraction
- * Evaluate EfficientNet models on ImageNet or your own images
+   - 单机单卡训练
 
-_Upcoming features_: In the next few days, you will be able to:
- * Train new models from scratch on ImageNet with a simple command
- * Quickly finetune an EfficientNet on your own dataset
- * Export EfficientNet models for production
+     启动单卡训练。
 
-### Table of contents
-1. [About EfficientNet](#about-efficientnet)
-2. [About EfficientNet-PyTorch](#about-efficientnet-pytorch)
-3. [Installation](#installation)
-4. [Usage](#usage)
-    * [Load pretrained models](#loading-pretrained-models)
-    * [Example: Classify](#example-classification)
-    * [Example: Extract features](#example-feature-extraction)
-    * [Example: Export to ONNX](#example-export)
-6. [Contributing](#contributing)
+     ```
+     bash ./test/train_full_1p.sh --data_path=real_data_path  # 单卡精度
+     
+     bash ./test/train_performance_1p.sh --data_path=real_data_path  # 单卡性能
+     ```
+   
+   - 单机8卡训练
 
-### About EfficientNet
+     启动8卡训练。
+   
+     ```
+     bash ./test/train_full_8p.sh --data_path=real_data_path  # 8卡精度
 
-If you're new to EfficientNets, here is an explanation straight from the official TensorFlow implementation:
+     bash ./test/train_performance_8p.sh --data_path=real_data_path  # 8卡性能 
+     ```
 
-EfficientNets are a family of image classification models, which achieve state-of-the-art accuracy, yet being an order-of-magnitude smaller and faster than previous models. We develop EfficientNets based on AutoML and Compound Scaling. In particular, we first use [AutoML Mobile framework](https://ai.googleblog.com/2018/08/mnasnet-towards-automating-design-of.html) to develop a mobile-size baseline network, named as EfficientNet-B0; Then, we use the compound scaling method to scale up this baseline to obtain EfficientNet-B1 to B7.
+   --data_path参数填写数据集路径，需写到数据集的一级目录。
 
-<table border="0">
-<tr>
-    <td>
-    <img src="https://raw.githubusercontent.com/tensorflow/tpu/master/models/official/efficientnet/g3doc/params.png" width="100%" />
-    </td>
-    <td>
-    <img src="https://raw.githubusercontent.com/tensorflow/tpu/master/models/official/efficientnet/g3doc/flops.png", width="90%" />
-    </td>
-</tr>
-</table>
+   模型训练脚本参数说明如下。
+   
+   ```
+   公共参数：
+   --data                              //数据集路径
+   --arch                              //使用模型，默认：efficientnet-b0
+   --epochs                            //重复训练次数
+   --batch-size                        //训练批次大小
+   --lr                                //初始学习率，默认：0.1
+   --momentum                          //动量，默认：0.9
+   ```
 
-EfficientNets achieve state-of-the-art accuracy on ImageNet with an order of magnitude better efficiency:
+   训练完成后，权重文件保存在当前路径下，并输出模型训练精度和性能信息。
 
 
-* In high-accuracy regime, our EfficientNet-B7 achieves state-of-the-art 84.4% top-1 / 97.1% top-5 accuracy on ImageNet with 66M parameters and 37B FLOPS, being 8.4x smaller and 6.1x faster on CPU inference than previous best [Gpipe](https://arxiv.org/abs/1811.06965).
+# 训练结果展示
 
-* In middle-accuracy regime, our EfficientNet-B1 is 7.6x smaller and 5.7x faster on CPU inference than [ResNet-152](https://arxiv.org/abs/1512.03385), with similar ImageNet accuracy.
+**表 2**  训练结果展示表
 
-* Compared with the widely used [ResNet-50](https://arxiv.org/abs/1512.03385), our EfficientNet-B4 improves the top-1 accuracy from 76.3% of ResNet-50 to 82.6% (+6.3%), under similar FLOPS constraint.
+|  NAME  | Acc@1 |  FPS   | Epochs |
+|:------:|:-----:|:------:|:------:|
+| 1p-GPU |   -   | 731.2  |   1    |
+| 8p-GPU | 74.23 | 5314.9 |  100   |
+| 1p-NPU |   -   | 694.9  |   1    |
+| 8p-NPU | 74.29 | 5150.5 |  100   |
 
-### About EfficientNet PyTorch
 
-EfficientNet PyTorch is a PyTorch re-implementation of EfficientNet. It is consistent with the [original TensorFlow implementation](https://github.com/tensorflow/tpu/tree/master/models/official/efficientnet), such that it is easy to load weights from a TensorFlow checkpoint. At the same time, we aim to make our PyTorch implementation as simple, flexible, and extensible as possible.
+# 版本说明
 
-If you have any feature requests or questions, feel free to leave them as GitHub issues!
+## 变更
 
-### Installation
+2024.01.30：更新readme，重新发布。
 
-Install via pip:
-```bash
-pip install efficientnet_pytorch
-```
+## FAQ
 
-Or install from source:
-```bash
-git clone https://github.com/lukemelas/EfficientNet-PyTorch
-cd EfficientNet-Pytorch
-pip install -e .
-```
+无。
 
-### Usage
 
-#### Loading pretrained models
-
-Load an EfficientNet:
-```python
-from efficientnet_pytorch import EfficientNet
-model = EfficientNet.from_name('efficientnet-b0')
-```
-
-Load a pretrained EfficientNet:
-```python
-from efficientnet_pytorch import EfficientNet
-model = EfficientNet.from_pretrained('efficientnet-b0')
-```
-
-Details about the models are below:
-
-|    *Name*         |*# Params*|*Top-1 Acc.*|*Pretrained?*|
-|:-----------------:|:--------:|:----------:|:-----------:|
-| `efficientnet-b0` |   5.3M   |    76.3    |      ✓      |
-| `efficientnet-b1` |   7.8M   |    78.8    |      ✓      |
-| `efficientnet-b2` |   9.2M   |    79.8    |      ✓      |
-| `efficientnet-b3` |    12M   |    81.1    |      ✓      |
-| `efficientnet-b4` |    19M   |    82.6    |      ✓      |
-| `efficientnet-b5` |    30M   |    83.3    |      ✓      |
-| `efficientnet-b6` |    43M   |    84.0    |      ✓      |
-| `efficientnet-b7` |    66M   |    84.4    |      ✓      |
-
-
-#### Example: Classification
-
-Below is a simple, complete example. It may also be found as a jupyter notebook in `examples/simple` or as a [Colab Notebook](https://colab.research.google.com/drive/1Jw28xZ1NJq4Cja4jLe6tJ6_F5lCzElb4).
-
-We assume that in your current directory, there is a `img.jpg` file and a `labels_map.txt` file (ImageNet class names). These are both included in `examples/simple`.
-
-```python
-import json
-from PIL import Image
-import torch
-from torchvision import transforms
-
-from efficientnet_pytorch import EfficientNet
-model = EfficientNet.from_pretrained('efficientnet-b0')
-
-# Preprocess image
-tfms = transforms.Compose([transforms.Resize(224), transforms.ToTensor(),
-    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),])
-img = tfms(Image.open('img.jpg')).unsqueeze(0)
-print(img.shape) # torch.Size([1, 3, 224, 224])
-
-# Load ImageNet class names
-labels_map = json.load(open('labels_map.txt'))
-labels_map = [labels_map[str(i)] for i in range(1000)]
-
-# Classify
-model.eval()
-with torch.no_grad():
-    outputs = model(img)
-
-# Print predictions
-print('-----')
-for idx in torch.topk(outputs, k=5).indices.squeeze(0).tolist():
-    prob = torch.softmax(outputs, dim=1)[0, idx].item()
-    print('{label:<75} ({p:.2f}%)'.format(label=labels_map[idx], p=prob*100))
-```
-
-#### Example: Feature Extraction
-
-You can easily extract features with `model.extract_features`:
-```python
-from efficientnet_pytorch import EfficientNet
-model = EfficientNet.from_pretrained('efficientnet-b0')
-
-# ... image preprocessing as in the classification example ...
-print(img.shape) # torch.Size([1, 3, 224, 224])
-
-features = model.extract_features(img)
-print(features.shape) # torch.Size([1, 1280, 7, 7])
-```
-
-#### Example: Export to ONNX
-
-Exporting to ONNX for deploying to production is now simple:
-```python
-import torch
-from efficientnet_pytorch import EfficientNet
-
-model = EfficientNet.from_pretrained('efficientnet-b1')
-dummy_input = torch.randn(10, 3, 240, 240)
-
-model.set_swish(memory_efficient=False)
-torch.onnx.export(model, dummy_input, "test-b1.onnx", verbose=True)
-```
-
-[Here](https://colab.research.google.com/drive/1rOAEXeXHaA8uo3aG2YcFDHItlRJMV0VP) is a Colab example.
-
-
-#### ImageNet
-
-See `examples/imagenet` for details about evaluating on ImageNet.
-
-### Contributing
-
-If you find a bug, create a GitHub issue, or even better, submit a pull request. Similarly, if you have questions, simply post them as GitHub issues.
-
-I look forward to seeing what the community does with these models!
+# 公网地址说明
+代码涉及公网地址参考 public_address_statement.md

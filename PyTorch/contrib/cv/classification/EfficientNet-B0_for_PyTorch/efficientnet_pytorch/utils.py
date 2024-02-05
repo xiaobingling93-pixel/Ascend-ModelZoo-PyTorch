@@ -1,16 +1,23 @@
-"""utils.py - Helper functions for building the model and for loading model parameters.
-   These helper functions are built to mirror those in the official TensorFlow implementation.
-"""
-
-# Author: lukemelas (github username)
-# Github repo: https://github.com/lukemelas/EfficientNet-PyTorch
-# With adjustments and added comments by workingcoder (github username).
+# Copyright 2024 Huawei Technologies Co., Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 import re
 import math
 import collections
 from functools import partial
 import torch
+import torch_npu
 from torch import nn
 from torch.nn import functional as F
 from torch.utils import model_zoo
@@ -77,7 +84,7 @@ class SwishImplementation(torch.autograd.Function):
 
 class MemoryEfficientSwish(nn.Module):
     def forward(self, x):
-        return SwishImplementation.apply(x)
+        return torch_npu.npu_silu(x)
 
 
 def round_filters(filters, global_params):
@@ -264,14 +271,20 @@ class Conv2dStaticSamePadding(nn.Conv2d):
         oh, ow = math.ceil(ih / sh), math.ceil(iw / sw)
         pad_h = max((oh - 1) * self.stride[0] + (kh - 1) * self.dilation[0] + 1 - ih, 0)
         pad_w = max((ow - 1) * self.stride[1] + (kw - 1) * self.dilation[1] + 1 - iw, 0)
+
         if pad_h > 0 or pad_w > 0:
-            self.static_padding = nn.ZeroPad2d((pad_w // 2, pad_w - pad_w // 2,
-                                                pad_h // 2, pad_h - pad_h // 2))
+            if pad_w % 2 == 0:
+                self.static_padding = None
+                self.padding = pad_w // 2
+            else:
+                self.static_padding = nn.ZeroPad2d((pad_w // 2, pad_w - pad_w // 2,
+                                                    pad_h // 2, pad_h - pad_h // 2))
         else:
-            self.static_padding = nn.Identity()
+            self.static_padding = None
 
     def forward(self, x):
-        x = self.static_padding(x)
+        if self.static_padding is not None:
+            x = self.static_padding(x)
         x = F.conv2d(x, self.weight, self.bias, self.stride, self.padding, self.dilation, self.groups)
         return x
 
@@ -336,12 +349,18 @@ class MaxPool2dStaticSamePadding(nn.MaxPool2d):
         pad_h = max((oh - 1) * self.stride[0] + (kh - 1) * self.dilation[0] + 1 - ih, 0)
         pad_w = max((ow - 1) * self.stride[1] + (kw - 1) * self.dilation[1] + 1 - iw, 0)
         if pad_h > 0 or pad_w > 0:
-            self.static_padding = nn.ZeroPad2d((pad_w // 2, pad_w - pad_w // 2, pad_h // 2, pad_h - pad_h // 2))
+            if pad_w % 2 == 0:
+                self.static_padding = None
+                self.padding = pad_w // 2
+            else:
+                self.static_padding = nn.ZeroPad2d((pad_w // 2, pad_w - pad_w // 2,
+                                                    pad_h // 2, pad_h - pad_h // 2))
         else:
-            self.static_padding = nn.Identity()
+            self.static_padding = None
 
     def forward(self, x):
-        x = self.static_padding(x)
+        if self.static_padding is not None:
+            x = self.static_padding(x)
         x = F.max_pool2d(x, self.kernel_size, self.stride, self.padding,
                          self.dilation, self.ceil_mode, self.return_indices)
         return x
