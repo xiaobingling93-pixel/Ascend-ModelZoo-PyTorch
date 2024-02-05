@@ -121,7 +121,7 @@ def prepare_model_and_optimizer(args, device):
         optimizer = torch_npu.optim.NpuFusedLamb(optimizer_grouped_parameters,
                           lr=args.learning_rate,
                           betas=(args.opt_lamb_beta_1, args.opt_lamb_beta_2),
-                          max_grad_norm=65536.0)
+                          )
     mlperf_logger.log_event(key='optimizer', value=optimizer.__class__.__name__, sync=False)
 
     mlperf_logger.log_event(key='opt_epsilon', value=optimizer.defaults['eps'],
