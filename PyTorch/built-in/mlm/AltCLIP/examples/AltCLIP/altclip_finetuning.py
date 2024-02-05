@@ -1,3 +1,16 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
@@ -5,13 +18,38 @@ import torch
 import deepspeed
 from flagai.auto_model.auto_loader import AutoLoader
 from optim_factory import create_optimizer, LayerDecayValueAssigner, get_parameter_groups, get_is_head_flag_for_vit
-import os 
+import os
+import argparse
 from flagai.trainer import Trainer
 from torchvision.datasets import (
     CIFAR10
 )
 import torch.distributed as dist
+import torch_npu
+from torch_npu.contrib import transfer_to_npu
 
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--batch_size", type=int, default=64, help="Batch size per NPU."
+    )
+    parser.add_argument(
+        "--epochs", type=int, default=10, help="Number of epochs to train for."
+    )
+    parser.add_argument(
+        "--lr", type=float, default=1e-5, help="learning rate."
+    )
+    parser.add_argument(
+        "--eval_interval", type=int, default=500, help="evaluate interval."
+    )
+    parser.add_argument(
+        "--save_dir", type=str, default="./checkpoints", help="checkpoint save directory."
+    )
+
+    args = parser.parse_args()
+    return args
+
+args = parse_args()
 dist.init_process_group(backend="nccl")
 local_device_rank = int(os.environ["LOCAL_RANK"])
 torch.cuda.set_device(local_device_rank)
@@ -20,30 +58,25 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 dataset_root = "./clip_benchmark_datasets"
 dataset_name = "cifar10"
 
-batch_size = 4
 classes = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
 
 auto_loader = AutoLoader(
     task_name="txt_img_matching",
     model_dir="./checkpoints",
-    model_name="AltCLIP-XLMR-L"   # Load the checkpoints from Modelhub(model.baai.ac.cn/models)
+    model_name="AltCLIP-XLMR-L"
 )
 
 model = auto_loader.get_model()
 model.to(device)
-model.eval()
 tokenizer = auto_loader.get_tokenizer()
 transform = auto_loader.get_transform()
-
-model_hidden_size = 1024
-train_batch_size = 2
 
 ds_config = {
         "optimizer": {
             "type": "Adam",
             "adam_w_mode": True,
             "params": {
-              "lr": 2e-05,
+              "lr": args.lr,
               "weight_decay": 0.05,
               "bias_correction": True,
               "betas": [
@@ -60,21 +93,8 @@ ds_config = {
         "bf16": {
             "enabled": True
         },
-        "zero_optimization": {
-            "stage": 3,
-            "offload_param": {
-                "device": "cpu",
-                "pin_memory": True
-            },
-            "overlap_comm": True,
-            "contiguous_gradients": True,
-            "reduce_bucket_size": model_hidden_size * model_hidden_size,
-            "stage3_prefetch_bucket_size": 0.9 * model_hidden_size * model_hidden_size,
-            "stage3_param_persistence_threshold": 10 * model_hidden_size
-        },
         "steps_per_print": 2000,
-        "train_batch_size": train_batch_size,
-        "train_micro_batch_size_per_gpu": 1,
+        "train_batch_size": args.batch_size,
         "wall_clock_breakdown": False
 }
 
@@ -106,13 +126,21 @@ model, optimizer, _, _ = deepspeed.initialize(config_params=ds_config,
 trainer = Trainer(env_type="pytorch",
                 pytorch_device=device,
                 experiment_name="clip_finetuning",
-                batch_size=4,
-                lr=1e-4,
-                epochs=10,
-                log_interval=10)
+                batch_size=args.batch_size,
+                lr=args.lr,
+                epochs=args.epochs,
+                tokenizer=tokenizer,
+                log_interval=1,
+                eval_interval=args.eval_interval,
+                save_dir=args.save_dir)
 
-dataset = CIFAR10(root=os.path.join(dataset_root, dataset_name), 
+train_dataset = CIFAR10(root=os.path.join(dataset_root, dataset_name), 
                 transform=transform,   
+                download=True)
+
+test_dataset = CIFAR10(root=os.path.join(dataset_root, dataset_name), 
+                transform=transform,
+                train=False,   
                 download=True)
 
 def cifar10_collate_fn(batch):
@@ -136,4 +164,4 @@ def cifar10_collate_fn(batch):
     }
     
 if __name__ == "__main__":
-    trainer.train(model=model, train_dataset=dataset, collate_fn=cifar10_collate_fn)
+    trainer.train(model=model, train_dataset=train_dataset, valid_dataset=test_dataset, collate_fn=cifar10_collate_fn)

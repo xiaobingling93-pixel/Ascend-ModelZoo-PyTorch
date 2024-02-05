@@ -1,3 +1,16 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 # Copyright © 2022 BAAI. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License")
@@ -23,6 +36,7 @@ import random
 import numpy as np
 import torch.distributed as dist
 from flagai.logger import log_dist
+import zeroshot_classification
 from torch.utils.tensorboard import SummaryWriter
 from flagai.utils import load_checkpoint, save_checkpoint, load_optim, load_rng
 from flagai.schedulers import AnnealingLR
@@ -473,6 +487,7 @@ class Trainer():
         # self.do_eval = valid_dataset!=None
         self.metric_methods = metric_methods
         best_score = float('inf')
+        total_step = self.epochs * len(train_dataloader)
         if len(self.metric_methods) > 0:
             best_score = -best_score
         for epoch in range(self.epochs):
@@ -488,28 +503,94 @@ class Trainer():
                                                        lr_scheduler,
                                                        single_step=True)
                 dist.barrier()
-                print("the training loss is %f"%float(lm_loss))
+
+                # Logging.
+                if lm_loss is not None:
+                    if not isinstance(lm_loss, float):
+                        total_lm_loss += lm_loss.data.detach().float()
+                    else:
+                        total_lm_loss += lm_loss
+                if (self.iteration + 1) % self.log_interval == 0:
+                    if optimizer is not None:
+                        learning_rate = optimizer.param_groups[0]['lr']
+                    else:
+                        learning_rate = model.optimizer.param_groups[0]['lr']
+                    if self.env_type == 'bmtrain':
+                        avg_lm_loss = total_lm_loss / self.log_interval
+                    else:
+                        avg_lm_loss = total_lm_loss.item() / self.log_interval if hasattr(total_lm_loss,'item') else total_lm_loss / self.log_interval
+                    elapsed_time = self.timers('interval time').elapsed()
+                    self.report_iteration_metrics(
+                        optimizer, learning_rate, avg_lm_loss, lm_loss.item(),
+                        elapsed_time * 1000.0 / self.log_interval,
+                        self.iteration + 1,
+                        total_step)
+                    self.tb_writer.add_scalar('train/loss', avg_lm_loss,
+                                              self.iteration + 1)
+                    self.tb_writer.add_scalar('lr', learning_rate,
+                                              self.iteration + 1)
+                    total_lm_loss = 0.0
+
+                # Evaluate
+                if self.eval_interval and ((self.iteration + 1) % self.eval_interval == 0 or self.iteration + 1 == total_step) and valid_dataloader is not None:
+                    if dist.get_rank()==0:
+                        result = self.cifar10_evaluate(model, valid_dataset)
+                        print(result)
                 self.iteration += 1
-                # Checkpointing at the end of each epoch.
-            # break
-            # prefix = 'evaluate'
-            # self.evaluate_and_print_results(
-            #     prefix=prefix,
-            #     data_loader=valid_dataloader,
-            #     model=model,
-            #     forward_step_func=self.forward_step,
-            #     verbose=False)
-        # Evaluation #todo add train_args
-        if ((self.epochs == 0) or (self.eval_interval and
-                                   (self.iteration ) % self.eval_interval != 0)
-            ) and valid_dataloader is not None:
-            prefix = 'final evaluate'
-            self.evaluate_and_print_results(
-                prefix=prefix,
-                data_loader=valid_dataloader,
-                model=model,
-                forward_step_func=self.forward_step,
-                verbose=False)
+
+        if not os.path.exists(self.save_dir):
+            os.makedirs(self.save_dir)
+        model.save_checkpoint(self.save_dir, int(dist.get_rank()))
+
+
+    def cifar10_evaluate(self, model, valid_dataset):
+        template = {"cifar10": [
+                "a photo of a {c}.",
+                "a blurry photo of a {c}.",
+                "a black and white photo of a {c}.",
+                "a low contrast photo of a {c}.",
+                "a high contrast photo of a {c}.",
+                "a bad photo of a {c}.",
+                "a good photo of a {c}.",
+                "a photo of a small {c}.",
+                "a photo of a big {c}.",
+                "a photo of the {c}.",
+                "a blurry photo of the {c}.",
+                "a black and white photo of the {c}.",
+                "a low contrast photo of the {c}.",
+                "a high contrast photo of the {c}.",
+                "a bad photo of the {c}.",
+                "a good photo of the {c}.",
+                "a photo of the small {c}.",
+                "a photo of the big {c}."
+            ],
+        }
+        if valid_dataset:
+            dataloader = torch.utils.data.DataLoader(
+                valid_dataset,
+                batch_size=128,
+                shuffle=False,
+                num_workers=4,
+            )
+
+            zeroshot_templates = template["cifar10"]
+            classnames = valid_dataset.classes if hasattr(valid_dataset, "classes") else None
+            metrics = zeroshot_classification.evaluate(
+                model,
+                dataloader,
+                self.tokenizer,
+                classnames, 
+                zeroshot_templates,
+                device=torch.device("npu"),
+                amp=True,
+            )
+        
+            dump = {
+                "dataset": "cifar10",
+                "metrics": metrics
+            }
+
+            return dump
 
     def train_step_pytorch(self,
                            data,
@@ -896,12 +977,13 @@ class Trainer():
         metric_dct.update({"loss": all_losses})
         return metric_dct
 
-    def report_iteration_metrics(self, optimizer, lr, loss, elapsed_time, step,
+    def report_iteration_metrics(self, optimizer, lr, avg_loss, loss, elapsed_time, step,
                                  total_step):
         log_string = ' iteration {:8d}/{:8d} |'.format(step, total_step)
         log_string += ' elapsed time per iteration (ms): {:.1f} |'.format(
             elapsed_time)
         log_string += ' learning rate {:.3E} |'.format(lr)
+        log_string += 'avg_loss {:.6E} | '.format(avg_loss)
         log_string += ' loss {:.6E} |'.format(loss)
         if self.fp16:
             log_string += ' loss scale {:.1f} |'.format(
