@@ -1,6 +1,7 @@
 Network="StableDiffusionXLControlNet"
 
 model_name="stabilityai/stable-diffusion-xl-base-1.0"
+vae_name="madebyollin/sdxl-vae-fp16-fix"
 dataset_name="fusing/fill50k"
 batch_size=2
 max_train_steps=2000
@@ -19,6 +20,8 @@ for para in $*; do
     mixed_precision=$(echo ${para#*=})
   elif [[ $para == --resolution* ]]; then
     resolution=$(echo ${para#*=})
+  elif [[ $para == --vae_name* ]]; then
+    vae_name=$(echo ${para#*=})
   elif [[ $para == --checkpointing_steps* ]]; then
     checkpointing_steps=$(echo ${para#*=})
   elif [[ $para == --validation_steps* ]]; then
@@ -59,6 +62,8 @@ accelerate launch --config_file ./test/lora_controlnet_accelerate_config.yaml  .
  --validation_steps=$validation_steps \
  --train_batch_size=$batch_size \
  --gradient_accumulation_steps=4 \
+ --dataloader_num_workers=8 \
+ --pretrained_vae_model_name_or_path=$vae_name \
  --seed=1234 \
  --output_dir=${output_path} > ${output_path}train_${mixed_precision}_sdxl_controlnet.log 2>&1 &
 wait

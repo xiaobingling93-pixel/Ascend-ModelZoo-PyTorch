@@ -54,7 +54,7 @@ from diffusers.optimization import get_scheduler
 from diffusers.utils import check_min_version, is_wandb_available, make_image_grid
 from diffusers.utils.import_utils import is_xformers_available
 
-
+torch.npu.config.allow_internal_format = False
 if is_wandb_available():
     import wandb
 
@@ -1117,7 +1117,6 @@ def main(args):
         step_end_time = time.time()
         for step, batch in enumerate(train_dataloader):
             step_data_time = time.time() - step_end_time
-            start_time = time.time()
             with accelerator.accumulate(controlnet):
                 # Convert images to latent space
                 if args.pretrained_vae_model_name_or_path is not None:
@@ -1181,10 +1180,12 @@ def main(args):
                 lr_scheduler.step()
                 optimizer.zero_grad(set_to_none=args.set_grads_to_none)
 
-                step_total_time = time.time()- start_time
-                logger.info(f"step_train_time: {step_total_time}")
-                logger.info(f"step_data_time: {step_data_time}")
-                logger.info(f"FPS: {args.train_batch_size * accelerator.num_processes/step_total_time }")
+                step_total_time = time.time() - step_end_time
+                accelerator.print(f"step_train_time: {step_total_time}")
+                accelerator.print(f"step_data_time: {step_data_time}")
+                accelerator.print(
+                    f"FPS: {args.train_batch_size * accelerator.num_processes / (step_total_time - step_data_time)}")
+                step_end_time = time.time()
 
             # Checks if the accelerator has performed an optimization step behind the scenes
             if accelerator.sync_gradients:

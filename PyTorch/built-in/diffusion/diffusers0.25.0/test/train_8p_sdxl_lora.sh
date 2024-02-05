@@ -59,6 +59,7 @@ accelerate launch --config_file ./test/lora_controlnet_accelerate_config.yaml  .
   --lr_warmup_steps=0 \
   --mixed_precision=$mixed_precision \
   --max_train_steps=$max_train_steps \
+  --dataloader_num_workers=8 \
   --seed=1234 \
   --output_dir=${output_path} > ${output_path}train_${mixed_precision}_sdxl_lora.log 2>&1 &
 wait

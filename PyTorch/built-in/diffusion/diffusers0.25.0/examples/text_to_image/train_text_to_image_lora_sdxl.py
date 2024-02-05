@@ -59,7 +59,7 @@ from diffusers.utils.import_utils import is_xformers_available
 
 # Will error if the minimal version of diffusers is not installed. Remove at your own risks.
 check_min_version("0.25.0")
-
+torch.npu.config.allow_internal_format = False
 logger = get_logger(__name__)
 
 
@@ -974,7 +974,6 @@ def main(args):
         step_end_time = time.time()
         for step, batch in enumerate(train_dataloader):
             step_data_time = time.time() - step_end_time
-            start_time = time.time()
             with accelerator.accumulate(unet):
                 # Convert images to latent space
                 if args.pretrained_vae_model_name_or_path is not None:
@@ -1074,10 +1073,12 @@ def main(args):
                 lr_scheduler.step()
                 optimizer.zero_grad()
 
-                step_total_time = time.time() - start_time
-                logger.info(f"step_train_time: {step_total_time}")
-                logger.info(f"step_data_time: {step_data_time}")
-                logger.info(f"FPS: {args.train_batch_size * accelerator.num_processes / step_total_time}")
+                step_total_time = time.time() - step_end_time
+                accelerator.print(f"step_train_time: {step_total_time}")
+                accelerator.print(f"step_data_time: {step_data_time}")
+                accelerator.print(
+                    f"FPS: {args.train_batch_size * accelerator.num_processes / (step_total_time - step_data_time)}")
+                step_end_time = time.time()
 
             # Checks if the accelerator has performed an optimization step behind the scenes
             if accelerator.sync_gradients:

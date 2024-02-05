@@ -2,7 +2,7 @@ Network="StableDiffusionXLLoRADeepspeed"
 
 model_name="stabilityai/stable-diffusion-xl-base-1.0"
 dataset_name="pokemon-blip-captions"
-batch_size=5
+batch_size=7
 max_train_steps=2000
 checkpointing_steps=2000
 validation_epochs=5
@@ -59,6 +59,7 @@ accelerate launch --config_file ./test/lora_controlnet_accelerate_deepspeed_conf
   --lr_warmup_steps=0 \
   --mixed_precision=$mixed_precision \
   --max_train_steps=$max_train_steps \
+  --dataloader_num_workers=8 \
   --seed=1234 \
   --output_dir=${output_path} > ${output_path}train_${mixed_precision}_sdxl_lora_deepspeed.log 2>&1 &
 wait
