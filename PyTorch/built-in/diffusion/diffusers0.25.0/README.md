@@ -90,7 +90,7 @@
 #### Controlnet
 
    Controlnet微调需要用户自行获取fill50k数据集，将fill50k数据集绝对路径传到`dataset_name`参数上，传参形式参考`train_8p_controlnet_sdxl.sh`。
-   
+
    fill50k数据集格式如下:
    ```
    fill50k
@@ -137,11 +137,12 @@
    - 单机8卡训练
    
      ```shell
-     bash test/train_8p_text_to_image_sdxl_pretrain.sh  # 8卡训练 fp16
-     bash test/train_8p_text_to_image_sdxl_pretrain.sh --max_train_steps=200 # 8卡性能 fp16
-
-     ```
+     bash test/train_8p_text_to_image_sdxl_pretrain_fp16.sh # 8卡训练，混精fp16
+     bash test/train_8p_text_to_image_sdxl_pretrain_fp16.sh --max_train_steps=200 # 8卡性能，混精fp16
      
+     bash test/train_8p_text_to_image_sdxl_pretrain_bf16.sh # 8卡训练，混精bf16
+     bash test/train_8p_text_to_image_sdxl_pretrain_bf16.sh --max_train_steps=200 # 8卡性能，混精bf16
+     ```
    
    - 模型训练python训练脚本参数说明如下。
    
@@ -167,7 +168,7 @@
    --max_bucket_reso                   //设置最大动态分辨率桶，默认2048
    --min_bucket_reso                   //设置最小动态分辨率桶，默认512
    ```
-
+   
    - 预训练默认开启动态分辨率，如需使用静态分辨率需要使用1.数据集原图像分辨率大小足够大；2.设置最大、最小动态分辨率桶均为1024
    
    - 训练完成后，权重文件保存在`test/output`路径下，并输出模型训练精度和性能信息。
@@ -228,4 +229,4 @@
 ## FAQ
 
 
-   
+

@@ -5,10 +5,11 @@ Network="diffusers"
 model_name="stabilityai/stable-diffusion-xl-base-1.0"
 vae_name="madebyollin/sdxl-vae-fp16-fix"
 dataset_name="laion5b"
-batch_size=2
+batch_size=4
 max_train_steps=2000
-mixed_precision="fp16"
+mixed_precision="bf16"
 resolution=1024
+config_file="./test/pretrain_bf16_accelerate_config.yaml"
 
 for para in $*; do
   if [[ $para == --model_name* ]]; then
@@ -25,6 +26,8 @@ for para in $*; do
     resolution=$(echo ${para#*=})
   elif [[ $para == --dataset_name* ]]; then
     dataset_name=$(echo ${para#*=})
+  elif [[ $para == --config_file* ]]; then
+    config_file=$(echo ${para#*=})
   fi
 done
 
@@ -45,14 +48,13 @@ source ${test_path_dir}/env_npu.sh
 #创建DeviceID输出目录，不需要修改
 output_path=${cur_path}/test/output/${ASCEND_DEVICE_ID}
 
-
 mkdir -p ${output_path}
 
 #训练开始时间，不需要修改
 start_time=$(date +%s)
 echo "start_time: ${start_time}"
 
-accelerate launch --config_file ./test/pretrain_accelerate_config.yaml \
+accelerate launch --config_file ${config_file} \
   ./examples/text_to_image/train_text_to_image_sdxl_pretrain.py \
   --pretrained_model_name_or_path=$model_name \
   --pretrained_vae_model_name_or_path=$vae_name \
@@ -62,7 +64,7 @@ accelerate launch --config_file ./test/pretrain_accelerate_config.yaml \
   --gradient_accumulation_steps=1 \
   --gradient_checkpointing \
   --max_train_steps=$max_train_steps \
-  --learning_rate=1e-06 --lr_scheduler="constant" --lr_warmup_steps=0 \
+  --learning_rate=1e-05 --lr_scheduler="constant_with_warmup" --lr_warmup_steps=0 \
   --max_grad_norm=1 \
   --enable_bucket \
   --mixed_precision=$mixed_precision \

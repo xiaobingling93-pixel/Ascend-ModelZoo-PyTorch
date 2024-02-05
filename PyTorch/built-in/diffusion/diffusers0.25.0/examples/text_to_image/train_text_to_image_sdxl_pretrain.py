@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2017 xxxx
 # All rights reserved.
-# Copyright 2021 Huawei Technologies Co., Ltd
+# Copyright 2024 Huawei Technologies Co., Ltd
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -87,6 +87,7 @@ DATASET_NAME_MAPPING = {
     "lambdalabs/pokemon-blip-captions": ("image", "text"),
 }
 
+torch.npu.config.allow_internal_format=False
 
 def save_model_card(
     repo_id: str,
@@ -992,15 +993,12 @@ def main(args):
         unet = accelerator.unwrap_model(sdxl_model.unet)
         text_encoder = accelerator.unwrap_model(sdxl_model.text_encoder1)
         text_encoder_bak = CLIPTextModel.from_pretrained(args.pretrained_model_name_or_path, subfolder="text_encoder")
-        for key in sdxl_model.text_encoder1.state_dict().keys():
-            text_encoder_bak.state_dict()[key] = sdxl_model.text_encoder1.state_dict()[key]
-        del text_encoder
+        text_encoder_bak.load_state_dict(text_encoder.state_dict(), strict=False)
 
         text_encoder_2 = accelerator.unwrap_model(sdxl_model.text_encoder2)
         text_encoder_2_bak = CLIPTextModelWithProjection.from_pretrained(args.pretrained_model_name_or_path, subfolder="text_encoder_2")
-        for key in sdxl_model.text_encoder2.state_dict().keys():
-            text_encoder_2_bak.state_dict()[key] = sdxl_model.text_encoder2.state_dict()[key]
-        del text_encoder_2
+        text_encoder_2_bak.load_state_dict(text_encoder_2.state_dict(), strict=False)
+
         # Serialize pipeline.
         vae = AutoencoderKL.from_pretrained(
             vae_path,

@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2017 xxxx
 # All rights reserved.
-# Copyright 2021 Huawei Technologies Co., Ltd
+# Copyright 2024 Huawei Technologies Co., Ltd
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
