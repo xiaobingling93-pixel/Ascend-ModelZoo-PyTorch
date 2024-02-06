@@ -42,6 +42,7 @@ GoogLeNet对网络中的传统卷积层进行了修改，提出了被称为Incep
   | PyTorch 1.8 | torchvision==0.9.1 |
   | PyTorch 1.11 | torchvision==0.12.0 |
   | PyTorch 2.1 | torchvision==0.16.0 |
+  | PyTorch 2.2 | torchvision==0.17.0 |
 
 - 环境准备指导。
 
@@ -58,6 +59,8 @@ GoogLeNet对网络中的传统卷积层进行了修改，提出了被称为Incep
   pip install -r 1.11_requirements.txt  # PyTorch1.11版本
   
   pip install -r 2.1_requirements.txt  # PyTorch2.1版本
+
+  pip install -r 2.2_requirements.txt  # PyTorch2.2版本
   ```
   > **说明：** 
   >只需执行一条对应的PyTorch版本依赖安装命令。

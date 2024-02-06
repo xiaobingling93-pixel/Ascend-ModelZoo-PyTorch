@@ -31,6 +31,7 @@ code_path=PyTorch/built-in/autonoumous_driving
   | Torch_Version      | 三方库依赖版本                                 |
   | :--------: | :----------------------------------------------------------: |
   | PyTorch 2.10 | torchvision 0.16.0 |
+  | PyTorch 2.2 | torchvision 0.17.0 |
 
 - 环境准备指导。
 
@@ -38,10 +39,11 @@ code_path=PyTorch/built-in/autonoumous_driving
 
 
   #### 1. 基本环境
-  在模型源码包根目录下执行命令，安装模型需要的依赖。
+  在模型源码包根目录下执行相应命令，安装模型需要的依赖。
   ```
   conda create -n env_name python=3.8
-  pip install -r requirements.txt
+  pip install -r requirements.txt    # PyTorch 2.1版本
+  pip install -r 2.2_requirements.txt    # PyTorch 2.2版本
   ```
 
   #### 2. 手动编译安装cumm和spconv

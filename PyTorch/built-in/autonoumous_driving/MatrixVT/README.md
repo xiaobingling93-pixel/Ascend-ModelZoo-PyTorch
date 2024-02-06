@@ -35,6 +35,7 @@
   | Torch_Version      | 三方库依赖版本                                 |
   | :--------: | :----------------------------------------------------------: |
   | PyTorch 2.1 | numpy<=1.23.5 |
+  | PyTorch 2.2 | torchvision=0.17.0 |
   
 - 环境准备指导。
 
@@ -42,9 +43,10 @@
 
   - 安装依赖。
 
-  在模型源码包根目录下执行命令，安装模型需要的依赖。
+  在模型源码包根目录下执行相应命令，安装模型需要的依赖。
   ```shell
-  pip install -r requirements.txt
+  pip install -r requirements.txt     # PyTorch 2.1版本
+  pip install -r 2.2_requirements.txt    # PyTorch 2.2版本
   ```
 
 - 安装mmcv==1.x（如果环境中有mmcv，请先卸载再执行以下步骤）。

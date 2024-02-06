@@ -56,9 +56,8 @@ BEiT v2是基于矢量量化视觉标记的掩码图像模型
 | firmware|  6.4.0.5.220 | [link ](https://support.huawei.com/enterprise/zh/ascend-computing/ascend-hdk-pid-252764743/software/261425590?idAbsPath=fixnode01%7C23710424%7C251366513%7C22892968%7C252764743)  |
 |  CANN  |  Ascend-cann-toolkit_7.0.0.alpha002_linux | [link](https://ascend-repo.obs.myhuaweicloud.com/CANN_Test/20231116/Ascend-cann-toolkit_7.0.0.alpha002_linux-x86_64.run) [link](https://ascend-repo.obs.myhuaweicloud.com/CANN_Test/20231116/Ascend-cann-toolkit_7.0.0.alpha002_linux-aarch64.run)  |
 | binary arithmetic package  | Ascend-cann-kernels-910b_7.0.0.alpha002_linux  | [link](https://ascend-repo.obs.myhuaweicloud.com/CANN_Test/20231116/Ascend-cann-kernels-910b_7.0.0.alpha002_linux.run)  |
-| torch  | 2.1.0  |[link](https://download.pytorch.org/whl/torch/)|
-| torch_npu  |  torch_npu-2.1.0.post20231115| [link](https://pytorch-package.obs.cn-north-4.myhuaweicloud.com/pta/Daily/v2.1.0/20231115.2/pytorch_v2.1.0_py38.tar.gz)  |
-|torchvision| 0.16.0|——|
+| PyTorch 2.1 | torchvision==0.16.0 |
+| PyTorch 2.2 | torchvision==0.17.0 |
 
 - 环境准备指导。
 
@@ -66,17 +65,14 @@ BEiT v2是基于矢量量化视觉标记的掩码图像模型
    
   
 - 安装流程。
+在模型源码包根目录下执行命令，安装模型对应PyTorch版本需要的依赖。
 ```
     # python3.8
     conda create -n beit2env python=3.8
     conda activate beit2env
 
-    # install torch and torch_npu
-    pip install torch-2.1.0-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl
-    pip install torch_npu-2.1.0.post20231115-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64
-
-    # install other packages
-    pip install -r requirements.txt 
+    pip install -r 2.1_requirements.txt  # PyTorch2.1版本
+    pip install -r 2.2_requirements.txt  # PyTorch2.2版本
 ```
 
 ## 准备数据集

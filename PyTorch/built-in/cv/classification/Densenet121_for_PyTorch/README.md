@@ -41,6 +41,7 @@ DenseNet-121是一个经典的图像分类网络，对于一个L层的网络，D
   | PyTorch 1.8 | torchvision==0.9.1；pillow==9.1.0 |
   | PyTorch 1.11 | torchvision==0.12.0 |
   | PyTorch 2.1 | torchvision==0.16.0 |
+  | PyTorch 2.2 | torchvision==0.17.0 |
 
 - 环境准备指导。
 
@@ -58,6 +59,8 @@ DenseNet-121是一个经典的图像分类网络，对于一个L层的网络，D
   pip install -r 1.11_requirements.txt  # Pytorch1.11版本
 
   pip install -r 2.1_requirements.txt  # Pytorch2.1版本
+  
+  pip install -r 2.2_requirements.txt  # Pytorch2.2版本
   ```
   > **说明:**
   > 只需执行一条对应的PyTorch版本依赖安装命令。
