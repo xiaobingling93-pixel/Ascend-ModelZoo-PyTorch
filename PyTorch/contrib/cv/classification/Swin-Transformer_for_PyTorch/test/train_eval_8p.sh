@@ -79,6 +79,7 @@ fi
 python3 -m torch.distributed.launch --nproc_per_node 8 --master_port 12345 \
           main.py \
           --eval \
+          --cs True \
           --resume ${pth_path} \
           --cfg configs/swin_tiny_patch4_window7_224.yaml \
           --data-path ${data_path} \

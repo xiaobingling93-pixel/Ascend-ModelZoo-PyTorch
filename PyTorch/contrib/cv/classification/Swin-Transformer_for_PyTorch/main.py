@@ -67,6 +67,16 @@ except ImportError:
 
 PERF = False
 
+def str2bool(cs):
+    if isinstance(cs, bool):
+        return cs
+    if cs.lower() == 'true':
+        return True
+    elif cs.lower() == 'false':
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
+
 def parse_option():
     parser = argparse.ArgumentParser('Swin Transformer training and evaluation script', add_help=False)
     parser.add_argument('--cfg', type=str, required=True, metavar="FILE", help='path to config file', )
@@ -109,6 +119,7 @@ def parse_option():
     parser.add_argument('--start_step', default=90, type=int, help='start_step')
     parser.add_argument('--stop_step', default=100, type=int, help='stop_step')
     parser.add_argument('--profiling', type=str, default='False',help='choose profiling way--CANN,GE,False')
+    parser.add_argument('--cs', type=str2bool, help='control shuffle')
 
     args, unparsed = parser.parse_known_args()
 
@@ -125,7 +136,7 @@ class NoProfiling(object):
         pass
 
 def main(config):
-    dataset_train, dataset_val, data_loader_train, data_loader_val, mixup_fn = build_loader(config)
+    dataset_train, dataset_val, data_loader_train, data_loader_val, mixup_fn = build_loader(config, args.cs)
 
     logger.info(f"Creating model:{config.MODEL.TYPE}/{config.MODEL.NAME}")
     model = build_model(config)

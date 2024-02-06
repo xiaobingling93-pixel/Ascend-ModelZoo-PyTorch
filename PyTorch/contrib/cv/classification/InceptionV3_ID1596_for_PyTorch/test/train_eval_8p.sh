@@ -74,6 +74,7 @@ python3 ./main.py \
     --resume=${resume} \
     --amp \
     --loss_scale=128 \
+    --cs True \
     --data ${data_path} \
     --addr=$(hostname -I |awk '{print $1}') \
     --seed=49 \

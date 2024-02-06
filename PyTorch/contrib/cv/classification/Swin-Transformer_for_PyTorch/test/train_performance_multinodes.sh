@@ -25,6 +25,8 @@ do
         workers=`echo ${para#*=}`
     elif [[ $para == --data_path* ]];then
         data_path=`echo ${para#*=}`
+    elif [[ $para == --cs* ]];then
+        cs=`echo ${para#*=}`
 	elif [[ $para == --batch_size* ]]; then
 		batch_size=$(echo ${para#*=})
 	elif [[ $para == --nnodes* ]]; then
@@ -95,6 +97,7 @@ do
         --nproc_per_node=$RANK_SIZE \
         --addr=$master_addr \
         --data-path ${data_path} \
+        --cs ${cs} \
         --one_epoch \
         --batch-size ${batch_size} \
         --nnodes $nnodes \

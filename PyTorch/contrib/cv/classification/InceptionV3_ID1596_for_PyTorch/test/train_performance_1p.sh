@@ -27,6 +27,8 @@ do
         data_path=`echo ${para#*=}`
     elif [[ $para == --batch_size* ]];then
         batch_size=`echo ${para#*=}`
+    elif [[ $para == --cs* ]];then
+        cs=`echo ${para#*=}`
     fi
 done
 
@@ -84,6 +86,7 @@ wait
 
 python3 ./main.py \
     --data ${data_path} \
+    --cs ${cs} \
     --gpu ${device_id} \
     -a inception_v3 \
     -b ${batch_size} \

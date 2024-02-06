@@ -55,6 +55,16 @@ from apex import amp
 import apex
 import numpy as np
 
+def str2bool(cs):
+    if isinstance(cs, bool):
+        return cs
+    if cs.lower() == 'true':
+        return True
+    elif cs.lower() == 'false':
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
+
 parser = argparse.ArgumentParser(description='PyTorch ImageNet Training')
 parser.add_argument('--data', metavar='DIR', default='/opt/npu/dataset/imagenet',
                     help='path to dataset')
@@ -137,6 +147,7 @@ parser.add_argument('--label-smoothing',
                     help='label smoothing')
 parser.add_argument('--warm_up_epochs', default=0, type=int,
                     help='warm up')
+parser.add_argument('--cs', type=str2bool, help='control shuffle')
 
 
 warnings.filterwarnings('ignore')
@@ -285,7 +296,7 @@ def main_worker(gpu, ngpus_per_node, args):
         train_sampler = None
 
     train_loader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=args.batch_size, shuffle=(train_sampler is None),
+        train_dataset, batch_size=args.batch_size, shuffle=(train_sampler is None) and args.cs,
         num_workers=args.workers, pin_memory=False, sampler=train_sampler, drop_last=True)
 
     val_loader = torch.utils.data.DataLoader(

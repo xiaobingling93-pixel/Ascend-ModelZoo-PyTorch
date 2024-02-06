@@ -118,7 +118,7 @@ GoogLeNet对网络中的传统卷积层进行了修改，提出了被称为Incep
 
      ```
      bash ./test/train_full_1p.sh --data_path=/data/xxx/  # 单卡精度
-     bash ./test/train_performance_1p.sh --data_path=/data/xxx/ # 单卡性能
+     bash ./test/train_performance_1p.sh --data_path=/data/xxx/ --cs=False# 单卡性能
      ```
 
    - 单机8卡训练
@@ -127,14 +127,14 @@ GoogLeNet对网络中的传统卷积层进行了修改，提出了被称为Incep
 
      ```
      bash ./test/train_full_8p.sh --data_path=/data/xxx/  # 8卡精度
-     bash ./test/train_performance_8p.sh --data_path=/data/xxx/ # 8卡性能
+     bash ./test/train_performance_8p.sh --data_path=/data/xxx/ --cs=False# 8卡性能
      ```
 
    - 多机多卡性能数据获取流程。
      ```
      1. 多机环境准备
      2. 开始训练，每个机器请按下面提示进行配置
-     bash ./test/train_performance_multinodes.sh --data_path=数据集路径 --batch_size=单卡batch_size*单机卡数 --nnodes=机器总数量 --node_rank=当前机器rank(0,1,2..) --local_addr=当前机器IP(需要和master_addr处于同一网段) --master_addr=主节点IP
+     bash ./test/train_performance_multinodes.sh --data_path=数据集路径 --cs=False --batch_size=单卡batch_size*单机卡数 --nnodes=机器总数量 --node_rank=当前机器rank(0,1,2..) --local_addr=当前机器IP(需要和master_addr处于同一网段) --master_addr=主节点IP
      ```
    --data_path参数填写数据集路径，需写到数据集的一级目录。
 
@@ -155,6 +155,7 @@ GoogLeNet对网络中的传统卷积层进行了修改，提出了被称为Incep
    -p                             // 类别数量
    --amp                          // 使用混合精度
    --npu                          // 使用设备
+   --cs                           // 控制shuffle开关
    ```
 
    训练完成后，权重文件保存在当前路径下，并输出模型训练精度和性能信息。

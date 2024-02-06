@@ -82,6 +82,7 @@ do
       --data ${data_path} \
       --addr=$(hostname -I |awk '{print $1}') \
       --seed=49 \
+      --cs True \
       --workers=128 \
       --learning-rate=${learning_rate} \
       --mom=0.9 \
@@ -105,6 +106,7 @@ do
       --data ${data_path} \
       --addr=$(hostname -I |awk '{print $1}') \
       --seed=49 \
+      --cs True \
       --workers=128 \
       --learning-rate=${learning_rate} \
       --mom=0.9 \

@@ -78,6 +78,7 @@ python3 -m torch.distributed.launch --nproc_per_node 1 --master_port 12345  main
           --output=output/test \
           $adv_param \
           --cfg configs/swin_tiny_patch4_window7_224.yaml \
+          --cs True \
           --data-path ${data_path} \
           --local_rank ${device_id} \
           --batch-size ${batch_size} > ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log 2>&1 &

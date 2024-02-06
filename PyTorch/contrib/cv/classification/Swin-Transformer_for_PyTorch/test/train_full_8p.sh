@@ -82,6 +82,7 @@ do
 	    $adv_param \
         --cfg configs/swin_tiny_patch4_window7_224.yaml \
         --data-path ${data_path} \
+        --cs True \
         --batch-size ${batch_size} \
         --local_rank $RANK_ID > ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log 2>&1 &
 done

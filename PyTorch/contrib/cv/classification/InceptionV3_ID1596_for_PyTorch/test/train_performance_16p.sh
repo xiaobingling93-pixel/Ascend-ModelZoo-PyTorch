@@ -33,6 +33,8 @@ do
 	    devicesnum=`echo ${para#*=}`
     elif [[ $para == --conf_path* ]];then
         conf_path=`echo ${para#*=}`
+    elif [[ $para == --cs* ]];then
+        cs=`echo ${para#*=}`
     elif [[ $para == --server_index* ]];then
         server_index=`echo ${para#*=}`
     fi
@@ -102,6 +104,7 @@ do
     taskset -c $PID_START-$PID_END python3 ./main.py \
       -a inception_v3 \
       --amp \
+      --cs ${cs} \
       --loss_scale 128 \
       --data ${data_path} \
       --addr=$one_node_ip \
@@ -127,6 +130,7 @@ do
       --amp \
       --loss_scale 128 \
       --data ${data_path} \
+      --cs ${cs} \
       --addr=$one_node_ip \
       --seed=49 \
       --workers=128 \

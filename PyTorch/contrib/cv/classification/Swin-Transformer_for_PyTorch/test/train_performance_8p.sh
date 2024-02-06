@@ -19,6 +19,8 @@ do
         workers=`echo ${para#*=}`
     elif [[ $para == --data_path* ]];then
         data_path=`echo ${para#*=}`
+    elif [[ $para == --cs* ]];then
+        cs=`echo ${para#*=}`
     elif [[ $para == --batch_size* ]];then
         batch_size=`echo ${para#*=}`
     elif [[ $para == --precision_mode* ]];then
@@ -82,6 +84,7 @@ do
 	    $adv_param \
         --cfg configs/swin_tiny_patch4_window7_224.yaml \
         --data-path ${data_path} \
+        --cs ${cs} \
         --one_epoch \
         --batch-size ${batch_size} \
         --local_rank $RANK_ID > ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log 2>&1 &

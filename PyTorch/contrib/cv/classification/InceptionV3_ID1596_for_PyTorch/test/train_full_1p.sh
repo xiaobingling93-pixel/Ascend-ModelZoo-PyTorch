@@ -85,6 +85,7 @@ python3 ./main.py \
     --gpu ${device_id} \
     -a inception_v3 \
     -b ${batch_size} \
+    --cs True \
     --lr ${learning_rate} \
     --epochs ${train_epochs} \
     -j 32 \

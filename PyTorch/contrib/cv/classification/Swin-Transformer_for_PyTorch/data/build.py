@@ -19,7 +19,7 @@ from .cached_image_folder import CachedImageFolder
 from .samplers import SubsetRandomSampler
 
 
-def build_loader(config):
+def build_loader(config, cs):
     config.defrost()
     dataset_train, config.MODEL.NUM_CLASSES = build_dataset(is_train=True, config=config)
     config.freeze()
@@ -34,7 +34,7 @@ def build_loader(config):
         sampler_train = SubsetRandomSampler(indices)
     else:
         sampler_train = torch.utils.data.DistributedSampler(
-            dataset_train, num_replicas=num_tasks, rank=global_rank, shuffle=True
+            dataset_train, num_replicas=num_tasks, rank=global_rank, shuffle=True and cs
         )
 
     indices = np.arange(dist.get_rank(), len(dataset_val), dist.get_world_size())
