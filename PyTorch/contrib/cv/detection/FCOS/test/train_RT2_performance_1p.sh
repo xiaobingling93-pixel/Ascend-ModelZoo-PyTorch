@@ -44,6 +44,8 @@ do
         source activate $conda_name
     elif [[ $para == --bin* ]];then
         bin=`echo ${para#*=}`	
+    elif [[ $para == --data_shuffle* ]];then
+        data_shuffle=`echo ${para#*=}`
     fi
 done
 
@@ -85,6 +87,7 @@ PORT=29880 ./tools/dist_train.sh ./configs/fcos/fcos_r50_caffe_fpn_4x4_1x_coco.p
     --npu-ids ${device_id} \
     --cfg-options optimizer.lr=0.00125 data.samples_per_gpu=${batch_size} total_epochs=1 max_step=1000 data_root=$data_path \
     --seed 0 \
+    --data-shuffle ${data_shuffle} \
     --opt-level O1 \
     --loss-scale 32.0 \
 	--bin ${bin} >> ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log 2>&1 &

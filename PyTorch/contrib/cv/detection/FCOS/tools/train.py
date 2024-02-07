@@ -50,6 +50,16 @@ from mmdet.models import build_detector
 from mmdet.utils import collect_env, get_root_logger
 
 
+def str2bool(cs):
+    if isinstance(cs, bool):
+        return cs
+    if cs.lower() == 'true':
+        return True
+    elif cs.lower() == 'false':
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
+
 def parse_args():
     parser = argparse.ArgumentParser(description='Train a detector')
     parser.add_argument('config', help='train config file path')
@@ -73,6 +83,7 @@ def parse_args():
         help='ids of npus to use '
         '(only applicable to non-distributed training)')
     parser.add_argument('--seed', type=int, default=None, help='random seed')
+    parser.add_argument('--data-shuffle', type=str2bool, default=True, help='control shuffle')
     parser.add_argument(
         '--deterministic',
         action='store_true',
@@ -151,6 +162,7 @@ def main():
                                 osp.splitext(osp.basename(args.config))[0])
     cfg.opt_level = args.opt_level  # add for apex
     cfg.loss_scale = args.loss_scale  # add for apex
+    cfg.data.shuffle = args.data_shuffle
     if args.resume_from is not None:
         cfg.resume_from = args.resume_from
     if args.npu_ids is not None:

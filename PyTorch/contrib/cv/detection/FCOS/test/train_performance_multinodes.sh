@@ -52,6 +52,8 @@ do
 		master_addr=$(echo ${para#*=})
 	elif [[ $para == --master_port* ]]; then
 		master_port=$(echo ${para#*=})
+    elif [[ $para == --data_shuffle* ]];then
+        data_shuffle=`echo ${para#*=}`
     fi
 done
 
@@ -106,6 +108,7 @@ PORT=$master_port ./tools/dist_train.sh ./configs/fcos/fcos_r50_caffe_fpn_4x4_1x
     --npu-ids $((node_rank * RANK_SIZE)) \
     --cfg-options optimizer.lr=0.01 total_epochs=1 data_root=$data_path data.samples_per_gpu=${batch_size} \
     --seed 0 \
+    --data-shuffle ${data_shuffle} \
     --no-validate \
     --opt-level O1 \
     --loss-scale 32.0 > ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log 2>&1 &

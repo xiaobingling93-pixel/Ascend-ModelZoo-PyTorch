@@ -34,6 +34,8 @@ do
         data_path=`echo ${para#*=}`
     elif [[ $para == --batch_size* ]];then
         batch_size=`echo ${para#*=}`
+    elif [[ $para == --data_shuffle* ]];then
+        data_shuffle=`echo ${para#*=}`
     fi
 done
 
@@ -81,6 +83,7 @@ PORT=29888 ./tools/dist_train.sh ./configs/fcos/fcos_r50_caffe_fpn_4x4_1x_coco.p
     --npu-ids 0 \
     --cfg-options data.samples_per_gpu=${batch_size} optimizer.lr=0.01 total_epochs=1 data_root=$data_path \
     --seed 0 \
+    --data-shuffle ${data_shuffle} \
     --opt-level O1 \
     --loss-scale 32.0 > ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log 2>&1 &
 

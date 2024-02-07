@@ -96,6 +96,7 @@ def train_detector(model,
             cfg.data.workers_per_gpu,
             len(cfg.npu_ids),
             dist=distributed,
+            shuffle=cfg.data.shuffle,
             seed=cfg.seed) for ds in dataset
     ]
 
