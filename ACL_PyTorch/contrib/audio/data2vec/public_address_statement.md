@@ -1,0 +1,4 @@
+| 类型     | 开源代码地址                                                   | 文件名                                                              | 公网IP地址/公网URL地址/域名/邮箱地址                                                                                   | 用途说明    |
+|--------|----------------------------------------------------------|------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------|---------|
+| 开发引入 | / | ACL_PyTorch/contrib/audio/data2vec/data2vec_postprocess.py | https://stackoverflow.com/a/3460423     | 说明源码出处 |
+| 开发引入 | / | ACL_PyTorch/contrib/audio/data2vec/data2vec_preprocess.py | https://github.com/vasudevgupta7/gsoc-wav2vec2/blob/main/src/wav2vec2/processor.py#L101 | 说明源码出处 |

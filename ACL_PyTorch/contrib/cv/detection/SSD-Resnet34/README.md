@@ -284,3 +284,6 @@ https://ascend-repo-modelzoo.obs.cn-east-2.myhuaweicloud.com/model/1_PyTorch_PTH
     | 16 | 862.468 | 1307.1 |
     | 32 | 812.368 |1321.5 |
     | 64 | 810.368 | 1273.1 |
+
+# 公网地址说明
+代码涉及公网地址参考 public_address_statement.md

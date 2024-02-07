@@ -268,3 +268,6 @@ UNet++由不同深度的U-Net组成，其解码器通过重新设计的跳接以
 | Ascend310P3 | 16         | 2483.1          |
 | Ascend310P3 | 32         | 2217.36         |
 | Ascend310P3 | 64         | 1760.00         |
+
+# 公网地址说明
+代码涉及公网地址参考 public_address_statement.md

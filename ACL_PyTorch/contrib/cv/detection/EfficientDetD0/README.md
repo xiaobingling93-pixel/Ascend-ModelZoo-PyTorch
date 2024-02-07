@@ -275,3 +275,6 @@ EfficientDet是在EfficientNet基础上提出来的目标检测模型，它将Ef
 | 32         | 241   | 64.64 |
 | 64         | 238   | 54.31 |
 | 最优性能   | 260   | 71.21 |
+
+# 公网地址说明
+代码涉及公网地址参考 public_address_statement.md

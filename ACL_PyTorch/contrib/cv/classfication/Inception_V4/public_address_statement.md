@@ -2,3 +2,4 @@
 | 类型 | 开源代码地址 | 文件名 | 公网IP地址/公网URL地址/域名/邮箱地址 | 用途说明 |
 | ---- | ------------ | ------ | ------------------------------------ | -------- |
 |开发引入|/|Inception_V4/url.ini|http://data.lip6.fr/cadene/pretrainedmodels/inceptionv4-8e4777a0.pth|下载权重|
+|开发引入|/|inceptionv4_pth2onnx.py|# https://github.com/Cadene/pretrained-models.pytorch/blob/master/pretrainedmodels/models/inceptionv4.py|注释说明|

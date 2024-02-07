@@ -156,3 +156,7 @@ Yolact++不支持在bs16上离线推理，故在bs8上测试。
 | ----------- | ----------------------- | ----------------------- | ---------- | --------- |
 | YOLACT bs1 | mAP: box 34.94, mask 33.69 | mAP: box 34.90, mask 33.71 | 19.693fps  | 26.452fps |
 | YOLACT bs8 | mAP: box 34.94, mask 33.69 | mAP: box 34.90, mask 33.71 | 16.377fps | 31.130fps |
+
+# 公网地址说明
+代码涉及公网地址参考 public_address_statement.md
+

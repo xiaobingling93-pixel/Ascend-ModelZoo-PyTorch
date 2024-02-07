@@ -265,3 +265,6 @@ TransPose是一种基于CNN特征提取器、Transformer编码器和预测头的
 |   310P3        |       16           |   COCO2017         |    AP: 73.7%        |      458.66           |
 |   310P3        |       32           |   COCO2017         |    AP: 73.7%        |      437.97           |
 |   310P3        |       64           |   COCO2017         |    AP: 73.7%        |      475.99           |
+
+# 公网地址说明
+代码涉及公网地址参考 public_address_statement.md

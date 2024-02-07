@@ -297,3 +297,7 @@ CycleGAN是基于对抗生成的图像风格转换卷积神经网络，该网络
    |    Ascend310P       |    16    |     maps    |     0.999077       |   218.42         |
    |    Ascend310P       |    32    |     maps    |     0.999077       |   226.60         |
    |    Ascend310P       |    64    |     maps    |     0.999077       |   232.37         |
+
+
+# 公网地址说明
+代码涉及公网地址参考 public_address_statement.md

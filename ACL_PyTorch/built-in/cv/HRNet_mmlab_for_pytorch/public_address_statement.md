@@ -2,3 +2,5 @@
 | 类型 | 开源代码地址 | 文件名 | 公网IP地址/公网URL地址/域名/邮箱地址 | 用途说明 |
 | ---- | ------------ | ------ | ------------------------------------ | -------- |
 |开发引入|/|HRNet_mmlab_for_pytorch/url.ini|https://github.com/open-mmlab/mmdeploy|获取源码|
+|开发引入|/|HRNet_mmlab_for_pytorch/url.ini|https://github.com/open-mmlab/mmdeploy|获取源码|
+|开发引入|/|associative_embedding.py|https://github.com/open-mmlab/mmpose/pull/382|注释说明|

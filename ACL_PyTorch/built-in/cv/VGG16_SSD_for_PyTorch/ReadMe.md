@@ -260,3 +260,7 @@ SSD网络是继YOLO之后的one-stage目标检测网络，是为了改善YOLO网
 |     310P3     |    64        | VOC2007 |   acc:0.7726   |  718  |
 
 说明：精度是所有类别的平均值
+
+
+# 公网地址说明
+代码涉及公网地址参考 public_address_statement.md

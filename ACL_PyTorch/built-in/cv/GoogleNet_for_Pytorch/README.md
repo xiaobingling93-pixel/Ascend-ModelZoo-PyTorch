@@ -207,3 +207,6 @@ python3 vision_metric_ImageNet.py result/ ImageNet/val_label.txt ./ result.json
 | 64         |                          | 4886.97 | 877.98 |
 |  | **最优性能** | **6308.38** | **1258.53** |
 
+
+# 公网地址说明
+代码涉及公网地址参考 public_address_statement.md

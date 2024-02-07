@@ -256,3 +256,6 @@ Data2Vec是一个对语音、语言或计算机视觉使用相同学习方法的
    |Ascend310P3 |      64        | LibriSpeech |    0.938  |     10.292       |
 
 
+
+# 公网地址说明
+代码涉及公网地址参考 public_address_statement.md

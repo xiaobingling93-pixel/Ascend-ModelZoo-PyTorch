@@ -229,3 +229,6 @@
 | 310P3    | 16         | IIIT5K_lmdb | 74.87% | 12547 |
 | 310P3    | 32         | IIIT5K_lmdb | 74.87% | 16208 |
 | 310P3    | 64         | IIIT5K_lmdb | 74.87% | 17815 |
+
+# 公网地址说明
+代码涉及公网地址参考 public_address_statement.md

@@ -229,3 +229,6 @@ python3 dsfd_acc_eval.py -p '../result/dumpOutput_device0/' -g './ground_truth/'
 | Framework | Atlas  NPU Model | Server          | Container | Precision | Dataset    | Accuracy                                 | Ascend  AI Processor | NPU  Version         |
 | --------- | ---------------- | --------------- | --------- | --------- | ---------- | ---------------------------------------- | -------------------- | -------------------- |
 | PyTorch   | Atlas 300-3010   | Atlas  800-3010 | NA        | fp16      | WIDER FACE | Easy  Val AP: 0.9443  Medium Val AP: 0.9347  Hard  Val AP: 0.8645 | Ascend  310P         | Atlas  300-3010-32GB |
+
+# 公网地址说明
+代码涉及公网地址参考 public_address_statement.md

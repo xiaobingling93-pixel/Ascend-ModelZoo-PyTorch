@@ -291,3 +291,6 @@ YolactEdge模型是一个边缘设备上的实时实例分割模型。YolactEdge
 |    310P    |    16     |    COCO    |          |      178.71       |
 |    310P    |    32     |    COCO    |          |      183.77       |
 |    310P    |    64     |    COCO    |          |      183.11       |
+
+# 公网地址说明
+代码涉及公网地址参考 public_address_statement.md

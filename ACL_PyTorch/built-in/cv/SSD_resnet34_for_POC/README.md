@@ -267,4 +267,7 @@ SSD模型是用于图像检测的模型，通过基于Resnet34残差卷积网络
     | Model       | batchsize | Accuracy | 
     | ----------- | --------- | -------- |
     | ssd_resnet34 | 1       | map = 20% |
+
+# 公网地址说明
+代码涉及公网地址参考 public_address_statement.md
    

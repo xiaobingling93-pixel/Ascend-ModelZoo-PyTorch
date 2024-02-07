@@ -262,3 +262,6 @@ Mask-RCNN是一种对象检测体系结构，其框架基于Faster RCNN的基础
 | 模型                         | 官网pth精度(IoU=0.50:0.95/area=all/maxDets=100) | 310P推理精度(IoU=0.50:0.95/area=all/maxDets=100) | 310P性能 | T4性能 |
 | ---------------------------- | ----------------------------                    | ----------------------------                     | -------- | ------ |
 | Mask-Rcnn-SwinS(bs1)         | bboxmap: 48.2                                   | bboxmap: 47.8                                    | 5.17     | 2.5    |
+
+# 公网地址说明
+代码涉及公网地址参考 public_address_statement.md

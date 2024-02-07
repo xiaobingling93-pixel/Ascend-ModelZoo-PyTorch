@@ -274,3 +274,6 @@ YOLACT是2019年发表在ICCV上面的一个实时实例分割的模型，它主
 | Ascend310P |   16   |   coco2017   |  box: 32.07, mask: 29.72  | 117.710 |
 | Ascend310P |   32   |   coco2017   |  box: 32.07, mask: 29.72  | 120.386 |
 | Ascend310P |   64   |   coco2017   |  box: 32.07, mask: 29.72  | 118.647 |
+
+# 公网地址说明
+代码涉及公网地址参考 public_address_statement.md

@@ -434,3 +434,6 @@
    [Outdoor Scenes], average score: 0.370
    [Indoor Scenes], average score: 0.387
    ```
+
+# 公网地址说明
+代码涉及公网地址参考 public_address_statement.md

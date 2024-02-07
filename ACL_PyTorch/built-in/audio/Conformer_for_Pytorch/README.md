@@ -206,3 +206,7 @@ Conformer是将CNN用于增强Transformer来做ASR的结构
    | GPU           | encoder/decoder/ctc/lm(beam_size=20)   | aishell   |          95.27% | ---                                        |
    | GPU           | encoder/decoder/ctc/lm(beam_size=2)    | aishell   |          95.08% | total: 55                                  |
    | Ascend310P3   | encoder/decoder/ctc/lm(default)        | aishell   |          95.04% | encode:200fps, decode:87fps, total:60fps   |
+
+
+# 公网地址说明
+代码涉及公网地址参考 public_address_statement.md

@@ -316,3 +316,6 @@
     | batchsize | 310 性能 | 310P 性能 | 
     | ---- | ---- | ---- |
     | 1 | 5  |18|
+
+# 公网地址说明
+代码涉及公网地址参考 public_address_statement.md

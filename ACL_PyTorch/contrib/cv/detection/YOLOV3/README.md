@@ -335,3 +335,7 @@ YOLOv3是一种端到端的one-stage目标检测模型。相比与YOLOv2，YOLOv
 
 最优bs: 310p大于310的1.2倍；310p大于T4的1.6倍，性能达标。
 其余bs: 310p均达到310和T4的1倍。
+
+# 公网地址说明
+代码涉及公网地址参考 public_address_statement.md
+

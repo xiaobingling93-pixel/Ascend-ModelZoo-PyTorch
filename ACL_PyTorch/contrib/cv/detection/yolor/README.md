@@ -328,3 +328,5 @@ trtexec --onnx=yolor_bs1.onnx --fp16 --threads --workspace=50000
 batch_size超过8，由于模型过大无法推理。
 
 
+# 公网地址说明
+代码涉及公网地址参考 public_address_statement.md
