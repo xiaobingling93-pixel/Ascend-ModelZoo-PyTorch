@@ -50,9 +50,12 @@
    ```bash
    # 下载镜像
    wget https://telechat-docker.obs.myhuaweicloud.com/docker/telechat_train.tar.gz
-   # 拉取开源代码仓
-   git clone https://github.com/Tele-AI/Telechat
+   # 读取镜像
    docker load < telechat_train.tar.gz
+   # 拉取telechat开源代码仓
+   git clone https://github.com/Tele-AI/Telechat
+   # 拉取昇腾适配代码仓
+   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
    ```
 
 2. 昇腾软件环境搭建
@@ -70,7 +73,6 @@
    ```
    wget https://telechat-docker.obs.cn-north-4.myhuaweicloud.com/example_dataset.jsonl
    ```
-   
 
 ## 模型全参微调训练<a name="section741711594517"></a>
 
@@ -88,12 +90,12 @@
    # 初始化git-lfs
    git lfs install
    # 下载预训练权重
-   git lfs clone https://huggingface.co/Tele-AI/Telechat-7B/
+   git clone https://huggingface.co/Tele-AI/Telechat-7B
    ```
 
 2. 启动容器
 
-   修改telechat_docker_start.sh脚本中第16行冒号前路径为实际代码所在文件夹路径
+   修改telechat_docker_start.sh脚本中第23行冒号前后路径为实际代码所在文件夹路径
    ```bash
    bash telechat_docker_start.sh
    ```
@@ -111,6 +113,7 @@
    
 4. 安装环境依赖，您可以通过安装以下依赖在裸机部署Telechat。
    
+  
    4.1 (**可选**)安装 torch 和 torch_npu   
    ```
    pip install torch-2.1.0-cp39-cp39m-manylinux2014_aarch64.whl
@@ -138,84 +141,25 @@
 
 5. 代码适配改动
 
-   - 修改 deepspeed-telechat/sft/main.py
+   将代码仓Telechat/deepspeed-telechat/sft/main.py替换为ModelZoo中提供的main.py
    ```
-   # 修改依赖
-   import torch
-   import torch_npu
-   import deepspeed
-   import deepspeed_npu
-   from torch_npu.contrib import transfer_to_npu
+   mv ./Telechat/deepspeed-telechat/sft/main.py ./Telechat/deepspeed-telechat/sft/main.py.bak
+   cp ./ModelZoo-PyTorch/PyTorch/contrib/nlp/Telechat/main.py ./Telechat/deepspeed-telechat/sft/main.py
    ```
    
+   将代码仓Telechat/models/7B/modeling_telechat.py替换为ModelZoo中提供的modeling_telechat.py
    ```
-   # main()函数前需要配置torch_npu和deepspeed
-   if __name__ == "__main__":
-       torch.npu.set_compile_mode(jit_compile=False)
-       deepspeed.init_distributed("hccl")
-       main()
-   ```
-   
-   - 修改transformers
-   
-   ```
-   pip show transformers | grep Location
-   ```
-   
-   参考[昇腾仓库文档](https://www.hiascend.com/document/detail/zh/canncommercial/70RC1/foundmodeldev/foundmodeltrain/PT_LMTMOG_0009.html)
-   
-   对命令输出的transformers路径下相关文件进行修改
-   
-   - 修改models/7B/modeling_telechat.py
-   
-   将该部分代码中的FlashSelfAttention类改为如下：
-   
-   ```
-   class FlashSelfAttention(torch.nn.Module):
-       """Implement the scaled dot product attention with softmax.
-       Arguments
-       ---------
-           softmax_scale: The temperature to use for the softmax attention.
-                         (default: 1/sqrt(d_keys) where d_keys is computed at
-                         runtime)
-           attention_dropout: The dropout rate to apply to the attention
-                              (default: 0.0)
-        """
-
-        def __init__(self, causal=False, dim=128, attention_dropout=0.):
-            super().__init__()
-            self.causal = causal
-            self.softmax_scale = 1 / (dim ** 0.5)
-            self.dropout_p = attention_dropout
-    
-        def forward(self, qkvn, attention_mask):
-            q, k, v, n = qkvn
-    
-            if self.causal:
-                output = torch_npu.npu_fusion_attention(
-                    q, k, v,  head_num=n, input_layout="BSND",
-                    padding_mask=None,
-                    atten_mask=attention_mask, 
-                    scale=self.softmax_scale,
-                    pre_tockens=65535,
-                    next_tockens=0,
-                    keep_prob=1 - self.dropout_p,      # 参考原始
-                    inner_precise=0
-                )[0]
-                return output
-            raise Exception("the attention type {} is not support!").format(self.attention_type))
+   mv ./Telechat/models/7B/modeling_telechat.py ./Telechat/models/7B/modeling_telechat.py.bak
+   cp ./ModelZoo-PyTorch/PyTorch/contrib/nlp/Telechat/modeling_telechat.py ./Telechat/models/7B/modeling_telechat.py
    ```
    
 6. 开始训练。
-    
-   将 ModelZoo-PyTorch/PyTorch/contrib/nlp/telechat中的run_telechat_multi_node.sh、run_telechat_single_node.sh以及telechat_infer_demo.py拷贝至
-   deepspeed-telechat/sft
    
    该模型支持单机单卡训练和单机8卡训练。
    
    - 单机单卡训练
 
-     启动单卡训练。
+     将run_telechat_single_node.sh中的ZERO_STAGE调整为1或2，启动单卡训练。
 
      ```
      cd deepspeed-telechat/sft
@@ -225,7 +169,7 @@
 
    - 单机8卡训练
 
-     启动8卡训练。
+     将run_telechat_single_node.sh中的ZERO_STAGE调整为1或2，启动8卡训练。
 
      ```
      cd deepspeed-telechat/sft
@@ -256,7 +200,6 @@
     
     | NAME    |  performance(samples/s) | Epochs | AMP_Type |
     | ------- | ---: | ------ | -------: |
-    | 8p-竞品 | 10.0 | 5    |        - |
     | 8p-NPU  |  8.8 | 5    |       O2 |
     
     通过对比训练Loss下降对比精度

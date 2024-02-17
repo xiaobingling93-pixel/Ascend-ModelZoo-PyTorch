@@ -20,6 +20,6 @@ docker run -u 0 -it  --name telechat_train --ipc=host \
 -v /var/log/npu/profiling/:/var/log/npu/profiling \
 -v /var/log/npu/dump/:/var/log/npu/dump \
 -v /var/log/npu/:/usr/slog \
--v /home/telechat/:/home/telechat \
+-v /home/*:/home/* \
 c1e518240ae6 \
 /bin/bash
