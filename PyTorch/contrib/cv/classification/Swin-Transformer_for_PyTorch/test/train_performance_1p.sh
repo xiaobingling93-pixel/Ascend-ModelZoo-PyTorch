@@ -44,8 +44,8 @@ do
         profiling=`echo ${para#*=}`
     elif [[ $para == --bin_mode* ]];then
         bin_mode=`echo ${para#*=}`
-    elif [[ $para == --cs* ]];then
-        cs=`echo ${para#*=}`
+    elif [[ $para == --data_shuffle* ]];then
+        data_shuffle=`echo ${para#*=}`
     elif [[ $para == --precision_mode* ]];then
         precision_mode=`echo ${para#*=}`
     fi
@@ -118,7 +118,7 @@ python3 -m torch.distributed.launch --nproc_per_node 1 --master_port 12345  main
           --cfg configs/swin_tiny_patch4_window7_224.yaml \
           --local_rank $ASCEND_DEVICE_ID  \
           --data-path ${data_path} \
-          --cs ${cs} \
+          --data_shuffle ${data_shuffle} \
           --batch-size ${batch_size} \
           --start_step ${start_step} \
           --stop_step ${stop_step} \

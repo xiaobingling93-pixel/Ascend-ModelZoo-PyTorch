@@ -147,7 +147,7 @@ parser.add_argument('--label-smoothing',
                     help='label smoothing')
 parser.add_argument('--warm_up_epochs', default=0, type=int,
                     help='warm up')
-parser.add_argument('--cs', type=str2bool, help='control shuffle')
+parser.add_argument('--data_shuffle', type=str2bool, help='control shuffle')
 
 
 warnings.filterwarnings('ignore')
@@ -296,7 +296,7 @@ def main_worker(gpu, ngpus_per_node, args):
         train_sampler = None
 
     train_loader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=args.batch_size, shuffle=(train_sampler is None) and args.cs,
+        train_dataset, batch_size=args.batch_size, shuffle=(train_sampler is None) and args.data_shuffle,
         num_workers=args.workers, pin_memory=False, sampler=train_sampler, drop_last=True)
 
     val_loader = torch.utils.data.DataLoader(

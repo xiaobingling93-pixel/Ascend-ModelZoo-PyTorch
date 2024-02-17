@@ -119,7 +119,7 @@ def parse_option():
     parser.add_argument('--start_step', default=90, type=int, help='start_step')
     parser.add_argument('--stop_step', default=100, type=int, help='stop_step')
     parser.add_argument('--profiling', type=str, default='False',help='choose profiling way--CANN,GE,False')
-    parser.add_argument('--cs', type=str2bool, help='control shuffle')
+    parser.add_argument('--data_shuffle', type=str2bool, help='control shuffle')
 
     args, unparsed = parser.parse_known_args()
 
@@ -136,7 +136,7 @@ class NoProfiling(object):
         pass
 
 def main(config):
-    dataset_train, dataset_val, data_loader_train, data_loader_val, mixup_fn = build_loader(config, args.cs)
+    dataset_train, dataset_val, data_loader_train, data_loader_val, mixup_fn = build_loader(config, args.data_shuffle)
 
     logger.info(f"Creating model:{config.MODEL.TYPE}/{config.MODEL.NAME}")
     model = build_model(config)

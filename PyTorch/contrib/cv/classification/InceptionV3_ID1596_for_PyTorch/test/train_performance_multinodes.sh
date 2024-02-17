@@ -41,8 +41,8 @@ do
         local_addr=`echo ${para#*=}`
     elif [[ $para == --master_addr* ]];then
         master_addr=`echo ${para#*=}`
-    elif [[ $para == --cs* ]];then
-        cs=`echo ${para#*=}`
+    elif [[ $para == --data_shuffle* ]];then
+        data_shuffle=`echo ${para#*=}`
     elif [[ $para == --master_port* ]];then
         master_port=`echo ${para#*=}`
     fi
@@ -102,7 +102,7 @@ do
       --amp \
       --loss_scale=128 \
       --data ${data_path} \
-      --cs ${cs} \
+      --data_shuffle ${data_shuffle} \
       --addr=${master_addr} \
       --seed=49 \
       --workers=128 \
@@ -126,7 +126,7 @@ do
       --amp \
       --loss_scale=128 \
       --data ${data_path} \
-      --cs ${cs} \
+      --data_shuffle ${data_shuffle} \
       --addr=${master_addr} \
       --seed=49 \
       --workers=128 \

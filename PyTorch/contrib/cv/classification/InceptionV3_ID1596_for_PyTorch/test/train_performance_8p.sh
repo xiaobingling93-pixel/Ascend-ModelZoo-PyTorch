@@ -25,8 +25,8 @@ do
         data_path=`echo ${para#*=}`
     elif [[ $para == --batch_size* ]];then
         batch_size=`echo ${para#*=}`
-    elif [[ $para == --cs* ]];then
-        cs=`echo ${para#*=}`
+    elif [[ $para == --data_shuffle* ]];then
+        data_shuffle=`echo ${para#*=}`
     fi
 done
 
@@ -81,7 +81,7 @@ do
       -a inception_v3 \
       --amp \
       --loss_scale=128 \
-      --cs ${cs} \
+      --data_shuffle ${data_shuffle} \
       --data ${data_path} \
       --addr=$(hostname -I |awk '{print $1}') \
       --seed=49 \
@@ -106,7 +106,7 @@ do
       --amp \
       --loss_scale=128 \
       --data ${data_path} \
-      --cs ${cs} \
+      --data_shuffle ${data_shuffle} \
       --addr=$(hostname -I |awk '{print $1}') \
       --seed=49 \
       --workers=128 \
