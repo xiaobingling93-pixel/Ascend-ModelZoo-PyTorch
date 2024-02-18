@@ -1,0 +1,270 @@
+diff --git a/egs/librispeech/ASR/zipformer/export-onnx-streaming.py b/egs/librispeech/ASR/zipformer/export-onnx-streaming.py
+index 6bc9b18..e75579d 100755
+--- a/egs/librispeech/ASR/zipformer/export-onnx-streaming.py
++++ b/egs/librispeech/ASR/zipformer/export-onnx-streaming.py
+@@ -67,6 +67,7 @@ import argparse
+ import logging
+ from pathlib import Path
+ from typing import Dict, List, Tuple
++import json
+ 
+ import k2
+ import onnx
+@@ -434,6 +435,9 @@ def export_encoder_model_onnx(
+     }
+     logging.info(f"meta_data: {meta_data}")
+ 
++    with open('encoder_meta_data.json', 'w') as f:
++        json.dump(meta_data, f)
++
+     for i in range(len(init_state[:-2]) // 6):
+         build_inputs_outputs(init_state[i * 6 : (i + 1) * 6], i)
+ 
+@@ -527,6 +531,9 @@ def export_decoder_model_onnx(
+     }
+     add_meta_data(filename=decoder_filename, meta_data=meta_data)
+ 
++    with open('decoder_meta_data.json', 'w') as f:
++        json.dump(meta_data, f)
++
+ 
+ def export_joiner_model_onnx(
+     joiner_model: nn.Module,
+@@ -748,31 +755,31 @@ def main():
+     # Generate int8 quantization models
+     # See https://onnxruntime.ai/docs/performance/model-optimizations/quantization.html#data-type-selection
+ 
+-    logging.info("Generate int8 quantization models")
+-
+-    encoder_filename_int8 = params.exp_dir / f"encoder-{suffix}.int8.onnx"
+-    quantize_dynamic(
+-        model_input=encoder_filename,
+-        model_output=encoder_filename_int8,
+-        op_types_to_quantize=["MatMul"],
+-        weight_type=QuantType.QInt8,
+-    )
+-
+-    decoder_filename_int8 = params.exp_dir / f"decoder-{suffix}.int8.onnx"
+-    quantize_dynamic(
+-        model_input=decoder_filename,
+-        model_output=decoder_filename_int8,
+-        op_types_to_quantize=["MatMul", "Gather"],
+-        weight_type=QuantType.QInt8,
+-    )
+-
+-    joiner_filename_int8 = params.exp_dir / f"joiner-{suffix}.int8.onnx"
+-    quantize_dynamic(
+-        model_input=joiner_filename,
+-        model_output=joiner_filename_int8,
+-        op_types_to_quantize=["MatMul"],
+-        weight_type=QuantType.QInt8,
+-    )
++    # logging.info("Generate int8 quantization models")
++    #
++    # encoder_filename_int8 = params.exp_dir / f"encoder-{suffix}.int8.onnx"
++    # quantize_dynamic(
++    #     model_input=encoder_filename,
++    #     model_output=encoder_filename_int8,
++    #     op_types_to_quantize=["MatMul"],
++    #     weight_type=QuantType.QInt8,
++    # )
++    #
++    # decoder_filename_int8 = params.exp_dir / f"decoder-{suffix}.int8.onnx"
++    # quantize_dynamic(
++    #     model_input=decoder_filename,
++    #     model_output=decoder_filename_int8,
++    #     op_types_to_quantize=["MatMul", "Gather"],
++    #     weight_type=QuantType.QInt8,
++    # )
++    #
++    # joiner_filename_int8 = params.exp_dir / f"joiner-{suffix}.int8.onnx"
++    # quantize_dynamic(
++    #     model_input=joiner_filename,
++    #     model_output=joiner_filename_int8,
++    #     op_types_to_quantize=["MatMul"],
++    #     weight_type=QuantType.QInt8,
++    # )
+ 
+ 
+ if __name__ == "__main__":
+diff --git a/egs/librispeech/ASR/zipformer/om_pretrained-streaming.py b/egs/librispeech/ASR/zipformer/om_pretrained-streaming.py
+index e011c4b..b552cf1 100755
+--- a/egs/librispeech/ASR/zipformer/om_pretrained-streaming.py
++++ b/egs/librispeech/ASR/zipformer/om_pretrained-streaming.py
+@@ -72,6 +72,7 @@ the exported ONNX models do support batch processing.
+ import argparse
+ import logging
+ from typing import Dict, List, Optional, Tuple
++import json
+ 
+ import k2
+ import numpy as np
+@@ -79,6 +80,7 @@ import onnxruntime as ort
+ import torch
+ import torchaudio
+ from kaldifeat import FbankOptions, OnlineFbank, OnlineFeature
++from ais_bench.infer.interface import InferSession
+ 
+ 
+ def get_parser():
+@@ -86,6 +88,27 @@ def get_parser():
+         formatter_class=argparse.ArgumentDefaultsHelpFormatter
+     )
+ 
++    parser.add_argument(
++        "--device-id",
++        type=int,
++        default=0,
++        help="NPU device id",
++    )
++
++    parser.add_argument(
++        "--encoder-meta-data-path",
++        type=str,
++        required=True,
++        help="Path to encoder meta data.",
++    )
++
++    parser.add_argument(
++        "--decoder-meta-data-path",
++        type=str,
++        required=True,
++        help="Path to decoder meta data.",
++    )
++
+     parser.add_argument(
+         "--encoder-model-filename",
+         type=str,
+@@ -128,9 +151,12 @@ def get_parser():
+ class OnnxModel:
+     def __init__(
+         self,
++        encoder_meta_data_path: str,
+         encoder_model_filename: str,
++        decoder_meta_data_path: str,
+         decoder_model_filename: str,
+         joiner_model_filename: str,
++        device_id: int = 0,
+     ):
+         session_opts = ort.SessionOptions()
+         session_opts.inter_op_num_threads = 1
+@@ -138,20 +164,18 @@ class OnnxModel:
+ 
+         self.session_opts = session_opts
+ 
+-        self.init_encoder(encoder_model_filename)
+-        self.init_decoder(decoder_model_filename)
+-        self.init_joiner(joiner_model_filename)
++        self.init_encoder(encoder_model_filename, encoder_meta_data_path, device_id)
++        self.init_decoder(decoder_model_filename, decoder_meta_data_path, device_id)
++        self.init_joiner(joiner_model_filename, device_id)
+ 
+-    def init_encoder(self, encoder_model_filename: str):
+-        self.encoder = ort.InferenceSession(
+-            encoder_model_filename,
+-            sess_options=self.session_opts,
+-            providers=["CPUExecutionProvider"],
+-        )
+-        self.init_encoder_states()
++    def init_encoder(self, encoder_model_filename: str, encoder_meta_data_path: str, device_id: int = 0):
++        self.encoder = InferSession(device_id, encoder_model_filename)
++        self.init_encoder_states(encoder_meta_data_path)
++
++    def init_encoder_states(self, encoder_meta_data_path, batch_size: int = 1):
++        with open(encoder_meta_data_path, "r") as f:
++            encoder_meta = json.load(f)
+ 
+-    def init_encoder_states(self, batch_size: int = 1):
+-        encoder_meta = self.encoder.get_modelmeta().custom_metadata_map
+         logging.info(f"encoder_meta={encoder_meta}")
+ 
+         model_type = encoder_meta["model_type"]
+@@ -233,31 +257,20 @@ class OnnxModel:
+         self.segment = T
+         self.offset = decode_chunk_len
+ 
+-    def init_decoder(self, decoder_model_filename: str):
+-        self.decoder = ort.InferenceSession(
+-            decoder_model_filename,
+-            sess_options=self.session_opts,
+-            providers=["CPUExecutionProvider"],
+-        )
++    def init_decoder(self, decoder_model_filename: str, decoder_meta_data_path: str, device_id: int = 0):
++        self.decoder = InferSession(device_id, decoder_model_filename)
++
++        with open(decoder_meta_data_path, "r") as f:
++            decoder_meta = json.load(f)
+ 
+-        decoder_meta = self.decoder.get_modelmeta().custom_metadata_map
+         self.context_size = int(decoder_meta["context_size"])
+         self.vocab_size = int(decoder_meta["vocab_size"])
+ 
+         logging.info(f"context_size: {self.context_size}")
+         logging.info(f"vocab_size: {self.vocab_size}")
+ 
+-    def init_joiner(self, joiner_model_filename: str):
+-        self.joiner = ort.InferenceSession(
+-            joiner_model_filename,
+-            sess_options=self.session_opts,
+-            providers=["CPUExecutionProvider"],
+-        )
+-
+-        joiner_meta = self.joiner.get_modelmeta().custom_metadata_map
+-        self.joiner_dim = int(joiner_meta["joiner_dim"])
+-
+-        logging.info(f"joiner_dim: {self.joiner_dim}")
++    def init_joiner(self, joiner_model_filename: str, device_id: int = 0):
++        self.joiner = InferSession(device_id, joiner_model_filename)
+ 
+     def _build_encoder_input_output(
+         self,
+@@ -330,7 +343,11 @@ class OnnxModel:
+         """
+         encoder_input, encoder_output_names = self._build_encoder_input_output(x)
+ 
+-        out = self.encoder.run(encoder_output_names, encoder_input)
++        inputs = [x for x in encoder_input.values()]
++
++        # There are some dynamic ops in the model, so we need to use the "dymshape" mode.
++        # Otherwise, the model output will be flattened.
++        out = self.encoder.infer(inputs, mode='dymshape', custom_sizes=100000)
+ 
+         self._update_states(out[1:])
+ 
+@@ -344,10 +361,7 @@ class OnnxModel:
+         Returns:
+           Return a 2-D tensor of shape (N, joiner_dim)
+         """
+-        out = self.decoder.run(
+-            [self.decoder.get_outputs()[0].name],
+-            {self.decoder.get_inputs()[0].name: decoder_input.numpy()},
+-        )[0]
++        out = self.decoder.infer([decoder_input.numpy()])[0]
+ 
+         return torch.from_numpy(out)
+ 
+@@ -363,13 +377,7 @@ class OnnxModel:
+         Returns:
+           Return a 2-D tensor of shape (N, vocab_size)
+         """
+-        out = self.joiner.run(
+-            [self.joiner.get_outputs()[0].name],
+-            {
+-                self.joiner.get_inputs()[0].name: encoder_out.numpy(),
+-                self.joiner.get_inputs()[1].name: decoder_out.numpy(),
+-            },
+-        )[0]
++        out = self.joiner.infer([encoder_out.numpy(), decoder_out.numpy()])[0]
+ 
+         return torch.from_numpy(out)
+ 
+@@ -475,6 +483,9 @@ def main():
+         encoder_model_filename=args.encoder_model_filename,
+         decoder_model_filename=args.decoder_model_filename,
+         joiner_model_filename=args.joiner_model_filename,
++        encoder_meta_data_path=args.encoder_meta_data_path,
++        decoder_meta_data_path=args.decoder_meta_data_path,
++        device_id=args.device_id,
+     )
+ 
+     sample_rate = 16000
