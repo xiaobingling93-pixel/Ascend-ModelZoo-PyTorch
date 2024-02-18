@@ -21,5 +21,6 @@ os.environ['WANDB_MODE'] = "offline"
 os.environ['WANDB_DISABLED'] = "TRUE"
 
 if __name__ == "__main__":
-    torch.npu.set_compile_mode(jit_compile=True)
+    use_jit_compile = os.getenv('JIT_COMPILE', 'True').lower() in ['true', '1']
+    torch.npu.set_compile_mode(jit_compile=use_jit_compile)
     train()

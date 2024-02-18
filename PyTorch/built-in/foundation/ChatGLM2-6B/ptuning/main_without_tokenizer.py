@@ -75,7 +75,8 @@ def main():
     else:
         model_args, data_args, training_args = parser.parse_args_into_dataclasses()
     if training_args.do_train:
-        torch.npu.set_compile_mode(jit_compile=True)
+        use_jit_compile = os.getenv('JIT_COMPILE', 'False').lower() in ['true', '1']
+        torch.npu.set_compile_mode(jit_compile=use_jit_compile)
         option = {"NPU_FUZZY_COMPILE_BLACKLIST": "Tril,LayerNormGrad"}
         torch.npu.set_option(option)
 

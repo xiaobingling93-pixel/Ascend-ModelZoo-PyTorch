@@ -26,8 +26,8 @@ from datetime import datetime
 import os
 if __name__ == "__main__":
 
-
-    torch.npu.set_compile_mode(jit_compile=True)
+    use_jit_compile = os.getenv('JIT_COMPILE', 'False').lower() in ['true', '1']
+    torch.npu.set_compile_mode(jit_compile=use_jit_compile)
     option = {"NPU_FUZZY_COMPILE_BLACKLIST": "Tril,SoftmaxV2,LayerNormGrad", "MM_BMM_ND_ENABLE": 'enable'}
     torch.npu.set_option(option)
     neox_args = NeoXArgs.consume_neox_args()

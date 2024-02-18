@@ -1,3 +1,4 @@
+import os
 from llmtuner import run_exp
 import torch
 import torch_npu
@@ -37,7 +38,8 @@ if __name__ == "__main__":
 
     setup_seeds(42)
     # 二进制开启
-    torch.npu.set_compile_mode(jit_compile=False)
+    use_jit_compile = os.getenv('JIT_COMPILE', 'False').lower() in ['true', '1']
+    torch.npu.set_compile_mode(jit_compile=use_jit_compile)
     deepspeed.init_distributed('hccl')
 
     main()
