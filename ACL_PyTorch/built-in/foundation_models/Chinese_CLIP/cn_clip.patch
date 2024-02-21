@@ -1,0 +1,15 @@
+diff -rNu cn_clip/deploy/pytorch_to_onnx.py cn_clip_fix/deploy/pytorch_to_onnx.py
+--- cn_clip/deploy/pytorch_to_onnx.py	2024-02-20 14:49:36.955252200 +0800
++++ cn_clip_fix/deploy/pytorch_to_onnx.py	2024-02-20 14:55:16.977809000 +0800
+@@ -141,9 +141,10 @@
+                     vision_fp32_onnx_path,
+                     input_names=['image'],
+                     output_names=['unnorm_image_features'],
++                    dynamic_axes={'image':{0:"-1"}, 'unnorm_image_features':{0:"-1"}},
+                     export_params=True,
+                     do_constant_folding=False,
+-                    opset_version=13,
++                    opset_version=11,
+                     verbose=True)
+         # for ViT-H-14 FP32 model, make another conversion to deal with the generated small files
+         if args.model_arch == "ViT-H-14":
