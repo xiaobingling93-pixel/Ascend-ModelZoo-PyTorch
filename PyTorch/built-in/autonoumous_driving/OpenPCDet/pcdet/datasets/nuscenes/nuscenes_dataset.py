@@ -1,3 +1,5 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
+
 import copy
 import pickle
 from pathlib import Path
@@ -10,6 +12,10 @@ from ...utils import common_utils
 from ..dataset import DatasetTemplate
 from pyquaternion import Quaternion
 from PIL import Image
+
+import torch
+import torch_npu
+from torch_npu.contrib import transfer_to_npu
 
 
 class NuScenesDataset(DatasetTemplate):

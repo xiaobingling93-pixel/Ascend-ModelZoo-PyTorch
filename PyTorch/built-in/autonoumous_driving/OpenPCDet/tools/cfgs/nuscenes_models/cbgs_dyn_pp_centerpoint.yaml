@@ -15,18 +15,23 @@ DATA_CONFIG:
                 'test': True
             }
 
-        -   NAME: transform_points_to_voxels_placeholder
+        -   NAME: transform_points_to_voxels
             VOXEL_SIZE: [0.2, 0.2, 8.0]
+            MAX_POINTS_PER_VOXEL: 20
+            MAX_NUMBER_OF_VOXELS: {
+                'train': 30000,
+                'test': 30000
+            }
 
 MODEL:
     NAME: CenterPoint
 
     VFE:
-        NAME: DynPillarVFE
+        NAME: PillarVFE
         WITH_DISTANCE: False
         USE_ABSLOTE_XYZ: True
         USE_NORM: True
-        NUM_FILTERS: [ 64, 64 ]
+        NUM_FILTERS: [ 64 ]
 
     MAP_TO_BEV:
         NAME: PointPillarScatter
@@ -45,7 +50,7 @@ MODEL:
         CLASS_AGNOSTIC: False
 
         CLASS_NAMES_EACH_HEAD: [
-            ['car'], 
+            ['car'],
             ['truck', 'construction_vehicle'],
             ['bus', 'trailer'],
             ['barrier'],
@@ -96,11 +101,11 @@ MODEL:
 
 
 OPTIMIZATION:
-    BATCH_SIZE_PER_GPU: 4
+    BATCH_SIZE_PER_GPU: 12
     NUM_EPOCHS: 20
 
     OPTIMIZER: adam_onecycle
-    LR: 0.001
+    LR: 0.003
     WEIGHT_DECAY: 0.01
     MOMENTUM: 0.9
 

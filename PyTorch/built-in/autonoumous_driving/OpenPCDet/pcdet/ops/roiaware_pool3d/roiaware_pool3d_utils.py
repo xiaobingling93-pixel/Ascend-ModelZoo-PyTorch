@@ -1,3 +1,5 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
+
 import torch
 import torch.nn as nn
 from torch.autograd import Function
@@ -35,7 +37,8 @@ def points_in_boxes_gpu(points, boxes):
     assert boxes.shape[2] == 7 and points.shape[2] == 3
     batch_size, num_points, _ = points.shape
 
-    box_idxs_of_pts = points.new_zeros((batch_size, num_points), dtype=torch.int).fill_(-1)
+    import ads.common
+    box_idxs_of_pts = ads.common.npu_points_in_box(boxes.contiguous().npu(), points.contiguous().npu())
 
     return box_idxs_of_pts
 

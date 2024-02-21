@@ -1,3 +1,5 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -99,8 +101,11 @@ class DynamicPillarVFE(VFETemplate):
         merge_coords = points[:, 0].int() * self.scale_xy + \
                        points_coords[:, 0] * self.scale_y + \
                        points_coords[:, 1]
-        
-        unq_coords, unq_inv, unq_cnt = torch.unique(merge_coords, return_inverse=True, return_counts=True, dim=0)
+
+        import numpy as np
+        unq_coords, unq_inv = np.unique(merge_coords.cpu().numpy(), return_inverse=True)
+        unq_coords = torch.from_numpy(unq_coords).npu()
+        unq_inv = torch.from_numpy(unq_inv).npu()
 
         points_mean = torch_scatter.scatter_mean(points_xyz, unq_inv, dim=0)
         f_cluster = points_xyz - points_mean[unq_inv, :]
