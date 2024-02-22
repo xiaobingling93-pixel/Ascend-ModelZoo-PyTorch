@@ -16,6 +16,7 @@ from typing import Callable, List, Optional, Union
 
 import torch
 import numpy as np
+import aclruntime
 from diffusers import StableDiffusionPipeline
 from ais_bench.infer.interface import InferSession
 
@@ -120,6 +121,8 @@ class AscendStableDiffusionPipeline(StableDiffusionPipeline):
         clip_session: InferSession,
         unet_sessions: list,
         vae_session: InferSession,
+        skip_status: List[int],
+        device_id: int = 0,
         height: Optional[int] = None,
         width: Optional[int] = None,
         num_inference_steps: int = 50,
@@ -240,6 +243,7 @@ class AscendStableDiffusionPipeline(StableDiffusionPipeline):
             text_embeddings_2 = text_embeddings_2.numpy()
 
         text_embeddings = text_embeddings.numpy()
+        cache = None
 
         for i, t in enumerate(self.progress_bar(timesteps)):
             t_numpy = t[None].numpy().astype(np.int32)
@@ -259,18 +263,30 @@ class AscendStableDiffusionPipeline(StableDiffusionPipeline):
                         latent_model_input,
                         t_numpy,
                         text_embeddings_2,
-                    ]
+                    ],
+                    skip_status[i]
                 )
 
-            noise_pred = torch.from_numpy(
-                unet_session.infer(
-                    [
-                        latent_model_input,
-                        t_numpy,
-                        text_embeddings,
-                    ]
-                )[0]
-            )
+            if skip_status[i]:
+                inputs = [
+                    latent_model_input,
+                    t_numpy,
+                    text_embeddings,
+                    cache,
+                ]
+                noise_pred = torch.from_numpy(
+                    np.array(self.unet_infer(unet_session[1], inputs, device_id)[0])
+                )
+            else:
+                inputs = [
+                    latent_model_input,
+                    t_numpy,
+                    text_embeddings,
+                ]
+                outputs = self.unet_infer(unet_session[0], inputs, device_id)
+                noise_pred = torch.from_numpy(np.array(outputs[0]))
+                if len(outputs) > 1:
+                    cache = outputs[1]
 
             # perform guidance
             if do_classifier_free_guidance:
@@ -311,3 +327,19 @@ class AscendStableDiffusionPipeline(StableDiffusionPipeline):
             image = self.numpy_to_pil(image)
 
         return (image, has_nsfw_concept)
+
+
+    def unet_infer(self, session, data, device_id):
+        feeds = {}
+        inputs = session.get_inputs()
+        for i in range(3):
+            feed = aclruntime.Tensor(data[i])
+            feed.to_device(device_id)
+            feeds[inputs[i].name] = feed
+        if len(inputs) > 3:
+            feeds[inputs[3].name] = data[3]
+        out_names = [out.name for out in session.get_outputs()]
+
+        outputs = session.run(out_names, feeds)
+        outputs[0].to_host()
+        return outputs

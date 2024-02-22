@@ -18,6 +18,7 @@ import time
 import json
 import argparse
 
+import aclruntime
 from ais_bench.infer.interface import InferSession
 from diffusers import DPMSolverMultistepScheduler, EulerDiscreteScheduler, DDIMScheduler
 
@@ -207,6 +208,17 @@ def parse_arguments():
         default=1, 
         help="Batch size."
     )
+    parser.add_argument(
+        "--use_cache", 
+        action="store_true",
+        help="Use cache during inference."
+    )
+    parser.add_argument(
+        "--cache_steps", 
+        type=str, 
+        default="2,4,5,6,7,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,45,46,47,48", 
+        help="Steps to use cache data."
+    )
 
     return parser.parse_args()
 
@@ -234,15 +246,37 @@ def main():
 
     clip_om = os.path.join(args.model_dir, "clip", "clip.om")
     vae_om = os.path.join(args.model_dir, "vae", "vae.om")
-    unet_om = os.path.join(args.model_dir, "unet", "unet.om")
 
     clip_session = InferSession(device, clip_om)
     vae_session = InferSession(device, vae_om)
-    unet_session = InferSession(device, unet_om)
+
+    skip_status = [0] * args.steps
+    if args.use_cache:
+        for i in args.cache_steps.split(','):
+            if int(i) >= args.steps:
+                continue
+            skip_status[int(i)] = 1
+        unet_cache_om = os.path.join(args.model_dir, "unet", "unet_cache.om")
+        unet_skip_om = os.path.join(args.model_dir, "unet", "unet_skip.om")
+        unet_session = [
+            aclruntime.InferenceSession(unet_cache_om, device, aclruntime.session_options()),
+            aclruntime.InferenceSession(unet_skip_om, device, aclruntime.session_options()),
+        ]
+    else:
+        unet_cache_om = os.path.join(args.model_dir, "unet", "unet.om")
+        unet_skip_om = ""
+        unet_session = [
+            aclruntime.InferenceSession(unet_cache_om, device, aclruntime.session_options()),
+            None,
+        ]
 
     unet_session_bg = None
     if device_2:
-        unet_session_bg = BackgroundInferSession.clone(unet_session, device_2)
+        unet_session_bg = BackgroundInferSession.clone(
+            unet_session[0], 
+            device_2, 
+            [unet_cache_om, unet_skip_om]
+        )
 
     if not os.path.exists(save_dir):
         os.makedirs(save_dir, mode=0o744)
@@ -273,6 +307,8 @@ def main():
             clip_session,
             [unet_session, unet_session_bg],
             vae_session,
+            skip_status,
+            device_id=device,
             num_inference_steps=args.steps,
             guidance_scale=7.5,
         )

@@ -52,9 +52,9 @@
   | 配套                                                         | 版本    | 环境准备指导                                                 |
   | ------------------------------------------------------------ | ------- | ------------------------------------------------------------ |
   | 固件与驱动                                                   | 23.0.0  | [Pytorch框架推理环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies) |
-  | CANN（+AscendIE）                                            | 7.0.0 | -                                                            |
-  | Python                                                       | 3.9   | -                                                            |                                                           |
-如在优化模型时--FA不为None或--TOME_num不为0，需要安装与CANN包配套版本的AscendIE
+  | CANN（+MindIE-RT）                                            | 7.0.0 | -                                                            |
+  | Python                                                       | 3.10   | -                                                            |                                                           |
+如在优化模型时--FA不为None或--TOME_num不为0，需要安装与CANN包配套版本的MindIE
 
 - 该模型性能受CPU规格影响，建议使用96核（2x48核）CPU（arm）以复现性能
 
@@ -185,7 +185,19 @@
          - --TOME_num：插入TOME插件的数量，有效取值为[0, 5]。Tome插件目前支持Atlas 300I Duo/Pro，其他不支持硬件请设置为0。默认为0。
          - --faster_gelu：使用slice+gelu的融合算子。
 
-         FA、TOME、Gelu融合算子需通过安装与CANN版本对应的推理引擎包来获取，如未安装推理引擎或使用的版本不支持FA、TOME、SliceGelu算子，FA_soc和TOME_num参数请使用默认配置、不设置faster_gelu参数。
+         FA、TOME、Gelu融合算子需通过安装与CANN版本对应的推理引擎包(MindIE)来获取，如未安装推理引擎或使用的版本不支持FA、TOME、SliceGelu算子，FA_soc和TOME_num参数请使用默认配置、不设置faster_gelu参数。
+      
+      3. 使用cache方案（可选）
+
+         运行unet_cache.py脚本。
+         ```bash
+         python3 unet_cache.py --model models_bs${bs}/unet/unet_md.onnx --save_dir models_bs${bs}/unet/
+         ```
+         参数说明：
+         - --model：优化后的onnx模型路径。
+         - --save_dir：cache模型的保存路径。
+
+         运行成功后在save_dir下得到unet_cache.onnx和unet_skip.onnx。
 
    
    3. 使用ATC工具将ONNX模型转OM模型。
@@ -196,7 +208,7 @@
          source /usr/local/Ascend/ascend-toolkit/set_env.sh
 
          # 如果安装了推理引擎算子包，需配置推理引擎路径
-         source /usr/local/Ascend/aie/set_env.sh
+         source /usr/local/Ascend/mindie-rt/set_env.sh
          ```
 
          > **说明：** 
@@ -234,9 +246,29 @@
          # unet
          cd ./models_bs${bs}/unet/
 
+         # 不使用cache方案
          atc --framework=5 \
-             --model=./unet_md.onnx \
+             --model=./unet.onnx \
              --output=./unet \
+             --input_format=NCHW \
+             --log=error \
+             --optypelist_for_implmode="Gelu,Sigmoid" \
+             --op_select_implmode=high_performance \
+             --soc_version=Ascend${chip_name}
+
+         # 使用cache方案
+         atc --framework=5 \
+             --model=./unet_cache.onnx \
+             --output=./unet_cache \
+             --input_format=NCHW \
+             --log=error \
+             --optypelist_for_implmode="Gelu,Sigmoid" \
+             --op_select_implmode=high_performance \
+             --soc_version=Ascend${chip_name}
+
+         atc --framework=5 \
+             --model=./unet_skip.onnx \
+             --output=./unet_skip \
              --input_format=NCHW \
              --log=error \
              --optypelist_for_implmode="Gelu,Sigmoid" \
@@ -266,7 +298,8 @@
       执行成功后生成om模型列表：  
 
          - models_bs${bs}/clip/clip.om  
-         - models_bs${bs}/unet/unet.om
+         - models_bs${bs}/unet/unet_cache.om
+         - models_bs${bs}/unet/unet_skip.om
          - models_bs${bs}/vae/vae.om  
    
 2. 开始推理验证。
@@ -281,7 +314,8 @@
               --device 0 \
               --save_dir ./results \
               --batch_size ${bs} \
-              --steps 50
+              --steps 50 \
+              --use_cache
 
       # 并行方式
       python3 stable_diffusion_ascend_infer.py \
@@ -291,7 +325,8 @@
               --device 0,1 \
               --save_dir ./results \
               --batch_size ${bs} \
-              --steps 50
+              --steps 50 \
+              --use_cache
       ```
 
       参数说明：
@@ -302,6 +337,8 @@
       - --batch_size：模型batch size。
       - --steps：生成图片迭代次数。
       - --device：推理设备ID；可用逗号分割传入两个设备ID，此时会使用并行方式进行推理。
+      - --use_cache: 在推理过程中使用cache。
+      - --cache_steps: 使用cache的迭代次数。
       
       执行完成后在`./results`目录下生成推理图片。并在终端显示推理时间，参考如下：
 
@@ -357,7 +394,8 @@
               --device 0 \
               --save_dir ./results \
               --batch_size ${bs} \
-              --steps 50
+              --steps 50 \
+              --use_cache
 
       # 并行方式
       python3 stable_diffusion_ascend_infer.py \
@@ -370,7 +408,8 @@
               --device 0,1 \
               --save_dir ./results \
               --batch_size ${bs} \
-              --steps 50
+              --steps 50 \
+              --use_cache
       ```
 
       参数说明：
@@ -384,6 +423,7 @@
       - --batch_size：模型batch size。
       - --steps：生成图片迭代次数。
       - --device：推理设备ID；可用逗号分割传入两个设备ID，此时会使用并行方式进行推理。
+      - --use_cache: 在推理过程中使用cache。
 
       执行完成后会在`./results`目录下生成推理图片，并且会在当前目录生成一个`image_info.json`文件，记录着图片和prompt的对应关系。
 
@@ -414,25 +454,25 @@
 
 | 加速卡 | 服务器 |  运行方案 | 优化方案 | 迭代次数 | 平均耗时    |
 | :------: | :--: | :--: | :--: | :--: | :--------: |
-| Atlas 300I Duo  |  Atlas 800 3000 + 2路处理器，处理器规格：48核3.0GHz  |  并行  |  量化+FA+TOME*4+faster_gleu  |  50  |  1.947s   |
+| Atlas 300I Duo  |  Atlas 800 3000 + 2路处理器，处理器规格：48核3.0GHz  |  并行  |  FA+TOME*5+faster_gleu+cache  |  50  |  1.513s   |
 
-迭代20次的参考精度结果如下：
+迭代50次的参考精度结果如下：
 
    ```
    average score: 0.379
    category average scores:
-   [Abstract], average score: 0.294
+   [Abstract], average score: 0.285
    [Vehicles], average score: 0.379
    [Illustrations], average score: 0.378
-   [Arts], average score: 0.417
-   [World Knowledge], average score: 0.387
-   [People], average score: 0.385
-   [Animals], average score: 0.386
-   [Artifacts], average score: 0.372
-   [Food & Beverage], average score: 0.369
-   [Produce & Plants], average score: 0.374
-   [Outdoor Scenes], average score: 0.370
-   [Indoor Scenes], average score: 0.387
+   [Arts], average score: 0.425
+   [World Knowledge], average score: 0.388
+   [People], average score: 0.382
+   [Animals], average score: 0.389
+   [Artifacts], average score: 0.374
+   [Food & Beverage], average score: 0.367
+   [Produce & Plants], average score: 0.367
+   [Outdoor Scenes], average score: 0.372
+   [Indoor Scenes], average score: 0.382
    ```
 
 # 公网地址说明

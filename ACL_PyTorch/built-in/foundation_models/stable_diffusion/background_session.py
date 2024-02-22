@@ -17,6 +17,7 @@ from dataclasses import dataclass
 from typing import List, Optional
 
 import numpy as np
+import aclruntime
 from ais_bench.infer.interface import InferSession
 
 
@@ -31,7 +32,7 @@ class SessionIOInfo:
 @dataclass
 class BackgroundInferSessionOptions:
     device_id: int
-    model_path: str
+    model_path: List[str]
     io_info: SessionIOInfo
     acl_json_path: Optional[str] = None
     debug: Optional[bool] = False
@@ -44,9 +45,6 @@ class BackgroundInferSession:
         device_id: int, 
         model_path: str, 
         io_info: SessionIOInfo,
-        acl_json_path: Optional[str] = None, 
-        debug: Optional[bool] = False, 
-        loop: Optional[int] = 1,
     ):
         # Create a pipe for process synchronization
         self.sync_pipe, sync_pipe_peer = mp.Pipe(duplex=True)
@@ -65,19 +63,21 @@ class BackgroundInferSession:
         self.p = mp.Process(
             target=self.run_session, 
             args=[sync_pipe_peer, input_spaces, output_spaces,
-                  io_info, device_id, model_path,
-                  acl_json_path, debug, loop]
+                  io_info, device_id, model_path]
         )
         self.p.start()
 
         # Wait until the sub process is ready
         self.wait()
 
-    def infer_asyn(self, feeds: List[np.ndarray]) -> None:
+    def infer_asyn(self, feeds: List[np.ndarray], skip) -> None:
         for i in range(len(self.input_arrays)):
             self.input_arrays[i][:] = feeds[i][:]
 
-        self.sync_pipe.send('')
+        if skip:
+            self.sync_pipe.send('skip')
+        else:
+            self.sync_pipe.send('cache')
 
     def wait(self) -> None:
         self.sync_pipe.recv()
@@ -99,12 +99,18 @@ class BackgroundInferSession:
         self.sync_pipe.send('STOP')
 
     @classmethod
-    def clone(cls, session: InferSession, device_id: int) -> 'BackgroundInferSession':
+    def clone(
+        cls, 
+        session: InferSession, 
+        device_id: int, 
+        model_path: List[str]) -> 'BackgroundInferSession':
         # Get shapes, datatypes, and model path from an existed InferSession, 
         # then use them to create a BackgroundInferSession
         io_info = cls.get_io_info_from_session(session)
+        io_info.output_shapes = [io_info.output_shapes[0]]
+        io_info.output_dtypes = [io_info.output_dtypes[0]]
 
-        return cls(device_id, session.model_path, io_info)
+        return cls(device_id, model_path, io_info)
 
     @staticmethod
     def get_io_info_from_session(session: InferSession) -> SessionIOInfo:
@@ -146,21 +152,22 @@ class BackgroundInferSession:
         output_spaces: List[np.ndarray],
         io_info: SessionIOInfo,
         device_id: int, 
-        model_path: str, 
-        acl_json_path: Optional[str] = None, 
-        debug: Optional[bool] = False, 
-        loop: Optional[int] = 1,
+        model_path: list, 
     ) -> None:
         # The sub process function
 
         # Create an InferSession
-        session = InferSession(
-            device_id,
-            model_path,
-            acl_json_path,
-            debug,
-            loop
-        )
+        session_cache = aclruntime.InferenceSession(
+            model_path[0], 
+            device_id, 
+            aclruntime.session_options()
+            )
+        if model_path[1]:
+            session_skip = aclruntime.InferenceSession(
+                model_path[1], 
+                device_id, 
+                aclruntime.session_options()
+                )
 
         # Build numpy arrays on the shared buffers
         input_arrays = [np.frombuffer(b, dtype=t).reshape(s) for (
@@ -173,8 +180,35 @@ class BackgroundInferSession:
         sync_pipe.send('')
 
         # Keep looping until recived a 'STOP'
-        while sync_pipe.recv() != 'STOP':
-            output = session.infer(input_arrays)
+        while True:
+            flag = sync_pipe.recv()
+            if flag == 'STOP':
+                break
+            if flag == 'cache':
+                feeds = {}
+                inputs = session_cache.get_inputs()
+                for i in range(len(input_arrays)):
+                    feed = aclruntime.Tensor(input_arrays[i])
+                    feed.to_device(device_id)
+                    feeds[inputs[i].name] = feed
+                out_names = [out.name for out in session_cache.get_outputs()]
+                
+                outputs = session_cache.run(out_names, feeds)
+                if len(outputs) > 1:
+                    cache = outputs[1]
+            else:
+                feeds = {}
+                inputs = session_skip.get_inputs()
+                for i in range(len(input_arrays)):
+                    feed = aclruntime.Tensor(input_arrays[i])
+                    feed.to_device(device_id)
+                    feeds[inputs[i].name] = feed
+                feeds[inputs[-1].name] = cache
+                out_names = [out.name for out in session_skip.get_outputs()]
+                
+                outputs = session_skip.run(out_names, feeds)
+            outputs[0].to_host()
+            output = np.array(outputs[0])
             for i in range(len(output_arrays)):
                 output_arrays[i][:] = output[i][:]
 
