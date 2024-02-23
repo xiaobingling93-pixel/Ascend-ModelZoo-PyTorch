@@ -19,7 +19,7 @@ from typing import List
 
 import numpy as np
 import torch
-import torch_aie
+import mindietorch
 
 
 @dataclass
@@ -120,7 +120,7 @@ class BackgroundRuntime:
 
         # Create a runtime
         # Create a runtime
-        torch_aie.set_device(device_id)
+        mindietorch.set_device(device_id)
         print(f"[info] bg device id: {device_id}")
 
         # Tell the main function that we are ready
@@ -145,7 +145,7 @@ class BackgroundRuntime:
         infer_time = 0
         forward_time = 0
 
-        stream = torch_aie.npu.Stream(f"npu:{device_id}")
+        stream = mindietorch.npu.Stream(f"npu:{device_id}")
 
         # Keep looping until recived a 'STOP'
         while sync_pipe.recv() != 'STOP':
@@ -159,7 +159,7 @@ class BackgroundRuntime:
             preprocess_time += time.time() - start
 
             start2 = time.time()
-            with torch_aie.npu.stream(stream):
+            with mindietorch.npu.stream(stream):
                 inf_start = time.time()
                 output_npu = model(sample_npu, timestep_npu, encoder_hidden_states_npu)
                 stream.synchronize()

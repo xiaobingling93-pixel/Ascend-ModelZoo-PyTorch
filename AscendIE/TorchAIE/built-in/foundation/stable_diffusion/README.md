@@ -71,7 +71,7 @@
    ```
    
       ```bash
-   python3 stable_diffusion_cross_attention_patch.py
+   python3 stable_diffusion_attention_patch.py
    ```
    
 ## 准备数据集<a name="section183221994411"></a>
@@ -83,7 +83,7 @@
 ## 模型推理<a name="section741711594517"></a>
 
 1. 模型转换。【可选】
-   使用PyTorch将模型权重文件.pth转换为.onnx文件，再使用ATC工具将.onnx文件转为离线推理模型文件.om文件。
+   使用Pytorch导出pt模型，然后使用MindIE推理引擎转换为适配昇腾的模型。
 
    0. 获取权重（可选）
 
@@ -95,6 +95,9 @@
 
       # v1.5
       git clone https://huggingface.co/runwayml/stable-diffusion-v1-5
+      
+      # v2.1
+      git clone https://huggingface.co/stabilityai/stable-diffusion-2-1-base
       ```
 
    1. 导出pt模型并进行编译。(可选)
@@ -106,6 +109,12 @@
 
       # v1.5 (使用上一步下载的权重)
       model_base="./stable-diffusion-v1-5"
+
+      # v2.1 (执行时下载权重)
+      model_base="stabilityai/stable-diffusion-2-1-base"
+
+      # v2.1 (使用上一步下载的权重)
+      model_base="./stable-diffusion-2-1-base"
       ```
 
       注意：若条件允许，该模型可以双芯片并行的方式进行推理，从而获得更短的端到端耗时。具体指令的差异之处会在后面的步骤中单独说明，请留意。
@@ -119,10 +128,10 @@
 
       参数说明：
       - --model：模型名称或本地模型目录的路径
-      - --output_dir: ONNX模型输出目录
+      - --output_dir: pt模型输出目录
       - --batch_size：模型batch size
       
-      执行成功后生成onnx模型：  
+      执行成功后生成pt模型：  
          - clip.pt  
          - unet_bs1.pt
          - unet_bs2.pt
@@ -137,7 +146,10 @@
               --prompt_file ./prompts.txt \
               --device 0,1 \
               --save_dir ./results \
-              --steps 50
+              --steps 50 \
+              --scheduler DDIM \
+              --soc Duo \
+              --output_dir ./
       ```
 
       参数说明：
@@ -146,6 +158,9 @@
       - --save_dir：生成图片的存放目录。
       - --steps：生成图片迭代次数。
       - --device：推理设备ID；可用逗号分割传入两个设备ID，此时会使用并行方式进行推理。
+      - --scheduler: 采样器。
+      - --soc: 硬件配置，默认是Duo。
+      - --output_dir: 编译好的模型路径。
       
       执行完成后在`./results`目录下生成推理图片。并在终端显示推理时间。
 
@@ -159,7 +174,10 @@
               --prompt_file ./prompts.txt \
               --device 0 \
               --save_dir ./results \
-              --steps 50
+              --steps 50 \
+              --scheduler DDIM \
+              --soc A2 \
+              --output_dir ./
       ```
 
       参数说明：
@@ -170,6 +188,9 @@
       - --batch_size：模型batch size。
       - --steps：生成图片迭代次数。
       - --device：推理设备ID；可用逗号分割传入两个设备ID，此时会使用并行方式进行推理。
+      - --scheduler: 采样器。
+      - --soc: 硬件配置，默认是Duo。
+      - --output_dir: 编译好的模型路径。
       
       执行完成后在`./results`目录下生成推理图片。并在终端显示推理时间。
 

@@ -21,9 +21,10 @@ from typing import Callable, List, Optional, Union
 
 import numpy as np
 import torch
-import torch_aie
+import mindietorch
+from mindietorch import _enums
 from diffusers import StableDiffusionPipeline
-from torch_aie import _enums
+from diffusers import DPMSolverMultistepScheduler, EulerDiscreteScheduler, DDIMScheduler, SASolverScheduler
 
 from background_runtime import BackgroundRuntime, RuntimeIOInfo
 
@@ -166,14 +167,23 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
     def compile_aie_model(self):
         if self.is_init:
             return
-        torch_aie.set_device(self.device_0)
+        mindietorch.set_device(self.device_0)
         in_channels = self.unet.config.out_channels
         sample_size = self.unet.config.sample_size
         encoder_hidden_size = self.text_encoder.config.hidden_size
         max_position_embeddings = self.text_encoder.config.max_position_embeddings
         batch_size = self.args.batch_size
-        if self.args.unet:
-            self.compiled_unet_model = torch.jit.load(self.args.unet).eval()
+        if self.args.soc == "Duo":
+            soc_version = "Ascend310P3"
+        elif self.args.soc == "A2":
+            soc_version = "Ascend910B4"
+        else:
+            print("unsupport soc_version, please check!")
+            return
+        
+        unet_compiled_path = os.path.join(self.args.output_dir, "unet/unet_aie_bs1_compile.pt")
+        if os.path.exists(unet_compiled_path):
+            self.compiled_unet_model = torch.jit.load(unet_compiled_path).eval()
         else:
             dummy_input = (
                 torch.ones([batch_size, in_channels, sample_size, sample_size], dtype=torch.float32),
@@ -182,22 +192,21 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
                     [batch_size, max_position_embeddings, encoder_hidden_size], dtype=torch.float32
                 ),
             )
-            unet = UnetExport(self.unet)
-            model = torch.jit.trace(unet, dummy_input)
+            model = torch.jit.load(os.path.join(self.args.output_dir, "unet/unet_bs1.pt")).eval()
             unet_input_info = [
-                torch_aie.Input((batch_size, in_channels, sample_size, sample_size), dtype=torch_aie.dtype.FLOAT),
-                torch_aie.Input((1,), dtype=torch_aie.dtype.INT64),
-                torch_aie.Input((batch_size, max_position_embeddings, encoder_hidden_size),
-                                dtype=torch_aie.dtype.FLOAT)]
-            self.compiled_unet_model = torch_aie.compile(model, inputs=unet_input_info,
+                mindietorch.Input((batch_size, in_channels, sample_size, sample_size), dtype=mindietorch.dtype.FLOAT),
+                mindietorch.Input((1,), dtype=mindietorch.dtype.INT64),
+                mindietorch.Input((batch_size, max_position_embeddings, encoder_hidden_size),
+                                dtype=mindietorch.dtype.FLOAT)]
+            self.compiled_unet_model = mindietorch.compile(model, inputs=unet_input_info,
                                                          allow_tensor_replace_int=True,
                                                          require_full_compilation=True,
                                                          truncate_long_and_double=True,
-                                                         soc_version="Ascend310P3",
+                                                         soc_version=soc_version,
                                                          precision_policy=_enums.PrecisionPolicy.FP16,
                                                          optimization_level=0
                                                          )
-            torch.jit.save(self.compiled_unet_model, 'unet_aie_compile.pt')
+            torch.jit.save(self.compiled_unet_model, unet_compiled_path)
 
         runtime_info = RuntimeIOInfo(
             input_shapes=[
@@ -211,51 +220,47 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
 
         )
         if hasattr(self, 'device_1'):
-            if self.args.unet:
-                self.unet_bg = BackgroundRuntime.clone(self.device_1, self.args.unet, runtime_info)
-                self.use_parallel_inferencing = True
-            else:
-                self.unet_bg = BackgroundRuntime.clone(self.device_1, 'unet_aie_compile.pt', runtime_info)
-                self.use_parallel_inferencing = True
+            self.unet_bg = BackgroundRuntime.clone(self.device_1, unet_compiled_path, runtime_info)
+            self.use_parallel_inferencing = True
 
-        if self.args.vae:
-            self.compiled_vae_model = torch.jit.load(self.args.vae).eval()
+        vae_compiled_path = os.path.join(self.args.output_dir, "vae/vae_aie_compile.pt")
+        if os.path.exists(vae_compiled_path):
+            self.compiled_vae_model = torch.jit.load(vae_compiled_path).eval()
         else:
             dummy_input = torch.ones([self.args.batch_size, in_channels, sample_size, sample_size])
-            vae_export = VaeExport(self.vae)
-            model = torch.jit.trace(vae_export, dummy_input)
+            model = torch.jit.load(os.path.join(self.args.output_dir, "vae/vae.pt")).eval()
             self.compiled_vae_model = (
-                torch_aie.compile(model,
+                mindietorch.compile(model,
                                   inputs=[
-                                      torch_aie.Input((self.args.batch_size, in_channels, sample_size, sample_size),
-                                                      dtype=torch_aie.dtype.FLOAT)],
+                                      mindietorch.Input((self.args.batch_size, in_channels, sample_size, sample_size),
+                                                      dtype=mindietorch.dtype.FLOAT)],
                                   allow_tensor_replace_int=True,
                                   require_full_compilation=True,
                                   truncate_long_and_double=True,
-                                  soc_version="Ascend310P3",
+                                  soc_version=soc_version,
                                   precision_policy=_enums.PrecisionPolicy.FP16,
                                   optimization_level=0
                                   ))
-            torch.jit.save(self.compiled_vae_model, 'vae_aie_compile.pt')
+            torch.jit.save(self.compiled_vae_model, vae_compiled_path)
 
-        if self.args.clip:
-            self.compiled_clip_model = torch.jit.load(self.args.clip).eval()
+        clip_compiled_path = os.path.join(self.args.output_dir, "clip/clip_aie_compile.pt")
+        if os.path.exists(clip_compiled_path):
+            self.compiled_clip_model = torch.jit.load(clip_compiled_path).eval()
         else:
             dummy_input = torch.ones([self.args.batch_size, max_position_embeddings], dtype=torch.int64)
-            clip = ClipExport(self.text_encoder)
-            model = torch.jit.trace(clip, dummy_input)
+            model = torch.jit.load(os.path.join(self.args.output_dir, "clip/clip.pt")).eval()
             self.compiled_clip_model = (
-                torch_aie.compile(model,
-                                  inputs=[torch_aie.Input((self.args.batch_size,
+                mindietorch.compile(model,
+                                  inputs=[mindietorch.Input((self.args.batch_size,
                                                            max_position_embeddings),
-                                                          dtype=torch_aie.dtype.INT64)],
+                                                          dtype=mindietorch.dtype.INT64)],
                                   allow_tensor_replace_int=True,
                                   require_full_compilation=True,
                                   truncate_long_and_double=True,
                                   precision_policy=_enums.PrecisionPolicy.FP16,
-                                  soc_version="Ascend310P3",
+                                  soc_version=soc_version,
                                   optimization_level=0))
-            torch.jit.save(self.compiled_clip_model, 'clip_aie_compile.pt')
+            torch.jit.save(self.compiled_clip_model, clip_compiled_path)
 
         self.is_init = True
 
@@ -382,7 +387,7 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
             # Split embeddings
             text_embeddings, text_embeddings_2 = text_embeddings.chunk(2)
 
-        stream = torch_aie.npu.Stream(f'npu:{self.device_0}')
+        stream = mindietorch.npu.Stream(f'npu:{self.device_0}')
 
         for i, t in enumerate(self.progress_bar(timesteps)):
             # expand the latents if we are doing classifier free guidance
@@ -410,7 +415,7 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
             text_embeddings_npu = text_embeddings.to(f'npu:{self.device_0}')
 
             start = time.time()
-            with torch_aie.npu.stream(stream):
+            with mindietorch.npu.stream(stream):
                 inf_start = time.time()
                 noise_pred_npu = self.compiled_unet_model(latent_model_input_npu, t_npu, text_embeddings_npu)
                 stream.synchronize()
@@ -654,9 +659,25 @@ def parse_arguments():
         default=1,
         help="Batch size."
     )
-    parser.add_argument('--unet', type=str, default='', help='unet torchScript model path')
-    parser.add_argument('--clip', type=str, default='', help='unet torchScript model path')
-    parser.add_argument('--vae', type=str, default='', help='unet torchScript model path')
+    parser.add_argument(
+        "--scheduler", 
+        choices=["DDIM", "Euler", "DPM", "SA-Solver"],
+        default="DDIM", 
+        help="Type of Sampling methods. Can choose from DDIM, Euler, DPM, SA-Solver",
+    )
+    parser.add_argument(
+        "--soc", 
+        choices=["Duo", "A2"],
+        default="Duo", 
+        help="soc_version.",
+    )
+    parser.add_argument(
+        "-o",
+        "--output_dir",
+        type=str,
+        default="./",
+        help="Path of directory to save compiled models.",
+    )
     return parser.parse_args()
 
 
@@ -668,7 +689,14 @@ def main():
 
     pipe = AIEStableDiffusionPipeline.from_pretrained(args.model).to("cpu")
     pipe.parser_args(args)
-
+    if args.scheduler == "DDIM":
+        pipe.scheduler = DDIMScheduler.from_config(pipe.scheduler.config)
+    if args.scheduler == "Euler":
+        pipe.scheduler = EulerDiscreteScheduler.from_config(pipe.scheduler.config)
+    if args.scheduler == "DPM":
+        pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
+    if args.scheduler == "SA-Solver":
+        pipe.scheduler = SASolverScheduler.from_config(pipe.scheduler.config)
     pipe.compile_aie_model()
 
     use_time = 0
@@ -728,7 +756,7 @@ def main():
     with os.fdopen(os.open(args.info_file_save_path, os.O_RDWR | os.O_CREAT, 0o640), "w") as f:
         json.dump(image_info, f)
 
-    torch_aie.finalize()
+    mindietorch.finalize()
 
 
 if __name__ == "__main__":
