@@ -98,13 +98,12 @@ data/
 ```
 
 ### 准备预训练权重
-  用户从[链接](https://huggingface.co/baichuan-inc/Baichuan-13B-Base/tree/main) 自行获取模型配置文件和权重文件，并放于model 目录下，微调依赖该模型权重，文件夹内容如下：
+  用户从[链接](https://huggingface.co/baichuan-inc/Baichuan-13B-Base/tree/main) 自行获取模型配置文件和权重文件，并放于 model 目录下，微调依赖该模型权重，文件夹内容如下：
 ```shell
 ├──model
     ├── config.json
     ├── configuration_baichuan.py
     ├── generation_config.json
-    ├── modeling_baichuan_origin.py
     ├── modeling_baichuan.py
     ├── pytorch_model-00001-of-00003.bin
     ├── pytorch_model-00002-of-00003.bin
@@ -186,18 +185,18 @@ ssh-keygen -t rsa
 ssh-copy-id root@ip1
 ssh-copy-id root@ip2
 ```
-然后，在每个节点上运行以下代码。如果不需要输入密码，则表示配置成功。然后执行`exit`退出。
+然后，在每个节点上运行以下代码，首次执行时需要手动输入`yes`，然后执行`exit`退出。再次执行以下命令时，如果不需要输入密码，则表示配置成功。
 
 ```shell
-ssh root@ip1
-ssh root@ip2
+ssh node1
+ssh node2
 ```
 
 ## 开始训练
 
-**单机启动**
 
-1、准备代码
+
+### 准备代码
 ```
 git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
 cd ModelZoo-PyTorch/PyTorch/built-in/foundation/Baichuan-13B
@@ -205,27 +204,41 @@ cd ModelZoo-PyTorch/PyTorch/built-in/foundation/Baichuan-13B
 git clone https://github.com/hiyouga/LLaMA-Factory/tree/7a5318804870b1f2bedec8d4a676e465b48d5c3e
 cd ${模型文件夹名称}
 ```
-然后将`run_baichuan_sft_1m.sh`、`ds_config_zero3.json`文件拷贝到`${模型文件夹名称}`路径下。
-同时，使用`utils`目录下的`train_bash.py`文件替换`./${模型文件夹名称}/src`路径下的`train_bash.py`；使用`utils`目录下的`misc.py`文件替换`./${模型文件夹名称}/src/llmtuner/extras`路径下的`misc.py`；使用`utils`目录下的`modeling_baichuan.py`文件替换`./${模型文件夹名称}/model_weight`路径下的`modeling_baichuan.py`.
+然后，
+- 使用`utils`目录下的`train_bash.py`文件替换`./${模型文件夹名称}/src`路径下的`train_bash.py`
+- 使用`utils`目录下的`misc.py`文件替换`./${模型文件夹名称}/src/llmtuner/extras`路径下的`misc.py`；
+- 使用`utils`目录下的`modeling_baichuan.py`文件替换`../model`路径下的`modeling_baichuan.py`.
 ```shell
 cp ../run_baichuan_sft_1m.sh .
 cp ../ds_config_zero3.json .
 
 cp ../utils/train_bash.py ./src
 cp ../utils/misc.py ./src/llmtuner/extras
-cp ../utils/modeling_baichuan.py ./src/model_weight
+cp ../utils/modeling_baichuan.py ../model
+```
+
+### 单机启动
+1、将`run_baichuan_sft_1m.sh`、`ds_config_zero3.json`文件拷贝到`${模型文件夹名称}`路径下。
+```shell
+cp ../run_baichuan_sft_1m.sh .
+cp ../ds_config_zero3.json .
 ```
 
 2、启动脚本
-该模型单机8卡微调，执行如下命令启动训练。
+首先配置`run_baichuan_sft_1m.sh`脚本。
+```shell
+# 修改 MODEL_PATH 路径
+MODEL_PATH="../model"
+```
+然后执行如下命令启动训练。
 ```shell
 sh run_baichuan_sft_1m.sh
 ``` 
 
 
-**双机启动**
+### 双机启动
 
-1、将项目根目录下的`run_baichuan_sft_2m.sh`、`ds_config_zero2.json`、`hostfile`文件拷贝到`${模型文件夹名称}`路径下。
+1、将`run_baichuan_sft_2m.sh`、`ds_config_zero2.json`、`hostfile`文件拷贝到`${模型文件夹名称}`路径下。
 ```shell
 cp ../run_baichuan_sft_2m.sh .
 cp ../ds_config_zero2.json .
@@ -233,7 +246,11 @@ cp ../hostfile .
 ```
 
 2、启动脚本
-该模型双机16卡微调，执行如下命令启动训练。
+首先配置`run_baichuan_sft_2m.sh`脚本。
+```shell
+# 修改 MODEL_PATH 路径
+MODEL_PATH="../model"
+然后执行如下命令启动双机16卡微调训练。
 ```shell
 sh run_baichuan_sft_2m.sh
 ``` 
@@ -332,7 +349,7 @@ device_map="npu:1"                           # 指定运行的NPU卡
 ## 评估
 
 ### 准备数据集任务
-在项目的`evaluation` 目录下已经存在评估任务数据集：
+在的`evaluation` 目录下已经存在评估任务数据集：
 ```shell
 evaluation
 ├── ceval
@@ -400,9 +417,11 @@ pip install transformers_stream_generator decorator absl-py cloudpickle synr==0.
 
   - 注释 `${conda环境路径}/lib/python3.8/site-packages/transformers/deepspeed.py` line65的deepspeed版本检测代码。
 
-  - 将 `${conda环境路径}/lib/python3.8/site-packages/accelerate/accelerator.py` line296修改为`if compare_versions("deepspeed", "<", "0.9.2"):`
+  - 将 `${conda环境路径}/lib/python3.8/site-packages/accelerate/accelerator.py` line289修改为`if compare_versions("deepspeed", "<", "0.9.2"):`
 
+3、如果报`ssh`的错误，可以把`hostfile`文件的`node1、node2`修改为具体的IP地址。
 
+4、如果报错`timeout`,请在添加环境变量`export HCCL_ALGO="level1:H-D_R"`。
 
 ## 引用
 

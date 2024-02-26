@@ -2,17 +2,17 @@
 
 export HCCL_CONNECT_TIMEOUT=1200
 export INF_NAN_MODE_ENABLE=1
-export HCCL_ALGO="level1:H-D_R"
 
 NUM_NODES=2
 NUM_GPUS_PER_NODE=8
 MASTER_PORT=6667
 
 HOST_FILE_PATH="./hostfile"
+MODEL_PATH="../model"
 
 HCCL_CONNECT_TIMEOUT=1200 deepspeed --master_port ${MASTER_PORT} --num_nodes ${NUM_NODES} --num_gpus ${NUM_GPUS_PER_NODE} --hostfile ${HOST_FILE_PATH} src/train_bash.py \
     --stage sft \
-    --model_name_or_path ./model_weight \
+    --model_name_or_path $MODEL_PATH \
     --deepspeed ./ds_config_zero2.json \
     --do_train \
     --dataset alpaca_gpt4_en \

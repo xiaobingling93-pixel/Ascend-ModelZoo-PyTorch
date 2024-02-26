@@ -3,7 +3,7 @@
   "zero_allow_untested_optimizer": true,
   "fp16": {
     "enabled": true,
-    "loss_scale": 16384,
+    "loss_scale": 1024,
     "initial_scale_power": 16, 
     "loss_scale_window": 1000,
     "hysteresis": 2,

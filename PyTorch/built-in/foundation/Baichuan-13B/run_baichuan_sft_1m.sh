@@ -7,9 +7,11 @@ NUM_WORKERS=1
 NUM_GPUS_PER_WORKER=8
 MASTER_PORT=6669
 
+MODEL_PATH="../model"
+
 HCCL_CONNECT_TIMEOUT=1200  deepspeed  --num_gpus ${NUM_GPUS_PER_WORKER}  src/train_bash.py \
     --stage sft \
-    --model_name_or_path  ./model_weight \
+    --model_name_or_path  $MODEL_PATH \
     --deepspeed ./ds_config_zero3.json \
     --do_train \
     --dataset alpaca_gpt4_en,alpaca_gpt4_zh \
