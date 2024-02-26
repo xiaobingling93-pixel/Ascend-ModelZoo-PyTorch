@@ -23,10 +23,11 @@ source ${scripts_path_dir}/env_npu.sh
 
 # 启动训练脚本
 start_time=$(date +%s)
-deepspeed --num_gpus 8 --master_port 9910 run_seq2seq_qa.py \
+deepspeed --num_gpus 8 --master_port 9910 ${cur_path}/utils/run_seq2seq_qa.py \
   --model_name_or_path  google/flan-t5-xxl \
   --deepspeed ds_config.json \
   --dataset_name squad_v2 \
+  --eval_dataset_name squad_v2_eval \
   --version_2_with_negative \
   --context_column context \
   --question_column question \
@@ -38,6 +39,7 @@ deepspeed --num_gpus 8 --master_port 9910 run_seq2seq_qa.py \
   --gradient_accumulation_steps 2 \
   --num_train_epochs 1 \
   --max_steps 2000 \
+  --save_steps 20000 \
   --max_seq_length 384 \
   --logging_steps 1 \
   --doc_stride 128 \

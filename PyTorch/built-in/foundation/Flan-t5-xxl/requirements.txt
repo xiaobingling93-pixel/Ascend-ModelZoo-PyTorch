@@ -1,4 +1,5 @@
+transformers==4.37.2
 accelerate==0.25.0
 deepspeed==0.12.6
-datasets==2.16.0
+datasets
 evaluate==0.4.1
