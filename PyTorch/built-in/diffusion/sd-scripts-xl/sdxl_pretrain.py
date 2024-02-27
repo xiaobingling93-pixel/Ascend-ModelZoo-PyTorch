@@ -45,6 +45,20 @@ from library.custom_train_functions import (
 )
 from library.sdxl_original_unet import SdxlUNet2DConditionModel
 
+try:
+    from torch_npu.utils.profiler import Profile
+except ImportError:
+    print("Profile not in torch_npu.utils.profiler now.. Auto Profile disabled.", flush=True)
+    class Profile:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def start(self):
+            pass
+
+        def end(self):
+            pass
+
 
 UNET_NUM_BLOCKS_FOR_BLOCK_LR = 23
 
@@ -434,9 +448,12 @@ def train(args):
         sdxlPretrainModels.train()
 
         step_end_time = time.time()
+        profile = Profile(start_step=int(os.getenv('PROFILE_START_STEP', 10)),
+                          profile_type=os.getenv('PROFILE_TYPE'))
         for step, batch in enumerate(train_dataloader):
             step_data_time = time.time() - step_end_time
             current_step.value = global_step
+            profile.start()
             with accelerator.accumulate(sdxlPretrainModels):
                 if "latents" in batch and batch["latents"] is not None:
                     latents = batch["latents"].to(accelerator.device).to(dtype=weight_dtype)
@@ -486,6 +503,7 @@ def train(args):
                 accelerator.scaler.update()
                 lr_scheduler.step()
                 optimizer.zero_grad(set_to_none=True)
+            profile.end()
 
             # Checks if the accelerator has performed an optimization step behind the scenes
             if accelerator.sync_gradients:

@@ -120,6 +120,20 @@ with warnings.catch_warnings():
     except ImportError as error:
         print("Unable to import onnx. ", error)
 
+try:
+    from torch_npu.utils.profiler import Profile
+except ImportError:
+    print("Profile not in torch_npu.utils.profiler now.. Auto Profile disabled.", flush=True)
+    class Profile:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def start(self):
+            pass
+
+        def end(self):
+            pass
+
 # from torchviz import make_dot
 # import torch.nn.functional as Functional
 # from torch.nn.parameter import Parameter
@@ -1503,6 +1517,8 @@ def run():
     writer = SummaryWriter(tb_file)
 
     ext_dist.barrier()
+    profile = Profile(start_step=int(os.getenv('PROFILE_START_STEP', 10)),
+                      profile_type=os.getenv('PROFILE_TYPE'))
     with torch.autograd.profiler.profile(
             args.enable_profiling, use_cuda=use_gpu, record_shapes=True
     ) as prof:
@@ -1563,7 +1579,7 @@ def run():
                         continue
 
                     mbs = T.shape[0]  # = args.mini_batch_size except maybe for last
-
+                    profile.start()
                     # forward pass
                     Z = dlrm_wrap(
                         X,
@@ -1612,7 +1628,7 @@ def run():
                         ) or not args.mlperf_logging:
                             optimizer.step()
                             lr_scheduler.step()
-
+                    profile.end()
                     if args.mlperf_logging:
                         total_time += iteration_time
                     else:

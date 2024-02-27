@@ -22,6 +22,20 @@ from onpolicy.utils.util import update_linear_schedule
 from onpolicy.runner.separated.base_runner import Runner
 import imageio
 
+try:
+    from torch_npu.utils.profiler import Profile
+except ImportError:
+    print("Profile not in torch_npu.utils.profiler now.. Auto Profile disabled.", flush=True)
+    class Profile:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def start(self):
+            pass
+
+        def end(self):
+            pass
+
 def _t2n(x):
     return x.detach().cpu().numpy()
 
@@ -35,12 +49,15 @@ class MPERunner(Runner):
         start = time.time()
         episodes = int(self.num_env_steps) // self.episode_length // self.n_rollout_threads
 
+        profile = Profile(start_step=int(os.getenv('PROFILE_START_STEP', 10)),
+                          profile_type=os.getenv('PROFILE_TYPE'))
+
         for episode in range(episodes):
             ep_start = time.time()
             if self.use_linear_lr_decay:
                 for agent_id in range(self.num_agents):
                     self.trainer[agent_id].policy.lr_decay(episode, episodes)
-
+            profile.start()
             for step in range(self.episode_length):
                 # Sample actions
                 values, actions, action_log_probs, rnn_states, rnn_states_critic, actions_env = self.collect(step)
@@ -56,6 +73,7 @@ class MPERunner(Runner):
             # compute return and update network
             self.compute()
             train_infos = self.train()
+            profile.end()
             
             # post process
             total_num_steps = (episode + 1) * self.episode_length * self.n_rollout_threads

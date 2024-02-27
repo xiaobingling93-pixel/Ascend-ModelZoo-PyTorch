@@ -58,6 +58,20 @@ from diffusers.utils import check_min_version, is_wandb_available
 from diffusers.utils.import_utils import is_xformers_available
 from torch_npu.contrib import transfer_to_npu
 
+try:
+    from torch_npu.utils.profiler import Profile
+except ImportError:
+    print("Profile not in torch_npu.utils.profiler now.. Auto Profile disabled.", flush=True)
+    class Profile:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def start(self):
+            pass
+
+        def end(self):
+            pass
+
 # Will error if the minimal version of diffusers is not installed. Remove at your own risks.
 check_min_version("0.21.0")
 
@@ -985,6 +999,8 @@ def main(args):
     progress_bar = tqdm(range(global_step, args.max_train_steps), disable=not accelerator.is_local_main_process)
     progress_bar.set_description("Steps")
 
+    profile = Profile(start_step=int(os.getenv('PROFILE_START_STEP', 10)),
+                      profile_type=os.getenv('PROFILE_TYPE'))
     for epoch in range(first_epoch, args.num_train_epochs):
         unet.train()
         if args.train_text_encoder:
@@ -1000,6 +1016,7 @@ def main(args):
                     progress_bar.update(1)
                 continue
 
+            profile.start()
             with accelerator.accumulate(unet):
                 # Convert images to latent space
                 if args.pretrained_vae_model_name_or_path is not None:
@@ -1102,6 +1119,7 @@ def main(args):
                 optimizer.step()
                 lr_scheduler.step()
                 optimizer.zero_grad()
+            profile.end()
 
             # Checks if the accelerator has performed an optimization step behind the scenes
             if accelerator.sync_gradients:

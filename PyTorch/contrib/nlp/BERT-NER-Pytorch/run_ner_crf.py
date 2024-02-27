@@ -58,6 +58,20 @@ from tools.common import init_logger, logger
 from metrics.ner_metrics import SeqEntityScore
 from tools.finetuning_argparse import get_argparse
 
+try:
+    from torch_npu.utils.profiler import Profile
+except ImportError:
+    print("Profile not in torch_npu.utils.profiler now.. Auto Profile disabled.", flush=True)
+    class Profile:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def start(self):
+            pass
+
+        def end(self):
+            pass
+
 MODEL_CLASSES = {
     ## bert ernie bert_wwm bert_wwwm_ext
     'bert': (BertConfig, BertCrfForNer, BertTokenizer),
@@ -153,6 +167,10 @@ def train(args, train_dataset, model, tokenizer):
     if args.save_steps==-1 and args.logging_steps==-1:
         args.logging_steps=len(train_dataloader)
         args.save_steps = len(train_dataloader)
+
+    profile = Profile(start_step=int(os.getenv('PROFILE_START_STEP', 10)),
+                      profile_type=os.getenv('PROFILE_TYPE'))
+
     for epoch in range(int(args.num_train_epochs)):
         pbar.reset()
         pbar.epoch_start(current_epoch=epoch)
@@ -167,6 +185,7 @@ def train(args, train_dataset, model, tokenizer):
             if args.model_type != "distilbert":
                 # XLM and RoBERTa don"t use segment_ids
                 inputs["token_type_ids"] = (batch[2] if args.model_type in ["bert", "xlnet"] else None)
+            profile.start()
             outputs = model(**inputs)
             loss = outputs[0]  # model outputs are always tuple in pytorch-transformers (see doc)
             if args.n_gpu > 1:
@@ -210,6 +229,7 @@ def train(args, train_dataset, model, tokenizer):
                     # torch.save(optimizer.state_dict(), os.path.join(output_dir, "optimizer.pt"))
                     torch.save(scheduler.state_dict(), os.path.join(output_dir, "scheduler.pt"))
                     logger.info("Saving optimizer and scheduler states to %s", output_dir)
+            profile.end()
         logger.info("\n")
         if 'cuda' in str(args.device):
             torch.cuda.empty_cache()

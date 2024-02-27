@@ -27,6 +27,20 @@ import gym
 
 from PPO import PPO
 
+try:
+    from torch_npu.utils.profiler import Profile
+except ImportError:
+    print("Profile not in torch_npu.utils.profiler now.. Auto Profile disabled.", flush=True)
+    class Profile:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def start(self):
+            pass
+
+        def end(self):
+            pass
+
 def get_args_parser():
     parser = argparse.ArgumentParser(description = "Train Config")
     parser.add_argument("--env-name", type=str, default="RoboschoolWalker2d-v1", help="env name")
@@ -201,6 +215,9 @@ def train():
     time_step = 0
     i_episode = 0
 
+    profile = Profile(start_step=int(os.getenv('PROFILE_START_STEP', 10)),
+                      profile_type=os.getenv('PROFILE_TYPE'))
+
     # training loop
     while time_step <= max_training_timesteps:
 
@@ -208,10 +225,13 @@ def train():
         current_ep_reward = 0
 
         for t in range(1, max_ep_len+1):
+            profile.start()
 
             # select action with policy
             action = ppo_agent.select_action(state)
             state, reward, done, _ = env.step(action)
+
+            profile.end()
 
             # saving reward and is_terminals
             ppo_agent.buffer.rewards.append(reward)

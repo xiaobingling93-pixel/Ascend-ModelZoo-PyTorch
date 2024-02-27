@@ -24,6 +24,20 @@ from contextlib import nullcontext
 import torch
 from torch.nn.utils import clip_grad_norm_
 
+try:
+    from torch_npu.utils.profiler import Profile
+except ImportError:
+    print("Profile not in torch_npu.utils.profiler now.. Auto Profile disabled.", flush=True)
+    class Profile:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def start(self):
+            pass
+
+        def end(self):
+            pass
+
 
 class Executor:
 
@@ -59,8 +73,11 @@ class Executor:
         model_context = nullcontext
         num_seen_utts = 0
         total_train_data_num = 0
+        profile = Profile(start_step=int(os.getenv('PROFILE_START_STEP', 10)),
+                          profile_type=os.getenv('PROFILE_TYPE'))
         with model_context():
             for batch_idx, batch in enumerate(data_loader):
+                profile.start()
                 key, feats, target, feats_lengths, target_lengths = batch
                 feats = feats.to(device)
                 target = target.to(device)
@@ -117,6 +134,7 @@ class Executor:
                     optimizer.zero_grad()
                     scheduler.step()
                     self.step += 1
+                profile.end()
                 if batch_idx % log_interval == 0:
                     lr = optimizer.param_groups[0]['lr']
                     log_str = 'TRAIN Batch {}/{} loss {:.6f} '.format(

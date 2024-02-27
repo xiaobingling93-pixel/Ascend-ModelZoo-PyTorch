@@ -17,6 +17,20 @@ from maskrcnn_benchmark.data.datasets.evaluation import evaluate
 from .inference import inference
 import pdb
 
+try:
+    from torch_npu.utils.profiler import Profile
+except ImportError:
+    print("Profile not in torch_npu.utils.profiler now.. Auto Profile disabled.", flush=True)
+    class Profile:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def start(self):
+            pass
+
+        def end(self):
+            pass
+
 def reduce_loss_dict(loss_dict):
     """
     Reduce the loss dictionary from all processes so that process with rank
@@ -90,6 +104,10 @@ def do_train(
         for i, milstone in enumerate(list(scheduler.milestones)):
             if scheduler.last_epoch >= milstone * cfg.SOLVER.WEIGHT_DECAY_SCHEDULE_RATIO:
                 milestone_target = i+1
+
+    profile = Profile(start_step=int(os.getenv('PROFILE_START_STEP', 10)),
+                      profile_type=os.getenv('PROFILE_TYPE'))
+
     for iteration, (images, targets, idxs, positive_map, positive_map_eval, greenlight_map) in enumerate(data_loader, start_iter):
         nnegative = sum(len(target) < 1 for target in targets)
         nsample = len(targets)
@@ -119,6 +137,7 @@ def do_train(
             else:
                 model.language_backbone.eval()
 
+        profile.start()
         if cfg.SOLVER.USE_AMP:
             with autocast():
                 if len(captions) > 0:
@@ -215,7 +234,7 @@ def do_train(
         if model_ema is not None:
             model_ema.update(model)
             arguments["model_ema"] = model_ema.state_dict()
-
+        profile.end()
         batch_time = time.time() - end
         end = time.time()
         train_fps = cfg.SOLVER.IMS_PER_BATCH / batch_time
