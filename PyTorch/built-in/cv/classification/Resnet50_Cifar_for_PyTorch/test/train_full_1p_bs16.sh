@@ -14,12 +14,12 @@ fi
 data_path=""
 device_id=0
 # 训练周期
-epochs=2
+epochs=200
 #网络名称,同目录名称,需要模型审视修改
 Network="Resnet50_cifar_for_PyTorch"
 export RANK_SIZE=1
 #训练batch_size,,需要模型审视修改
-batch_size=256
+batch_size=16
 
 #参数校验，不需要修改
 for para in $*
@@ -64,7 +64,7 @@ if [ x"${etp_flag}" != x"true" ];then
 fi
 
 #执行训练脚本，以下传参不需要修改，其他需要模型审视修改
-nohup taskset -c 0-32 python3 ./tools/train.py ./configs/resnet/resnet50_8xb256_cifar100_perf.py --cfg-options data.samples_per_gpu=256 > ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log 2>&1 &
+nohup python3 ./tools/train.py ./configs/resnet/resnet50_8xb16_cifar100.py --cfg-options data.samples_per_gpu=16 > ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log 2>&1 &
 
 wait
 
