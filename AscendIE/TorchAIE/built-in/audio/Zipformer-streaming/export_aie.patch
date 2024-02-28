@@ -16,8 +16,8 @@ index 6bc9b18..b05ce07 100755
  from scaling_converter import convert_scaled_to_non_scaled
  from train import add_model_arguments, get_model, get_params
  from zipformer import Zipformer2
-+import torch_aie
-+from torch_aie import _enums
++import mindietorch
++from mindietorch import _enums
 
  from icefall.checkpoint import (
      average_checkpoints,
@@ -113,18 +113,18 @@ index 6bc9b18..b05ce07 100755
 +    print('Done tracing encoder model.')
 +    ts_model.save(encoder_filename)
 +
-+    torch_aie.set_device(0)
++    mindietorch.set_device(0)
 +    model = torch.jit.load(encoder_filename)
 +    model.eval()
 +
 +    input_info = []
-+    input_info.append(torch_aie.Input(x.shape))
++    input_info.append(mindietorch.Input(x.shape))
 +    for state in init_state[:-1]:
-+        input_info.append(torch_aie.Input(state.shape))
-+    input_info.append(torch_aie.Input(init_state[-1].shape, dtype=torch.int32))
++        input_info.append(mindietorch.Input(state.shape))
++    input_info.append(mindietorch.Input(init_state[-1].shape, dtype=torch.int32))
 +
 +    print('Start compiling model...')
-+    compiled_model = torch_aie.compile(
++    compiled_model = mindietorch.compile(
 +        model,
 +        inputs=input_info,
 +        precision_policy=_enums.PrecisionPolicy.FP32,
@@ -191,13 +191,13 @@ index 6bc9b18..b05ce07 100755
 +    trace_model = torch.jit.trace(decoder_model, y)
 +    trace_model.save(decoder_filename)
 +
-+    torch_aie.set_device(0)
++    mindietorch.set_device(0)
 +    model = torch.jit.load(decoder_filename)
 +    model.eval()
 +
-+    input_info = [torch_aie.Input(y.shape, dtype=torch.int32)]
++    input_info = [mindietorch.Input(y.shape, dtype=torch.int32)]
 +    print('Start compiling model...')
-+    compiled_model = torch_aie.compile(
++    compiled_model = mindietorch.compile(
 +        model,
 +        inputs=input_info,
 +        precision_policy=_enums.PrecisionPolicy.FP16,
@@ -261,16 +261,16 @@ index 6bc9b18..b05ce07 100755
 +    trace_model = torch.jit.trace(joiner_model, (projected_encoder_out, projected_decoder_out))
 +    trace_model.save(joiner_filename)
 +
-+    torch_aie.set_device(0)
++    mindietorch.set_device(0)
 +    model = torch.jit.load(joiner_filename)
 +    model.eval()
 +
 +    input_info = []
-+    input_info.append(torch_aie.Input(projected_encoder_out.shape))
-+    input_info.append(torch_aie.Input(projected_decoder_out.shape))
++    input_info.append(mindietorch.Input(projected_encoder_out.shape))
++    input_info.append(mindietorch.Input(projected_decoder_out.shape))
 +    print('Start compiling model...')
 +
-+    compiled_model = torch_aie.compile(
++    compiled_model = mindietorch.compile(
 +        model,
 +        inputs=input_info,
 +        precision_policy=_enums.PrecisionPolicy.FP16,

@@ -4,7 +4,7 @@ import torch
 import torch.nn.functional as F
 import onnxruntime as ort
 import numpy as np
-import torch_aie
+import mindietorch
 
 from utils import init_encoder_states, build_encoder_input_output
 
@@ -36,16 +36,16 @@ def compare_encoder(onnx_path, aie_model_path, sim_threshold=0.99, device_id=0):
     for state in states:
         inputs.append(state)
 
-    torch_aie.set_device(device_id)
+    mindietorch.set_device(device_id)
     device = f'npu:{device_id}'
-    stream = torch_aie.npu.Stream(device)
+    stream = mindietorch.npu.Stream(device)
     model = torch.jit.load(aie_model_path)
     model.eval()
 
     for i in range(len(inputs)):
         inputs[i] = torch.from_numpy(inputs[i]).to(device)
 
-    with torch_aie.npu.stream(stream):
+    with mindietorch.npu.stream(stream):
         aie_out = model(*inputs)
         stream.synchronize()
 
@@ -61,15 +61,15 @@ def compare_decoder(onnx_path, aie_model_path, sim_threshold=0.99, device_id=0):
         {onnx_model.get_inputs()[0].name: dummpy_input}
     )
 
-    torch_aie.set_device(device_id)
+    mindietorch.set_device(device_id)
     device = f'npu:{device_id}'
-    stream = torch_aie.npu.Stream(device)
+    stream = mindietorch.npu.Stream(device)
 
     model = torch.jit.load(aie_model_path)
     model.eval()
     dummpy_input = torch.from_numpy(dummpy_input).to(device)
 
-    with torch_aie.npu.stream(stream):
+    with mindietorch.npu.stream(stream):
         aie_out = model(dummpy_input)
         stream.synchronize()
 
@@ -89,16 +89,16 @@ def compare_joiner(onnx_path, aie_model_path, sim_threshold=0.99, device_id=0):
         },
     )
 
-    torch_aie.set_device(device_id)
+    mindietorch.set_device(device_id)
     device = f'npu:{device_id}'
-    stream = torch_aie.npu.Stream(device)
+    stream = mindietorch.npu.Stream(device)
 
     model = torch.jit.load(aie_model_path)
     model.eval()
     encoder_out = torch.from_numpy(encoder_out).to(device)
     decoder_out = torch.from_numpy(decoder_out).to(device)
 
-    with torch_aie.npu.stream(stream):
+    with mindietorch.npu.stream(stream):
         aie_out = model(encoder_out, decoder_out)
         stream.synchronize()
 

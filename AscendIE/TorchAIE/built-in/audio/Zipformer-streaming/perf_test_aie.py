@@ -4,7 +4,7 @@ import json
 
 import numpy as np
 import torch
-import torch_aie
+import mindietorch
 
 from utils import init_encoder_states, build_encoder_input_output
 
@@ -22,7 +22,7 @@ def test_encoder(encoder_meta_data_path, aie_path, device_id):
         inputs.append(state)
 
     device = f'npu:{device_id}'
-    stream = torch_aie.npu.Stream(device)
+    stream = mindietorch.npu.Stream(device)
     model = torch.jit.load(aie_path)
     model.eval()
 
@@ -31,7 +31,7 @@ def test_encoder(encoder_meta_data_path, aie_path, device_id):
 
     # warmup
     for _ in range(10):
-        with torch_aie.npu.stream(stream):
+        with mindietorch.npu.stream(stream):
             model(*inputs)
             stream.synchronize()
 
@@ -39,7 +39,7 @@ def test_encoder(encoder_meta_data_path, aie_path, device_id):
     num_infer = 100
     start = time.time()
     for _ in range(num_infer):
-        with torch_aie.npu.stream(stream):
+        with mindietorch.npu.stream(stream):
             model(*inputs)
             stream.synchronize()
     end = time.time()
@@ -53,14 +53,14 @@ def test_decoder(aie_path, device_id):
     dummpy_input = np.ones((batch_size, 2), dtype=np.int32)
 
     device = f'npu:{device_id}'
-    stream = torch_aie.npu.Stream(device)
+    stream = mindietorch.npu.Stream(device)
     model = torch.jit.load(aie_path)
     model.eval()
     dummpy_input = torch.from_numpy(dummpy_input).to(device)
 
     # warmup
     for _ in range(10):
-        with torch_aie.npu.stream(stream):
+        with mindietorch.npu.stream(stream):
             model(dummpy_input)
             stream.synchronize()
 
@@ -68,7 +68,7 @@ def test_decoder(aie_path, device_id):
     num_infer = 100
     start = time.time()
     for _ in range(num_infer):
-        with torch_aie.npu.stream(stream):
+        with mindietorch.npu.stream(stream):
             model(dummpy_input)
             stream.synchronize()
     end = time.time()
@@ -83,7 +83,7 @@ def test_joiner(aie_path, device_id):
     decoder_out = np.ones((batch_size, 512), dtype=np.float32)
 
     device = f'npu:{device_id}'
-    stream = torch_aie.npu.Stream(device)
+    stream = mindietorch.npu.Stream(device)
     model = torch.jit.load(aie_path)
     model.eval()
     encoder_out = torch.from_numpy(encoder_out).to(device)
@@ -91,7 +91,7 @@ def test_joiner(aie_path, device_id):
 
     # warmup
     for _ in range(10):
-        with torch_aie.npu.stream(stream):
+        with mindietorch.npu.stream(stream):
             out = model(encoder_out, decoder_out)
             stream.synchronize()
 
@@ -99,7 +99,7 @@ def test_joiner(aie_path, device_id):
     num_infer = 100
     start = time.time()
     for _ in range(num_infer):
-        with torch_aie.npu.stream(stream):
+        with mindietorch.npu.stream(stream):
             model(encoder_out, decoder_out)
             stream.synchronize()
     end = time.time()
@@ -123,7 +123,7 @@ def parse_args():
 def main():
     args = parse_args()
 
-    torch_aie.set_device(args.device_id)
+    mindietorch.set_device(args.device_id)
 
     test_encoder(args.encoder_meta_data_path, args.encoder_aie_path, args.device_id)
     test_decoder(args.decoder_aie_path, args.device_id)

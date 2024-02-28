@@ -14,7 +14,7 @@ index e011c4b..493bf0c 100755
  import torch
  import torchaudio
  from kaldifeat import FbankOptions, OnlineFbank, OnlineFeature
-+import torch_aie
++import mindietorch
  
  
  def get_parser():
@@ -152,8 +152,8 @@ index e011c4b..493bf0c 100755
 +            inputs.append(torch.from_numpy(val).to(f'npu:{device}'))
  
 -        self._update_states(out[1:])
-+        stream = torch_aie.npu.Stream(f'npu:{device}')
-+        with torch_aie.npu.stream(stream):
++        stream = mindietorch.npu.Stream(f'npu:{device}')
++        with mindietorch.npu.stream(stream):
 +            out = self.encoder(*inputs)
 +            stream.synchronize()
  
@@ -171,8 +171,8 @@ index e011c4b..493bf0c 100755
 -            [self.decoder.get_outputs()[0].name],
 -            {self.decoder.get_inputs()[0].name: decoder_input.numpy()},
 -        )[0]
-+        stream = torch_aie.npu.Stream(f'npu:{device}')
-+        with torch_aie.npu.stream(stream):
++        stream = mindietorch.npu.Stream(f'npu:{device}')
++        with mindietorch.npu.stream(stream):
 +            out = self.decoder(decoder_input.to(f'npu:{device}'))
 +            stream.synchronize()
  
@@ -194,8 +194,8 @@ index e011c4b..493bf0c 100755
 -        )[0]
  
 -        return torch.from_numpy(out)
-+        stream = torch_aie.npu.Stream(f'npu:{device}')
-+        with torch_aie.npu.stream(stream):
++        stream = mindietorch.npu.Stream(f'npu:{device}')
++        with mindietorch.npu.stream(stream):
 +            out = self.joiner(encoder_out.to(f'npu:{device}'), decoder_out.to(f'npu:{device}'))
 +            stream.synchronize()
 +
@@ -236,7 +236,7 @@ index e011c4b..493bf0c 100755
      formatter = "%(asctime)s %(levelname)s [%(filename)s:%(lineno)d] %(message)s"
  
 +    device = 0
-+    torch_aie.set_device(device)
++    mindietorch.set_device(device)
 +
      logging.basicConfig(format=formatter, level=logging.INFO)
      main()

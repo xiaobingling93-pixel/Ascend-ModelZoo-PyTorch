@@ -25,14 +25,14 @@
 
   **表 1**  版本配套表
 
-| 配套                    | 版本          | 
-|-----------------------|-------------| 
-| CANN                  | 7.0.RC1     | -                                                       |
-| Python                | 3.9.11      |                                                           
-| torch                 | 2.0.1       |
-| Ascend-cann-torch-aie | -           
-| Ascend-cann-aie       | -           
-| 芯片类型                  | Ascend310P3 | -                                                         |
+| 配套                          | 版本          | 
+|-----------------------------|-------------| 
+| CANN                        | 8.0.RC1     | -                                                       |
+| Python                      | 3.10.13     |                                                           
+| torch                       | 2.1.0       |
+| Ascend-mindie-rt_1.0.RC1    | -           
+| Ascend-mindie-torch-1.0.RC1 | -           
+| 芯片类型                        | Ascend310P3 | -                                                         |
 
 # 快速上手<a name="ZH-CN_TOPIC_0000001126281700"></a>
 
@@ -51,8 +51,9 @@
     export K2_MAKE_ARGS="-j6"
     python3 setup.py install
     ```
-    若执行以上命令遇到错误，请参考[此链接](https://k2-fsa.github.io/k2/installation/from_source.html)。  
-    3.（GPU）x86环境。从[此链接](https://k2-fsa.github.io/k2/cuda.html)下载对应CUDA版本的whl文件，然后使用pip进行安装。  
+    * **若编译失败，尝试再次编译前，需要先删除build文件夹。**
+    * 若执行以上命令遇到错误，请参考[此链接](https://k2-fsa.github.io/k2/installation/from_source.html)。    
+    3. （GPU）x86环境。从[此链接](https://k2-fsa.github.io/k2/cuda.html)下载对应CUDA版本的whl文件，然后使用pip进行安装。
     4. 验证k2是否安装成功  
     ```shell
     python3 -m k2.version
@@ -61,13 +62,21 @@
     ```shell
     pip install lhotse
     pip install kaldifeat
+    
+    apt install libsndfile1
+    ```
+   * kaldifeat若安装失败，请执行以下命令使用源码安装：
+    ```shell
+    git clone https://github.com/csukuangfj/kaldifeat.git
+    cd kaldifeat
+    python3 setup.py install
     ```
 3. 安装icefall
     ```shell
     git clone https://github.com/k2-fsa/icefall.git
-    git reset --hard e2fcb42f5f176d9e39eb38506ab99d0a3adaf202
    
     cd icefall
+    git reset --hard e2fcb42f5f176d9e39eb38506ab99d0a3adaf202
     pip install -r requirements.txt
     ```
 4. 将icefall加入环境变量, "/path/to/icefall"替换为icefall文件夹所在的路径。
@@ -77,20 +86,20 @@
     ```
 
 ## 模型下载
-1. 安装 git lfs
-    ```shell
-    curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash
-
-    sudo apt-get install git-lfs
-    git lfs install --skip-repo
-    ```
-2. 下载模型
-    ```shell
-   git clone https://huggingface.co/pkufool/icefall-asr-zipformer-streaming-wenetspeech-20230615
-    ```
-   若下载失败，请尝试从以上链接手动下载文件。模型转换和推理时只需要用到以下文件：
-    - data/lang_char/tokens.txt
+从[此链接](https://huggingface.co/pkufool/icefall-asr-zipformer-streaming-wenetspeech-20230615)下载模型相关文件。
+模型转换和推理时只需要用到以下文件：  
+    - data/lang_char/tokens.txt  
     - exp/epoch-12.pt
+
+下载完后，整理成如下目录结构：
+```shell
+icefall-asr-zipformer-streaming-wenetspeech-20230615
+├── data
+│   └── lang_char
+│       └── tokens.txt
+└── exp
+    └── epoch-12.pt
+```
 
 ## 模型推理
 1. 打代码补丁
