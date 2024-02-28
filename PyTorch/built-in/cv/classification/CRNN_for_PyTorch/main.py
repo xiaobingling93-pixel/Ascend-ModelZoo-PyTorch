@@ -29,6 +29,20 @@ from torch.utils.data import DataLoader
 from apex import amp
 from easydict import EasyDict as edict
 
+try:
+    from torch_npu.utils.profiler import Profile
+except ImportError:
+    print("Profile not in torch_npu.utils.profiler now.. Auto Profile disabled.", flush=True)
+    class Profile:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def start(self):
+            pass
+
+        def end(self):
+            pass
+
 
 def parse_arg():
     parser = argparse.ArgumentParser(description="train crnn")
@@ -169,6 +183,7 @@ def train(config, train_loader, dataset, converter, model, criterion, optimizer,
     model.train()
     end = time.time()
     num_steps = 0
+    profile = Profile(start_step=int(os.getenv('PROFILE_START_STEP', 10)), profile_type=os.getenv('PROFILE_TYPE'))
 
     for i, (inp, idx) in enumerate(train_loader):
         if args.training_debug and i >= args.max_step:
@@ -178,33 +193,28 @@ def train(config, train_loader, dataset, converter, model, criterion, optimizer,
         if args.training_type and num_steps > args.stop_step:
             import sys
             sys.exit()
-        elif args.start_step<= num_steps <= args.stop_step and args.profiling == 'CANN':
-            profiling = torch.npu.profile(profiler_result_path="./CANN_prof")
-        elif num_steps <= args.stop_step and num_steps >= args.start_step and args.profiling == 'GE':
-            profiling = torch.npu.profile(profiler_result_path="./GE_prof")
+        data_time.update((time.time() - end) * 1000)
+        labels = idx
+        inp = inp.to(device)
+        profile.start()
+        preds = model(inp)
+        batch_size = inp.size(0)
+        text, length = converter.encode(labels)
+        # timestep * batchsize
+        preds_size = torch.IntTensor([preds.size(0)] * batch_size)
+        text = text.to(device)
+        length = length.to(device)
+        preds_size = preds_size.to(device)
+        loss = criterion(preds, text, preds_size, length)
+        optimizer.zero_grad()
+        if config.TRAIN.AMP:
+            with amp.scale_loss(loss, optimizer) as scaled_loss:
+                scaled_loss.backward()
         else:
-            profiling = NoProfiling()
-        with profiling:
-            data_time.update((time.time() - end) * 1000)
-            labels = idx
-            inp = inp.to(device)
-            preds = model(inp)
-            batch_size = inp.size(0)
-            text, length = converter.encode(labels)
-            # timestep * batchsize
-            preds_size = torch.IntTensor([preds.size(0)] * batch_size)
-            text = text.to(device)
-            length = length.to(device)
-            preds_size = preds_size.to(device)
-            loss = criterion(preds, text, preds_size, length)
-            optimizer.zero_grad()
-            if config.TRAIN.AMP:
-                with amp.scale_loss(loss, optimizer) as scaled_loss:
-                    scaled_loss.backward()
-            else:
-                loss.backward()
-            optimizer.step()
-            losses.update(loss.item(), inp.size(0))
+            loss.backward()
+        optimizer.step()
+        profile.end()
+        losses.update(loss.item(), inp.size(0))
         if i == 9:
             batch_time.reset()
             data_time.reset()

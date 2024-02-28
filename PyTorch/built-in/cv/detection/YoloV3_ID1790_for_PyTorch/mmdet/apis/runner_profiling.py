@@ -26,6 +26,20 @@ from mmcv.runner.builder import RUNNERS
 from mmcv.runner.checkpoint import save_checkpoint
 from mmcv.runner.utils import get_host_info
 
+try:
+    from torch_npu.utils.profiler import Profile
+except ImportError:
+    print("Profile not in torch_npu.utils.profiler now.. Auto Profile disabled.", flush=True)
+    class Profile:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def start(self):
+            pass
+
+        def end(self):
+            pass
+
 
 @RUNNERS.register_module()
 class RunnerProfiling(BaseRunner):
@@ -58,16 +72,16 @@ class RunnerProfiling(BaseRunner):
         #self._max_iters = self._max_epochs * len(self.data_loader)
         self.call_hook('before_train_epoch')
         time.sleep(2)  # Prevent possible deadlock during epoch transition
+        profile = Profile(start_step=int(os.getenv('PROFILE_START_STEP', 10)), profile_type=os.getenv('PROFILE_TYPE'))
         for i, data_batch in enumerate(self.data_loader):
             self._inner_iter = i
             self.call_hook('before_train_iter')
             if self._iter > self._max_iters:
                 break
-            elif self._iter >= (self._max_iters - 10):
-                with torch.npu.profile(profiler_result_path="./CANN_prof"):
-                    self.run_iter(data_batch, train_mode=True)
             else:
+                profile.start()
                 self.run_iter(data_batch, train_mode=True)
+                profile.end()
             self.call_hook('after_train_iter')
             self._iter += 1
 
