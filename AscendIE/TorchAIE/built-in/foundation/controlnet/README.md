@@ -80,11 +80,13 @@
    patch -p1 < diff.patch
    ```
 
-4. 安装aie包和torch_aie包，配置AIE目录下的环境变量
+4. 安装mindie包和mindietorch包，配置MindIE目录下的环境变量
 ```bash
-   ./Ascend-cann-aie_xxx.run --install-path=/home/xxx
-   source set_env.sh
-   pip install torch_aie-xxx.whl --force-reinstall
+   chmod +x ./Ascend-mindie_xxx.run
+   ./Ascend-mindie_xxx.run --install
+   source /usr/local/Ascend/aie/set_env.sh
+   tar -zxvf Ascend-mindie-torch_xxx.tar.gz
+   pip install mindietorch-1.0.rc1+torch2.1.0xxx.whl
    ```
    
    
@@ -95,7 +97,7 @@
      
       ```
       训练权重链接为："https://huggingface.co/lllyasviel/ControlNet/blob/main/models/control_sd15_canny.pth"。
-      下载后放入`ControlNet/base_model`工作目录下.
+      下载后放入`ControlNet/base_models`工作目录下.
       ```
 
    2. 导出PT模型
@@ -108,13 +110,12 @@
       cd ControlNet
       git clone https://huggingface.co/openai/clip-vit-large-patch14
       ```
-      请在python3.8和torch1.12.1等requirements.txt安装版本下trace导出PT模型。
       
 
       执行命令：
 
       ```
-      python export2pt.py --model ./base_models/control_sd15_canny.pth --control_path ./models  --sd_path ./models
+      python export2pt.py --base_model ./base_models/control_sd15_canny.pth --control_path ./models  --sd_path ./models
       ```
 
       参数说明：
@@ -123,7 +124,6 @@
       - --sd_path：sd部分PT模型输出目录
 
    3. 模型推理
-      请在python3.10和torch2.1环境下进行模型编译优化和推理，执行推理脚本。
       ```
     
       python3 controlnet_infer.py \

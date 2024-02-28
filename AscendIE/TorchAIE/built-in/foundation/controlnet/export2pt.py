@@ -44,7 +44,7 @@ def parse_arguments():
 
 
 class ControlNetExport(torch.nn.Module):
-    def __init(self, control_model):
+    def __init__(self, control_model):
         super().__init__()
         self.control_model = control_model
 
@@ -65,12 +65,12 @@ def export_control(model, save_path):
     )
     model_export = ControlNetExport(model).eval()
     torch.jit.trace(model_export, dummy_input).save(
-        os.path.join(control_path, "control_pt")
+        os.path.join(control_path, "control.pt")
     )
 
 
 class SDExport(torch.nn.Module):
-    def __init(self, sd_model):
+    def __init__(self, sd_model):
         super().__init__()
         self.sd_model = sd_model
 
@@ -108,7 +108,7 @@ class SDExport(torch.nn.Module):
             control_11,
             control_12,
         ]
-        return self.control_model(x, timesteps, context, control)[0]
+        return self.sd_model(x, timesteps, context, control)[0]
 
 
 def export_sd(model, save_path):

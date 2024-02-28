@@ -29,7 +29,7 @@ from annotator.canny import CannyDetector
 from cldm.model import create_model, load_state_dict
 from cldm.ddim_hacked import DDIMSampler
 import config
-import torch_aie
+import mindietorch
 
 
 def parse_arguments():
@@ -94,13 +94,13 @@ def parse_arguments():
     parser.add_argument(
         "--compiled_control_model_dir",
         type=str,
-        default=None,
+        default="./models/control/control_compiled.pt",
         help="path of compiled pt model.",
     )
     parser.add_argument(
         "--compiled_sd_model_dir",
         type=str,
-        default=None,
+        default="./models/sd/sd_compiled.pt",
         help="path of compiled pt model.",
     )
     parser.add_argument(
@@ -237,7 +237,7 @@ def main():
     ddim_sampler = DDIMSampler(model)
 
     model.device_0 = args.device
-    torch_aie.set_device(model.device_0)
+    mindietorch.set_device(model.device_0)
     if os.path.exists(args.compiled_control_model_dir) and os.path.exists(
         args.compiled_sd_model_dir
     ):
