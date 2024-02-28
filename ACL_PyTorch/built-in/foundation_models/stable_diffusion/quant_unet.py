@@ -271,7 +271,7 @@ def main():
 
         unet_session_bg = None
         if device_2:
-            unet_session_bg = BackgroundInferSession.clone(unet_session, device_2)
+            unet_session_bg = BackgroundInferSession.clone(unet_session, device_2, [unet_om, ""])
 
         with os.fdopen(os.open(args.prompt_file, os.O_RDONLY), "r") as f:
             prompts = [line.strip() for line in f]

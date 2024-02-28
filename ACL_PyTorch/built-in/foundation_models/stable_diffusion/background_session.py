@@ -70,7 +70,7 @@ class BackgroundInferSession:
         # Wait until the sub process is ready
         self.wait()
 
-    def infer_asyn(self, feeds: List[np.ndarray], skip) -> None:
+    def infer_asyn(self, feeds: List[np.ndarray], skip=0) -> None:
         for i in range(len(self.input_arrays)):
             self.input_arrays[i][:] = feeds[i][:]
 
