@@ -428,8 +428,12 @@ class BertSelfAttention(nn.Module):
         # Take the dot product between "query" and "key" to get the raw attention scores.
         attention_scores = Matmul_transpose(query_layer, key_layer)
 
-        attention_probs = self.fuse_add_softmax_dropout(attention_mask, attention_scores, 
+        raw_dtype = attention_mask.dtype
+        attention_mask = attention_mask.half()
+        attention_scores = attention_scores.half()
+        attention_probs = self.fuse_add_softmax_dropout(attention_mask, attention_scores,
                                                         self.attention_head_size, self.attention_probs_dropout_prob)
+        attention_probs = attention_probs.to(raw_dtype)
 
         context_layer = torch.matmul(attention_probs, value_layer)
         context_layer = torch_npu.npu_confusion_transpose(context_layer, (0, 2, 1, 3), (
