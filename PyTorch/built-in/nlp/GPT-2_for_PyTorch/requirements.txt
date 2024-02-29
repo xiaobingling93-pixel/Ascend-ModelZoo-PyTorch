@@ -1,4 +1,4 @@
 pybind11
 six
 regex
-numpy
+numpy==1.23.0
