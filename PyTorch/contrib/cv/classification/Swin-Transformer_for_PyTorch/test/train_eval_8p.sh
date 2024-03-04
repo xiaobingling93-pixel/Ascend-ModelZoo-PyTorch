@@ -18,6 +18,7 @@ train_epochs=300
 learning_rate=0.4
 # 加载数据进程数
 workers=184
+iter=110
 
 
 # 参数校验，data_path为必传参数，其他参数的增删由模型自身决定；此处新增参数需在上面有定义并赋值
@@ -29,6 +30,8 @@ do
         data_path=`echo ${para#*=}`
     elif [[ $para == --pth_path* ]];then
         pth_path=`echo ${para#*=}`
+    elif [[ $para == --iter* ]];then
+        iter=`echo ${para#*=}`
     fi
 done
 
@@ -83,6 +86,7 @@ python3 -m torch.distributed.launch --nproc_per_node 8 --master_port 12345 \
           --resume ${pth_path} \
           --cfg configs/swin_tiny_patch4_window7_224.yaml \
           --data-path ${data_path} \
+          --iter ${iter} \
           --batch-size ${batch_size} > ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log 2>&1 &
 wait
 

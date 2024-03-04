@@ -7,6 +7,7 @@ Network="Swin-Transformer"
 # 训练batch_size
 batch_size=256
 device_number=8
+iter=110
 export NPROC=${device_number}
 # 参数校验，data_path为必传参数，其他参数的增删由模型自身决定；此处新增参数需在上面有定义并赋值
 for para in $*
@@ -21,6 +22,8 @@ do
         master_addr=`echo ${para#*=}`
    elif [[ $para == --data_shuffle* ]];then
         data_shuffle=`echo ${para#*=}`
+   elif [[ $para == --iter* ]];then
+        iter=`echo ${para#*=}`
    elif [[ $para == --master_port* ]];then
         master_port=`echo ${para#*=}`
    elif [[ $para == --nnodes* ]];then
@@ -87,6 +90,7 @@ do
         --data_shuffle ${data_shuffle} \
         --addr ${master_addr} \
         --port ${master_port} \
+        --iter ${iter} \
         --one_epoch \
         --batch-size ${batch_size} \
         --local_rank $RANK_ID > ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log 2>&1 &

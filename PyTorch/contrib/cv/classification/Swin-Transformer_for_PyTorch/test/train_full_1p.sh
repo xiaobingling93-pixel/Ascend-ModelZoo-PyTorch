@@ -11,6 +11,7 @@ export RANK_SIZE=1
 export WORLD_SIZE=1
 data_path_info=$1
 data_path=`echo ${data_path_info#*=}`
+iter=110
 
 # 参数校验，data_path为必传参数，其他参数的增删由模型自身决定；此处新增参数需在上面有定义并赋值
 for para in $*
@@ -23,7 +24,8 @@ do
         batch_size=`echo ${para#*=}`
     elif [[ $para == --device_id* ]];then
         device_id=`echo ${para#*=}`
-
+    elif [[ $para == --iter* ]];then
+        iter=`echo ${para#*=}`
     elif [[ $para == --precision_mode* ]];then
         precision_mode=`echo ${para#*=}`
     fi
@@ -79,6 +81,7 @@ python3 -m torch.distributed.launch --nproc_per_node 1 --master_port 12345  main
           $adv_param \
           --cfg configs/swin_tiny_patch4_window7_224.yaml \
           --data_shuffle True \
+          --iter ${iter} \
           --data-path ${data_path} \
           --local_rank ${device_id} \
           --batch-size ${batch_size} > ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log 2>&1 &

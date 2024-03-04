@@ -10,6 +10,7 @@ batch_size=256
 export RANK_SIZE=8
 data_path_info=$1
 data_path=`echo ${data_path_info#*=}`
+iter=110
 
 # for multi node setting
 nnodes=1
@@ -29,6 +30,8 @@ do
         data_shuffle=`echo ${para#*=}`
 	elif [[ $para == --batch_size* ]]; then
 		batch_size=$(echo ${para#*=})
+    elif [[ $para == --iter* ]];then
+        iter=`echo ${para#*=}`
 	elif [[ $para == --nnodes* ]]; then
 		nnodes=$(echo ${para#*=})
 	elif [[ $para == --node_rank* ]]; then
@@ -98,6 +101,7 @@ do
         --addr=$master_addr \
         --data-path ${data_path} \
         --data_shuffle ${data_shuffle} \
+        --iter ${iter} \
         --one_epoch \
         --batch-size ${batch_size} \
         --nnodes $nnodes \

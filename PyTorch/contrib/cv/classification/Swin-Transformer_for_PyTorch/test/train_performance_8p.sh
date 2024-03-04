@@ -11,6 +11,7 @@ export RANK_SIZE=8
 export WORLD_SIZE=8
 data_path_info=$1
 data_path=`echo ${data_path_info#*=}`
+iter=110
 
 # 参数校验，data_path为必传参数，其他参数的增删由模型自身决定；此处新增参数需在上面有定义并赋值
 for para in $*
@@ -23,6 +24,8 @@ do
         data_shuffle=`echo ${para#*=}`
     elif [[ $para == --batch_size* ]];then
         batch_size=`echo ${para#*=}`
+    elif [[ $para == --iter* ]];then
+        iter=`echo ${para#*=}`
     elif [[ $para == --precision_mode* ]];then
         precision_mode=`echo ${para#*=}`
     fi
@@ -87,6 +90,7 @@ do
         --data_shuffle ${data_shuffle} \
         --one_epoch \
         --batch-size ${batch_size} \
+        --iter ${iter} \
         --local_rank $RANK_ID > ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log 2>&1 &
 done
 

@@ -17,6 +17,7 @@ precision_mode="O2"
 profiling=False
 start_step=90
 stop_step=100
+iter=110
 #指定二进制训练模式，默认bin_mode=0（非二进制）
 bin_mode=0
 
@@ -29,6 +30,8 @@ do
         data_path=`echo ${para#*=}`
     elif [[ $para == --batch_size* ]];then
         batch_size=`echo ${para#*=}`
+    elif [[ $para == --iter* ]];then
+        iter=`echo ${para#*=}`
     elif [[ $para == --device_id* ]];then
         device_id=`echo ${para#*=}`
     elif [[ $para == --conda_name* ]];then
@@ -118,6 +121,7 @@ python3 -m torch.distributed.launch --nproc_per_node 1 --master_port 12345  main
           --cfg configs/swin_tiny_patch4_window7_224.yaml \
           --local_rank $ASCEND_DEVICE_ID  \
           --data-path ${data_path} \
+          --iter ${iter} \
           --data_shuffle ${data_shuffle} \
           --batch-size ${batch_size} \
           --start_step ${start_step} \

@@ -90,6 +90,7 @@ def parse_option():
     # easy config modification
     parser.add_argument('--batch-size', type=int, help="batch size for single GPU")
     parser.add_argument('--data-path', type=str, help='path to dataset')
+    parser.add_argument('--iter', type=int, help='iter for getting optimal performance')
     parser.add_argument('--zip', action='store_true', help='use zipped dataset instead of folder dataset')
     parser.add_argument('--cache-mode', type=str, default='part', choices=['no', 'full', 'part'],
                         help='no: no cache, '
@@ -240,6 +241,9 @@ def train_one_epoch(config, model, criterion, data_loader, optimizer, epoch, mix
                       profile_type=os.getenv('PROFILE_TYPE'))
 
     for idx, (samples, targets) in enumerate(data_loader):
+        if idx == args.iter:
+            start = time.time()
+            end = time.time()
         date_meter.update((time.time() - end))
 
         if PERF and step_ign > 499:
@@ -315,7 +319,7 @@ def train_one_epoch(config, model, criterion, data_loader, optimizer, epoch, mix
         end = time.time()
     epoch_time = time.time() - start
     logger.info(f"EPOCH {epoch} training takes {datetime.timedelta(seconds=int(epoch_time))}")
-    FPS_epoch = (num_steps - 5) * config.DATA.BATCH_SIZE * config.WORLD_SIZE / float(epoch_time)
+    FPS_epoch = (num_steps - 5 - args.iter) * config.DATA.BATCH_SIZE * config.WORLD_SIZE / float(epoch_time)
     logger.info(f"FPS {FPS_epoch}")
     return FPS_epoch
 
