@@ -1,1 +1,14 @@
-pillow
+torchvision==0.16.0
+pillow==10.2.0
+attrs
+numpy
+decorator
+sympy
+cffi
+pyyaml
+pathlib2
+psutil
+protobuf
+scipy
+requests
+absl-py

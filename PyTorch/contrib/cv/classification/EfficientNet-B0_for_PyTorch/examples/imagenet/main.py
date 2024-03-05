@@ -235,7 +235,7 @@ def main_worker(npu, npus_per_node, args):
             best_acc1 = checkpoint['best_acc1']
             if args.npu is not None:
                 # best_acc1 may be from a checkpoint from a different NPU
-                best_acc1 = best_acc1.to(args.npu)
+                best_acc1 = best_acc1.to('npu:' + str(args.npu))
             model.load_state_dict(checkpoint['state_dict'])
             optimizer.load_state_dict(checkpoint['optimizer'])
             print("=> loaded checkpoint '{}' (epoch {})"
