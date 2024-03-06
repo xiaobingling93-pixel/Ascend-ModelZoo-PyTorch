@@ -3,12 +3,12 @@ transformers==4.28.1
 cpm_kernels
 gradio
 mdtex2html
-sentencepiece
-accelerate
-datasets==2.13.0
-rouge_chinese
+sentencepiece==0.2.0
+accelerate==0.23.0
+datasets==2.17.1
+rouge_chinese==1.0.3
 nltk
-jieba
+jieba==0.42.1
 decorator
 sympy
 attrs

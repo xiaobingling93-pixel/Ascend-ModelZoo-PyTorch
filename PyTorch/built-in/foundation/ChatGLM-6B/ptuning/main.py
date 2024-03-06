@@ -87,7 +87,7 @@ def main():
         torch.npu.set_device(torch.device(f"npu:{training_args.NPU_VISIBLE_DEVICES}"))  # 指定使用的npu卡号
         torch.npu.set_compile_mode(jit_compile=False)
     else:
-        torch.npu.set_compile_mode(jit_compile=True)
+        torch.npu.set_compile_mode(jit_compile=False)
 
     # Setup logging
     logging.basicConfig(
