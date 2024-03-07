@@ -113,24 +113,28 @@
 
 1. 模型转换。
 
-   获取权重文件：[swin_base_patch4_window12_384_22kto1k.pth](https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_base_patch4_window12_384_22kto1k.pth)，其他模型权重下载地址可参考：[Swin-Transformer(microsoft)](https://github.com/microsoft/Swin-Transformer)
+   获取权重文件：[swin_base_patch4_window12_384_22kto1k.pth](https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_base_patch4_window12_384_22kto1k.pth)，[swin_tiny_patch4_window7_224.pth](https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_tiny_patch4_window7_224.pth)，其他模型权重下载地址可参考：[Swin-Transformer(microsoft)](https://github.com/microsoft/Swin-Transformer)
 
    1. 导出onnx文件。
 
       1. 使用以下脚本导出onnx文件:
 
          ```
+         # 以 swin_base_patch4_window12_384 为例
          python3 pth2onnx.py --input_path swin_base_patch4_window12_384_22kto1k.pth --out_path models/onnx/swin_base_patch4_window12_384_bs${bs}.onnx --model_name swin_base_patch4_window12_384 --batch_size ${bs}
-         ```
          
+         # 以 swin_tiny_patch4_window7_224 为例
+         python3 pth2onnx.py --input_path swin_tiny_patch4_window7_224.pth --out_path models/onnx/swin_tiny_patch4_window7_224_bs${bs}.onnx --model_name swin_tiny_patch4_window7_224 --batch_size ${bs}
+         ```
+
          - 参数说明：
 
            -   --input_path：模型权重文件所在路径。
            -   --out_path：输出onnx文件所在路径。
-           -   --model_name：模型名。
+           -   --model_name：模型名，例如：swin_base_patch4_window12_384，swin_tiny_patch4_window7_224 等。
            -   --batch_size：模型对应batch_size。
 
-         获得swin_base_patch4_window12_384_bs${bs}.onnx文件。
+         获得swin_base_patch4_window12_384_bs${bs}.onnx或swin_tiny_patch4_window7_224_bs${bs}.onnx文件。
 
       2. 优化ONNX文件。
 
@@ -171,20 +175,23 @@
       3. 执行ATC命令。
 
          ```
-         # bs8为例
-         atc --model=models/onnx/swin_base_patch4_window12_384_bs8_opt.onnx --framework=5 --output=models/om/swin_base_patch4_window12_384_bs8 --input_format=NCHW --log=debug --soc_version=${chip_name} --output_type=FP16 --optypelist_for_implmode="Gelu" --op_select_implmode=high_performance --insert_op_conf aipp.config --enable_small_channel 1
+         # 以bs8，配置为swin_base_patch4_window12_384的模型为例
+         atc --model=models/onnx/swin_base_patch4_window12_384_bs8_opt.onnx --framework=5 --output=models/om/swin_base_patch4_window12_384_bs8 --input_format=NCHW --log=debug --soc_version=${chip_name} --output_type=FP16 --optypelist_for_implmode="Gelu" --op_select_implmode=high_performance --insert_op_conf aipp_384.config --enable_small_channel 1
+         
+         # 以bs8，配置为swin_tiny_patch4_window7_224的模型为例
+         atc --model=models/onnx/swin_tiny_patch4_window7_224_bs8_opt.onnx --framework=5 --output=models/om/swin_tiny_patch4_window7_224_bs8 --input_format=NCHW --log=debug --soc_version=${chip_name} --output_type=FP16 --optypelist_for_implmode="Gelu" --op_select_implmode=high_performance --insert_op_conf aipp_224.config --enable_small_channel 1
          ```
-
+         
          - 参数说明：
-
+         
            -   --model：为ONNX模型文件。
            -   --framework：5代表ONNX模型。
            -   --output：输出的OM模型。
            -   --input\_format：输入数据的格式。
            -   --log：日志级别。
            -   --soc\_version：处理器型号。
-
-           运行成功后生成swin_base_patch4_window12_384_bs8.om模型文件。
+         
+           运行成功后生成swin_base_patch4_window12_384_bs8.om或swin_tiny_patch4_window7_224_bs8.om模型文件。
 
 2. 开始推理验证。<u>***根据实际推理工具编写***</u>
 
@@ -195,7 +202,7 @@
    2. 执行推理。
 
         ```
-        # 以bs8为例
+        # 以bs8,配置为swin_base_patch4_window12_384的模型为例
         mkdir -p outputs/bs8
         python3 -m ais_bench --model models/om/swin_base_patch4_window12_384_bs8.om --input preprocessed_data/ --output outputs/bs8 --device 1 --outfmt NPY
         ```
@@ -216,7 +223,7 @@
       调用脚本与GT label，可以获得精度数据:
 
       ```
-      # 以bs8为例
+      # 以bs8,配置为swin_base_patch4_window12_384的模型为例
       python3 postprocess.py --input_dir ./outputs/bs8/${timestamp} --label_path ./val_label.txt --save_path ./result_bs8.json
       ```
 
