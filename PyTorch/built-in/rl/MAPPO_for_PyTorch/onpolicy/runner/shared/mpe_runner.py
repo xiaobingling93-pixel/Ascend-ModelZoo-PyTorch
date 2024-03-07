@@ -4,6 +4,7 @@ import torch
 from onpolicy.runner.shared.base_runner import Runner
 import wandb
 import imageio
+import os
 
 try:
     from torch_npu.utils.profiler import Profile

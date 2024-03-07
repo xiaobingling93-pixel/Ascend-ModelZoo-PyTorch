@@ -17,6 +17,7 @@ limitations under the License.
 
 import logging
 import time
+import os
 from contextlib import nullcontext
 
 # if your python version < 3.7 use the below one
