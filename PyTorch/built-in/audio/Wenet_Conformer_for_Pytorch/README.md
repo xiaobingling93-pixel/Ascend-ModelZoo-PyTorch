@@ -89,6 +89,7 @@ Wenet是一款开源的、面向工业落地应用的语音识别工具包，主
      cd examples/aishell/s0/test
      bash train_full_8p.sh --stage=起始stage --stop_stage=终止stage --data_path=/data/xxx/  # 8卡精度
      bash train_performance_8p.sh --data_path=/data/xxx/  # 8卡性能
+     bash train_full_8p_whisper.sh --stage=起始stage --stop_stage=终止stage --data_path=/data/xxx/  # 裁剪了CNN Module的8卡精度、性能
      ```
 
    模型训练脚本参数说明如下。
