@@ -6,8 +6,8 @@ import os
 from typing import Optional
 import torch
 from accelerate import init_empty_weights
-from tqdm import tqdm
 from transformers import CLIPTokenizer
+from transformers import MT5EncoderModel, BertTokenizer
 from library import model_util, sdxl_model_util, train_util, sdxl_original_unet
 from library.sdxl_lpw_stable_diffusion import SdxlStableDiffusionLongPromptWeightingPipeline
 
@@ -55,6 +55,45 @@ def load_target_model(args, accelerator, model_version: str, weight_dtype):
     text_encoder1, text_encoder2, unet = train_util.transform_models_if_DDP([text_encoder1, text_encoder2, unet])
 
     return load_stable_diffusion_format, text_encoder1, text_encoder2, vae, unet, logit_scale, ckpt_info
+
+
+def load_target_model_mt5(args, accelerator, model_version: str, weight_dtype):
+    # load models for each process
+    model_dtype = match_mixed_precision(args, weight_dtype)  # prepare fp16/bf16
+    for pi in range(accelerator.state.num_processes):
+        if pi == accelerator.state.local_process_index:
+            print(
+                f"loading model for process {accelerator.state.local_process_index}/{accelerator.state.num_processes}")
+
+            (
+                load_stable_diffusion_format,
+                text_encoder1,
+                vae,
+                unet,
+                logit_scale,
+                ckpt_info,
+            ) = _load_target_model_mt5(
+                args.pretrained_model_name_or_path,
+                args.vae,
+                args.mt5_encoder_path,
+                model_version,
+                weight_dtype,
+                accelerator.device if args.lowram else "cpu",
+                model_dtype,
+            )
+
+            # work on low-ram device
+            if args.lowram:
+                text_encoder1.to(accelerator.device)
+                unet.to(accelerator.device)
+                vae.to(accelerator.device)
+
+            gc.collect()
+            torch.cuda.empty_cache()
+        accelerator.wait_for_everyone()
+
+
+    return load_stable_diffusion_format, text_encoder1, vae, unet, logit_scale, ckpt_info
 
 
 def _load_target_model(
@@ -128,6 +167,58 @@ def _load_target_model(
     return load_stable_diffusion_format, text_encoder1, text_encoder2, vae, unet, logit_scale, ckpt_info
 
 
+def _load_target_model_mt5(
+        name_or_path: str, vae_path: Optional[str], mt5_encoder_path: str, model_version: str, weight_dtype,
+        device="cpu", model_dtype=None
+):
+    load_stable_diffusion_format = os.path.isfile(name_or_path)  # determine SD or Diffusers
+
+    # Diffusers model is loaded to CPU
+    from diffusers import StableDiffusionXLPipeline
+
+    variant = "fp16" if weight_dtype == torch.float16 else None
+    print(f"load Diffusers pretrained models: {name_or_path}, variant={variant}")
+    try:
+        try:
+            pipe = StableDiffusionXLPipeline.from_pretrained(
+                name_or_path, torch_dtype=model_dtype, variant=variant, tokenizer=None
+            )
+        except EnvironmentError as ex:
+            if variant is not None:
+                print("try to load fp32 model")
+                pipe = StableDiffusionXLPipeline.from_pretrained(name_or_path, variant=None, tokenizer=None)
+            else:
+                raise ex
+    except EnvironmentError as ex:
+        print(
+            f"model is not found as a file or in Hugging Face, perhaps file name is wrong? / "
+            f"指定したモデル名のファイル、またはHugging Faceのモデルが見つかりません。ファイル名が誤っているかもしれません: {name_or_path}"
+        )
+        raise ex
+    text_encoder1 = MT5EncoderModel.from_pretrained(mt5_encoder_path)
+
+    vae = pipe.vae
+    unet = pipe.unet
+    del pipe
+
+    # Diffusers U-Net to original U-Net
+    state_dict = sdxl_model_util.convert_diffusers_unet_state_dict_to_sdxl(unet.state_dict())
+    with init_empty_weights():
+        unet = sdxl_original_unet.SdxlUNet2DConditionModel()  # overwrite unet
+    sdxl_model_util._load_state_dict_on_device(unet, state_dict, device=device, dtype=model_dtype)
+    print("U-Net converted to original U-Net")
+
+    logit_scale = None
+    ckpt_info = None
+
+    # VAEを読み込む
+    if vae_path is not None:
+        vae = model_util.load_vae(vae_path, weight_dtype)
+        print("additional VAE loaded")
+
+    return load_stable_diffusion_format, text_encoder1, vae, unet, logit_scale, ckpt_info
+
+
 def load_tokenizers(args: argparse.Namespace):
     print("prepare tokenizers")
 
@@ -159,6 +250,16 @@ def load_tokenizers(args: argparse.Namespace):
             tokenizer.max_token_length = args.max_token_length
 
     return tokeniers
+
+
+def load_tokenizers_mt5(args: argparse.Namespace):
+    tokenizer = BertTokenizer.from_pretrained(args.mt5_tokenizer_path)
+    if hasattr(args, "max_token_length") and args.max_token_length is not None:
+        print(f"update token length: {args.max_token_length}")
+
+        tokenizer.max_token_length = args.max_token_length
+    
+    return tokenizer
 
 
 def match_mixed_precision(args, weight_dtype):

@@ -51,11 +51,6 @@ class SdxlPretrainModels(nn.Module):
 
         noisy_latents = noisy_latents.to(self.weight_dtype)  # TODO check why noisy_latents is not weight_dtype
 
-        # if not args.full_fp16:
-        #     noisy_latents = noisy_latents.to(torch.float32)
-        #     timesteps = timesteps.to(torch.float32)
-        #     text_embedding = text_embedding.to(torch.float32)
-        #     vector_embedding = vector_embedding.to(torch.float32)
 
         # Predict the noise residual
         with accelerator.autocast():
@@ -65,3 +60,44 @@ class SdxlPretrainModels(nn.Module):
 
 
 
+class SdxlPretrainModelsMT5(nn.Module):
+    def __init__(self, args, unet: nn.Module, text_encoder1: nn.Module, tokenizer1, weight_dtype):
+        super().__init__()
+        self.unet = unet
+        self.text_encoder1 = text_encoder1
+        self.tokenizer1 = tokenizer1
+        self.weight_dtype = weight_dtype
+
+        self.te_projection = torch.nn.Linear(args.mt5_dim_size, 2048)  # xxl
+        
+    def forward(self, args, batch, accelerator, noise_scheduler, latents):
+        if "text_encoder_outputs1_list" not in batch or batch["text_encoder_outputs1_list"] is None:
+            input_ids1 = batch["input_ids"]
+            with torch.set_grad_enabled(args.train_text_encoder):
+                input_ids1 = input_ids1.to(accelerator.device)
+                encoder_hidden_states, pool2, attn_mask = train_util.get_hidden_states_sdxl_mt5(
+                    args.max_token_length,
+                    input_ids1,
+                    self.tokenizer1,
+                    self.text_encoder1,
+                    None if not args.full_fp16 else self.weight_dtype,
+                    batch["captions"]
+                )
+        else:
+            encoder_hidden_states = batch["text_encoder_outputs_list"].to(accelerator.device).to(self.weight_dtype)
+            pool2 = batch["text_encoder_pool2_list"].to(accelerator.device).to(self.weight_dtype)
+        vector_embedding = None
+        encoder_hidden_states=self.te_projection(encoder_hidden_states)
+        text_embedding = encoder_hidden_states.to(self.weight_dtype)
+        # Sample noise, sample a random timestep for each image, and add noise to the latents,
+        # with noise offset and/or multires noise if specified
+        noise, noisy_latents, timesteps = train_util.get_noise_noisy_latents_and_timesteps(args, noise_scheduler,
+                                                                                           latents)
+
+        noisy_latents = noisy_latents.to(self.weight_dtype)  # TODO check why noisy_latents is not weight_dtype
+
+
+        with accelerator.autocast():
+            noise_pred = self.unet(noisy_latents, timesteps, text_embedding,vector_embedding)
+
+        return noise_pred, noise, timesteps

@@ -523,7 +523,7 @@ class CrossAttention(nn.Module):
         k_in = self.to_k(context)
         v_in = self.to_v(context)
 
-        if q_in.shape[1] % 256 == 0 and k_in.shape[1] % 256 == 0 and q_in.shape[1] > 2000:
+        if q_in.dtype in (torch.float16, torch.bfloat16):
             h = self.heads
             q, k, v = map(lambda t: rearrange(t, "b n (h d) -> b h n d", h=h), (q_in, k_in, v_in))
             del q_in, k_in, v_in
@@ -623,8 +623,8 @@ class GEGLU(nn.Module):
         return F.gelu(gate.to(dtype=torch.float32)).to(dtype=gate.dtype)
 
     def forward(self, hidden_states):
-        hidden_states, gate = self.proj(hidden_states).chunk(2, dim=-1)
-        return hidden_states * self.gelu(gate)
+        hidden_states = self.proj(hidden_states)
+        return torch_npu.npu_geglu(hidden_states, dim=-1, approximate=1)[0]
 
 
 class FeedForward(nn.Module):
@@ -1144,11 +1144,10 @@ class SdxlUNet2DConditionModel(nn.Module):
         t_emb = get_timestep_embedding(timesteps, self.model_channels)  # , repeat_only=False)
         t_emb = t_emb.to(x.dtype)
         emb = self.time_embed(t_emb)
-
-        assert x.shape[0] == y.shape[0], f"batch size mismatch: {x.shape[0]} != {y.shape[0]}"
-        assert x.dtype == y.dtype, f"dtype mismatch: {x.dtype} != {y.dtype}"
-        # assert x.dtype == self.dtype
-        emb = emb + self.label_emb(y)
+        if y is not None:
+            assert x.shape[0] == y.shape[0], f"batch size mismatch: {x.shape[0]} != {y.shape[0]}"
+            assert x.dtype == y.dtype, f"dtype mismatch: {x.dtype} != {y.dtype}"
+            emb = emb + self.label_emb(y)
 
         def call_module(module, h, emb, context):
             x = h

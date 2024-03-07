@@ -4108,6 +4108,47 @@ def get_hidden_states_sdxl(
 
     return hidden_states1, hidden_states2, pool2
 
+def get_hidden_states_sdxl_mt5(
+    max_token_length: int,
+    input_ids: torch.Tensor,
+    tokenizer: CLIPTokenizer,
+    text_encoder: CLIPTextModel,
+    weight_dtype: Optional[str] = None,
+    caption=None,
+):
+    # input_ids: b,n,512 -> b*n, 512
+    b_size = input_ids.size()[0]
+    input_ids = input_ids.reshape((-1, tokenizer.model_max_length))  # batch_size*n, 77
+
+
+    device = input_ids.device
+
+    text_tokens_and_mask = tokenizer(caption, max_length=512, padding="max_length", truncation=True,
+                                     return_attention_mask=True, return_tensors='pt')
+    input_ids = text_tokens_and_mask['input_ids']
+    attention_mask = text_tokens_and_mask["attention_mask"]
+    
+    # text_encoder1
+    enc_out = text_encoder(input_ids=input_ids.to(device), attention_mask=attention_mask.to(device))
+    hidden_states = enc_out.last_hidden_state
+    hidden_states = hidden_states.reshape((b_size, -1, hidden_states.shape[-1]))
+
+
+    if max_token_length is not None:
+        # bs*3, 512, 768 or 1024
+        # encoder1: <BOS>...<EOS> の三連を <BOS>...<EOS> へ戻す
+        states_list = [hidden_states[:, 0].unsqueeze(1)]  # <BOS>
+        for i in range(1, max_token_length, tokenizer.model_max_length):
+            states_list.append(hidden_states[:, i : i + tokenizer.model_max_length - 2])  # <BOS> の後から <EOS> の前まで
+        states_list.append(hidden_states[:, -1].unsqueeze(1))  # <EOS>
+        hidden_states1 = torch.cat(states_list, dim=1)
+
+    if weight_dtype is not None:
+        # this is required for additional network training
+        hidden_states1 = hidden_states.to(weight_dtype)
+    pool2 = None
+    return hidden_states, pool2, attention_mask
+
 
 def default_if_none(value, default):
     return default if value is None else value
