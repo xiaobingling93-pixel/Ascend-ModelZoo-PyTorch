@@ -16,16 +16,10 @@ from mmcv.cnn.bricks.registry import (ATTENTION,
                                       TRANSFORMER_LAYER_SEQUENCE)
 from mmcv.cnn.bricks.transformer import build_attention
 import math
-from mmcv.runner import force_fp32, auto_fp16
-
+from mmcv.runner import force_fp32
 from mmcv.runner.base_module import BaseModule, ModuleList, Sequential
-
-from mmcv.utils import ext_loader
-from .multi_scale_deformable_attn_function import MultiScaleDeformableAttnFunction_fp32, \
-    MultiScaleDeformableAttnFunction_fp16
 from projects.mmdet3d_plugin.models.utils.bricks import run_time
-ext_module = ext_loader.load_ext(
-    '_ext', ['ms_deform_attn_backward', 'ms_deform_attn_forward'])
+import ads.common
 
 
 @ATTENTION.register_module()
@@ -383,13 +377,9 @@ class MSDeformableAttention3D(BaseModule):
         #
 
         if torch.cuda.is_available() and value.is_cuda:
-            if value.dtype == torch.float16:
-                MultiScaleDeformableAttnFunction = MultiScaleDeformableAttnFunction_fp32
-            else:
-                MultiScaleDeformableAttnFunction = MultiScaleDeformableAttnFunction_fp32
-            output = MultiScaleDeformableAttnFunction.apply(
-                value, spatial_shapes, level_start_index, sampling_locations,
-                attention_weights, self.im2col_step)
+
+            output = ads.common.npu_multi_scale_deformable_attn_function(value, spatial_shapes, level_start_index, 
+                                                                         sampling_locations, attention_weights)
         else:
             output = multi_scale_deformable_attn_pytorch(
                 value, spatial_shapes, sampling_locations, attention_weights)

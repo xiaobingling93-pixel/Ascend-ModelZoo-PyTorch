@@ -1,97 +1,124 @@
-<div align="center">   
+# BEVFormer
+
+# 概述
+
+BEVFormer 通过提取环视相机采集到的图像特征，并将提取的环视特征通过模型学习的方式转换到 BEV 空间（模型去学习如何将特征从 图像坐标系转换到 BEV 坐标系），从而实现 3D 目标检测和地图分割任务。
+
+- 参考实现：
+
+  ```
+  url=https://github.com/fundamentalvision/BEVFormer
+  commit_id=20923e66aa26a906ba8d21477c238567fa6285e9
+  ```
+
+# 支持模型 (注意：当前尚未适配完成)
+
+| Backbone          | Method          |   训练方式     |
+|-------------------|-----------------|---------------|
+| R101-DCN          | BEVFormer-base  |       FP32    |
+
+# 准备训练环境
+
+## 准备环境
+
+- 当前模型支持的 PyTorch 版本如下表所示。
+
+  **表 1**  版本支持表
+
+  | Torch_Version      |
+  | :--------: | 
+  | PyTorch 2.1 | 
   
-# BEVFormer: a Cutting-edge Baseline for Camera-based Detection
-</div>
+- 环境准备指导。
 
+  请参考《[Pytorch框架训练环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/ptes)》搭建torch环境。
+  
+- 安装依赖。
 
-https://user-images.githubusercontent.com/27915819/161392594-fc0082f7-5c37-4919-830a-2dd423c1d025.mp4
+  1. 源码编译安装 mmcv 1.x
+     ```
+      git clone -b 1.x https://github.com/open-mmlab/mmcv.git
+      cp -f mmcv_need/base_runner.py mmcv/mmcv/runner/base_runner.py
+      cp -f mmcv_need/epoch_based_runner.py mmcv/mmcv/runner/epoch_based_runner.py
+      cp -f mmcv_need/points_in_polygons_npu.cpp mmcv/mmcv/ops/csrc/pytorch/npu/points_in_polygons_npu.cpp
+      cp -f mmcv_need/distributed.py mmcv/mmcv/parallel/distributed.py
+      cp -f mmcv_need/modulated_deform_conv.py mmcv/mmcv/ops/modulated_deform_conv.py
+      cp -f mmcv_need/runtime.txt mmcv/requirements/runtime.txt
+      cd mmcv
+      pip install -r requirements/runtime.txt
+      MMCV_WITH_OPS=1 MAX_JOBS=8 FORCE_NPU=1 python setup.py build_ext
+      MMCV_WITH_OPS=1 FORCE_NPU=1 python setup.py develop
+     ```
+  2. 源码安装 mmdetection3d v1.0.0rc4
+     ```
+     git clone -b v1.0.0rc4 https://github.com/open-mmlab/mmdetection3d.git
+     cp -f mmdet3d_need/__init__.py mmdetection3d/mmdet3d/__init__.py
+     cp -f mmdet3d_need/nuscenes_dataset.py mmdetection3d/mmdet3d/datasets/nuscenes_dataset.py
+     cp -f mmdet3d_need/runtime.txt mmdetection3d/requirements/runtime.txt
+     cd mmdetection3d
+     pip install -e .
+     ```
+  3. 源码安装 mmdet 2.24.0
+     ```
+     git clone -b v2.24.0 https://github.com/open-mmlab/mmdetection.git
+     cp -f mmdet_need/__init__.py mmdetection/mmdet/__init__.py
+     cd mmdetection
+     pip install -e .
+     ```
+  4. 安装 detectron2
+     ``` 
+     python -m pip install 'git+https://github.com/facebookresearch/detectron2.git'
+     ```
+  5. 安装其他依赖
+     ```
+     pip install -r requirements.txt
+     ```
+  6. 安装ADS加速库，并将环境变量添加至 test/env_npu.sh 文件中
 
-> **BEVFormer: Learning Bird's-Eye-View Representation from Multi-Camera Images via Spatiotemporal Transformers**, ECCV 2022
-> - [Paper in arXiv](http://arxiv.org/abs/2203.17270) | [Paper in Chinese](https://drive.google.com/file/d/1dKnD6gUHhBXZ8gT733cIU_A7dHEEzNTP/view?usp=sharing) |  [OpenDriveLab](https://opendrivelab.com/)
-> - [Slides in English](https://docs.google.com/presentation/d/1fTjuSKpj_-KRjUACr8o5TbKetAXlWrmpaorVvfCTZUA/edit?usp=sharing) | [Occupancy and BEV Perception Talk Slides](https://docs.google.com/presentation/d/1U7wVi2_zJxM-EMqLVqC4zJ12ItUgS7ZcsXp7zQ1fkvc/edit?usp=sharing)
-> -  [Blog in Chinese](https://www.zhihu.com/question/521842610/answer/2431585901) | [Video Talk](https://www.bilibili.com/video/BV12t4y1t7Lq?share_source=copy_web) and [Slides](https://docs.google.com/presentation/d/1NNeikhDPkgT14G1D_Ih7K3wbSN0DkvhO9wlAMx3CIcM/edit?usp=sharing) (in Chinese) 
-> - [BEV Perception Survey](https://arxiv.org/abs/2209.05324) (Accepted by PAMI) | [Github repo](https://github.com/OpenDriveLab/BEVPerception-Survey-Recipe)
+## 准备数据集
 
+1. 用户需自行下载 nuScenes V1.0 full 和 CAN bus 数据集，结构如下：
 
+   ```
+   data/
+   ├── nuscenes
+   ├── can_bus
+   ```
+2. 数据预处理
+   ```
+   python tools/create_data.py nuscenes --root-path ./data/nuscenes --out-dir ./data/nuscenes --extra-tag nuscenes --version v1.0 --canbus ./data
+   ```
 
-# News
-- [2022/6/16]: We added two BEVformer configurations, which require less GPU memory than the base version. Please pull this repo to obtain the latest codes.
-- [2022/6/13]: We release an initial version of BEVFormer. It achieves a baseline result of **51.7%** NDS on nuScenes.
-- [2022/5/23]: 🚀🚀Built on top of BEVFormer, **BEVFormer++**, gathering up all best practices in recent SOTAs and our unique modification,  ranks **1st** on [Waymo Open Datast 3D Camera-Only Detection Challenge](https://waymo.com/open/challenges/2022/3d-camera-only-detection/). We will present BEVFormer++ on CVPR 2022 Autonomous Driving [Workshop](https://cvpr2022.wad.vision/).
-- [2022/3/10]: 🚀BEVFormer achieve the SOTA on [nuScenes Detection Task](https://nuscenes.org/object-detection?externalData=all&mapData=all&modalities=Camera) with **56.9% NDS** (camera-only)!
-</br>
+## 下载预训练权重
+创建 ckpts 文件夹，将预训练权重 r101_dcn_fcos3d_pretrain.pth 放入其中
+   ```
+   ckpts/
+   ├── r101_dcn_fcos3d_pretrain.pth
+   ```
 
+# 开始训练
 
-# Abstract
-In this work, the authors present a new framework termed BEVFormer, which learns unified BEV representations with spatiotemporal transformers to support multiple autonomous driving perception tasks. In a nutshell, BEVFormer exploits both spatial and temporal information by interacting with spatial and temporal space through predefined grid-shaped BEV queries. To aggregate spatial information, the authors design a spatial cross-attention that each BEV query extracts the spatial features from the regions of interest across camera views. For temporal information, the authors propose a temporal self-attention to recurrently fuse the history BEV information.
-The proposed approach achieves the new state-of-the-art **56.9\%** in terms of NDS metric on the nuScenes test set, which is **9.0** points higher than previous best arts and on par with the performance of LiDAR-based baselines.
+- 单机8卡训练
+   
+     ```shell
+     bash test/train_full_8p_base_fp32.sh # 8卡训练
+     bash test/train_performance_8p_base_fp32.sh # 8卡性能
+     ```
 
+# 结果
 
-# Methods
-![method](figs/arch.png "model arch")
+|  NAME       | Backbone          | Method          |   训练方式     |     Epoch    |      NDS     |     mAP      |     FPS      |
+|-------------|-------------------|-----------------|---------------|--------------|--------------|--------------|--------------|
+|  8p-NPU-910 | R101-DCN          | BEVFormer-base  |       FP32    |        4     |      44.38   |      34.47   |      0.69    |
+|  8p-竞品A   | R101-DCN          | BEVFormer-base  |       FP32    |        4     |      42.99   |      34.06   |      3.80    |
 
+# 公网地址说明
+代码涉及公网地址参考 public_address_statement.md
 
-# Getting Started
-- [Installation](docs/install.md) 
-- [Prepare Dataset](docs/prepare_dataset.md)
-- [Run and Eval](docs/getting_started.md)
+# 版本说明
 
-# Model Zoo
+## 变更
 
-| Backbone | Method | Lr Schd | NDS| mAP|memroy | Config | Download |
-| :---: | :---: | :---: | :---: | :---:|:---:| :---: | :---: |
-| R50 | BEVFormer-tiny_fp16 | 24ep | 35.9|25.7 | - |[config](projects/configs/bevformer_fp16/bevformer_tiny_fp16.py) |[model](https://github.com/zhiqi-li/storage/releases/download/v1.0/bevformer_tiny_fp16_epoch_24.pth)/[log](https://github.com/zhiqi-li/storage/releases/download/v1.0/bevformer_tiny_fp16_epoch_24.log) |
-| R50 | BEVFormer-tiny | 24ep | 35.4|25.2 | 6500M |[config](projects/configs/bevformer/bevformer_tiny.py) |[model](https://github.com/zhiqi-li/storage/releases/download/v1.0/bevformer_tiny_epoch_24.pth)/[log](https://github.com/zhiqi-li/storage/releases/download/v1.0/bevformer_tiny_epoch_24.log) |
-| [R101-DCN](https://github.com/zhiqi-li/storage/releases/download/v1.0/r101_dcn_fcos3d_pretrain.pth)  | BEVFormer-small | 24ep | 47.9|37.0 | 10500M |[config](projects/configs/bevformer/bevformer_small.py) |[model](https://github.com/zhiqi-li/storage/releases/download/v1.0/bevformer_small_epoch_24.pth)/[log](https://github.com/zhiqi-li/storage/releases/download/v1.0/bevformer_small_epoch_24.log) |
-| [R101-DCN](https://github.com/zhiqi-li/storage/releases/download/v1.0/r101_dcn_fcos3d_pretrain.pth)  | BEVFormer-base | 24ep | 51.7|41.6 |28500M |[config](projects/configs/bevformer/bevformer_base.py) | [model](https://github.com/zhiqi-li/storage/releases/download/v1.0/bevformer_r101_dcn_24ep.pth)/[log](https://github.com/zhiqi-li/storage/releases/download/v1.0/bevformer_r101_dcn_24ep.log) |
-| [R50](https://pan.baidu.com/s/1Jh5Aq2YwcD6tdj7Sl5BB3g?pwd=5rij)  | BEVformerV2-t1-base | 24ep | 42.6 | 35.1 | 23952M |[config](projects/configs/bevformerv2/bevformerv2-r50-t1-base-24ep.py) | [model/log](https://pan.baidu.com/s/1ynzlAt1DQbH8NkqmisatTw?pwd=fdcv) |
-| [R50](https://pan.baidu.com/s/1Jh5Aq2YwcD6tdj7Sl5BB3g?pwd=5rij)  | BEVformerV2-t1-base | 48ep | 43.9 | 35.9 | 23952M |[config](projects/configs/bevformerv2/bevformerv2-r50-t1-base-48ep.py) | [model/log](https://pan.baidu.com/s/1ynzlAt1DQbH8NkqmisatTw?pwd=fdcv) |
-| [R50](https://pan.baidu.com/s/1Jh5Aq2YwcD6tdj7Sl5BB3g?pwd=5rij)  | BEVformerV2-t1 | 24ep | 45.3 | 38.1 | 37579M |[config](projects/configs/bevformerv2/bevformerv2-r50-t1-24ep.py) | [model/log](https://pan.baidu.com/s/1ynzlAt1DQbH8NkqmisatTw?pwd=fdcv) |
-| [R50](https://pan.baidu.com/s/1Jh5Aq2YwcD6tdj7Sl5BB3g?pwd=5rij)  | BEVformerV2-t1 | 48ep | 46.5 | 39.5 | 37579M |[config](projects/configs/bevformerv2/bevformerv2-r50-t1-48ep.py) | [model/log](https://pan.baidu.com/s/1ynzlAt1DQbH8NkqmisatTw?pwd=fdcv) |
-| [R50](https://pan.baidu.com/s/1Jh5Aq2YwcD6tdj7Sl5BB3g?pwd=5rij)  | BEVformerV2-t2 | 24ep | 51.8 | 42.0 | 38954M |[config](projects/configs/bevformerv2/bevformerv2-r50-t2-24ep.py) | [model/log](https://pan.baidu.com/s/1ynzlAt1DQbH8NkqmisatTw?pwd=fdcv) |
-| [R50](https://pan.baidu.com/s/1Jh5Aq2YwcD6tdj7Sl5BB3g?pwd=5rij)  | BEVformerV2-t2 | 48ep | 52.6 | 43.1 | 38954M |[config](projects/configs/bevformerv2/bevformerv2-r50-t2-48ep.py) | [model/log](https://pan.baidu.com/s/1ynzlAt1DQbH8NkqmisatTw?pwd=fdcv) |
-| [R50](https://pan.baidu.com/s/1Jh5Aq2YwcD6tdj7Sl5BB3g?pwd=5rij)  | BEVformerV2-t8 | 24ep | 55.3 | 46.0 | 40392M |[config](projects/configs/bevformerv2/bevformerv2-r50-t8-24ep.py) | [model/log](https://pan.baidu.com/s/1ynzlAt1DQbH8NkqmisatTw?pwd=fdcv) |
+2024.3.8：首次发布。
 
-# Catalog
-- [ ] BEVFormerV2 HyperQuery
-- [ ] BEVFormerV2 Optimization, including memory, speed, inference.
-- [x] BEVFormerV2 Release
-- [ ] BEV Segmentation checkpoints
-- [ ] BEV Segmentation code
-- [x] 3D Detection checkpoints
-- [x] 3D Detection code
-- [x] Initialization
-
-
-# Bibtex
-If this work is helpful for your research, please consider citing the following BibTeX entry.
-
-```
-@article{li2022bevformer,
-  title={BEVFormer: Learning Bird’s-Eye-View Representation from Multi-Camera Images via Spatiotemporal Transformers},
-  author={Li, Zhiqi and Wang, Wenhai and Li, Hongyang and Xie, Enze and Sima, Chonghao and Lu, Tong and Qiao, Yu and Dai, Jifeng}
-  journal={arXiv preprint arXiv:2203.17270},
-  year={2022}
-}
-@article{Yang2022BEVFormerVA,
-  title={BEVFormer v2: Adapting Modern Image Backbones to Bird's-Eye-View Recognition via Perspective Supervision},
-  author={Chenyu Yang and Yuntao Chen and Haofei Tian and Chenxin Tao and Xizhou Zhu and Zhaoxiang Zhang and Gao Huang and Hongyang Li and Y. Qiao and Lewei Lu and Jie Zhou and Jifeng Dai},
-  journal={ArXiv},
-  year={2022},
-}
-```
-
-# Acknowledgement
-
-Many thanks to these excellent open source projects:
-- [dd3d](https://github.com/TRI-ML/dd3d) 
-- [detr3d](https://github.com/WangYueFt/detr3d) 
-- [mmdet3d](https://github.com/open-mmlab/mmdetection3d)
-
-
-### &#8627; Stargazers
-[![Stargazers repo roster for @nastyox/Repo-Roster](https://reporoster.com/stars/fundamentalvision/BEVFormer)](https://github.com/fundamentalvision/BEVFormer/stargazers)
-
-### &#8627; Forkers
-[![Forkers repo roster for @nastyox/Repo-Roster](https://reporoster.com/forks/fundamentalvision/BEVFormer)](https://github.com/fundamentalvision/BEVFormer/network/members)
-
+## FAQ

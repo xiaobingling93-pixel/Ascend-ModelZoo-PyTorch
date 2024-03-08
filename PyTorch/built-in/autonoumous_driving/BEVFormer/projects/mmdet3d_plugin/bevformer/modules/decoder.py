@@ -22,13 +22,7 @@ import math
 from mmcv.runner.base_module import BaseModule, ModuleList, Sequential
 from mmcv.utils import (ConfigDict, build_from_cfg, deprecated_api_warning,
                         to_2tuple)
-
-from mmcv.utils import ext_loader
-from .multi_scale_deformable_attn_function import MultiScaleDeformableAttnFunction_fp32, \
-    MultiScaleDeformableAttnFunction_fp16
-
-ext_module = ext_loader.load_ext(
-    '_ext', ['ms_deform_attn_backward', 'ms_deform_attn_forward'])
+import ads.common
 
 
 def inverse_sigmoid(x, eps=1e-5):
@@ -324,14 +318,8 @@ class CustomMSDeformableAttention(BaseModule):
                 f' 2 or 4, but get {reference_points.shape[-1]} instead.')
         if torch.cuda.is_available() and value.is_cuda:
 
-            # using fp16 deformable attention is unstable because it performs many sum operations
-            if value.dtype == torch.float16:
-                MultiScaleDeformableAttnFunction = MultiScaleDeformableAttnFunction_fp32
-            else:
-                MultiScaleDeformableAttnFunction = MultiScaleDeformableAttnFunction_fp32
-            output = MultiScaleDeformableAttnFunction.apply(
-                value, spatial_shapes, level_start_index, sampling_locations,
-                attention_weights, self.im2col_step)
+            output = ads.common.npu_multi_scale_deformable_attn_function(value, spatial_shapes, level_start_index, 
+                                                                         sampling_locations, attention_weights)
         else:
             output = multi_scale_deformable_attn_pytorch(
                 value, spatial_shapes, sampling_locations, attention_weights)
