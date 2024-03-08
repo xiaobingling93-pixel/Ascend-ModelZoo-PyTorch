@@ -266,9 +266,10 @@ def main_worker(npu, nnpus_per_node, args):
     else:
         train_sampler = None
 
+    kwargs = {"pin_memory_device": "npu"} if torch.__version__ >= "2.0" else {}
     train_loader = torch.utils.data.DataLoader(
         train_dataset, batch_size=args.batch_size, shuffle=(train_sampler is None),
-        num_workers=args.workers, pin_memory=True, sampler=train_sampler, drop_last=True)
+        num_workers=args.workers, pin_memory=True, sampler=train_sampler, drop_last=True, **kwargs)
 
     val_transforms = transforms.Compose([
         transforms.Resize(image_size, interpolation=PIL.Image.BICUBIC),
@@ -281,7 +282,7 @@ def main_worker(npu, nnpus_per_node, args):
     val_loader = torch.utils.data.DataLoader(
         datasets.ImageFolder(valdir, val_transforms),
         batch_size=args.batch_size, shuffle=False,
-        num_workers=args.workers, pin_memory=True)
+        num_workers=args.workers, pin_memory=True, **kwargs)
 
     if args.evaluate:
         res = validate(val_loader, model, criterion, args, nnpus_per_node)

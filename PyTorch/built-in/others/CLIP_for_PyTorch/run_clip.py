@@ -526,4 +526,5 @@ if __name__ == "__main__":
     option['ACL_OP_SELECT_IMPL_MODE'] = "high_performance"
     option['ACL_OPTYPELIST_FOR_IMPLMODE'] = "LayerNorm"
     torch.npu.set_option(option)
+    torch_npu.npu.set_compile_mode(jit_compile=False)
     main()
