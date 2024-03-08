@@ -12,14 +12,13 @@ if [ -d ${CANN_INSTALL_PATH}/ascend-toolkit/latest ]; then
 else
     source ${CANN_INSTALL_PATH}/nnae/set_env.sh
 fi
-msnpureport -g error -d 0
-msnpureport -g error -d 1
-msnpureport -g error -d 2
-msnpureport -g error -d 3
-msnpureport -g error -d 4
-msnpureport -g error -d 5
-msnpureport -g error -d 6
-msnpureport -g error -d 7
+
+count=$(npu-smi info -l | grep -c "NPU ID")
+
+for ((i=0; i<${count}; i=i+1))
+do
+    msnpureport -g error -d ${i}
+done
 
 #将Host日志输出到串口,0-关闭/1-开启
 export ASCEND_SLOG_PRINT_TO_STDOUT=0

@@ -67,6 +67,7 @@ accelerate launch --config_file ${config_file} \
   --learning_rate=1e-05 --lr_scheduler="constant_with_warmup" --lr_warmup_steps=0 \
   --max_grad_norm=1 \
   --enable_bucket \
+  --half_vae \
   --mixed_precision=$mixed_precision \
   --checkpointing_steps=500 \
   --output_dir=${output_path} > ${output_path}train_${mixed_precision}_pretrain.log 2>&1 &

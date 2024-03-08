@@ -507,7 +507,12 @@ def parse_args(input_args=None):
         action="store_true",
         help="do not use fp16/bf16 VAE in mixed precision (use float VAE)",
     )
-
+    parser.add_argument(
+        "--half_vae",
+        action="store_true",
+        help="use fp16/bf16 VAE in mixed precision ",
+    )
+    
     if input_args is not None:
         args = parser.parse_args(input_args)
     else:
@@ -635,13 +640,16 @@ def main(args):
 
     # Move unet, vae and text_encoder to device and cast to weight_dtype
     # The VAE is in float32 to avoid NaN losses.
-    vae.to(accelerator.device, dtype=torch.float32)
-
+    
+    if args.half_vae:
+        vae.to(accelerator.device, dtype=weight_dtype)
+        image_dtype = weight_dtype
+    else:
+        vae.to(accelerator.device, dtype=torch.float32)
+        image_dtype = torch.float32
     # text_encoder_one.to(accelerator.device, dtype=weight_dtype)
     # text_encoder_two.to(accelerator.device, dtype=weight_dtype)
-
-    sdxl_model = pretrain_model.SdxlPretrainModels(args, unet=unet, text_encoder1=text_encoder_one, text_encoder2=text_encoder_two, weight_dtype=weight_dtype)
-
+        
     # Create EMA for the unet.
     if args.enable_xformers_memory_efficient_attention:
         if is_xformers_available():
@@ -655,6 +663,10 @@ def main(args):
             unet.enable_xformers_memory_efficient_attention()
         else:
             raise ValueError("xformers is not available. Make sure it is installed correctly")
+        
+    sdxl_model = pretrain_model.SdxlPretrainModels(args, unet=unet, text_encoder1=text_encoder_one, text_encoder2=text_encoder_two, weight_dtype=weight_dtype)
+
+ 
 
     # `accelerate` 0.16.0 will have better support for customized saving
     if version.parse(accelerate.__version__) >= version.parse("0.16.0"):
@@ -854,7 +866,7 @@ def main(args):
                 else:
                     with torch.no_grad():
                         # latentに変換
-                        latents = vae.encode(batch["images"].to(torch.float32)).latent_dist.sample().to(weight_dtype)
+                        latents = vae.encode(batch["images"].to(image_dtype)).latent_dist.sample().to(weight_dtype)
 
                         # NaNが含まれていれば警告を表示し0に置き換える
                         if torch.any(torch.isnan(latents)):
