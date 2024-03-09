@@ -216,7 +216,7 @@ def parse_arguments():
     parser.add_argument(
         "--cache_steps", 
         type=str, 
-        default="2,4,5,6,7,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,45,46,47,48", 
+        default="2,4,5,6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,43,44,45,46,47,48", 
         help="Steps to use cache data."
     )
 
@@ -339,6 +339,14 @@ def main():
         f"[info] infer number: {infer_num}; use time: {use_time:.3f}s; "
         f"average time: {use_time/infer_num:.3f}s"
     )
+
+    # free npu resource
+    clip_session.free_resource()
+    vae_session.free_resource()
+    unet_session[0].free_resource()
+    if args.use_cache:
+        unet_session[1].free_resource()
+    InferSession.finalize()
 
 
 if __name__ == "__main__":

@@ -59,7 +59,7 @@ class BackgroundInferSession:
         self.output_arrays = [np.frombuffer(b, dtype=t).reshape(s) for (
             b, s, t) in zip(output_spaces, io_info.output_shapes, io_info.output_dtypes)]
 
-        mp.set_start_method('spawn')
+        mp.set_start_method('forkserver', force=True)
         self.p = mp.Process(
             target=self.run_session, 
             args=[sync_pipe_peer, input_spaces, output_spaces,
@@ -96,7 +96,7 @@ class BackgroundInferSession:
 
     def stop(self):
         # Stop the sub process
-        self.sync_pipe.send('STOP')
+        self.p.terminate()
 
     @classmethod
     def clone(
@@ -182,8 +182,6 @@ class BackgroundInferSession:
         # Keep looping until recived a 'STOP'
         while True:
             flag = sync_pipe.recv()
-            if flag == 'STOP':
-                break
             if flag == 'cache':
                 feeds = {}
                 inputs = session_cache.get_inputs()

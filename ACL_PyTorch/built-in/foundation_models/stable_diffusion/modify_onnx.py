@@ -110,7 +110,7 @@ def replace_slice(model, fast):
     init = [n.name for n in model.get_nodes('Initializer')]
     for pair in slice_pair:
         next_node = model.get_next_nodes(pair[0].outputs[0])[0]
-        if fast and next_node.op_type == 'Mul':
+        if fast and next_node.op_type == 'Mul' and 'mid' not in pair[0].name:
             name = pair[0].name[:-5] + 'SliceTransGeluMul'
             model.add_node(name, 'SliceTransGeluMul', inputs=[pair[0].inputs[0]], outputs=next_node.outputs)
             model.remove(next_node.name, {})

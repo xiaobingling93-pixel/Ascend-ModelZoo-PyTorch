@@ -51,10 +51,10 @@
   **表 1**  版本配套表
   | 配套                                                         | 版本    | 环境准备指导                                                 |
   | ------------------------------------------------------------ | ------- | ------------------------------------------------------------ |
-  | 固件与驱动                                                   | 23.0.0  | [Pytorch框架推理环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies) |
-  | CANN（+MindIE-RT）                                            | 7.0.0 | -                                                            |
+  | 固件与驱动                                                   | 24.1.RC1  | [Pytorch框架推理环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies) |
+  | CANN（+MindIE-RT）                                            | 8.0.RC1(1.0.RC1) | -                                                            |
   | Python                                                       | 3.10   | -                                                            |                                                           |
-如在优化模型时--FA不为None或--TOME_num不为0，需要安装与CANN包配套版本的MindIE
+如在优化模型时使用了--FA、--TOME_num、--faster_gelu参数，需要安装与CANN包配套版本的MindIE
 
 - 该模型性能受CPU规格影响，建议使用96核（2x48核）CPU（arm）以复现性能
 
@@ -76,11 +76,11 @@
    python3 stable_diffusion_clip_patch.py
    ```
 
-3. 安装昇腾统一推理工具（AIT）
+3. 安装昇腾推理工具
 
-   请访问[AIT代码仓](https://gitee.com/ascend/ait/tree/master/ait#ait)，根据readme文档进行工具安装。
+   1. 请访问[ais_bench推理工具](https://gitee.com/ascend/tools/tree/master/ais-bench_workload/tool/ais_bench)，根据readme文件进行工具安装。
 
-   安装AIT时，可只安装需要的组件：benchmark和debug，其他组件为可选安装。
+   2. 请访问[AIT代码仓](https://gitee.com/ascend/ait/tree/master/ait#ait)，根据readme文档安装debug surgeon，其他组件为可选安装。
    
 ## 准备数据集<a name="section183221994411"></a>
 
@@ -181,7 +181,7 @@
          参数说明：
          - --model：onnx模型路径。
          - --new_model：优化后生成的onnx模型路径。
-         - --FA_soc：使用FA算子的硬件形态。目前FlashAttention算子支持Atlas 300I Duo/Pro，请设置参数为Duo，其他不支持硬件请设置为None。默认为None。
+         - --FA_soc：使用FA算子的硬件形态。目前FlashAttention算子支持Atlas 300I Duo/Pro和Atlas 800I A2，请根据使用硬件设置参数，其他不支持硬件请设置为None。默认为None。
          - --TOME_num：插入TOME插件的数量，有效取值为[0, 5]。Tome插件目前支持Atlas 300I Duo/Pro，其他不支持硬件请设置为0。默认为0。
          - --faster_gelu：使用slice+gelu的融合算子。
 
