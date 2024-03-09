@@ -56,7 +56,7 @@ def parse_arguments() -> Namespace:
         "-guid",
         "--guidance_scale", 
         type=float, 
-        default=7.5, 
+        default=5.0, 
         help="guidance_scale"
     )
 

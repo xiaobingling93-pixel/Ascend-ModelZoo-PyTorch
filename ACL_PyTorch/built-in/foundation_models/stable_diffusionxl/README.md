@@ -47,13 +47,12 @@
   **表 1**  版本配套表
   | 配套                                                         | 版本    | 环境准备指导                                                 |
   | ------------------------------------------------------------ | ------- | ------------------------------------------------------------ |
-  | 固件与驱动                                                   | 23.0.rc1  | [Pytorch框架推理环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies) |
-  | CANN（+AscendIE）                                            | 7.0.RC1 | -                                                            |
-  | Python                                                       | 3.9   | -                                                            |                                                           |
-如在优化模型时--FA不为None或--TOME_num不为0，需要安装与CANN包配套版本的AscendIE
+  | 固件与驱动                                                   | 24.1.rc1  | [Pytorch框架推理环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies) |
+  | CANN（+MindIE）                                              | 8.0.RC1(1.0.RC1) | -                                                            |
+  | Python                                                       | 3.10   | -                                                            |                                                           |
+如在优化模型时使用了--FA、--TOME_num、--faster_gelu参数，需要安装与CANN包配套版本的MindIE
+
 该模型性能受CPU规格影响，建议使用64核CPU（arm）以复现性能
-
-
 
 
 # 快速上手<a name="ZH-CN_TOPIC_0000001126281700"></a>
@@ -76,12 +75,11 @@
 
 3. 安装昇腾统一推理工具（AIT）
 
-   请访问[AIT代码仓](https://gitee.com/ascend/ait/tree/master/ait#ait)，根据readme文档进行工具安装。
-
-   安装AIT时，可只安装需要的组件：benchmark和debug，其他组件为可选安装。
+   请访问[AIT代码仓](https://gitee.com/ascend/ait/tree/master/ait#ait)，根据readme文档进行工具安装。可只安装需要的组件：debug surgeon，其他组件为可选安装。
+   
+   请访问[ais_bench](https://gitee.com/ascend/tools/tree/master/ais-bench_workload/tool/ais_bench)，根据readme文件进行工具安装。
    
 
-   
 ## 模型推理<a name="section741711594517"></a>
 
 1. 模型转换。
@@ -148,6 +146,13 @@
 
          FA和TOME算子需通过安装与CANN版本对应的推理引擎包来获取
 
+      2. 适配cache方案(可选)
+
+         运行unet_cache.py脚本
+         ```bash
+         python3 unet_cache.py --model models_bs${bs}/unet/unet_md.onnx --save_dir models_bs${bs}/unet/
+         ```
+
    
    3. 使用ATC工具将ONNX模型转OM模型。
 
@@ -157,7 +162,7 @@
          source /usr/local/Ascend/ascend-toolkit/set_env.sh
 
          # 如果安装了推理引擎算子包，需配置推理引擎路径
-         source /usr/local/Ascend/aie/set_env.sh
+         source /usr/local/Ascend/mindie-rt/set_env.sh
          ```
 
          > **说明：** 
@@ -202,6 +207,7 @@
          # unet
          cd ../unet/
 
+         # 不使用cache方案
          atc --framework=5 \
              --model=./unet_md.onnx \
              --output=./unet \
@@ -211,6 +217,25 @@
              --op_select_implmode=high_performance \
              --soc_version=Ascend${chip_name}
 
+         # 使用cache方案
+         atc --framework=5 \
+            --model=./unet_cache.onnx \
+            --output=./unet_cache \
+            --input_format=NCHW \
+            --log=error \
+            --optypelist_for_implmode="Gelu,Sigmoid" \
+            --op_select_implmode=high_performance \
+            --soc_version=Ascend${chip_name}
+
+         atc --framework=5 \
+            --model=./unet_skip.onnx \
+            --output=./unet_skip \
+            --input_format=NCHW \
+            --log=error \
+            --optypelist_for_implmode="Gelu,Sigmoid" \
+            --op_select_implmode=high_performance \
+            --soc_version=Ascend${chip_name}
+
          cd ../../
 
          # vae
@@ -219,8 +244,7 @@
              --output=./models_bs1/vae/vae \
              --input_format=NCHW \
              --log=error \
-             --soc_version=Ascend${chip_name} \
-             --precision_mode=force_fp32
+             --soc_version=Ascend${chip_name}
 
          # ddim
          atc --framework=5 \
@@ -285,7 +309,8 @@
               --device 0 \
               --save_dir ./results \
               --batch_size 1 \
-              --steps 50
+              --steps 50 \
+              --use_cache
       ```
 
       参数说明：
@@ -296,6 +321,8 @@
       - --batch_size：模型batch size。
       - --steps：生成图片迭代次数。
       - --device：推理设备ID；可用逗号分割传入两个设备ID，此时会使用并行方式进行推理。
+      - --use_cache: 在推理过程中使用cache。
+      - --cache_steps: 使用cache的迭代次数。
       
       执行完成后在`./results`目录下生成推理图片。并在终端显示推理时间，参考如下：
 
@@ -322,7 +349,6 @@
       GIT_LFS_SKIP_SMUDGE=1 
       git clone https://huggingface.co/laion/CLIP-ViT-H-14-laion2B-s32B-b79K
       cd ./CLIP-ViT-H-14-laion2B-s32B-b79K
-
       ```
       也可手动下载[权重](https://huggingface.co/laion/CLIP-ViT-H-14-laion2B-s32B-b79K/blob/main/open_clip_pytorch_model.bin)
       将权重放到`CLIP-ViT-H-14-laion2B-s32B-b79K`目录下
@@ -339,7 +365,8 @@
               --device 0 \
               --save_dir ./results \
               --batch_size 1 \
-              --steps 50
+              --steps 50 \
+              --use_cache
       ```
 
       参数说明：
@@ -353,6 +380,8 @@
       - --batch_size：模型batch size。
       - --steps：生成图片迭代次数。
       - --device：推理设备ID；可用逗号分割传入两个设备ID，此时会使用并行方式进行推理。
+      - --use_cache: 在推理过程中使用cache。
+      - --cache_steps: 使用cache的迭代次数。
 
       执行完成后会在`./results`目录下生成推理图片，并且会在当前目录生成一个`image_info.json`文件，记录着图片和prompt的对应关系。
 
@@ -390,18 +419,18 @@
 迭代50次的参考精度结果如下：
 
    ```
-   average score: 0.382
+   average score: 0.378
    category average scores:
-   [Abstract], average score: 0.276
-   [Vehicles], average score: 0.383
-   [Illustrations], average score: 0.377
-   [Arts], average score: 0.420
-   [World Knowledge], average score: 0.393
-   [People], average score: 0.384
-   [Animals], average score: 0.394
-   [Artifacts], average score: 0.374
-   [Food & Beverage], average score: 0.374
-   [Produce & Plants], average score: 0.375
-   [Outdoor Scenes], average score: 0.376
-   [Indoor Scenes], average score: 0.395
+   [Abstract], average score: 0.265
+   [Vehicles], average score: 0.380
+   [Illustrations], average score: 0.372
+   [Arts], average score: 0.414
+   [World Knowledge], average score: 0.391
+   [People], average score: 0.379
+   [Animals], average score: 0.390
+   [Artifacts], average score: 0.373
+   [Food & Beverage], average score: 0.372
+   [Produce & Plants], average score: 0.370
+   [Outdoor Scenes], average score: 0.373
+   [Indoor Scenes], average score: 0.389
    ```

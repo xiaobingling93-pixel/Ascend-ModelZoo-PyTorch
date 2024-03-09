@@ -14,11 +14,12 @@
 
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
-import torch
+import aclruntime
 import numpy as np
+import torch
+from ais_bench.infer.interface import InferSession
 from diffusers import StableDiffusionXLPipeline
 from diffusers.loaders import TextualInversionLoaderMixin
-from ais_bench.infer.interface import InferSession
 
 
 class AscendStableDiffusionXLPipeline(StableDiffusionXLPipeline):
@@ -74,7 +75,6 @@ class AscendStableDiffusionXLPipeline(StableDiffusionXLPipeline):
             [encode_session, encode_session_2] if encode_session is not None else [encode_session_2]
         )
 
-      
         prompt_2 = prompt_2 or prompt
         prompt_2 = [prompt_2] if isinstance(prompt_2, str) else prompt_2
 
@@ -100,6 +100,9 @@ class AscendStableDiffusionXLPipeline(StableDiffusionXLPipeline):
                 text_input_ids, untruncated_ids
             ):
                 removed_text = tokenizer.batch_decode(untruncated_ids[:, tokenizer.model_max_length - 1 : -1])
+                print("[warning] The following part of your input was truncated"
+                    " because CLIP can only handle sequences up to"
+                    f" {self.tokenizer.model_max_length} tokens: {removed_text}")
     
             prompt_embeds = text_encoder.infer(text_input_ids.to("cpu").numpy())
 
@@ -207,6 +210,8 @@ class AscendStableDiffusionXLPipeline(StableDiffusionXLPipeline):
         unet_session: InferSession,
         scheduler_session: InferSession,
         vae_session: InferSession,
+        skip_status: List[int],
+        device_id: int = 0,
         height: Optional[int] = None,
         width: Optional[int] = None,
         num_inference_steps: int = 50,
@@ -453,9 +458,8 @@ class AscendStableDiffusionXLPipeline(StableDiffusionXLPipeline):
             add_text_embeds = torch.cat([negative_pooled_prompt_embeds, add_text_embeds], dim=0)
             add_time_ids = torch.cat([negative_add_time_ids, add_time_ids], dim=0)
 
-        prompt_embeds = prompt_embeds.to(device)
-        add_text_embeds = add_text_embeds.to(device)
-        add_time_ids = add_time_ids.to(device).repeat(batch_size * num_images_per_prompt, 1)
+        add_text_embeds = add_text_embeds.numpy()
+        add_time_ids = add_time_ids.repeat(batch_size * num_images_per_prompt, 1).numpy()
 
         # 8. Denoising loop
         num_warmup_steps = max(len(timesteps) - num_inference_steps * self.scheduler.order, 0)
@@ -476,7 +480,7 @@ class AscendStableDiffusionXLPipeline(StableDiffusionXLPipeline):
             num_inference_steps = len(list(filter(lambda ts: ts >= discrete_timestep_cutoff, timesteps)))
             timesteps = timesteps[:num_inference_steps]
 
-       
+        cache = None
         for i, t in enumerate(timesteps):
             # expand the latents if we are doing classifier free guidance
             t_numpy = t[None].numpy()
@@ -485,17 +489,30 @@ class AscendStableDiffusionXLPipeline(StableDiffusionXLPipeline):
             latent_model_input = self.scheduler.scale_model_input(latent_model_input, t)
 
             # predict the noise residual
-            noise_pred = torch.from_numpy(
-                unet_session.infer(
-                    [
-                        latent_model_input.numpy(),
-                        t_numpy.astype(np.int32),
-                        prompt_embeds,
-                        add_text_embeds.numpy(),
-                        add_time_ids.numpy()
-                    ]
-                )[0]
-            )
+            if skip_status[i]:
+                inputs = [
+                    latent_model_input.numpy(),
+                    t_numpy.astype(np.int32),
+                    prompt_embeds,
+                    add_text_embeds,
+                    add_time_ids,
+                    cache,
+                ]
+                noise_pred = torch.from_numpy(
+                    np.array(self.unet_infer(unet_session[1], inputs, device_id)[0])
+                )
+            else:
+                inputs = [
+                    latent_model_input.numpy(),
+                    t_numpy.astype(np.int32),
+                    prompt_embeds,
+                    add_text_embeds,
+                    add_time_ids,
+                ]
+                outputs = self.unet_infer(unet_session[0], inputs, device_id)
+                noise_pred = torch.from_numpy(np.array(outputs[0]))
+                if len(outputs) > 1:
+                    cache = outputs[1]
 
             latents = torch.from_numpy(
                 scheduler_session.infer(
@@ -532,3 +549,19 @@ class AscendStableDiffusionXLPipeline(StableDiffusionXLPipeline):
             image = self.numpy_to_pil(image)
 
         return (image, None)
+
+    def unet_infer(self, session, data, device_id):
+        feeds = {}
+        inputs = session.get_inputs()
+        for i, inp in enumerate(inputs):
+            if inp.name == 'cache':
+                feeds[inp.name] = data[i]
+                continue
+            feed = aclruntime.Tensor(data[i])
+            feed.to_device(device_id)
+            feeds[inp.name] = feed
+        out_names = [out.name for out in session.get_outputs()]
+
+        outputs = session.run(out_names, feeds)
+        outputs[0].to_host()
+        return outputs

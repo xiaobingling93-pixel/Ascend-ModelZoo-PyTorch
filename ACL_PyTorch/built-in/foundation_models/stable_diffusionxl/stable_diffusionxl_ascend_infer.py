@@ -18,6 +18,7 @@ import time
 import json
 import argparse
 
+import aclruntime
 from ais_bench.infer.interface import InferSession
 from diffusers import DPMSolverMultistepScheduler, EulerDiscreteScheduler, DDIMScheduler
 
@@ -186,6 +187,18 @@ def parse_arguments():
         default=1, 
         help="Batch size."
     )
+    parser.add_argument(
+        "--use_cache", 
+        action="store_true",
+        help="Use cache during inference."
+    )
+    parser.add_argument(
+        "--cache_steps", 
+        type=str, 
+        default="2,4,5,6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,45,46,47,48", 
+        help="Steps to use cache data."
+    )
+
 
     return parser.parse_args()
 
@@ -193,7 +206,6 @@ def parse_arguments():
 def main():
     args = parse_arguments()
     save_dir = args.save_dir
-    device = None
     device = args.device
 
     pipe = AscendStableDiffusionXLPipeline.from_pretrained(args.model).to("cpu")
@@ -209,14 +221,32 @@ def main():
     encoder_om = os.path.join(args.model_dir, "text_encoder", "text_encoder.om")
     encoder_om_2 = os.path.join(args.model_dir, "text_encoder", "text_encoder_2.om")
     vae_om = os.path.join(args.model_dir, "vae", "vae.om")
-    unet_om = os.path.join(args.model_dir, "unet", "unet.om")
     scheduler_om = os.path.join(args.model_dir, "ddim", "ddim.om")
 
     encoder_session = InferSession(device, encoder_om)
     encoder_session_2 = InferSession(device, encoder_om_2)
     vae_session = InferSession(device, vae_om)
-    unet_session = InferSession(device, unet_om)
     scheduler_session = InferSession(device, scheduler_om)
+
+    skip_status = [0] * args.steps
+    if args.use_cache:
+        for i in args.cache_steps.split(','):
+            if int(i) >= args.steps:
+                continue
+            skip_status[int(i)] = 1
+        unet_cache_om = os.path.join(args.model_dir, "unet", "unet_cache.om")
+        unet_skip_om = os.path.join(args.model_dir, "unet", "unet_skip.om")
+        unet_session = [
+            aclruntime.InferenceSession(unet_cache_om, device, aclruntime.session_options()),
+            aclruntime.InferenceSession(unet_skip_om, device, aclruntime.session_options()),
+        ]
+    else:
+        unet_cache_om = os.path.join(args.model_dir, "unet", "unet.om")
+        unet_skip_om = ""
+        unet_session = [
+            aclruntime.InferenceSession(unet_cache_om, device, aclruntime.session_options()),
+            None,
+        ]
 
     if not os.path.exists(save_dir):
         os.makedirs(save_dir, mode=0o744)
@@ -251,8 +281,10 @@ def main():
             unet_session,
             scheduler_session,
             vae_session,
+            skip_status,
+            device_id=device,
             num_inference_steps=args.steps,
-            guidance_scale=7.5,
+            guidance_scale=5.0,
         )
 
         use_time += time.time() - start_time
@@ -268,7 +300,6 @@ def main():
 
             image_info[-1]['images'].append(image_save_path)
 
-
     # Save image information to a json file
     if os.path.exists(args.info_file_save_path):
         os.remove(args.info_file_save_path)
@@ -280,6 +311,16 @@ def main():
         f"[info] infer number: {infer_num}; use time: {use_time:.3f}s; "
         f"average time: {use_time/infer_num:.3f}s"
     )
+
+    # free npu resource
+    encoder_session.free_resource()
+    encoder_session_2.free_resource()
+    vae_session.free_resource()
+    scheduler_session.free_resource()
+    unet_session[0].free_resource()
+    if args.use_cache:
+        unet_session[1].free_resource()
+    InferSession.finalize()
 
 
 if __name__ == "__main__":
