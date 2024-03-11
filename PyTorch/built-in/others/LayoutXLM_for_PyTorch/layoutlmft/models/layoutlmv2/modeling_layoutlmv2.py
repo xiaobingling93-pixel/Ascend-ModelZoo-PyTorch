@@ -617,7 +617,9 @@ class VisualBackbone(nn.Module):
         )
         self.register_buffer("pixel_std", torch.Tensor(self.cfg.MODEL.PIXEL_STD).view(num_channels, 1, 1))
         self.out_feature_key = "p2"
-        if torch.is_deterministic():
+        is_deterministic = torch.is_deterministic() if torch.__version__ < "1.11" \
+            else torch.are_deterministic_algorithms_enabled()
+        if is_deterministic:
             logger.warning("using `AvgPool2d` instead of `AdaptiveAvgPool2d`")
             input_shape = (224, 224)
             backbone_stride = self.backbone.output_shape()[self.out_feature_key].stride

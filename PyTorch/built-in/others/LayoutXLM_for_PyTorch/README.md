@@ -35,11 +35,13 @@ LayoutLMv2详见 [README_MV2.md](README_MV2.md)
 
   ****表 1**** 版本支持表
 
-  | Torch_Version     | 三方库依赖版本 
-  | --------          |:---------:
-  | PyTorch 1.8       | transformers==4.5.1; detectron2==0.3; seqeval==1.2.2; datasets==2.7.1; packaging==21.0
-  | PyTorch 1.11       | transformers==4.5.1; detectron2==0.3; seqeval==1.2.2; datasets==2.7.1; packaging==21.0
-  | PyTorch 2.1       | transformers==4.5.1; detectron2==0.3; seqeval==1.2.2; datasets==2.7.1; packaging==21.0
+  | Torch_Version     | 三方库依赖版本 |
+  | --------          |:---------:|
+  | PyTorch 1.8       | transformers==4.5.1; detectron2==0.3; seqeval==1.2.2; datasets==2.7.1; packaging==21.0|
+  | PyTorch 1.11       | transformers==4.5.1; detectron2==0.3; seqeval==1.2.2; datasets==2.7.1; packaging==21.0, tokenizers==0.12.0; sacremoses==0.1.1; torchvision==0.12.0; pillow==9.2.0 |
+  | PyTorch 2.1       | transformers==4.5.1; detectron2==0.3; seqeval==1.2.2; datasets==2.7.1; packaging==21.0|
+
+  1.11版本需要将`/site-packages/transformers/__init__.py`中第43行的代码注释掉，取消版本强校验。
 
 - 环境准备指导。
 
@@ -60,7 +62,7 @@ LayoutLMv2详见 [README_MV2.md](README_MV2.md)
   pip install -r requirements.txt
   pip install -e .
   ```
-  
+
 ## 准备数据集
 - 在有网络的情况下，模型训练需要的数据集会在训练开始之前由训练脚本自动下载，无需准备数据集。
 
@@ -119,8 +121,9 @@ LayoutLMv2详见 [README_MV2.md](README_MV2.md)
      bash test/train_performance_8p_ser.sh     # SER性能任务      
      ```
      
+   
    --fp32开启FP32模式
-     
+   
    + 脚本中调用的python命令参数说明如下：
      
       ```bash
@@ -208,6 +211,8 @@ return session.request(method=method, url=url, verify=False, **kwargs)
         )
 ```
 为实际的数据集路径。
+
+3. 如果报错不支持本地数据集读取，可以安装`pip install fsspec==2023.9.2`
 
 
 # 公网地址说明
