@@ -250,8 +250,6 @@ def train_one_epoch(config, model, criterion, data_loader, optimizer, epoch, mix
             break
 
         step_ign += 1
-        if step_ign < 5:
-            start = time.time()
         samples = samples.npu(non_blocking=True)
         targets = targets.npu(non_blocking=True)
         if mixup_fn is not None:
@@ -319,7 +317,7 @@ def train_one_epoch(config, model, criterion, data_loader, optimizer, epoch, mix
         end = time.time()
     epoch_time = time.time() - start
     logger.info(f"EPOCH {epoch} training takes {datetime.timedelta(seconds=int(epoch_time))}")
-    FPS_epoch = (num_steps - 5 - args.iter) * config.DATA.BATCH_SIZE * config.WORLD_SIZE / float(epoch_time)
+    FPS_epoch = (num_steps - args.iter) * config.DATA.BATCH_SIZE * config.WORLD_SIZE / float(epoch_time)
     logger.info(f"FPS {FPS_epoch}")
     return FPS_epoch
 
