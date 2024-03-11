@@ -2,6 +2,7 @@
 Network="BEVFormer_Base"
 batch_size=1
 world_size=8
+epochs=24
 
 # cd到与test文件夹同层级目录下执行脚本，提高兼容性；test_path_dir为包含test文件夹的路径
 cur_path=$(pwd)
@@ -25,10 +26,18 @@ fi
 
 mkdir -p ${output_path}
 
+for para in $*
+do
+    if [[ $para == --epochs* ]];then
+        epochs=`echo ${para#*=}`
+    fi
+done
+
 #训练开始时间，不需要修改
 start_time=$(date +%s)
 
-sed -i "s|interval=1,|interval=50,|g" projects/configs/bevformer/bevformer_base.py
+sed -i "s|log_config = dict(interval=1,|log_config = dict(interval=50,|g" projects/configs/bevformer/bevformer_base.py
+sed -i "s|total_epochs = [0-9]*|total_epochs = ${epochs}|g" projects/configs/bevformer/bevformer_base.py
 sed -i "s|runner = dict(type='EpochBasedRunner', max_epochs=total_epochs, stop_iters=100)|runner = dict(type='EpochBasedRunner', max_epochs=total_epochs)|g" projects/configs/bevformer/bevformer_base.py
 
 bash ./tools/dist_train.sh ./projects/configs/bevformer/bevformer_base.py ${world_size} > ${test_path_dir}/output/train_full_8p_base_fp32.log 2>&1 &

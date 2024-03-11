@@ -25,7 +25,7 @@ fi
 
 mkdir -p ${output_path}
 
-sed -i "s|interval=50,|interval=1,|g" projects/configs/bevformer/bevformer_base.py
+sed -i "s|log_config = dict(interval=50,|log_config = dict(interval=1,|g" projects/configs/bevformer/bevformer_base.py
 sed -i "s|runner = dict(type='EpochBasedRunner', max_epochs=total_epochs)|runner = dict(type='EpochBasedRunner', max_epochs=total_epochs, stop_iters=100)|g" projects/configs/bevformer/bevformer_base.py
 
 
@@ -36,7 +36,7 @@ bash ./tools/dist_train.sh ./projects/configs/bevformer/bevformer_base.py ${worl
 
 wait
 
-sed -i "s|interval=1,|interval=50,|g" projects/configs/bevformer/bevformer_base.py
+sed -i "s|log_config = dict(interval=1,|log_config = dict(interval=50,|g" projects/configs/bevformer/bevformer_base.py
 sed -i "s|runner = dict(type='EpochBasedRunner', max_epochs=total_epochs, stop_iters=100)|runner = dict(type='EpochBasedRunner', max_epochs=total_epochs)|g" projects/configs/bevformer/bevformer_base.py
 
 #训练结束时间，不需要修改
@@ -76,7 +76,7 @@ echo "E2E Training Duration sec : $e2e_time"
 BatchSize=${batch_size}
 WORLD_SIZE=${world_size}
 DeviceType=$(uname -m)
-CaseName=${Network}_bs${BatchSize}_${WORLD_SIZE}'p'_'acc'
+CaseName=${Network}_bs${BatchSize}_${WORLD_SIZE}'p'_'performance'
 
 #关键信息打印到${CaseName}.log中，不需要修改
 echo "Network = ${Network}" >${test_path_dir}/output/${CaseName}.log
