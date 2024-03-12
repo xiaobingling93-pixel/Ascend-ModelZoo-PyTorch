@@ -1,3 +1,17 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 # Copyright (c) OpenMMLab. All rights reserved.
 import warnings
 from abc import ABCMeta, abstractmethod
@@ -13,6 +27,7 @@ from mmseg.utils import ConfigType, SampleList
 from ..builder import build_loss
 from ..losses import accuracy
 from ..utils import resize
+import torch.nn.functional as F
 
 
 class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
@@ -218,11 +233,7 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
         if self.input_transform == 'resize_concat':
             inputs = [inputs[i] for i in self.in_index]
             upsampled_inputs = [
-                resize(
-                    input=x,
-                    size=inputs[0].shape[2:],
-                    mode='bilinear',
-                    align_corners=self.align_corners) for x in inputs
+                torch._C._nn.upsample_bilinear2d(x, input[0].shape[2:], self.align_corners) for x in inputs
             ]
             inputs = torch.cat(upsampled_inputs, dim=1)
         elif self.input_transform == 'multiple_select':
@@ -304,11 +315,7 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
 
         seg_label = self._stack_batch_gt(batch_data_samples)
         loss = dict()
-        seg_logits = resize(
-            input=seg_logits,
-            size=seg_label.shape[2:],
-            mode='bilinear',
-            align_corners=self.align_corners)
+        seg_logits = torch._C._nn.upsample_bilinear2d(seg_logits, seg_label.shape[2:], self.align_corners)
         if self.sampler is not None:
             seg_weight = self.sampler.sample(seg_logits, seg_label)
         else:
@@ -358,9 +365,5 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
         else:
             size = batch_img_metas[0]['img_shape']
 
-        seg_logits = resize(
-            input=seg_logits,
-            size=size,
-            mode='bilinear',
-            align_corners=self.align_corners)
+        seg_logits = torch._C._nn.upsample_bilinear2d(seg_logits, size, self.align_corners)
         return seg_logits

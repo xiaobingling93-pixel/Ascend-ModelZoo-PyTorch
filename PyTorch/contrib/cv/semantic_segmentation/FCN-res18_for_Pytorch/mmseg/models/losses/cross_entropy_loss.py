@@ -1,3 +1,17 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 # Copyright (c) OpenMMLab. All rights reserved.
 import warnings
 
@@ -275,24 +289,11 @@ class CrossEntropyLoss(nn.Module):
                 ignore_index=-100,
                 **kwargs):
         """Forward function."""
-        assert reduction_override in (None, 'none', 'mean', 'sum')
-        reduction = (
-            reduction_override if reduction_override else self.reduction)
-        if self.class_weight is not None:
-            class_weight = cls_score.new_tensor(self.class_weight)
-        else:
-            class_weight = None
-        # Note: for BCE loss, label < 0 is invalid.
-        loss_cls = self.loss_weight * self.cls_criterion(
-            cls_score,
-            label,
-            weight,
-            class_weight=class_weight,
-            reduction=reduction,
-            avg_factor=avg_factor,
-            avg_non_ignore=self.avg_non_ignore,
-            ignore_index=ignore_index,
-            **kwargs)
+        loss = F.cross_entropy(cls_score, label, weight=weight, reduction='none', ignore_index=ignore_index)
+        avg_factor = label.numel()
+        loss = loss.sum() / avg_factor
+        loss_cls = self.loss_weight * loss
+
         return loss_cls
 
     @property

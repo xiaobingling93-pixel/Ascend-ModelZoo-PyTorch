@@ -1,3 +1,16 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 _base_ = './fcn_r50-d8_4xb2-80k_cityscapes-769x769.py'
 model = dict(
     pretrained='torchvision://resnet18',
@@ -5,5 +18,12 @@ model = dict(
     decode_head=dict(
         in_channels=512,
         channels=128,
+        loss_decode=dict(type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1)
     ),
-    auxiliary_head=dict(in_channels=256, channels=64))
+    auxiliary_head=dict(
+        in_channels=256,
+        channels=64,
+        loss_decode=dict(type='CrossEntropyLoss', use_sigmoid=False, loss_weight=0.4)
+    ))
+
+optimizer = dict(type='SGD', lr=0.01, momentum=0.9, weight_decay=0.0005)
