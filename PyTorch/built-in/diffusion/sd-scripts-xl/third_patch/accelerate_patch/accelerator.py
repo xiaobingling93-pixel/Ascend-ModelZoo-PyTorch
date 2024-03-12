@@ -433,7 +433,8 @@ class Accelerator:
 
                 self.scaler = ShardedGradScaler(**kwargs)
             elif is_npu_available():
-                self.scaler = torch.npu.amp.GradScaler(init_scale=2. ** 7)
+                import fairscale
+                self.scaler = fairscale.optim.grad_scaler.ShardedGradScaler()
             else:
                 self.scaler = torch.cuda.amp.GradScaler(**kwargs)
 
