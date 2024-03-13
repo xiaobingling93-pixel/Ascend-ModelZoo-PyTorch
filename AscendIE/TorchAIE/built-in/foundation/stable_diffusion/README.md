@@ -24,6 +24,8 @@
   ```bash
    # StableDiffusion v1.5
    https://huggingface.co/runwayml/stable-diffusion-v1-5
+   # StableDiffusion v2.1
+   https://huggingface.co/stabilityai/stable-diffusion-2-1-base
   ```
 
 ## 输入输出数据<a name="section540883920406"></a>
@@ -57,12 +59,25 @@
 
 ## 获取源码<a name="section4622531142816"></a>
 
-1. 安装依赖。
+1. 按照requirements.txt要求的版本安装相关依赖，避免导出模型失败。
    ```bash
    pip3 install -r requirements.txt
    ```
 
-2. 代码修改
+2. 安装mindie和mindietorch包
+
+   ```bash
+   # 安装mindie
+   chmod +x ./Ascend-mindie_xxx.run
+   ./Ascend-mindie_xxx.run --install
+   source /usr/local/Ascend/aie/set_env.sh
+
+   # 安装mindietorch
+   tar -zxvf Ascend-mindie-torch_xxx.tar.gz
+   pip install mindietorch-1.0.rc1+torch2.1.0xxx.whl
+   ```
+
+3. 代码修改
 
    执行命令：
    
@@ -70,9 +85,9 @@
    python3 stable_diffusion_clip_patch.py
    ```
    
-      ```bash
+   ```bash
    python3 stable_diffusion_attention_patch.py
-      ```
+   ```
    
 ## 准备数据集<a name="section183221994411"></a>
 
@@ -143,13 +158,37 @@
       - --model：模型名称或本地模型目录的路径
       - --output_dir: pt模型输出目录
       
-      执行成功后会生成pt模型：  
-         - ./models/clip/clip.pt  或者 ./models_lora/clip/clip.pt 
+      执行成功后会生成pt模型：
+         - ./models/clip/clip.pt  或者 ./models_lora/clip/clip.pt
          - ./models/unet/unet_bs1.pt 或者 ./models_lora/unet/unet_bs1.pt
          - ./models/unet/unet_bs2.pt 或者 ./models_lora/unet/unet_bs2.pt
          - ./models/vae/vae.pt 或者 ./models_lora/vae/vae_bs2.pt
       
-   2. **注意：**更换lora权重时，请手动删除models_lora路径的生成的pt模型，重新执行转换权重脚本和导出模型命令导出带lora权重的pt模型。
+      **注意**：更换lora权重时，请手动删除models_lora路径的生成的pt模型，重新执行转换权重脚本和导出模型命令导出带lora权重的pt模型。
+
+      使用UnetCache策略【可选】
+
+      修改diffusers源码：
+      - 修改diffusers-0.14.0/src/diffusers/models/unet_2d_condition.py
+
+      执行命令：
+
+      ```bash
+      # 若使用UnetCache策略
+      python3 export_ts_cache.py --model ${model_new} --output_dir ./models
+      ```
+
+      参数说明：
+      - --model：模型名称或本地模型目录的路径
+      - --output_dir: pt模型输出目录
+      
+      执行成功后会生成pt模型：
+         - ./models/clip/clip.pt
+         - ./models/unet/unet_bs1_0.pt
+         - ./models/unet/unet_bs1_1.pt
+         - ./models/unet/unet_bs2_0.pt
+         - ./models/unet/unet_bs2_1.pt
+         - ./models/vae/vae.pt
 
 
 2. 开始推理验证。【Duo】
@@ -176,10 +215,21 @@
               --scheduler DDIM \
               --soc Duo \
               --output_dir ./models_lora
-              
+      # 1.3使用UnetCache策略
+      python3 stable_diffusion_pipeline_unetcache.py \
+              --model ${model_base} \
+              --prompt_file ./prompts.txt \
+              --device 0 \
+              --save_dir ./results \
+              --steps 50 \
+              --scheduler DDIM \
+              --soc Duo \
+              --output_dir ./models
+
+
       # 2.若使用并行推理
       # 2.1不使用lora权重
-      python3 stable_diffusion_paralle_pipeline.py \
+      python3 stable_diffusion_parallel_pipeline.py \
               --model ${model_base} \
               --prompt_file ./prompts.txt \
               --device 0,1 \
@@ -189,7 +239,7 @@
               --soc Duo \
               --output_dir ./models
        # 2.2使用带lora权重的新权重
-       python3 stable_diffusion_paralle_pipeline.py \
+       python3 stable_diffusion_parallel_pipeline.py \
               --model ${model_new} \
               --prompt_file ./prompts.txt \
               --device 0,1 \
@@ -198,6 +248,16 @@
               --scheduler DDIM \
               --soc Duo \
               --output_dir ./models_lora
+      # 2.3使用UnetCache策略
+       python3 stable_diffusion_parallel_pipeline_unetcache.py \
+              --model ${model_new} \
+              --prompt_file ./prompts.txt \
+              --device 0,1 \
+              --save_dir ./results \
+              --steps 50 \
+              --scheduler DDIM \
+              --soc Duo \
+              --output_dir ./models
       ```
       
       参数说明：
@@ -213,16 +273,31 @@
       执行完成后在`./results`目录下生成推理图片。并在终端显示推理时间。
 
 
-2. **注意**：更换lora权重时，请手动删除models_lora路径的生成的编译好的pt模型，（xxx_compile.pt）重新执行推理脚本。
-   
-   
+   **注意**：更换lora权重时，请手动删除models_lora路径的生成的编译好的pt模型，（xxx_compile.pt）重新执行推理脚本。
+
+   **注意**：并行推理使用UnetCache策略时，请手动修改background_runtime_cache.py文件中的model_cache、model_skip模型路径。
+
+      ```bash
+      # 若--output_dir设为./models
+      model_cache = torch.jit.load("./models/unet/compiled_unet_cache_parallel.ts").eval()
+      model_skip = torch.jit.load("./models/unet/compiled_unet_skip_parallel.ts").eval()
+      ```
+
+
 # 模型推理性能&精度<a name="ZH-CN_TOPIC_0000001172201573"></a>
 
 性能参考下列数据。
 
 ### StableDiffusion v1.5
 
-| 硬件形态 | 迭代次数 | 平均耗时 |
-| :------: |:----:|:----:|
-| Duo并行  |  50  | 2.8s |
-| A2     |  50  |  2s  | 
+| 硬件形态 | 迭代次数 | 平均耗时(w/o UnetCache) | 平均耗时(with UnetCache) |
+| :------: |:----:|:----:|:----:|
+| Duo并行  |  50  | 2.5s | 1.99s |
+| A2     |  50  |  1.6s  |  1.17s  |
+
+### StableDiffusion v2.1
+
+| 硬件形态 | 迭代次数 | 平均耗时(w/o UnetCache) | 平均耗时(with UnetCache) |
+| :------: |:----:|:----:|:----:|
+| Duo并行  |  50  | 2.3s | 1.89s |
+| A2     |  50  |  1.4s  |  0.97s  |
