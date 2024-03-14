@@ -153,13 +153,19 @@
 ##### Controlnet微调
 
    1. 联网情况下，数据集会自动下载。
-   2. 无网络情况下，用户需自行获取fill50k数据集，并在以下启动shell脚本中将`dataset_name`参数设置为本地数据集的绝对路径。
+   2. 无网络情况下，用户需自行获取fill50k数据集，并在以下启动shell脚本中将`dataset_name`参数设置为本地数据集的绝对路径，以及需要修改里面fill50k.py文件。
 
    ```shell
    test/train_8p_controlnet_sdxl.sh 
    test/train_8p_controlnet_sdxl_deepspeed.sh
    ```
-
+   > **注意：** 
+   >需要修改数据集下面的fill50k.py文件中的57到59行，修改示例如下:
+   > ```python
+   > metadata_path = "数据集路径/fill50k/train.jsonl"
+   > images_dir = "数据集路径/fill50k"
+   > conditioning_images_dir = "数据集路径/fill50k"
+   >```
    fill50k数据集格式如下:
    ```
    fill50k
@@ -168,6 +174,8 @@
    ├── train.jsonl
    └── fill50k.py
    ```
+
+
    > **说明：** 
    >该数据集的训练过程脚本只作为一种参考示例。
 

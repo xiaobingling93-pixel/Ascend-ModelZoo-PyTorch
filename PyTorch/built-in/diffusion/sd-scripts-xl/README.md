@@ -56,7 +56,6 @@ Stable Diffusion(SD)是计算机视觉领域的一个生成式大模型，能够
 |   三方库   | 支持版本 |
 | :--------: | :------: |
 |  PyTorch   |  1.11.0   |
-| Accelerate |  0.25.0  |
 | Deepspeed  |  0.12.6  |
 | diffusers  |  0.21.2  |
 | accelerate  |  0.23.0  |
@@ -263,7 +262,7 @@ replace_token_length $mt5_tokenizer_path/tokenizer_config.json
       - 单机8卡预训练
       ```shell
       bash test/pretrain_full_8p_sdxl_mt5.sh #8卡训练 默认为混合精度 带FA
-      bash test/pretrain_full_8p_sdxl_mt5.sh   --max_train_epoch 1 #8卡性能
+      bash test/pretrain_full_8p_sdxl_mt5.sh   --max_train_epoch=6 #8卡性能
       ```
       - 模型的python训练脚本参数说明。
       ```shell
