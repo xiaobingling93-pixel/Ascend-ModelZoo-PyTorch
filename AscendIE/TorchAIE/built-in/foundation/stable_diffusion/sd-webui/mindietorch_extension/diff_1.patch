@@ -1,0 +1,46 @@
+--- repositories/generative-models/sgm/modules/diffusionmodules/util.py 2024-03-09 12:04:41.836000000 +0000
++++ repositories/generative-models/sgm/modules/diffusionmodules/util_temp.py    2024-03-09 12:05:41.828000000 +0000
+@@ -160,11 +160,12 @@ def checkpoint(func, inputs, params, fla
+                    explicitly take as arguments.
+     :param flag: if False, disable gradient checkpointing.
+     """
+-    if flag:
+-        args = tuple(inputs) + tuple(params)
+-        return CheckpointFunction.apply(func, len(inputs), *args)
+-    else:
+-        return func(*inputs)
++    # if flag:
++    #     args = tuple(inputs) + tuple(params)
++    #     return CheckpointFunction.apply(func, len(inputs), *args)
++    # else:
++    #     return func(*inputs)
++    return func(*inputs)
+ 
+ 
+ class CheckpointFunction(torch.autograd.Function):
+
+--- repositories/generative-models/sgm/modules/diffusionmodules/wrappers.py 2024-03-09 12:04:41.836000000 +0000
++++ repositories/generative-models/sgm/modules/diffusionmodules/wrappers_temp.py    2024-03-09 12:05:41.828000000 +0000
+@@ -8,13 +8,14 @@ OPENAIUNETWRAPPER = "sgm.modules.diffusi
+ class IdentityWrapper(nn.Module):
+     def __init__(self, diffusion_model, compile_model: bool = False):
+         super().__init__()
+-        compile = (
+-            torch.compile
+-            if (version.parse(torch.__version__) >= version.parse("2.0.0"))
+-            and compile_model
+-            else lambda x: x
+-        )
+-        self.diffusion_model = compile(diffusion_model)
++        # compile = (
++        #     torch.compile
++        #     if (version.parse(torch.__version__) >= version.parse("2.0.0"))
++        #     and compile_model
++        #     else lambda x: x
++        # )
++        # self.diffusion_model = compile(diffusion_model)
++        self.diffusion_model = diffusion_model
+ 
+     def forward(self, *args, **kwargs):
+         return self.diffusion_model(*args, **kwargs)
+

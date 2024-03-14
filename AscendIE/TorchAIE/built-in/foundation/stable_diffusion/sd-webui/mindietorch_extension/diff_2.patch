@@ -1,0 +1,51 @@
+--- modules/sd_hijack_optimizations.py  2024-03-09 14:05:50.464000000 +0000
++++ modules/sd_hijack_optimizations_temp.py 2024-03-09 14:09:48.080000000 +0000
+@@ -199,13 +199,15 @@ def split_cross_attention_forward_v1(sel
+         r1 = torch.zeros(q.shape[0], q.shape[1], v.shape[2], device=q.device, dtype=q.dtype)
+         for i in range(0, q.shape[0], 2):
+             end = i + 2
+-            s1 = einsum('b i d, b j d -> b i j', q[i:end], k[i:end])
++            # s1 = einsum('b i d, b j d -> b i j', q[i:end], k[i:end])
++            s1 = einsum('bid,bjd->bij', q[i:end], k[i:end])
+             s1 *= self.scale
+ 
+             s2 = s1.softmax(dim=-1)
+             del s1
+ 
+-            r1[i:end] = einsum('b i j, b j d -> b i d', s2, v[i:end])
++            # r1[i:end] = einsum('b i j, b j d -> b i d', s2, v[i:end])
++            r1[i:end] = einsum('bij,bjd->bid', s2, v[i:end])
+             del s2
+         del q, k, v
+ 
+@@ -263,12 +265,14 @@ def split_cross_attention_forward(self,
+         slice_size = q.shape[1] // steps
+         for i in range(0, q.shape[1], slice_size):
+             end = min(i + slice_size, q.shape[1])
+-            s1 = einsum('b i d, b j d -> b i j', q[:, i:end], k)
++            # s1 = einsum('b i d, b j d -> b i j', q[:, i:end], k)
++            s1 = einsum('bid,bjd->bij', q[:, i:end], k)
+ 
+             s2 = s1.softmax(dim=-1, dtype=q.dtype)
+             del s1
+ 
+-            r1[:, i:end] = einsum('b i j, b j d -> b i d', s2, v)
++            # r1[:, i:end] = einsum('b i j, b j d -> b i d', s2, v)
++            r1[:, i:end] = einsum('bij,bjd->bid', s2, v)
+             del s2
+ 
+         del q, k, v
+@@ -286,9 +290,11 @@ mem_total_gb = psutil.virtual_memory().t
+ 
+ 
+ def einsum_op_compvis(q, k, v):
+-    s = einsum('b i d, b j d -> b i j', q, k)
++    # s = einsum('b i d, b j d -> b i j', q, k)
++    s = einsum('bid,bjd->bij', q, k)
+     s = s.softmax(dim=-1, dtype=s.dtype)
+-    return einsum('b i j, b j d -> b i d', s, v)
++    # return einsum('b i j, b j d -> b i d', s, v)
++    return einsum('bij,bjd->bid', s, v)
+ 
+ 
+ def einsum_op_slice_0(q, k, v, slice_size):

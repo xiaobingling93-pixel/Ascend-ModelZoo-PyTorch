@@ -4,8 +4,8 @@ import time
 import math
 import numpy as np
 import torch
-import torch_aie
-from torch_aie import _enums
+import mindietorch
+from mindietorch import _enums
 from ldm.modules.diffusionmodules.openaimodel import UNetModel
 from ldm.modules.diffusionmodules.util import timestep_embedding
 from diffusers import StableDiffusionPipeline
@@ -24,17 +24,19 @@ class UnetExport(torch.nn.Module):
 
 def replace_unet_torch_aie():
     cur_dir_path = os.path.dirname(os.path.abspath(__file__))
-    os.makedirs("models")
+    save_dir = os.path.join(cur_dir_path, "models")
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
     device_0, device_1 = 2, None
-    torch_aie.set_device(device_0)
-    model_base = "runwayml/stable-diffusion-v1-5"
+    mindietorch.set_device(device_0)
+    model_base = os.path.join(save_dir, "stable-diffusion-v1-5")
     if NpuConfig.use_parallel_inferencing:
         batch_size = 1
         device_1 = 3
-        unet_path = os.path.join(cur_dir_path, "models", "unet_aie_compile_bs1.pt")
+        unet_path = os.path.join(save_dir, "unet_aie_compile_bs1.pt")
     else:
         batch_size = 2
-        unet_path = os.path.join(cur_dir_path, "models", "unet_aie_compile_bs2.pt")
+        unet_path = os.path.join(save_dir, "unet_aie_compile_bs2.pt")
 
     def torch_aie_unet(self, x, timesteps=None, context=None, y=None, **kwargs):
         if not NpuConfig.compiled_unet_model:
@@ -60,17 +62,17 @@ def replace_unet_torch_aie():
                 unet = UnetExport(pipe.unet)
                 model = torch.jit.trace(unet, dummy_input)
                 unet_input_info = [
-                    torch_aie.Input(
+                    mindietorch.Input(
                         (batch_size, in_channels, sample_size, sample_size),
-                        dtype=torch_aie.dtype.FLOAT,
+                        dtype=mindietorch.dtype.FLOAT,
                     ),
-                    torch_aie.Input((1,), dtype=torch_aie.dtype.INT64),
-                    torch_aie.Input(
+                    mindietorch.Input((1,), dtype=mindietorch.dtype.INT64),
+                    mindietorch.Input(
                         (batch_size, max_position_embeddings, encoder_hidden_size),
-                        dtype=torch_aie.dtype.FLOAT,
+                        dtype=mindietorch.dtype.FLOAT,
                     ),
                 ]
-                compiled_unet_model = torch_aie.compile(
+                compiled_unet_model = mindietorch.compile(
                     model,
                     inputs=unet_input_info,
                     allow_tensor_replace_int=True,

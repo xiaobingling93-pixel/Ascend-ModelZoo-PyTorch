@@ -15,7 +15,7 @@
 import multiprocessing as mp
 import numpy as np
 import torch
-import torch_aie
+import mindietorch
 import time
 from typing import List
 from dataclasses import dataclass
@@ -126,7 +126,7 @@ class BackgroundRuntime:
         # The sub process function
 
         # Create a runtime
-        torch_aie.set_device(device_id)
+        mindietorch.set_device(device_id)
         print(f"[info] bg device id: {device_id}")
 
         # Tell the main function that we are ready
