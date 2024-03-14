@@ -70,9 +70,9 @@ bash test/train_full_8p.sh
 ## 训练结果展示
 表2 
 
-| Name | F1 |  ms/Iteration | Samples/Second | Epochs |
-| --- | --- | --- | --- | --- |
-| 8p-NPU | 79.16 | 171.9 | 1129.4 | 4 | 
+| Name | F1 | Wps     | Samples/Second | Epochs |
+| --- | --- |---------| --- | --- |
+| 8p-NPU | 79.16 | 1163.21 | 1129.4 | 4 | 
 
 ## 版本说明
 ### 变更
