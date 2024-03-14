@@ -10,7 +10,6 @@ batch_size=256
 export RANK_SIZE=8
 data_path_info=$1
 data_path=`echo ${data_path_info#*=}`
-iter=110
 
 # for multi node setting
 nnodes=1
@@ -18,7 +17,6 @@ node_rank=0
 local_addr=127.0.0.1
 master_addr=127.0.0.1
 master_port=23333
-
 # 参数校验，data_path为必传参数，其他参数的增删由模型自身决定；此处新增参数需在上面有定义并赋值
 for para in $*
 do
@@ -90,6 +88,7 @@ RANK_ID_START=0
 # 多机多卡
 export HCCL_IF_IP=$local_addr
 
+iter=$((440/${nnodes}))
 for((RANK_ID=$RANK_ID_START;RANK_ID<$((RANK_SIZE+RANK_ID_START));RANK_ID++))
 do
     KERNEL_NUM=$(($(nproc)/8))
