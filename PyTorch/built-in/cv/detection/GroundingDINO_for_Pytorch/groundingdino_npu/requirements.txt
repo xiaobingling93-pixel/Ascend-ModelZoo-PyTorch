@@ -1,0 +1,8 @@
+decorator
+attrs
+cloudpickle
+synr==0.5.0
+tornado
+absl-py
+transformers
+
