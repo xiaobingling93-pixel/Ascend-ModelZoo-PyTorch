@@ -103,7 +103,7 @@ def get_index(model, init, name):
         return name
 
 
-def replace_slice(model):
+def replace_slice(model, fast):
     # find pairs of slice
     slice_pair = []
     for node in model.get_nodes('Slice'):
@@ -113,7 +113,7 @@ def replace_slice(model):
     init = [n.name for n in model.get_nodes('Initializer')]
     for pair in slice_pair:
         next_node = model.get_next_nodes(pair[0].outputs[0])[0]
-        if next_node.op_type == 'Mul':
+        if fast and next_node.op_type == 'Mul':
             name = pair[0].name[:-5] + 'SliceTransGeluMul'
             model.add_node(name, 'SliceTransGeluMul', inputs=[pair[0].inputs[0]], outputs=next_node.outputs)
             model.remove(next_node.name, {})
@@ -421,6 +421,11 @@ def parse_arguments():
         default=0,
         help="Number of TOME used in the model",
     )
+    parser.add_argument(
+        "--faster_gelu",
+        action="store_true",
+        help="Use specific gelu operation"
+    )
     return parser.parse_args()
 
 
@@ -434,7 +439,7 @@ def main():
     if args.TOME_num:
         insert_tome_block(model, args.TOME_num)
     change_input_type(model)
-    replace_slice(model)
+    replace_slice(model, args.faster_gelu)
     model.remove_unused_nodes()
     model.save(args.new_model)
 

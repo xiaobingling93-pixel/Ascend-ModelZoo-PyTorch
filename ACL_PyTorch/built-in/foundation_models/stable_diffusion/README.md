@@ -152,7 +152,7 @@
 
    2. 优化onnx模型
 
-      1. 量化（可选）
+      1. 量化（可选，Duo/Pro卡上可提升性能但可能导致精度下降）
 
          量化步骤请参考[量化指导](./Readme_quant.md)
 
@@ -181,13 +181,13 @@
          参数说明：
          - --model：onnx模型路径。
          - --new_model：优化后生成的onnx模型路径。
-         - --FA_soc：使用FA算子的硬件形态。目前FlashAttention算子支持Atlas 300I Duo/Pro和Atlas 800I A2，请根据使用硬件设置参数，其他不支持硬件请设置为None。默认为None。
-         - --TOME_num：插入TOME插件的数量，有效取值为[0, 5]。Tome插件目前支持Atlas 300I Duo/Pro，其他不支持硬件请设置为0。默认为0。
+         - --FA_soc：使用FA算子的硬件形态。目前FlashAttention算子支持Atlas 300I Duo/Pro和Atlas 800I A2，请根据使用硬件设置参数Duo或A2，其他不支持硬件请设置为None。默认为None。
+         - --TOME_num：插入TOME插件的数量，有效取值为[0, 5]。Tome插件目前支持Atlas 300I Duo/Pro和Atlas 800I A2，其他不支持硬件请设置为0。默认为0。
          - --faster_gelu：使用slice+gelu的融合算子。
 
          FA、TOME、Gelu融合算子需通过安装与CANN版本对应的推理引擎包(MindIE)来获取，如未安装推理引擎或使用的版本不支持FA、TOME、SliceGelu算子，FA_soc和TOME_num参数请使用默认配置、不设置faster_gelu参数。
       
-      3. 使用cache方案（可选）
+      3. 使用cache方案（可选，可提升性能但可能导致精度下降）
 
          运行unet_cache.py脚本。
          ```bash
@@ -248,7 +248,7 @@
 
          # 不使用cache方案
          atc --framework=5 \
-             --model=./unet.onnx \
+             --model=./unet_md.onnx \
              --output=./unet \
              --input_format=NCHW \
              --log=error \
@@ -297,7 +297,8 @@
 
       执行成功后生成om模型列表：  
 
-         - models_bs${bs}/clip/clip.om  
+         - models_bs${bs}/clip/clip.om
+         - models_bs${bs}/unet/unet.om
          - models_bs${bs}/unet/unet_cache.om
          - models_bs${bs}/unet/unet_skip.om
          - models_bs${bs}/vae/vae.om  
@@ -338,7 +339,7 @@
       - --steps：生成图片迭代次数。
       - --device：推理设备ID；可用逗号分割传入两个设备ID，此时会使用并行方式进行推理。
       - --use_cache: 在推理过程中使用cache。
-      - --cache_steps: 使用cache的迭代次数。
+      - --cache_steps: 使用cache的迭代次数，迭代次数越多性能越好，但次数过多可能会导致精度下降。
       
       执行完成后在`./results`目录下生成推理图片。并在终端显示推理时间，参考如下：
 
@@ -423,7 +424,7 @@
       - --batch_size：模型batch size。
       - --steps：生成图片迭代次数。
       - --device：推理设备ID；可用逗号分割传入两个设备ID，此时会使用并行方式进行推理。
-      - --use_cache: 在推理过程中使用cache。
+      - --use_cache: 在推理过程中使用cache，迭代次数越多性能越好，但次数过多可能会导致精度下降。
 
       执行完成后会在`./results`目录下生成推理图片，并且会在当前目录生成一个`image_info.json`文件，记录着图片和prompt的对应关系。
 

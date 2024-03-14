@@ -136,17 +136,19 @@
                --model models_bs1/unet/unet.onnx \
                --new_model models_bs1/unet/unet_md.onnx \
                --FA_soc A2 \
-               --TOME_num 10
+               --TOME_num 10 \
+               --faster_gelu
          ```
          参数说明：
          - --model：onnx模型路径。
          - --new_model：优化后生成的onnx模型路径。
-         - --FA_soc：使用FA算子的硬件形态。目前FlashAttention算子支持Atlas 300I Duo/Pro，A2，请设置参数为A2，其他不支持硬件请设置为None。
-         - --TOME_num：插入TOME插件的数量，有效取值为[0, 10]。如果设置这个参数对精度造成影响，建议调小此值。目前支持Atlas 300I Duo/Pro，A2，其他不支持硬件请设置为0。默认选取10。
+         - --FA_soc：使用FA算子的硬件形态。目前FlashAttention算子支持Atlas 300I Duo/Pro和Atlas 800I A2，请根据硬件设置参数为Duo或A2，其他不支持硬件请设置为None。
+         - --TOME_num：插入TOME插件的数量，有效取值为[0, 10]。如果设置这个参数对精度造成影响，建议调小此值。目前支持Atlas 300I Duo/Pro和Atlas 800I A2，其他不支持硬件请设置为0。默认选取10。
+         - --faster_gelu：使用slice+gelu的融合算子。
 
-         FA和TOME算子需通过安装与CANN版本对应的推理引擎包来获取
+         FA、TOME、Gelu融合算子需通过安装与CANN版本对应的推理引擎包(MindIE)来获取，如未安装推理引擎或使用的版本不支持FA、TOME、SliceGelu算子，FA_soc和TOME_num参数请使用默认配置、不设置faster_gelu参数。
 
-      2. 适配cache方案(可选)
+      2. 适配cache方案(可选，可提升性能但可能导致精度下降)
 
          运行unet_cache.py脚本
          ```bash
@@ -322,7 +324,7 @@
       - --steps：生成图片迭代次数。
       - --device：推理设备ID；可用逗号分割传入两个设备ID，此时会使用并行方式进行推理。
       - --use_cache: 在推理过程中使用cache。
-      - --cache_steps: 使用cache的迭代次数。
+      - --cache_steps: 使用cache的迭代次数，迭代次数越多性能越好，但次数过多可能会导致精度下降。
       
       执行完成后在`./results`目录下生成推理图片。并在终端显示推理时间，参考如下：
 
@@ -381,7 +383,7 @@
       - --steps：生成图片迭代次数。
       - --device：推理设备ID；可用逗号分割传入两个设备ID，此时会使用并行方式进行推理。
       - --use_cache: 在推理过程中使用cache。
-      - --cache_steps: 使用cache的迭代次数。
+      - --cache_steps: 使用cache的迭代次数，迭代次数越多性能越好，但次数过多可能会导致精度下降。
 
       执行完成后会在`./results`目录下生成推理图片，并且会在当前目录生成一个`image_info.json`文件，记录着图片和prompt的对应关系。
 
