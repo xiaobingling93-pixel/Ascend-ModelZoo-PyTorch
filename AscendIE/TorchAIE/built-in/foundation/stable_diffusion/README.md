@@ -168,14 +168,14 @@
 
       使用UnetCache策略【可选】
 
-      修改diffusers源码：
-      - 修改diffusers-0.14.0/src/diffusers/models/unet_2d_condition.py
-
       执行命令：
 
       ```bash
-      # 若使用UnetCache策略
-      python3 export_ts_cache.py --model ${model_new} --output_dir ./models
+      # 代码修改
+      python3 stable_diffusion_unet_patch.py
+
+      # 导出pt模型
+      python3 export_ts_cache.py --model ${model_base} --output_dir ./models
       ```
 
       参数说明：
@@ -226,7 +226,6 @@
               --soc Duo \
               --output_dir ./models
 
-
       # 2.若使用并行推理
       # 2.1不使用lora权重
       python3 stable_diffusion_parallel_pipeline.py \
@@ -250,7 +249,7 @@
               --output_dir ./models_lora
       # 2.3使用UnetCache策略
        python3 stable_diffusion_parallel_pipeline_unetcache.py \
-              --model ${model_new} \
+              --model ${model_base} \
               --prompt_file ./prompts.txt \
               --device 0,1 \
               --save_dir ./results \
@@ -282,6 +281,134 @@
       model_cache = torch.jit.load("./models/unet/compiled_unet_cache_parallel.ts").eval()
       model_skip = torch.jit.load("./models/unet/compiled_unet_skip_parallel.ts").eval()
       ```
+
+## 精度验证<a name="section741711594518"></a>
+
+   由于生成的图片存在随机性，所以精度验证将使用CLIP-score来评估图片和输入文本的相关性，分数的取值范围为[-1, 1]，越高越好。
+
+   注意，由于要生成的图片数量较多，进行完整的精度验证需要耗费很长的时间。
+
+   1. 下载Parti数据集
+
+      ```bash
+      wget https://raw.githubusercontent.com/google-research/parti/main/PartiPrompts.tsv --no-check-certificate
+      ```
+
+   2. 下载Clip模型权重
+
+      ```bash
+      GIT_LFS_SKIP_SMUDGE=1 git clone https://huggingface.co/laion/CLIP-ViT-H-14-laion2B-s32B-b79K
+      cd ./CLIP-ViT-H-14-laion2B-s32B-b79K
+
+      # 用 git-lfs 下载
+      git lfs pull
+
+      # 或者访问https://huggingface.co/laion/CLIP-ViT-H-14-laion2B-s32B-b79K/blob/main/open_clip_pytorch_model.bin，将权重下载并放到这个目录下
+      ```
+
+   2. 使用推理脚本读取Parti数据集，生成图片
+      ```bash
+      # 1.若不使用并行推理：
+      # 1.1不使用lora权重
+      python3 stable_diffusion_pipeline.py \
+              --model ${model_base} \
+              --prompt_file ./PartiPrompts.tsv \
+              --prompt_file_type parti \
+              --num_images_per_prompt 4 \
+              --device 0 \
+              --save_dir ./results \
+              --steps 50 \
+              --scheduler DDIM \
+              --soc Duo \
+              --output_dir ./models
+       # 1.2使用带lora权重的新权重
+       python3 stable_diffusion_pipeline.py \
+              --model ${model_new} \
+              --prompt_file ./PartiPrompts.tsv \
+              --prompt_file_type parti \
+              --num_images_per_prompt 4 \
+              --device 0 \
+              --save_dir ./results \
+              --steps 50 \
+              --scheduler DDIM \
+              --soc Duo \
+              --output_dir ./models_lora
+      # 1.3使用UnetCache策略
+      python3 stable_diffusion_pipeline_unetcache.py \
+              --model ${model_base} \
+              --prompt_file ./PartiPrompts.tsv \
+              --prompt_file_type parti \
+              --num_images_per_prompt 4 \
+              --device 0 \
+              --save_dir ./results \
+              --steps 50 \
+              --scheduler DDIM \
+              --soc Duo \
+              --output_dir ./models
+
+      # 2.若使用并行推理
+      # 2.1不使用lora权重
+      python3 stable_diffusion_parallel_pipeline.py \
+              --model ${model_base} \
+              --prompt_file ./PartiPrompts.tsv \
+              --prompt_file_type parti \
+              --num_images_per_prompt 4 \
+              --device 0,1 \
+              --save_dir ./results \
+              --steps 50 \
+              --scheduler DDIM \
+              --soc Duo \
+              --output_dir ./models
+       # 2.2使用带lora权重的新权重
+       python3 stable_diffusion_parallel_pipeline.py \
+              --model ${model_new} \
+              --prompt_file ./PartiPrompts.tsv \
+              --prompt_file_type parti \
+              --num_images_per_prompt 4 \
+              --device 0,1 \
+              --save_dir ./results \
+              --steps 50 \
+              --scheduler DDIM \
+              --soc Duo \
+              --output_dir ./models_lora
+      # 2.3使用UnetCache策略
+       python3 stable_diffusion_parallel_pipeline_unetcache.py \
+              --model ${model_base} \
+              --prompt_file ./PartiPrompts.tsv \
+              --prompt_file_type parti \
+              --num_images_per_prompt 4 \
+              --device 0,1 \
+              --save_dir ./results \
+              --steps 50 \
+              --scheduler DDIM \
+              --soc Duo \
+              --output_dir ./models
+      ```
+
+      增加的参数说明：
+      - --prompt_file：输入文本文件，按行分割。
+      - --prompt_file_type: prompt文件类型，用于指定读取方式。
+      - --num_images_per_prompt: 每个prompt生成的图片数量。
+
+      执行完成后会在`./results`目录下生成推理图片，并且会在当前目录生成一个`image_info.json`文件，记录着图片和prompt的对应关系。
+
+   4. 计算CLIP-score
+
+      ```bash
+      python clip_score.py \
+             --device=cpu \
+             --image_info="image_info.json" \
+             --model_name="ViT-H-14" \
+             --model_weights_path="./CLIP-ViT-H-14-laion2B-s32B-b79K/open_clip_pytorch_model.bin"
+      ```
+
+      参数说明：
+      - --device: 推理设备。
+      - --image_info: 上一步生成的`image_info.json`文件。
+      - --model_name: Clip模型名称。
+      - --model_weights_path: Clip模型权重文件路径。
+
+      执行完成后会在屏幕打印出精度计算结果。
 
 
 # 模型推理性能&精度<a name="ZH-CN_TOPIC_0000001172201573"></a>
