@@ -1,3 +1,4 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 # coding=utf-8
 # Copyright 2023 The HuggingFace Inc. team.
 # Copyright (c) 2022, NVIDIA CORPORATION.  All rights reserved.
@@ -260,6 +261,26 @@ class ModelMixin(torch.nn.Module, PushToHubMixin):
         for module in self.children():
             if isinstance(module, torch.nn.Module):
                 fn_recursive_set_mem_eff(module)
+
+    def set_use_npu_svd_attention(
+        self, valid: bool, attention_op: Optional[Callable] = None
+    ) -> None:
+        # Recursively walk through all the children.
+        # Any children which exposes the set_use_npu_svd_attention method
+        # gets the message
+        def fn_recursive_set_mem_eff(module: torch.nn.Module):
+            if hasattr(module, "set_use_npu_svd_attention"):
+                module.set_use_npu_svd_attention(valid, attention_op)
+
+            for child in module.children():
+                fn_recursive_set_mem_eff(child)
+
+        for module in self.children():
+            if isinstance(module, torch.nn.Module):
+                fn_recursive_set_mem_eff(module)
+
+    def enable_npu_svd_attention(self, attention_op: Optional[Callable] = None):
+        self.set_use_npu_svd_attention(True, attention_op)
 
     def enable_xformers_memory_efficient_attention(self, attention_op: Optional[Callable] = None) -> None:
         r"""

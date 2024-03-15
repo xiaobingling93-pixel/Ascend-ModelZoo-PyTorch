@@ -1,3 +1,4 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 # Copyright 2023 The HuggingFace Team. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import time
 import inspect
 from dataclasses import dataclass
 from typing import Callable, Dict, List, Optional, Union
@@ -491,6 +493,7 @@ class StableVideoDiffusionPipeline(DiffusionPipeline):
         self._num_timesteps = len(timesteps)
         with self.progress_bar(total=num_inference_steps) as progress_bar:
             for i, t in enumerate(timesteps):
+                denoise_start = time.time()
                 # expand the latents if we are doing classifier free guidance
                 latent_model_input = torch.cat([latents] * 2) if self.do_classifier_free_guidance else latents
                 latent_model_input = self.scheduler.scale_model_input(latent_model_input, t)
@@ -525,6 +528,8 @@ class StableVideoDiffusionPipeline(DiffusionPipeline):
 
                 if i == len(timesteps) - 1 or ((i + 1) > num_warmup_steps and (i + 1) % self.scheduler.order == 0):
                     progress_bar.update()
+                denoise_end = time.time()
+                print('denoise time: ', denoise_end - denoise_start)
 
         if not output_type == "latent":
             # cast back to fp16 if needed

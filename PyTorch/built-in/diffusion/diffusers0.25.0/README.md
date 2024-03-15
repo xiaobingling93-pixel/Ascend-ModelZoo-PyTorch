@@ -11,6 +11,10 @@
           - [预训练任务](#预训练任务)
           - [微调任务](#微调任务)
           - [推理任务](#推理任务)
+-   [SVD（在研版本）](#SVD（在研版本）)   
+    -   [准备训练环境](#准备训练环境)
+    -   [快速开始](#快速开始)
+          - [推理任务](#推理任务)
 -   [公网地址说明](#公网地址说明) 
 -   [变更说明](#变更说明) 
 -   [FAQ](#FAQ) 
@@ -25,12 +29,13 @@
 
 本仓已经支持以下模型任务类型
 
-|模型 |任务列表 | 是否支持 |
-|:----:|:------:|:-----:|
-|SDXL |预训练 | ✔ |
-|SDXL |Lora | ✔ |
-|SDXL |Controlnet | ✔ |
-|SDXL |文生图推理 | ✔ |
+|  模型  |    任务列表    | 是否支持 |
+|:----:|:----------:|:-----:|
+| SDXL |    预训练     | ✔ |
+| SDXL |    Lora    | ✔ |
+| SDXL | Controlnet | ✔ |
+| SDXL |   文生图推理    | ✔ |
+| SVD  |   文生视频推理   | ✔ |
 
 
 ## 代码实现
@@ -46,7 +51,7 @@
 
   ```
   url=https://gitee.com/ascend/ModelZoo-PyTorch.git
-  code_path=PyTorch/built-in/diffusion/diffusion0.25.0/
+  code_path=PyTorch/built-in/diffusion/
   ```
 
 
@@ -363,6 +368,137 @@
    --device_id                //设备id
    ```
 
+
+# SVD（在研版本）
+
+
+## 准备训练环境
+
+### 安装模型环境
+
+  **表 3**  三方库版本支持表
+
+  |     三方库     |  支持版本  |
+  |:-----------:|:------:|
+  |   PyTorch   | 2.1.0  |
+  | TorchVision | 0.16.0 |
+  |  diffusers  | 0.25.0 |
+  | accelerate  | 0.27.2 |
+
+  在模型根目录下执行以下命令，安装模型对应PyTorch版本需要的依赖。
+  ```shell
+  pip install -e .                              # 安装本地diffusers代码仓
+  cd examples/stable_video_diffusion/           # 根据下游任务安装对应依赖
+  pip install -r requirements_svd.txt 
+  ```
+  
+### 安装昇腾环境
+
+  请参考昇腾社区中《[Pytorch框架训练环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/ptes)》文档搭建昇腾环境，本仓已支持表4中软件版本。
+
+  **表 4**  昇腾软件版本支持表
+
+  |     软件类型          |   支持版本   |
+  |:-----------------:|:--------:|
+  | FrameworkPTAdaper |   在研版本   |
+  |       CANN        | 在研版本  |
+  |      昇腾NPU固件      | 在研版本 |
+  |      昇腾NPU驱动      | 在研版本 |
+
+
+### 准备数据集
+  1. 用户自行获取i2vgen-xl数据集，放到模型目录下，并重命名为`svd_testdata`
+
+  2. 用户自行准备数据路径txt文件，存放测试图片的文件名
+
+     参考数据集结构为
+
+     ```
+     diffusers0.25.0
+     ├── svd_testdata
+     |   ├── img_0001.jpg
+     |   ├── img_0002.jpg
+     |   ├── ...
+     |   ├── imglist.txt
+     ```
+     > **说明：** 
+     该数据集的推理过程脚本只作为一种参考示例。
+   
+
+### 获取预训练权重
+
+   1. 联网情况下，预训练模型会自动下载。
+
+   2. 无网络时，用户可访问huggingface官网自行下载，文件namespace如下：
+
+      ```
+      stabilityai/stable-video-diffusion-img2vid-xt
+      ```
+
+   3. 获取对应的预训练模型后，在shell启动脚本中将`ckpt_path`参数，设置为本地预训练模型路径，填写一级目录。
+
+
+## 快速开始
+### 推理任务
+
+本任务主要提供**混精fp16**的**单卡**和**8卡**推理脚本。
+
+#### 开始训练
+   1. 进入源码根目录。
+
+      ```
+      cd /${模型文件夹名称}
+      ```
+
+   2. 运行推理脚本。
+
+      该模型支持单机单卡和8卡推理。
+      - 单机单卡推理
+
+        ```shell
+        bash test/infer_full_1p_svd_fp16.sh --ckpt_path=xxx --test_data_dir=xxx --test_file=xxx # 单卡推理，混精fp16
+        ```
+
+      - 单机8卡推理
+
+        ```shell
+        bash test/infer_full_8p_svd_fp16.sh --ckpt_path=xxx --test_data_dir=xxx --test_file=xxx # 八卡推理，混精fp16
+        ```
+
+   模型推理脚本参数说明如下。
+   
+   ```
+   infer_full_8p_svd_fp16.sh
+   --ckpt_path                             // 模型权重加载地址
+   --batch_size                            // 推理的图像全局批大小
+   --test_file                             // 测试图片路径文件
+   --test_data_dir                         // 测试数据集存放目录
+   
+   test_stable_video_diffusion.py
+   --ckpt                                  // 模型权重加载地址
+   --global-batch-size                     // 推理的图像全局批大小
+   --test-file                             // 测试图片路径文件
+   --test-data-dir                         // 测试数据集存放目录
+   --export-video                          // 是否导出视频文件
+   --num-frames                            // 生成帧数
+   --seed                                  // 随机种子
+   --image-size                            // 输入图片resize分辨率
+   --num-workers                           // 读取数据集的线程数
+   --output-dir                            // 生成文件的保存目录
+   --eval-metrics                          // 是否评估推理精度
+   --benchmark-dir                         // 评估对比图片的目录
+   ```
+
+#### 推理结果
+##### 性能
+
+| 芯片       | 卡数 | Denoise FPS | batch_size |  AMP_Type  | Torch_Version | 
+|----------|:--:|:-----------:|:----------:|:----------:|:-------------:|
+| GPU      | 8p |    4.88     |     8      |    fp16    |      2.1      |
+| Atlas A2 | 8p |    4.06     |     8      |    fp16    |      2.1      |
+
+ > 注：denoise FPS是根据denoise的单步时间计算的FPS（帧数/时间），等于BatchSize/denoise step time.
+
 # 公网地址说明
 代码涉及公网地址参考 public_address_statement.md
 
@@ -378,6 +514,7 @@
 
 2024.03.06：SDXL 预训练任务添加deepspeed config。
 
+2024.03.14：SVD 推理任务首次发布。
 
 # FAQ
 
