@@ -69,7 +69,8 @@ if [ x"${etp_flag}" != x"true" ];then
 fi
 
 chmod +x ${cur_path}/tools/train.py
-sed -i "s|max_iters=7000|max_iters=1000|g" configs/deeplabv3/deeplabv3_r50-d8_512x1024_40k_cityscapes.py
+sed -i "s|max_iters=7000|max_iters=990|g" configs/deeplabv3/deeplabv3_r50-d8_512x1024_40k_cityscapes.py
+sed -i "s|interval=50,|interval=1,|g" configs/deeplabv3/deeplabv3_r50-d8_512x1024_40k_cityscapes.py
 # 修改数据路径
 sed -i "s|data_root = .*|data_root = \'${data_path}/\'|g" configs/_base_/datasets/cityscapes.py
 
@@ -105,7 +106,8 @@ done
 wait
 
 # 复原参数
-sed -i "s|max_iters=1000|max_iters=7000|g" configs/deeplabv3/deeplabv3_r50-d8_512x1024_40k_cityscapes.py
+sed -i "s|max_iters=990|max_iters=7000|g" configs/deeplabv3/deeplabv3_r50-d8_512x1024_40k_cityscapes.py
+sed -i "s|interval=1,|interval=50,|g" configs/deeplabv3/deeplabv3_r50-d8_512x1024_40k_cityscapes.py
 
 ##################获取训练数据################
 #训练结束时间，不需要修改
@@ -115,7 +117,7 @@ e2e_time=$(( $end_time - $start_time ))
 #结果打印，不需要修改
 echo "------------------ Final result ------------------"
 #输出性能FPS，需要模型审视修改
-FPS=`grep "FPS" ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log | tail -n 10| awk -F "FPS: " '{print $2}' | awk -F "," '{print $1}' | awk '{a+=$1} END {if (NR != 0) printf("%.3f",a/NR)}'`
+FPS=`grep "FPS" ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log | tail -n 50| awk -F "FPS: " '{print $2}' | awk -F "," '{print $1}' | awk '{a+=$1} END {if (NR != 0) printf("%.3f",a/NR)}'`
 #打印，不需要修改
 echo "Final Performance images/sec : $FPS"
 
