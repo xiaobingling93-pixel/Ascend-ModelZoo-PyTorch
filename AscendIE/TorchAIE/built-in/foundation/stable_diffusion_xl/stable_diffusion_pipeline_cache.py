@@ -202,7 +202,7 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
 
             torch.jit.save(self.compiled_unet_model_skip, unet_skip_compiled_path)
 
-        unet_skip_compiled_path = os.path.join(self.args.output_dir, "models/unet/unet_bs2_aie_compile_0.ts")
+        unet_cache_compiled_path = os.path.join(self.args.output_dir, "models/unet/unet_bs2_aie_compile_0.ts")
         if self.args.unet_cache:
             self.compiled_unet_model_cache = torch.jit.load(self.args.unet_cache).eval()
         else:
@@ -236,7 +236,7 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
                                     optimization_level=0,
                                     ))
 
-            torch.jit.save(self.compiled_unet_model_cache, unet_skip_compiled_path)
+            torch.jit.save(self.compiled_unet_model_cache, unet_cache_compiled_path)
 
         vae_compiled_path = os.path.join(self.args.output_dir, "models/vae/vae_aie_compile.ts")
         if self.args.vae:
@@ -380,9 +380,13 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
             # prompt_embeds = [torch.from_numpy(text) for text in prompt_embeds]
             # We are only ALWAYS interested in the pooled output of the final text encoder
 
+            global clip_time
+            start = time.time()
             prompt_embeds_npu = text_encoder(text_input_ids.to(f'npu:{self.device_0}'))
 
             pooled_prompt_embeds = prompt_embeds_npu[0].to('cpu')
+            clip_time += time.time() - start
+
             if clip_skip is None:
                 prompt_embeds = prompt_embeds_npu[2][-2].to('cpu')
 
@@ -626,6 +630,8 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
                 `._callback_tensor_inputs` attribute of your pipeline class.
 
         """
+        global p1_time, p2_time, p3_time
+        start = time.time()
 
         # 0. Default height and width to unet
         height = height or self.default_sample_size * self.vae_scale_factor
@@ -677,6 +683,9 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
             lora_scale=lora_scale,
             clip_skip=clip_skip,
         )
+
+        p1_time += time.time() - start
+        start1 = time.time()
 
         # 4. Prepare timesteps
         self.scheduler.set_timesteps(num_inference_steps, device=device)
@@ -745,6 +754,9 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
             num_inference_steps = len(list(filter(lambda ts: ts >= discrete_timestep_cutoff, timesteps)))
             timesteps = timesteps[:num_inference_steps]
 
+        global unet_time
+        global vae_time
+
         for i, t in enumerate(timesteps):
             # expand the latents if we are doing classifier free guidance
             latent_model_input = torch.cat([latents] * 2)
@@ -755,15 +767,19 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
             cache_flag = torch.zeros([1], dtype=torch.long)
 
             if skip_steps[i]:
+                start = time.time()
                 noise_pred = self.compiled_unet_model_skip(latent_model_input.to(f'npu:{self.device_0}'),
                                                            t.to(torch.int64)[None].to(f'npu:{self.device_0}'),
                                                            prompt_embeds.to(f'npu:{self.device_0}'),
                                                            add_text_embeds.to(f'npu:{self.device_0}'),
                                                            add_time_ids.to(f'npu:{self.device_0}'),
                                                            skip_flag.to(f'npu:{self.device_0}'),
-                                                           cache.to(f'npu:{self.device_0}'), ).to('cpu')
+                                                           cache, ).to('cpu')  # if_skip, cache
+                unet_time += time.time() - start
+
 
             else:
+                start = time.time()
                 outputs = self.compiled_unet_model_cache(latent_model_input.to(f'npu:{self.device_0}'),
                                                          t.to(torch.int64)[None].to(f'npu:{self.device_0}'),
                                                          prompt_embeds.to(f'npu:{self.device_0}'),
@@ -772,7 +788,8 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
                                                          cache_flag.to(f'npu:{self.device_0}'),
                                                          )
                 noise_pred = outputs[0].to('cpu')
-                cache = outputs[1].to('cpu')
+                unet_time += time.time() - start
+                cache = outputs[1]
 
             # perform guidance
             if do_classifier_free_guidance:
@@ -784,6 +801,9 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
                 noise_pred, t, latents, **extra_step_kwargs
             ).prev_sample
 
+        p2_time = time.time() - start1
+        start1 = time.time()
+
         if not output_type == "latent":
             # make sure the VAE is in float32 mode, as it overflows in float16
             needs_upcasting = self.vae.dtype == torch.float16 and self.vae.config.force_upcast
@@ -793,7 +813,9 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
                 latents = latents.to(next(iter(self.vae.post_quant_conv.parameters())).dtype)
             latents = latents / self.vae.config.scaling_factor
             latents = self.vae.post_quant_conv(latents)
+            start = time.time()
             image = self.compiled_vae_model(latents.to(f'npu:{self.device_0}')).to('cpu')
+            vae_time += time.time() - start
             image = (image / 2 + 0.5).clamp(0, 1)
             image = image.cpu().permute(0, 2, 3, 1).float().numpy()
 
@@ -806,6 +828,7 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
         if output_type == "pil":
             image = self.numpy_to_pil(image)
 
+        p3_time += time.time() - start1
         return (image, None)
 
 

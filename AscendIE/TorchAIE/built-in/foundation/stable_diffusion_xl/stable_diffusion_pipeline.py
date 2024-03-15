@@ -18,6 +18,7 @@ import json
 import os
 import time
 from typing import Callable, List, Optional, Union
+import numpy as np
 
 import torch
 import mindietorch
@@ -27,6 +28,7 @@ from diffusers.loaders import TextualInversionLoaderMixin
 from mindietorch import _enums
 
 clip_time = 0
+clip2_time = 0
 unet_time = 0
 vae_time = 0
 p1_time = 0
@@ -108,6 +110,9 @@ class PromptLoader:
             next(f)
             tsv_file = csv.reader(f, delimiter="\t")
             for i, line in enumerate(tsv_file):
+                if max_num_prompts and i == max_num_prompts:
+                    break
+
                 prompt = line[0]
                 catagory = line[1]
                 if catagory not in self.catagories:
@@ -313,9 +318,13 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
                 removed_text = tokenizer.batch_decode(untruncated_ids[:, tokenizer.model_max_length - 1: -1])
 
             # We are only ALWAYS interested in the pooled output of the final text encoder
+            global clip_time
+            start = time.time()
             prompt_embeds_npu = text_encoder(text_input_ids.to(f'npu:{self.device_0}'))
 
             pooled_prompt_embeds = prompt_embeds_npu[0].to('cpu')
+            clip_time += time.time() - start
+
             if clip_skip is None:
                 prompt_embeds = prompt_embeds_npu[2][-2].to('cpu')
 
@@ -371,7 +380,9 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
                     return_tensors="pt",
                 )
 
+                start = time.time()
                 negative_prompt_embeds = text_encoder(uncond_input.input_ids.to(f'npu:{self.device_0}'))[0].to('cpu')
+                clip_time += time.time() - start
                 # We are only ALWAYS interested in the pooled output of the final text encoder
                 negative_prompt_embeds = [torch.from_numpy(text) for text in negative_prompt_embeds]
                 negative_pooled_prompt_embeds = negative_prompt_embeds[0]
@@ -558,6 +569,8 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
                 `._callback_tensor_inputs` attribute of your pipeline class.
 
         """
+        global p1_time, p2_time, p3_time
+        start = time.time()
 
         # 0. Default height and width to unet
         height = height or self.default_sample_size * self.vae_scale_factor
@@ -609,6 +622,9 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
             lora_scale=lora_scale,
             clip_skip=clip_skip,
         )
+
+        p1_time += time.time() - start
+        start1 = time.time()
 
         # 4. Prepare timesteps
         self.scheduler.set_timesteps(num_inference_steps, device=device)
@@ -677,17 +693,22 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
             num_inference_steps = len(list(filter(lambda ts: ts >= discrete_timestep_cutoff, timesteps)))
             timesteps = timesteps[:num_inference_steps]
 
+        global unet_time
+        global vae_time
+
         for i, t in enumerate(timesteps):
             # expand the latents if we are doing classifier free guidance
             latent_model_input = torch.cat([latents] * 2)
 
             latent_model_input = self.scheduler.scale_model_input(latent_model_input, t)
 
+            start = time.time()
             noise_pred = self.compiled_unet_model(latent_model_input.to(f'npu:{self.device_0}'),
                                                   t.to(torch.int64)[None].to(f'npu:{self.device_0}'),
                                                   prompt_embeds.to(f'npu:{self.device_0}'),
                                                   add_text_embeds.to(f'npu:{self.device_0}'),
                                                   add_time_ids.to(f'npu:{self.device_0}')).to('cpu')
+            unet_time += time.time() - start
 
             # perform guidance
             if do_classifier_free_guidance:
@@ -699,6 +720,8 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
                 noise_pred, t, latents, **extra_step_kwargs
             ).prev_sample
 
+        p2_time = time.time() - start1
+        start1 = time.time()
         if not output_type == "latent":
             # make sure the VAE is in float32 mode, as it overflows in float16
             needs_upcasting = self.vae.dtype == torch.float16 and self.vae.config.force_upcast
@@ -707,8 +730,11 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
                 self.upcast_vae()
                 latents = latents.to(next(iter(self.vae.post_quant_conv.parameters())).dtype)
             latents = latents / self.vae.config.scaling_factor
-            latents = self.vae.post_quant_conv(latents)
+
+            start = time.time()
             image = self.compiled_vae_model(latents.to(f'npu:{self.device_0}')).to('cpu')
+            vae_time += time.time() - start
+
             image = (image / 2 + 0.5).clamp(0, 1)
             image = image.cpu().permute(0, 2, 3, 1).float().numpy()
 
@@ -721,6 +747,7 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
         if output_type == "pil":
             image = self.numpy_to_pil(image)
 
+        p3_time += time.time() - start1
         return (image, None)
 
 
@@ -770,7 +797,8 @@ def parse_arguments():
     parser.add_argument(
         "--save_dir",
         type=str,
-        default="./result",
+        default="/home/gwn/pt_sd_xl/sd_xl_modelzoo/sd_xl_nocache_results",
+        # default="./result",
         help="Path to save result images.",
     )
     parser.add_argument(
@@ -836,7 +864,7 @@ def main():
     args = parse_arguments()
     save_dir = args.save_dir
     if not os.path.exists(save_dir):
-        os.makedirs(save_dir)
+        os.makedirs(save_dir, mode=0o744)
     mindietorch.set_device(args.device)
     pipe = AIEStableDiffusionXLPipeline.from_pretrained(args.model).to("cpu")
     pipe.parser_args(args)
@@ -891,7 +919,7 @@ def main():
           f"unet time: {unet_time / infer_num:.3f}s\n"
           f"vae time: {vae_time / infer_num:.3f}s\n"
           f"p1 time: {p1_time / infer_num:.3f}s\n"
-          f"p2 time: {p2_time / infer_num:.3f}s\n"  
+          f"p2 time: {p2_time / infer_num:.3f}s\n"
           f"p3 time: {p3_time / infer_num:.3f}s\n")
 
     # Save image information to a json file
