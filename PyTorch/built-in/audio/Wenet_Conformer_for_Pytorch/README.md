@@ -1,15 +1,33 @@
 # Wenet Conformer for PyTorch
 
-- [概述](#概述)
-- [准备训练环境](#准备训练环境)
-- [开始训练](#开始训练)
-- [训练结果展示](#训练结果展示)
-- [版本说明](#版本说明)
+-   [简介](#简介)
+    - [模型介绍](#模型介绍)
+    - [支持特性](#支持特性)
+    - [代码实现](#代码实现)
+-   [Wenet-Conformer](#Wenet-Conformer)
+    - [准备训练环境](#准备训练环境)
+    - [准备数据集](#准备数据集)
+    - [开始训练](#开始训练)
+    - [训练结果展示](#训练结果展示)
+-   [公网地址说明](#公网地址说明)
+-   [变更说明](#变更说明)
+-   [FAQ](#FAQ)
 
-# 概述
+# 简介
+
+## 模型介绍
 Wenet是一款开源的、面向工业落地应用的语音识别工具包，主要特点是小而精，它不仅采用了现阶段最先进的网络设计Conformer，还用到了U2结构实现流式与非流式框架的统一。
 
+## 支持特性
 
+本仓已支持以下模型任务类型。
+
+| 模型        | 任务类型 | 是否支持  |
+|-----------| ------- | ------------ |
+| Conformer | 预训练 | ✅   |
+| Whisper   | 预训练 | ✅   |
+
+## 代码实现
 
 - 参考实现：
 
@@ -26,17 +44,20 @@ Wenet是一款开源的、面向工业落地应用的语音识别工具包，主
   ```
 
 
-# 准备训练环境
+# Wenet-Conformer
 
-## 准备环境
+## 准备训练环境
 
-- 当前模型支持的 PyTorch 版本和已知三方库依赖如下表所示。
+### 安装模型环境
+
+ 当前模型支持的 PyTorch 版本和已知三方库依赖如下表所示。
 
   **表 1**  版本支持表
 
-  | Torch_Version |   三方库依赖版本    |
-  | :-----------: | :-----------------: |
+  | Torch_Version |       三方库依赖版本       |
+ |:-------------------:| :-----------------: |
   | PyTorch 1.11  | torch_audio==0.11.0 |
+  | PyTorch 2.1   | torch_audio==2.1.0  |
 
 - 环境准备指导。
 
@@ -45,9 +66,18 @@ Wenet是一款开源的、面向工业落地应用的语音识别工具包，主
 - 安装依赖。
 
   在模型源码包根目录下执行命令。
-
+  
   ```
-  pip3 install -r requirements.txt
+  # PyTorch 1.11请使用requirements_1_11.txt，PyTorch 2.1请使用requirements_2_1.txt
+  pip install -r requirements_1_11.txt
+  ```
+
+- 编译安装torchaudio
+
+  在官网根据PyTorch版本获取torchaudio对应版本，解压至torchaudio文件夹，运行以下命令
+  ```
+  cd torchaudio
+  python setup.py develop
   ```
 
 
@@ -68,9 +98,9 @@ Wenet是一款开源的、面向工业落地应用的语音识别工具包，主
    > 该数据集的训练过程脚本只作为一种参考示例。
 
 
-# 开始训练
+## 开始训练
 
-## 训练模型
+### 训练模型
 
 1. 进入解压后的源码包根目录。
 
@@ -82,8 +112,6 @@ Wenet是一款开源的、面向工业落地应用的语音识别工具包，主
 
    该模型支持单机8卡训练。
    - 单机8卡训练
-
-     启动8卡训练。
 
      ```
      cd examples/aishell/s0/test
@@ -109,16 +137,27 @@ Wenet是一款开源的、面向工业落地应用的语音识别工具包，主
    训练完成后，权重文件保存在当前路径下，并输出模型训练精度和性能信息。
 
 
-# 训练结果展示
+## 训练结果展示
 
-**表 2**  训练结果展示表
+**表 2**  conformer训练结果展示表
 
-|   NAME   | Error | FPS(iters/sec) | Epochs | AMP_Type | Torch_Version |
-| :------: | :---: |:--------------:| :----: | :------: | :-----------: |
-| 8p-竞品A |   -   |     800.44     |   -    |    -     |      1.11      |
-| 8p-NPU  |   -   |     526.34     |   -    |    -     |      1.11      |
+|     NAME      | Error | FPS(iters/sec) | Epochs | AMP_Type | Torch_Version |
+|:-------------:| :---: |:--------------:|:------:| :------: |:-------------:|
+|    8p-GPU     |   -   |     800.44     |   15   |    fp16     |     1.11      |
+|  8p-Atlas A2  |   -   |     526.34     |   15   |    fp16     |     1.11      |
+|   8p-GPU      |   -   |     958.98     |   15   |    fp16     |      2.1      |
+|  8p-Atlas A2  |   -   |     830.49     |   15   |    fp16     |      2.1      |
 
-**表 3** conformer result
+**表 3**  whisper训练结果展示表
+
+|     NAME      | Error | FPS(iters/sec) | Epochs | AMP_Type | Torch_Version |
+|:-------------:| :---: |:--------------:|:------:| :------: |:-------------:|
+|    8p-GPU     |   -   |     746.39     |   15   |    fp16     |     1.11      |
+|  8p-Atlas A2  |   -   |     667.62     |   15   |    fp16     |     1.11      |
+|   8p-GPU      |   -   |     748.85     |   15   |    fp16     |      2.1      |
+|  8p-Atlas A2  |   -   |     789.31     |   15   |    fp16     |      2.1      |
+
+**表 4** conformer result
 * Feature info: using fbank feature, dither, cmvn, online speed perturb
 * Training info: lr 0.002, batch size 18, 4 gpu, acc_grad 4, 240 epochs, dither 0.1
 * Decoding info: ctc_weight 0.5, average_num 20
@@ -127,15 +166,104 @@ Wenet是一款开源的、面向工业落地应用的语音识别工具包，主
 |:------:|:----:|
 | ctc greedy search        | 4.96 |
 
-# 版本说明
 
-## 变更
+# 公网地址说明
+
+代码涉及公网地址参考[public_address_statement.md](./public_address_statement.md)
+
+# 变更说明
 
 2023.09.01：首次发布。
 
-## FAQ
+2024.03.16: 增加PyTorch2.1基线，增加FAQ。
+
+# FAQ
+
+Q1：Pytorch2.1版本，运行时可能出现段错误
+
+A1：问题原因是Pytorch与torchaudio版本不匹配，需要手动编译安装torchaudio，并在编译时设置变量 BUILD_SOX=0
+
+同时对模型内部分相关代码进行修改：
+
+1). 在tools/compute_cmvn_stats.py中修改：
+  ```shell
+  # 1. 找到：
+  torchaudio.set_audio_backend("sox_io")
+  # 修改为：
+  # torchaudio.set_audio_backend("sox_io")
+  
+  # 2. 找到：
+  sample_rate = torchaudio.backend.sox_io_backend.info(wav_path).sample_rate
+  # 修改为：
+  sample_rate = torchaudio.info(wav_path).sample_rate
+  
+  # 3. 找到：
+  waveform, sample_rate = torchaudio.backend.sox_io_backend.load(
+                    filepath=wav_path,
+                    num_frames=end_frame - start_frame,
+                    frame_offset=start_frame)
+  # 修改为：
+  waveform, sample_rate = torchaudio.load(
+                    filepath=wav_path,
+                    num_frames=end_frame - start_frame,
+                    frame_offset=start_frame)
+  ```
+  
+2). 在tools/make_shard_list.py中修改：
+  ```shell
+  # 1. 找到：
+  import torchaudio.backend.sox_io_backend as sox
+  # 修改为：
+  # import torchaudio.backend.sox_io_backend as sox
+  
+  # 2. 找到：
+  waveforms, sample_rate = sox.load(wav, normalize=False)
+  # 修改为：
+  waveforms, sample_rate = torchaudio.load(wav, normalize=False)
+  
+  # 3. 找到：
+  sox.save(f, audio, resample, format="wav", bits_per_sample=16)
+  # 修改为：
+  torchaudio.save(f, audio, resample, format="wav", bits_per_sample=16)
+  ```
+
+2). 在wenet/dataset/processor.py中修改：
+  ```shell
+  # 1. 找到：
+  torchaudio.utils.sox_utils.set_buffer_size(16500)
+  # 修改为：
+  # torchaudio.utils.sox_utils.set_buffer_size(16500)
+  
+  # 2. 找到：
+  sample_rate = torchaudio.backend.sox_io_backend.info(
+                    wav_file).sample_rate
+  # 修改为：
+  sample_rate = torchaudio.info(
+                    wav_file).sample_rate
+  
+  # 3. 找到：
+  waveform, _ = torchaudio.backend.sox_io_backend.load(
+                    filepath=wav_file,
+                    num_frames=end_frame - start_frame,
+                    frame_offset=start_frame)
+  # 修改为：
+  waveform, _ = torchaudio.load(
+                    filepath=wav_file,
+                    num_frames=end_frame - start_frame,
+                    frame_offset=start_frame)
+  
+  # 4. 找到：
+          if speed != 1.0:
+            wav, _ = torchaudio.sox_effects.apply_effects_tensor(
+                waveform, sample_rate,
+                [['speed', str(speed)], ['rate', str(sample_rate)]])
+            sample['wav'] = wav
+  # 修改为：
+          # if speed != 1.0:
+          #   wav, _ = torchaudio.sox_effects.apply_effects_tensor(
+          #       waveform, sample_rate,
+          #       [['speed', str(speed)], ['rate', str(sample_rate)]])
+          #   sample['wav'] = wav
+  ```
 
 
-## 代码涉及公网地址
-
-代码涉及公网地址参考[public_address_statement.md](./public_address_statement.md)
