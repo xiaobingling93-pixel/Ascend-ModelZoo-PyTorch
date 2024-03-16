@@ -143,11 +143,11 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
 
         batch_size = self.args.batch_size * 2
 
-        unet_compiled_path = os.path.join(self.args.output_dir, "models/unet/unet_bs2_aie_compile.ts")
-        if self.args.unet:
-            self.compiled_unet_model = torch.jit.load(self.args.unet).eval()
+        unet_compiled_path = os.path.join(self.args.output_dir, "unet/unet_bs2_aie_compile.ts")
+        if os.path.exists(unet_compiled_path):
+            self.compiled_unet_model = torch.jit.load(unet_compiled_path).eval()
         else:
-            model = torch.jit.load(os.path.join(self.args.output_dir, "models/unet/unet_bs2.pt")).eval()
+            model = torch.jit.load(os.path.join(self.args.output_dir, "unet/unet_bs2.pt")).eval()
 
             self.compiled_unet_model = (
                 mindietorch.compile(model,
@@ -177,11 +177,11 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
 
             torch.jit.save(self.compiled_unet_model, unet_compiled_path)
 
-        vae_compiled_path = os.path.join(self.args.output_dir, "models/vae/vae_aie_compile.ts")
-        if self.args.vae:
-            self.compiled_vae_model = torch.jit.load(self.args.vae).eval()
+        vae_compiled_path = os.path.join(self.args.output_dir, "vae/vae_aie_compile.ts")
+        if os.path.exists(vae_compiled_path):
+            self.compiled_vae_model = torch.jit.load(vae_compiled_path).eval()
         else:
-            model = torch.jit.load(os.path.join(self.args.output_dir, "models/vae/vae.pt")).eval()
+            model = torch.jit.load(os.path.join(self.args.output_dir, "vae/vae.pt")).eval()
 
             self.compiled_vae_model = (
                 mindietorch.compile(model,
@@ -198,11 +198,11 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
                                     ))
             torch.jit.save(self.compiled_vae_model, vae_compiled_path)
 
-        clip1_compiled_path = os.path.join(self.args.output_dir, "models/clip/clip_aie_compile.ts")
-        if self.args.clip:
-            self.compiled_clip_model = torch.jit.load(self.args.clip).eval()
+        clip1_compiled_path = os.path.join(self.args.output_dir, "clip/clip_aie_compile.ts")
+        if os.path.exists(clip1_compiled_path):
+            self.compiled_clip_model = torch.jit.load(clip1_compiled_path).eval()
         else:
-            model = torch.jit.load(os.path.join(self.args.output_dir, "models/clip/clip.pt")).eval()
+            model = torch.jit.load(os.path.join(self.args.output_dir, "clip/clip.pt")).eval()
             self.compiled_clip_model = (
                 mindietorch.compile(model,
                                     inputs=[mindietorch.Input((self.args.batch_size,
@@ -216,11 +216,11 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
                                     optimization_level=0))
             torch.jit.save(self.compiled_clip_model, clip1_compiled_path)
 
-        clip2_compiled_path = os.path.join(self.args.output_dir, "models/clip/clip_2_aie_compile.ts")
-        if self.args.clip2:
-            self.compiled_clip_model_2 = torch.jit.load(self.args.clip2).eval()
+        clip2_compiled_path = os.path.join(self.args.output_dir, "clip/clip_2_aie_compile.ts")
+        if os.path.exists(clip2_compiled_path):
+            self.compiled_clip_model_2 = torch.jit.load(clip2_compiled_path).eval()
         else:
-            model = torch.jit.load(os.path.join(self.args.output_dir, "models/clip/clip_2.pt")).eval()
+            model = torch.jit.load(os.path.join(self.args.output_dir, "clip/clip_2.pt")).eval()
             self.compiled_clip_model_2 = (
                 mindietorch.compile(model,
                                     inputs=[mindietorch.Input((self.args.batch_size,
@@ -850,12 +850,6 @@ def parse_arguments():
         default="./",
         help="Path of directory to save compiled models.",
     )
-
-    parser.add_argument('--unet', type=str, default='', help='unet torchScript model path')
-    parser.add_argument('--vae', type=str, default='', help='unet torchScript model path')
-
-    parser.add_argument('--clip', type=str, default='', help='unet torchScript model path')
-    parser.add_argument('--clip2', type=str, default='', help='unet torchScript model path')
 
     return parser.parse_args()
 

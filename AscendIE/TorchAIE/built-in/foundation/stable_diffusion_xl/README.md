@@ -88,9 +88,9 @@
    python3 stable_diffusion_attention_patch.py
    ```
    
-   # 若使用unetCache
    ```bash
-   python3 stable_diffusion_attention_patch.py
+   # 若使用unetCache
+   python3 stable_diffusion_unet_patch.py
    ```
    
 ## 准备数据集<a name="section183221994411"></a>

@@ -156,7 +156,7 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
             return
         
         clip_compiled_path = os.path.join(self.args.output_dir, "clip/compiled_clip.ts")
-        if self.args.clip:
+        if os.path.exists(clip_compiled_path):
             self.compiled_clip_model = torch.jit.load(clip_compiled_path).eval()
         else:
             model = torch.jit.load(os.path.join(self.args.output_dir, "clip/clip.pt")).eval()
@@ -174,7 +174,7 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
             torch.jit.save(self.compiled_clip_model, clip_compiled_path)
 
         unet_cache_compiled_path = os.path.join(self.args.output_dir, "unet/compiled_unet_cache_parallel.ts")
-        if self.args.unet_cache:
+        if os.path.exists(unet_cache_compiled_path):
             self.compiled_unet_cache = torch.jit.load(unet_cache_compiled_path).eval()
         else:
             unet_cache = torch.jit.load(os.path.join(self.args.output_dir, "unet/unet_bs1_0.pt")).eval()
@@ -202,7 +202,7 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
             torch.jit.save(self.compiled_unet_cache, unet_cache_compiled_path)
         
         unet_skip_compiled_path = os.path.join(self.args.output_dir, "unet/compiled_unet_skip_parallel.ts")
-        if self.args.unet_skip:
+        if os.path.exists(unet_skip_compiled_path):
             self.compiled_unet_skip = torch.jit.load(unet_skip_compiled_path).eval()
         else:
             unet_skip = torch.jit.load(os.path.join(self.args.output_dir, "unet/unet_bs1_1.pt")).eval()
@@ -267,7 +267,7 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
             self.use_parallel_inferencing = True
 
         vae_compiled_path = os.path.join(self.args.output_dir, "vae/compiled_vae.ts")
-        if self.args.vae:
+        if os.path.exists(vae_compiled_path):
             self.compiled_vae_model = torch.jit.load(vae_compiled_path).eval()
         else:
             model = torch.jit.load(os.path.join(self.args.output_dir, "vae/vae.pt")).eval()
@@ -735,30 +735,6 @@ def parse_arguments():
         type=str,
         default="./",
         help="Path of directory to save compiled models.",
-    )
-    parser.add_argument(
-        "--clip",
-        type=str,
-        default="",
-        help="clip torchScript model path",
-    )
-    parser.add_argument(
-        "--unet_cache",
-        type=str,
-        default="",
-        help="unet_cache torchScript model path",
-    )
-    parser.add_argument(
-        "--unet_skip",
-        type=str,
-        default="",
-        help="unet_skip torchScript model path",
-    )
-    parser.add_argument(
-        "--vae",
-        type=str,
-        default="",
-        help="vae torchScript model path",
     )
 
     return parser.parse_args()
