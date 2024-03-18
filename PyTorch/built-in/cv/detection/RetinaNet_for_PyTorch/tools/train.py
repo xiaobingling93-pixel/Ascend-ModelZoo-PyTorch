@@ -92,6 +92,7 @@ def parse_args():
         help='job launcher')
     parser.add_argument('--local_rank', '--local-rank', type=int, default=0)
     parser.add_argument('--performance', default=False, action='store_true')
+    parser.add_argument('--data_shuffle', default=True, action='store_false')
     args = parser.parse_args()
     if 'LOCAL_RANK' not in os.environ:
         os.environ['LOCAL_RANK'] = str(args.local_rank)
@@ -211,7 +212,8 @@ def main():
         distributed=distributed,
         validate=(not args.no_validate),
         timestamp=timestamp,
-        meta=meta)
+        meta=meta,
+        data_shuffle=args.data_shuffle)
 
 
 if __name__ == '__main__':

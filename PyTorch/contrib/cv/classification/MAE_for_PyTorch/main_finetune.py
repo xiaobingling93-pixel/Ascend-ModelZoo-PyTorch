@@ -173,6 +173,7 @@ def get_args_parser():
                         help='use profiling to evaluate the performance of model')
     parser.add_argument('--cann_prof', default=False, action='store_true',
                         help='use cann profiling to evaluate the performance of model')
+    parser.add_argument('--data_shuffle', default=True, action='store_false')
 
     return parser
 
@@ -208,7 +209,7 @@ def main(args):
                       'This will slightly alter validation results as extra duplicate entries are added to achieve '
                       'equal num of samples per-process.')
             sampler_val = torch.utils.data.DistributedSampler(
-                dataset_val, num_replicas=num_tasks, rank=global_rank, shuffle=True)  # shuffle=True to reduce monitor bias
+                dataset_val, num_replicas=num_tasks, rank=global_rank, shuffle=args.data_shuffle)  # shuffle=True to reduce monitor bias
         else:
             sampler_val = torch.utils.data.SequentialSampler(dataset_val)
     else:

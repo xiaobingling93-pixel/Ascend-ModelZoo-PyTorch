@@ -17,6 +17,7 @@ export HDF5_DISABLE_VERSION_CHECK=1
 #集合通信参数,不需要修改
 export RANK_SIZE=8
 train_epochs=1
+train_steps=2000
 #基础参数，需要模型审视修改
 #网络名称，同目录名称
 Network="mBART_ID2372_for_PyTorch"
@@ -119,7 +120,7 @@ do
 			let a=0+RANK_ID*24
 			let b=23+RANK_ID*24
 			taskset -c $a-$b python3 train.py $data_path/en_ro/ --fp16 --distributed-world-size $NPU_WORLD_SIZE --npu \
-							  --device-id $RANK_ID --distributed-rank $RANK --distributed-no-spawn --max-update 50 \
+							  --device-id $RANK_ID --distributed-rank $RANK --distributed-no-spawn --max-update ${train_steps} \
 							  --encoder-normalize-before --decoder-normalize-before \
 							  --arch mbart_large --layernorm-embedding \
 							  --task translation_from_pretrained_bart \
@@ -138,7 +139,7 @@ do
 							  --ddp-backend no_c10d > ${cur_path}/output/${RANK_ID}/train_${RANK_ID}.log 2>&1 &
 	else
 		python3 train.py $data_path/en_ro/ --fp16 --distributed-world-size $NPU_WORLD_SIZE --npu \
-							  --device-id $RANK_ID --distributed-rank $RANK --distributed-no-spawn --max-update 50 \
+							  --device-id $RANK_ID --distributed-rank $RANK --distributed-no-spawn --max-update ${train_steps} \
 							  --encoder-normalize-before --decoder-normalize-before \
 							  --arch mbart_large --layernorm-embedding \
 							  --task translation_from_pretrained_bart \

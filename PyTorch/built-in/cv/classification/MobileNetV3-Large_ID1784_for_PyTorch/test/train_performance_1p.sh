@@ -117,6 +117,7 @@ nohup python3 ${cur_path}/main.py \
     --apex-opt-level='O1' \
     --workers=128 \
 	--max_steps=64 \
+	  --data_shuffle \
     --print-freq=1  > $test_path_dir/output/$ASCEND_DEVICE_ID/train_$ASCEND_DEVICE_ID.log 2>&1 &
 wait
 

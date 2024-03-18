@@ -123,6 +123,7 @@ def get_args_parser():
                         help='use profiling to evaluate the performance of model')
     parser.add_argument('--cann_prof', default=False, action='store_true',
                         help='use cann profiling to evaluate the performance of model')
+    parser.add_argument('--data_shuffle', default=True, action='store_false')
 
     return parser
 
@@ -156,7 +157,7 @@ def main(args):
         num_tasks = misc.get_world_size()
         global_rank = misc.get_rank()
         sampler_train = torch.utils.data.DistributedSampler(
-            dataset_train, num_replicas=num_tasks, rank=global_rank, shuffle=True
+            dataset_train, num_replicas=num_tasks, rank=global_rank, shuffle=args.data_shuffle
         )
         print("Sampler_train = %s" % str(sampler_train))
     else:

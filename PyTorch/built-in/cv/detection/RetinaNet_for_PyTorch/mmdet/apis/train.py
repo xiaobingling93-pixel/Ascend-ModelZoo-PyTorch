@@ -94,7 +94,8 @@ def train_detector(model,
                    distributed=False,
                    validate=False,
                    timestamp=None,
-                   meta=None):
+                   meta=None,
+                   data_shuffle=True):
     logger = get_root_logger(cfg.log_level)
 
     # prepare data loaders
@@ -121,7 +122,8 @@ def train_detector(model,
             # cfg.gpus will be ignored if distributed
             len(cfg.gpu_ids),
             dist=distributed,
-            seed=cfg.seed) for ds in dataset
+            seed=cfg.seed,
+            shuffle=data_shuffle) for ds in dataset
     ]
 
     # build runner

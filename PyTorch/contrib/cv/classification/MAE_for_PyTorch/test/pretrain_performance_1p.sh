@@ -90,6 +90,7 @@ nohup python3 -u main_pretrain.py \
              --blr 3e-4 \
              --norm_pix_loss  \
              --amp \
+             --data_shuffle \
              > ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log 2>&1 &
 
 wait

@@ -102,6 +102,7 @@ nohup python3 -u main_finetune.py \
              --dist_eval \
              --amp \
              --loss_scale 2048 \
+             --data_shuffle \
              > ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log 2>&1 &
 
 wait

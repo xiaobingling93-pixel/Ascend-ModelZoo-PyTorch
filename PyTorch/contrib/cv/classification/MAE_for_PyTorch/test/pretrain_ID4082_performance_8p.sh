@@ -79,6 +79,7 @@ nohup python3 -u -m torch.distributed.launch --nproc_per_node=8 --master_port 71
              --norm_pix_loss \
              --amp \
              --output_dir ${output_dir} \
+             --data_shuffle \
              > ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log 2>&1 &
 
 wait

@@ -149,6 +149,7 @@ parser.add_argument('--distributed',
 #vision						 
 parser.add_argument('--lr-step-size', default=30, type=int, help='decrease lr every step-size epochs')
 parser.add_argument('--lr-gamma', default=0.1, type=float, help='decrease lr by a factor of lr-gamma')
+parser.add_argument('--data_shuffle', default=True, action='store_false')
 
 best_prec1 = 0
 
@@ -273,7 +274,7 @@ def main():
     kwargs = {"pin_memory_device": "npu"} if torch.__version__ >= "2.0" else {}
     train_loader = torch.utils.data.DataLoader(
         train_dataset,
-        batch_size=args.batch_size, shuffle=(train_sampler is None),
+        batch_size=args.batch_size, shuffle=(train_sampler is None) and args.data_shuffle,
         num_workers=args.workers, pin_memory=True, sampler=train_sampler, drop_last=True, **kwargs)
 
 
