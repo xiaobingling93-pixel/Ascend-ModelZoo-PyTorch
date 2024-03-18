@@ -20,28 +20,19 @@ from torch.nn import functional as F
 from segment_anything.utils.transforms import ResizeLongestSide
 
 
-preprocessing_config = {
-    'image_size': 1024,
-    'mean':[123.675, 116.28, 103.53],
-    'std':[58.395, 57.12, 57.375],
-}
+IMAGE_SIZE = 1024
 
 
 def encoder_preprocessing(image):
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    transform = ResizeLongestSide(preprocessing_config['image_size'])
-    input_image = transform.apply_image(image)
-    input_image_torch = torch.as_tensor(input_image, device='cpu')
-    input_image_torch = input_image_torch.permute(2, 0, 1).contiguous()[None, :, :, :]
-    pixel_mean = torch.Tensor(preprocessing_config['mean']).view(-1, 1, 1)
-    pixel_std = torch.Tensor(preprocessing_config['std']).view(-1, 1, 1)
-    x = (input_image_torch - pixel_mean) / pixel_std
-    h, w = x.shape[-2: ]
-    padh = preprocessing_config['image_size'] - h
-    padw = preprocessing_config['image_size'] - w
-    x = F.pad(x, (0, padw, 0, padh))
-    x = x.numpy().astype(np.float32)
-    return x
+    transform = ResizeLongestSide(IMAGE_SIZE)
+    image = transform.apply_image(image)
+    image = torch.tensor(image)
+    h, w, _ = image.shape
+    image = F.pad(image, (0, 0, 0, IMAGE_SIZE - w, 0, IMAGE_SIZE - h))
+    image = np.array(image, dtype=np.uint8)
+    image = image[None, :, :, :]
+    return image
 
 
 def decoder_preprocessing(image_embedding, input_point, image):
@@ -50,7 +41,7 @@ def decoder_preprocessing(image_embedding, input_point, image):
     input_label = np.array(input_label)
     onnx_coord = np.concatenate([input_point, np.array([[0.0, 0.0]])], axis=0)[None, :, :]
     onnx_label = np.concatenate([input_label, np.array([-1])], axis=0)[None, :].astype(np.float32)
-    transform = ResizeLongestSide(preprocessing_config['image_size'])
+    transform = ResizeLongestSide(IMAGE_SIZE)
     onnx_coord = transform.apply_coords(onnx_coord, image.shape[: 2]).astype(np.float32)
     onnx_mask_input = np.zeros((1, 1, 256, 256), dtype=np.float32)
     onnx_has_mask_input = np.zeros(1, dtype=np.float32)

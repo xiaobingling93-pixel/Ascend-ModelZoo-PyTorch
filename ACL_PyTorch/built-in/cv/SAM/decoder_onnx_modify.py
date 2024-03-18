@@ -19,19 +19,35 @@
          破坏图结构使atc转换时匹配不到LayerNorm的融合规则，以此破坏融合。
 """
 
+import argparse
 import sys
+
 import numpy as np
-from auto_optimizer import OnnxGraph
+import auto_optimizer
 
 
 if __name__ == '__main__':
-    input_onnx = sys.argv[1]
-    output_onnx = sys.argv[2]
+    parser = argparse.ArgumentParser(
+        description='Modify the SAM decoder ONNX model to adapt Ascend chips.'
+    )
+    parser.add_argument(
+        '--input',
+        type=str,
+        required=True,
+        help='The path to the original SAM decoder ONNX model.',
+    )
+    parser.add_argument(
+        '--output',
+        type=str,
+        required=True,
+        help='The path to save the adapted SAM decoder ONNX model to.',
+    )
+    args = parser.parse_args()
 
-    g = OnnxGraph.parse(input_onnx)
+    g = auto_optimizer.OnnxGraph.parse(args.input)
     g.add_initializer('exponent', np.array(1.0, dtype=np.float32))
     new_pow = g.add_node('NewPow', 'Pow', inputs=['', ''], outputs=[])
     g.insert_node('/output_upscaling/output_upscaling.1/Div', new_pow, refer_index=0, mode='before')
     new_pow.inputs.append('exponent')
     g.update_map()
-    g.save(output_onnx)
+    g.save(args.output)
