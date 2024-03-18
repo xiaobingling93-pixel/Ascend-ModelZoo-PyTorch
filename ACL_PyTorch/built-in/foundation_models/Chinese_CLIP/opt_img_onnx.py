@@ -14,9 +14,10 @@
 
 
 import sys
+from typing import List, Optional
  
 import numpy as np
-from auto_optimizer import OnnxGraph
+from auto_optimizer import OnnxGraph, OnnxNode, Union
  
  
 optimize_plans = {
@@ -30,10 +31,10 @@ optimize_plans = {
  
 def pattern_select(
     graph: OnnxGraph,
-    candidate_nodes: list, 
-    preorders: list = None, 
-    successors: list = None
-) -> list:
+    candidate_nodes: Union[str, List[str]],
+    preorders: Optional[List[str]] = None, 
+    successors: Optional[List[str]] = None
+) -> List[OnnxNode]:
     ret = []
     preorders = preorders or []
     successors = successors or []
@@ -89,44 +90,44 @@ def pattern_select(
     return ret
  
     
-def get_attention_reshape_nodes(graph: OnnxGraph) -> list:
+def get_attention_reshape_nodes(graph: OnnxGraph) -> List[OnnxNode]:
     # Pattern: Transpose -> [Reshape] -> MatMul
     all_reshape_nodes = graph.get_nodes("Reshape")
     return pattern_select(graph, all_reshape_nodes, ["Transpose"], ["MatMul"])
 
 
-def get_first_layernorm_transpose_nodes(graph: OnnxGraph) -> list:
+def get_first_layernorm_transpose_nodes(graph: OnnxGraph) -> List[OnnxNode]:
     # Pattern: Mul -> Add -> [Transpose]
     all_transpose_nodes = graph.get_nodes("Transpose")
     return pattern_select(graph, all_transpose_nodes, ["Mul", "Add"])
 
 
-def get_last_layernorm_transpose_nodes(graph: OnnxGraph) -> list:
+def get_last_layernorm_transpose_nodes(graph: OnnxGraph) -> List[OnnxNode]:
     # Pattern: [Transpose] -> Gather
     all_transpose_nodes = graph.get_nodes("Transpose")
     return pattern_select(graph, all_transpose_nodes, None, ["Gather"])
  
  
-def get_layernorm_add_nodes(graph: OnnxGraph) -> list:
+def get_layernorm_add_nodes(graph: OnnxGraph) -> List[OnnxNode]:
     # Pattern: Mul -> MatMul -> Add -> [Add]
     all_add_nodes = graph.get_nodes("Add")
     return pattern_select(graph, all_add_nodes, ["Mul", ("MatMul", 1), ("Add", 1)])
  
  
-def get_layernorm_add_nodes_2(graph: OnnxGraph) -> list:
+def get_layernorm_add_nodes_2(graph: OnnxGraph) -> List[OnnxNode]:
     # Pattern: Reshape -> MatMul -> Add -> [Add]
     all_add_nodes = graph.get_nodes("Add")
     return pattern_select(graph, all_add_nodes, ["Reshape", ("MatMul", 1), ("Add", 1)])
 
 
-def get_attention_add_nodes_3(graph: OnnxGraph) -> list:
+def get_attention_add_nodes_3(graph: OnnxGraph) -> List[OnnxNode]:
     # Pattern: [Add] -> Slice
     all_add_nodes = graph.get_nodes("Add")
     return pattern_select(graph, all_add_nodes, None, ["Slice"])
 
  
-def merge_bmm_axis(graph: OnnxGraph, anchor_reshapes: list, anchor_adds: list) -> None:
-    reshape_inits = list(set(node.inputs[1] for node in anchor_reshapes))
+def merge_bmm_axis(graph: OnnxGraph, anchor_reshapes: List[OnnxNode], anchor_adds: List[OnnxNode]) -> None:
+    reshape_inits = List(set(node.inputs[1] for node in anchor_reshapes))
     original_shape = graph[reshape_inits[0]].value
     original_shape_init = graph.add_initializer(f"original_shape", original_shape)
  
@@ -189,9 +190,9 @@ def cal_padding_shape(graph: OnnxGraph, merged: bool=False) -> tuple:
  
 def pad_nz_block(
     graph: OnnxGraph, 
-    anchor_reshapes: list, 
-    anchor_adds: list, 
-    anchor_adds_2: list, 
+    anchor_reshapes: List[OnnxNode], 
+    anchor_adds: List[OnnxNode], 
+    anchor_adds_2: List[OnnxNode], 
     merged: bool=False
 ) -> None:
     padding_shape, original_shape = cal_padding_shape(graph, merged)
@@ -204,12 +205,11 @@ def pad_nz_block(
     graph.insert_node(add_node.name, new_concat_node, refer_index=0, mode="before")
     new_concat_node.inputs.append(new_concat_init.name)
     
-    new_concat_init_2 = graph.add_initializer(f"padding_concat_init_2", np.zeros(padding_shape, dtype=np.float32))
     for reshape in anchor_reshapes:
         new_concat_name = f"Concat_after_{reshape.name}"
         new_concat_node = graph.add_node(new_concat_name, "Concat", attrs={"axis": axis})
         graph.insert_node(reshape.name, new_concat_node)
-        new_concat_node.inputs.append(new_concat_init_2.name)
+        new_concat_node.inputs.append(new_concat_init.name)
  
     for add_node in anchor_adds:
         output_name = add_node.outputs[0]
@@ -229,15 +229,15 @@ def pad_nz_block(
                 next_node.inputs[next_node.inputs.index(output_name)] = f"{new_slice_name}_output"
 
 
-def delete_transpose(graph: OnnxGraph, anchor_transposes: list) -> None:
+def delete_transpose(graph: OnnxGraph, anchor_transposes: List[OnnxNode]) -> None:
     for transpose_node in anchor_transposes:
         graph.remove(transpose_node.name)
 
 
 def adapt_for_attention_pattern(
     graph: OnnxGraph, 
-    anchor_adds: list,
-    anchor_softmaxes: list
+    anchor_adds: List[OnnxNode],
+    anchor_softmaxes: List[OnnxNode]
 ) -> None:
     """
     pattern:
@@ -260,9 +260,9 @@ def adapt_for_attention_pattern(
             |         |          |                                         |          \          |
     Transpose_v  Transpose_q  Transpose_k                                  |           \     Transpose_k
             |         |         /                                          |            \       /
-            |       Div        /                                           |              MatMul
-            |          \      /                                             \               |
-             \         MatMul                                                \             Mul
+            |       Div        /                                           |            Div    /
+            |          \      /                                             \             \   /
+             \         MatMul                                                \            MatMul
               \           |                                                   \             |
                \       SoftMax                                                 \          SoftMax
                 \        /                                                      \          /
@@ -322,7 +322,8 @@ def adapt_for_attention_pattern(
             attrs={"perm": [0,1,3,2]}
         )
 
-        matmul_before_softmax.inputs = [f"{new_split_name}_output_q", f"{new_transpose_2_name}_output"]
+        div_before_matmul.inputs[0] = f"{new_split_name}_output_q"
+        matmul_before_softmax.inputs[1] = f"{new_transpose_2_name}_output"
         matmul_after_softmax.inputs[1] = f"{new_split_name}_output_v"
 
         for idx in range(3):
@@ -334,16 +335,6 @@ def adapt_for_attention_pattern(
             )
             graph.insert_node(new_split_name, new_squeeze_node, refer_index=idx, mode="after")
 
-        new_mul_name = f"Mul_before_{softmax_node.name}"
-        new_mul_node = graph.add_node(new_mul_name, "Mul")
-        div_value = graph[div_before_matmul.inputs[1]].value
-        new_mul_init = graph.add_initializer(
-            f"{new_mul_name}_init",
-            np.array(1/div_value, dtype="float32")
-        )
-        graph.insert_node(softmax_node.name, new_mul_node, mode="before")
-        new_mul_node.inputs.append(new_mul_init.name)
-
         transpose_after_matmul["perm"] = [0,2,1,3]
 
         reshape_init = graph.add_initializer(
@@ -351,9 +342,49 @@ def adapt_for_attention_pattern(
             np.array([bs, hidden_dim2, hidden_dim1])
         )
         reshape_after_transpose.inputs[1] = reshape_init.name
+    
+    graph.update_map()
+    graph.remove_unused_nodes()
+
+
+def adapt_for_flashattention(graph: OnnxGraph, anchor_softmaxes: List[OnnxNode]) -> None:
+    """
+    pattern:
+            /         |          \                                          /        |          \
+      Squeeze_v   Squeeze_q   Squeeze_k                              Squeeze_v   Squeeze_q   Squeeze_k
+            |         |          |                                         |         |          |
+            |         |       Transpose_k                                  |         |          |
+            |         |         /                 adapt                    |         |          |
+            |       Div        /                 =======>                  |        Div         |
+            |          \      /                                             \        |         /
+             \         MatMul                                                \       |        /
+              \           |                                                   FlashAttentionTik
+               \       SoftMax                                                       |
+                \        /                                                       Transpose
+                  MatMul                                                             |
+                    |                                                             Reshape
+                 Transpose                                                        
+                    |                                                               
+                  Reshape                                                          
+
+    """
+    fa_name = "FlashAttentionTik"
+    for softmax_node in anchor_softmaxes:
+        matmul_before_softmax = graph.get_prev_node(softmax_node.inputs[0])
+        matmul_after_softmax = graph.get_next_nodes(softmax_node.outputs[0])[0]
+        transpose_before_matmul = graph.get_prev_node(matmul_before_softmax.inputs[1])
+
+        new_node = graph.add_node(softmax_node.name.replace("Softmax", fa_name), fa_name)
+        new_node.inputs = [matmul_before_softmax.inputs[0], transpose_before_matmul.inputs[0], matmul_after_softmax.inputs[1]]
+        new_node.outputs = matmul_after_softmax.outputs
+
+        graph.remove(matmul_before_softmax.name, {})
+        graph.remove(softmax_node.name, {})
+        graph.remove(transpose_before_matmul.name, {})
+        graph.remove(matmul_after_softmax.name, {})
+
  
- 
-def apply_optimization(onnx_path: str, save_path:str, model_config: str) -> None:
+def apply_optimization(onnx_path: str, save_path: str, model_config: str) -> None:
     plan = optimize_plans.get(model_config)
     merged_axis = False
  
@@ -368,6 +399,7 @@ def apply_optimization(onnx_path: str, save_path:str, model_config: str) -> None
 
     delete_transpose(g, transposes)
     adapt_for_attention_pattern(g, adds_3, softmaxes)
+    adapt_for_flashattention(g, softmaxes)
  
     for opt in plan:
         if opt == "merge_bmm_axis":
@@ -377,8 +409,6 @@ def apply_optimization(onnx_path: str, save_path:str, model_config: str) -> None
         elif opt == "pad_nz_block":
             pad_nz_block(g, reshapes, adds, adds_2, merged_axis)
  
-    g.update_map()
-    g.remove_unused_nodes()
     g.infershape()
     g.save(save_path)
  

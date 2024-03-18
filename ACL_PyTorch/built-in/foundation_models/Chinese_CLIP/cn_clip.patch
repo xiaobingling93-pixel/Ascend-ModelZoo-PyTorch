@@ -1,7 +1,18 @@
-diff -rNu cn_clip/deploy/pytorch_to_onnx.py cn_clip_fix/deploy/pytorch_to_onnx.py
+diff -urN cn_clip/deploy/pytorch_to_onnx.py cn_clip_fix/deploy/pytorch_to_onnx.py
 --- cn_clip/deploy/pytorch_to_onnx.py	2024-02-20 14:49:36.955252200 +0800
-+++ cn_clip_fix/deploy/pytorch_to_onnx.py	2024-02-20 14:55:16.977809000 +0800
-@@ -141,9 +141,10 @@
++++ cn_clip_fix/deploy/pytorch_to_onnx.py	2024-03-17 14:48:30.339636500 +0800
+@@ -117,8 +117,9 @@
+                     text_fp32_onnx_path,
+                     input_names=['text'],
+                     output_names=['unnorm_text_features'],
++                    dynamic_axes={'text':{0:"-1"}, 'unnorm_text_features':{0:"-1"}},
+                     export_params=True,
+-                    opset_version=13,
++                    opset_version=11,
+                     verbose=True)
+         # convert text FP16 ONNX model based on the FP32 model
+         text_fp16_onnx_path = f"{args.save_onnx_path}.txt.fp16.onnx"
+@@ -141,9 +142,10 @@
                      vision_fp32_onnx_path,
                      input_names=['image'],
                      output_names=['unnorm_image_features'],
