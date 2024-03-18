@@ -124,8 +124,8 @@ class BackgroundRuntime:
         print(f"[info] bg device id: {device_id}")
 
         # Tell the main function that we are ready
-        model_cache = torch.jit.load("./unet/compiled_unet_cache_parallel.ts").eval()
-        model_skip = torch.jit.load("./unet/compiled_unet_skip_parallel.ts").eval()
+        model_cache = torch.jit.load(model_path).eval()
+        model_skip = torch.jit.load(model_path).eval()
 
         # Build numpy arrays on the shared buffers
         input_arrays = [

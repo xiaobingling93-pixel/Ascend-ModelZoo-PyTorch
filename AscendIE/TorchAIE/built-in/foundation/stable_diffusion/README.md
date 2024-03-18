@@ -274,13 +274,6 @@
 
    **注意**：更换lora权重时，请手动删除models_lora路径的生成的编译好的pt模型，（xxx_compile.pt）重新执行推理脚本。
 
-   **注意**：并行推理使用UnetCache策略时，请手动修改background_runtime_cache.py文件中的model_cache、model_skip模型路径。
-
-      ```bash
-      # 若--output_dir设为./models
-      model_cache = torch.jit.load("./models/unet/compiled_unet_cache_parallel.ts").eval()
-      model_skip = torch.jit.load("./models/unet/compiled_unet_skip_parallel.ts").eval()
-      ```
 
 ## 精度验证<a name="section741711594518"></a>
 
