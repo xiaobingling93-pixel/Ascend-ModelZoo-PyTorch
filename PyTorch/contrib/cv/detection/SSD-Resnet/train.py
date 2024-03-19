@@ -496,8 +496,4 @@ def main():
 
 
 if __name__ == "__main__":
-    option = {}
-    option["NPU_FUZZY_COMPILE_BLACKLIST"] = '''BNTrainingReduce,BNTrainingReduceGrad,
-                                             BNTrainingUpdate,BNTrainingUpdateGrad'''
-    torch.npu.set_option(option)
     main()

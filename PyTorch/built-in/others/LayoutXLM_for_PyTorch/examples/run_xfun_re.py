@@ -76,8 +76,6 @@ elif os.getenv('ALLOW_FP32', False):
     torch.npu.matmul.allow_hf32 = False
 torch.npu.set_compile_mode(jit_compile=False)
 option = {}
-# 二进制场景下，这三个算子前后存在大量aicpu上的transdata，性能较差；加入黑名单后性能提升明显
-option["NPU_FUZZY_COMPILE_BLACKLIST"] = "Conv2DBackpropFilter,Conv2DBackpropInput,Conv2D"
 option["MM_BMM_ND_ENABLE"] = 'disable'
 torch.npu.set_option(option)
 

@@ -54,10 +54,6 @@ from detectron2.evaluation import (
     verify_results,
 )
 from detectron2.modeling import GeneralizedRCNNWithTTA
-#算子黑名单
-option = {}
-option["NPU_FUZZY_COMPILE_BLACKLIST"] = "NMSWithMask,BatchMultiClassNonMaxSuppression,AxpyV2"
-torch.npu.set_option(option)
 class Trainer(DefaultTrainer):
     """
     We use the "DefaultTrainer" which contains pre-defined default logic for

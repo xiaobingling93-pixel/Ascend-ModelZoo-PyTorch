@@ -34,9 +34,6 @@ import deepspeed_npu
 from torch_npu.contrib import transfer_to_npu
 
 torch.npu.set_compile_mode(jit_compile=True)
-option = {"NPU_FUZZY_COMPILE_BLACKLIST":"Tril,LayerNormGrad"}
-torch.npu.set_option(option)
-
 
 import transformers
 from transformers import (

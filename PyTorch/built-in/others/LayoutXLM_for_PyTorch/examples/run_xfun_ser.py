@@ -84,7 +84,6 @@ elif os.getenv('ALLOW_FP32', False):
     torch.npu.matmul.allow_hf32 = False
 torch.npu.set_compile_mode(jit_compile=False)
 option = {}
-option["NPU_FUZZY_COMPILE_BLACKLIST"] = "Conv2DBackpropFilter,Conv2DBackpropInput,Conv2D"
 option["MM_BMM_ND_ENABLE"] = 'disable'
 torch.npu.set_option(option)
 

@@ -601,7 +601,4 @@ def load_tensor(name, device):
 
 if __name__ == '__main__':
     torch.npu.set_compile_mode(jit_compile=False)
-    option = {}
-    option['NPU_FUZZY_COMPILE_BLACKLIST'] = 'DynamicRNN,DynamicRNNV2'
-    torch.npu.set_option(option)
     main()

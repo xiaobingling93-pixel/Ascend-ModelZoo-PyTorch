@@ -82,9 +82,6 @@ import os
 import apex
 #模糊编译
 torch.npu.set_start_fuzz_compile_step(3)
-option = {}
-option["NPU_FUZZY_COMPILE_BLACKLIST"] = "LayerNormGrad"
-torch.npu.set_option(option)
 try:
     from apex import amp
 except:
