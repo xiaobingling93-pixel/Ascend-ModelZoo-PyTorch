@@ -48,8 +48,8 @@ class FaAdapter:
     def __adapt_layer(self, softmax: auto_optimizer.OnnxNode) -> None:
         # mul transpose
         #   \    /
-        #  matmul_1                                  shape_q                       shape_q
-        #     |                                       /    \                        /    \
+        #  matmul_1                           shape_q                       shape_q
+        #     |                                /    \                        /    \
         # reshape_1                  gather_batch gather_seq_len   gather_batch gather_seq_len
         #     |                               |       |    |                |       |    |
         #   add_1      mul transpose add_1 concat_for_mask_shape   add_1 concat_for_mask_shape
@@ -64,7 +64,7 @@ class FaAdapter:
         #     |                   |
         # reshape_3           reshape_3
 
-        layer_name_prefix = '/'.join(softmax.split('/')[:-1])
+        layer_name_prefix = '/'.join(softmax.name.split('/')[:-1])
 
         matmul_2 = self.__graph.get_next_nodes(softmax.outputs[0])[0]
         reshape_3 = self.__graph.get_next_nodes(matmul_2.outputs[0])[0]
@@ -82,7 +82,7 @@ class FaAdapter:
         addend_1 = add_1.inputs[1]
         addend_2 = add_2.inputs[1]
 
-        target_shape = self.__infer_target_shape(layer_index, q)
+        target_shape = self.__infer_target_shape(layer_name_prefix, q)
         add_1.inputs = [addend_1, addend_2]
         reshape_1.inputs = [add_1.outputs[0], target_shape]
         add_2.inputs = [matmul_1.outputs[0], reshape_1.outputs[0]]
