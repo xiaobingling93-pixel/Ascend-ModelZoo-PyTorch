@@ -145,7 +145,8 @@ else
     --cfg-options data_root=$data_path \
     --cfg-options train_dataloader.dataset.data_root=$data_path \
     --cfg-options val_dataloader.dataset.data_root=$data_path \
-    --cfg-options test_dataloader.dataset.data_root=$data_path
+    --cfg-options test_dataloader.dataset.data_root=$data_path \
+    --cfg-options runner_type=FCNRunner
 fi
 
 
