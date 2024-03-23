@@ -84,7 +84,8 @@ def train_detector(model,
                    distributed=False,
                    validate=False,
                    timestamp=None,
-                   meta=None):
+                   meta=None,
+                   data_shuffle=True):
     logger = get_root_logger(cfg.log_level)
 
     # prepare data loaders
@@ -97,7 +98,8 @@ def train_detector(model,
             seed=cfg.get('seed'),
             drop_last=False,
             pin_memory=True,
-            persistent_workers=False),
+            persistent_workers=False,
+            shuffle=data_shuffle),
         **({} if torch.__version__ != 'parrots' else dict(
             prefetch_num=2,
         )),

@@ -135,7 +135,7 @@ nohup python3 ${cur_path}/train/mobilenetv2_8p_main_anycard.py \
     --device-list $ASCEND_DEVICE_ID \
     --amp \
     --benchmark 0 \
-    --data $data_path > $test_path_dir/output/$ASCEND_DEVICE_ID/train_$ASCEND_DEVICE_ID.log 2>&1 &
+    --data $data_path --performance > $test_path_dir/output/$ASCEND_DEVICE_ID/train_$ASCEND_DEVICE_ID.log 2>&1 &
 wait
 
 #训练结束时间，不需要修改

@@ -44,7 +44,7 @@ if [ x"${etp_flag}" != x"true" ]; then
   source ${test_path_dir}/env_npu.sh
 fi
 
-python tools/train.py configs/textrecog/abinet/abinet_academic_1000iters.py --seed=0 --work-dir=${WORK_DIR} --load-from=${LOAD_FROM} \
+python tools/train.py configs/textrecog/abinet/abinet_academic_1000iters.py --seed=0 --work-dir=${WORK_DIR} --load-from=${LOAD_FROM} --data_shuffle \
   >$cur_path/test/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log 2>&1 &
 wait
 

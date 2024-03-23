@@ -142,6 +142,7 @@ parser.add_argument('--loss-scale', default=64., type=float,
 parser.add_argument('--opt-level', default='O2', type=str,
                     help='loss scale using in amp, default -1 means dynamic')
 parser.add_argument('--class-nums', default=1000, type=int, help='class-nums only for pretrain')
+parser.add_argument('--performance', default=False, action='store_true')
 
 # 图模式
 parser.add_argument('--graph_mode',
@@ -255,7 +256,8 @@ def main_worker(gpu, ngpus_per_node, args):
     train_loader, train_loader_len, train_sampler = get_pytorch_train_loader(args.data,
                                                                              args.batch_size,
                                                                              workers=args.workers,
-                                                                             distributed=args.distributed)
+                                                                             distributed=args.distributed,
+                                                                             performance=args.performance)
 
     val_loader = get_pytorch_val_loader(args.data, args.batch_size, args.workers, distributed=False)
 
@@ -615,9 +617,16 @@ def fast_collate(batch):
     return tensor, targets
 
 
-def get_pytorch_train_loader(data_path, batch_size, workers=5, _worker_init_fn=None, distributed=False):
+def get_pytorch_train_loader(data_path, batch_size, workers=5, _worker_init_fn=None, distributed=False, performance=False):
     traindir = os.path.join(data_path, 'train')
-    train_dataset = datasets.ImageFolder(traindir,
+    if performance:
+        train_dataset = datasets.ImageFolder(traindir,
+                                       transforms.Compose([
+                                           transforms.Resize(256),
+                                           transforms.CenterCrop(224),
+                                       ]))
+    else:
+        train_dataset = datasets.ImageFolder(traindir,
                                          transforms.Compose([
                                              transforms.RandomResizedCrop(224),
                                              transforms.RandomHorizontalFlip(),

@@ -112,14 +112,22 @@ def get_parameters(model):
     return groups
 
 
-def get_pytorch_train_loader(data_path, batch_size, workers=5, _worker_init_fn=None, distributed=False):
+def get_pytorch_train_loader(data_path, batch_size, workers=5, _worker_init_fn=None, distributed=False, performance=False):
     traindir = os.path.join(data_path, 'train')
-    train_dataset = datasets.ImageFolder(
-        traindir,
-        transforms.Compose([
-            transforms.RandomResizedCrop(224),
-            transforms.RandomHorizontalFlip()
-        ]))
+    if performance:
+        train_dataset = datasets.ImageFolder(
+            traindir,
+            transforms.Compose([
+                transforms.Resize(256),
+                transforms.CenterCrop(224),
+            ]))
+    else:
+        train_dataset = datasets.ImageFolder(
+            traindir,
+            transforms.Compose([
+                transforms.RandomResizedCrop(224),
+                transforms.RandomHorizontalFlip()
+            ]))
 
     if distributed:
         train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset)

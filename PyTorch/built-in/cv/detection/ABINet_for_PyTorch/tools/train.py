@@ -113,6 +113,7 @@ def parse_args(arg_list=None):
         default='none',
         help='Options for job launcher.')
     parser.add_argument('--local_rank', type=int, default=0)
+    parser.add_argument('--data_shuffle', default=True, action='store_false')
 
     args = parser.parse_args(arg_list)
     if 'LOCAL_RANK' not in os.environ:
@@ -250,7 +251,8 @@ def run_train_cmd(args):
         distributed=distributed,
         validate=(not args.no_validate),
         timestamp=timestamp,
-        meta=meta)
+        meta=meta,
+        data_shuffle=args.data_shuffle)
 
 
 if __name__ == '__main__':

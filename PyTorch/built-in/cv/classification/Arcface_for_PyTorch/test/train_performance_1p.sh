@@ -106,7 +106,8 @@ do
         --profiling ${profiling} \
         --start_step ${start_step} \
         --stop_step ${stop_step} \
-        --local_rank=${RANK_ID} --perf_steps=$perf_steps > ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log 2>&1 &
+        --local_rank=${RANK_ID} --perf_steps=$perf_steps \
+        --data_shuffle > ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log 2>&1 &
 done
 wait
 

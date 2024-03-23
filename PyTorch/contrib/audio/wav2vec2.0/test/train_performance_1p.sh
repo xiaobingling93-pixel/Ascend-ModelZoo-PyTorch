@@ -144,7 +144,7 @@ e2e_time=$(( $end_time - $start_time ))
 #结果打印，不需要修改
 echo "------------------ Final result ------------------"
 #输出性能FPS，需要模型审视修改
-FPS=`cat ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log |grep -a 'train_wps'|awk -F "train_wps" '{print $NF}'  |awk -F ","  '{print substr($1,5,length($1)-5)}' | awk 'BEGIN {max=0} {if ($1 > max) max=$1} END {print max}'`
+FPS=`cat ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log |grep -a 'wps'|awk -F "wps" '{print $NF}'  |awk -F ","  '{print substr($1,5,length($1)-5)}' | tail -n10 |awk '{sum+=$1} END {print"",sum/NR}'`
 #打印，不需要修改
 echo "Final Performance images/sec : $FPS"
 
@@ -164,7 +164,7 @@ CaseName=${Network}_bs${BatchSize}_${RANK_SIZE}'p'_'acc'
 #吞吐量
 ActualFPS=${FPS}
 #单迭代训练时长
-TrainingTime=`awk 'BEGIN{printf "%.2f\n", '${batch_size}'*1000/'${FPS}'}'`
+TrainingTime=`awk 'BEGIN{printf "%.2f\n", '${batch_size}'*1000/'"${FPS}"'}'`
 
 #从train_$ASCEND_DEVICE_ID.log提取Loss到train_${CaseName}_loss.txt中，需要根据模型审视
 grep Train: ${test_path_dir}/output/$ASCEND_DEVICE_ID/train_$ASCEND_DEVICE_ID.log|grep -v Test|awk -F "Loss" '{print $NF}' | awk -F " " '{print $2}' >> ${test_path_dir}/output/$ASCEND_DEVICE_ID/train_${CaseName}_loss.txt

@@ -107,6 +107,7 @@ def get_args():
 	                    help='group number')
     parser.add_argument('--model-size', type=str, default='2.0x', choices=['0.5x', '1.0x', '1.5x', '2.0x'], 
 	                    help='size of the model')
+    parser.add_argument('--performance', default=False, action='store_true')
 
     args = parser.parse_args()
     return args
@@ -148,7 +149,8 @@ def main():
     # Data loading code
     train_loader, train_loader_len, train_sampler = get_pytorch_train_loader(args.data, args.batch_size,
                                                                        workers=args.workers,
-                                                                       distributed=args.distributed)
+                                                                       distributed=args.distributed,
+                                                                       performance=args.performance)
 
     val_loader = get_pytorch_val_loader(args.data, args.batch_size, args.workers, distributed=False)
     print('load data successfully')

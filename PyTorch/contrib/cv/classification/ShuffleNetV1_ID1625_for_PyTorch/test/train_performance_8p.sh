@@ -87,7 +87,8 @@ then
         --local-rank ${i} \
         --device-num ${device_num} \
         --data ${data_path} \
-        --world-size 1  > ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log 2>&1 &
+        --world-size 1 \
+        --performance > ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log 2>&1 &
 else
     nohup python3 -u train.py \
         --model-size 1.0x \
@@ -98,7 +99,8 @@ else
         --local-rank ${i} \
         --device-num ${device_num} \
         --data ${data_path} \
-        --world-size 1 > ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log 2>&1 &
+        --world-size 1 \
+        --performance > ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log 2>&1 &
 fi
 done
 

@@ -59,6 +59,7 @@ python -m torch.distributed.launch \
   --load-from=${LOAD_FROM} \
   --work-dir=${WORK_DIR} \
   --launcher pytorch \
+   --data_shuffle \
   >$cur_path/test/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log 2>&1 &
 wait
 

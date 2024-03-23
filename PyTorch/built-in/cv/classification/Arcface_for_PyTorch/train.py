@@ -91,7 +91,8 @@ def main(args):
         cfg.batch_size,
         cfg.dali,
         cfg.seed,
-        cfg.num_workers
+        cfg.num_workers,
+        args.data_shuffle
     )
 
     backbone = get_model(
@@ -300,4 +301,5 @@ if __name__ == "__main__":
     parser.add_argument('--profiling', type=str, default='False',help='profiling')
     parser.add_argument('--start_step', default=90, type=int, help='start_step')
     parser.add_argument('--stop_step', default=100, type=int,help='stop_step')
+    parser.add_argument('--data_shuffle', default=True, action='store_false')
     main(parser.parse_args())

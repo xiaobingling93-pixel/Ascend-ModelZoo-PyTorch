@@ -37,6 +37,7 @@ def get_dataloader(
     dali = False,
     seed = 2048,
     num_workers = 2,
+    data_shuffle = True
     ) -> Iterable:
 
     rec = os.path.join(root_dir, 'train.rec')
@@ -68,7 +69,7 @@ def get_dataloader(
 
     rank, world_size = get_dist_info()
     train_sampler = DistributedSampler(
-        train_set, num_replicas=world_size, rank=rank, shuffle=True, seed=seed)
+        train_set, num_replicas=world_size, rank=rank, shuffle=data_shuffle, seed=seed)
 
     if seed is None:
         init_fn = None
