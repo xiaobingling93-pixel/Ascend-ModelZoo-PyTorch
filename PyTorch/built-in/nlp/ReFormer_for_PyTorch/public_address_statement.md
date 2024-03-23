@@ -52,3 +52,5 @@
 | 开源代码引入 | https://github.com/huggingface/transformers/blob/v4.28.1/src/transformers/models/reformer/modeling_reformer.py | ./transformers_modify/modeling_reformer.py | https://github.com/lucidrains/reformer-pytorch/blob/master/reformer_pytorch/reversible.py |  reformer代码灵感来源 |
 | 开源代码引入 | https://github.com/huggingface/transformers/blob/v4.28.1/src/transformers/models/reformer/modeling_reformer.py | ./transformers_modify/modeling_reformer.py | https://github.com/pytorch/pytorch/pull/5617 |  truncated_normal使用说明 |
 | 开源代码引入 | https://github.com/huggingface/transformers/blob/v4.28.1/src/transformers/models/reformer/modeling_reformer.py | ./transformers_modify/modeling_reformer.py | https://pytorch.org/docs/stable/nn.html#torch.nn.Module |  torch.nn文档 |
+| 开源代码引入 | https://github.com/huggingface/datasets/blob/main/metrics/accuracy/accuracy.py | accuracy.py | https://scikit-learn.org/stable/modules/generated/sklearn.metrics.accuracy_score.html |  accuracy计算方式参考
+ |
