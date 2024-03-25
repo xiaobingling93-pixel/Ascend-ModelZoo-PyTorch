@@ -70,7 +70,8 @@ class DistributedGroupSampler(Sampler):
                  dataset,
                  samples_per_gpu=1,
                  num_replicas=None,
-                 rank=None):
+                 rank=None,
+                 shuffle=True):
         _rank, _num_replicas = get_dist_info()
         if num_replicas is None:
             num_replicas = _num_replicas
@@ -81,6 +82,7 @@ class DistributedGroupSampler(Sampler):
         self.num_replicas = num_replicas
         self.rank = rank
         self.epoch = 0
+        self.shuffle = shuffle
 
         assert hasattr(self.dataset, 'flag')
         self.flag = self.dataset.flag
@@ -106,8 +108,11 @@ class DistributedGroupSampler(Sampler):
                 # add .numpy() to avoid bug when selecting indice in parrots.
                 # TODO: check whether torch.randperm() can be replaced by
                 # numpy.random.permutation().
-                indice = indice[list(
-                    torch.randperm(int(size), generator=g).numpy())].tolist()
+                if self.shuffle:
+                    indice = indice[list(
+                        torch.randperm(int(size), generator=g).numpy())].tolist()
+                else:
+                    indice = indice.tolist()
                 extra = int(
                     math.ceil(
                         size * 1.0 / self.samples_per_gpu / self.num_replicas)
