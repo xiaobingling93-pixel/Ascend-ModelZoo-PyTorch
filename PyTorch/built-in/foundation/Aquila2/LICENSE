@@ -1,0 +1,8 @@
+FlagScale is developed by BAAI and mainly based on the Megatron-LM project.
+
+The following applies to all files develop by BAAI unless otherwise noted:
+# Copyright (c) 2023 BAAI. All rights reserved.
+# Licensed under the Apache License, Version 2.0
+
+Compliance with the following open-source license is still required:
+1. LICENSE from Megatron-LM in the megatron folder.
