@@ -1,3 +1,17 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 """ Classifier head and layer factory
 
 Hacked together by / Copyright 2020 Ross Wightman
@@ -14,6 +28,22 @@ from .adaptive_avgmax_pool import SelectAdaptivePool2d
 from .create_act import get_act_layer
 from .create_norm import get_norm_layer
 
+import torch_npu
+class NpuLinear(torch.nn.Linear):
+    def forward(self, x):
+        if not x.is_npu:
+            return super(NpuLinear, self).forward(x)
+        input_shape = x.size()
+        if x.dim() == 3:
+            x = x.reshape(-1, self.in_features)
+            return torch_npu.npu_linear(x, self.weight, self.bias).view(input_shape[0],
+                                                                        input_shape[1], self.out_features)
+        elif x.dim() == 2:
+            return torch_npu.npu_linear(x, self.weight, self.bias)
+        else:
+            raise RuntimeError('not support this dim')
+
+nn.Linear = NpuLinear
 
 def _create_pool(
         num_features: int,

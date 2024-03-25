@@ -1,3 +1,17 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 """ Activation Factory
 Hacked together by / Copyright 2020 Ross Wightman
 """
@@ -16,6 +30,24 @@ _has_hardswish = 'hardswish' in dir(torch.nn.functional)
 _has_hardsigmoid = 'hardsigmoid' in dir(torch.nn.functional)
 _has_mish = 'mish' in dir(torch.nn.functional)
 
+from torch import Tensor
+import torch_npu
+class NpuSiLU(nn.Module):
+    __constants__ = ['inplace']
+    inplace: bool
+
+    def __init__(self, inplace: bool = False):
+        super(NpuSiLU, self).__init__()
+        self.inplace = inplace
+
+    def forward(self, input: Tensor) -> Tensor:
+        return torch_npu.npu_silu(input)
+
+    def extra_repr(self) -> str:
+        inplace_str = 'inplace=True' if self.inplace else ''
+        return inplace_str
+
+nn.SiLU = NpuSiLU
 
 _ACT_FN_DEFAULT = dict(
     silu=F.silu if _has_silu else swish,

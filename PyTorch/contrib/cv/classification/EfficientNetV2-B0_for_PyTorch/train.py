@@ -1,4 +1,18 @@
 #!/usr/bin/env python3
+# Copyright 2024 Huawei Technologies Co., Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 """ ImageNet Training Script
 
 This is intended to be a lean and easily modifiable ImageNet training script that reproduces ImageNet
@@ -26,11 +40,25 @@ from datetime import datetime
 from functools import partial
 
 import torch
+if torch.__version__ >= "1.8":
+    import torch_npu
+from torch_npu.contrib import transfer_to_npu
 import torch.nn as nn
 import torchvision.utils
 import yaml
 from torch.nn.parallel import DistributedDataParallel as NativeDDP
 
+try:
+    from torch_npu.utils.profiler import Profile
+except ImportError:
+    print("Profile not in torch_npu.utils.profiler now... Auto Profile disabled.", flush=True)
+    class Profile:
+        def __init__(self, *args, **kwargs):
+            pass
+        def start(self):
+            pass
+        def end(self):
+            pass
 from timm import utils
 from timm.data import create_dataset, create_loader, resolve_data_config, Mixup, FastCollateMixup, AugMixDataset
 from timm.layers import convert_splitbn_model, convert_sync_batchnorm, set_fast_norm
@@ -39,8 +67,10 @@ from timm.models import create_model, safe_model_name, resume_checkpoint, load_c
 from timm.optim import create_optimizer_v2, optimizer_kwargs
 from timm.scheduler import create_scheduler_v2, scheduler_kwargs
 from timm.utils import ApexScaler, NativeScaler
+from timm.optim.optim_factory import param_groups_weight_decay
 
 try:
+    import apex
     from apex import amp
     from apex.parallel import DistributedDataParallel as ApexDDP
     from apex.parallel import convert_syncbn_model
@@ -69,8 +99,9 @@ except ImportError as e:
 
 has_compile = hasattr(torch, 'compile')
 
-
 _logger = logging.getLogger('train')
+
+experimental_config = torch_npu.profiler._ExperimentalConfig(aic_metrics=torch_npu.profiler.AiCMetrics.PipeUtilization, profiler_level=torch_npu.profiler.ProfilerLevel.Level2, l2_cache=False)
 
 # The first arg parser parses out only the --config argument, this argument is used to
 # load a yaml file containing key-values that override the defaults for the main parser below
@@ -341,7 +372,7 @@ group.add_argument('--bn-eps', type=float, default=None,
                    help='BatchNorm epsilon override (if not None)')
 group.add_argument('--sync-bn', action='store_true',
                    help='Enable NVIDIA Apex or Torch synchronized BatchNorm.')
-group.add_argument('--dist-bn', type=str, default='reduce',
+group.add_argument('--dist-bn', type=str, default='',
                    help='Distribute BatchNorm stats between nodes after each epoch ("broadcast", "reduce", or "")')
 group.add_argument('--split-bn', action='store_true',
                    help='Enable separate BN layers per augmentation split.')
@@ -389,7 +420,11 @@ group.add_argument('--use-multi-epochs-loader', action='store_true', default=Fal
                    help='use the multi-epochs-loader to save time at the beginning of every epoch')
 group.add_argument('--log-wandb', action='store_true', default=False,
                    help='log training and validation metrics to wandb')
-
+group.add_argument('--perf-steps', type=int, default=-1)
+group.add_argument('--prof', action='store_true',
+                   help='use torch npu profiler to analysis performance')
+group.add_argument('--log-file', type=str, default=None,
+                   help='log file path')
 
 def _parse_args():
     # Do we have a config file to parse?
@@ -409,8 +444,8 @@ def _parse_args():
 
 
 def main():
-    utils.setup_default_logging()
     args, args_text = _parse_args()
+    utils.setup_default_logging(log_path=args.log_file if args.log_file else '')
 
     if args.device_modules:
         for module in args.device_modules:
@@ -434,6 +469,7 @@ def main():
     # resolve AMP arguments based on PyTorch / Apex availability
     use_amp = None
     amp_dtype = torch.float16
+    os.environ["use_amp"] = ''
     if args.amp:
         if args.amp_impl == 'apex':
             assert has_apex, 'AMP impl specified as APEX but APEX is not installed.'
@@ -445,7 +481,7 @@ def main():
             assert args.amp_dtype in ('float16', 'bfloat16')
         if args.amp_dtype == 'bfloat16':
             amp_dtype = torch.bfloat16
-
+        os.environ["use_amp"] = use_amp
     utils.random_seed(args.seed, args.rank)
 
     if args.fuser:
@@ -554,21 +590,34 @@ def main():
                 f'Learning rate ({args.lr}) calculated from base learning rate ({args.lr_base}) '
                 f'and effective global batch size ({global_batch_size}) with {args.lr_base_scale} scaling.')
 
-    optimizer = create_optimizer_v2(
-        model,
-        **optimizer_kwargs(cfg=args),
-        **args.opt_kwargs,
-    )
+    for name, module in model.named_modules():
+        if isinstance(module, torch.nn.SiLU):
+            module.inplace = False
+
+    opt_cfg = optimizer_kwargs(cfg=args)
+    del opt_cfg['opt']
+
+    parameters = param_groups_weight_decay(model)
+    optimizer = None
+    if use_amp == 'apex':
+        optimizer = apex.optimizers.NpuFusedRMSpropTF(parameters, **opt_cfg)
+    else:
+        optimizer = torch_npu.optim.NpuFusedRMSpropTF(parameters, **opt_cfg)
 
     # setup automatic mixed-precision (AMP) loss scaling and op casting
     amp_autocast = suppress  # do nothing
     loss_scaler = None
     if use_amp == 'apex':
-        assert device.type == 'cuda'
-        model, optimizer = amp.initialize(model, optimizer, opt_level='O1')
-        loss_scaler = ApexScaler()
-        if utils.is_primary(args):
-            _logger.info('Using NVIDIA APEX AMP. Training in mixed precision.')
+        if hasattr(torch.npu.utils, 'is_support_inf_nan') and torch.npu.utils.is_support_inf_nan():
+            model, optimizer = amp.initialize(model, optimizer, opt_level='O1', combine_grad=True, loss_scale='dynamic')
+            loss_scaler = ApexScaler()
+            if utils.is_primary(args):
+                _logger.info('Using NVIDIA APEX AMP. Training in mixed precision.')
+        else:
+            model, optimizer = amp.initialize(model, optimizer, opt_level='O1', combine_grad=True, loss_scale=65504)
+            loss_scaler = ApexScaler()
+            if utils.is_primary(args):
+                _logger.info('Using NVIDIA APEX AMP. Training in mixed precision.')
     elif use_amp == 'native':
         try:
             amp_autocast = partial(torch.autocast, device_type=device.type, dtype=amp_dtype)
@@ -579,6 +628,7 @@ def main():
         if device.type == 'cuda' and amp_dtype == torch.float16:
             # loss scaler only used for float16 (half) dtype, bfloat16 does not need it
             loss_scaler = NativeScaler()
+            loss_scaler._scaler = torch.cuda.amp.GradScaler(dynamic=False)
         if utils.is_primary(args):
             _logger.info('Using native Torch AMP. Training in mixed precision.')
     else:
@@ -600,11 +650,10 @@ def main():
     model_ema = None
     if args.model_ema:
         # Important to create EMA model after cuda(), DP wrapper, and AMP but before DDP wrapper
-        model_ema = utils.ModelEmaV3(
+        model_ema = utils.ModelEmaV2Npu(
             model,
             decay=args.model_ema_decay,
-            use_warmup=args.model_ema_warmup,
-            device='cpu' if args.model_ema_force_cpu else None,
+            device='gpu' if args.model_ema_force_cpu else None,
         )
         if args.resume:
             load_checkpoint(model_ema.module, args.resume, use_ema=True)
@@ -617,7 +666,7 @@ def main():
             # Apex DDP preferred unless native amp is activated
             if utils.is_primary(args):
                 _logger.info("Using NVIDIA APEX DistributedDataParallel.")
-            model = ApexDDP(model, delay_allreduce=True)
+            model = NativeDDP(model, device_ids=[args.local_rank], broadcast_buffers=False)
         else:
             if utils.is_primary(args):
                 _logger.info("Using native Torch DistributedDataParallel.")
@@ -968,9 +1017,9 @@ def train_one_epoch(
 
     second_order = hasattr(optimizer, 'is_second_order') and optimizer.is_second_order
     has_no_sync = hasattr(model, "no_sync")
-    update_time_m = utils.AverageMeter()
-    data_time_m = utils.AverageMeter()
-    losses_m = utils.AverageMeter()
+    update_time_m = AverageMeter()
+    data_time_m = AverageMeter()
+    losses_m = AverageMeter()
 
     model.train()
 
@@ -984,7 +1033,24 @@ def train_one_epoch(
     data_start_time = update_start_time = time.time()
     optimizer.zero_grad()
     update_sample_count = 0
+
+    prof = None
+    if utils.is_primary(args) and args.prof:
+        prof = torch_npu.profiler.profile(
+            activities=[torch_npu.profiler.ProfilerActivity.CPU, torch_npu.profiler.ProfilerActivity.NPU],
+            with_stack=True,
+            profile_memory=True,
+            record_shapes=True,
+            schedule=torch_npu.profiler.schedule(wait=10, warmup=0, active=2, repeat=1),
+            on_trace_ready=torch_npu.profiler.tensorboard_trace_handler(f"./npu_profiling_result_{time.time()}"),
+            experimental_config=experimental_config
+        )
+
+
     for batch_idx, (input, target) in enumerate(loader):
+
+        if args.perf_steps > 0 and batch_idx > args.perf_steps:
+            exit()
         last_batch = batch_idx == last_batch_idx
         need_update = last_batch or (batch_idx + 1) % accum_steps == 0
         update_idx = batch_idx // accum_steps
@@ -1050,7 +1116,10 @@ def train_one_epoch(
         num_updates += 1
         optimizer.zero_grad()
         if model_ema is not None:
-            model_ema.update(model, step=num_updates)
+            if str(os.environ['use_amp']) == 'apex':
+                model_ema.update(model, optimizer.get_model_combined_params()[0])
+            else:
+                model_ema.update(model, optimizer.get_combined_params()[0])
 
         if args.synchronize_step and device.type == 'cuda':
             torch.cuda.synchronize()
@@ -1073,7 +1142,7 @@ def train_one_epoch(
                     f'({100. * update_idx / (updates_per_epoch - 1):>3.0f}%)]  '
                     f'Loss: {losses_m.val:#.3g} ({losses_m.avg:#.3g})  '
                     f'Time: {update_time_m.val:.3f}s, {update_sample_count / update_time_m.val:>7.2f}/s  '
-                    f'({update_time_m.avg:.3f}s, {update_sample_count / update_time_m.avg:>7.2f}/s)  '
+                    f'({update_time_m.avg:.3f}s, {update_sample_count / update_time_m.avg if update_time_m.avg > 0 else 0:>7.2f}/s)  '
                     f'LR: {lr:.3e}  '
                     f'Data: {data_time_m.val:.3f} ({data_time_m.avg:.3f})'
                 )
@@ -1096,6 +1165,8 @@ def train_one_epoch(
         update_sample_count = 0
         data_start_time = time.time()
         # end for
+        if prof:
+            prof.step()
 
     if hasattr(optimizer, 'sync_lookahead'):
         optimizer.sync_lookahead()
@@ -1112,10 +1183,10 @@ def validate(
         amp_autocast=suppress,
         log_suffix=''
 ):
-    batch_time_m = utils.AverageMeter()
-    losses_m = utils.AverageMeter()
-    top1_m = utils.AverageMeter()
-    top5_m = utils.AverageMeter()
+    batch_time_m = AverageMeter(0)
+    losses_m = AverageMeter(0)
+    top1_m = AverageMeter(0)
+    top5_m = AverageMeter(0)
 
     model.eval()
 
@@ -1174,6 +1245,27 @@ def validate(
 
     return metrics
 
+class AverageMeter:
+    """Computes and stores the average and current value"""
+    def __init__(self, skip_num=5):
+        self.reset()
+        self.skip_num = skip_num
+
+    def reset(self):
+        self.val = 0
+        self.avg = 0
+        self.sum = 0
+        self.count = 0
+        self.skip = 0
+
+    def update(self, val, n=1):
+        self.val = val
+        self.skip += 1
+        if self.skip < self.skip_num:
+            return
+        self.sum += val * n
+        self.count += n
+        self.avg = self.sum / self.count
 
 if __name__ == '__main__':
     main()

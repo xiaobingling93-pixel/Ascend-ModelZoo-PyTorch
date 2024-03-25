@@ -1,0 +1,16 @@
+torchvision==0.12.0
+pillow
+attrs
+numpy
+decorator
+sympy
+cffi
+pyyaml
+pathlib2
+psutil
+protobuf
+scipy
+requests
+absl-py
+huggingface_hub
+safetensors>=0.2
