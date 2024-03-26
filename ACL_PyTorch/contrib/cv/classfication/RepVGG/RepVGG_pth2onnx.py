@@ -23,6 +23,8 @@ from repvgg import get_RepVGG_func_by_name
 
 def load_my_state_dict(model, state_dict):  
     own_state = model.state_dict()
+    if 'state_dict' in state_dict:
+        state_dict = state_dict['state_dict']
     for name, param in state_dict.items():
         if name not in own_state:
             if name.startswith("module."):

@@ -58,6 +58,12 @@ if __name__ == '__main__':
 
     net = PoseEstimationWithMobileNet()
     checkpoint = torch.load(args.checkpoint_path, map_location=torch.device("cpu"))
+    # 适配不同框架的权重
+    state_dict = {}
+    for k, v in checkpoint['state_dict'].items():
+        state_dict[k.replace('module.', '')] = v
+    checkpoint['state_dict'] = state_dict
+
     load_state(net, checkpoint)
 
     convert_to_onnx(net, args.output_name)
