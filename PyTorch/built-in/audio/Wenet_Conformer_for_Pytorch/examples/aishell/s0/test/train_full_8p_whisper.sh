@@ -32,7 +32,7 @@ stop_stage=5
 #训练batch_size,,需要模型审视修改
 batch_size=10
 
-epochs=240
+epochs=15
 
 
 # 参数校验，data_path为必传参数，其他参数的增删由模型自身决定；此处新增参数需在上面有定义并赋值
@@ -102,10 +102,6 @@ echo "Final Performance iters/sec : $FPS"
 
 # 打印，不需要修改
 echo "E2E Training Duration sec : $e2e_time"
-
-Wer=$(grep 'Overall ->' $cur_path/exp/conformer/test_ctc_greedy_search/wer | awk -F "Overall ->" '{print $2}' | awk -F "%" '{print $1}')
-
-echo "Wer : $Wer"
 
 # 性能看护结果汇总
 # 获取性能数据，不需要修改
