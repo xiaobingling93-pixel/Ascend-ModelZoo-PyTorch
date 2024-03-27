@@ -5,7 +5,7 @@
 # 网络名称，同目录名称
 Network="UNet_for_PyTorch"
 # 训练batch_size
-batch_size=128
+batch_size=512
 # 训练使用的npu卡数
 export RANK_SIZE=8
 # 加载数据集进程数
@@ -14,7 +14,7 @@ workers=128
 data_path=""
 
 # 训练epoch
-train_epochs=1
+train_epochs=5
 # 指定训练所使用的npu device卡id
 device_id=0
 # 学习率
@@ -102,16 +102,17 @@ PID_END=$((PID_START + KERNEL_NUM - 1))
 
 nohup taskset -c $PID_START-$PID_END python -u train.py \
           ${data_path} \
-          --batch_size 128 \
+          --batch_size ${batch_size} \
           --optimizer ${prec} \
           --lr 1e-3 \
           --min_lr 1e-5 \
           --device npu \
-          --epochs 1 \
+          --epochs ${train_epochs} \
           --num_gpus 8 \
           --num_workers 8 \
           --rank_id $RANK_ID \
           --precision_mode ${precision_mode} \
+          --performance \
           ${hf32} ${fp32} > ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log 2>&1 &
 done
 wait

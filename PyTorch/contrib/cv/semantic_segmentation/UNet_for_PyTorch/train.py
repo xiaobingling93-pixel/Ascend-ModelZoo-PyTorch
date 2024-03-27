@@ -180,6 +180,7 @@ def parse_args():
     parser.add_argument('--hf32', action='store_true', help='enable_hi_float_32_execution')
     parser.add_argument('--fp32', action='store_true', help='disable_hi_float_32_execution')
     parser.add_argument('--precision_mode', default='allow_mix_precision', type=str, help='precision_mode')
+    parser.add_argument('--performance', default=False, action='store_true')
     config = parser.parse_args()
 
     return config
@@ -263,7 +264,10 @@ def init_process_group(proc_rank, world_size, device_type="npu", port="29588", d
 def train(config, train_loader, model, criterion, optimizer, epoch):
     batch_time = AverageMeter('Time', ':6.3f', start_count_index=5)
     data_time = AverageMeter('Data', ':6.3f', start_count_index=5)
-    if config['num_gpus'] > 1:
+    if config['performance']:
+        batch_time = AverageMeter('Time', ':6.3f', start_count_index=0)
+        data_time = AverageMeter('Data', ':6.3f', start_count_index=0)
+    elif config['num_gpus'] > 1:
         batch_time = AverageMeter('Time', ':6.3f', start_count_index=3)
         data_time = AverageMeter('Data', ':6.3f', start_count_index=3)
     train_losses = AverageMeter('Loss', ':6.8f')
@@ -498,7 +502,7 @@ def main():
             transforms.HueSaturationValue(),
             transforms.RandomBrightness(),
             transforms.RandomContrast(),
-        ], p=1),
+        ], p=0 if config['performance'] else 1),
         transforms.Resize(config['input_h'], config['input_w']),
         transforms.Normalize(),
     ])
