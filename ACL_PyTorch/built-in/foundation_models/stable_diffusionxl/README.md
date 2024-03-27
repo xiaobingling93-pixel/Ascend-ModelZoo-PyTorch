@@ -48,9 +48,9 @@
   | 配套                                                         | 版本    | 环境准备指导                                                 |
   | ------------------------------------------------------------ | ------- | ------------------------------------------------------------ |
   | 固件与驱动                                                   | 24.1.rc1  | [Pytorch框架推理环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies) |
-  | CANN（+MindIE）                                              | 8.0.RC1(1.0.RC1) | -                                                            |
+  | CANN（+MindIE-RT）                                              | 8.0.RC1(1.0.RC1) | -                                                            |
   | Python                                                       | 3.10   | -                                                            |                                                           |
-如在优化模型时使用了--FA、--TOME_num、--faster_gelu参数，需要安装与CANN包配套版本的MindIE
+如在优化模型时使用了--FA、--TOME_num、--faster_gelu参数，需要安装与CANN包配套版本的MindIE-RT
 
 该模型性能受CPU规格影响，建议使用64核CPU（arm）以复现性能
 
@@ -146,7 +146,7 @@
          - --TOME_num：插入TOME插件的数量，有效取值为[0, 10]。如果设置这个参数对精度造成影响，建议调小此值。目前支持Atlas 300I Duo/Pro和Atlas 800I A2，其他不支持硬件请设置为0。默认选取10。
          - --faster_gelu：使用slice+gelu的融合算子。
 
-         FA、TOME、Gelu融合算子需通过安装与CANN版本对应的推理引擎包(MindIE)来获取，如未安装推理引擎或使用的版本不支持FA、TOME、SliceGelu算子，FA_soc和TOME_num参数请使用默认配置、不设置faster_gelu参数。
+         FA、TOME、Gelu融合算子需通过安装与CANN版本对应的推理引擎包(MindIE-RT)来获取，如未安装推理引擎或使用的版本不支持FA、TOME、SliceGelu算子，FA_soc和TOME_num参数请使用默认配置、不设置faster_gelu参数。
 
       2. 适配cache方案(可选，可提升性能但可能导致精度下降)
 
