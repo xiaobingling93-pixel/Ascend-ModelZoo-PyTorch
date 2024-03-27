@@ -191,6 +191,7 @@ if __name__ == "__main__":
     torch_npu.npu.set_compile_mode(jit_compile=False)
     # TODO: DynamicGRUV2 now not support fp32
     option = {}
+    option["NPU_FUZZY_COMPILE_BLACKLIST"] = "DynamicGRUV2"
     option["ACL_PRECISION_MODE"] = "allow_fp32_to_fp16"
     torch.npu.set_option(option)
     main(sys.argv[1:])
