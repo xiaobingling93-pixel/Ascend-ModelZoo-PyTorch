@@ -55,6 +55,7 @@ class DataLoader(Configurable):
         self.num_workers = cmd.get('num_workers', self.num_workers)
         if 'seed' in cmd:
             self.seed = cmd['seed']
+        kwargs = {"pin_memory_device": "npu"} if torch.__version__ >= "2.0" else {}
         if cmd.get('distributed'):
             sampler = DistributedSampler(self.dataset)
             self.train_loader = MultiEpochsDataLoader(
@@ -66,7 +67,8 @@ class DataLoader(Configurable):
                 sampler=sampler,
                 collate_fn=self.collect_fn,
                 worker_init_fn=default_worker_init_fn,
-                drop_last=self.drop_last)
+                drop_last=self.drop_last,
+                **kwargs)
         else:
             self.train_loader = torch.utils.data.DataLoader(
                 self.dataset,
@@ -76,7 +78,8 @@ class DataLoader(Configurable):
                 shuffle=self.shuffle,
                 pin_memory=True,
                 collate_fn=self.collect_fn,
-                worker_init_fn=default_worker_init_fn)
+                worker_init_fn=default_worker_init_fn,
+                **kwargs)
         self.collect_fn = str(self.collect_fn)
 
 

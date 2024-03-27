@@ -144,7 +144,7 @@ e2e_time=$(( $end_time - $start_time ))
 #结果打印，不需要修改
 echo "------------------ Final result ------------------"
 #输出性能FPS，需要模型审视修改
-FPS=`cat ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log |grep -a 'wps'|awk -F "wps" '{print $NF}'  |awk -F ","  '{print substr($1,5,length($1)-5)}' | tail -n10 |awk '{sum+=$1} END {print"",sum/NR}'`
+FPS=`cat ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log |grep -a 'wps'|awk -F "wps" '{print $NF}'  |awk -F ","  '{print substr($1,5,length($1)-5)}' | head -n15 | tail -n10 |awk '{sum+=$1} END {print"" sum/NR}'`
 #打印，不需要修改
 echo "Final Performance images/sec : $FPS"
 

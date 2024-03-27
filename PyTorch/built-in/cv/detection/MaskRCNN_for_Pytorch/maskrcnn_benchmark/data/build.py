@@ -190,12 +190,14 @@ def make_data_loader(cfg, is_train=True, is_distributed=False, start_iter=0, ran
         )
         collator = BatchCollator(cfg.DATALOADER.SIZE_DIVISIBILITY)
         num_workers = cfg.DATALOADER.NUM_WORKERS
+        kwargs = {"pin_memory_device": "npu"} if torch.__version__ >= "2.0" else {}
         data_loader = torch.utils.data.DataLoader(
             dataset,
             num_workers=num_workers,
             pin_memory=True,
             batch_sampler=batch_sampler,
             collate_fn=collator,
+            **kwargs
         )
         data_loaders.append(data_loader)
     if is_train:
