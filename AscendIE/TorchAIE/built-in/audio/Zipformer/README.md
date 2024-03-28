@@ -1,4 +1,4 @@
-# Zipformer流式模型-推理指导
+# Zipformer非流式模型-PT推理指导
 
 
 - [概述](#ZH-CN_TOPIC_0000001172161501)
@@ -75,11 +75,7 @@
     git reset --hard e2fcb42f5f176d9e39eb38506ab99d0a3adaf202
     pip install -r requirements.txt
     ```
-4. 将icefall加入环境变量, "/path/to/icefall"替换为icefall文件夹所在的路径。
-   **这一步很重要，否则会报icefall找不到的错误。**
-    ```shell
-    export PYTHONPATH=/path/to/icefall:$PYTHONPATH
-    ```
+
 ## 模型下载
 从[此链接](https://huggingface.co/pkufool/icefall-asr-zipformer-wenetspeech-20230615)下载模型相关文件。
 模型转换和推理时只需要用到以下文件：  
@@ -100,7 +96,7 @@ icefall-asr-zipformer-wenetspeech-20230615
     ```shell
     cd icefall/egs/librispeech/ASR/zipformer/
     
-    patch < export_onnx.patch
+    patch < export-onnx.patch
     patch < zipformer.patch
     ```
 2. 将本代码仓的icefall_pt目录拷贝到icefall工程根目录下。
@@ -108,7 +104,7 @@ icefall-asr-zipformer-wenetspeech-20230615
 3. 导出onnx模型与torchscript模型。
     ```shell
    cd icefall/
-   repo=/path/to/icefall//egs/librispeech/ASR/icefall-asr-zipformer-wenetspeech-20230615
+   repo=/path/to/icefall/egs/librispeech/ASR/icefall-asr-zipformer-wenetspeech-20230615
     # 注意将"icefall-asr-zipformer-wenetspeech-20230615"修改为实际路径
    python ./egs/librispeech/ASR/zipformer/export-onnx.py \
      --tokens $repo/data/lang_char/tokens.txt \
@@ -133,14 +129,14 @@ icefall-asr-zipformer-wenetspeech-20230615
      --chunk-size "16, 32, 64, -1" \
      --left-context-frames "64, 128, 256, -1"
     ```
-   执行结束后，会在“icefall-asr-zipformer-wenetspeech-20230615/exp”目录下生成三个onnx文件：
+   执行结束后，会在“icefall-asr-zipformer-wenetspeech-20230615/exp”目录下生成6个模型文件：
     - encoder-epoch-12-avg-1.onnx
     - decoder-epoch-12-avg-1.onnx
     - joiner-epoch-12-avg-1.onnx
     - encoder-epoch-12-avg-1.pt
     - decoder-epoch-12-avg-1.pt
     - joiner-epoch-12-avg-1.pt
-4. 对torchscript模型使用PT插件进行编译。
+4. 对torchscript模型使用PT插件进行编译（分别指定encoder、decoder与joiner的三套参数）。
    ```shell
    cd icefall/icefall_pt
    python export_torch_aie_model.py
@@ -173,7 +169,7 @@ icefall-asr-zipformer-wenetspeech-20230615
    --batch_size
    --result_path：模型运行结果保存路径
    --device_id：硬件编号
-   --multi：数据加倍的倍数（默认生成20条数据，multi为1。若multi为n，则数据实际为n*20条。注意，若n不为1，则不生成result文件）
+   --multi：数据加倍的倍数（注意，若multi与batch_size不同时为1，则不生成result文件；测性能部分，脚本默认的warm_up为20loop，若multi不超过20，则不会输出性能）
     ```
 6. 精度测试（将onnx_test下的四个测试脚本拷贝到icefall/egs/librispeech/ASR/zipformer）
    ```shell
@@ -197,7 +193,7 @@ icefall-asr-zipformer-wenetspeech-20230615
     ```
 7. 性能测试
    1. pt模型性能测试
-      第5步运行pt_val脚本时会打印PT模型性能
+      第5步运行pt_val脚本时会打印PT模型性能(注意设置multi>20，超过warm_up需要的loop。建议设置多一点)
 
    2. onnx模型性能测试。  
       第6步运行onnx_test脚本时会打印onnx模型性能
@@ -208,8 +204,8 @@ Zipformer流式模型由三个子模型组成，分别是encoder、decoder和joi
 
 | 模型      | pt插件 - 310P性能（时延/吞吐率）     | T4 onnx性能（时延/吞吐率）         | A10 onnx性能（时延/吞吐率）        |
 |---------|---------------------------|---------------------------|---------------------------|
-| encoder | 43.1391 ms / 23.1807 fps  | 25.6406 ms / 39.0005 fps  | 16.2751 ms / 61.4434 fps  |
-| decoder | 0.4387 ms / 2279.2528 fps | 0.5691 ms / 1757.0740 fps | 0.1219 ms / 8200.5706 fps |
-| joiner  | 0.4586 ms / 2180.0839 fps | 0.1526 ms / 6551.7825 fps | 0.1107 ms / 9026.4239 fps |
-| 端到端     | 44.0364 ms / 22.7084 fps  | 26.3623 ms /  37.9329 fps | 16.5077 ms / 60.5777 fps  |
+| encoder | 59.5610 ms / 16.7895 fps  | 25.6406 ms / 39.0005 fps  | 16.2751 ms / 61.4434 fps  |
+| decoder | 0.4851 ms / 2061.4306 fps | 0.5691 ms / 1757.0740 fps | 0.1219 ms / 8200.5706 fps |
+| joiner  | 0.4510 ms / 2217.2949 fps | 0.1526 ms / 6551.7825 fps | 0.1107 ms / 9026.4239 fps |
+| 端到端     | 60.4971 ms / 16.5297 fps  | 26.3623 ms /  37.9329 fps | 16.5077 ms / 60.5777 fps  |
 

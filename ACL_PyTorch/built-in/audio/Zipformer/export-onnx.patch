@@ -46,7 +46,7 @@
          "--exp-dir",
          type=str,
 -        default="zipformer/exp",
-+        default="/home/devkit/hanyifeng/icefall/egs/librispeech/ASR/icefall-asr-zipformer-wenetspeech-20230615/exp/",
++        default="/path/to/icefall/egs/librispeech/ASR/icefall-asr-zipformer-wenetspeech-20230615/exp/",
          help="""It specifies the directory where all training related
          files, e.g., checkpoints, log, etc, are saved
          """,
@@ -55,7 +55,7 @@
          "--tokens",
          type=str,
 -        default="data/lang_bpe_500/tokens.txt",
-+        default="/home/devkit/hanyifeng/icefall/egs/librispeech/ASR/icefall-asr-zipformer-wenetspeech-20230615/data/lang_char/tokens.txt",
++        default="/path/to/icefall/egs/librispeech/ASR/icefall-asr-zipformer-wenetspeech-20230615/data/lang_char/tokens.txt",
          help="Path to the tokens.txt",
      )
  

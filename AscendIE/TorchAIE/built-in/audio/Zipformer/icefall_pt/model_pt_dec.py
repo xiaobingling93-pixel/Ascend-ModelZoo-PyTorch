@@ -28,9 +28,10 @@ def forward_infer(model, dataloader, batchsize, device_id):
         pred_results.append(result)
         loop_num += 1
 
-    avg_inf_time = sum(inference_time) / len(inference_time) / batchsize * 1000
-    print('performance(ms)：', avg_inf_time)
-    print("throughput(fps): ", 1000 / avg_inf_time)
+    if len(inference_time) > 0:
+        avg_inf_time = sum(inference_time) / len(inference_time) / batchsize * 1000
+        print('performance(ms)：', avg_inf_time)
+        print("throughput(fps): ", 1000 / avg_inf_time)
 
     return pred_results
 
@@ -44,7 +45,7 @@ def pt_infer(model, input_li_1, device_id, loop_num, inference_time):
         stream.synchronize()
         inf_end = time.time()
         inf = inf_end - inf_start
-        if loop_num >= 5:   # use 5 step to warmup
+        if loop_num >= 20:   # use 20 step to warmup
             inference_time.append(inf)
     results = [output_npu.to("cpu")]
     return results, inference_time

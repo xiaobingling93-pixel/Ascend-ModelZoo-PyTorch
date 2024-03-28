@@ -108,7 +108,7 @@ class OnnxModel:
             )
             inf_end = time.time()
             inf = inf_end - inf_start
-            if i >= args.warm_up:
+            if i >= args.warm_up:    # use warm_up steps to warmup
                 inference_time.append(inf)
             i += 1
         out = self.decoder.run(

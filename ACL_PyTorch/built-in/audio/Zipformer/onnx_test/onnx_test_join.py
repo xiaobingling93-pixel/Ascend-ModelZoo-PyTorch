@@ -37,7 +37,7 @@ def get_parser():
     parser.add_argument(
         "--output-filename",
         type=str,
-        default="/home/hanyifeng/icefall/results/joiner.txt",
+        default="/path/to/icefall/results/joiner.txt",
         help="Path to save the output. ",
     )
 
@@ -109,7 +109,7 @@ class OnnxModel:
             )
             inf_end = time.time()
             inf = inf_end - inf_start
-            if i > args.warm_up:  # use 6 step to warmup
+            if i >= args.warm_up:  # use warm_up steps to warmup
                 inference_time.append(inf)
             i += 1
         out = self.joiner.run(
