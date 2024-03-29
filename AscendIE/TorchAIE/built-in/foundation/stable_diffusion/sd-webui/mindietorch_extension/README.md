@@ -68,9 +68,12 @@ mindie_extension实现了一个SDWebUI界面的插件，用优化后的diffusers
    
    # v2.1，将该权重放在stable-diffusion-webui/extensions/mindie_extension/models路径下
    git clone https://huggingface.co/runwayml/stable-diffusion-2-1-base
+   
+   # sdxl，将该权重放在stable-diffusion-webui/extensions/mindie_extension/models路径下
+   git clone https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0
    ```
 
-5. 将特定权重放在stable-diffusion-webui/models/Stable-diffusion路径下。SDXL的权重链接为[sd_xl_base_1.0.safetensors](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors)
+5. 将特定权重放在stable-diffusion-webui/models/Stable-diffusion路径下。
 
    注意：本插件支持的webui权重如下：
 
