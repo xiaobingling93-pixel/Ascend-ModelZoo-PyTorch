@@ -79,10 +79,10 @@ if [ ! -d "$SAT_SOURCE_DIR" ]; then
 fi
 
 # model_zoo path
-modeling_cogvlm_model_zoo_path="$MODEL_ZOO_SOURCE_DIR/modeling_cogvlm.py"
-rotary_embeddings_model_zoo_path="$MODEL_ZOO_SOURCE_DIR/rotary_embeddings.py"
-visual_model_zoo_path="$MODEL_ZOO_SOURCE_DIR/visual.py"
-inference_model_zoo_path="$MODEL_ZOO_SOURCE_DIR/inference.py"
+modeling_cogvlm_model_zoo_path="$MODEL_ZOO_SOURCE_DIR/code/modeling_cogvlm.py"
+rotary_embeddings_model_zoo_path="$MODEL_ZOO_SOURCE_DIR/code/rotary_embeddings.py"
+visual_model_zoo_path="$MODEL_ZOO_SOURCE_DIR/code/visual.py"
+inference_model_zoo_path="$MODEL_ZOO_SOURCE_DIR/code/inference.py"
 env_npu_model_zoo_path="$MODEL_ZOO_SOURCE_DIR/env_npu.sh"
 
 # hf weight path

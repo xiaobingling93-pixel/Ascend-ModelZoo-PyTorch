@@ -12,7 +12,7 @@ main_dir=$(dirname $script_dir)
 MODEL_TYPE="微调后权重路径"
 VERSION="base"
 MODEL_ARGS="--from_pretrained $MODEL_TYPE \
-    --max_length 490 \
+    --max_length 512 \
     --local_tokenizer 分词器权重路径 \
     --version $VERSION"
 # Tips: If training models of resolution 244, you can set --max_length smaller 
@@ -21,8 +21,8 @@ MODEL_ARGS="--from_pretrained $MODEL_TYPE \
 OPTIONS_SAT="SAT_HOME=~/.sat_models"
 OPTIONS_NCCL="NCCL_DEBUG=info NCCL_IB_DISABLE=0 NCCL_NET_GDR_LEVEL=2 LOCAL_WORLD_SIZE=$NUM_GPUS_PER_WORKER"
 HOST_FILE_PATH="hostfile"
-
-test_data="./archive_split/test"
+# 用户需要指定test_data为实际路径，例如"../archive_split/test"
+test_data="测试集路径"
 
 gpt_options=" \
        --experiment-name finetune-$MODEL_TYPE \

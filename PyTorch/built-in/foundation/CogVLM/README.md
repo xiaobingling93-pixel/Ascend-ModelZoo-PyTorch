@@ -110,9 +110,9 @@ archive_split
 
 ### 获取预训练权重
 
-2) 官方提供微调权重cogvlm-base-224[下载](https://huggingface.co/THUDM/CogVLM/tree/main)。
+1) 官方提供微调权重cogvlm-base-224[下载](https://huggingface.co/THUDM/CogVLM/tree/main)。
 
-3) 分词器权重[下载](https://huggingface.co/lmsys/vicuna-7b-v1.5/tree/main)。
+2) 分词器权重[下载](https://huggingface.co/lmsys/vicuna-7b-v1.5/tree/main)。
 
 ## 快速开始
 
@@ -143,7 +143,7 @@ bash finetune_cogvlm_base_224.sh
 all_files.sort()
 ```
 2) 模型本身有确定性问题
-3) SwissArmyTransformer三方件的sat/model/transfor[README.md](README.md)mer.py文件中的BaseTransformer下embedding_dropout_prob、attention_dropout_prob和output_dropout_prob三个dropout不为0
+3) SwissArmyTransformer三方件的sat/model/transformer.py文件中的BaseTransformer下embedding_dropout_prob、attention_dropout_prob和output_dropout_prob三个dropout不为0
 ##### 精度
 
 基于Captcha Images数据集训练800步、1600步和2000步验证下游任务，由于模型本身有随机性问题，因此下游任务在评估数据上略有波动：
