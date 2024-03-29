@@ -14,10 +14,10 @@
 
 
 import sys
-from typing import List, Optional
+from typing import List, Optional, Union
  
 import numpy as np
-from auto_optimizer import OnnxGraph, OnnxNode, Union
+from auto_optimizer import OnnxGraph, OnnxNode
  
  
 optimize_plans = {
