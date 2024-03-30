@@ -1,4 +1,4 @@
-# Copyright 2023 Huawei Technologies Co., Ltd
+# Copyright 2024 Huawei Technologies Co., Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,13 +30,9 @@ from background_runtime_cache import BackgroundRuntime, RuntimeIOInfo
 
 clip_time = 0
 unet_time = 0
-unet_forward_time = 0
 vae_time = 0
 p1_time = 0
 p2_time = 0
-p3_time = 0
-unet_bg_send_time = 0
-unet_bg_recv_time = 0
 
 
 class PromptLoader:
@@ -126,8 +122,8 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
     contexts = {}
     buffer_bindings = {}
     use_parallel_inferencing = False
-    unet_bg_skip = None
-    unet_bg_cache = None
+    unet_bg = None
+
 
     def parser_args(self, args):
         self.args = args
@@ -154,7 +150,7 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
         else:
             print("unsupport soc_version, please check!")
             return
-        
+
         clip_compiled_path = os.path.join(self.args.output_dir, "clip/compiled_clip.ts")
         if os.path.exists(clip_compiled_path):
             self.compiled_clip_model = torch.jit.load(clip_compiled_path).eval()
@@ -172,6 +168,58 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
                                   soc_version=soc_version,
                                   optimization_level=0))
             torch.jit.save(self.compiled_clip_model, clip_compiled_path)
+
+        vae_compiled_path = os.path.join(self.args.output_dir, "vae/compiled_vae.ts")
+        if os.path.exists(vae_compiled_path):
+            self.compiled_vae_model = torch.jit.load(vae_compiled_path).eval()
+        else:
+            model = torch.jit.load(os.path.join(self.args.output_dir, "vae/vae.pt")).eval()
+            self.compiled_vae_model = (
+                mindietorch.compile(model,
+                                  inputs=[
+                                      mindietorch.Input((self.args.batch_size, in_channels,
+                                                       sample_size, sample_size),
+                                                      dtype=mindietorch.dtype.FLOAT)],
+                                  allow_tensor_replace_int=True,
+                                  require_full_compilation=True,
+                                  truncate_long_and_double=True,
+                                  soc_version=soc_version,
+                                  precision_policy=_enums.PrecisionPolicy.FP16,
+                                  optimization_level=0
+                                  ))
+            torch.jit.save(self.compiled_vae_model, vae_compiled_path)
+
+        scheduler_compiled_path = os.path.join(self.args.output_dir, "ddim/compiled_ddim_parallel.ts")
+        if os.path.exists(scheduler_compiled_path):
+            self.compiled_scheduler = torch.jit.load(scheduler_compiled_path).eval()
+        else:
+            model = torch.jit.load(os.path.join(self.args.output_dir, "ddim/ddim.pt")).eval()
+
+            self.compiled_scheduler = (
+                mindietorch.compile(model,
+                                  inputs=[mindietorch.Input((1,
+                                                           in_channels, sample_size,
+                                                           sample_size),
+                                                          dtype=mindietorch.dtype.FLOAT),
+                                          mindietorch.Input((1,
+                                                           in_channels, sample_size,
+                                                           sample_size),
+                                                          dtype=mindietorch.dtype.FLOAT),
+                                          mindietorch.Input((1,),
+                                                          dtype=mindietorch.dtype.INT64),
+                                          mindietorch.Input((1,
+                                                           in_channels, sample_size,
+                                                           sample_size),
+                                                          dtype=mindietorch.dtype.FLOAT),
+                                          mindietorch.Input((1,),
+                                                          dtype=mindietorch.dtype.INT64)],
+                                  allow_tensor_replace_int=True,
+                                  require_full_compilation=True,
+                                  truncate_long_and_double=False,
+                                  precision_policy=_enums.PrecisionPolicy.FP16,
+                                  soc_version=soc_version,
+                                  optimization_level=0))
+            torch.jit.save(self.compiled_scheduler, scheduler_compiled_path)
 
         unet_cache_compiled_path = os.path.join(self.args.output_dir, "unet/compiled_unet_cache_parallel.ts")
         if os.path.exists(unet_cache_compiled_path):
@@ -200,7 +248,7 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
                                   optimization_level=0
                                   ))
             torch.jit.save(self.compiled_unet_cache, unet_cache_compiled_path)
-        
+
         unet_skip_compiled_path = os.path.join(self.args.output_dir, "unet/compiled_unet_skip_parallel.ts")
         if os.path.exists(unet_skip_compiled_path):
             self.compiled_unet_skip = torch.jit.load(unet_skip_compiled_path).eval()
@@ -251,8 +299,7 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
                 (batch_size, in_channels, sample_size, sample_size),
                 (1,),
                 (batch_size, max_position_embeddings, encoder_hidden_size),
-                (1,),
-                (batch_size, 640, sample_size, sample_size)
+                (1,)
             ],
             input_dtypes=[np.float32, np.int64, np.float32, np.int64, np.float32],
             output_shapes=[(batch_size, in_channels, sample_size, sample_size)],
@@ -260,36 +307,13 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
         )
 
         if hasattr(self, 'device_1'):
-            self.unet_bg_cache = BackgroundRuntime.clone(self.device_1, unet_cache_compiled_path, runtime_info_cache)
+            self.unet_bg = BackgroundRuntime.clone(self.device_1, [unet_cache_compiled_path, unet_skip_compiled_path], runtime_info_cache)
             self.use_parallel_inferencing = True
-
-            self.unet_bg_skip = BackgroundRuntime.clone(self.device_1, unet_skip_compiled_path, runtime_info_skip)
-            self.use_parallel_inferencing = True
-
-        vae_compiled_path = os.path.join(self.args.output_dir, "vae/compiled_vae.ts")
-        if os.path.exists(vae_compiled_path):
-            self.compiled_vae_model = torch.jit.load(vae_compiled_path).eval()
-        else:
-            model = torch.jit.load(os.path.join(self.args.output_dir, "vae/vae.pt")).eval()
-            self.compiled_vae_model = (
-                mindietorch.compile(model,
-                                  inputs=[
-                                      mindietorch.Input((self.args.batch_size, in_channels,
-                                                       sample_size, sample_size),
-                                                      dtype=mindietorch.dtype.FLOAT)],
-                                  allow_tensor_replace_int=True,
-                                  require_full_compilation=True,
-                                  truncate_long_and_double=True,
-                                  soc_version=soc_version,
-                                  precision_policy=_enums.PrecisionPolicy.FP16,
-                                  optimization_level=0
-                                  ))
-            torch.jit.save(self.compiled_vae_model, vae_compiled_path)
 
         self.is_init = True
 
     @torch.no_grad()
-    def ascendie_infer(
+    def ascendie_infer_ddim(
             self,
             prompt: Union[str, List[str]],
             height: Optional[int] = None,
@@ -363,7 +387,7 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
             (nsfw) content, according to the `safety_checker`.
         """
         # 0. Default height and width to unet
-        global p1_time, p2_time, p3_time
+        global p1_time, p2_time
         start = time.time()
         height = height or self.unet.config.sample_size * self.vae_scale_factor
         width = width or self.unet.config.sample_size * self.vae_scale_factor
@@ -406,18 +430,176 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
         extra_step_kwargs = self.prepare_extra_step_kwargs(generator, eta)
 
         # 7. Denoising loop
-        global unet_time, unet_bg_send_time, unet_bg_recv_time, unet_forward_time
-        global vae_time
+        global unet_time, vae_time
         if self.use_parallel_inferencing and do_classifier_free_guidance:
             # Split embeddings
             text_embeddings, text_embeddings_2 = text_embeddings.chunk(2)
 
-        stream = mindietorch.npu.Stream(f'npu:{self.device_0}')
-
+        cache = None
         skip_flag = torch.ones([1], dtype=torch.long)
         cache_flag = torch.zeros([1], dtype=torch.long)
+
+        stream = mindietorch.npu.Stream(f'npu:{self.device_0}')
+        for i, t in enumerate(self.progress_bar(timesteps)):
+            if i == 50:
+                break
+
+            # expand the latents if we are doing classifier free guidance
+            if not self.use_parallel_inferencing and do_classifier_free_guidance:
+                latent_model_input = torch.cat([latents] * 2)
+            else:
+                latent_model_input = latents
+            latent_model_input = self.scheduler.scale_model_input(latent_model_input, t)
+
+            # predict the noise residual
+            if self.use_parallel_inferencing and do_classifier_free_guidance:
+
+                self.unet_bg.infer_asyn([
+                    latent_model_input.numpy(),
+                    t[None].numpy().astype(np.int64),
+                    text_embeddings_2.numpy(),
+                    skip_flag.numpy(),
+                ],
+                skip_steps[i])
+
+            latent_model_input_npu = latent_model_input.to(f'npu:{self.device_0}')
+            t_npu = t[None].to(f'npu:{self.device_0}')
+            text_embeddings_npu = text_embeddings.to(f'npu:{self.device_0}')
+
+            start = time.time()
+            with mindietorch.npu.stream(stream):
+                if (skip_steps[i]):
+                    noise_pred_npu = self.compiled_unet_skip(latent_model_input_npu, t_npu, text_embeddings_npu,
+                                                             skip_flag.to(f'npu:{self.device_0}'),
+                                                             cache,)
+                    noise_pred = noise_pred_npu
+                else:
+                    outputs = self.compiled_unet_cache(latent_model_input_npu, t_npu, text_embeddings_npu,
+                                                        cache_flag.to(f'npu:{self.device_0}'),)
+                    cache = outputs[1]
+                    noise_pred = outputs[0]
+
+                stream.synchronize()
+
+            unet_time += time.time() - start
+
+            # perform guidance
+            if do_classifier_free_guidance:
+                if self.use_parallel_inferencing:
+                    if (skip_steps[i]):
+                        noise_pred_text = torch.from_numpy(self.unet_bg.wait_and_get_outputs()[0])
+                    else:
+                        out = self.unet_bg.wait_and_get_outputs()
+                        noise_pred_text = torch.from_numpy(out[0])
+                else:
+                    noise_pred, noise_pred_text = noise_pred.chunk(2)
+
+                x = np.array(i, dtype=np.int64)
+                y = torch.from_numpy(x).long()
+
+                latents = self.compiled_scheduler(
+                                noise_pred.to(f'npu:{self.device_0}'),
+                                noise_pred_text.to(f'npu:{self.device_0}'),
+                                t[None].to(f'npu:{self.device_0}'),
+                                latents.to(f'npu:{self.device_0}'),
+                                y[None].to(f'npu:{self.device_0}')).to('cpu')
+
+            # call the callback, if provided
+            if callback is not None and i % callback_steps == 0:
+                callback(i, t, latents)
+
+        # 8. Post-processing
+        p2_time = time.time() - start1
+
+        # run inference
+        start = time.time()
+        image = self.compiled_vae_model(latents.to(f'npu:{self.device_0}')).to('cpu')
+        vae_time += time.time() - start
+
+        # we always cast to float32 as this does not cause significant overhead and is compatible with bfloa16
+        image = image.clamp(0, 1).float().numpy()
+
+        # 9. Run safety checker
+        has_nsfw_concept = False
+
+        # 10. Convert to PIL
+        if output_type == "pil":
+            image = self.numpy_to_pil(image)
+
+        return (image, has_nsfw_concept)
+
+
+    def ascendie_infer(
+            self,
+            prompt: Union[str, List[str]],
+            height: Optional[int] = None,
+            width: Optional[int] = None,
+            num_inference_steps: int = 50,
+            guidance_scale: float = 7.5,
+            negative_prompt: Optional[Union[str, List[str]]] = None,
+            num_images_per_prompt: Optional[int] = 1,
+            eta: float = 0.0,
+            generator: Optional[torch.Generator] = None,
+            latents: Optional[torch.FloatTensor] = None,
+            output_type: Optional[str] = "pil",
+            callback: Optional[Callable[[int, int, torch.FloatTensor],
+            None]] = None,
+            callback_steps: Optional[int] = 1,
+            skip_steps = None,
+            **kwargs,
+    ):
+        # 0. Default height and width to unet
+        global p1_time, p2_time
+        start = time.time()
+        height = height or self.unet.config.sample_size * self.vae_scale_factor
+        width = width or self.unet.config.sample_size * self.vae_scale_factor
+
+        # 1. Check inputs. Raise error if not correct
+        self.check_inputs(prompt, height, width, callback_steps)
+
+        # 2. Define call parameters
+        batch_size = 1 if isinstance(prompt, str) else len(prompt)
+        device = self._execution_device
+        # here `guidance_scale` is defined analog to the guidance weight `w` of equation (2)
+        # of the Imagen paper: https://arxiv.org/pdf/2205.11487.pdf . `guidance_scale = 1`
+        # corresponds to doing no classifier free guidance.
+        do_classifier_free_guidance = guidance_scale > 1.0
+
+        # check compile
+        if not self.is_init:
+            self.compile_aie_model()
+
+        # 3. Encode input prompt
+        text_embeddings = self._encode_prompt(prompt, num_images_per_prompt,
+                                              do_classifier_free_guidance,
+                                              negative_prompt)
+
+        text_embeddings_dtype = text_embeddings.dtype
+        p1_time += time.time() - start
+        start1 = time.time()
+        # 4. Prepare timesteps
+        self.scheduler.set_timesteps(num_inference_steps, device=device)
+        timesteps = self.scheduler.timesteps
+
+        # 5. Prepare latent variables
+        num_channels_latents = self.unet.in_channels
+        latents = self.prepare_latents(batch_size * num_images_per_prompt,
+                                       num_channels_latents, height, width,
+                                       text_embeddings_dtype, device,
+                                       generator, latents)
+
+        # 6. Prepare extra step kwargs.
+        extra_step_kwargs = self.prepare_extra_step_kwargs(generator, eta)
+
+        # 7. Denoising loop
+        global unet_time, vae_time
+        if self.use_parallel_inferencing and do_classifier_free_guidance:
+            # Split embeddings
+            text_embeddings, text_embeddings_2 = text_embeddings.chunk(2)
+
         cache = None
-        cache_numpy = torch.ones([batch_size, 640, 64, 64], dtype=torch.float32).numpy
+        skip_flag = torch.ones([1], dtype=torch.long)
+        cache_flag = torch.zeros([1], dtype=torch.long)
 
         for i, t in enumerate(self.progress_bar(timesteps)):
             if i == 50:
@@ -428,75 +610,57 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
                 latent_model_input = torch.cat([latents] * 2)
             else:
                 latent_model_input = latents
-
-            latent_model_input = self.scheduler.scale_model_input(
-                latent_model_input, t)
+            latent_model_input = self.scheduler.scale_model_input(latent_model_input, t)
 
             # predict the noise residual
-
             if self.use_parallel_inferencing and do_classifier_free_guidance:
-                # print(
-                #     f'bg send latent_model_input:{latent_model_input.shape}, t:{t.shape}, text_embeddings_2:{text_embeddings_2.shape}')
-                if (skip_steps[i]):
-                    self.unet_bg_skip.infer_asyn([
-                        latent_model_input.numpy(),
-                        t[None].numpy().astype(np.int64),
-                        text_embeddings_2.numpy(),
-                        skip_flag.numpy(),
-                        cache_numpy,
-                    ],
-                    skip_steps[i])
-                else:
-                    self.unet_bg_cache.infer_asyn([
-                        latent_model_input.numpy(),
-                        t[None].numpy().astype(np.int64),
-                        text_embeddings_2.numpy(),
-                        skip_flag.numpy(),
-                    ],
-                    skip_steps[i])
+
+                self.unet_bg.infer_asyn([
+                    latent_model_input.numpy(),
+                    t[None].numpy().astype(np.int64),
+                    text_embeddings_2.numpy(),
+                    skip_flag.numpy(),
+                ],
+                skip_steps[i])
 
             latent_model_input_npu = latent_model_input.to(f'npu:{self.device_0}')
             t_npu = t[None].to(f'npu:{self.device_0}')
             text_embeddings_npu = text_embeddings.to(f'npu:{self.device_0}')
 
             start = time.time()
-            with mindietorch.npu.stream(stream):
-                inf_start = time.time()
-                if (skip_steps[i]):
-                    noise_pred_npu = self.compiled_unet_skip(latent_model_input_npu, t_npu, text_embeddings_npu,
-                                                             skip_flag.to(f'npu:{self.device_0}'),
-                                                             cache.to(f'npu:{self.device_0}'),)
-                    noise_pred = noise_pred_npu.to('cpu')
-                else:
-                    outputs = self.compiled_unet_cache(latent_model_input_npu, t_npu, text_embeddings_npu,
-                                                        cache_flag.to(f'npu:{self.device_0}'),)
-                    cache = outputs[1]
-                    noise_pred = outputs[0].to('cpu')
+            if (skip_steps[i]):
+                noise_pred_npu = self.compiled_unet_skip(latent_model_input_npu,
+                                                        t_npu,
+                                                        text_embeddings_npu,
+                                                        skip_flag.to(f'npu:{self.device_0}'),
+                                                        cache,)
+                noise_pred = noise_pred_npu.to('cpu')
+            else:
+                outputs = self.compiled_unet_cache(latent_model_input_npu,
+                                                   t_npu,
+                                                   text_embeddings_npu,
+                                                   cache_flag.to(f'npu:{self.device_0}'),)
+                cache = outputs[1]
+                noise_pred = outputs[0].to('cpu')
 
-                stream.synchronize()
-                inf_end = time.time()
-
-            unet_forward_time += inf_end - inf_start
             unet_time += time.time() - start
 
             # perform guidance
             if do_classifier_free_guidance:
                 if self.use_parallel_inferencing:
-                    recv_start = time.time()
                     if (skip_steps[i]):
-                        noise_pred_text = torch.from_numpy(self.unet_bg_skip.wait_and_get_outputs()[0])
+                        noise_pred_text = torch.from_numpy(self.unet_bg.wait_and_get_outputs()[0])
+
                     else:
-                        out = self.unet_bg_cache.wait_and_get_outputs()
+                        out = self.unet_bg.wait_and_get_outputs()
                         noise_pred_text = torch.from_numpy(out[0])
-                        cache_numpy = out[1]
-                    unet_bg_recv_time += time.time() - recv_start
                 else:
                     noise_pred, noise_pred_text = noise_pred.chunk(2)
 
                 noise_pred = noise_pred + guidance_scale * (noise_pred_text -
                                                             noise_pred)
 
-            # compute the previous noisy sample x_t -> x_t-1
+            # # compute the previous noisy sample x_t -> x_t-1
             latents = self.scheduler.step(noise_pred, t, latents,
                                           **extra_step_kwargs).prev_sample
 
@@ -506,18 +670,14 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
 
         # 8. Post-processing
         p2_time = time.time() - start1
-        start1 = time.time()
-        latents = 1 / self.vae.config.scaling_factor * latents
 
         # run inference
         start = time.time()
         image = self.compiled_vae_model(latents.to(f'npu:{self.device_0}')).to('cpu')
         vae_time += time.time() - start
 
-        image = (image / 2 + 0.5).clamp(0, 1)
-
         # we always cast to float32 as this does not cause significant overhead and is compatible with bfloa16
-        image = image.cpu().permute(0, 2, 3, 1).float().numpy()
+        image = image.clamp(0, 1).float().numpy()
 
         # 9. Run safety checker
         has_nsfw_concept = False
@@ -576,8 +736,6 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
         text_embeddings = self.compiled_clip_model(text_input_ids.to(f'npu:{self.device_0}')).to('cpu')
         # text_embeddings = self.compiled_clip_model(text_input_ids)
         clip_time += time.time() - start
-
-        # SD2.1
 
         # duplicate text embeddings for each generation per prompt, using mps friendly method
         bs_embed, seq_len, _ = text_embeddings.shape
@@ -660,7 +818,7 @@ def parse_arguments():
         "-m",
         "--model",
         type=str,
-        default="./stable-diffusion-v1-5",
+        default="./stable-diffusion-2-1-base",
         help="Path or name of the pre-trained model.",
     )
     parser.add_argument(
@@ -678,7 +836,7 @@ def parse_arguments():
     parser.add_argument(
         "--save_dir",
         type=str,
-        default="./parallel_results",
+        default="./results",
         help="Path to save result images.",
     )
     parser.add_argument(
@@ -718,27 +876,26 @@ def parse_arguments():
         help="Batch size."
     )
     parser.add_argument(
-        "--scheduler", 
+        "--scheduler",
         choices=["DDIM", "Euler", "DPM", "SA-Solver"],
-        default="DDIM", 
+        default="DDIM",
         help="Type of Sampling methods. Can choose from DDIM, Euler, DPM, SA-Solver",
     )
     parser.add_argument(
-        "--soc", 
+        "--soc",
         choices=["Duo", "A2"],
-        default="Duo", 
+        default="Duo",
         help="soc_version.",
     )
     parser.add_argument(
         "-o",
         "--output_dir",
         type=str,
-        default="./",
+        default="./models",
         help="Path of directory to save compiled models.",
     )
 
     return parser.parse_args()
-
 
 def main():
     args = parse_arguments()
@@ -758,7 +915,8 @@ def main():
         pipe.scheduler = SASolverScheduler.from_config(pipe.scheduler.config)
     pipe.compile_aie_model()
 
-    steps = [2,4,6,8,10,11,12,14,16,18,20,21,22,24,26,28,30,31,32,34,36,38,40,41,42,44,46,48]
+    # 15+35
+    steps = [1,2,3,4,5,7,9,10,12,13,14,16,18,19,21,23,24,26,27,29,30,31,33,34,36,37,39,40,41,43,44,45,47,48,49]
     skip_steps = [0] * args.steps
     for i in steps:
         if i >= args.steps:
@@ -786,13 +944,22 @@ def main():
         infer_num += args.batch_size
 
         start_time = time.time()
-        images = pipe.ascendie_infer(
-            prompts,
-            num_inference_steps=args.steps,
-            skip_steps=skip_steps,
-            generator=generator,
-        )
+        if args.scheduler == "DDIM":
+            images = pipe.ascendie_infer_ddim(
+                prompts,
+                num_inference_steps=args.steps,
+                skip_steps=skip_steps,
+                generator=generator,
+            )
+        else:
+            images = pipe.ascendie_infer(
+                prompts,
+                num_inference_steps=args.steps,
+                skip_steps=skip_steps,
+                generator=generator,
+            )
         use_time += time.time() - start_time
+
         for j in range(n_prompts):
             image_save_path = os.path.join(save_dir, f"{save_names[j]}.png")
             image = images[0][j]
@@ -808,20 +975,13 @@ def main():
           f"average time: {use_time / infer_num:.3f}s\n"
           f"clip time: {clip_time / infer_num:.3f}s\n"
           f"unet time: {unet_time / infer_num:.3f}s\n"
-          f"unet forward time: {unet_forward_time / infer_num:.3f}s\n"
           f"vae time: {vae_time / infer_num:.3f}s\n"
           f"p1 time: {p1_time / infer_num:.3f}s\n"
           f"p2 time: {p2_time / infer_num:.3f}s\n"
-          f"p3 time: {p3_time / infer_num:.3f}s\n"
-          f"unet send time: {unet_bg_send_time / infer_num:.3f}s\n"
-          f"unet recv time: {unet_bg_recv_time / infer_num:.3f}s\n"
           )
     if hasattr(pipe, 'device_1'):
-        if (pipe.unet_bg_cache):
-            pipe.unet_bg_cache.stop()
-
-        if (pipe.unet_bg_skip):
-            pipe.unet_bg_skip.stop()
+        if (pipe.unet_bg):
+            pipe.unet_bg.stop()
 
     # Save image information to a json file
     if os.path.exists(args.info_file_save_path):

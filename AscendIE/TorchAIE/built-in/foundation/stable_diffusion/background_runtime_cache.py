@@ -1,4 +1,4 @@
-# Copyright 2023 Huawei Technologies Co., Ltd
+# Copyright 2024 Huawei Technologies Co., Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,12 +31,9 @@ class RuntimeIOInfo:
 
 
 class BackgroundRuntime:
-    def __init__(
-            self,
-            device_id: int,
-            model_path: str,
-            io_info: RuntimeIOInfo
-    ):
+
+    def __init__(self, device_id: int, model_path: str,
+                 io_info: RuntimeIOInfo):
         # Create a pipe for process synchronization
         self.sync_pipe, sync_pipe_peer = mp.Pipe(duplex=True)
 
@@ -83,9 +80,8 @@ class BackgroundRuntime:
 
     def infer_asyn(self, feeds: List[np.ndarray], skip) -> None:
         for i, _ in enumerate(self.input_arrays):
-            print(f'bg input shape: {self.input_arrays[i].shape}')
-            print(f'feeds shape: {feeds[i].shape}')
             self.input_arrays[i][:] = feeds[i][:]
+
         if skip:
             self.sync_pipe.send('skip')
         else:
@@ -111,12 +107,12 @@ class BackgroundRuntime:
 
     @staticmethod
     def run_infer(
-            sync_pipe: mp.connection.Connection,
-            input_spaces: List[np.ndarray],
-            output_spaces: List[np.ndarray],
-            io_info: RuntimeIOInfo,
-            device_id: int,
-            model_path: list,
+        sync_pipe: mp.connection.Connection,
+        input_spaces: List[np.ndarray],
+        output_spaces: List[np.ndarray],
+        io_info: RuntimeIOInfo,
+        device_id: int,
+        model_path: list,
     ) -> None:
         # The sub process function
         # Create a runtime
@@ -124,8 +120,8 @@ class BackgroundRuntime:
         print(f"[info] bg device id: {device_id}")
 
         # Tell the main function that we are ready
-        model_cache = torch.jit.load(model_path).eval()
-        model_skip = torch.jit.load(model_path).eval()
+        model_cache = torch.jit.load(model_path[0]).eval()
+        model_skip = torch.jit.load(model_path[1]).eval()
 
         # Build numpy arrays on the shared buffers
         input_arrays = [
@@ -141,11 +137,6 @@ class BackgroundRuntime:
         # Tell the main function that we are ready
         sync_pipe.send('')
 
-        infer_num = 0
-        preprocess_time = 0
-        infer_time = 0
-        forward_time = 0
-
         stream = mindietorch.npu.Stream(f"npu:{device_id}")
 
         return_cache = None
@@ -153,55 +144,52 @@ class BackgroundRuntime:
         # Keep looping until recived a 'STOP'
         while True:
             flag = sync_pipe.recv()
-            start = time.time()
             if flag == 'STOP':
                 break
+
             if flag == 'cache':
                 sample, timestep, encoder_hidden_states, return_flag = [
                     torch.Tensor(input_array) for input_array in input_arrays
                 ]
             else:
-                sample, timestep, encoder_hidden_states, return_flag, return_cache = [
+                sample, timestep, encoder_hidden_states, return_flag = [
                     torch.Tensor(input_array) for input_array in input_arrays
                 ]
 
             sample_npu = sample.to(torch.float32).to(f"npu:{device_id}")
             timestep_npu = timestep.to(torch.int64).to(f"npu:{device_id}")
-            encoder_hidden_states_npu = encoder_hidden_states.to(torch.float32).to(f"npu:{device_id}")
+            encoder_hidden_states_npu = encoder_hidden_states.to(
+                torch.float32).to(f"npu:{device_id}")
             flag_npu = return_flag.to(torch.int64).to(f"npu:{device_id}")
 
-            preprocess_time += time.time() - start
-            start2 = time.time()
-
             if flag == 'cache':
                 with mindietorch.npu.stream(stream):
-                    output_npu = model_cache(sample_npu, timestep_npu, encoder_hidden_states_npu, flag_npu)
+                    output_npu = model_cache(sample_npu, timestep_npu,
+                                             encoder_hidden_states_npu,
+                                             flag_npu)
                     stream.synchronize()
+
+                    output_cpu0 = output_npu[0].to('cpu')
+                    output0 = output_cpu0.numpy()
+                    output_arrays[0][:] = output0
+
+                    return_cache = output_npu[1]
             else:
                 with mindietorch.npu.stream(stream):
-                    cache_npu = return_cache.to(torch.float32).to(f"npu:{device_id}")
-                    output_npu = model_skip(sample_npu, timestep_npu, encoder_hidden_states_npu, flag_npu, cache_npu)
+                    output_npu = model_skip(sample_npu, timestep_npu,
+                                            encoder_hidden_states_npu,
+                                            flag_npu, return_cache)
                     stream.synchronize()
-            
-            if flag == 'cache':
-                output_cpu0 = output_npu[0].to('cpu')
-                output0 = output_cpu0.numpy()
-                output_arrays[0][:] = output0
 
-                output_cpu1 = output_npu[1].to('cpu')
-                output1 = output_cpu1.numpy()
-                output_arrays[1][:] = output1
-            else:
-                for i, _ in enumerate(output_arrays):
-                    output_cpu = output_npu.to('cpu')
-                    output = output_cpu.numpy()
-                    output_arrays[i][:] = output[i][:]
+                    output_cpu0 = output_npu.to('cpu')
+                    output0 = output_cpu0.numpy()
+                    output_arrays[0][:] = output0
 
             sync_pipe.send('')
 
     @classmethod
-    def clone(cls, device_id: int, model_path: str, runtime_info: RuntimeIOInfo) -> 'BackgroundRuntime':
+    def clone(cls, device_id: int, model_path: str,
+              runtime_info: RuntimeIOInfo) -> 'BackgroundRuntime':
         # Get shapes, datatypes from an existed engine,
         # then use them to create a BackgroundRuntime
         return cls(device_id, model_path, runtime_info)
-    

@@ -201,7 +201,14 @@
          - ./models/ddim/ddim.pt
 
 
-2. 开始推理验证。【Duo】
+2. 开始推理验证。
+   0. 开启cpu高性能模式
+      ```bash
+      echo performance |tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
+      sysctl -w vm.swappiness=0
+      sysctl -w kernel.numa_balancing=0
+      ```
+
    1. 执行推理脚本。
       ```bash
       # 1.若不使用并行推理：
@@ -236,7 +243,7 @@
               --soc Duo \
               --output_dir ./models
 
-      # 2.若使用并行推理
+      # 2.若使用并行推理【Duo】
       # 2.1不使用lora权重
       python3 stable_diffusion_parallel_pipeline.py \
               --model ${model_base} \
@@ -422,7 +429,7 @@
 
 | 硬件形态 | 迭代次数 | 平均耗时(w/o UnetCache) | 平均耗时(with UnetCache) |
 | :------: |:----:|:----:|:----:|
-| Duo并行  |  50  | 2.5s | 1.55s |
+| Duo并行  |  50  | 2.5s | 1.54s |
 | A2     |  50  |  1.6s  |  0.95s  |
 
 ### StableDiffusion v2.1

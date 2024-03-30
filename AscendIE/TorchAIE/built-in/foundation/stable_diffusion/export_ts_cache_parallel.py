@@ -172,34 +172,6 @@ def export_vae(sd_pipeline: StableDiffusionPipeline, save_dir: str, batch_size: 
     torch.jit.trace(vae_export, dummy_input).save(os.path.join(vae_path, "vae.pt"))
 
 
-class CatExport(torch.nn.Module):
-    def __init__(self, scale_model_input):
-        super(CatExport, self).__init__()
-        self.scale_model_input = scale_model_input
-
-    def forward(self, latents:torch.FloatTensor, t:torch.FloatTensor):
-        latent_model_input = torch.cat([latents] * 2)
-        latent_model_input = self.scale_model_input(latent_model_input, t)
-        return latent_model_input
-
-
-def export_cat(sd_pipeline: StableDiffusionPipeline, save_dir: str, batch_size: int) -> None:
-
-    cat_path = os.path.join(save_dir, "cat")
-    if not os.path.exists(cat_path):
-        os.makedirs(cat_path, mode=0o640)
-
-    ddim_model = DDIMScheduler.from_config(sd_pipeline.scheduler.config)
-
-    dummy_input = (
-            torch.ones([batch_size, 4, 64, 64], dtype=torch.float32),
-            torch.ones([1], dtype=torch.float32))
-
-    cat_export = CatExport(scale_model_input=ddim_model.scale_model_input)
-    cat_export.eval()
-    torch.jit.trace(cat_export, dummy_input).save(os.path.join(cat_path, "cat.pt"))
-
-
 class Scheduler(torch.nn.Module):
     def __init__(self, num_train_timesteps=1000, num_inference_steps=50, alphas_cumprod=None,
                  guidance_scale=7.5, alpha_prod_t_prev_cache=None):
@@ -210,8 +182,7 @@ class Scheduler(torch.nn.Module):
         self.guidance_scale = guidance_scale
         self.alpha_prod_t_prev_cache = alpha_prod_t_prev_cache
 
-    def forward(self, model_output: torch.FloatTensor, timestep: int, sample: torch.FloatTensor, step_index: int):
-        noise_pred_uncond, noise_pred_text = model_output.chunk(2)
+    def forward(self, noise_pred_uncond: torch.FloatTensor, noise_pred_text: torch.FloatTensor, timestep: int, sample: torch.FloatTensor, step_index: int):
         model_output = noise_pred_uncond + self.guidance_scale * (noise_pred_text - noise_pred_uncond)
         alpha_prod_t = self.alphas_cumprod[timestep]
         alpha_prod_t_prev = self.alpha_prod_t_prev_cache[step_index]
@@ -223,7 +194,7 @@ class Scheduler(torch.nn.Module):
         return prev_sample
 
 
-def export_ddim(sd_pipeline: StableDiffusionPipeline, save_dir: str, steps: int, guidance_scale: float) -> None:
+def export_ddim_parallel(sd_pipeline: StableDiffusionPipeline, save_dir: str, steps: int, guidance_scale: float) -> None:
     print("Exporting the ddim...")
     ddim_path = os.path.join(save_dir, "ddim")
     if not os.path.exists(ddim_path):
@@ -231,7 +202,8 @@ def export_ddim(sd_pipeline: StableDiffusionPipeline, save_dir: str, steps: int,
 
     ddim_model = sd_pipeline.scheduler
     dummy_input = (
-            torch.randn([2, 4, 64, 64], dtype=torch.float32),
+            torch.randn([1, 4, 64, 64], dtype=torch.float32),
+            torch.randn([1, 4, 64, 64], dtype=torch.float32),
             torch.ones([1], dtype=torch.int64),
             torch.randn([1, 4, 64, 64], dtype=torch.float32),
             torch.ones([1], dtype=torch.int64),
@@ -265,16 +237,14 @@ def export_onnx(model_path: str, save_dir: str, batch_size:int, steps:int, guida
 
     export_clip(pipeline, save_dir, batch_size)
 
-    # 单卡, unet_cache
-    export_unet(pipeline, save_dir, batch_size * 2, 0)
-    # 单卡, unet_skip
-    export_unet(pipeline, save_dir, batch_size * 2, 1)
+    # 双卡, unet_cache
+    export_unet(pipeline, save_dir, batch_size, 0)
+    # 双卡, unet_skip
+    export_unet(pipeline, save_dir, batch_size, 1)
 
     export_vae(pipeline, save_dir, batch_size)
 
-    export_ddim(pipeline, save_dir, steps, guidance_scale)
-
-    export_cat(pipeline, save_dir, batch_size)
+    export_ddim_parallel(pipeline, save_dir, steps, guidance_scale)
 
 
 def main():
