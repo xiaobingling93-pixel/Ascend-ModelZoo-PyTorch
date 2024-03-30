@@ -300,11 +300,11 @@
       NUMA node3: 72-95
       ```
 
-     当前查到NUMA node是3，对应72-95
+     当前查到NUMA node是3，对应72-95，推荐绑定其中单核以获得更好的性能
 
    1. 执行推理脚本。
       ```bash
-      numactl -C 72-95 python3 stable_diffusionxl_ascend_infer.py \
+      numactl -C 72 python3 stable_diffusionxl_ascend_infer.py \
               --model ${model_base} \
               --model_dir ./models_bs1 \
               --prompt_file ./prompts.txt \

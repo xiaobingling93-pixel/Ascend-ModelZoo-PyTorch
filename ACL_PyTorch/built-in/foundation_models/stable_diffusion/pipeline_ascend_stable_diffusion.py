@@ -318,15 +318,11 @@ class AscendStableDiffusionPipeline(StableDiffusionPipeline):
         # we always cast to float32 as this does not cause significant overhead and is compatible with bfloa16
         image = image.cpu().permute(0, 2, 3, 1).float().numpy()
 
-        # 9. Run safety checker
-        image, has_nsfw_concept = self.run_safety_checker(image, device, 
-                                                          text_embeddings_dtype)
-
-        # 10. Convert to PIL
+        # 9. Convert to PIL
         if output_type == "pil":
             image = self.numpy_to_pil(image)
 
-        return (image, has_nsfw_concept)
+        return (image, None)
 
 
     def unet_infer(self, session, data, device_id):

@@ -208,6 +208,6 @@ class BackgroundInferSession:
             outputs[0].to_host()
             output = np.array(outputs[0])
             for i in range(len(output_arrays)):
-                output_arrays[i][:] = output[i][:]
+                output_arrays[i][:] = output[:]
 
             sync_pipe.send('')

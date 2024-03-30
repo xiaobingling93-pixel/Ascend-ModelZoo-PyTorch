@@ -56,7 +56,7 @@
   | Python                                                       | 3.10   | -                                                            |                                                           |
 如在优化模型时使用了--FA、--TOME_num、--faster_gelu参数，需要安装与CANN包配套版本的MindIE
 
-- 该模型性能受CPU规格影响，建议使用96核（2x48核）CPU（arm）以复现性能
+- 该模型性能受CPU规格影响，建议将CPU设置为性能模式以获得最优性能
 
 
 # 快速上手<a name="ZH-CN_TOPIC_0000001126281700"></a>
@@ -304,11 +304,36 @@
          - models_bs${bs}/vae/vae.om  
    
 2. 开始推理验证。
+  
+   1. 安装绑核工具并根据NUMA亲和性配置任务进程与NUMA node 的映射关系是为了排除cpu的影响
 
-   1. 执行推理脚本。
+      安装绑核工具
+
+      ```shell
+      yum install numactl
+      ```
+      查询卡的NUMA node
+
+      ```shell
+      lspci -vs bus-id
+      ```
+      bus-id可通过npu-smi info获得，查询到NUMA node，在推理命令前加上对应的数字
+
+      可通过lscpu获得NUMA node对应的CPU核数
+
+      ```shell
+      NUMA node0: 0-23
+      NUMA node1: 24-47
+      NUMA node2: 48-71
+      NUMA node3: 72-95
+      ```
+      当前查到NUMA node是0，对应0-23，推荐绑定其中单核以获得更好的性能。
+
+   2. 执行推理脚本。
+
       ```bash
       # 普通方式
-      python3 stable_diffusion_ascend_infer.py \
+      numactl -C 0 python3 stable_diffusion_ascend_infer.py \
               --model ${model_base} \
               --model_dir ./models_bs${bs} \
               --prompt_file ./prompts.txt \
@@ -319,7 +344,7 @@
               --use_cache
 
       # 并行方式
-      python3 stable_diffusion_ascend_infer.py \
+      numactl -C 0 python3 stable_diffusion_ascend_infer.py \
               --model ${model_base} \
               --model_dir ./models_bs${bs} \
               --prompt_file ./prompts.txt \
@@ -385,7 +410,7 @@
    2. 使用推理脚本读取Parti数据集，生成图片
       ```bash
       # 普通方式
-      python3 stable_diffusion_ascend_infer.py \
+      numactl -C 0 python3 python3 stable_diffusion_ascend_infer.py \
               --model ${model_base} \
               --model_dir ./models_bs${bs} \
               --prompt_file ./PartiPrompts.tsv \
@@ -399,7 +424,7 @@
               --use_cache
 
       # 并行方式
-      python3 stable_diffusion_ascend_infer.py \
+      numactl -C 0 python3 python3 stable_diffusion_ascend_infer.py \
               --model ${model_base} \
               --model_dir ./models_bs${bs} \
               --prompt_file ./PartiPrompts.tsv \
