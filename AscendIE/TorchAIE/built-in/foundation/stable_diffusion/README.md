@@ -174,21 +174,31 @@
       # 代码修改
       python3 stable_diffusion_unet_patch.py
 
-      # 导出pt模型
+      # 导出单卡/单芯pt模型
       python3 export_ts_cache.py --model ${model_base} --output_dir ./models
+
+      # 导出双卡/双芯pt模型
+      python3 export_ts_cache_parallel.py --model ${model_base} --output_dir ./models
       ```
 
       参数说明：
       - --model：模型名称或本地模型目录的路径
       - --output_dir: pt模型输出目录
       
-      执行成功后会生成pt模型：
+      执行成功后会生成单卡/单芯pt模型：
          - ./models/clip/clip.pt
-         - ./models/unet/unet_bs1_0.pt
-         - ./models/unet/unet_bs1_1.pt
          - ./models/unet/unet_bs2_0.pt
          - ./models/unet/unet_bs2_1.pt
          - ./models/vae/vae.pt
+         - ./models/ddim/ddim.pt
+         - ./models/cat/cat.pt
+
+      生成双卡/双芯pt模型：
+         - ./models/clip/clip.pt
+         - ./models/unet/unet_bs1_0.pt
+         - ./models/unet/unet_bs1_1.pt
+         - ./models/vae/vae.pt
+         - ./models/ddim/ddim.pt
 
 
 2. 开始推理验证。【Duo】
@@ -412,12 +422,12 @@
 
 | 硬件形态 | 迭代次数 | 平均耗时(w/o UnetCache) | 平均耗时(with UnetCache) |
 | :------: |:----:|:----:|:----:|
-| Duo并行  |  50  | 2.5s | 1.99s |
-| A2     |  50  |  1.6s  |  1.17s  |
+| Duo并行  |  50  | 2.5s | 1.55s |
+| A2     |  50  |  1.6s  |  0.95s  |
 
 ### StableDiffusion v2.1
 
 | 硬件形态 | 迭代次数 | 平均耗时(w/o UnetCache) | 平均耗时(with UnetCache) |
 | :------: |:----:|:----:|:----:|
-| Duo并行  |  50  | 2.3s | 1.89s |
-| A2     |  50  |  1.4s  |  0.97s  |
+| Duo并行  |  50  | 2.3s | 1.39s |
+| A2     |  50  |  1.4s  |  0.85s  |
