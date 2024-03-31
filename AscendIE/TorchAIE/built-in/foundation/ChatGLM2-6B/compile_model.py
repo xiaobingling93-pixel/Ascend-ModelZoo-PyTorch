@@ -13,13 +13,10 @@
 # limitations under the License.
 
 
-import sys
-from transformers import AutoTokenizer, AutoModel
-import torch
-import torch_aie
-from torch_aie import _enums
-import numpy as np
 import argparse
+import torch
+import mindietorch
+from transformers import AutoTokenizer, AutoModel
 
 
 def main():
@@ -41,14 +38,14 @@ def main():
     model = AutoModel.from_pretrained(model_path, trust_remote_code=True, torchscript=True).float()
     model.eval()
 
-    torch_aie.set_device(device)
+    mindietorch.set_device(device)
     # stage1: model trace
     if need_trace == "true":
         print("===================== start to trace model ==========================")
-        input_ids = torch.randint(1, 64970, [1, 128], dtype = torch.int64)
-        position_ids = model.get_position_ids(input_ids, device = "cpu")
-        attention_mask = torch.ones((1, 128), dtype = torch.int64)
-        past_key_values = torch.rand([28, 2, 0, 1, 2, 128], dtype = torch.float32)
+        input_ids = torch.randint(1, 64970, [1, 128], dtype=torch.int64)
+        position_ids = model.get_position_ids(input_ids, device="cpu")
+        attention_mask = torch.ones((1, 128), dtype=torch.int64)
+        past_key_values = torch.rand([28, 2, 0, 1, 2, 128], dtype=torch.float32)
         input_dict = {
             "input_ids": input_ids,
             "position_ids": position_ids,
@@ -58,9 +55,9 @@ def main():
         traced_model = torch.jit.trace(model, example_kwarg_inputs=input_dict)
         traced_model_path = "./chatglm2_6b_batch_1_traced.pt"
         torch.jit.save(traced_model, traced_model_path)
-        print("===================== model trace success ==========================") 
+        print("===================== model trace success ==========================")
 
-    # stage2: model compile
+        # stage2: model compile
     if need_compile == "true":
         ## load origin traced model
         traced_model_path = "./chatglm2_6b_batch_1_traced.pt"
@@ -78,29 +75,29 @@ def main():
         input1_max_shape = (1, max_seqlen)
         input2_min_shape = (1, 1)
         input2_max_shape = (1, max_seqlen)
-        input3_min_shape = (1, 2, 0, 1, 2, 128)
+        input3_min_shape = (28, 2, 0, 1, 2, 128)
         input3_max_shape = (28, 2, max_seqlen, 1, 2, 128)
 
-        inputs.append(torch_aie.Input(min_shape = input0_min_shape, max_shape = input0_max_shape, dtype = torch.int64))
-        inputs.append(torch_aie.Input(min_shape = input1_min_shape, max_shape = input1_max_shape, dtype = torch.int64))
-        inputs.append(torch_aie.Input(min_shape = input2_min_shape, max_shape = input2_max_shape, dtype = torch.int64))
-        inputs.append(torch_aie.Input(min_shape = input3_min_shape, max_shape = input3_max_shape, dtype = torch.float32))
+        inputs.append(mindietorch.Input(min_shape=input0_min_shape, max_shape=input0_max_shape, dtype=torch.int64))
+        inputs.append(mindietorch.Input(min_shape=input1_min_shape, max_shape=input1_max_shape, dtype=torch.int64))
+        inputs.append(mindietorch.Input(min_shape=input2_min_shape, max_shape=input2_max_shape, dtype=torch.int64))
+        inputs.append(mindietorch.Input(min_shape=input3_min_shape, max_shape=input3_max_shape, dtype=torch.float32))
 
         ## compile
         print("===================== start to compile model ==========================")
-        compiled_module = torch_aie.compile(
+        compiled_module = mindietorch.compile(
             traced_model,
             inputs=inputs,
-            precision_policy=_enums.PrecisionPolicy.FP32,
+            precision_policy=mindietorch.PrecisionPolicy.FP32,
             allow_tensor_replace_int=True,
-            soc_version="Ascend910B4" # 可以为Ascend910B3或者Asend910B4,具体根据使用的环境决定。
+            soc_version="Ascend910B4"  # 可以为Ascend910B3或者Asend910B4,具体根据使用的环境决定。
         )
         print("===================== model compile success ==========================")
         ## save compiled result
         aie_model_path = "./chatglm2_6b_batch_1_compiled.ts"
         compiled_module.save(aie_model_path)
         print("===================== save compiled model success ======================")
-        
+
 
 if __name__ == '__main__':
     main()
