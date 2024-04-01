@@ -7,6 +7,9 @@
 # Modified from mmdetection3d (https://github.com/open-mmlab/mmdetection3d)
 # Copyright (c) OpenMMLab. All rights reserved.
 # ------------------------------------------------------------------------
+# Copyright 2024 Huawei Technologies Co., Ltd
+#-------------------------------------------------------------------------
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -309,10 +312,12 @@ class PETRHead(AnchorFreeHead):
             img2lidars.append(np.asarray(img2lidar))
         img2lidars = np.asarray(img2lidars)
         img2lidars = coords.new_tensor(img2lidars) # (B, N, 4, 4)
-
-        coords = coords.view(1, 1, W, H, D, 4, 1).repeat(B, N, 1, 1, 1, 1, 1)
-        img2lidars = img2lidars.view(B, N, 1, 1, 1, 4, 4).repeat(1, 1, W, H, D, 1, 1)
-        coords3d = torch.matmul(img2lidars, coords).squeeze(-1)[..., :3]
+        
+        # 对小矩阵乘法进行优化
+        coords = coords.view(1, 1, W*H*D, 4).repeat(B, N, 1, 1).permute(0, 1, 3, 2).contiguous() #[B, N, 4, W*H*D] 
+        ret = torch.matmul(img2lidars, coords)
+        coords3d = ret.permute(0, 1, 3, 2).contiguous().view(B, N, W, H, D, 4)[..., :3]
+      
         coords3d[..., 0:1] = (coords3d[..., 0:1] - self.position_range[0]) / (self.position_range[3] - self.position_range[0])
         coords3d[..., 1:2] = (coords3d[..., 1:2] - self.position_range[1]) / (self.position_range[4] - self.position_range[1])
         coords3d[..., 2:3] = (coords3d[..., 2:3] - self.position_range[2]) / (self.position_range[5] - self.position_range[2])
@@ -323,7 +328,7 @@ class PETRHead(AnchorFreeHead):
         coords3d = coords3d.permute(0, 1, 4, 5, 3, 2).contiguous().view(B*N, -1, H, W)
         coords3d = inverse_sigmoid(coords3d)
         coords_position_embeding = self.position_encoder(coords3d)
-        
+
         return coords_position_embeding.view(B, N, self.embed_dims, H, W), coords_mask
 
     def _load_from_state_dict(self, state_dict, prefix, local_metadata, strict,

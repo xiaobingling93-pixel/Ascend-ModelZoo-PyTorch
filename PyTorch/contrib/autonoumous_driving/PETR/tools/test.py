@@ -1,8 +1,13 @@
 # Copyright (c) OpenMMLab. All rights reserved.
+# ------------------------------------------------------------------------
+# Copyright 2024 Huawei Technologies Co., Ltd
+#-------------------------------------------------------------------------
+
 import argparse
 import mmcv
 import os
 import torch
+import torch_npu
 import warnings
 from mmcv import Config, DictAction
 from mmcv.cnn import fuse_conv_bn
@@ -15,6 +20,8 @@ from mmdet3d.datasets import build_dataloader, build_dataset
 from mmdet3d.models import build_model
 from mmdet.apis import multi_gpu_test, set_random_seed
 from mmdet.datasets import replace_ImageToTensor
+
+import transfer_to_npu
 
 
 def parse_args():
@@ -190,6 +197,7 @@ def main():
         shuffle=False)
 
     # build the model and load checkpoint
+    cfg.model["only_eval"] = True
     cfg.model.train_cfg = None
     model = build_model(cfg.model, test_cfg=cfg.get('test_cfg'))
     fp16_cfg = cfg.get('fp16', None)

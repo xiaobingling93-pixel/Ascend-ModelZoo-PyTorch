@@ -1,3 +1,6 @@
+# ------------------------------------------------------------------------
+# Copyright 2024 Huawei Technologies Co., Ltd
+#-------------------------------------------------------------------------
 _base_ = [
     '../../../mmdetection3d/configs/_base_/datasets/nus-3d.py',
     '../../../mmdetection3d/configs/_base_/default_runtime.py'
@@ -26,6 +29,7 @@ input_modality = dict(
 model = dict(
     type='Petr3D',
     use_grid_mask=True,
+    only_eval = False,
     img_backbone=dict(
         type='ResNet',
         depth=50,
@@ -37,7 +41,7 @@ model = dict(
         style='caffe',
         with_cp=True,
         dcn=dict(type='DCNv2', deform_groups=1, fallback_on_stride=False),
-        stage_with_dcn=(False, False, True, True),
+        stage_with_dcn=(False, False, False, False),
         pretrained = 'ckpts/resnet50_msra-5891d200.pth',
         ),
     img_neck=dict(
@@ -113,7 +117,7 @@ model = dict(
             pc_range=point_cloud_range))))
 
 dataset_type = 'CustomNuScenesDataset'
-data_root = '/data/Dataset/nuScenes/'
+data_root = '/data/dataset/nuscenes/nuscenes/'
 
 file_client_args = dict(backend='disk')
 db_sampler = dict()
@@ -136,7 +140,7 @@ train_pipeline = [
             rot_range=[-0.3925, 0.3925],
             translation_std=[0, 0, 0],
             scale_ratio_range=[0.95, 1.05],
-            reverse_angle=True,
+            reverse_angle=False,
             training=True
             ),
     dict(type='NormalizeMultiviewImage', **img_norm_cfg),
@@ -182,7 +186,7 @@ data = dict(
     test=dict(type=dataset_type, pipeline=test_pipeline, classes=class_names, modality=input_modality))
 
 optimizer = dict(
-    type='AdamW', 
+    type='NpuFusedAdamW',
     lr=2e-4,
     paramwise_cfg=dict(
         custom_keys={
@@ -190,7 +194,8 @@ optimizer = dict(
         }),
     weight_decay=0.01)
 
-optimizer_config = dict(type='Fp16OptimizerHook', loss_scale=512., grad_clip=dict(max_norm=35, norm_type=2))
+optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2))
+
 
 # learning policy
 lr_config = dict(

@@ -1,159 +1,216 @@
-# [ECCV2022] Position Embedding Transformation for Multi-View 3D Object Detection 
-# [ICCV2023] PETRv2: A Unified Framework for 3D Perception from Multi-Camera Images
-[![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2203.05625)
-![visitors](https://visitor-badge.glitch.me/badge?page_id=megvii-research/PETR)
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/petrv2-a-unified-framework-for-3d-perception/3d-object-detection-on-nuscenes-camera-only)](https://paperswithcode.com/sota/3d-object-detection-on-nuscenes-camera-only?p=petrv2-a-unified-framework-for-3d-perception)
-<!-- ## Introduction -->
+# PETR for Pytorch
+# 目录
 
-This repository is an official implementation of [PETR](https://arxiv.org/abs/2203.05625) and [PETRv2](https://arxiv.org/abs/2206.01256). The flash attention version can be find from the "[flash](https://github.com/megvii-research/PETR/tree/flash)" branch.
+-   [简介](#简介)
+    -  [模型介绍](#模型介绍)
+    -  [支持任务列表](#支持任务列表)
+    -  [代码实现](#代码实现)
+-   [PETR](#PETR)   
+    -   [准备训练环境](#准备训练环境)
+          - [安装模型环境](#安装模型环境)
+          - [安装依赖](#安装依赖)
+          - [安装昇腾环境](#安装昇腾环境)
+          - [准备数据集](#准备数据集)
+          - [获取预训练权重](#获取预训练权重)
+    -   [快速开始](#快速开始)
+          - [支持单机8卡训练](#支持单机8卡训练)
+          - [微调任务](#微调任务)
+-   [公网地址说明](#公网地址说明) 
+-   [变更说明](#变更说明) 
+-   [FAQ](#FAQ) 
 
-<div align="center">
-  <img src="figs/overview.png"/>
-</div><br/>
+# 简介
+## 模型介绍
 
-PETR develops position embedding transformation
-(PETR) for multi-view 3D object detection. PETR encodes the position
-information of 3D coordinates into image features, producing the
-3D position-aware features. Object query can perceive the 3D position-aware features and perform end-to-end object detection. It can serve as a simple yet strong baseline for future research.  
+PETR开发了用于多视图3D对象检测的位置嵌入变换(PETR)。PETR将3D坐标的位置信息编码为图像特征，生成3D位置感知特征。对象查询可以感知3D位置感知特征，并进行端到端的对象检测。
+本仓库主要将PETR模型迁移到了昇腾NPU上，并进行极致性能优化。
 
-<div align="center">
-  <img src="figs/overall.png"/>
-</div><br/>
+## 支持任务列表
 
-PETRv2 is a unified framework for 3D perception from multi-view images. Based on PETR, PETRv2 explores the effectiveness of temporal modeling, which utilizes the temporal information of previous frames to boost 3D object detection. The 3D PE achieves the temporal alignment on object position of different frames. A feature-guided position encoder is further introduced to improve the data adaptability of 3D PE. To support for high-quality BEV segmentation, PETRv2 provides a simply yet effective solution by adding a set of segmentation queries. Each segmentation query is responsible for segmenting one specific patch of BEV map. PETRv2 achieves state-of-the-art performance on 3D object detection and BEV segmentation. 
+本仓已经支持以下模型任务类型
 
-## News
-**2023.10.11** The 3D lane detection of PETRv2 has been released on [TopoMLP](https://github.com/wudongming97/TopoMLP). It support openlanev2 and won the 1st place in CVPR2023 workshop!.   
-**2023.01.25** Our multi-view 3D detection framework [StreamPETR](https://github.com/exiawsh/StreamPETR) (63.6% NDS and 55.0% mAP)** without TTA and future frames.   
-**2023.01.04** Our multi-modal detection framework [CMT](https://github.com/junjie18/CMT) is released on [arxiv](https://arxiv.org/pdf/2301.01283.pdf).    
-**2022.11.04** The code of multi-scale improvement in PETRv2 is released.   
-**2022.09.21** The code of query denoise improvement in PETRv2 is released.  
-**2022.09.04** PETRv2 with VoVNet backbone and multi-scale achieves **(59.1% NDS and 50.8% mAP)**.  
-**2022.08.11** PETRv2 with GLOM-like backbone and query denoise achieves **(59.2% NDS and 51.2% mAP)** without extra data.  
-**2022.07.04** PETR has been accepted by ECCV 2022.  
-**2022.06.28** The code of BEV Segmentation in PETRv2 is released.  
-**2022.06.16** The code of 3D object detection in PETRv2 is released.  
-**2022.06.10** The code of PETR is released.  
-**2022.06.06** PETRv2 is released on [arxiv](https://arxiv.org/abs/2206.01256).  
-**2022.06.01** PETRv2 achieves another SOTA performance on nuScenes dataset **(58.2% NDS and 49.0% mAP)** by the temporal modeling and supports BEV segmentation.  
-**2022.03.10** PETR is released on [arxiv](https://arxiv.org/abs/2203.05625).  
-**2022.03.08** PETR achieves SOTA performance **(50.4% NDS and 44.1% mAP)** on standard nuScenes dataset.
+|  模型  |    任务列表    | 是否支持 |
+|:----:|:----------:|:-----:|
+| PETR |    训练FP16     | ✔ |
+| PETR |    推理    | ✔ |
 
-## Preparation
-This implementation is built upon [detr3d](https://github.com/WangYueFt/detr3d/blob/main/README.md), and can be constructed as the [install.md](./install.md).
 
-* Environments  
-  Linux, Python==3.6.8, CUDA == 11.2, pytorch == 1.9.0, mmdet3d == 0.17.1   
 
-* Detection Data   
-Follow the mmdet3d to process the nuScenes dataset (https://github.com/open-mmlab/mmdetection3d/blob/master/docs/en/data_preparation.md).
+## 代码实现
 
-* Segmentation Data  
-Download Map expansion from nuScenes dataset (https://www.nuscenes.org/nuscenes#download). Extract the contents (folders basemap, expansion and prediction) to your nuScenes `maps` folder.  
-Then build Segmentation dataset:
+- 参考实现：
+
   ```
-  cd tools
-  python build-dataset.py
+  url=https://github.com/megvii-research/PETR
+  commit_id=f7525f93467a33707ef401c587a52d5e7b34de74
   ```
+
+- 适配昇腾 AI 处理器的实现：
+
+  ```
+  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  code_path=PyTorch/contrib/autonoumous_driving
+  ```
+
+
+# PETR
+## 准备训练环境
+
+### 安装模型环境
+
+
+  **表 1**  三方库版本支持表
+
+  | 三方库          | 支持版本 |
+  | :--------:     | :------: |
+  | PyTorch        | 1.11.0   |
+  | mmcv           | 1.x      |
+  | mmdet          | 2.28.2   | 
+  | mmsegmentation | 0.30.0   |
+  | mmdet3d        | 1.0.0rc7 |
+
+
+### 安装依赖
+1. 源码编译安装 mmcv 1.x（如果环境中有mmcv，请先卸载再执行以下步骤）
+  ```shell
+  git clone https://github.com/open-mmlab/mmcv.git
+  cd mmcv
+  git checkout 1.x
+  # 代码标签: commit ed4303ea95569a01dcb253074e62cdcc945ff2d7
+  git checkout ed4303ea95569a01dcb253074e62cdcc945ff2d7
+  # 拷贝 mmcv.patch至mmcv源码目录目录下
+  cp third/mmcv.patch ${work_dir}/mmcv
+  cd mmcv
+  git apply mmcv.patch
+  #通过git diff 查看
+  #编译安装mmcv
+  MMCV_WITH_OPS=1 MAX_JOBS=8 FORCE_NPU=1 python setup.py build_ext
+  MMCV_WITH_OPS=1 FORCE_NPU=1 python setup.py develop
+  ```
+2. 安装mmdet==2.28.2
+  ```shell
+  git clone https://github.com/open-mmlab/mmdetection.git
+  cd mmdetection
+git checkout 2.x
+  # 代码标签: commit e9cae2d0787cd5c2fc6165a6061f92fa09e48fb1
+  git checkout e9cae2d0787cd5c2fc6165a6061f92fa09e48fb1
+  pip install -e .
+  ``` 
+
+3. 源码安装mmsegmentation==0.30.0
+  ```shell
+  git clone https://github.com/open-mmlab/mmsegmentation.git
+  cd mmsegmentation
+  git checkout 0.x
+  # 代码标签: commit f67ef9c128eb2b643beaed8eb518c9fa09eb0912
+  git checkout f67ef9c128eb2b643beaed8eb518c9fa09eb0912
+  pip install -e .
+```
+4. 源码安装mmdet3d==1.0.0rc7（如果环境中有mmdet，请先卸载再执行以下步骤）
+  ```shell
+  git clone https://github.com/open-mmlab/mmdetection3d.git
+  cd mmdetection3d
+git checkout 1.0
+  # 代码标签: commit c0c378f2154238a65446f7e72481a2025df4bb4d
+  git checkout c0c378f2154238a65446f7e72481a2025df4bb4d
+  pip install -e .
+  ```
+
+### 安装昇腾环境
+
+  请参考昇腾社区中《[Pytorch框架训练环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/ptes)》文档搭建昇腾环境，本仓已支持表2中软件版本。
+                
   
-  If you want to train the segmentation task immediately, we privided the processed data ( HDmaps-final.tar ) at [gdrive](https://drive.google.com/file/d/1uw-ciYbqEHRTR9JoGH8VXEiQGAQr7Kik/view?usp=sharing). The processed info files of segmentation can also be find at [gdrive](https://drive.google.com/drive/folders/1_C2yuh51ROF3UzId4L1itwGQVUeVUxU6?usp=sharing).
+  **表 2**  昇腾软件版本支持表
 
+  | 软件类型   | 支持版本  |
+  | :--------: | :-------------: |
+  | FrameworkPTAdapter | 在研版本 |
+  | CANN | 在研版本 |
+  | 昇腾NPU固件 | 在研版本 | 
+  | 昇腾NPU驱动 | 在研版本 |
 
-* Pretrained weights   
-To verify the performance on the val set, we provide the pretrained V2-99 [weights](https://drive.google.com/file/d/1ABI5BoQCkCkP4B0pO5KBJ3Ni0tei0gZi/view?usp=sharing). The V2-99 is pretrained on DDAD15M ([weights](https://tri-ml-public.s3.amazonaws.com/github/dd3d/pretrained/depth_pretrained_v99-3jlw0p36-20210423_010520-model_final-remapped.pth)) and further trained on nuScenes **train set** with FCOS3D.  For the results on test set in the paper, we use the DD3D pretrained [weights](https://drive.google.com/drive/folders/1h5bDg7Oh9hKvkFL-dRhu5-ahrEp2lRNN). The ImageNet pretrained weights of other backbone can be found [here](https://github.com/open-mmlab/mmcv/blob/master/mmcv/model_zoo/open_mmlab.json).
-Please put the pretrained weights into ./ckpts/. 
+  
 
-* After preparation, you will be able to see the following directory structure:  
-  ```
-  PETR
-  ├── mmdetection3d
-  ├── projects
-  │   ├── configs
-  │   ├── mmdet3d_plugin
-  ├── tools
-  ├── data
-  │   ├── nuscenes
-  │     ├── HDmaps-nocover
-  │     ├── ...
-  ├── ckpts
-  ├── README.md
-  ```
+### 准备数据集
 
-## Train & inference
-<!-- ```bash
-git clone https://github.com/megvii-research/PETR.git
-``` -->
-```bash
-cd PETR
+#### 训练数据集准备
+
+**Step 0.** 请用户自行到nuScenes官网下载数据集，并按petr github指导进行预处理。
+
+**Step 1.** 将数据集的路径软链接到 ${work_dir}/PETR/data/。
+
 ```
-You can train the model following:
-```bash
-tools/dist_train.sh projects/configs/petr/petr_r50dcn_gridmask_p4.py 8 --work-dir work_dirs/petr_r50dcn_gridmask_p4/
+cd ${work_dir_work_dir}/PETR
+ln -s [nuscenes root] ./data/nuscenes
 ```
-You can evaluate the model following:
-```bash
-tools/dist_test.sh projects/configs/petr/petr_r50dcn_gridmask_p4.py work_dirs/petr_r50dcn_gridmask_p4/latest.pth 8 --eval bbox
+数据集结构如下所示。
 ```
-## Visualize
-You can generate the reault json following:
-```bash
-./tools/dist_test.sh projects/configs/petr/petr_vovnet_gridmask_p4_800x320.py work_dirs/petr_vovnet_gridmask_p4_800x320/latest.pth 8 --out work_dirs/pp-nus/results_eval.pkl --format-only --eval-options 'jsonfile_prefix=work_dirs/pp-nus/results_eval'
-```
-You can visualize the 3D object detection following:
-```bash
-python3 tools/visualize.py
+PETR for PyTorch
+├── data
+│   ├── nuScenes
+│   │   ├── maps
+│   │   ├── samples
+│   │   ├── sweeps
+│   │   ├── v1.0-test
+|   |   ├── v1.0-trainval
 ```
 
-## Main Results
-PETR: We provide some results on nuScenes **val set** with pretrained models. These model are trained on 8x 2080ti **without cbgs**. Note that the models and logs are also available at [Baidu Netdisk](https://pan.baidu.com/s/1-JkzOxKy4isMiiNHd20Z-w) with code `petr`.
+### 获取预训练权重
 
-| config            | mAP      | NDS     |training    |   config |   download |
-|:--------:|:----------:|:---------:|:--------:|:--------:|:-------------:|
-| PETR-r50-c5-1408x512   | 30.5%     | 35.0%    | 18hours  | [config](projects/configs/petr/petr_r50dcn_gridmask_c5.py)  |   [log](https://drive.google.com/file/d/1pXT6JltfMF0PAyG17zVcoXLJEYMKVWQr/view?usp=sharing) / [gdrive](https://drive.google.com/file/d/1c5rgTpHA98dFKmQ9BJN0zZbSuBFT8_Bt/view?usp=sharing)     |
-| PETR-r50-p4-1408x512 | 31.70%     | 36.7%    | 21hours   | [config](projects/configs/petr/petr_r50dcn_gridmask_p4.py)   |   [log](https://drive.google.com/file/d/1Knoid2-ZiQhl1lcTt65SROTZiuvfTGT7/view?usp=sharing) / [gdrive](https://drive.google.com/file/d/1eYymeIbS0ecHhQcB8XAFazFxLPm3wIHY/view?usp=sharing)    
-| PETR-vov-p4-800x320   | 37.8%     | 42.6%    | 17hours  | [config](projects/configs/petr/petr_vovnet_gridmask_p4_800x320.py)   |   [log](https://drive.google.com/file/d/1eG914jDVK3YXvbubR8VUjP2NnzYpDvHC/view?usp=sharing) / [gdrive](https://drive.google.com/file/d/1-afU8MhAf92dneOIbhoVxl_b72IAWOEJ/view?usp=sharing)        |
-| PETR-vov-p4-1600x640 | 40.40%     | 45.5%    | 36hours   | [config](projects/configs/petr/petr_vovnet_gridmask_p4_1600x640.py)   |   [log](https://drive.google.com/file/d/1XfO5fb_Nd6jhQ3foBUG7WCz0SlTlBKu8/view?usp=sharing) / [gdrive](https://drive.google.com/file/d/1SV0_n0PhIraEXHJ1jIdMu3iMg9YZsm8c/view?usp=sharing)  
+请按照github issue下载petr backbone训练权重resnet50_msra-5891d200.pth  到 ${work_dir}/PETR/ckpts目录下。
 
-PETRv2: We provide a 3D object detection baseline and a BEV segmentation baseline with two frames. The model is trained on 8x 2080ti **without cbgs**. The processed [info files](https://drive.google.com/drive/folders/1_C2yuh51ROF3UzId4L1itwGQVUeVUxU6?usp=sharing) contain 30 previous frames, whose transformation matrix is aligned with the current frame.  The info files, models and logs are also available at [Baidu Netdisk](https://pan.baidu.com/s/10IaWAq1mljX5ztLzQT_4Kg) with code `petr`.
-| config            | mAP      | NDS     |training    |   config |   download |
-|:--------:|:----------:|:---------:|:--------:|:--------:|:-------------:|
-| PETRv2-vov-p4-800x320   | 41.0%     | 50.3%    | 30hours  | [config](projects/configs/petrv2/petrv2_vovnet_gridmask_p4_800x320.py)  | [log](https://drive.google.com/file/d/1QcVSDHoUAcFLqziwZrBn5A2oAjH86WiO/view?usp=sharing) / [gdrive](https://drive.google.com/file/d/1tv_D8Ahp9tz5n4pFp4a64k-IrUZPu5Im/view?usp=sharing)    
+## 快速开始
 
+### 支持单机8卡训练
+**Step 1.** 进入源码根目录。
 
-| config            | Drive      | Lane   |  Vehicle     |backbone   |   config |download  |
-|:--------:|:----------:|:---------:|:--------:|:--------:|:--------:|:-------------:|
-| PETRv2_BEVseg   | 85.6%     | 49.0%   | 46.3%     | V2-99  | [config](projects/configs/petrv2/PETRv2_BEVseg.py)  | [log](https://drive.google.com/drive/folders/1PdSsni_EePHlkCB-FJTIkhr979hwd8X6?usp=sharing) / [gdrive](https://drive.google.com/drive/folders/1PdSsni_EePHlkCB-FJTIkhr979hwd8X6?usp=sharing) 
-
-| config            | F-score      | X-near   |  X-far     |  Z-near   |  Z-far   |backbone   |   config |download  |
-|:--------:|:----------:|:---------:|:--------:|:--------:|:--------:|:-------------:|:-------------:|:-------------:|
-| PETRv2_3DLane  | 61.2%     | 0.400   | 0.573     |0.265     |0.413    | V2-99  |  | |
-
-StreamPETR: Stream-PETR achieves significant performance improvements without introducing extra computation cost, compared to the single-frame baseline.
-| config            | mAP      | NDS     |FPS-Pytorch    |   config |   download |
-|:--------:|:----------:|:---------:|:--------:|:--------:|:-------------:|
-| StreamPETR-r50-704x256   | 45.0%     | 55.0%    | 31.7/s  | |  
-
-## Acknowledgement
-Many thanks to the authors of [mmdetection3d](https://github.com/open-mmlab/mmdetection3d) and [detr3d](https://github.com/WangYueFt/detr3d) .
-
-
-## Citation
-If you find this project useful for your research, please consider citing: 
-```bibtex   
-@article{liu2022petr,
-  title={Petr: Position embedding transformation for multi-view 3d object detection},
-  author={Liu, Yingfei and Wang, Tiancai and Zhang, Xiangyu and Sun, Jian},
-  journal={arXiv preprint arXiv:2203.05625},
-  year={2022}
-}
 ```
-```bibtex   
-@article{liu2022petrv2,
-  title={PETRv2: A Unified Framework for 3D Perception from Multi-Camera Images},
-  author={Liu, Yingfei and Yan, Junjie and Jia, Fan and Li, Shuailin and Gao, Qi and Wang, Tiancai and Zhang, Xiangyu and Sun, Jian},
-  journal={arXiv preprint arXiv:2206.01256},
-  year={2022}
-}
+cd /${container_work_dir}/PETR
 ```
-## Contact
-If you have any questions, feel free to open an issue or contact us at liuyingfei@megvii.com, yanjunjie@megvii.com or wangtiancai@megvii.com.
+
+**Step 2.**  运行训练脚本。
+
+```
+当前配置下，不需要修改train_full_8p.sh中的ckpt路径，如果涉及到epoch的变化，请用户根据路径自行配置ckpt。
+
+bash ./test/train_full_8p.sh # 8卡训练. fp16
+```
+   
+#### 训练结果
+
+
+**表 3**  精度结果展示表
+
+| Exp    |  mAP   |  mATE  |  mASE  |  mAOE  |  mAVE  |  mAAE  |  NDS   |
+|--------|:------:|:------:|:------:|:------:|:------:|:------:|:------:|
+| GPU_8p | 0.3052 | 0.8441 | 0.2827 | 0.6225 | 0.9824 | 0.2474 | 0.3547 |
+| NPU_8p | 0.3047 | 0.8538 | 0.2818 | 0.6231 | 0.9579 | 0.2157 | 0.3591 |
+
+**性能**
+
+batch_size=14性能测试
+```
+samples_per_gpu=14,
+workers_per_gpu=12,
+```
+**表 4**  性能结果展示表
+| Exp    | FPS  | Each epoch time  |
+|--------|:----:|:----------------:|
+| GPU_8p |  46  |      0.169 h      |
+| NPU_8p |  33  |      0.238 h      |
+
+
+# 公网地址说明
+代码涉及公网地址参考 public_address_statement.md
+
+# 变更说明
+
+## 变更
+
+2024.3.18：petr fp16训练任务首次发布。
+
+# FAQ
+
+
+

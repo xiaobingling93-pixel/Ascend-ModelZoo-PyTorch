@@ -6,7 +6,9 @@
 # ------------------------------------------------------------------------
 # Modified from mmdetection3d (https://github.com/open-mmlab/mmdetection3d)
 # Copyright (c) OpenMMLab. All rights reserved.
-# ------------------------------------------------------------------------
+# ---------------------------------------------------20242024---------------------
+# Copyright 2024 Huawei Technologies Co., Ltd
+#-------------------------------------------------------------------------
 
 from __future__ import division
 
@@ -16,6 +18,7 @@ import mmcv
 import os
 import time
 import torch
+import torch_npu
 import warnings
 from mmcv import Config, DictAction
 from mmcv.runner import get_dist_info, init_dist
@@ -30,6 +33,8 @@ from mmdet3d.utils import collect_env, get_root_logger
 from mmdet.apis import set_random_seed
 from mmseg import __version__ as mmseg_version
 from mmdet.utils import get_device
+import transfer_to_npu
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train a detector')
