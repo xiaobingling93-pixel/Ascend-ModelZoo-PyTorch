@@ -4,7 +4,7 @@ import sys
 import platform
 import signal
 import argparse
-import torch_aie
+import mindietorch
 from transformers import AutoTokenizer, AutoModel
 
 sys.path.append(os.path.expanduser("/root/.cache/huggingface/modules"))
@@ -38,17 +38,18 @@ def parse_arg():
     args = parser.parse_args()
     return args
 
+
 def main():
     past_key_values, history = None, []
     global stop_stream
     args = parse_arg()
     device = args.device
     print("device:", device)
-    torch_aie.set_device(device)
+    mindietorch.set_device(device)
     aie_model_path = "./chatglm2_6b_batch_1_compiled.ts"
     aie_model = torch.jit.load(aie_model_path)
     aie_model.eval()
-    
+
     print("欢迎使用 ChatGLM2-6B 模型，输入内容即可进行对话，clear 清空对话历史，stop 终止程序")
     while True:
         query = input("\n用户：")
@@ -62,8 +63,8 @@ def main():
         print("\nChatGLM：", end="")
         current_length = 0
         result = model.stream_chat(tokenizer, aie_model, query, history=history,
-                                                                    past_key_values=past_key_values,
-                                                                    return_past_key_values=True)
+                                   past_key_values=past_key_values,
+                                   return_past_key_values=True)
         for response, history, past_key_values in result:
             if stop_stream:
                 stop_stream = False
