@@ -117,7 +117,8 @@ def get_layernorm_add_nodes(graph: OnnxGraph) -> List[OnnxNode]:
 def get_layernorm_add_nodes_2(graph: OnnxGraph) -> List[OnnxNode]:
     # Pattern: Reshape -> MatMul -> Add -> [Add]
     all_add_nodes = graph.get_nodes("Add")
-    return pattern_select(graph, all_add_nodes, ["Reshape", ("MatMul", 1), ("Add", 1)])
+    return pattern_select(graph, all_add_nodes, ["Reshape", ("MatMul", 1), ("Add", 1)]) or \
+        pattern_select(graph, all_add_nodes, ["Reshape", ("MatMul", 0), ("Add", 1)])
 
 
 def get_attention_add_nodes_3(graph: OnnxGraph) -> List[OnnxNode]:
@@ -172,7 +173,7 @@ def merge_bmm_axis(graph: OnnxGraph, anchor_reshapes: List[OnnxNode], anchor_add
  
  
 def cal_padding_shape(graph: OnnxGraph, merged: bool=False) -> tuple:
-    bs, c, w, h = graph["image"].shape
+    bs, c, w, h = graph.inputs[0].shape
     first_reshape = graph.get_nodes("Reshape")[0]
     _, hidden_dim1, _ = graph[first_reshape.inputs[1]].value
     hidden_dim2 = c * w * h // hidden_dim1 + 1
@@ -227,6 +228,44 @@ def pad_nz_block(
         for next_node in graph.get_next_nodes(output_name):
             if next_node.op_type in ["ReduceMean", "Sub", "Reshape"]:
                 next_node.inputs[next_node.inputs.index(output_name)] = f"{new_slice_name}_output"
+
+
+def convert_gemm_to_matmul_add(graph: OnnxGraph, anchor_gemms: List[OnnxNode]) -> None:
+    """
+    pattern:
+                   Reshape(2-dims)                                 Reshape                                                  
+                      |                                               |                                            
+                    Gemm                                            MatMul                     
+                      |                     =======>                  |
+                   Reshape(3-dims)                                   Add
+                      |                                               |
+                     Add                                             Add
+                                                   
+    """
+    for gemm_node in anchor_gemms:
+        reshape_before_gemm = graph.get_prev_node(gemm_node.inputs[0])
+        reshape_after_gemm = graph.get_next_nodes(gemm_node.outputs[0])[0]
+        if reshape_before_gemm.op_type != "Reshape" or reshape_after_gemm.op_type != "Reshape":
+            return
+        
+        new_matmul_name = f"matmul_replace_{gemm_node.name}"
+        graph.add_node(
+            new_matmul_name,
+            "MatMul",
+            inputs = [reshape_before_gemm.outputs[0], gemm_node.inputs[1]],
+            outputs = [f"{new_matmul_name}_out"]
+        )
+
+        new_add_name = f"add_replace_{gemm_node.name}"
+        graph.add_node(
+            new_add_name,
+            "Add",
+            inputs = [f"{new_matmul_name}_out", gemm_node.inputs[2]],
+            outputs = [reshape_after_gemm.outputs[0]]
+        )
+
+        graph.remove(gemm_node.name, {})
+        graph.remove(reshape_after_gemm.name, {})
 
 
 def delete_transpose(graph: OnnxGraph, anchor_transposes: List[OnnxNode]) -> None:
@@ -389,14 +428,17 @@ def apply_optimization(onnx_path: str, save_path: str, model_config: str) -> Non
     merged_axis = False
  
     g = OnnxGraph.parse(onnx_path)
+    gemms = g.get_nodes("Gemm")
+    softmaxes = g.get_nodes("Softmax")
+    if gemms:
+        convert_gemm_to_matmul_add(g, gemms)
     reshapes = get_attention_reshape_nodes(g)
     transposes = get_first_layernorm_transpose_nodes(g) + \
         get_last_layernorm_transpose_nodes(g)
     adds = get_layernorm_add_nodes(g)
     adds_2 = get_layernorm_add_nodes_2(g)
     adds_3 = get_attention_add_nodes_3(g)
-    softmaxes = g.get_nodes("Softmax")
-
+    
     delete_transpose(g, transposes)
     adapt_for_attention_pattern(g, adds_3, softmaxes)
     adapt_for_flashattention(g, softmaxes)
