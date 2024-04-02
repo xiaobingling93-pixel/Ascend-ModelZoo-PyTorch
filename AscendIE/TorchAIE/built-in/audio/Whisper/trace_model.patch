@@ -1,8 +1,8 @@
 diff --git a/whisper/decoding.py b/whisper/decoding.py
-index 49485d0..4826389 100644
+index 49485d0..495fe45 100644
 --- a/whisper/decoding.py
 +++ b/whisper/decoding.py
-@@ -2,10 +2,12 @@ from dataclasses import dataclass, field, replace
+@@ -2,6 +2,7 @@ from dataclasses import dataclass, field, replace
  from typing import TYPE_CHECKING, Dict, Iterable, List, Optional, Sequence, Tuple, Union
  
  import numpy as np
@@ -10,18 +10,22 @@ index 49485d0..4826389 100644
  import torch
  import torch.nn.functional as F
  from torch import Tensor
- from torch.distributions import Categorical
-+import mindietorch
- 
- from .audio import CHUNK_LENGTH
- from .tokenizer import Tokenizer, get_tokenizer
-@@ -49,12 +51,15 @@ def detect_language(
+@@ -49,12 +50,24 @@ def detect_language(
  
      # skip encoder forward pass if already-encoded audio features were given
      if mel.shape[-2:] != (model.dims.n_audio_ctx, model.dims.n_audio_state):
 +        encoder_ts_model = torch.jit.trace(model.encoder, mel)
 +        encoder_ts_model.save(
 +            "/tmp/models/encoder.ts")
++        torch.onnx.export(
++            model.encoder,
++            (mel),
++            "/tmp/models/encoder.onnx",
++            opset_version=11,
++            input_names=["mel"],
++            output_names=["ret"]
++        )
++
          mel = model.encoder(mel)
  
      # forward pass using a single token, startoftranscript
@@ -32,7 +36,7 @@ index 49485d0..4826389 100644
  
      # collect detected languages; suppress all non-language tokens
      mask = torch.ones(logits.shape[-1], dtype=torch.bool)
-@@ -145,36 +150,48 @@ class PyTorchInference(Inference):
+@@ -145,36 +158,74 @@ class PyTorchInference(Inference):
      def __init__(self, model: "Whisper", initial_token_length: int):
          self.model: "Whisper" = model
          self.initial_token_length = initial_token_length
@@ -53,18 +57,44 @@ index 49485d0..4826389 100644
              # only need to use the last token except in the first forward pass
              tokens = tokens[:, -1:]
 +            pos_embed = self.model.decoder.positional_embedding[self.cache_dyn.shape[3]]
++            torch.onnx.export(
++                self.model.decoder,
++                (tokens, audio_features, pos_embed, self.cache_dyn, self.cache_sta),
++                "/tmp/models/decoder_decode.onnx",
++                opset_version=11,
++                input_names=["tokens", "audio_features", "pos_embed", "cache_dyn", "cache_sta"],
++                output_names=["logits", "new_cache_dyn", "new_cache_sta"],
++                dynamic_axes={
++                    "cache_dyn": {3: "ntokens"},
++                    "new_cache_dyn": {3: "ntokens"}
++                }                  
++            )
 +            decoder_decode_ts_model = torch.jit.trace(
 +                self.model.decoder,
 +                (tokens, audio_features, pos_embed, self.cache_dyn, self.cache_sta)
 +            )
 +            decoder_decode_ts_model.save(
 +                "/tmp/models/decoder_decode.ts")
-+            os.sys.exit(0)
 +            logits, cache_dyn, _ = self.model.decoder(
 +                tokens, audio_features, pos_embed, self.cache_dyn, self.cache_sta)
++            os.sys.exit(0)
 +            self.cache_dyn = cache_dyn
 +        else:
 +            pos_embed = self.model.decoder.positional_embedding[:tokens.shape[-1]]
++            torch.onnx.export(
++                self.model.decoder,
++                (tokens, audio_features, pos_embed),
++                "/tmp/models/decoder_prefill.onnx",
++                opset_version=11,
++                input_names=["tokens", "audio_features", "pos_embed"],
++                output_names=["logits", "cache_dyn", "cache_sta"],
++                dynamic_axes={
++                    "tokens": {1: "ntokens"},
++                    "pos_embed": {0: "ntokens"},
++                    "logits": {1: "ntokens"},
++                    "cache_dyn": {3: "ntokens"}
++                }
++            )
 +            decoder_prefill_ts_model = torch.jit.trace(
 +                self.model.decoder,
 +                (tokens, audio_features, pos_embed)
@@ -101,10 +131,10 @@ index 49485d0..4826389 100644
  class SequenceRanker:
      def rank(
 diff --git a/whisper/model.py b/whisper/model.py
-index a678283..a20aaad 100644
+index a678283..2a95e28 100644
 --- a/whisper/model.py
 +++ b/whisper/model.py
-@@ -1,12 +1,14 @@
+@@ -1,6 +1,7 @@
  import base64
  import gzip
  from dataclasses import dataclass
@@ -112,14 +142,7 @@ index a678283..a20aaad 100644
  from typing import Dict, Iterable, Optional
  
  import numpy as np
- import torch
- import torch.nn.functional as F
- from torch import Tensor, nn
-+import mindietorch
- 
- from .decoding import decode as decode_function
- from .decoding import detect_language as detect_language_function
-@@ -68,6 +70,63 @@ class MultiHeadAttention(nn.Module):
+@@ -68,6 +69,63 @@ class MultiHeadAttention(nn.Module):
          self.value = Linear(n_state, n_state)
          self.out = Linear(n_state, n_state)
  
@@ -183,7 +206,7 @@ index a678283..a20aaad 100644
      def forward(
          self,
          x: Tensor,
-@@ -126,6 +185,39 @@ class ResidualAttentionBlock(nn.Module):
+@@ -126,6 +184,39 @@ class ResidualAttentionBlock(nn.Module):
          )
          self.mlp_ln = LayerNorm(n_state)
  
@@ -223,7 +246,7 @@ index a678283..a20aaad 100644
      def forward(
          self,
          x: Tensor,
-@@ -163,11 +255,10 @@ class AudioEncoder(nn.Module):
+@@ -163,11 +254,10 @@ class AudioEncoder(nn.Module):
          x = F.gelu(self.conv2(x))
          x = x.permute(0, 2, 1)
  
@@ -236,7 +259,7 @@ index a678283..a20aaad 100644
  
          x = self.ln_post(x)
          return x
-@@ -193,29 +284,56 @@ class TextDecoder(nn.Module):
+@@ -193,29 +283,56 @@ class TextDecoder(nn.Module):
          mask = torch.empty(n_ctx, n_ctx).fill_(-np.inf).triu_(1)
          self.register_buffer("mask", mask, persistent=False)
  
@@ -308,7 +331,7 @@ index a678283..a20aaad 100644
  
  
  class Whisper(nn.Module):
-@@ -257,7 +375,8 @@ class Whisper(nn.Module):
+@@ -257,7 +374,8 @@ class Whisper(nn.Module):
          return self.encoder(mel)
  
      def logits(self, tokens: torch.Tensor, audio_features: torch.Tensor):

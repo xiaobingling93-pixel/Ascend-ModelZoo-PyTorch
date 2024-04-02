@@ -34,6 +34,7 @@ def parse_args():
     return args
 
 def compile_and_save(ts_model, input_info, soc_version, save_path):
+    ts_model.eval()
     mindie_model = mindietorch.compile(
         ts_model,
         inputs=input_info,
@@ -43,7 +44,6 @@ def compile_and_save(ts_model, input_info, soc_version, save_path):
         soc_version=soc_version,
         optimization_level=0
     )
-    mindie_model.eval()
     mindie_model.save(save_path)
 
 def encoder(args):
@@ -73,7 +73,10 @@ def prefill(args):
         min_shape=[args.beam_size, 1],
         max_shape=[args.beam_size, _MAX_TOKEN]
     )
-    input_audio_features_info = mindietorch.Input([1, _HALF_FRAMES, _HIDDEN])
+    input_audio_features_info = mindietorch.Input(
+        min_shape=[1, _HALF_FRAMES, _HIDDEN],
+        max_shape=[1, _HALF_FRAMES, _HIDDEN]
+    )
     input_pos_embed_info = mindietorch.Input(
         min_shape=[1, _HIDDEN],
         max_shape=[_MAX_TOKEN, _HIDDEN]
@@ -89,14 +92,26 @@ def prefill(args):
 def decode(args):
     ts_model = torch.jit.load(f"{args.model_path}/decoder_decode.ts")
 
-    input_tokens_info = mindietorch.Input([args.beam_size, 1])
-    input_audio_features_info = mindietorch.Input([1, _HALF_FRAMES, _HIDDEN])
-    input_pos_embed_info = mindietorch.Input([_HIDDEN])
+    input_tokens_info = mindietorch.Input(
+        min_shape=[args.beam_size, 1],
+        max_shape=[args.beam_size, 1]
+    )
+    input_audio_features_info = mindietorch.Input(
+        min_shape=[1, _HALF_FRAMES, _HIDDEN],
+        max_shape=[1, _HALF_FRAMES, _HIDDEN]
+    )
+    input_pos_embed_info = mindietorch.Input(
+        min_shape=[_HIDDEN],
+        max_shape=[_HIDDEN]
+    )
     input_cache_dyn_info = mindietorch.Input(
         min_shape=(args.nblocks, _KV_NUM, args.beam_size, 1, _HIDDEN),
         max_shape=(args.nblocks, _KV_NUM, args.beam_size, _MAX_TOKEN, _HIDDEN)
     )
-    input_cache_sta_info = mindietorch.Input([args.nblocks, _KV_NUM, 1, _HALF_FRAMES, _HIDDEN])
+    input_cache_sta_info = mindietorch.Input(
+        min_shape=[args.nblocks, _KV_NUM, 1, _HALF_FRAMES, _HIDDEN],
+        max_shape=[args.nblocks, _KV_NUM, 1, _HALF_FRAMES, _HIDDEN]
+    )
 
     input_info = [
         input_tokens_info,

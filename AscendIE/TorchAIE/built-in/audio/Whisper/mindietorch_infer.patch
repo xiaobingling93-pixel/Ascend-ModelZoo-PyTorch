@@ -1,5 +1,5 @@
 diff --git a/whisper/decoding.py b/whisper/decoding.py
-index 49485d0..345dea7 100644
+index 49485d0..4dccc86 100644
 --- a/whisper/decoding.py
 +++ b/whisper/decoding.py
 @@ -6,6 +6,7 @@ import torch
@@ -83,7 +83,7 @@ index 49485d0..345dea7 100644
  class SequenceRanker:
      def rank(
 diff --git a/whisper/model.py b/whisper/model.py
-index a678283..c2c2278 100644
+index a678283..c94a024 100644
 --- a/whisper/model.py
 +++ b/whisper/model.py
 @@ -1,12 +1,14 @@
@@ -106,7 +106,7 @@ index a678283..c2c2278 100644
          )
          self.ln_post = LayerNorm(n_state)
 +        self.device = "npu:0"
-+        self.mindie_encoder_model = torch.jit.load(
++        self.mindietorch_encoder_model = torch.jit.load(
 +            "/tmp/models/encoder_compiled.ts"
 +        ).eval().to(self.device)
  
@@ -128,7 +128,7 @@ index a678283..c2c2278 100644
 -        x = self.ln_post(x)
 -        return x
 +        x = x.to(self.device)
-+        x = self.mindie_encoder_model(x)
++        x = self.mindietorch_encoder_model(x)
 +        return x.cpu()
  
  
@@ -154,13 +154,13 @@ index a678283..c2c2278 100644
 -        for block in self.blocks:
 -            x = block(x, xa, mask=self.mask, kv_cache=kv_cache)
 +        self.device = "npu:0"
-+        self.mindie_language_detection_model = torch.jit.load(
++        self.mindietorch_language_detection_model = torch.jit.load(
 +            "/tmp/models/language_detection_compiled.ts"
 +        ).eval().to(self.device)
-+        self.mindie_prefill_model = torch.jit.load(
++        self.mindietorch_prefill_model = torch.jit.load(
 +            "/tmp/models/decoder_prefill_compiled.ts"
 +        ).eval().to(self.device)
-+        self.mindie_decode_model = torch.jit.load(
++        self.mindietorch_decode_model = torch.jit.load(
 +            "/tmp/models/decoder_decode_compiled.ts"
 +        ).eval().to(self.device)
  
@@ -183,13 +183,13 @@ index a678283..c2c2278 100644
 +            audio_features_npu = xa.to(self.device)
 +            pos_embed_npu = pos_embed.to(self.device)
 +            if x.shape[0] != 1:
-+                logits, cache_dyn, cache_sta = self.mindie_prefill_model(
++                logits, cache_dyn, cache_sta = self.mindietorch_prefill_model(
 +                    tokens_npu,
 +                    audio_features_npu,
 +                    pos_embed_npu
 +                )
 +            else:
-+                logits, cache_dyn, cache_sta = self.mindie_language_detection_model(
++                logits, cache_dyn, cache_sta = self.mindietorch_language_detection_model(
 +                    tokens_npu,
 +                    audio_features_npu,
 +                    pos_embed_npu
@@ -201,7 +201,7 @@ index a678283..c2c2278 100644
 +            audio_features_npu = xa.to(self.device)
 +            pos_embed_npu = pos_embed.to(self.device)
 +            cache_dyn_npu = cache_dyn.to(self.device)
-+            logits, cache_dyn, _ = self.mindie_decode_model(
++            logits, cache_dyn, _ = self.mindietorch_decode_model(
 +                tokens_npu,
 +                audio_features_npu,
 +                pos_embed_npu,
