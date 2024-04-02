@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import os
+from typing import Dict
 from mmengine.registry import RUNNERS
 from mmengine.runner import Runner
 from mmengine.runner.checkpoint import find_latest_checkpoint
@@ -37,7 +38,7 @@ class FCNRunner(Runner):
             resume_from = self._load_from
 
         map_location = 'default'
-        if 'LOCAL_RANK' in os.environ:
+        if ('MASTER_ADDR' in os.environ) and ('MASTER_PORT' in os.environ):
             map_location = 'npu:'+str(os.environ['LOCAL_RANK'])
 
         if resume_from is not None:
@@ -46,3 +47,13 @@ class FCNRunner(Runner):
         elif self._load_from is not None:
             self.load_checkpoint(self._load_from, map_location=map_location)
             self._has_loaded = True
+
+    def setup_env(self, env_cfg: Dict) -> None:
+        mp_cfg: dict = env_cfg.get('mp_cfg', {})
+        mp_cfg['opencv_num_threads'] = 2
+        if ('MASTER_ADDR' in os.environ) and ('MASTER_PORT' in os.environ):
+            pass
+        else:
+            mp_cfg['mp_start_method'] = 'spawn'
+
+        super().setup_env(env_cfg)
