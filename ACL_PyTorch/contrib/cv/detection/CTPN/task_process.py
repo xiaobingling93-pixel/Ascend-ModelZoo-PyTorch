@@ -43,7 +43,7 @@ def task_process(args):
         for i in range(config.center_len):
             h, w = config.center_list[i][0], config.center_list[i][1]
 
-            os.system('{} --model={} --input={}_{}x{} --dymHW {},{} --device {} --batchsize={} --output={}/inf_output' \
+            os.system('{} --model={} --input={}_{}x{} --dymHW {},{} --device {} --batchsize={} --output={}/inf_output --loop 10' \
             .format(args.interpreter, args.om_path, args.src_dir ,h , w, h, w,args.device, args.batch_size, args.res_dir))
 
             sumary_path = glob.glob('{}/inf_output/*ary.json'.format(args.res_dir))[0]
