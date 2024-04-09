@@ -18,14 +18,6 @@ import diffusers
 
 
 def main():
-    transformers_path = transformers.__path__
-    transformers_version = transformers.__version__
-
-    assert transformers_version is not "4.26.1", "expectation transformers==4.26.1"
-    os.system(
-        f"patch -p0 {transformers_path[0]}/models/clip/modeling_clip.py clip.patch"
-    )
-
     diffusers_path = diffusers.__path__
     diffusers_version = diffusers.__version__
     assert diffusers_version is not "0.26.3", "expectation diffusers==0.26.3"

@@ -26,13 +26,13 @@ mindie_extension实现了一个SDWebUI界面的插件，用优化后的diffusers
    # 安装mindie
    chmod +x ./Ascend-mindie_xxx.run
    ./Ascend-mindie_xxx.run --install
-   source /usr/local/Ascend/aie/set_env.sh
+   source /usr/local/Ascend/mindie-rt/set_env.sh
    # 安装mindietorch
    tar -zxvf Ascend-mindie-torch_xxx.tar.gz
    pip install mindietorch-1.0.rc1+torch2.1.0xxx.whl
    ```
 
-3. 代码修改，修改clip和cross_attention，用于trace正确的模型
+3. 代码修改，修改attention，用于trace正确的模型
 
    ```bash
    python sd_webui_patch.py
@@ -48,15 +48,7 @@ mindie_extension实现了一个SDWebUI界面的插件，用优化后的diffusers
 
 2. 拉取mindie_extension工程，放在stable-diffusion-webui/extensions路径下
 
-3. 将mindie_extension工程的diff_1.patch和diff_2.patch放到stable-diffusion-webui路径下
-
-   ```bash
-   mv diff_1.patch diff_2.patch ../..
-   patch -p0 < diff_1.patch
-   patch -p0 < diff_2.patch
-   ```
-
-4. 获取权重
+3. 获取权重
 
    ```bash
    # 需要使用 git-lfs (https://git-lfs.com)
@@ -73,9 +65,7 @@ mindie_extension实现了一个SDWebUI界面的插件，用优化后的diffusers
    git clone https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0
    ```
 
-5. 将特定权重放在stable-diffusion-webui/models/Stable-diffusion路径下。
-
-   注意：本插件支持的webui权重如下：
+4. 将特定权重放在stable-diffusion-webui/models/Stable-diffusion路径下。注意：本插件支持的webui权重如下：
 
    ```bash
    # v1.5 二选一即可，推荐safetensors
@@ -88,18 +78,26 @@ mindie_extension实现了一个SDWebUI界面的插件，用优化后的diffusers
    sd_xl_base_1.0.safetensors
    ```
 
-   ```bash
-   # 举例：
-   cp stable-diffusion-v1-5/v1-5-pruned-emaonly.safetensors ../../../models/Stable-diffusion
-   ```
+```bash
+# 举例：
+cp stable-diffusion-v1-5/v1-5-pruned-emaonly.safetensors ../../../models/Stable-diffusion
+```
 
-6. 在stable-diffusion-webui工程路径下执行命令启动webui，自动安装需要的环境
+5. 在stable-diffusion-webui工程路径下执行命令启动webui，自动安装需要的环境
 
    ```bash
    python launch.py --skip-torch-cuda-test --port 22 --enable-insecure-extension-access --listen --log-startup --disable-safe-unpickle --no-half
    ```
 
+6. 将mindie_extension工程的diff1.patch放到stable-diffusion-webui路径下
+
+   ```bash
+   mv diff_1.patch ../..
+   patch -p0 < diff_1.patch
+   ```
+
 ## 运行功能
+
 1. 执行命令启动webui
 ```bash
 python launch.py --skip-torch-cuda-test --port 22 --enable-insecure-extension-access --listen --log-startup --disable-safe-unpickle --no-half --skip-prepare-environment
