@@ -83,13 +83,37 @@ mindie_extension实现了一个SDWebUI界面的插件，用优化后的diffusers
 cp stable-diffusion-v1-5/v1-5-pruned-emaonly.safetensors ../../../models/Stable-diffusion
 ```
 
-5. 在stable-diffusion-webui工程路径下执行命令启动webui，自动安装需要的环境
+5. 拉取相关代码
 
    ```bash
-   python launch.py --skip-torch-cuda-test --port 22 --enable-insecure-extension-access --listen --log-startup --disable-safe-unpickle --no-half
+   cd stable-diffusion-webui
+   mkdir repositories && cd repositories
+   git clone https://github.com/Stability-AI/stablediffusion stable-diffusion-stability-ai
+   git clone https://github.com/Stability-AI/generative-models.git
+   git clone https://github.com/crowsonkb/k-diffusion.git
+   git clone https://github.com/sczhou/CodeFormer.git
+   git clone https://github.com/salesforce/BLIP.git
+   git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui-assets
    ```
 
-6. 将mindie_extension工程的diff1.patch放到stable-diffusion-webui路径下
+6. 下载clip-vit-large-patch14，放在自定义路径
+
+   ```bash
+   git lfs install
+   git clone https://huggingface.co/openai/clip--vit-large-patch14
+   ```
+
+   然后修改webui的源码：
+
+   ①文件：stable-diffusion-webui/repositories/stable-diffusion-stability-ai/ldm/modules/encoders/modules.py
+
+   将该文件中涉及到的version="open/clip-vit-large-patch14"改为vesion=“下载的clip-vit-large-patch14路径”
+
+   ②文件：stable-diffusion-webui/repositories/generative-models/sgm/modules/encoders/modules.py
+
+   将该文件中涉及到的version="open/clip-vit-large-patch14"改为vesion=“下载的clip-vit-large-patch14路径”
+
+7. 将mindie_extension工程的diff1.patch放到stable-diffusion-webui路径下
 
    ```bash
    mv diff_1.patch ../..
@@ -100,7 +124,7 @@ cp stable-diffusion-v1-5/v1-5-pruned-emaonly.safetensors ../../../models/Stable-
 
 1. 执行命令启动webui
 ```bash
-python launch.py --skip-torch-cuda-test --port 22 --enable-insecure-extension-access --listen --log-startup --disable-safe-unpickle --no-half --skip-prepare-environment
+python launch.py --skip-torch-cuda-test --enable-insecure-extension-access --listen --log-startup --disable-safe-unpickle --no-half --skip-prepare-environment
 ```
 2. 使用该插件后，原始的webui界面中的某些配置受到限制，如下：
 

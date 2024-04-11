@@ -39,7 +39,7 @@ def replace_torch_aie():
 
     def mindietorch_unet(self, x, timesteps=None, context=None, y=None, **kwargs):
         if x.shape[-1] != 64:
-            return 64
+            return x
         checkpoint = shared.opts.data['sd_model_checkpoint']
         if "v1-5-pruned-emaonly" in checkpoint:
             unet_model = NpuConfig.compiled_unet_model_1_5
