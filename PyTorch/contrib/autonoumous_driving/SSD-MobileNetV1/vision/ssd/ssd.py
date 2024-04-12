@@ -1,11 +1,29 @@
-import torch.nn as nn
-import torch
-import numpy as np
+# Copyright 2024 Huawei Technologies Co., Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ============================================================================
+from collections import namedtuple
 from typing import List, Tuple
+
+import numpy as np
+import torch
+import torch.nn as nn
 import torch.nn.functional as F
+import torch_npu
+from torch_npu.contrib import transfer_to_npu
 
 from ..utils import box_utils
-from collections import namedtuple
+
 GraphPath = namedtuple("GraphPath", ['s0', 'name', 's1'])  #
 
 
@@ -32,7 +50,7 @@ class SSD(nn.Module):
         if device:
             self.device = device
         else:
-            self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+            self.device = torch.device("npu:0" if torch.npu.is_available() else "cpu")
         if is_test:
             self.config = config
             self.priors = config.priors.to(self.device)
@@ -99,13 +117,22 @@ class SSD(nn.Module):
 
     def compute_header(self, i, x):
         confidence = self.classification_headers[i](x)
-        confidence = confidence.permute(0, 2, 3, 1).contiguous()
-        confidence = confidence.view(confidence.size(0), -1, self.num_classes)
+        c_size = confidence.size(0)
+        confidence = torch_npu.npu_confusion_transpose(
+            confidence,
+            (0, 2, 3, 1),
+            (c_size, confidence.numel() // c_size // self.num_classes, self.num_classes),
+            transpose_first=True,
+        )
 
         location = self.regression_headers[i](x)
-        location = location.permute(0, 2, 3, 1).contiguous()
-        location = location.view(location.size(0), -1, 4)
-
+        l_size = location.size(0)
+        location = torch_npu.npu_confusion_transpose(
+            location,
+            (0, 2, 3, 1),
+            (l_size, location.numel() // l_size // 4, 4),
+            transpose_first=True,
+        )
         return confidence, location
 
     def init_from_base_net(self, model):
