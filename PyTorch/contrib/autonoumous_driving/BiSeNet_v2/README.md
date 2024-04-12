@@ -1,172 +1,199 @@
-# BiSeNetV1 & BiSeNetV2
+# BiSeNetV2 for PyTorch
 
-My implementation of [BiSeNetV1](https://arxiv.org/abs/1808.00897) and [BiSeNetV2](https://arxiv.org/abs/2004.02147).
+# 目录
 
-
-mIOUs and fps on cityscapes val set:
-| none | ss | ssc | msf | mscf | fps(fp32/fp16/int8) | link |
-|------|:--:|:---:|:---:|:----:|:---:|:----:|
-| bisenetv1 | 75.44 | 76.94 | 77.45 | 78.86 | 25/78/141 | [download](https://github.com/CoinCheung/BiSeNet/releases/download/0.0.0/model_final_v1_city_new.pth) |
-| bisenetv2 | 74.95 | 75.58 | 76.53 | 77.08 | 26/67/95 | [download](https://github.com/CoinCheung/BiSeNet/releases/download/0.0.0/model_final_v2_city.pth) |
-
-mIOUs on cocostuff val2017 set:
-| none | ss | ssc | msf | mscf | link |
-|------|:--:|:---:|:---:|:----:|:----:|
-| bisenetv1 | 31.49 | 31.42 | 32.46 | 32.55 | [download](https://github.com/CoinCheung/BiSeNet/releases/download/0.0.0/model_final_v1_coco_new.pth) |
-| bisenetv2 | 30.49 | 30.55 | 31.81 | 31.73 | [download](https://github.com/CoinCheung/BiSeNet/releases/download/0.0.0/model_final_v2_coco.pth) |
-
-mIOUs on ade20k val set:
-| none | ss | ssc | msf | mscf | link |
-|------|:--:|:---:|:---:|:----:|:----:|
-| bisenetv1 | 36.15 | 36.04 | 37.27 | 36.58 | [download](https://github.com/CoinCheung/BiSeNet/releases/download/0.0.0/model_final_v1_ade20k.pth) |
-| bisenetv2 | 32.53 | 32.43 | 33.23 | 31.72 | [download](https://github.com/CoinCheung/BiSeNet/releases/download/0.0.0/model_final_v2_ade20k.pth) |
-
-Tips: 
-
-1. **ss** means single scale evaluation, **ssc** means single scale crop evaluation, **msf** means multi-scale evaluation with flip augment, and **mscf** means multi-scale crop evaluation with flip evaluation. The eval scales and crop size of multi-scales evaluation can be found in [configs](./configs/).
-
-2. The fps is tested in different way from the paper. For more information, please see [here](./tensorrt).
-
-3. The authors of bisenetv2 used cocostuff-10k, while I used cocostuff-123k(do not know how to say, just same 118k train and 5k val images as object detection). Thus the results maybe different from paper. 
-
-4. The authors did not report results on ade20k, thus there is no official training settings, here I simply provide a "make it work" result. Maybe the results on ade20k can be boosted with better settings.
-
-5. The model has a big variance, which means that the results of training for many times would vary within a relatively big margin. For example, if you train bisenetv2 on cityscapes for many times, you will observe that the result of **ss** evaluation of bisenetv2 varies between 73.1-75.1. 
+- [简介](#简介)
+  - [模型介绍](#模型介绍)
+  - [代码实现](#代码实现)
+- [BiSeNetV2](#BiSeNetV2)
+  - [准备训练环境](#准备训练环境)
+  - [准备数据集](#准备数据集)
+  - [快速开始](#快速开始)
+- [公网地址说明](#公网地址说明)
+- [变更说明](#变更说明)
+- [FAQ](#FAQ)
 
 
-## deploy trained models
+# 简介
 
-1. tensorrt  
-You can go to [tensorrt](./tensorrt) for details.  
+## 模型介绍
+语义分割(Semantic Segmentation)核心是低层细节和高层语义。BiSeNetV2将空间细节和分类语义分开处理，在面对实时语义分割时同时实现了高精度和高效率，称为双边分割网络(Bilateral Segment Network, BiSeNetV2)。该架构包括：
+细节分支(Detail Branch)：拥有宽的通道和浅的层， 用于捕捉低层细节，并且生成高分辨率的特征表示；
+语义分支(Semantic Branch)：拥有窄的通道和宽的层，用于捕捉上下文。
 
-2. ncnn  
-You can go to [ncnn](./ncnn) for details.  
+此外，设计了强化训练策略改进分割效果。
 
-3. openvino  
-You can go to [openvino](./openvino) for details.  
+本仓主要将BiSeNetV2训练任务迁移到昇腾Atlas A2并做性能优化。
 
-4. tis  
-Triton Inference Server(TIS) provides a service solution of deployment. You can go to [tis](./tis) for details.
+## 代码实现
+- 参考实现：
+  ```text
+  url=https://github.com/CoinCheung/BiSeNet
+  commit_id=f2b901599752ce50656d2e50908acecd06f7eb47
+  ```
 
+- 适配昇腾AI处理器的实现
+  ```text
+  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  code_path=PyTorch/contrib/autonoumous_driving
+  ```
 
-## platform
+# BiSeNetV2
+## 准备训练环境
+### 安装算法环境
+- 当前模型支持的PyTorch版本依赖如下表所示
+  
+    表1 三方库版本支持表
+    | 依赖 | 版本 |
+    | :---: | :---: |
+    | Python | 3.9.x |
+    | PyTorch | 1.11.0 |
+    | tabulate | 0.9.x |
 
-My platform is like this: 
+- 当前模型在以下昇腾环境测试验证如下表所示
 
-* ubuntu 18.04
-* nvidia Tesla T4 gpu, driver 450.80.02
-* cuda 10.2/11.3
-* cudnn 8
-* miniconda python 3.8.8
-* pytorch 1.11.0
+    表2 昇腾软件版本支持表
+    | 软件类型 | 支持版本 |
+    | :---: | :---: |
+    | FrameworkPTAdapter | 6.0.RC1 |
+    | CANN | 8.0.RC1 |
+    | Ascend HDK | 24.1.RC1 |
+    | PyTorch | 1.11.0 |
 
+- 环境准备指导
 
-## get start
+  请参考《[PyTorch框架训练环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/ptes)》。
 
-With a pretrained weight, you can run inference on an single image like this: 
+- 安装依赖
+    
+    在模型源码包目录下执行命令，安装模型对应PyTorch版本需要的依赖。
+    ```bash
+    pip install -r 1.11_requirements.txt  # PyTorch 1.11版本
+    ```
 
-```
-$ python tools/demo.py --config configs/bisenetv2_city.py --weight-path /path/to/your/weights.pth --img-path ./example.png
-```
+- 编译OpenCV（可选）
 
-This would run inference on the image and save the result image to `./res.jpg`.  
+  来源：
+  ```
+  https://www.hiascend.com/document/detail/zh/canncommercial/700/modeldevpt/ptmigr/AImpug_000054.html
+  ```
 
-Or you can run inference on a video like this:  
-```
-$ python tools/demo_video.py --config configs/bisenetv2_coco.py --weight-path res/model_final.pth --input ./video.mp4 --output res.mp4
-```
-This would generate segmentation file as `res.mp4`. If you want to read from camera, you can set `--input camera_id` rather than `input ./video.mp4`.   
+  安装前准备：
+  ```
+  export GIT_SSL_NO_VERIFY=true
+  ```
 
+  下载源码包：
+  ```
+  git clone https://github.com/opencv/opencv.git
+  cd opencv
+  mkdir -p build
+  ```
 
-## prepare dataset
+  执行命令：
+  ```
+  cd build  
 
-1.cityscapes  
+  cmake -D BUILD_opencv_python3=yes -D BUILD_opencv_python2=no -D PYTHON3_EXECUTABLE=/home/ma-user/anaconda3/env/PyTorch-1.11.0/bin/python -D PYTHON3_INCLUDE_DIR=/home/ma-user/anaconda3/env/PyTorch-1.11.0/include/python3.9 -D
+  PYTHON3_LIBRARY=/home/ma-user/anaconda3/env/PyTorch-1.11.0/lib/libpython3.9.so -D PYTHON3_NUMPY_INCLUDE_DIRS=/home/ma-user/anaconda3/env/PyTorch-1.11.0/lib/python3.9/site-packages/numpy/core/include -D     
+  PYTHON3_PACKAGES_PATH=/home/ma-user/anaconda3/env/PyTorch-1.11.0/lib/python3.9/site-packages -D PYTHON3_DEFAULT_EXECUTABLE=/home/ma-user/anaconda3/env/PyTorch-1.11.0/bin/python ..  
 
-Register and download the dataset from the official [website](https://www.cityscapes-dataset.com/). Then decompress them into the `datasets/cityscapes` directory:  
-```
-$ mv /path/to/leftImg8bit_trainvaltest.zip datasets/cityscapes
-$ mv /path/to/gtFine_trainvaltest.zip datasets/cityscapes
-$ cd datasets/cityscapes
-$ unzip leftImg8bit_trainvaltest.zip
-$ unzip gtFine_trainvaltest.zip
-```
+  make -j$nproc
+  make install
+  ```
 
-2.cocostuff   
+## 数据准备
 
-Download `train2017.zip`, `val2017.zip` and `stuffthingmaps_trainval2017.zip` split from official [website](https://cocodataset.org/#download). Then do as following:  
-```
-$ unzip train2017.zip
-$ unzip val2017.zip
-$ mv train2017/ /path/to/BiSeNet/datasets/coco/images
-$ mv val2017/ /path/to/BiSeNet/datasets/coco/images
+### 获取数据集
 
-$ unzip stuffthingmaps_trainval2017.zip
-$ mv train2017/ /path/to/BiSeNet/datasets/coco/labels
-$ mv val2017/ /path/to/BiSeNet/datasets/coco/labels
+用户自行获取原始数据集，以cityscapes数据集为例。
 
-$ cd /path/to/BiSeNet
-$ python tools/gen_dataset_annos.py --dataset coco
-```
+cityscapes数据集下载地址：https://www.cityscapes-dataset.com/
 
-3.ade20k
+```bash
+cd /${模型文件夹名称}
+mkdir -p datasets/cityscapes
 
-Download `ADEChallengeData2016.zip` from this [website](http://sceneparsing.csail.mit.edu/) and unzip it. Then we can move the uncompressed folders to `datasets/ade20k`, and generate the txt files with the script I prepared for you:  
-```
-$ unzip ADEChallengeData2016.zip
-$ mv ADEChallengeData2016/images /path/to/BiSeNet/datasets/ade20k/
-$ mv ADEChallengeData2016/annotations /path/to/BiSeNet/datasets/ade20k/
-$ python tools/gen_dataset_annos.py --ade20k
-```
-
-
-4.custom dataset  
-
-If you want to train on your own dataset, you should generate annotation files first with the format like this: 
-```
-munster_000002_000019_leftImg8bit.png,munster_000002_000019_gtFine_labelIds.png
-frankfurt_000001_079206_leftImg8bit.png,frankfurt_000001_079206_gtFine_labelIds.png
-...
-```
-Each line is a pair of training sample and ground truth image path, which are separated by a single comma `,`.   
-
-I recommand you to check the information of your dataset with the script:  
-```
-$ python tools/check_dataset_info.py --im_root /path/to/your/data_root --im_anns /path/to/your/anno_file
-```
-This will print some of the information of your dataset.  
-
-Then you need to change the field of `im_root` and `train/val_im_anns` in the config file. I prepared a demo config file for you named [`bisenet_customer.py`](./configs/bisenet_customer.py). You can start from this conig file.
-
-
-## train
-
-Training commands I used to train the models can be found in [here](./dist_train.sh).
-
-Note:  
-1. though `bisenetv2` has fewer flops, it requires much more training iterations. The the training time of `bisenetv1` is shorter.
-2. I used overall batch size of 16 to train all models. Since cocostuff has 171 categories, it requires more memory to train models on it. I split the 16 images into more gpus than 2, as I do with cityscapes.
-
-
-## finetune from trained model
-
-You can also load the trained model weights and finetune from it, like this:
-```
-$ export CUDA_VISIBLE_DEVICES=0,1
-$ torchrun --nproc_per_node=2 tools/train_amp.py --finetune-from ./res/model_final.pth --config ./configs/bisenetv2_city.py # or bisenetv1
+unzip /${数据集下载路径}/leftImg8bit_trainvaltest.zip datasets/cityscapes
+unzip /${数据集下载路径}/gtFine_trainvaltest.zip datasets/cityscapes
 ```
 
-
-## eval pretrained models
-You can also evaluate a trained model like this: 
-```
-$ python tools/evaluate.py --config configs/bisenetv1_city.py --weight-path /path/to/your/weight.pth
-```
-or you can use multi gpus:  
-```
-$ torchrun --nproc_per_node=2 tools/evaluate.py --config configs/bisenetv1_city.py --weight-path /path/to/your/weight.pth
+拷贝训练/验证索引文件
+```bash
+cd /${模型文件夹名称}
+# train.txt和val.txt可从原工程https://github.com/CoinCheung/BiSeNet datasets/cityscapes下获取。
+cp /${索引下载路径}/train.txt datasets/cityscapes
+cp /${索引下载路径}/val.txt datasets/cityscapes
 ```
 
+数据集目录结构如下：
+```text
+.
+├── gtFine
+│   ├── test
+│   ├── train
+│   └── val
+├── leftImg8bit
+│   ├── test
+│   ├── train
+│   └── val
+├── train.txt
+└── val.txt
+```
 
-### Be aware that this is the refactored version of the original codebase. You can go to the `old` directory for original implementation if you need, though I believe you will not need it.
+> **说明：**  
+> 该数据集的训练过程脚本只作为一种参考示例。
 
 
+### 获取预训练模型
+
+若用户网络支持训练时动态下载可跳过该节
+
+用户自行获取预训练模型，以backbone_v2.pth为例，放置到算法运行环境(或容器)的主目录下的hub/checkpoints文件夹内。
+```bash
+mkdir -p ${HOME}/.cache/torch/hub/checkpoints
+wget https://github.com/CoinCheung/BiSeNet/releases/download/0.0.0/backbone_v2.pth -O ${HOME}/.cache/torch/hub/checkpoints/
+```
+
+## 快速开始
+### 训练模型
+1、进入解压后的源码包根目录  
+```bash
+cd /${模型文件夹名称}
+```
+
+2、运行训练脚本
+- 单机单卡训练
+    ```bash
+    # 单卡精度测试脚本
+    bash ./test/train_full_1p.sh
+    # 单卡性能测试脚本
+    bash ./test/train_performance_1p.sh
+    ```
+- 单机8卡训练
+    ```bash
+    # 8卡精度测试脚本
+    bash ./test/train_full_8p.sh
+    # 8卡性能测试脚本
+    bash ./test/train_performance_8p.sh
+    ```
+
+### 训练结果
+表3：mious对比图 batchsize=16, num_workers=32
+
+| 芯片 | ss | ssc | msf | msfc |
+| :---: | :---: | :---: | :---: | :---: |
+| GPU | 0.725 | 0.737 | 0.745 | 0.757 |
+| Atlas A2 | 0.724 | 0.734 | 0.746 | 0.755 |
+
+# 公网地址说明
+代码涉及公网地址参考 [public_address_statement.md](public_address_statement.md)
+
+# 变更说明
+2024.04.01: 适配BiSeNetV2 Atlas A2性能优化。
+
+2024.04.11: 更新readme.md。
+
+# FAQ
+
+无

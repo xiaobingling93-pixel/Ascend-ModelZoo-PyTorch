@@ -1,3 +1,18 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ============================================================================
+
 #!/usr/bin/python
 # -*- encoding: utf-8 -*-
 
@@ -18,6 +33,9 @@ import torch.nn as nn
 import torch.distributed as dist
 from torch.utils.data import DataLoader
 import torch.cuda.amp as amp
+
+import torch_npu
+from torch_npu.contrib import transfer_to_npu
 
 from lib.models import model_factory
 from configs import set_cfg_from_file
@@ -45,10 +63,15 @@ def parse_args():
     parse.add_argument('--config', dest='config', type=str,
             default='configs/bisenetv2.py',)
     parse.add_argument('--finetune-from', type=str, default=None,)
+    parse.add_argument('--num-workers', type=int, default=32)
+    parse.add_argument('--batchsize', type=int, default=16)
+    parse.add_argument('--mode', type=str, default='accuracy')
     return parse.parse_args()
 
 args = parse_args()
 cfg = set_cfg_from_file(args.config)
+cfg['ims_per_gpu'] = args.batchsize
+cfg['num_workers'] = args.num_workers
 
 
 def set_model(lb_ignore=255):
@@ -91,7 +114,7 @@ def set_optimizer(model):
             {'params': wd_params, },
             {'params': non_wd_params, 'weight_decay': 0},
         ]
-    optim = torch.optim.SGD(
+    optim = torch_npu.optim.NpuFusedSGD(
         params_list,
         lr=cfg.lr_start,
         momentum=0.9,
@@ -177,6 +200,8 @@ def train():
             print_log_msg(
                 it, cfg.max_iter, lr, time_meter, loss_meter,
                 loss_pre_meter, loss_aux_meters)
+            if args.mode == "performance" and it > 800:
+                return
         lr_schdr.step()
 
     ## dump the final model and evaluate the result
@@ -207,4 +232,6 @@ def main():
 
 
 if __name__ == "__main__":
+    torch_npu.npu.set_compile_mode(jit_compile=False)
+    torch_npu.npu.config.allow_internal_format = False
     main()
