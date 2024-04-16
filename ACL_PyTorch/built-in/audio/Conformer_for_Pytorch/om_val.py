@@ -94,7 +94,7 @@ def generate_batch_data(data_list, map_names, batch_num, device_ids, num_process
                         enable_multiprocess=False, **kwargs):
     def pack_data(datas, names):
         if batch_num == 1:
-            return datas, names
+            return [[data] for data in datas], [[name] for name in names]
         packed_data = []
         packed_name = []
         data_num = len(datas)
@@ -159,10 +159,6 @@ def infer_multi(data_pack, mode='default'):
         p.cpu_affinity([cpu_id])
     else:
         device_id, data_list, map_names = data_pack
-    if isinstance(data_list[0], np.ndarray):
-        enable_multibatch = True if data_list[0].shape[0] > 1 else False
-    else:
-        enable_multibatch = True if len(data_list[0]) > 1 else False
     only_use_decoder = False
     only_use_encoder = False
     if mode == 'decoder':
@@ -181,7 +177,7 @@ def infer_multi(data_pack, mode='default'):
         disable_preprocess=True,
         only_use_encoder=only_use_encoder,
         only_use_decoder=only_use_decoder,
-        enable_multibatch=enable_multibatch,
+        enable_multibatch=True,
         rank_mode=args.rank_encoder_mode
     )
 

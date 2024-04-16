@@ -257,7 +257,7 @@ index a5bc200..674b37f 100644
              ]
              is_first_iteration = True
 diff --git a/espnet_onnx/asr/scorer/ctc_prefix_scorer.py b/espnet_onnx/asr/scorer/ctc_prefix_scorer.py
-index c6d094e..42fa31b 100644
+index c6d094e..9faf96c 100644
 --- a/espnet_onnx/asr/scorer/ctc_prefix_scorer.py
 +++ b/espnet_onnx/asr/scorer/ctc_prefix_scorer.py
 @@ -10,6 +10,7 @@ from scipy.special import (
@@ -286,7 +286,7 @@ index c6d094e..42fa31b 100644
 +        logp = self.ctc.run(["ctc_out"], {"x": x})[0]
 +        xlen = np.sum((x[:, :, 0] != 0), axis=-1)
 +        xlen = np.expand_dims(xlen, axis=-1)
-+        self.impl = CTCPrefixScoreTH(logp, np.squeeze(xlen), 0, self.eos, multi_batch=True)
++        self.impl = CTCPrefixScoreTH(logp, np.squeeze(xlen, axis=-1), 0, self.eos, multi_batch=True)
 +        return None
 +
 +    def batch_score_partial(self, y, ids, state, x, **kwargs):
@@ -320,10 +320,24 @@ index c6d094e..42fa31b 100644
          """Compute CTC prefix scores for next labels
          :param list y: prefix label sequences
 diff --git a/espnet_onnx/export/asr/export_asr.py b/espnet_onnx/export/asr/export_asr.py
-index 187d687..ca537a8 100644
+index 187d687..c01fb7f 100644
 --- a/espnet_onnx/export/asr/export_asr.py
 +++ b/espnet_onnx/export/asr/export_asr.py
-@@ -226,7 +226,7 @@ class ASRModelExport:
+@@ -180,11 +180,13 @@ class ASRModelExport:
+         tag_name: str,
+         quantize: bool = False,
+         optimize: bool = False,
++        **kwargs
+     ):
+         assert check_argument_types()
+         cache_dir = Path(path).parent
+         d = ModelDownloader(cache_dir)
+         model_config = d.unpack_local_file(path)
++        model_config.update(**kwargs)
+         model = Speech2Text(**model_config)
+         self.export(model, tag_name, quantize, optimize)
+     
+@@ -226,7 +228,7 @@ class ASRModelExport:
              dummy_input,
              os.path.join(path, f'{model.model_name}.onnx'),
              verbose=verbose,
