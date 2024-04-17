@@ -1,4 +1,6 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 import os
+import time
 
 import torch
 import colossalai
@@ -11,6 +13,10 @@ from opensora.utils.config_utils import parse_configs
 from opensora.utils.misc import to_torch_dtype
 from opensora.acceleration.parallel_states import set_sequence_parallel_group
 from colossalai.cluster import DistCoordinator
+from opensora.utils.device_utils import is_npu_available
+if is_npu_available():
+    from torch_npu.contrib import transfer_to_npu
+    torch.npu.config.allow_internal_format = False
 
 
 def load_prompts(prompt_path):
@@ -89,7 +95,9 @@ def main():
     save_dir = cfg.save_dir
     os.makedirs(save_dir, exist_ok=True)
     for i in range(0, len(prompts), cfg.batch_size):
+        step_start_time = time.time()
         batch_prompts = prompts[i : i + cfg.batch_size]
+        step_data_time = time.time()
         samples = scheduler.sample(
             model,
             text_encoder,
@@ -98,6 +106,7 @@ def main():
             device=device,
             additional_args=model_args,
         )
+        sample_time = time.time()
         samples = vae.decode(samples.to(dtype))
 
         if coordinator.is_master():
@@ -106,6 +115,11 @@ def main():
                 save_path = os.path.join(save_dir, f"sample_{sample_idx}")
                 save_sample(sample, fps=cfg.fps, save_path=save_path)
                 sample_idx += 1
+                write_video_time = time.time()
+                print(f"step {i} step_data_time {step_data_time - step_start_time} | "
+                      f"denoise_time {sample_time - step_data_time} | "
+                      f"step_infer_time {write_video_time - step_start_time} | "
+                      f"FPS {cfg.batch_size / (write_video_time - step_start_time)}")
 
 
 if __name__ == "__main__":

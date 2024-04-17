@@ -1,3 +1,4 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 import numpy as np
 import torch
 import torch.distributed as dist
@@ -26,6 +27,7 @@ from opensora.models.layers.blocks import (
 )
 from opensora.registry import MODELS
 from opensora.utils.ckpt_utils import load_checkpoint
+from opensora.utils.device_utils import is_npu_available
 
 
 class STDiTBlock(nn.Module):
@@ -247,7 +249,10 @@ class STDiT(nn.Module):
             if mask.shape[0] != y.shape[0]:
                 mask = mask.repeat(y.shape[0] // mask.shape[0], 1)
             mask = mask.squeeze(1).squeeze(1)
-            y = y.squeeze(1).masked_select(mask.unsqueeze(-1) != 0).view(1, -1, x.shape[-1])
+            if is_npu_available():
+                y = y.squeeze(1)[mask != 0].view(1, -1, x.shape[-1])
+            else:
+                y = y.squeeze(1).masked_select(mask.unsqueeze(-1) != 0).view(1, -1, x.shape[-1])
             y_lens = mask.sum(dim=1).tolist()
         else:
             y_lens = [y.shape[2]] * y.shape[0]
