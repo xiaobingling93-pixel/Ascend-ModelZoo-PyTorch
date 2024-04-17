@@ -3,7 +3,8 @@
         "log_dir": "./test",
         "hostfile": "path-to-hostfile",
         "ssh_port": 22,
-        "shell_cmds": "source /usr/local/Ascend/driver/bin/setenv.bash; source /usr/local/Ascend/ascend-toolkit/set_env.sh"
+        "shell_cmds": "source /usr/local/Ascend/driver/bin/setenv.bash; source /usr/local/Ascend/ascend-toolkit/set_env.sh",
+        "auto_mkdir": false
     },
     "device_type": "ascend",
     "launch": {
