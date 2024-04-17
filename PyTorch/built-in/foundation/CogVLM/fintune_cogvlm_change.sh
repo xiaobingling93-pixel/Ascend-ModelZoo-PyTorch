@@ -120,6 +120,7 @@ rename_file $layernorm_sat_path
 copy_file $eva_clip_model_model_zoo_path $(dirname "$eva_clip_model_cogvlm_path")
 copy_file $mixin_model_zoo_path $(dirname "$mixin_cogvlm_path")
 copy_file $finetune_cogvlm_demo_model_zoo_path $(dirname "$finetune_cogvlm_demo_cogvlm_path")
+copy_file $evaluate_cogvlm_demo_model_zoo_path $(dirname "$evaluate_cogvlm_demo_cogvlm_path")
 copy_file $dataset_model_zoo_path $(dirname "$dataset_cogvlm_path")
 copy_file $finetune_cogvlm_base_224_model_zoo_path $finetune_demo_cogvlm_path
 copy_file $eval_cogvlm_base_224_model_zoo_path $finetune_demo_cogvlm_path

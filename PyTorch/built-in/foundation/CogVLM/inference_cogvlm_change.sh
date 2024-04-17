@@ -73,8 +73,8 @@ if [ ! -d "$COGVLM_SOURCE_DIR" ]; then
     exit 1
 fi
 
-if [ ! -d "$SAT_SOURCE_DIR" ]; then
-    echo "Error: Source directory $SAT_SOURCE_DIR does not exist."
+if [ ! -d "$WEIGHT_SOURCE_DIR" ]; then
+    echo "Error: Source directory $WEIGHT_SOURCE_DIR does not exist."
     exit 1
 fi
 
