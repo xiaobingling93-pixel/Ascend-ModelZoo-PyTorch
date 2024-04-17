@@ -23,7 +23,6 @@ _N_MEL = 80
 _FRAMES = 3000
 _MAX_TOKEN = 224
 _HALF_FRAMES = 1500
-_HIDDEN = 384
 _KV_NUM = 2
 
 def compare_onnx_aie_output(onnx_out, aie_out, sim_threshold=0.99):
@@ -84,8 +83,8 @@ def compare_decoder_prefill(args):
 
     assert args.ntokens <= _MAX_TOKEN, f'ntokens can not exceed {_MAX_TOKEN}'
     tokens = np.ones((args.beam_size, args.ntokens), dtype=np.int64)
-    audio_features = np.ones((1, _HALF_FRAMES, _HIDDEN), dtype=np.float32)
-    pos_embed = np.ones((args.ntokens, _HIDDEN), dtype=np.float32)
+    audio_features = np.ones((1, _HALF_FRAMES, args.hidden), dtype=np.float32)
+    pos_embed = np.ones((args.ntokens, args.hidden), dtype=np.float32)
     onnx_inputs = {
         'tokens': ort.OrtValue.ortvalue_from_numpy(tokens),
         'audio_features': ort.OrtValue.ortvalue_from_numpy(audio_features),
@@ -123,10 +122,10 @@ def compare_decoder_decode(args):
 
     assert args.ntokens <= _MAX_TOKEN, f'ntokens can not exceed {_MAX_TOKEN}'
     tokens = np.ones((args.beam_size, 1), dtype=np.int64)
-    audio_features = np.ones((1, _HALF_FRAMES, _HIDDEN), dtype=np.float32)
-    pos_embed = np.ones((_HIDDEN), dtype=np.float32)
-    cache_dyn = np.ones((args.nblocks, _KV_NUM, args.beam_size, args.ntokens, _HIDDEN), dtype=np.float32)
-    cache_sta = np.ones((args.nblocks, _KV_NUM, 1, _HALF_FRAMES, _HIDDEN), dtype=np.float32)
+    audio_features = np.ones((1, _HALF_FRAMES, args.hidden), dtype=np.float32)
+    pos_embed = np.ones((args.hidden), dtype=np.float32)
+    cache_dyn = np.ones((args.nblocks, _KV_NUM, args.beam_size, args.ntokens, args.hidden), dtype=np.float32)
+    cache_sta = np.ones((args.nblocks, _KV_NUM, 1, _HALF_FRAMES, args.hidden), dtype=np.float32)
     onnx_inputs = {
         'tokens': ort.OrtValue.ortvalue_from_numpy(tokens), # audio_features onnx导出被折叠
         'pos_embed': ort.OrtValue.ortvalue_from_numpy(pos_embed),
@@ -172,6 +171,7 @@ def parse_args():
     parser.add_argument("--beam_size", type=int, default=5)
     parser.add_argument("--ntokens", type=int, default=100)
     parser.add_argument("--nblocks", type=int, default=4)
+    parser.add_argument("--hidden", type=int, default=384)
     args = parser.parse_args()
     return args
 

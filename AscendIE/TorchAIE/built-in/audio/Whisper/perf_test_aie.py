@@ -20,7 +20,6 @@ import mindietorch
 _N_MEL = 80
 _FRAMES = 3000
 _HALF_FRAMES = 1500
-_HIDDEN = 384
 _MAX_TOKEN = 224
 _KV_NUM = 2
 
@@ -68,8 +67,8 @@ def test_decoder_prefill(args):
 
     inputs = [
         torch.ones((args.beam_size, args.ntokens), dtype=torch.float32).to(device),
-        torch.ones((1, _HALF_FRAMES, _HIDDEN), dtype=torch.float32).to(device),
-        torch.ones((args.ntokens, _HIDDEN), dtype=torch.float32).to(device)
+        torch.ones((1, _HALF_FRAMES, args.hidden), dtype=torch.float32).to(device),
+        torch.ones((args.ntokens, args.hidden), dtype=torch.float32).to(device)
     ]
     
     test(inputs, model, stream, "Decoder prefill")
@@ -83,10 +82,10 @@ def test_decoder_decode(args):
 
     inputs = [
         torch.ones((args.beam_size, 1), dtype=torch.float32).to(device),
-        torch.ones((1, _HALF_FRAMES, _HIDDEN), dtype=torch.float32).to(device),
-        torch.ones((_HIDDEN), dtype=torch.float32).to(device),
-        torch.ones((args.nblocks, _KV_NUM, args.beam_size, args.ntokens, _HIDDEN), dtype=torch.float32).to(device),
-        torch.ones((args.nblocks, _KV_NUM, 1, _HALF_FRAMES, _HIDDEN), dtype=torch.float32).to(device),
+        torch.ones((1, _HALF_FRAMES, args.hidden), dtype=torch.float32).to(device),
+        torch.ones((args.hidden), dtype=torch.float32).to(device),
+        torch.ones((args.nblocks, _KV_NUM, args.beam_size, args.ntokens, args.hidden), dtype=torch.float32).to(device),
+        torch.ones((args.nblocks, _KV_NUM, 1, _HALF_FRAMES, args.hidden), dtype=torch.float32).to(device),
     ]
 
     test(inputs, model, stream, "Decoder decode")
@@ -109,6 +108,7 @@ def parse_args():
     parser.add_argument("--beam_size", type=int, default=5)
     parser.add_argument("--ntokens", type=int, default=100)
     parser.add_argument("--nblocks", type=int, default=4)
+    parser.add_argument("--hidden", type=int, default=384)
     parser.add_argument("--device_id", type=int, help="NPU device id", default=0)
 
     args = parser.parse_args()
