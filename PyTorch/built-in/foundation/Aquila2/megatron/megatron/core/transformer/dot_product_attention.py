@@ -20,7 +20,7 @@ class DotProductAttention(MegatronModule):
     Region where selective activation recomputation is applied.
     This region is memory intensive but less compute intensive which
     makes activation checkpointing more efficient for LLMs (20B+).
-    See Reducing Activation Recomputation in Large Transformer Models: https://arxiv.org/abs/2205.05198 for more details.
+    See Reducing Activation Recomputation in Large Transformer Models for more details.
 
     We use the following notation:
      h: hidden size

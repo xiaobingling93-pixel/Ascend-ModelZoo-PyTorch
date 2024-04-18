@@ -1,9 +1,5 @@
 # Copyright (c) 2022, NVIDIA CORPORATION. All rights reserved.
 
-"""This code is copied fron NVIDIA apex:
-      https://github.com/NVIDIA/apex
-   with some changes. """
-
 import numbers
 import torch
 from torch.nn.parameter import Parameter

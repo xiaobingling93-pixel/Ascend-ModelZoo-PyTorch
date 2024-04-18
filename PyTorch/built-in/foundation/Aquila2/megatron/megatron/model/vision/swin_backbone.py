@@ -470,8 +470,7 @@ class PatchEmbed(nn.Module):
 
 class SwinTransformer(nn.Module):
     r""" Swin Transformer
-        A PyTorch impl of : `Swin Transformer: Hierarchical Vision Transformer using Shifted Windows`  -
-          https://arxiv.org/pdf/2103.14030
+        A PyTorch impl of : `Swin Transformer: Hierarchical Vision Transformer using Shifted Windows`
 
     Args:
         img_size (int | tuple(int)): Input image size. Default 224

@@ -329,8 +329,6 @@ def adjust_hue(img, hue_factor):
     `hue_factor` is the amount of shift in H channel and must be in the
     interval `[-0.5, 0.5]`.
 
-    See https://en.wikipedia.org/wiki/Hue for more details on Hue.
-
     Args:
         img (PIL Image): PIL Image to be adjusted.
         hue_factor (float):  How much to shift the hue channel. Should be in

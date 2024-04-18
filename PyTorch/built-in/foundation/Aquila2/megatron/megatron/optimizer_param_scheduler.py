@@ -79,8 +79,7 @@ class OptimizerParamScheduler(object):
 
 
     def get_lr(self):
-        """Learning rate decay functions from:
-              https://openreview.net/pdf?id=BJYwwY9ll pg. 4"""
+        """Learning rate decay functions"""
 
         # Use linear warmup for the initial part.
         if self.lr_warmup_steps > 0 and self.num_steps <= self.lr_warmup_steps:

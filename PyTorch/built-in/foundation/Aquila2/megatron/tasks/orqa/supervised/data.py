@@ -232,7 +232,7 @@ def normalize_question(question):
     return question
 
 # The following class reads the datasets for training retriever as
-# prepared by the DPR codebase (https://github.com/facebookresearch/DPR)
+# prepared by the DPR codebase
 
 class NQSupervisedDataset(OpenRetrievalAbstractDataset):
 

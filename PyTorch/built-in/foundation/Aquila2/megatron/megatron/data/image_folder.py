@@ -28,8 +28,6 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# code taken from 
-# https://github.com/pytorch/vision/blob/main/torchvision/datasets/folder.py
 # added support for classes_fraction and data_per_class_fraction
 
 from torchvision.datasets import VisionDataset
@@ -235,7 +233,7 @@ IMG_EXTENSIONS = ('.jpg', '.jpeg', '.png', '.ppm', '.bmp', '.pgm', '.tif', '.tif
 
 
 def pil_loader(path: str) -> Image.Image:
-    # open path as file to avoid ResourceWarning (https://github.com/python-pillow/Pillow/issues/835)
+    # open path as file to avoid ResourceWarning
     with open(path, 'rb') as f:
         img = Image.open(f)
         return img.convert('RGB')

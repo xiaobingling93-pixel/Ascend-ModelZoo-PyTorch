@@ -23,8 +23,6 @@ except ImportError:
 from megatron.tokenizer import build_tokenizer
 from megatron.data import indexed_dataset
 
-
-# https://stackoverflow.com/questions/33139531/preserve-empty-lines-with-nltks-punkt-tokenizer
 class CustomLanguageVars(nltk.tokenize.punkt.PunktLanguageVars):
 
     _period_context_fmt = r"""

@@ -25,8 +25,6 @@ from megatron.tokenizer import build_tokenizer
 from megatron.data import indexed_dataset
 from megatron.data.indexed_dataset import MMapIndexedDatasetBuilder
 
-
-# https://stackoverflow.com/questions/33139531/preserve-empty-lines-with-nltks-punkt-tokenizer
 class CustomLanguageVars(nltk.tokenize.punkt.PunktLanguageVars):
 
     _period_context_fmt = r"""

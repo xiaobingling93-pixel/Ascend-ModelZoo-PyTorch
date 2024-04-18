@@ -28,10 +28,6 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# code taken from 
-# https://github.com/pytorch/vision/blob/main/torchvision/datasets/cityscapes.py
-# modified it to change max label index from 255 to 19 (num_classes)
-
 import torch
 import json
 import os
@@ -102,7 +98,6 @@ class Cityscapes(VisionDataset):
          [0, 0, 0]], dtype=torch.float, device='cuda')
 
 
-    # Based on https://github.com/mcordts/cityscapesScripts
     CityscapesClass = namedtuple('CityscapesClass', ['name', 'id', 'train_id', 
         'category', 'category_id', 'has_instances', 'ignore_in_eval', 'color'])
 

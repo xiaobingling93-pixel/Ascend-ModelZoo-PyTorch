@@ -3,11 +3,6 @@
 # All rights reserved.
 #
 
-# The following code has been taken from
-# https://github.com/facebookresearch/DPR, which is CC-BY-NC 4.0
-# licensed as of now. More details on the license can be found
-# at https://github.com/facebookresearch/DPR/blob/master/LICENSE
-
 """
 Most of the tokenizers code here is copied from DrQA codebase to avoid adding extra dependency
 """

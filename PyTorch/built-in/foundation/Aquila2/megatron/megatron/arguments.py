@@ -1,3 +1,4 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 # Copyright (c) 2022, NVIDIA CORPORATION. All rights reserved.
 
 """Megatron arguments."""
@@ -342,7 +343,6 @@ def validate_args(args, defaults={}):
         args.ffn_hidden_size = 4 * args.hidden_size
 
     if args.swiglu and args.mup is None:
-        # Ref: https://github.com/facebookresearch/llama/blob/main/llama/model.py#L161-L162
         if args.multiple_of is not None:
             hidden_dim = int(4 * args.hidden_size * 2 / 3)
             if args.hidden_dim_multiplier is not None:
@@ -990,9 +990,7 @@ def _add_training_args(parser):
                        dest='bias_dropout_fusion')
     group.add_argument('--use-flash-attn', action='store_true',
                        help='use FlashAttention implementation of attention, '
-                       'FlashAttention v2 implementation as higher priority. '
-                       'v1: https://arxiv.org/abs/2205.14135, '
-                       'v2: https://tridao.me/publications/flash2/flash2.pdf')
+                       'FlashAttention v2 implementation as higher priority. ')
     group.add_argument('--disable-bias-linear', action='store_false',
                        help='Disable bias in the linear layers',
                        dest='add_bias_linear')

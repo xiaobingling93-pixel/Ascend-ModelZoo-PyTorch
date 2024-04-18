@@ -1,7 +1,6 @@
 # Copyright (c) 2022, NVIDIA CORPORATION. All rights reserved.
 
 # Parts of the code here are adapted from PyTorch
-# repo: https://github.com/pytorch/pytorch
 
 import math
 import os
@@ -376,7 +375,6 @@ class LinearWithGradAccumulationAndAsyncCommunication(torch.autograd.Function):
         # Doing gather + slicing during the NeMo forward pass can make this tensor
         # not be contiguous. PyTorch only checks if the tensor is contiguous, and only
         # clones it if it's not contiguous:
-        # https://github.com/pytorch/pytorch/blob/c47cf9bc7f9e02f649ab4ed53fe4d35732c92ab6/torch/_refs/__init__.py#L2761
         grad_output = grad_output.contiguous()
         # Convert the tensor shapes to 2D for execution compatibility
         grad_output = grad_output.view(
@@ -741,8 +739,7 @@ class ColumnParallelLinear(torch.nn.Module):
 class MuReadoutColumnParallelLinear(ColumnParallelLinear):
     '''Drop-in replacement for column parallel linear layers.
 
-    This class is implemented based on MuReadout
-    (https://github.com/microsoft/mup/blob/main/mup/layer.py#L5) .
+    This class is implemented based on MuReadout.
 
     An "output" linear layer is one that maps from a width dimension (e.g.,
     `d_model` in a Transformer) to a non-width dimension (e.g., vocab size).

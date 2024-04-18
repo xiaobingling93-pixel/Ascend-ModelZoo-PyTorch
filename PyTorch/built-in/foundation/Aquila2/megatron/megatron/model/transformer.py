@@ -104,7 +104,7 @@ class ParallelMLP(MegatronModule):
                 args.init_method_std_scaled_ffn_w3[self.layer_number-1])
 
         if args.mup is None:
-            # Project to 4h. If using swiglu double the output width, see https://arxiv.org/pdf/2002.05202.pdf
+            # Project to 4h. If using swiglu double the output width
             self.dense_h_to_4h = tensor_parallel.ColumnParallelLinear(
                 config.hidden_size,
                 ffn_hidden_size,

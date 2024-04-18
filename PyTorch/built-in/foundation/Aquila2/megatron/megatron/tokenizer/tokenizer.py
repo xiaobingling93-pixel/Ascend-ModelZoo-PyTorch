@@ -389,8 +389,6 @@ class _SentencePieceTokenizer(AbstractTokenizer):
     def encoder(self):
         return self._vocab
 
-    # From:
-    # https://github.com/NVIDIA/NeMo/blob/c8fa217e811d60d11d014827c7f3845ff6c99ae7/nemo/collections/common/tokenizers/sentencepiece_tokenizer.py#L89
     def tokenize(self, text):
         ids = []
         idx = 0
@@ -415,8 +413,6 @@ class _SentencePieceTokenizer(AbstractTokenizer):
         ids.extend(self.tokenizer.encode_as_ids(text[idx:]))
         return ids
 
-    # From:
-    # https://github.com/NVIDIA/NeMo/blob/c8fa217e811d60d11d014827c7f3845ff6c99ae7/nemo/collections/common/tokenizers/sentencepiece_tokenizer.py#L125
     def detokenize(self, ids):
         text = ""
         last_i = 0

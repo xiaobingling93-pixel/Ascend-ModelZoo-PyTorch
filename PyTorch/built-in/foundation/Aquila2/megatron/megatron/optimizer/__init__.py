@@ -112,7 +112,6 @@ def get_megatron_optimizer(model,
                             weight_decay=args.weight_decay,
                             momentum=args.sgd_momentum)
     elif args.optimizer == 'adan':
-        # https://github.com/sail-sg/Adan
         from adan import Adan
         optimizer = Adan(param_groups, lr=args.lr, weight_decay=args.weight_decay,
                          betas=(args.adan_beta1, args.adan_beta2, args.adan_beta3),
