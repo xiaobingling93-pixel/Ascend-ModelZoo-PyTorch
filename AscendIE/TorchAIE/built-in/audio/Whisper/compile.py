@@ -20,7 +20,6 @@ import mindietorch
 _N_MEL = 80
 _FRAMES = 3000
 _HALF_FRAMES = 1500
-_HIDDEN = 384
 _MAX_TOKEN = 224
 _KV_NUM = 2
 
@@ -29,6 +28,7 @@ def parse_args():
     parser.add_argument("--model_path", default="/tmp/models")
     parser.add_argument("--beam_size", type=int, default=5)
     parser.add_argument("--nblocks", type=int, default=4)
+    parser.add_argument("--hidden", type=int, default=384)
     parser.add_argument("--soc_version", default="Ascend310P3")
     args = parser.parse_args()
     return args
@@ -56,8 +56,8 @@ def encoder(args):
 def language(args):
     ts_model = torch.jit.load(f"{args.model_path}/decoder_prefill.ts")
     input_tokens_info = mindietorch.Input([1, 1])
-    input_audio_features_info = mindietorch.Input([1, _HALF_FRAMES, _HIDDEN])
-    input_pos_embed_info = mindietorch.Input([1, _HIDDEN])
+    input_audio_features_info = mindietorch.Input([1, _HALF_FRAMES, args.hidden])
+    input_pos_embed_info = mindietorch.Input([1, args.hidden])
     input_info = [
         input_tokens_info,
         input_audio_features_info,
@@ -74,12 +74,12 @@ def prefill(args):
         max_shape=[args.beam_size, _MAX_TOKEN]
     )
     input_audio_features_info = mindietorch.Input(
-        min_shape=[1, _HALF_FRAMES, _HIDDEN],
-        max_shape=[1, _HALF_FRAMES, _HIDDEN]
+        min_shape=[1, _HALF_FRAMES, args.hidden],
+        max_shape=[1, _HALF_FRAMES, args.hidden]
     )
     input_pos_embed_info = mindietorch.Input(
-        min_shape=[1, _HIDDEN],
-        max_shape=[_MAX_TOKEN, _HIDDEN]
+        min_shape=[1, args.hidden],
+        max_shape=[_MAX_TOKEN, args.hidden]
     )
     input_info = [
         input_tokens_info,
@@ -97,20 +97,20 @@ def decode(args):
         max_shape=[args.beam_size, 1]
     )
     input_audio_features_info = mindietorch.Input(
-        min_shape=[1, _HALF_FRAMES, _HIDDEN],
-        max_shape=[1, _HALF_FRAMES, _HIDDEN]
+        min_shape=[1, _HALF_FRAMES, args.hidden],
+        max_shape=[1, _HALF_FRAMES, args.hidden]
     )
     input_pos_embed_info = mindietorch.Input(
-        min_shape=[_HIDDEN],
-        max_shape=[_HIDDEN]
+        min_shape=[args.hidden],
+        max_shape=[args.hidden]
     )
     input_cache_dyn_info = mindietorch.Input(
-        min_shape=(args.nblocks, _KV_NUM, args.beam_size, 1, _HIDDEN),
-        max_shape=(args.nblocks, _KV_NUM, args.beam_size, _MAX_TOKEN, _HIDDEN)
+        min_shape=(args.nblocks, _KV_NUM, args.beam_size, 1, args.hidden),
+        max_shape=(args.nblocks, _KV_NUM, args.beam_size, _MAX_TOKEN, args.hidden)
     )
     input_cache_sta_info = mindietorch.Input(
-        min_shape=[args.nblocks, _KV_NUM, 1, _HALF_FRAMES, _HIDDEN],
-        max_shape=[args.nblocks, _KV_NUM, 1, _HALF_FRAMES, _HIDDEN]
+        min_shape=[args.nblocks, _KV_NUM, 1, _HALF_FRAMES, args.hidden],
+        max_shape=[args.nblocks, _KV_NUM, 1, _HALF_FRAMES, args.hidden]
     )
 
     input_info = [
