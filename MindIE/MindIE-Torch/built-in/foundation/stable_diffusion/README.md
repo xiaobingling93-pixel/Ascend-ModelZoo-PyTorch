@@ -139,7 +139,7 @@
       执行命令：
    
       ```bash
-      # 导出单卡/单芯pt模型
+      # 导出pt模型
       python3 export_ts.py --model ${model_base} --output_dir ./models \
               --parallel \
               --use_cache
