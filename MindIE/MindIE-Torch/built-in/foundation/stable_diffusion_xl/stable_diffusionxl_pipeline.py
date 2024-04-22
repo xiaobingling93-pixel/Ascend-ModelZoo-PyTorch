@@ -935,3 +935,201 @@ def check_device_range_valid(value):
                 "device:{} is invalid. valid value range is [{}, {}]".format(
                     ivalue, min_value, max_value))
         return ivalue
+
+
+def parse_arguments():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-m",
+        "--model",
+        type=str,
+        default="./stable-diffusion-xl-base-1.0",
+        help="Path or name of the pre-trained model.",
+    )
+    parser.add_argument(
+        "--prompt_file",
+        type=str,
+        default="./prompts.txt",
+        help="A text file of prompts for generating images.",
+    )
+    parser.add_argument(
+        "--prompt_file_type",
+        choices=["plain", "parti"],
+        default="plain",
+        help="Type of prompt file.",
+    )
+    parser.add_argument(
+        "--save_dir",
+        type=str,
+        default="./results",
+        help="Path to save result images.",
+    )
+    parser.add_argument(
+        "--info_file_save_path",
+        type=str,
+        default="./image_info.json",
+        help="Path to save image information file.",
+    )
+    parser.add_argument(
+        "--steps",
+        type=int,
+        default=50,
+        help="Number of inference steps.",
+    )
+    parser.add_argument(
+        "--device",
+        type=check_device_range_valid,
+        default=0,
+        help="NPU device id. Give 2 ids to enable parallel inferencing.",
+    )
+    parser.add_argument(
+        "--num_images_per_prompt",
+        default=1,
+        type=int,
+        help="Number of images generated for each prompt.",
+    )
+    parser.add_argument(
+        "--max_num_prompts",
+        default=0,
+        type=int,
+        help="Limit the number of prompts (0: no limit).",
+    )
+    parser.add_argument(
+        "-bs",
+        "--batch_size",
+        type=int,
+        default=1,
+        help="Batch size."
+    )
+    parser.add_argument(
+        "-o",
+        "--output_dir",
+        type=str,
+        default="./models",
+        help="Path of directory to save compiled models.",
+    )
+    parser.add_argument(
+        "--soc",
+        choices=["Duo", "A2"],
+        default="A2",
+        help="soc_version.",
+    )
+    parser.add_argument(
+        "--scheduler",
+        choices=["DDIM", "Euler", "DPM", "SA-Solver"],
+        default="DDIM",
+        help="Type of Sampling methods. Can choose from DDIM, Euler, DPM, SA-Solver",
+    )
+    parser.add_argument(
+        "--use_cache",
+        action="store_true",
+        help="Use cache during inference."
+    )
+    parser.add_argument(
+        "--cache_steps",
+        type=str,
+        default="1,2,4,6,7,9,10,12,13,14,16,18,19,21,23,24,26,27,29,\
+                30,31,33,34,36,37,39,40,42,43,45,47,48,49",  # 17+33
+        help="Steps to use cache data."
+    )
+
+    return parser.parse_args()
+
+
+def main():
+    args = parse_arguments()
+    save_dir = args.save_dir
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+
+    pipe = AIEStableDiffusionXLPipeline.from_pretrained(args.model).to("cpu")
+
+    flag_ddim = 0
+    if args.scheduler == "DDIM":
+        flag_ddim = 1
+        pipe.scheduler = DDIMScheduler.from_config(pipe.scheduler.config)
+    if args.scheduler == "Euler":
+        pipe.scheduler = EulerDiscreteScheduler.from_config(pipe.scheduler.config)
+    if args.scheduler == "DPM":
+        pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
+    if args.scheduler == "SA-Solver":
+        pipe.scheduler = SASolverScheduler.from_config(pipe.scheduler.config)
+
+    pipe.parser_args(args)
+    pipe.compile_aie_model()
+    mindietorch.set_device(args.device)  #####################
+    skip_steps = [0] * args.steps
+    flag_cache = 0
+    if args.use_cache:
+        flag_cache = 1
+        for i in args.cache_steps.split(','):
+            if int(i) >= args.steps:
+                continue
+            skip_steps[int(i)] = 1
+
+    use_time = 0
+    prompt_loader = PromptLoader(args.prompt_file,
+                                 args.prompt_file_type,
+                                 args.batch_size,
+                                 args.num_images_per_prompt,
+                                 args.max_num_prompts)
+
+    prompts_2 = ""
+    infer_num = 0
+    image_info = []
+    current_prompt = None
+    for i, input_info in enumerate(prompt_loader):
+        prompts = input_info['prompts']
+        catagories = input_info['catagories']
+        save_names = input_info['save_names']
+        n_prompts = input_info['n_prompts']
+
+        print(f"[{infer_num + n_prompts}/{len(prompt_loader)}]: {prompts}")
+        infer_num += args.batch_size
+
+        start_time = time.time()
+
+        stream = mindietorch.npu.Stream("npu:" + str(args.device))
+        with mindietorch.npu.stream(stream):
+            images = pipe.ascendie_infer(
+                prompts,
+                prompts_2,
+                num_inference_steps=args.steps,
+                guidance_scale=5.0,  # 7.5,
+                skip_steps=skip_steps,
+                flag_ddim=flag_ddim,
+                flag_cache=flag_cache,
+            )
+        use_time += time.time() - start_time
+
+        for j in range(n_prompts):
+            image_save_path = os.path.join(save_dir, f"{save_names[j]}.png")
+            image = images[0][j]
+            image.save(image_save_path)
+
+            if current_prompt != prompts[j]:
+                current_prompt = prompts[j]
+                image_info.append({'images': [], 'prompt': current_prompt, 'category': catagories[j]})
+
+            image_info[-1]['images'].append(image_save_path)
+
+    print(f"[info] infer number: {infer_num}; use time: {use_time:.3f}s\n"
+          f"average time: {use_time / infer_num:.3f}s\n"
+          f"clip time: {clip_time / infer_num:.3f}s\n"
+          f"unet time: {unet_time / infer_num:.3f}s\n"
+          f"vae time: {vae_time / infer_num:.3f}s\n"
+          f"p1 time: {p1_time / infer_num:.3f}s\n"
+          f"p2 time: {p2_time / infer_num:.3f}s\n"
+          f"p3 time: {p3_time / infer_num:.3f}s\n")
+
+    # Save image information to a json file
+    if os.path.exists(args.info_file_save_path):
+        os.remove(args.info_file_save_path)
+
+    with os.fdopen(os.open(args.info_file_save_path, os.O_RDWR | os.O_CREAT, 0o640), "w") as f:
+        json.dump(image_info, f)
+    mindietorch.finalize()
+
+
+if __name__ == "__main__":
+    main()
