@@ -125,6 +125,7 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
     def compile_aie_model(self):
         if self.is_init:
             return
+        args = parse_arguments()
 
         in_channels = self.unet.config.out_channels
         sample_size = self.unet.config.sample_size
@@ -231,94 +232,96 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
                                   optimization_level=0))
             torch.jit.save(self.compiled_cat, cat_compiled_path)
 
-        unet_compiled_path = os.path.join(self.args.output_dir, f"unet/unet_bs{batch_size}_aie_compile.ts")
-        if os.path.exists(unet_compiled_path):
-            self.compiled_unet = torch.jit.load(unet_compiled_path).eval()
+        if not args.use_cache:
+            unet_compiled_path = os.path.join(self.args.output_dir, f"unet/unet_bs{batch_size}_aie_compile.ts")
+            if os.path.exists(unet_compiled_path):
+                self.compiled_unet = torch.jit.load(unet_compiled_path).eval()
+            else:
+                model = torch.jit.load(os.path.join(self.args.output_dir, f"unet/unet_bs{batch_size}.pt")).eval()
+
+                self.compiled_unet = (
+                    mindietorch.compile(model,
+                                    inputs=[mindietorch.Input((batch_size,
+                                                            in_channels, sample_size,
+                                                            sample_size),
+                                                            dtype=mindietorch.dtype.FLOAT),
+                                            mindietorch.Input((1,),
+                                                            dtype=mindietorch.dtype.INT64),
+                                            mindietorch.Input((batch_size,
+                                                            max_position_embeddings,
+                                                            encoder_hidden_size),
+                                                            dtype=mindietorch.dtype.FLOAT)],
+                                    allow_tensor_replace_int=True,
+                                    require_full_compilation=True,
+                                    truncate_long_and_double=True,
+                                    soc_version=soc_version,
+                                    precision_policy=_enums.PrecisionPolicy.FP16,
+                                    optimization_level=0
+                                    ))
+                torch.jit.save(self.compiled_unet, unet_compiled_path)
+
         else:
-            model = torch.jit.load(os.path.join(self.args.output_dir, f"unet/unet_bs{batch_size}.pt")).eval()
+            unet_cache_compiled_path = os.path.join(self.args.output_dir, f"unet/unet_bs{batch_size}_aie_compile_0.ts")
+            if os.path.exists(unet_cache_compiled_path):
+                self.compiled_unet_cache = torch.jit.load(unet_cache_compiled_path).eval()
+            else:
+                unet_cache = torch.jit.load(os.path.join(self.args.output_dir, f"unet/unet_bs{batch_size}_0.pt")).eval()
 
-            self.compiled_unet = (
-                mindietorch.compile(model,
-                                  inputs=[mindietorch.Input((batch_size,
-                                                           in_channels, sample_size,
-                                                           sample_size),
-                                                          dtype=mindietorch.dtype.FLOAT),
-                                          mindietorch.Input((1,),
-                                                          dtype=mindietorch.dtype.INT64),
-                                          mindietorch.Input((batch_size,
-                                                           max_position_embeddings,
-                                                           encoder_hidden_size),
-                                                          dtype=mindietorch.dtype.FLOAT)],
-                                  allow_tensor_replace_int=True,
-                                  require_full_compilation=True,
-                                  truncate_long_and_double=True,
-                                  soc_version=soc_version,
-                                  precision_policy=_enums.PrecisionPolicy.FP16,
-                                  optimization_level=0
-                                  ))
-            torch.jit.save(self.compiled_unet, unet_compiled_path)
+                self.compiled_unet_cache = (
+                    mindietorch.compile(unet_cache,
+                                    inputs=[mindietorch.Input((batch_size,
+                                                            in_channels, sample_size,
+                                                            sample_size),
+                                                            dtype=mindietorch.dtype.FLOAT),
+                                            mindietorch.Input((1,),
+                                                            dtype=mindietorch.dtype.INT64),
+                                            mindietorch.Input((batch_size,
+                                                            max_position_embeddings,
+                                                            encoder_hidden_size),
+                                                            dtype=mindietorch.dtype.FLOAT),
+                                            mindietorch.Input((1,),
+                                                            dtype=mindietorch.dtype.INT64)],
+                                    allow_tensor_replace_int=True,
+                                    require_full_compilation=False,
+                                    truncate_long_and_double=True,
+                                    soc_version=soc_version,
+                                    precision_policy=_enums.PrecisionPolicy.FP16,
+                                    optimization_level=0
+                                    ))
+                torch.jit.save(self.compiled_unet_cache, unet_cache_compiled_path)
 
-        unet_cache_compiled_path = os.path.join(self.args.output_dir, f"unet/unet_bs{batch_size}_aie_compile_0.ts")
-        if os.path.exists(unet_cache_compiled_path):
-            self.compiled_unet_cache = torch.jit.load(unet_cache_compiled_path).eval()
-        else:
-            unet_cache = torch.jit.load(os.path.join(self.args.output_dir, f"unet/unet_bs{batch_size}_0.pt")).eval()
+            unet_skip_compiled_path = os.path.join(self.args.output_dir, f"unet/unet_bs{batch_size}_aie_compile_1.ts")
+            if os.path.exists(unet_skip_compiled_path):
+                self.compiled_unet_skip = torch.jit.load(unet_skip_compiled_path).eval()
+            else:
+                unet_skip = torch.jit.load(os.path.join(self.args.output_dir, f"unet/unet_bs{batch_size}_1.pt")).eval()
 
-            self.compiled_unet_cache = (
-                mindietorch.compile(unet_cache,
-                                  inputs=[mindietorch.Input((batch_size,
-                                                           in_channels, sample_size,
-                                                           sample_size),
-                                                          dtype=mindietorch.dtype.FLOAT),
-                                          mindietorch.Input((1,),
-                                                          dtype=mindietorch.dtype.INT64),
-                                          mindietorch.Input((batch_size,
-                                                           max_position_embeddings,
-                                                           encoder_hidden_size),
-                                                          dtype=mindietorch.dtype.FLOAT),
-                                          mindietorch.Input((1,),
-                                                          dtype=mindietorch.dtype.INT64)],
-                                  allow_tensor_replace_int=True,
-                                  require_full_compilation=False,
-                                  truncate_long_and_double=True,
-                                  soc_version=soc_version,
-                                  precision_policy=_enums.PrecisionPolicy.FP16,
-                                  optimization_level=0
-                                  ))
-            torch.jit.save(self.compiled_unet_cache, unet_cache_compiled_path)
-
-        unet_skip_compiled_path = os.path.join(self.args.output_dir, f"unet/unet_bs{batch_size}_aie_compile_1.ts")
-        if os.path.exists(unet_skip_compiled_path):
-            self.compiled_unet_skip = torch.jit.load(unet_skip_compiled_path).eval()
-        else:
-            unet_skip = torch.jit.load(os.path.join(self.args.output_dir, f"unet/unet_bs{batch_size}_1.pt")).eval()
-
-            self.compiled_unet_skip = (
-                mindietorch.compile(unet_skip,
-                                  inputs=[mindietorch.Input((batch_size,
-                                                           in_channels, sample_size,
-                                                           sample_size),
-                                                          dtype=mindietorch.dtype.FLOAT),
-                                          mindietorch.Input((1,),
-                                                          dtype=mindietorch.dtype.INT64),
-                                          mindietorch.Input((batch_size,
-                                                           max_position_embeddings,
-                                                           encoder_hidden_size),
-                                                          dtype=mindietorch.dtype.FLOAT),
-                                          mindietorch.Input((1,),
-                                                          dtype=mindietorch.dtype.INT64),
-                                          mindietorch.Input((batch_size,
-                                                           640, sample_size,
-                                                           sample_size),
-                                                          dtype=mindietorch.dtype.FLOAT)],
-                                  allow_tensor_replace_int=True,
-                                  require_full_compilation=True,
-                                  truncate_long_and_double=True,
-                                  soc_version=soc_version,
-                                  precision_policy=_enums.PrecisionPolicy.FP16,
-                                  optimization_level=0
-                                  ))
-            torch.jit.save(self.compiled_unet_skip, unet_skip_compiled_path)
+                self.compiled_unet_skip = (
+                    mindietorch.compile(unet_skip,
+                                    inputs=[mindietorch.Input((batch_size,
+                                                            in_channels, sample_size,
+                                                            sample_size),
+                                                            dtype=mindietorch.dtype.FLOAT),
+                                            mindietorch.Input((1,),
+                                                            dtype=mindietorch.dtype.INT64),
+                                            mindietorch.Input((batch_size,
+                                                            max_position_embeddings,
+                                                            encoder_hidden_size),
+                                                            dtype=mindietorch.dtype.FLOAT),
+                                            mindietorch.Input((1,),
+                                                            dtype=mindietorch.dtype.INT64),
+                                            mindietorch.Input((batch_size,
+                                                            640, sample_size,
+                                                            sample_size),
+                                                            dtype=mindietorch.dtype.FLOAT)],
+                                    allow_tensor_replace_int=True,
+                                    require_full_compilation=True,
+                                    truncate_long_and_double=True,
+                                    soc_version=soc_version,
+                                    precision_policy=_enums.PrecisionPolicy.FP16,
+                                    optimization_level=0
+                                    ))
+                torch.jit.save(self.compiled_unet_skip, unet_skip_compiled_path)
 
         self.is_init = True
 
