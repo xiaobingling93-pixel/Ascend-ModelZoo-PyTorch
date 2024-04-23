@@ -18,6 +18,8 @@ epochs=200
 #网络名称,同目录名称,需要模型审视修改
 Network="Resnet50_cifar_for_PyTorch"
 export RANK_SIZE=1
+export MASTER_ADDR='127.0.0.1'
+export MASTER_PORT='27500'
 #训练batch_size,,需要模型审视修改
 batch_size=16
 
