@@ -1,0 +1,8 @@
+torch==2.1.0
+torchvision==0.9.1
+timm==0.9.16
+diffusers==0.27.2
+accelerate==0.28.0
+onnx==1.15.0
+onnxsim==0.4.36
+numpy==1.24.4
