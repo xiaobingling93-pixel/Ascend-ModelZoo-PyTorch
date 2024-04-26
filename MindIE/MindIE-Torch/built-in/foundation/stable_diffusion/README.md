@@ -66,17 +66,13 @@
    pip3 install -r requirements.txt
    ```
 
-2. 安装mindie和mindietorch包
+2. 安装mindie包
 
    ```bash
    # 安装mindie
    chmod +x ./Ascend-mindie_xxx.run
    ./Ascend-mindie_xxx.run --install
-   source /usr/local/Ascend/aie/set_env.sh
-
-   # 安装mindietorch
-   tar -zxvf Ascend-mindie-torch_xxx.tar.gz
-   pip install mindietorch-1.0.rc1+torch2.1.0xxx.whl
+   source /usr/local/Ascend/mindie/set_env.sh
    ```
 
 3. 代码修改

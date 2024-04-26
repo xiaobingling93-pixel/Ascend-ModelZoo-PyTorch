@@ -45,11 +45,10 @@
 - 该模型需要以下插件与驱动
 
   **表 1**  版本配套表
-  | 配套                                                         | 版本    | 环境准备指导                                                 |
-  | ------------------------------------------------------------ | ------- | ------------------------------------------------------------ |
-  | 固件与驱动                                                   | 24.1.rc1  | [Pytorch框架推理环境准备](https://cmc-szv.clouddragon.huawei.com/cmcversion/index/releaseView?deltaId=9868352302153984&isSelect=Software) |
-  | CANN（Toolkit+Kernels+MindIE）                                              | 8.0.RC1(1.0.RC1) | -                                                            |
-  | Python                                                       | 3.10   | -                                                            |                                                           |
+  | 配套                                                         | 版本     | 环境准备指导                                                 |
+  | ------------------------------------------------------------ |--------| ------------------------------------------------------------ |
+  | Python                                                       | 3.10.13 | -                                                            |
+   | torch| 2.1.0  | -                                                            |
 
 该模型性能受CPU规格影响，建议使用64核CPU（arm）以复现性能
 
@@ -67,13 +66,9 @@
 
    ```bash
    # 安装mindie
-   chmod +x ./Ascend-mindie-rt_xxx.run
-   ./Ascend-mindie-rt_xxx.run --install
-   source /usr/local/Ascend/mindie-rt/set_env.sh
-
-   # 安装mindietorch
-   tar -zxvf Ascend-mindie-torch_xxx.tar.gz && cd Ascend-mindie-torch_xxx
-   pip3 install mindietorch-1.0.rc1+torch2.1.0.abi0xxx.whl
+   chmod +x ./Ascend-mindie_xxx.run
+   ./Ascend-mindie_xxx.run --install
+   source /usr/local/Ascend/mindie/set_env.sh
    ```
    
 3. 代码修改
@@ -176,7 +171,6 @@
               --steps 50 \
               --output_dir ./models \
               --soc A2
-              
 
       # 使用UnetCache策略
       python3 stable_diffusionxl_pipeline.py \
