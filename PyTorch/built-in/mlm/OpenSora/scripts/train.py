@@ -1,3 +1,4 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 from copy import deepcopy
 from datetime import timedelta
 from pprint import pprint
@@ -30,6 +31,10 @@ from opensora.utils.config_utils import (
 )
 from opensora.utils.misc import all_reduce_mean, format_numel_str, get_model_numel, requires_grad, to_torch_dtype
 from opensora.utils.train_utils import MaskGenerator, update_ema
+from opensora.utils.device_utils import is_npu_available
+if is_npu_available():
+    from torch_npu.contrib import transfer_to_npu
+    torch.npu.config.allow_internal_format = False
 
 
 def main():
@@ -154,12 +159,20 @@ def main():
     scheduler = build_module(cfg.scheduler, SCHEDULERS)
 
     # 4.5. setup optimizer
-    optimizer = HybridAdam(
-        filter(lambda p: p.requires_grad, model.parameters()),
-        lr=cfg.lr,
-        weight_decay=0,
-        adamw_mode=True,
-    )
+    if is_npu_available():
+        from torch.optim import AdamW
+        optimizer = AdamW(
+            filter(lambda p: p.requires_grad, model.parameters()),
+            lr=cfg.lr,
+            weight_decay=0
+        )
+    else:
+        optimizer = HybridAdam(
+            filter(lambda p: p.requires_grad, model.parameters()),
+            lr=cfg.lr,
+            weight_decay=0,
+            adamw_mode=True,
+        )
     lr_scheduler = None
 
     # 4.6. prepare for training
@@ -214,6 +227,7 @@ def main():
     if cfg.dataset.type == "VideoTextDataset":
         dataloader.sampler.set_start_index(sampler_start_idx)
     model_sharding(ema)
+    early_stopping_flag = False
 
     # 6.2. training loop
     for epoch in range(start_epoch, cfg.epochs):
@@ -222,6 +236,8 @@ def main():
         dataloader_iter = iter(dataloader)
         logger.info(f"Beginning epoch {epoch}...")
 
+        if early_stopping_flag:
+            break
         with tqdm(
             enumerate(dataloader_iter, start=start_step),
             desc=f"Epoch {epoch}",
@@ -309,6 +325,9 @@ def main():
                     logger.info(
                         f"Saved checkpoint at epoch {epoch} step {step + 1} global_step {global_step + 1} to {exp_dir}"
                     )
+                if cfg.max_train_steps > 0 and step == cfg.max_train_steps:
+                    early_stopping_flag = True
+                    break
 
         # the continue epochs are not resumed, so we need to reset the sampler start index and start step
         if cfg.dataset.type == "VideoTextDataset":

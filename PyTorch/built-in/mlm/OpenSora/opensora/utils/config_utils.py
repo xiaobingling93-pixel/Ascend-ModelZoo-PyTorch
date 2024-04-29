@@ -1,3 +1,4 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 import argparse
 import json
 import os
@@ -64,6 +65,7 @@ def parse_args(training=False):
         parser.add_argument("--load", default=None, type=str, help="path to continue training")
         parser.add_argument("--data-path", default=None, type=str, help="path to data csv")
         parser.add_argument("--start-from-scratch", action="store_true", help="start training from scratch")
+        parser.add_argument("--max-train-steps", default=0, type=int, help="max train steps")
 
     return parser.parse_args()
 
@@ -75,6 +77,9 @@ def merge_args(cfg, args, training=False):
     if training and args.data_path is not None:
         cfg.dataset["data_path"] = args.data_path
         args.data_path = None
+    if training and args.max_train_steps is not None:
+        cfg["max_train_steps"] = args.max_train_steps
+        args.max_train_steps = None
     if not training and args.cfg_scale is not None:
         cfg.scheduler["cfg_scale"] = args.cfg_scale
         args.cfg_scale = None

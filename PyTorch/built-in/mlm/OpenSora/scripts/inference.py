@@ -1,4 +1,6 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 import os
+import time
 
 import colossalai
 import torch
@@ -12,6 +14,10 @@ from opensora.models.text_encoder.t5 import text_preprocessing
 from opensora.registry import MODELS, SCHEDULERS, build_module
 from opensora.utils.config_utils import parse_configs
 from opensora.utils.misc import to_torch_dtype
+from opensora.utils.device_utils import is_npu_available
+if is_npu_available():
+    from torch_npu.contrib import transfer_to_npu
+    torch.npu.config.allow_internal_format = False
 
 
 def main():
@@ -111,6 +117,7 @@ def main():
 
     # 4.1. batch generation
     for i in range(0, len(prompts), cfg.batch_size):
+        step_start_time = time.time()
         # 4.2 sample in hidden space
         batch_prompts_raw = prompts[i : i + cfg.batch_size]
         batch_prompts = [text_preprocessing(prompt) for prompt in batch_prompts_raw]
@@ -121,6 +128,7 @@ def main():
             model_args["num_frames"] = model_args["num_frames"][: len(batch_prompts_raw)]
             model_args["ar"] = model_args["ar"][: len(batch_prompts_raw)]
             model_args["fps"] = model_args["fps"][: len(batch_prompts_raw)]
+        step_data_time = time.time()
 
         # 4.3. diffusion sampling
         old_sample_idx = sample_idx
@@ -153,6 +161,7 @@ def main():
                 device=device,
                 additional_args=model_args,
             )
+            sample_time = time.time()
             samples = vae.decode(samples.to(dtype))
 
             # 4.4. save samples
@@ -168,6 +177,11 @@ def main():
                         save_path = f"{save_path}-{k}"
                     save_sample(sample, fps=cfg.fps // cfg.frame_interval, save_path=save_path)
                     sample_idx += 1
+                    write_video_time = time.time()
+                    print(f"step {i} step_data_time {step_data_time - step_start_time} | "
+                          f"denoise_time {sample_time - step_data_time} | "
+                          f"step_infer_time {write_video_time - step_start_time} | "
+                          f"FPS {cfg.batch_size / (write_video_time - step_start_time)}")
 
 
 if __name__ == "__main__":
