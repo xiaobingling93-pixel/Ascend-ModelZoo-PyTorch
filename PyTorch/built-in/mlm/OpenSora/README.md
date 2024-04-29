@@ -8,6 +8,7 @@
 -   [STDiT2（在研版本）](#STDiT2（在研版本）)   
     -   [准备训练环境](#准备训练环境)
     -   [快速开始](#快速开始)
+          - [训练任务](#训练任务)
           - [推理任务](#推理任务)
 -   [公网地址说明](#公网地址说明) 
 -   [变更说明](#变更说明) 
@@ -25,6 +26,7 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
 
 |     模型      | 任务列表 | 是否支持 |
 |:-----------:|:----:|:-----:|
+| STDiT2-XL/2 | 在线训练 | ✔ |
 | STDiT2-XL/2 | 在线推理 | ✔ |
 
 
@@ -86,6 +88,9 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
   
 
 ### 准备数据集
+#### 训练数据集准备
+数据集准备请参考官网，链接如下：
+https://github.com/hpcaitech/Open-Sora?tab=readme-ov-file#data-processing
 
 ### 获取预训练模型
 
@@ -132,7 +137,34 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
    ```
 
 ## 快速开始
+### 训练任务
+本任务主要以预训练模型为主，展示训练任务，包含单机单卡和单机多卡的训练。
+#### 开始训练
+1. 进入解压后的源码包根目录。
 
+      ```
+   cd /${模型文件夹名称} 
+   ```
+2. 准备训练数据。
+按照官网流程，准备对应数据集，处理数据并得到包含数据信息的csv文件，放在模型文件夹下，如图：
+   ```
+   $OpenSora
+   ├── train_data.csv
+   └── ...
+   ```
+
+2. 运行训练脚本。
+
+   用户可以按照自己训练需要进行参数配置，以下给出单卡和多卡的一种训练示例。
+   ```shell
+   bash test/infer_full_1p_opensorav1_1.sh --data_path=train_data.csv
+   # 混合精度BF16，单卡训练，stage1
+   ```
+
+   ```shell
+   bash test/infer_full_8p_opensorav1_1.sh --data_path=train_data.csv
+   # 混合精度BF16，八卡训练，stage1
+   ```
 
 ### 推理任务
 本任务主要以预训练模型为主，展示推理任务，包括单卡在线推理。
@@ -184,7 +216,7 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
 
 ## 变更
 
-2024.04.29：OpenSora STDiT2 bf16推理任务首次发布。
+2024.04.29：OpenSora STDiT2 bf16训练和推理任务首次发布。
 
 # FAQ
 
