@@ -351,7 +351,7 @@ def build_tome_block(model, name, inputs, inputs_un):
     unmerge_inputs = inputs_un + [name + 'TopK_output_1', name + 'FindMax_output_1']
     model.add_node(
         name + 'tome/TomeUnmerge',
-        'TomeUnmerge',
+        'TomeUnmerged',
         inputs=unmerge_inputs,
         outputs=[name + 'TomeUngerme_output']
     )
