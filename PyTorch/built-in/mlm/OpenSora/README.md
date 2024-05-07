@@ -5,6 +5,10 @@
     -  [模型介绍](#模型介绍)
     -  [支持任务列表](#支持任务列表)
     -  [代码实现](#代码实现)
+-   [STDiT（在研版本）](#STDiT（在研版本）)   
+    -   [准备训练环境](#准备训练环境)
+    -   [快速开始](#快速开始)
+          - [推理任务](#推理任务)
 -   [STDiT2（在研版本）](#STDiT2（在研版本）)   
     -   [准备训练环境](#准备训练环境)
     -   [快速开始](#快速开始)
@@ -18,7 +22,7 @@
 ## 模型介绍
 
 OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。OpenSora不仅实现了先进视频生成技术的低成本普及，还提供了一个精简且用户友好的方案，简化了视频制作的复杂性。
-本仓库主要将STDiT2模型的任务迁移到了昇腾NPU上，并进行极致性能优化。
+本仓库主要将STDiT、STDiT2模型的任务迁移到了昇腾NPU上，并进行极致性能优化。
 
 ## 支持任务列表
 
@@ -26,6 +30,7 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
 
 |     模型      | 任务列表 | 是否支持 |
 |:-----------:|:----:|:-----:|
+| STDiT-XL/2  | 在线推理 | ✔ |
 | STDiT2-XL/2 | 在线训练 | ✔ |
 | STDiT2-XL/2 | 在线推理 | ✔ |
 
@@ -46,8 +51,7 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
   code_path=PyTorch/built-in/mlm/OpenSora
   ```
 
-
-# STDiT2（在研版本）
+# STDiT（在研版本）
 
 ## 准备训练环境
 
@@ -77,6 +81,118 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
                 
   
   **表 2**  昇腾软件版本支持表
+
+  | 软件类型   |   支持版本   |
+  | :--------: |:--------:|
+  | FrameworkPTAdapter |   在研版本   |
+  | CANN |   在研版本   |
+  | 昇腾NPU固件 |   在研版本   | 
+  | 昇腾NPU驱动 | 在研版本 |
+
+### 获取预训练模型
+
+1. 联网情况下，预训练模型会自动下载。
+
+2. 无网络时，用户可访问huggingface官网自行下载，文件namespace如下：
+
+   ```
+   PixArt-alpha/PixArt-alpha   # PixArt-XL-2-512x512模型(训练用)
+   stabilityai/sd-vae-ft-ema   # vae模型
+   DeepFloyd/t5-v1_1-xxl       # t5模型
+   hpcai-tech/Open-Sora        # 预训练权重(推理用)
+   ```
+   
+3. 获取对应的预训练模型后，在以下配置文件中将`model`、`vae`的`from_pretrained`参数设置为本地预训练模型绝对路径。
+   ```shell
+   configs/opensora/inference/120x256x256.py
+   ```
+
+4. 将下载好的t5模型放在本工程目录下的`DeepFloyd`目录下，组织结构如下：
+   ```
+   $OpenSora
+   ├── DeepFloyd
+   ├── ├── t5-v1_1-xxl
+   ├── ├── ├── config.json
+   ├── ├── ├── pytorch_model-00001-of-00002.bin
+   ├── ├── ├── ...
+   └── ...
+   ```
+
+
+## 快速开始
+
+
+### 推理任务
+本任务主要以预训练模型为主，展示推理任务，包括单卡在线推理。
+#### 开始推理
+1. 进入解压后的源码包根目录。
+
+      ```
+   cd /${模型文件夹名称} 
+   ```
+
+
+2. 运行推理的脚本。
+
+- 单机单卡推理
+  ```shell
+  bash test/infer_full_1p_opensorav1_0.sh --ckpt_path=/path/to/your_ckpt  # 混精bf16 在线推理
+  ```
+- 推理脚本参数说明如下
+   ```shell
+   test/infer_full_1p_opensorav1_1.sh
+   --batch_size                         //设置batch_size
+   --ckpt_path                          //推理加载的模型地址
+   --num_frames                         //生成视频的总帧数
+   --img_h                              //生成视频的宽
+   --img_w                              //生成视频的高
+  
+   scripts/inference.py
+   config                               //配置文件路径
+   --seed                               //随机种子
+   --ckpt-path                          //推理加载的模型文件路径    
+   --batch-size                         //设置batch_size
+   --prompt-path                        //推理使用的prompt文件路径
+   --prompt                             //测试用的prompt
+   --num-frames                         //生成视频的总帧数
+   --image-size                         //生成视频的分辨率
+   --fps                                //生成视频的帧率
+   --save-dir                           //输出视频的路径
+   --num-sampling-steps                 //推理的采样步数
+   --cfg-scale                          //无分类器引导的权重系数
+   ```
+
+
+# STDiT2（在研版本）
+
+## 准备训练环境
+
+### 安装模型环境
+
+
+  **表 3**  三方库版本支持表
+
+  |     三方库     |  支持版本  |
+  |:-----------:|:------:|
+  |   PyTorch   | 2.1.0  |
+  | TorchVision | 0.16.0 |
+
+
+   在模型根目录下执行以下命令，安装模型对应PyTorch版本需要的依赖。
+
+
+   ```python
+   source ${cann_install_path}/ascend-toolkit/set_env.sh              # 激活cann环境
+   cd OpenSora
+   pip install -v -e .                                                # 安装本地代码仓，同时自动安装依赖
+   ```
+
+### 安装昇腾环境
+
+  请参考昇腾社区中《[Pytorch框架训练环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/ptes)》文档搭建昇腾环境，本仓已支持表4中软件版本。
+                
+  
+  **表 4**  昇腾软件版本支持表
 
   | 软件类型   |   支持版本   |
   | :--------: |:--------:|
@@ -217,6 +333,9 @@ https://github.com/hpcaitech/Open-Sora?tab=readme-ov-file#data-processing
 ## 变更
 
 2024.04.29：OpenSora STDiT2 bf16训练和推理任务首次发布。
+
+2024.05.06：OpenSora STDiT bf16推理任务首次发布。
+
 
 # FAQ
 
