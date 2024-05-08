@@ -1,3 +1,4 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 import sde
 import ml_collections
 import torch
@@ -17,14 +18,17 @@ from absl import logging
 import builtins
 import os
 import wandb
+import time
 
+from torch_npu.contrib import transfer_to_npu
 
 def train(config):
     if config.get('benchmark', False):
         torch.backends.cudnn.benchmark = True
         torch.backends.cudnn.deterministic = False
 
-    mp.set_start_method('spawn')
+
+    mp.set_start_method('spawn', force=True)
     accelerator = accelerate.Accelerator()
     device = accelerator.device
     accelerate.utils.set_seed(config.seed, device_specific=True)
@@ -75,6 +79,7 @@ def train(config):
 
 
     def train_step(_batch):
+        step_start_time = time.time()
         _metrics = dict()
         optimizer.zero_grad()
         if config.train.mode == 'uncond':
@@ -91,7 +96,9 @@ def train(config):
         lr_scheduler.step()
         train_state.ema_update(config.get('ema_rate', 0.9999))
         train_state.step += 1
-        return dict(lr=train_state.optimizer.param_groups[0]['lr'], **_metrics)
+        step_train_time = time.time() - step_start_time
+        fps = config.train.batch_size / step_train_time
+        return dict(lr=train_state.optimizer.param_groups[0]['lr'], fps=fps, **_metrics)
 
 
     def eval_step(n_samples, sample_steps, algorithm):
