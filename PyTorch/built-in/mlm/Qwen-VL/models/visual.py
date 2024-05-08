@@ -2,6 +2,7 @@
 #
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
+# Copyright 2024 Huawei Technologies Co., Ltd
 
 from collections import OrderedDict
 import math
@@ -183,51 +184,18 @@ class VisualAttention(nn.Module):
         assert self._qkv_same_embed_dim, 'Only Support SelfAttention Currently'
         self.in_proj = nn.Linear(embed_dim, 3 * embed_dim)
         self.out_proj = nn.Linear(embed_dim, embed_dim)
-        self.norm_factor = math.sqrt(self.hidden_size_per_attention_head)
+        self.norm_factor = 1 / math.sqrt(self.hidden_size_per_attention_head)
 
     def forward(self, query, key, value, attn_mask = None):
         # query/key/value: [sq, b, h]
         sq, b, _ = query.size()
 
         assert torch.allclose(query, key), 'Only Support Self-Attention Currently'
-        sk = sq
-        mixed_x_layer = self.in_proj(query)
 
-        # [sq, b, (np * 3 * hn)] --> [sq, b, np, 3 * hn]
-        new_tensor_shape = mixed_x_layer.size()[:-1] + \
-            (self.num_attention_heads_per_partition,
-             3 * self.hidden_size_per_attention_head)
-        mixed_x_layer = mixed_x_layer.view(*new_tensor_shape)
-
-        # [sq, b, np, 3 * hn] --> 3 [sq, b, np, hn]
-        query_layer, key_layer, value_layer = mixed_x_layer.split(
-            self.hidden_size_per_attention_head, dim=-1)
-
-        # [sq, b, np, hn] -> [sq, b * np, hn]
-        query_layer = query_layer.view(sq,
-            b * self.num_attention_heads_per_partition,
-            self.hidden_size_per_attention_head).transpose(0, 1)
-        # [sk, b, np, hn] -> [sk, b * np, hn]
-        key_layer = key_layer.view(sk,
-            b * self.num_attention_heads_per_partition,
-            self.hidden_size_per_attention_head).transpose(0, 1)
-
-        q_scaled = query_layer / self.norm_factor
-        if attn_mask is not None:
-            attention_probs = torch.baddbmm(attn_mask, q_scaled, key_layer.transpose(-2, -1))
-        else:
-            attention_probs = torch.bmm(q_scaled, key_layer.transpose(-2, -1))
-        attention_probs = attention_probs.softmax(dim=-1)
-
-        value_layer = value_layer.view(sk,
-            b * self.num_attention_heads_per_partition,
-            self.hidden_size_per_attention_head).transpose(0, 1)
-
-        # matmul: [b * np, sq, hn]
-        context_layer = torch.bmm(attention_probs, value_layer)
-
+        context_layer = F.scaled_dot_product_attention(query, key, value, attn_mask=attn_mask,
+                                                       scale=self.norm_factor).transpose(1, 2)
         # change view [b, np, sq, hn]
-        context_layer = context_layer.view(b,
+        context_layer = context_layer.reshape(b,
             self.num_attention_heads_per_partition,
             sq, self.hidden_size_per_attention_head)
 

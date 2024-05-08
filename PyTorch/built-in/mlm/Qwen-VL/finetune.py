@@ -1,5 +1,5 @@
 # This code is based on the revised code from fastchat based on tatsu-lab/stanford_alpaca.
-
+# Copyright 2024 Huawei Technologies Co., Ltd
 
 from dataclasses import dataclass, field
 import json
@@ -8,6 +8,7 @@ import logging
 import os
 from typing import Dict, Optional, List
 import torch
+import torch_npu
 from torch.utils.data import Dataset
 from deepspeed import zero
 from deepspeed.runtime.zero.partition_parameters import ZeroParamStatus
@@ -16,6 +17,7 @@ from transformers import Trainer, GPTQConfig, deepspeed
 from transformers.trainer_pt_utils import LabelSmoother
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 from accelerate.utils import DistributedType
+from torch_npu.contrib import transfer_to_npu
 
 IGNORE_TOKEN_ID = LabelSmoother.ignore_index
 

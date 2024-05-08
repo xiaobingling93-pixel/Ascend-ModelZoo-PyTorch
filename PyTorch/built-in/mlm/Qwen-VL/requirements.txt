@@ -8,3 +8,6 @@ torchvision
 pillow
 tensorboard
 matplotlib
+deepspeed
+peft
+torchvision==0.16.0

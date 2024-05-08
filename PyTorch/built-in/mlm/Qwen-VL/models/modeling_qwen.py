@@ -2,12 +2,14 @@
 #
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
+# Copyright 2024 Huawei Technologies Co., Ltd
 
 import importlib
 import math
 from typing import TYPE_CHECKING, Optional, Tuple, Union, Callable, List, Any, Generator
 
 import torch
+import torch_npu
 import torch.nn.functional as F
 import torch.utils.checkpoint
 from torch.cuda.amp import autocast
@@ -33,8 +35,8 @@ except ImportError:
 from torch import nn
 
 SUPPORT_CUDA = torch.cuda.is_available()
-SUPPORT_BF16 = SUPPORT_CUDA and torch.cuda.is_bf16_supported()
-SUPPORT_FP16 = SUPPORT_CUDA and torch.cuda.get_device_capability(0)[0] >= 7
+SUPPORT_BF16 = SUPPORT_CUDA # and torch.cuda.is_bf16_supported()
+SUPPORT_FP16 = SUPPORT_CUDA # and torch.cuda.get_device_capability(0)[0] >= 7
 
 from .configuration_qwen import QWenConfig
 from .qwen_generation_utils import (
@@ -144,6 +146,9 @@ class QWenAttention(nn.Module):
         self.logn_tensor = torch.tensor(logn_list)[None, :, None, None]
 
         self.attn_dropout = nn.Dropout(config.attn_dropout_prob)
+        self.attn_dropout_p = config.attn_dropout_prob
+
+        self.norm_factor = 1/ math.sqrt(self.hidden_size_per_attention_head)
 
     def _attn(self, query, key, value, registered_causal_mask, attention_mask=None, head_mask=None):
         attn_weights = torch.matmul(query, key.transpose(-1, -2))
@@ -300,9 +305,17 @@ class QWenAttention(nn.Module):
         query = query.permute(0, 2, 1, 3)
         key = key.permute(0, 2, 1, 3)
         value = value.permute(0, 2, 1, 3)
-        attn_output, attn_weight = self._attn(
-            query, key, value, registered_causal_mask, attention_mask, head_mask
-        )
+
+        if head_mask is None:
+            attn_output = F.scaled_dot_product_attention(query, key, value, attn_mask=attention_mask,
+                                                         dropout_p=self.attn_dropout_p,
+                                                         scale=self.norm_factor).transpose(1, 2)
+            attn_weight = None
+        else:
+            attn_output, attn_weight = self._attn(
+                query, key, value, registered_causal_mask, attention_mask, head_mask
+            )
+
         context_layer = self._merge_heads(
             attn_output, self.num_heads, self.head_dim
         )
@@ -1135,6 +1148,8 @@ def apply_rotary_pos_emb(t, freqs):
         sin = sin.squeeze(0).squeeze(1)[:, : sin.shape[-1] // 2]
         output = apply_rotary_emb_func(t_, cos, sin).type_as(t)
         return output
+    elif t.is_npu:
+        return torch_npu.npu_rotary_mul(t, cos, sin)
     else:
         rot_dim = freqs[0].shape[-1]
         cos, sin = freqs
@@ -1157,6 +1172,8 @@ class RMSNorm(torch.nn.Module):
     def forward(self, x):
         if rms_norm is not None and x.is_cuda:
             return rms_norm(x, self.weight, self.eps)
+        elif x.is_npu:
+            return torch_npu.npu_rms_norm(x, self.weight, epsilon=self.eps)[0]
         else:
             output = self._norm(x.float()).type_as(x)
             return output * self.weight
