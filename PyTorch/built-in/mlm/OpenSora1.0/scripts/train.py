@@ -1,4 +1,6 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 from copy import deepcopy
+import time
 
 import colossalai
 import torch
@@ -29,6 +31,10 @@ from opensora.utils.config_utils import (
 )
 from opensora.utils.misc import all_reduce_mean, format_numel_str, get_model_numel, requires_grad, to_torch_dtype
 from opensora.utils.train_utils import update_ema
+from opensora.utils.device_utils import is_npu_available
+if is_npu_available():
+    from torch_npu.contrib import transfer_to_npu
+    torch.npu.config.allow_internal_format = False
 
 
 def main():
@@ -157,9 +163,15 @@ def main():
     scheduler = build_module(cfg.scheduler, SCHEDULERS)
 
     # 4.5. setup optimizer
-    optimizer = HybridAdam(
-        filter(lambda p: p.requires_grad, model.parameters()), lr=cfg.lr, weight_decay=0, adamw_mode=True
-    )
+    if is_npu_available():
+        from torch.optim import AdamW
+        optimizer = AdamW(
+            filter(lambda p: p.requires_grad, model.parameters()), lr=cfg.lr, weight_decay=0
+        )
+    else:
+        optimizer = HybridAdam(
+            filter(lambda p: p.requires_grad, model.parameters()), lr=cfg.lr, weight_decay=0, adamw_mode=True
+        )
     lr_scheduler = None
 
     # 4.6. prepare for training
@@ -196,11 +208,15 @@ def main():
     dataloader.sampler.set_start_index(sampler_start_idx)
     model_sharding(ema)
 
+    early_stopping_flag = False
     # 6.2. training loop
     for epoch in range(start_epoch, cfg.epochs):
         dataloader.sampler.set_epoch(epoch)
         dataloader_iter = iter(dataloader)
         logger.info(f"Beginning epoch {epoch}...")
+
+        if early_stopping_flag:
+            break
 
         with tqdm(
             range(start_step, num_steps_per_epoch),
@@ -210,7 +226,9 @@ def main():
             initial=start_step,
         ) as pbar:
             for step in pbar:
+                start_step_time = time.time()
                 batch = next(dataloader_iter)
+                data_step_time = time.time()
                 x = batch["video"].to(device, dtype)  # [B, C, T, H, W]
                 y = batch["text"]
 
@@ -238,9 +256,11 @@ def main():
                 running_loss += loss.item()
                 global_step = epoch * num_steps_per_epoch + step
                 log_step += 1
-
+                train_step_time = time.time()
                 # Log to tensorboard
                 if coordinator.is_master() and (global_step + 1) % cfg.log_every == 0:
+                    print(f"data time {data_step_time - start_step_time} | E2E train time {train_step_time - start_step_time} | "
+                          f"FPS {total_batch_size / (train_step_time - start_step_time)}", flush=True)
                     avg_loss = running_loss / log_step
                     pbar.set_postfix({"loss": avg_loss, "step": step, "global_step": global_step})
                     running_loss = 0
@@ -277,6 +297,9 @@ def main():
                     logger.info(
                         f"Saved checkpoint at epoch {epoch} step {step + 1} global_step {global_step + 1} to {exp_dir}"
                     )
+                if cfg.max_train_steps > 0 and step == cfg.max_train_steps:
+                    early_stopping_flag = True
+                    break
 
         # the continue epochs are not resumed, so we need to reset the sampler start index and start step
         dataloader.sampler.set_start_index(0)

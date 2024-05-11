@@ -5,9 +5,12 @@ ftfy
 gdown
 mmengine
 pre-commit
-pyav
+av
 tensorboard
 timm
 tqdm
 transformers
 wandb
+scipy
+decorator
+attrs
