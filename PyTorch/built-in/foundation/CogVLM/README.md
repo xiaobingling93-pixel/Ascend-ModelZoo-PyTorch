@@ -23,6 +23,8 @@ CogVLM is VISUAL EXPERT FOR LARGE LANGUAGE 是一个多模态视觉-文本模型
 
 官方仓：https://github.com/THUDM/CogVLM
 
+说明：本仓代码仅为适配官方仓脚本，执行训练与推理需要在官方仓cogvlm项目路径下进行。
+
 ## 支持任务列表
 本仓已支持以下模型任务类型。
 
@@ -53,10 +55,10 @@ CogVLM is VISUAL EXPERT FOR LARGE LANGUAGE 是一个多模态视觉-文本模型
 
 |        软件类型        |   支持版本   |
 |:------------------:|:--------:|
-| FrameworkPTAdapter | 6.0.RC1  |
-|        CANN        | 8.0.RC1  |
-|      昇腾NPU固件       | 24.1.RC1 |
-|      昇腾NPU驱动       | 24.1.RC1 |
+| FrameworkPTAdapter | 6.0.RC2  |
+|        CANN        | 8.0.RC2  |
+|      昇腾NPU固件       | 24.1.RC2 |
+|      昇腾NPU驱动       | 24.1.RC2 |
 
 ### 安装模型环境
 
@@ -158,8 +160,8 @@ all_files.sort()
 
 |    芯片    | 卡数 | samples/s | batch_size | AMP_Type | Torch_Version |
 |:--------:| :----: |:---------:|:----------:|:--------:| :-----------: |
-|   GPU    |   8p   |    340    |     4      |   bf16   |      2.1      |
-| Atlas A2 |   8p   |    280    |     4      |   bf16   |      2.1      |
+|   GPU    |   8p   |    305    |     4      |   bf16   |      2.1      |
+| Atlas A2 |   8p   |    265    |     4      |   bf16   |      2.1      |
 
 #### 微调后推理
 1) finetune_demo/eval_cogvlm_base_224.sh文件夹下，修改文件中微调后权重路径、分词器路径和数据集路径(test_data)为实际路径。
