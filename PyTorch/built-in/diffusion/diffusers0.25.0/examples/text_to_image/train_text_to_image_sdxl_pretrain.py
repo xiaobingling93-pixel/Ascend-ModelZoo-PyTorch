@@ -766,7 +766,7 @@ def main(args):
         train_dataset_group,
         shuffle=True,
         collate_fn=collator,
-        batch_size=args.train_batch_size,
+        batch_size=1,
         num_workers=n_workers,
     )
 
