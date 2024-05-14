@@ -1,3 +1,17 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import torch, numpy as np
 import copy, warnings
 from mmcv.cnn.bricks.registry import (ATTENTION,
@@ -119,7 +133,7 @@ class CrossViewEncoder(TransformerLayerSequence):
         self.positional_encoding_zh = build_positional_encoding(positional_encoding_zh)
         self.positional_encoding_wz = build_positional_encoding(positional_encoding_wz)
 
-        spatial_shapes = torch.tensor([[bev_h, bev_w], [bev_z, bev_h], [bev_w, bev_z]], dtype=torch.long)
+        spatial_shapes = torch.tensor([[bev_h, bev_w], [bev_z, bev_h], [bev_w, bev_z]], dtype=torch.long).npu()
         self.register_buffer('spatial_shapes', spatial_shapes)
         level_start_index = torch.cat((spatial_shapes.new_zeros(
             (1,)), spatial_shapes.prod(1).cumsum(0)[:-1]))

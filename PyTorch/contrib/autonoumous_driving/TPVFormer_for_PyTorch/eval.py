@@ -1,6 +1,22 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 import os, time, argparse, os.path as osp, numpy as np
 import torch
+import torch.nn as nn
+import torch_npu
+from torch_npu.contrib import transfer_to_npu
 import torch.distributed as dist
 
 from utils.metric_util import MeanIoU
@@ -20,7 +36,7 @@ def pass_print(*args, **kwargs):
 
 def main(local_rank, args):
     # global settings
-    torch.backends.cudnn.benchmark = True
+    #torch.backends.cudnn.benchmark = True
 
     # load config
     cfg = Config.fromfile(args.py_config)
@@ -41,14 +57,14 @@ def main(local_rank, args):
     port = os.environ.get("MASTER_PORT", "20506")
     hosts = int(os.environ.get("WORLD_SIZE", 1))  # number of nodes
     rank = int(os.environ.get("RANK", 0))  # node id
-    gpus = torch.cuda.device_count()  # gpus per node
+    npus = torch.cuda.device_count()  # npus per node
     print(f"tcp://{ip}:{port}")
     dist.init_process_group(
-        backend="nccl", init_method=f"tcp://{ip}:{port}", 
-        world_size=hosts * gpus, rank=rank * gpus + local_rank
+        backend="hccl", init_method=f"tcp://{ip}:{port}",
+        world_size=hosts * npus, rank=rank * npus + local_rank
     )
     world_size = dist.get_world_size()
-    cfg.gpu_ids = range(world_size)
+    cfg.npu_ids = range(world_size)
     torch.cuda.set_device(local_rank)
 
     if dist.get_rank() != 0:
@@ -156,11 +172,11 @@ def main(local_rank, args):
             
             predict_labels_pts = predict_labels_pts.squeeze(-1).squeeze(-1)
             predict_labels_pts = torch.argmax(predict_labels_pts, dim=1) # bs, n
-            predict_labels_pts = predict_labels_pts.detach().cpu()
-            val_pt_labs = val_pt_labs.squeeze(-1).cpu()
+            predict_labels_pts = predict_labels_pts.detach().npu()
+            val_pt_labs = val_pt_labs.squeeze(-1).npu()
             
             predict_labels_vox = torch.argmax(predict_labels_vox, dim=1)
-            predict_labels_vox = predict_labels_vox.detach().cpu()
+            predict_labels_vox = predict_labels_vox.detach().npu()
             for count in range(len(val_grid_int)):
                 CalMeanIou_pts._after_step(predict_labels_pts[count], val_pt_labs[count])
                 CalMeanIou_vox._after_step(
@@ -187,8 +203,8 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     
-    ngpus = torch.cuda.device_count()
-    args.gpus = ngpus
+    npus = torch.cuda.device_count()
+    args.npus = npus
     print(args)
 
-    torch.multiprocessing.spawn(main, args=(args,), nprocs=args.gpus)
+    torch.multiprocessing.spawn(main, args=(args,), nprocs=args.npus)

@@ -1,3 +1,16 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 import torch
 import torch.nn as nn
@@ -47,9 +60,9 @@ class TPVFormerHead(BaseModule):
         # transformer layers
         self.encoder = build_transformer_layer_sequence(encoder)
         self.level_embeds = nn.Parameter(
-            torch.Tensor(self.num_feature_levels, self.embed_dims))
+            torch.Tensor(self.num_feature_levels, self.embed_dims).npu())
         self.cams_embeds = nn.Parameter(
-            torch.Tensor(self.num_cams, self.embed_dims))
+            torch.Tensor(self.num_cams, self.embed_dims).npu())
         self.tpv_embedding_hw = nn.Embedding(self.tpv_h * self.tpv_w, self.embed_dims)
         self.tpv_embedding_zh = nn.Embedding(self.tpv_z * self.tpv_h, self.embed_dims)
         self.tpv_embedding_wz = nn.Embedding(self.tpv_w * self.tpv_z, self.embed_dims)
@@ -92,7 +105,7 @@ class TPVFormerHead(BaseModule):
         tpv_pos_zh = self.positional_encoding(bs, device, 'w')
         tpv_pos_wz = self.positional_encoding(bs, device, 'h')
         tpv_pos = [tpv_pos_hw, tpv_pos_zh, tpv_pos_wz]
-        
+
         # flatten image features of different scales
         feat_flatten = []
         spatial_shapes = []

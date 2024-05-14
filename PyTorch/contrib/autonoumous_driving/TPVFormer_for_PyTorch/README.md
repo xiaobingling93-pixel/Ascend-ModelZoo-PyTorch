@@ -1,65 +1,112 @@
-# TPVFormer: An academic alternative to Tesla's Occupancy Network
-### [Paper](https://arxiv.org/pdf/2302.07817) | [Project Page](https://wzzheng.net/TPVFormer/) | [Leaderboard](https://www.nuscenes.org/lidar-segmentation?externalData=all&mapData=all&modalities=Camera)
+# TPVFormer_for_PyTorch
 
-> Tri-Perspective View for Vision-Based 3D Semantic Occupancy Prediction, CVPR 2023
+# 目录
+- [简介](#简介)
+  - [模型介绍](#模型介绍)
+  - [代码实现](#代码实现)
+- [准备训练环境](#准备训练环境)
+  - [安装昇腾环境](#安装昇腾环境)
+  - [安装模型环境](#安装模型环境)
+- [准备数据集](#准备数据集)
+  - [预训练数据集](#预训练数据集)
+  - [获取预训练权重](#获取预训练权重)
+- [快速开始](#快速开始)
+  - [训练模型](#训练模型)
+  - [训练结果](#训练结果)
+- [公网地址说明](#公网地址说明)
+- [变更说明](#变更说明)
+- [FAQ](#FAQ)
 
-> [Yuanhui Huang](https://scholar.google.com/citations?hl=zh-CN&user=LKVgsk4AAAAJ)*, [Wenzhao Zheng](https://wzzheng.net/)\* $\dagger$, [Yunpeng Zhang](https://scholar.google.com/citations?user=UgadGL8AAAAJ&hl=zh-CN&oi=ao), [Jie Zhou](https://scholar.google.com/citations?user=6a79aPwAAAAJ&hl=en&authuser=1), [Jiwen Lu](http://ivg.au.tsinghua.edu.cn/Jiwen_Lu/)$\ddagger$
 
-\* Equal contribution $\dagger$ Project leader $\ddagger$ Corresponding author
+# 简介
 
-## News
+## 模型介绍
 
-- **[2023/11/28]** We have released a 3D occupancy world model [OccWorld](https://github.com/wzzheng/OccWorld)! 
-- **[2023/11/23]** Check out our recent [SelfOcc](https://github.com/huang-yh/SelfOcc) for **self-supervised** 3D occupancy prediction! 
-- **[2023/6/14]** Code for Semantic Scene Completion on SemanticKITTI has been released.
-- **[2023/4/12]** Check out [OccFormer](https://github.com/zhangyp15/OccFormer) for a high-performing head for occupancy prediction!
-- **[2023/3/3]** We have reorganized the code to improve readability.  
-- **[2023/2/28]** TPVFormer is accepted to CVPR 2023!
-- **[2023/2/26]** See [SurroundOcc](https://github.com/weiyithu/SurroundOcc) for a more dense 3D occupancy prediction!
-- **[2023/2/23]** Visualization code has been released.
-- **[2023/2/16]** Paper released on [arXiv](https://arxiv.org/abs/2302.07817).
-- **[2023/2/12]** Initial code release.
-- **[2022/11/20]** Demo release.
+*TPVFormer*是一个经典的深度学习网络，可用于3D目标检测，3D语义分割，视频动作识别，自动驾驶等场景。它通过结合三维几何信息与时空Transformer来解决3D场景理解和视频分析中的复杂任务。其核心是将Transformer的注意力机制扩展到空间-时间域，用来捕捉帧间的动态信息和空间内的上下文关系。同时还融入3D几何信息，通过对输入数据预处理获取点云或3D网格的结构信息，然后与Transformer的特征表示融合，以增强模型的空间理解能力。
 
-## Demo
+## 代码实现
+- 参考实现：
 
-![demo](./assets/demo.gif)
-
-![legend](./assets/legend.png)
-
-### A full demo video can be downloaded [here](https://cloud.tsinghua.edu.cn/f/594cadf14ae949228df1/).
-
-## Introduction
-Modern methods for vision-centric autonomous driving perception widely adopt the bird's-eye-view (BEV) representation to describe a 3D scene. Despite its better efficiency than voxel representation, it has difficulty describing the fine-grained 3D structure of a scene with a single plane. To address this, we propose a tri-perspective view (TPV) representation which accompanies BEV with two additional perpendicular planes. We model each point in the 3D space by summing its projected features on the three planes. To lift image features to the 3D TPV space, we further propose a transformer-based TPV encoder (TPVFormer) to obtain the TPV features effectively. We employ the attention mechanism to aggregate the image features corresponding to each query in each TPV plane. Experiments show that our model trained with sparse supervision effectively predicts the semantic occupancy for all voxels. We demonstrate for the first time that using only camera inputs can achieve comparable performance with LiDAR-based methods on the LiDAR segmentation task on nuScenes.
-
-## Installation
-
-1. Create conda environment with python version 3.8
-
-2. Install pytorch and torchvision with versions specified in requirements.txt
-
-3. Follow instructions in https://mmdetection3d.readthedocs.io/en/latest/getting_started.html#installation to install mmcv-full, mmdet, and mmsegmentation with versions specified in requirements.txt
-
-4. Install timm, numba and pyyaml with versions specified in requirements.txt
-
-## Preparing
-1. Download pretrain weights from https://github.com/zhiqi-li/storage/releases/download/v1.0/r101_dcn_fcos3d_pretrain.pth and put it in ckpts/
-
-2. Create soft link from data/nuscenes to your_nuscenes_path
-   
-3. Download our generated train/val pickle files and put them in data/
-    nuscenes_infos_train.pkl
-    https://cloud.tsinghua.edu.cn/f/ede3023e01874b26bead/?dl=1
-    nuscenes_infos_val.pkl
-    https://cloud.tsinghua.edu.cn/f/61d839064a334630ac55/?dl=1
-
+  ```
+  url=https://github.com/wzzheng/TPVFormer.git
+  commit_id=a1cf223ae4b79f56a2b046016c35a8fb3a0b6284
+  ```
   
+- 适配昇腾 AI 处理器的实现：
 
-  The dataset should be organized as follows:
+  ```
+  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  code_path=PyTorch/contrib/autonoumous_driving
+  ```
+
+# 准备训练环境
+## 安装昇腾环境
+请参考昇腾社区中《[Pytorch框架训练环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/ptes)》文档搭建昇腾环境。本仓已支持表1中软件版本。
+  
+  **表 1**  昇腾软件版本支持表
+
+  |        软件类型        |   支持版本   |
+  |:------------------:|:--------:|
+  | FrameworkPTAdapter | 8.0.RC2  |
+  |       CANN         | 8.0.RC2  |
+  |      昇腾NPU固件       | 24.0.RC2 |
+  |      昇腾NPU驱动       | 24.0.RC2 |
+
+## 安装模型环境
+
+ 当前模型支持的 PyTorch 版本和已知三方库依赖如下表所示。
+
+  **表 2**  版本支持表
+
+  |      三方库       |  支持版本  |
+  |:--------------:|:------:|
+  |    PyTorch     |  2.1   |
+  |    ADS-Accelerator     | latest |
+  |      mmcv      |  1.x   |
+  |     mmdet      | 2.28.2 |
+  | mmsegmentation | 0.30.0 |
+
+- 安装ADS-Accelerator
+
+  请参考昇腾[ads](https://gitee.com/ascend/ads)代码仓说明编译安装ADS-Accelerator
+
+- 安装基础依赖
+
+  在模型源码包根目录下执行命令，安装模型需要的依赖。
+  
+  ```
+  pip install opencv-python==4.9.0.80
+
+  pip install -r requirements.txt
+  ```
+
+- 安装mmcv
+
+  在mmcv官网获取[mmcv 1.x](https://github.com/open-mmlab/mmcv/tree/1.x)分支源码，解压至`$YOURMMCVPATH`。将`mmcv_replace`中的文件拷贝到`$YOURMMCVPATH/mmcv`覆盖原文件。运行以下命令
+  ```
+  cd $YOURMMCVPATH
+  MMCV_WITH_OPS=1 FORCE_NPU=1 python setup.py install
+  ```
+- 安装mmdet和mmsegmentation
+  ```
+  pip install mmdet==2.28.2
+  pip install mmsegmentation==0.30.0
+  ```
+
+# 准备数据集
+
+## 预训练数据集
+用户自行获取*nuscenes*数据集，在源码目录创建软连接`data/nuscenes`指向解压后的nuscenes数据目录
+
+## 获取预训练权重
+1. 下载预训练权重文件[r101_dcn_fcos3d_pretrain.pth](https://github.com/zhiqi-li/storage/releases/download/v1.0/r101_dcn_fcos3d_pretrain.pth)拷贝至目录`ckpts/`
+2. 下载预生成的[nuscenes_infos_train.pkl](https://cloud.tsinghua.edu.cn/f/ede3023e01874b26bead/?dl=1)和[nuscenes_infos_val.pkl](https://cloud.tsinghua.edu.cn/f/61d839064a334630ac55/?dl=1) 拷贝至目录`data/`
+
+  整理好的数据集目录如下:
 
 ```
-TPVFormer/data
-    nuscenes                 -    downloaded from www.nuscenes.org
+TPVFormer_for_PyTorch/data
+    nuscenes
         lidarseg
         maps
         samples
@@ -69,72 +116,66 @@ TPVFormer/data
     nuscenes_infos_val.pkl
 ```
 
-## Getting Started
-### Training
+# 快速开始
 
-1. Train TPVFormer for lidar segmentation task on A100 with 40G GPU memory.
-```
-bash launcher.sh config/tpv_lidarseg.py out/tpv_lidarseg 
-```
+## 训练模型
 
-2. Train TPVFormer for lidar segmentation task on 3090 with 24G GPU memory.
-```
-bash launcher.sh config/tpv_lidarseg_dim64.py out/tpv_lidarseg_dim64
-```
+1. 进入解压后的源码包根目录。
 
-3. Train TPVFormer for 3D semantic occupancy prediction task on 3090 with 24G GPU memory. 
-```
-bash launcher.sh config/tpv04_occupancy.py out/tpv_occupancy
-```
+   ```
+   cd /${模型文件夹名称} 
+   ```
 
-### Evaluation for LiDAR Segmentation Metric
+2. *lidar segmentation dim64*任务训练
 
-1. We release the weights for 3D semantic occupancy prediction at https://cloud.tsinghua.edu.cn/f/3fbd12101ead4397a0f7/?dl=1, and the weights for LiDAR segmentation at https://cloud.tsinghua.edu.cn/f/f686e97feb18406592d9/?dl=1.
+- 单机单卡训练
 
-2. Run eval.py to calculate mIoU for lidarseg.
+     ```
+     bash ./test/train_1p.sh --py_config=config/tpv_lidarseg_dim64.py # 单卡精度
+     
+     bash ./test/train_1p.sh --py_config=config/tpv_lidarseg_dim64.py --performance=1  # 单卡性能
+     ```
+   
+- 单机8卡训练
 
-```
-python eval.py --py-config xxxx --ckpt-path xxxx
-```
+     ```
+     bash ./test/train_8p.sh --py_config=config/tpv_lidarseg_dim64.py # 8卡精度
 
-### Visualizations
+     bash ./test/train_8p.sh --py_config=config/tpv_lidarseg_dim64.py --performance=1 # 8卡性能 
+     ```
 
-Read visualization/readme.md for detailed instructions.
+  模型训练脚本参数说明如下。
+   
+   ```
+   公共参数：
+   --py_config                              //不同类型任务配置文件
+   --performance                            //--performance=1开启性能测试，默认不开启
+   --work_dir                               //输出路径包括日志和训练参数
+   ```
 
-## Semantic Scene Completion on SemanticKITTI
-Please refer to [kitti_ssc](https://github.com/wzzheng/TPVFormer/tree/3734fe1e9af71fd93755996d2c74c3ab10d9d064/kitti_ssc) for more details.
+   训练完成后，权重文件保存在当前路径下，并输出模型训练精度和性能信息。
 
-## Comparisons with Tesla's Occupancy Network
 
-|                          | **Tesla's Occupancy Network**        | **Our TPVFormer**                |
-| ------------------------ | ------------------------------------ | -------------------------------- |
-| **Volumetric Occupancy** | Yes                                  | Yes                              |
-| **Occupancy Semantics**  | Yes                                  | Yes                              |
-| **#Semantics**           | >= 5                                 | **16**                           |
-| **Input**                | 8 camera images                      | 6 camera images                  |
-| **Training Supervision** | Dense 3D reconstruction              | **Sparse LiDAR semantic labels** |
-| **Training Data**        | ~1,440,000,000 frames                | **28,130 frames**                |
-| **Arbitrary Resolution** | Yes                                  | Yes                              |
-| **Video Context**        | **Yes**                              | Not yet                          |
-| **Training Time**        | ~100,000 gpu hours                   | **~300 gpu hours**               |
-| **Inference Time**       | **~10 ms on the Tesla FSD computer** | ~290 ms on a single A100         |
+## 训练结果
 
-## Related Projects
-Our code is based on [BEVFormer](https://github.com/fundamentalvision/BEVFormer) and [Cylinder3D](https://github.com/xinge008/Cylinder3D). Many thanks to them!
+**表 3**  *lidar segmentation dim64*训练结果展示表
 
-Welcome to see  [SurroundOcc](https://github.com/weiyithu/SurroundOcc) for a more dense 3D occupancy prediction. You can also use [SurroundOcc](https://github.com/weiyithu/SurroundOcc)'s generated dense occupancy ground truths for training instead of sparse lidar supervision.
+|  芯片      | 卡数 |  mIoU  | FPS  | Max epochs |
+|:--------:|----|:------:|:----:|:----------:|
+|   GPU    | 1p |   -    | 0.71 |     1      |
+|   GPU    | 8p | 54.498 | 8.08 |     24     |
+| Atlas A2 | 1p |   -    | 0.4  |     1      |
+| Atlas A2 | 8p | 54.344 | 3.05 |     24     |
 
-Also, remember to check out [OccFormer](https://github.com/zhangyp15/OccFormer) for an effective and efficient transformer encoder-decoder specially designed for occupancy prediction.
 
-## Citation
+# 公网地址说明
+代码涉及公网地址参考 public_address_statement.md
 
-If you find this project helpful, please consider citing the following paper:
-```
-@article{huang2023tri,
-    title={Tri-Perspective View for Vision-Based 3D Semantic Occupancy Prediction},
-    author={Huang, Yuanhui and Zheng, Wenzhao and Zhang, Yunpeng and Zhou, Jie and Lu, Jiwen },
-    journal={arXiv preprint arXiv:2302.07817},
-    year={2023}
-}
-```
+# 变更说明
+2024.05.13：首次发布。
+
+## FAQ
+暂无。
+
+
 

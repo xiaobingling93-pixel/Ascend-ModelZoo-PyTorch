@@ -1,6 +1,22 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 import os, time, argparse, os.path as osp, numpy as np
 import torch
+import torch.nn as nn
+import torch_npu
+from torch_npu.contrib import transfer_to_npu
 import torch.distributed as dist
 
 from utils.metric_util import MeanIoU
@@ -23,7 +39,7 @@ def pass_print(*args, **kwargs):
 
 def main(local_rank, args):
     # global settings
-    torch.backends.cudnn.benchmark = True
+    # torch.backends.cudnn.benchmark = True
 
     # load config
     cfg = Config.fromfile(args.py_config)
@@ -35,7 +51,10 @@ def main(local_rank, args):
     train_dataloader_config = cfg.train_data_loader
     val_dataloader_config = cfg.val_data_loader
 
-    max_num_epochs = cfg.max_epochs
+    if args.max_epochs != 0:
+        max_num_epochs = args.max_epochs
+    else:
+        max_num_epochs = cfg.max_epochs
     grid_size = cfg.grid_size
 
     # init DDP
@@ -44,14 +63,14 @@ def main(local_rank, args):
     port = os.environ.get("MASTER_PORT", "20506")
     hosts = int(os.environ.get("WORLD_SIZE", 1))  # number of nodes
     rank = int(os.environ.get("RANK", 0))  # node id
-    gpus = torch.cuda.device_count()  # gpus per node
+    npus = torch.cuda.device_count()  # gpus per node
     print(f"tcp://{ip}:{port}")
     dist.init_process_group(
-        backend="nccl", init_method=f"tcp://{ip}:{port}", 
-        world_size=hosts * gpus, rank=rank * gpus + local_rank
+        backend="hccl", init_method=f"tcp://{ip}:{port}",
+        world_size=hosts * npus, rank=rank * npus + local_rank
     )
     world_size = dist.get_world_size()
-    cfg.gpu_ids = range(world_size)
+    cfg.npu_ids = range(world_size)
     torch.cuda.set_device(local_rank)
 
     if dist.get_rank() != 0:
@@ -176,7 +195,7 @@ def main(local_rank, args):
         data_time_s = time.time()
         time_s = time.time()
         for i_iter, (imgs, img_metas, train_vox_label, train_grid, train_pt_labs) in enumerate(train_dataset_loader):
-            
+
             imgs = imgs.cuda()
             train_grid = train_grid.to(torch.float32).cuda()
             if cfg.lovasz_input == 'voxel' or cfg.ce_input == 'voxel':
@@ -200,7 +219,7 @@ def main(local_rank, args):
                 ce_label = train_pt_labs.squeeze(-1)
 
             loss = lovasz_softmax(
-                torch.nn.functional.softmax(lovasz_input, dim=1), 
+                torch.nn.functional.softmax(lovasz_input, dim=1),
                 lovasz_label, ignore=ignore_label
             ) + loss_func(ce_input, ce_label)
 
@@ -215,14 +234,14 @@ def main(local_rank, args):
             global_iter += 1
             if i_iter % print_freq == 0 and dist.get_rank() == 0:
                 lr = optimizer.param_groups[0]['lr']
-                logger.info('[TRAIN] Epoch %d Iter %5d/%d: Loss: %.3f (%.3f), grad_norm: %.1f, lr: %.7f, time: %.3f (%.3f)'%(
-                    epoch, i_iter, len(train_dataset_loader), 
-                    loss.item(), np.mean(loss_list), grad_norm, lr,
+                logger.info('[TRAIN] Epoch %d Iter %5d/%d: Loss: %.3f, grad_norm: %.1f, lr: %.7f, time: %.3f (%.3f)'%(
+                    epoch, i_iter, len(train_dataset_loader),
+                    loss.item(), grad_norm, lr,
                     time_e - time_s, data_time_e - data_time_s
                 ))
             data_time_s = time.time()
             time_s = time.time()
-        
+
         # save checkpoint
         if dist.get_rank() == 0:
             dict_to_save = {
@@ -240,7 +259,11 @@ def main(local_rank, args):
             mmcv.symlink(save_file_name, dst_file)
 
         epoch += 1
-        
+
+        # 性能测试任务不执行eval
+        if max_num_epochs == 1:
+            return
+
         # eval
         my_model.eval()
         val_loss_list = []
@@ -278,11 +301,11 @@ def main(local_rank, args):
                 
                 predict_labels_pts = predict_labels_pts.squeeze(-1).squeeze(-1)
                 predict_labels_pts = torch.argmax(predict_labels_pts, dim=1) # bs, n
-                predict_labels_pts = predict_labels_pts.detach().cpu()
-                val_pt_labs = val_pt_labs.squeeze(-1).cpu()
+                predict_labels_pts = predict_labels_pts.detach().npu()
+                val_pt_labs = val_pt_labs.squeeze(-1).npu()
                 
                 predict_labels_vox = torch.argmax(predict_labels_vox, dim=1)
-                predict_labels_vox = predict_labels_vox.detach().cpu()
+                predict_labels_vox = predict_labels_vox.detach().npu()
                 for count in range(len(val_grid_int)):
                     CalMeanIou_pts._after_step(predict_labels_pts[count], val_pt_labs[count])
                     CalMeanIou_vox._after_step(
@@ -319,11 +342,13 @@ if __name__ == '__main__':
     parser.add_argument('--py-config', default='config/tpv_lidarseg.py')
     parser.add_argument('--work-dir', type=str, default='./out/tpv_lidarseg')
     parser.add_argument('--resume-from', type=str, default='')
+    parser.add_argument('--max-epochs', type=int, default=0, metavar='N',
+                        help='number of epochs to train')
 
     args = parser.parse_args()
-    
-    ngpus = torch.cuda.device_count()
-    args.gpus = ngpus
+
+    npus = torch.cuda.device_count()
+    args.npus = npus
     print(args)
 
-    torch.multiprocessing.spawn(main, args=(args,), nprocs=args.gpus)
+    torch.multiprocessing.spawn(main, args=(args,), nprocs=args.npus)
