@@ -180,7 +180,7 @@
               --save_dir ./results_unetCache \
               --steps 50 \
               --output_dir ./models \
-              --soc A2
+              --soc A2 \
               --use_cache
       
       # 使用UnetCache策略,同时使用双卡并行策略
@@ -191,7 +191,7 @@
               --save_dir ./results_unetCache_parallel \
               --steps 50 \
               --output_dir ./models \
-              --soc A2
+              --soc A2 \
               --use_cache
       ```
 
@@ -269,7 +269,7 @@
               --device 0 \
               --save_dir ./results_PartiPrompts_unetCache \
               --steps 50 \
-              --output_dir ./models
+              --output_dir ./models \
               --use_cache
 
       # 使用UnetCache策略,同时使用双卡并行策略
@@ -282,7 +282,7 @@
               --device 0 \
               --save_dir ./results_PartiPrompts_unetCache_parallel \
               --steps 50 \
-              --output_dir ./models
+              --output_dir ./models \
               --use_cache
 
       ```
