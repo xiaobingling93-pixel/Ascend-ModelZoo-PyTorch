@@ -1,0 +1,9 @@
+| 类型 | 开源代码地址 | 文件名                                       | 公网IP地址/公网URL地址/域名/邮箱地址                                                      | 用途说明 |
+| ---- | ------------ |-------------------------------------------|-----------------------------------------------------------------------------| -------- |
+| 开源代码引入 | https://github.com/WisdomShell/codeshell/blob/main/finetune/finetune.py| CodeShell-7B/finetune/finetune.py	        | /                                                                           | 源码实现 |
+| 开源代码引入 | https://github.com/WisdomShell/codeshell/blob/main/finetune/run_finetune.sh| CodeShell-7B/finetune/run_finetune.sh	    | /                                                                           | 源码实现 |
+| 开源代码引入 | https://huggingface.co/WisdomShell/CodeShell-7B/blob/main/modeling_codeshell.py| CodeShell-7B/model/modeling_codeshell.py	 | https://openai.com/blog/better-language-models/                             | 源码实现 |
+| 开源代码引入 | https://huggingface.co/WisdomShell/CodeShell-7B/blob/main/modeling_codeshell.py| CodeShell-7B/model/modeling_codeshell.py	 | https://github.com/NVIDIA/Megatron-LM/blob/main/megatron/model/gpt_model.py | 源码实现 |
+| 开源代码引入 | https://huggingface.co/WisdomShell/CodeShell-7B/blob/main/modeling_codeshell.py| CodeShell-7B/model/modeling_codeshell.py	 | https://github.com/pytorch/pytorch/pull/5617                                | 源码实现 |
+| 开源代码引入 | https://huggingface.co/WisdomShell/CodeShell-7B/blob/main/modeling_codeshell.py| CodeShell-7B/model/modeling_codeshell.py	 | https://pytorch.org/docs/stable/nn.html#torch.nn.Module                     | 源码实现 |
+| 开源代码引入 | https://github.com/lm-sys/FastChat/blob/main/fastchat/data/convert_alpaca.py| CodeShell-7B/convert_alpaca.py	           | /                                                                           | 源码实现 |
