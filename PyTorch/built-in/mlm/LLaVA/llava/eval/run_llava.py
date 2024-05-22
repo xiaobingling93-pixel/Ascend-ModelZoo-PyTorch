@@ -1,3 +1,4 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 import argparse
 import torch
 
@@ -10,7 +11,7 @@ from llava.constants import (
 )
 from llava.conversation import conv_templates, SeparatorStyle
 from llava.model.builder import load_pretrained_model
-from llava.utils import disable_torch_init
+from llava.utils import disable_torch_init, is_npu_available
 from llava.mm_utils import (
     process_images,
     tokenizer_image_token,
@@ -24,6 +25,9 @@ from PIL import Image
 from io import BytesIO
 import re
 
+if is_npu_available():
+    import torch_npu
+    from torch_npu.contrib import transfer_to_npu
 
 def image_parser(args):
     out = args.image_file.split(args.sep)

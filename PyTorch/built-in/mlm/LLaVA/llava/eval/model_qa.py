@@ -1,3 +1,4 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 import argparse
 from transformers import AutoTokenizer, AutoModelForCausalLM, StoppingCriteria
 import torch
@@ -7,8 +8,11 @@ from tqdm import tqdm
 import shortuuid
 
 from llava.conversation import default_conversation
-from llava.utils import disable_torch_init
+from llava.utils import disable_torch_init, is_npu_available
 
+if is_npu_available():
+    import torch_npu
+    from torch_npu.contrib import transfer_to_npu
 
 @torch.inference_mode()
 def eval_model(model_name, questions_file, answers_file):
