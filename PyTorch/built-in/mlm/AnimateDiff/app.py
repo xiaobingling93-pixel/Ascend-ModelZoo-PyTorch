@@ -1,4 +1,4 @@
-
+# Copyright 2024 Huawei Technologies Co., Ltd
 import os
 import json
 import torch
@@ -17,9 +17,14 @@ from transformers import CLIPTextModel, CLIPTokenizer
 
 from animatediff.models.unet import UNet3DConditionModel
 from animatediff.pipelines.pipeline_animation import AnimationPipeline
-from animatediff.utils.util import save_videos_grid
+from animatediff.utils.util import save_videos_grid, is_npu_available
 from animatediff.utils.convert_from_ckpt import convert_ldm_unet_checkpoint, convert_ldm_clip_checkpoint, convert_ldm_vae_checkpoint
 from animatediff.utils.convert_lora_safetensor_to_diffusers import convert_lora
+
+if is_npu_available():
+    import torch_npu
+    from torch_npu.contrib import transfer_to_npu
+
 
 
 sample_idx     = 0
@@ -150,7 +155,7 @@ class AnimateController:
         if base_model_dropdown == "":
             raise gr.Error(f"Please select a base DreamBooth model.")
 
-        if is_xformers_available(): self.unet.enable_xformers_memory_efficient_attention()
+        if is_xformers_available() and not is_npu_available(): self.unet.enable_xformers_memory_efficient_attention()
 
         pipeline = AnimationPipeline(
             vae=self.vae, text_encoder=self.text_encoder, tokenizer=self.tokenizer, unet=self.unet,

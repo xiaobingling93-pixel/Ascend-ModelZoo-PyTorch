@@ -21,7 +21,7 @@
 
 
 # motion module v1_15
-- dreambooth_path: "models/DreamBooth_LoRA/CounterfeitV30_25.safetensors"
+- dreambooth_path: "models/DreamBooth_LoRA/CounterfeitV30_v30.safetensors"
   lora_model_path: "models/DreamBooth_LoRA/lora_Ghibli_n3.safetensors"
   lora_alpha: 1.0
 

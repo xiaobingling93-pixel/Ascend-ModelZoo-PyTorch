@@ -1,3 +1,4 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 import os, io, csv, math, random
 import numpy as np
 from einops import rearrange
@@ -31,7 +32,7 @@ class WebVid10M(Dataset):
         sample_size = tuple(sample_size) if not isinstance(sample_size, int) else (sample_size, sample_size)
         self.pixel_transforms = transforms.Compose([
             transforms.RandomHorizontalFlip(),
-            transforms.Resize(sample_size[0]),
+            transforms.Resize(sample_size[0], antialias=None),
             transforms.CenterCrop(sample_size),
             transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5], inplace=True),
         ])

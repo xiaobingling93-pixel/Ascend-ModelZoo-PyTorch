@@ -1,3 +1,4 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 import argparse
 import datetime
 import inspect
@@ -17,7 +18,7 @@ from animatediff.models.unet import UNet3DConditionModel
 from animatediff.models.sparse_controlnet import SparseControlNetModel
 from animatediff.pipelines.pipeline_animation import AnimationPipeline
 from animatediff.utils.util import save_videos_grid
-from animatediff.utils.util import load_weights
+from animatediff.utils.util import load_weights, is_npu_available
 from diffusers.utils.import_utils import is_xformers_available
 
 from einops import rearrange, repeat
@@ -26,6 +27,10 @@ import csv, pdb, glob, math
 from pathlib import Path
 from PIL import Image
 import numpy as np
+
+if is_npu_available():
+    import torch_npu
+    from torch_npu.contrib import transfer_to_npu
 
 
 @torch.no_grad()
@@ -113,6 +118,8 @@ def main(args):
 
         # set xformers
         if is_xformers_available() and (not args.without_xformers):
+            if is_npu_available():
+                raise ValueError("AscendNPU does not support xformers acceleration.")
             unet.enable_xformers_memory_efficient_attention()
             if controlnet is not None: controlnet.enable_xformers_memory_efficient_attention()
 
