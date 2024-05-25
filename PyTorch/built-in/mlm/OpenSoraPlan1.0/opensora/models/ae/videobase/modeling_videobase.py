@@ -1,3 +1,6 @@
+#Copyright 2024 Huawei Technologies Co. Ltd
+
+
 import torch
 from diffusers import ModelMixin, ConfigMixin
 from torch import nn
@@ -9,7 +12,7 @@ from diffusers.models.modeling_utils import ModelMixin
 from typing import Optional, Union
 import glob
 
-class VideoBaseAE(ModelMixin, ConfigMixin):
+class VideoBaseAE(nn.Module):
     _supports_gradient_checkpointing = False
     
     def __init__(self, *args, **kwargs) -> None:
