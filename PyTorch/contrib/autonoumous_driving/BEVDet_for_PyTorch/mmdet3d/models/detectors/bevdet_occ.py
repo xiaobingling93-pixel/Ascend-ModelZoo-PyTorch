@@ -1,3 +1,17 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 # Copyright (c) Phigent Robotics. All rights reserved.
 from .bevdet import BEVStereo4D
 
@@ -29,7 +43,7 @@ class BEVStereo4DOCC(BEVStereo4D):
                         kernel_size=3,
                         stride=1,
                         padding=1,
-                        bias=True,
+                        bias=False,
                         conv_cfg=dict(type='Conv3d'))
         self.use_predicter =use_predicter
         if use_predicter:
@@ -124,7 +138,7 @@ class BEVStereo4DOCC(BEVStereo4D):
         loss_depth = self.img_view_transformer.get_depth_loss(gt_depth, depth)
         losses['loss_depth'] = loss_depth
 
-        occ_pred = self.final_conv(img_feats[0]).permute(0, 4, 3, 2, 1) # bncdhw->bnwhdc
+        occ_pred = self.final_conv(img_feats[0].half()).permute(0, 4, 3, 2, 1) # bncdhw->bnwhdc
         if self.use_predicter:
             occ_pred = self.predicter(occ_pred)
         voxel_semantics = kwargs['voxel_semantics']

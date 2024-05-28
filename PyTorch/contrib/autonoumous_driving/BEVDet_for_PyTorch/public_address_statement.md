@@ -96,3 +96,4 @@
 |开源代码引入|https://github.com/HuangJunJie2110/BEVDet.git|configs/3dssd/3dssd_4x4_kitti-3d-car.py|https://mmcv.readthedocs.io/en/latest/api.html#mmcv.fileio.FileClient|源码实现|
 |开源代码引入|https://github.com/HuangJunJie2111/BEVDet.git|setup.py|https://github.com/open-mmlab/mmdetection3d|源码实现|
 |开源代码引入|https://github.com/HuangJunJie2112/BEVDet.git|setup.py|http://setuptools.readthedocs.io/en/latest/setuptools.html|源码实现|
+|开源代码引入|https://github.com/open-mmlab/mmcv.git|mmcv_replace/parallel/distributed.py|https://github.com/open-mmlab/mmsegmentation/issues/1742|源码实现|

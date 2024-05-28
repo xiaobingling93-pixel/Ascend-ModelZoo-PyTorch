@@ -1,3 +1,17 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 # Copyright (c) Phigent Robotics. All rights reserved.
 
 import torch
@@ -8,6 +22,17 @@ from torch.utils.checkpoint import checkpoint
 from mmdet3d.models.backbones.resnet import ConvModule
 from mmdet.models import NECKS
 
+
+class Interpolate(nn.Module):
+    def __init__(self, scale, mode):
+        super(Interpolate, self).__init__()
+        self.interp = nn.functional.interpolate
+        self.scale = scale
+        self.mode = mode
+
+    def forward(self, x):
+        x = self.interp(x, scale_factor=self.scale, mode=self.mode, align_corners=True)
+        return x
 
 @NECKS.register_module()
 class FPN_LSS(nn.Module):
@@ -24,8 +49,7 @@ class FPN_LSS(nn.Module):
         super().__init__()
         self.input_feature_index = input_feature_index
         self.extra_upsample = extra_upsample is not None
-        self.up = nn.Upsample(
-            scale_factor=scale_factor, mode='bilinear', align_corners=True)
+        self.up = Interpolate(scale_factor, 'bilinear')
         # assert norm_cfg['type'] in ['BN', 'SyncBN']
         channels_factor = 2 if self.extra_upsample else 1
         self.input_conv = nn.Sequential(
@@ -63,10 +87,7 @@ class FPN_LSS(nn.Module):
         )
         if self.extra_upsample:
             self.up2 = nn.Sequential(
-                nn.Upsample(
-                    scale_factor=extra_upsample,
-                    mode='bilinear',
-                    align_corners=True),
+                Interpolate(extra_upsample, 'bilinear'),
                 nn.Conv2d(
                     out_channels * channels_factor,
                     out_channels,

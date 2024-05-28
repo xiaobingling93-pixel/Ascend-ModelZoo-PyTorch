@@ -1,9 +1,22 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 # Copyright (c) Phigent Robotics. All rights reserved.
 import torch
 import torch.nn.functional as F
 from mmcv.runner import force_fp32
 
-from mmdet3d.ops.bev_pool_v2.bev_pool import TRTBEVPoolv2
 from mmdet.models import DETECTORS
 from .. import builder
 from .centerpoint import CenterPoint
@@ -213,58 +226,6 @@ class BEVDet(CenterPoint):
         assert self.with_pts_bbox
         outs = self.pts_bbox_head(img_feats)
         return outs
-
-
-@DETECTORS.register_module()
-class BEVDetTRT(BEVDet):
-
-    def result_serialize(self, outs):
-        outs_ = []
-        for out in outs:
-            for key in ['reg', 'height', 'dim', 'rot', 'vel', 'heatmap']:
-                outs_.append(out[0][key])
-        return outs_
-
-    def result_deserialize(self, outs):
-        outs_ = []
-        keys = ['reg', 'height', 'dim', 'rot', 'vel', 'heatmap']
-        for head_id in range(len(outs) // 6):
-            outs_head = [dict()]
-            for kid, key in enumerate(keys):
-                outs_head[0][key] = outs[head_id * 6 + kid]
-            outs_.append(outs_head)
-        return outs_
-
-    def forward(
-        self,
-        img,
-        ranks_depth,
-        ranks_feat,
-        ranks_bev,
-        interval_starts,
-        interval_lengths,
-    ):
-        x = self.img_backbone(img)
-        x = self.img_neck(x)
-        x = self.img_view_transformer.depth_net(x)
-        depth = x[:, :self.img_view_transformer.D].softmax(dim=1)
-        tran_feat = x[:, self.img_view_transformer.D:(
-            self.img_view_transformer.D +
-            self.img_view_transformer.out_channels)]
-        tran_feat = tran_feat.permute(0, 2, 3, 1)
-        x = TRTBEVPoolv2.apply(depth.contiguous(), tran_feat.contiguous(),
-                               ranks_depth, ranks_feat, ranks_bev,
-                               interval_starts, interval_lengths)
-        x = x.permute(0, 3, 1, 2).contiguous()
-        bev_feat = self.bev_encoder(x)
-        outs = self.pts_bbox_head([bev_feat])
-        outs = self.result_serialize(outs)
-        return outs
-
-    def get_bev_pool_input(self, input):
-        input = self.prepare_inputs(input)
-        coor = self.img_view_transformer.get_lidar_coor(*input[1:7])
-        return self.img_view_transformer.voxel_pooling_prepare_v2(coor)
 
 
 @DETECTORS.register_module()
@@ -630,7 +591,7 @@ class BEVStereo4D(BEVDepth4D):
             [x, sensor2keyego, ego2global, intrin, post_rot, post_tran, bda,
              mlp_input], metas)
         if self.pre_process:
-            bev_feat = self.pre_process_net(bev_feat)[0]
+            bev_feat = self.pre_process_net(bev_feat.half())[0]
         return bev_feat, depth, stereo_feat
 
     def extract_img_feat(self,

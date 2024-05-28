@@ -1,3 +1,17 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 # Copyright (c) OpenMMLab. All rights reserved.
 import torch
 import torch.nn as nn
@@ -7,7 +21,7 @@ from mmcv.runner import BaseModule, force_fp32
 from torch.cuda.amp.autocast_mode import autocast
 from torch.utils.checkpoint import checkpoint
 
-from mmdet3d.ops.bev_pool_v2.bev_pool import bev_pool_v2
+from ads.perception.fused import bev_pool_v2
 from mmdet.models.backbones.resnet import BasicBlock
 from ..builder import NECKS
 
@@ -121,18 +135,18 @@ class LSSViewTransformer(BaseModule):
         """
         H_in, W_in = input_size
         H_feat, W_feat = H_in // downsample, W_in // downsample
-        d = torch.arange(*depth_cfg, dtype=torch.float)\
-            .view(-1, 1, 1).expand(-1, H_feat, W_feat)
+        d = torch.arange(*depth_cfg, device='cpu').float().npu()
+        d = d.view(-1, 1, 1).expand(-1, H_feat, W_feat)
         self.D = d.shape[0]
         if self.sid:
-            d_sid = torch.arange(self.D).float()
-            depth_cfg_t = torch.tensor(depth_cfg).float()
+            d_sid = torch.arange(self.D, device='cpu').float().npu()
+            depth_cfg_t = torch.tensor(depth_cfg).float().npu()
             d_sid = torch.exp(torch.log(depth_cfg_t[0]) + d_sid / (self.D-1) *
                               torch.log((depth_cfg_t[1]-1) / depth_cfg_t[0]))
             d = d_sid.view(-1, 1, 1).expand(-1, H_feat, W_feat)
-        x = torch.linspace(0, W_in - 1, W_feat,  dtype=torch.float)\
+        x = torch.linspace(0, W_in - 1, W_feat,  dtype=torch.float).npu()\
             .view(1, 1, W_feat).expand(self.D, H_feat, W_feat)
-        y = torch.linspace(0, H_in - 1, H_feat,  dtype=torch.float)\
+        y = torch.linspace(0, H_in - 1, H_feat,  dtype=torch.float).npu()\
             .view(1, H_feat, 1).expand(self.D, H_feat, W_feat)
 
         # D x H x W x 3
@@ -165,19 +179,36 @@ class LSSViewTransformer(BaseModule):
         # post-transformation
         # B x N x D x H x W x 3
         points = self.frustum.to(sensor2ego) - post_trans.view(B, N, 1, 1, 1, 3)
-        points = torch.inverse(post_rots).view(B, N, 1, 1, 1, 3, 3)\
-            .matmul(points.unsqueeze(-1))
+        points = self.matmul_custom(
+            torch.inverse(post_rots).view(B*N, 1, 3, 3),
+            points.view(B*N, points.shape[2]*points.shape[3]*points.shape[4], 3, 1)
+        ).reshape(*points.shape, 1)
 
         # cam_to_ego
         points = torch.cat(
             (points[..., :2, :] * points[..., 2:3, :], points[..., 2:3, :]), 5)
         combine = sensor2ego[:,:,:3,:3].matmul(torch.inverse(cam2imgs))
-        points = combine.view(B, N, 1, 1, 1, 3, 3).matmul(points).squeeze(-1)
+        points = self.matmul_custom(
+            combine.view(B*N, 1, 3, 3),
+            points.view(B*N, points.shape[2] * points.shape[3] * points.shape[4], 3, 1)
+        ).reshape(*points.shape[:-1])
         points += sensor2ego[:,:,:3, 3].view(B, N, 1, 1, 1, 3)
-        points = bda[:, :3, :3].view(B, 1, 1, 1, 1, 3, 3).matmul(
-            points.unsqueeze(-1)).squeeze(-1)
+        points = self.matmul_custom(
+            bda[:, :3, :3].view(B, 1, 3, 3),
+            points.view(B, points.shape[1]*points.shape[2]*points.shape[3]*points.shape[4], 3, 1)
+        ).reshape(*points.shape)
         points += bda[:, :3, 3].view(B, 1, 1, 1, 1, 3)
         return points
+
+    def matmul_custom(self, b, a):
+        '''
+        Args:
+            b: size([B, 1, 3, 3])
+            a: size([B, x, 3, 1])
+        '''
+        b1 = b.permute(0, 3, 2, 1).squeeze(3)
+        a1 = a.squeeze(3)
+        return a1.matmul(b1).unsqueeze(-1)
 
     def init_acceleration_v2(self, coor):
         """Pre-compute the necessary information in acceleration including the
@@ -243,17 +274,17 @@ class LSSViewTransformer(BaseModule):
         B, N, D, H, W, _ = coor.shape
         num_points = B * N * D * H * W
         # record the index of selected points for acceleration purpose
-        ranks_depth = torch.range(
-            0, num_points - 1, dtype=torch.int, device=coor.device)
-        ranks_feat = torch.range(
-            0, num_points // D - 1, dtype=torch.int, device=coor.device)
+        ranks_depth = torch.arange(
+            0, num_points, dtype=torch.int, device=coor.device)
+        ranks_feat = torch.arange(
+            0, num_points // D, dtype=torch.int, device=coor.device)
         ranks_feat = ranks_feat.reshape(B, N, 1, H, W)
         ranks_feat = ranks_feat.expand(B, N, D, H, W).flatten()
         # convert coordinate into the voxel space
         coor = ((coor - self.grid_lower_bound.to(coor)) /
                 self.grid_interval.to(coor))
         coor = coor.long().view(num_points, 3)
-        batch_idx = torch.range(0, B - 1).reshape(B, 1). \
+        batch_idx = torch.arange(0, B).reshape(B, 1). \
             expand(B, num_points // B).reshape(num_points, 1).to(coor)
         coor = torch.cat((coor, batch_idx), 1)
 

@@ -1,3 +1,17 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 # Copyright (c) OpenMMLab. All rights reserved.
 import random
 import warnings
@@ -519,7 +533,7 @@ class ObjectSample(object):
                 input_dict['img'] = sampled_dict['img']
         gt_bboxes_ignore = np.ones_like(gt_labels_3d)
         gt_bboxes_ignore[num_exist:] = 0
-        gt_bboxes_ignore = gt_bboxes_ignore.astype(np.bool)
+        gt_bboxes_ignore = gt_bboxes_ignore.astype(np.bool_)
         input_dict['gt_bboxes_ignore'] = gt_bboxes_ignore
         input_dict['gt_bboxes_3d'] = gt_bboxes_3d
         input_dict['gt_labels_3d'] = gt_labels_3d.astype(np.int64)
@@ -924,14 +938,14 @@ class ObjectRangeFilter(object):
 
         if 'gt_bboxes_ignore' in input_dict:
             gt_bboxes_ignore = input_dict['gt_bboxes_ignore']
-            gt_bboxes_ignore = gt_bboxes_ignore[mask.numpy().astype(np.bool)]
+            gt_bboxes_ignore = gt_bboxes_ignore[mask.numpy().astype(np.bool_)]
             input_dict['gt_bboxes_ignore'] = gt_bboxes_ignore
         gt_bboxes_3d = gt_bboxes_3d[mask]
         # mask is a torch tensor but gt_labels_3d is still numpy array
         # using mask to index gt_labels_3d will cause bug when
         # len(gt_labels_3d) == 1, where mask=1 will be interpreted
         # as gt_labels_3d[1] and cause out of index error
-        gt_labels_3d = gt_labels_3d[mask.numpy().astype(np.bool)]
+        gt_labels_3d = gt_labels_3d[mask.cpu().numpy().astype(np.bool_)]
 
         # limit rad to [-pi, pi]
         gt_bboxes_3d.limit_yaw(offset=0.5, period=2 * np.pi)
