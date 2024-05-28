@@ -1,0 +1,5 @@
+decorator
+sympy
+attrs
+torchvision==0.18.1
+timm

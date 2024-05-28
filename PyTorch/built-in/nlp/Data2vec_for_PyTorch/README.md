@@ -36,11 +36,10 @@ data2vec 是首个适用于多模态的高性能自监督算法。Meta AI 将 da
 
   | Torch_Version      | 三方库依赖版本                                 |
   | :--------: | :----------------------------------------------------------: |
-  | PyTorch 1.5 | - |
-  | PyTorch 1.8 | - |
   | PyTorch 1.11   | - |
   | PyTorch 2.1   | - |
   | PyTorch 2.2   | torchvision=0.17.0 |
+  | PyTorch 2.3   | torchvision=0.18.1 |
 
 - 环境准备指导。
 
@@ -52,7 +51,8 @@ data2vec 是首个适用于多模态的高性能自监督算法。Meta AI 将 da
   pip uninstall fairseq
   pip install -e ./
   pip install -r requirements.txt
-  pip install -r requirements.txt    # PyTorch 2.2版本
+  pip install -r 2.2_requirements.txt    # PyTorch 2.2版本
+  pip install -r 2.3_requirements.txt    # PyTorch 2.3版本
   ```
 
 ## 准备数据集

@@ -1,3 +1,0 @@
-decorator
-sympy
-torchvision==0.2.2.post3

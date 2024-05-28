@@ -1,0 +1,10 @@
+cython
+matplotlib
+mmpycocotools
+six
+terminaltables
+torchvision==0.18.1
+Pillow==10.2.0
+numpy==1.23.0
+-r requirements/optional.txt
+-r requirements/tests.txt
