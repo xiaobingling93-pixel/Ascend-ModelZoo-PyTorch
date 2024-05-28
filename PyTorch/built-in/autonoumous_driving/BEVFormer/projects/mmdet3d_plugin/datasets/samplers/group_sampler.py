@@ -1,5 +1,6 @@
 
 # Copyright (c) OpenMMLab. All rights reserved.
+# Copyright 2024 Huawei Technologies Co., Ltd
 import math
 
 import numpy as np

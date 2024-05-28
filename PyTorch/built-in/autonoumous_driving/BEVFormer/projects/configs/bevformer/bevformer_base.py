@@ -226,7 +226,7 @@ data = dict(
 )
 
 optimizer = dict(
-    type='AdamW',
+    type='NpuFusedAdamW',
     lr=2e-4,
     paramwise_cfg=dict(
         custom_keys={

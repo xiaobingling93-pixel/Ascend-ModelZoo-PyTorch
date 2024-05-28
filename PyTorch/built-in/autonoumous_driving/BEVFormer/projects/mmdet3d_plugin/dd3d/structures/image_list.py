@@ -1,5 +1,6 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
 # Copyright 2021 Toyota Research Institute.  All rights reserved.
+# Copyright 2024 Huawei Technologies Co., Ltd
 from __future__ import division
 
 from typing import Any, List, Sequence, Tuple

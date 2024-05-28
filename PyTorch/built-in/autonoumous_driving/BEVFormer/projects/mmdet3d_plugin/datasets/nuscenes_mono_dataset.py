@@ -1,4 +1,5 @@
 # Copyright (c) OpenMMLab. All rights reserved.
+# Copyright 2024 Huawei Technologies Co., Ltd
 import copy
 import mmcv
 import numpy as np

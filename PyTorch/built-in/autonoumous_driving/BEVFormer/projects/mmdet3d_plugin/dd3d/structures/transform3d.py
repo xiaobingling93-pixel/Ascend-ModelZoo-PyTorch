@@ -1,4 +1,5 @@
 # Copyright (c) Meta Platforms, Inc. and affiliates.
+# Copyright 2024 Huawei Technologies Co., Ltd
 # All rights reserved.
 #
 # This source code is licensed under the BSD-style license found in the

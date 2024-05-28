@@ -1,10 +1,12 @@
 
 # Copyright (c) OpenMMLab. All rights reserved.
+# Copyright 2024 Huawei Technologies Co., Ltd
 import copy
 import platform
 import random
 from functools import partial
 
+import torch
 import numpy as np
 from mmcv.parallel import collate
 from mmcv.runner import get_dist_info
@@ -80,13 +82,14 @@ def build_dataloader(dataset,
         worker_init_fn, num_workers=num_workers, rank=rank,
         seed=seed) if seed is not None else None
 
+    kwargs = {"pin_memory_device":"npu"} if torch.__version__ >= "2.0" else {}
     data_loader = DataLoader(
         dataset,
         batch_size=batch_size,
         sampler=sampler,
         num_workers=num_workers,
         collate_fn=partial(collate, samples_per_gpu=samples_per_gpu),
-        pin_memory=False,
+        pin_memory=True,
         worker_init_fn=init_fn,
         persistent_workers=(num_workers > 0),
         **kwargs)

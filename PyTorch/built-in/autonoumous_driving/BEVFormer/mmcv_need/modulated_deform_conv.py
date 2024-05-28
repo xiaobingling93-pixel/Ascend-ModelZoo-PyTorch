@@ -1,4 +1,5 @@
 # Copyright (c) OpenMMLab. All rights reserved.
+# Copyright 2024 Huawei Technologies Co., Ltd
 import math
 from typing import Optional, Tuple, Union
 
@@ -17,6 +18,9 @@ ext_module = ext_loader.load_ext(
     '_ext',
     ['modulated_deform_conv_forward', 'modulated_deform_conv_backward'])
 
+split_num_old = None
+sort_index_fp_global = None
+sort_index_bp_global = None
 
 class ModulatedDeformConv2dFunction(Function):
 
@@ -38,15 +42,22 @@ class ModulatedDeformConv2dFunction(Function):
     @staticmethod
     def _calculate_sort_index(kernel_h, kernel_w, deformable_group):
         split_num = deformable_group * 2 * kernel_h * kernel_w
-        sort_index = list(range(split_num))
-        sort_index_fp = (sort_index[1::2] + sort_index[::2])
-        sort_index_bp_dict = {i: idx for idx, i in enumerate(sort_index_fp)}
-        sort_index_bp = [sort_index_bp_dict[i] for i in sort_index]
-        sort_index_fp = torch.IntTensor(sort_index_fp)
-        sort_index_bp = torch.IntTensor(sort_index_bp)
-        sort_index_fp = sort_index_fp.npu()
-        sort_index_bp = sort_index_bp.npu()
-        return sort_index_fp, sort_index_bp
+        global split_num_old, sort_index_fp_global, sort_index_bp_global
+        if split_num_old == split_num:
+            return sort_index_fp_global, sort_index_bp_global
+        else:
+            sort_index = list(range(split_num))
+            sort_index_fp = (sort_index[1::2] + sort_index[::2])
+            sort_index_bp_dict = {i: idx for idx, i in enumerate(sort_index_fp)}
+            sort_index_bp = [sort_index_bp_dict[i] for i in sort_index]
+            sort_index_fp = torch.IntTensor(sort_index_fp)
+            sort_index_bp = torch.IntTensor(sort_index_bp)
+            sort_index_fp = sort_index_fp.npu()
+            sort_index_bp = sort_index_bp.npu()
+            split_num_old = split_num
+            sort_index_fp_global = sort_index_fp
+            sort_index_bp_global = sort_index_bp
+            return sort_index_fp, sort_index_bp
 
     @staticmethod
     def _npu_forward(ctx, input_tensor, offset, mask, weight, bias):
@@ -130,10 +141,11 @@ class ModulatedDeformConv2dFunction(Function):
         # The flag for whether to use fp16 or amp is the type of "offset",
         # we cast weight and input to temporarily support fp16 and amp
         # whatever the pytorch version is.
-        input = input.type_as(offset)
-        weight = weight.type_as(input)
-        bias = bias.type_as(input)  # type: ignore
-        mask = mask.type_as(input)
+        if input.dtype != offset.dtype:
+            input = input.type_as(offset)
+            weight = weight.type_as(input)
+            bias = bias.type_as(input)  # type: ignore
+            mask = mask.type_as(input)
         if ctx.device == 'npu':
             output = ModulatedDeformConv2dFunction._npu_forward(
                 ctx, input, offset, mask, weight, bias)
@@ -321,8 +333,9 @@ class ModulatedDeformConv2dPack(ModulatedDeformConv2d):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:  # type: ignore
         out = self.conv_offset(x)
-        o1, o2, mask = torch.chunk(out, 3, dim=1)
-        offset = torch.cat((o1, o2), dim=1)
+        len1 = ((out.shape[1] + 2) // 3) * 2
+        len2 = out.shape[1] - len1
+        offset, mask = torch.split(out, [len1, len2], dim=1)
         mask = torch.sigmoid(mask)
         return modulated_deform_conv2d(x, offset, mask, self.weight, self.bias,
                                        self.stride, self.padding,

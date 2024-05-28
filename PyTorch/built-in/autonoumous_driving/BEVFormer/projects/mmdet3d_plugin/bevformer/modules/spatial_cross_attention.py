@@ -1,6 +1,7 @@
 
 # ---------------------------------------------
 # Copyright (c) OpenMMLab. All rights reserved.
+# Copyright 2024 Huawei Technologies Co., Ltd
 # ---------------------------------------------
 #  Modified by Zhiqi Li
 # ---------------------------------------------
@@ -130,7 +131,7 @@ class SpatialCrossAttention(BaseModule):
         D = reference_points_cam.size(3)
         indexes = []
         for i, mask_per_img in enumerate(bev_mask):
-            index_query_per_img = mask_per_img[0].sum(-1).nonzero().squeeze(-1)
+            index_query_per_img = mask_per_img[0].sum(-1).to(torch.float).nonzero().squeeze(-1)
             indexes.append(index_query_per_img)
         max_len = max([len(each) for each in indexes])
 
