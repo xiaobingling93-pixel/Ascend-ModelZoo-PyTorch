@@ -582,6 +582,12 @@ class DatasetConfig(FairseqDataclass):
             "help": "if true then increment seed with epoch for getting batch iterators, defautls to False.",
         },
     )
+    shuffle: bool = field(
+        default=True,
+        metadata={
+            "help": "You can disable data_shuffle for performance training.",
+        },
+    )
 
 
 @dataclass
