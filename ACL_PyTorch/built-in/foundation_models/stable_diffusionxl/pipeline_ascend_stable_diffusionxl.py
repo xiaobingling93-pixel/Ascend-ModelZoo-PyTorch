@@ -104,7 +104,7 @@ class AscendStableDiffusionXLPipeline(StableDiffusionXLPipeline):
                     " because CLIP can only handle sequences up to"
                     f" {self.tokenizer.model_max_length} tokens: {removed_text}")
     
-            prompt_embeds = text_encoder.infer(text_input_ids.to("cpu").numpy())
+            prompt_embeds = text_encoder.infer([text_input_ids.to("cpu").numpy()])
 
             prompt_embeds = [torch.from_numpy(text) for text in prompt_embeds]
 
@@ -207,11 +207,12 @@ class AscendStableDiffusionXLPipeline(StableDiffusionXLPipeline):
         prompt_2: Optional[Union[str, List[str]]],
         encode_session: InferSession,
         encode_session_2: InferSession,
-        unet_session: InferSession,
+        unet_sessions: List[list],
         scheduler_session: InferSession,
         vae_session: InferSession,
         skip_status: List[int],
         device_id: int = 0,
+        use_npu_scheduler: bool = False,
         height: Optional[int] = None,
         width: Optional[int] = None,
         num_inference_steps: int = 50,
@@ -238,7 +239,7 @@ class AscendStableDiffusionXLPipeline(StableDiffusionXLPipeline):
         negative_original_size: Optional[Tuple[int, int]] = None,
         negative_crops_coords_top_left: Tuple[int, int] = (0, 0),
         negative_target_size: Optional[Tuple[int, int]] = None,
-        clip_skip: Optional[int] = None
+        clip_skip: Optional[int] = None,
     ):
         r"""
         Function invoked when calling the pipeline for generation.
@@ -435,6 +436,8 @@ class AscendStableDiffusionXLPipeline(StableDiffusionXLPipeline):
         extra_step_kwargs = self.prepare_extra_step_kwargs(generator, eta)
 
         # 7. Prepare added time ids & embeddings
+        unet_session, unet_session_bg = unet_sessions
+        use_parallel_inferencing = unet_session_bg is not None
         add_text_embeds = pooled_prompt_embeds
 
         add_time_ids = self._get_add_time_ids(
@@ -453,7 +456,7 @@ class AscendStableDiffusionXLPipeline(StableDiffusionXLPipeline):
         else:
             negative_add_time_ids = add_time_ids
 
-        if do_classifier_free_guidance:
+        if do_classifier_free_guidance and not use_parallel_inferencing:
             prompt_embeds = torch.cat([negative_prompt_embeds, prompt_embeds], dim=0)
             add_text_embeds = torch.cat([negative_pooled_prompt_embeds, add_text_embeds], dim=0)
             add_time_ids = torch.cat([negative_add_time_ids, add_time_ids], dim=0)
@@ -484,11 +487,26 @@ class AscendStableDiffusionXLPipeline(StableDiffusionXLPipeline):
         for i, t in enumerate(timesteps):
             # expand the latents if we are doing classifier free guidance
             t_numpy = t[None].numpy()
-            latent_model_input = torch.cat([latents] * 2)
+            if not use_parallel_inferencing and do_classifier_free_guidance:
+                latent_model_input = torch.cat([latents] * 2)
+            else:
+                latent_model_input = latents
 
             latent_model_input = self.scheduler.scale_model_input(latent_model_input, t)
 
             # predict the noise residual
+            if use_parallel_inferencing and do_classifier_free_guidance:
+                unet_session_bg.infer_asyn(
+                    [
+                        latent_model_input,
+                        t_numpy.astype(np.int32),
+                        negative_prompt_embeds.numpy(),
+                        negative_pooled_prompt_embeds.numpy(),
+                        negative_add_time_ids.numpy(),
+                    ],
+                    skip_status[i]
+                )
+
             if skip_status[i]:
                 inputs = [
                     latent_model_input.numpy(),
@@ -514,34 +532,38 @@ class AscendStableDiffusionXLPipeline(StableDiffusionXLPipeline):
                 if len(outputs) > 1:
                     cache = outputs[1]
 
-            latents = torch.from_numpy(
-                scheduler_session.infer(
-                    [
-                        noise_pred.numpy(),
-                        t_numpy,
-                        latents.numpy(),
-                        np.array(i)
-                    ]
-                )[0]
-            )
+            if do_classifier_free_guidance:
+                if use_parallel_inferencing:
+                    noise_pred_uncond = torch.from_numpy(unet_session_bg.wait_and_get_outputs()[0])
+                else:
+                    noise_pred_uncond, noise_pred = noise_pred.chunk(2)
+                noise_pred = noise_pred_uncond + guidance_scale * (noise_pred - noise_pred_uncond)
 
+            # perform guidance
+            if use_npu_scheduler:
+                latents = torch.from_numpy(
+                    scheduler_session.infer(
+                        [
+                            noise_pred.numpy(),
+                            t_numpy,
+                            latents.numpy(),
+                            np.array(i)
+                        ]
+                    )[0]
+                )
+
+            else:
+                latents = self.scheduler.step(
+                    noise_pred, t, latents, **extra_step_kwargs, return_dict=False,
+                )[0]
 
         if not output_type == "latent":
-            # make sure the VAE is in float32 mode, as it overflows in float16
-            needs_upcasting = self.vae.dtype == torch.float16 and self.vae.config.force_upcast
-
-            if needs_upcasting:
-                self.upcast_vae()
-                latents = latents.to(next(iter(self.vae.post_quant_conv.parameters())).dtype)
             latents = latents / self.vae.config.scaling_factor
             latents = self.vae.post_quant_conv(latents)
             image = torch.from_numpy(vae_session.infer([latents.numpy()])[0])
             image = (image / 2 + 0.5).clamp(0, 1)
             image = image.cpu().permute(0, 2, 3, 1).float().numpy()
 
-            # cast back to fp16 if needed
-            if needs_upcasting:
-                self.vae.to(dtype=torch.float16)
         else:
             image = latents
 
