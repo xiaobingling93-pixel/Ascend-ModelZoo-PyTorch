@@ -3,6 +3,7 @@
 -   [概述](概述.md)
 -   [准备训练环境](准备训练环境.md)
 -   [开始训练](开始训练.md)
+-   [vNPU训练模型](vNPU训练模型.md)
 -   [训练结果展示](训练结果展示.md)
 -   [版本说明](版本说明.md)
 
@@ -164,6 +165,42 @@ MMClassification 是一款基于 PyTorch 的开源图像分类工具箱，是 Op
    
    训练完成后，权重文件保存在当前路径下，并输出模型训练精度和性能信息。
 
+# vNPU训练模型
+
+## 切分vNPU
+- 执行以下命令设置虚拟化实例功能容器模式
+   ```
+   npu-smi set -t vnpu-mode -d 0
+   ```
+- npu-smi set -t create-vnpu -i id -c chip_id -f vnpu_config [-v vnpu_id] [-g vgroup_id] 用于创建指定模板的vNPU，也可指定vNPU的id和vNPU所属群组的id。
+
+  vNPU内存不足会导致训练模型精度性能下降或无法拉起训练，切分模板选择vir12_3c_32g
+  ```
+  npu-smi set -t create-vnpu -i 0 -c 0 -f vir12_3c_32g -v 100
+  ```
+  
+## 原生docker挂载vNPU
+- 挂载vNPU，并声明shm内存（避免容器内存不足无法拉起训练）
+   ```
+   docker run -it \
+  --device=/dev/vdavinci100:/dev/davinci100 \          # 挂载切分好的vNPU
+  --device=/dev/davinci_manager \
+  --device=/dev/devmm_svm \
+  --device=/dev/hisi_hdc \
+  --shm-size=720g                                      # 指定shm-size
+  -v /usr/local/bin/npu-smi:/usr/local/bin/npu-smi \
+  -v /usr/local/sbin/npu-smi:/usr/local/sbin/npu-smi \
+  -v /home:/home \
+  -v /usr/local/Ascend/driver/lib64/common:/usr/local/Ascend/driver/lib64/common \
+  -v /usr/local/Ascend/driver/lib64/driver:/usr/local/Ascend/driver/lib64/driver \
+  -v /etc/ascend_install.info:/etc/ascend_install.info \
+  -v /usr/local/Ascend/driver/version.info:/usr/local/Ascend/driver/version.info \
+  docker_image_id  /bin/bash
+   ```
+
+- 初次启动容器，需要重新配置环境及相关依赖。
+
+- 在搭载vNPU的容器内重新开始训练
 
 # 训练结果展示
 
@@ -181,6 +218,16 @@ MMClassification 是一款基于 PyTorch 的开源图像分类工具箱，是 Op
 | 8p-NPU | -  | 16925  |   2    |    O2    |      1.11      |    2048     |  910   |
 
   > **说明：** 该模型默认在二进制场景下进行训练。
+
+**表 3**  vNPU训练结果展示表
+
+|  NAME      | Acc@1 |  FPS  | Epochs |   | Torch_Version | batch_size | Device  |
+|:------:    |:-----:|:-----:|:------:|:-:|:-------------:|:----------:|:-------:|
+| 1p-NPU-ARM | 88.517| 2007  |   90   |   |      2.1      |     16     |  910B   |
+| 1p-vNPU-ARM| 88.638 | 1372 |  90    |   |      2.1      |     16     |  910B   |
+| 1p-NPU-A+X |   88.322   |  1984  |   90   |   |      2.1      |     16     |  910B   |
+| 1p-vNPU-A+X|   88.450   |  969  |   90   |   |      2.1      |     16     |  910B   |
+同等超参下，vNPU能满足精度要求
 
 
 # 版本说明
