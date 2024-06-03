@@ -3,7 +3,7 @@
 # Source code: https://github.com/OpenDriveLab/UniAD                              #
 # Copyright (c) OpenDriveLab. All rights reserved.                                #
 #---------------------------------------------------------------------------------#
-
+# Copyright 2024 Huawei Technologies Co., Ltd
 import copy
 import warnings
 import torch
@@ -19,6 +19,7 @@ from mmcv.cnn.bricks.drop import build_dropout
 from mmcv.runner.base_module import BaseModule, ModuleList, Sequential
 from mmcv.utils import ConfigDict, deprecated_api_warning
 from projects.mmdet3d_plugin.uniad.modules.multi_scale_deformable_attn_function import MultiScaleDeformableAttnFunction_fp32
+import ads.common
 
 
 @TRANSFORMER_LAYER.register_module()
@@ -453,14 +454,8 @@ class MotionDeformableAttention(BaseModule):
                 f' 2 or 4, but get {reference_trajs.shape[-1]} instead.')
         if torch.cuda.is_available() and value.is_cuda:
 
-            # using fp16 deformable attention is unstable because it performs many sum operations
-            if value.dtype == torch.float16:
-                MultiScaleDeformableAttnFunction = MultiScaleDeformableAttnFunction_fp32
-            else:
-                MultiScaleDeformableAttnFunction = MultiScaleDeformableAttnFunction_fp32
-            output = MultiScaleDeformableAttnFunction.apply(
-                value, spatial_shapes, level_start_index, sampling_locations,
-                attention_weights, self.im2col_step)
+            output = ads.common.npu_multi_scale_deformable_attn_function(value, spatial_shapes, level_start_index,
+                                                                         sampling_locations, attention_weights)
         else:
             output = multi_scale_deformable_attn_pytorch(
                 value, spatial_shapes, sampling_locations, attention_weights)

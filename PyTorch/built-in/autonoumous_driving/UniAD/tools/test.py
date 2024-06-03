@@ -1,3 +1,4 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 import argparse
 import cv2
 import torch
@@ -7,7 +8,7 @@ import os
 import warnings
 from mmcv import Config, DictAction
 from mmcv.cnn import fuse_conv_bn
-from mmcv.parallel import MMDataParallel, MMDistributedDataParallel
+from mmcv.device.npu import NPUDataParallel, NPUDistributedDataParallel
 from mmcv.runner import (get_dist_info, init_dist, load_checkpoint,
                          wrap_fp16_model)
 
@@ -224,7 +225,7 @@ def main():
         # model = MMDataParallel(model, device_ids=[0])
         # outputs = single_gpu_test(model, data_loader, args.show, args.show_dir)
     else:
-        model = MMDistributedDataParallel(
+        model = NPUDistributedDataParallel(
             model.cuda(),
             device_ids=[torch.cuda.current_device()],
             broadcast_buffers=False)

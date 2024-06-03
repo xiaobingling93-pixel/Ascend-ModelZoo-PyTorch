@@ -3,7 +3,7 @@
 # Source code: https://github.com/OpenDriveLab/UniAD                              #
 # Copyright (c) OpenDriveLab. All rights reserved.                                #
 #---------------------------------------------------------------------------------#
-
+# Copyright 2024 Huawei Technologies Co., Ltd
 import torch
 import math
 import torch.nn as nn
@@ -116,6 +116,7 @@ def min_ade(traj: torch.Tensor, traj_gt: torch.Tensor,
     err = torch.pow(err, exponent=0.5)
     err = torch.sum(err * (1 - masks_rpt), dim=2) / \
         torch.clip(torch.sum((1 - masks_rpt), dim=2), min=1)
+    err = err.float()
     err, inds = torch.min(err, dim=1)
 
     return err, inds
@@ -195,6 +196,7 @@ def min_fde(traj: torch.Tensor, traj_gt: torch.Tensor,
     err = torch.pow(err, exponent=2)
     err = torch.sum(err, dim=2)
     err = torch.pow(err, exponent=0.5)
+    err = err.float()
     err, inds = torch.min(err, dim=1)
 
     return err, inds
@@ -226,6 +228,7 @@ def miss_rate(
     dist = torch.sum(dist, dim=3)
     dist = torch.pow(dist, exponent=0.5)
     dist[masks_rpt.bool()] = -math.inf
+    dist = dist.float()
     dist, _ = torch.max(dist, dim=2)
     dist, _ = torch.min(dist, dim=1)
     m_r = torch.sum(torch.as_tensor(dist > dist_thresh)) / len(dist)

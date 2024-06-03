@@ -3,7 +3,7 @@
 # Source code: https://github.com/OpenDriveLab/UniAD                              #
 # Copyright (c) OpenDriveLab. All rights reserved.                                #
 #---------------------------------------------------------------------------------#
-
+# Copyright 2024 Huawei Technologies Co., Ltd
 import torch
 from mmcv.runner import auto_fp16
 from mmdet.models import DETECTORS
@@ -224,6 +224,7 @@ class UniAD(UniADTrack):
             losses.update(losses_planning)
         
         for k,v in losses.items():
+            v = v.float()
             losses[k] = torch.nan_to_num(v)
         return losses
     

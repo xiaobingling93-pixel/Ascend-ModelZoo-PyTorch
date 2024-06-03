@@ -551,7 +551,7 @@ data = dict(
     nonshuffler_sampler=dict(type="DistributedSampler"),
 )
 optimizer = dict(
-    type="AdamW",
+    type="NpuFusedAdamW",
     lr=2e-4,
     paramwise_cfg=dict(
         custom_keys={
@@ -560,7 +560,7 @@ optimizer = dict(
     ),
     weight_decay=0.01,
 )
-optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2))
+optimizer_config = dict(type='GradientCumulativeOptimizerHook', cumulative_iters=2, grad_clip=dict(max_norm=70, norm_type=2))
 # learning policy
 lr_config = dict(
     policy="CosineAnnealing",
@@ -573,7 +573,7 @@ total_epochs = 6
 evaluation = dict(interval=6, pipeline=test_pipeline)
 runner = dict(type="EpochBasedRunner", max_epochs=total_epochs)
 log_config = dict(
-    interval=10, hooks=[dict(type="TextLoggerHook"), dict(type="TensorboardLoggerHook")]
+    interval=1, hooks=[dict(type="TextLoggerHook"), dict(type="TensorboardLoggerHook")]
 )
 checkpoint_config = dict(interval=1)
 load_from = "ckpts/bevformer_r101_dcn_24ep.pth"

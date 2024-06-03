@@ -1,139 +1,213 @@
-<div align="center">   
-  
-# Planning-oriented Autonomous Driving
-</div>
+# UniAD for PyTorch
 
+## 目录
 
-<h3 align="center">
-  <a href="https://arxiv.org/abs/2212.10156">arXiv</a> |
-  <a href="https://www.youtube.com/watch?v=cyrxJJ_nnaQ">Video</a> |
-  <a href="https://opendrivelab.com/e2ead/UniAD_plenary_talk_slides.pdf">Slides</a>
-</h3>
+-   [简介](#简介)
+    - [模型介绍](#模型介绍)
+    - [支持任务列表](#支持任务列表)
+    - [代码实现](#代码实现)
+-   [UniAD](#UniAD)
+    - [准备训练环境](#准备训练环境)
+    - [快速开始](#快速开始)
+       - [训练任务](#训练任务) 
+-   [公网地址说明](#公网地址说明)
+-   [变更说明](#变更说明)
+-   [FAQ](#FAQ)
 
+# 简介
 
+## 模型介绍
 
+自动驾驶是一项高度复杂的技术，需要多个学科领域的知识和技能，包括传感器技术、机器学习、路径规划等方面。自动驾驶还需要适应不同的道路规则和交通文化，与其他车辆和行人进行良好的交互，以实现高度可靠和安全的自动驾驶系统。面对这种复杂的场景，大部分自动驾驶相关的工作都聚焦在具体的某个模块，关于框架性的研讨则相对匮乏。自动驾驶通用算法框架——Unified Autonomous Driving（UniAD）首次将检测、跟踪、建图、轨迹预测，占据栅格预测以及规划整合到一个基于Transformer的端到端网络框架下， 完美契合了”多任务”和“高性能”的特点，是自动驾驶中的重大技术突破。
 
+## 支持任务列表
+本仓已经支持以下模型任务类型
 
-https://github.com/OpenDriveLab/UniAD/assets/48089846/bcf685e4-2471-450e-8b77-e028a46bd0f7
+|    模型     | 任务列表 | 是否支持 |
+| :---------: | :------: | :------: |
+| UniAD |   训练   |    ✔     |
 
+## 代码实现
 
+- 参考实现：
 
+  ```
+  url=https://github.com/OpenDriveLab/UniAD
+  commit_id=5927ba1ec10b71a45a57654dbb69139aeb893f50
+  ```
+- 适配昇腾 AI 处理器的实现：
 
+    ```
+    url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+    code_path=PyTorch/built-in/autonoumous_driving 
+    ```
+# UniAD
 
+## 准备训练环境
 
-<br><br>
+### 安装环境
 
-![teaser](sources/pipeline.png)
+**表 1** 三方库版本支持表
 
-## Table of Contents:
-1. [Highlights](#high)
-2. [News](#news)
-3. [Getting Started](#start)
-   - [Installation](docs/INSTALL.md)
-   - [Prepare Dataset](docs/DATA_PREP.md)
-   - [Evaluation Example](docs/TRAIN_EVAL.md#example)
-   - [GPU Requirements](docs/TRAIN_EVAL.md#gpu)
-   - [Train/Eval](docs/TRAIN_EVAL.md)
-4. [Results and Models](#models)
-5. [TODO List](#todos)
-6. [License](#license)
-7. [Citation](#citation)
+| 三方库  | 支持版本 |
+| ------- | -------- |
+| PyTorch | 1.11     |
 
-## Highlights <a name="high"></a>
+### 安装昇腾环境
 
-- :oncoming_automobile: **Planning-oriented philosophy**: UniAD is a Unified Autonomous Driving algorithm framework following a planning-oriented philosophy. Instead of standalone modular design and multi-task learning, we cast a series of tasks, including perception, prediction and planning tasks hierarchically.
-- :trophy: **SOTA performance**: All tasks within UniAD achieve SOTA performance, especially prediction and planning (motion: 0.71m minADE, occ: 63.4% IoU, planning: 0.31% avg.Col)
+请参考昇腾社区中《[Pytorch框架训练环境准备](https://gitee.com/link?target=https%3A%2F%2Fwww.hiascend.com%2Fdocument%2Fdetail%2Fzh%2FModelZoo%2Fpytorchframework%2Fptes)》文档搭建昇腾环境，本仓已支持表2中软件版本。
 
-## News <a name="news"></a>
+**表 2** 昇腾软件版本支持表
 
-- **`Paper Title Change`**: To avoid confusion with the "goal-point" navigation in Robotics, we change the title from "Goal-oriented" to "Planning-oriented" suggested by Reviewers. Thank you!
+| 软件类型          | 支持版本     |
+| ----------------- |----------|
+| FrameworkPTAdaper | 在研       |
+| CANN              | 在研  |
+| 昇腾NPU固件       | 在研 |
+| 昇腾NPU驱动       | 在研 |
 
-- **`Planning Metric`**: Discussion [Ref: https://github.com/OpenDriveLab/UniAD/issues/29]: [Clarification](https://github.com/OpenDriveLab/UniAD/issues/29#issuecomment-1583070151) and [Notice](https://github.com/OpenDriveLab/UniAD/issues/29#issuecomment-1717594344) regarding open-loop planning results comparison.
+- 源码安装mmcv
 
-- **`2023/08/03`** Bugfix [[Commit](https://github.com/OpenDriveLab/UniAD/commit/2e1380143d7af7c93bd67725a11d6960fa4347c6)]: Previously, the visualized planning results were in opposition on the x axis, compared to the ground truth. Now it's fixed.
+  - 在模型根目录下，克隆mmcv仓
 
-- **`2023/06/12`** Bugfix [Ref: https://github.com/OpenDriveLab/UniAD/issues/21]: Previously, the performance of the stage1 model (track_map) could not be replicated when trained from scratch, due to mistakenly adding `loss_past_traj` and freezing `img_neck` and `BN`. By removing `loss_past_traj` and unfreezing `img_neck` and `BN` in training, the reported results could be reproduced (AMOTA: 0.393, [stage1_train_log](https://github.com/OpenDriveLab/UniAD/releases/download/v1.0/uniad_reproduce_stage1_gpu16_train.log)).
+    ```
+    git clone -b 1.x https://github.com/open-mmlab/mmcv.git
+    ```
 
-- **`2023/04/18`** New feature: You can replace BEVFormer with other BEV Encoding methods, e.g., LSS, as long as you provide the `bev_embed` and `bev_pos` in [track_train](https://github.com/OpenDriveLab/UniAD/blob/cb4e3dc336ac9f94897ef3c7d85edba85a507726/projects/mmdet3d_plugin/uniad/detectors/uniad_track.py#L394) and [track_inference](https://github.com/OpenDriveLab/UniAD/blob/cb4e3dc336ac9f94897ef3c7d85edba85a507726/projects/mmdet3d_plugin/uniad/detectors/uniad_track.py#L661). Make sure your bevs and ours are of the same shape.
-- **`2023/04/18`** Base-model checkpoints are released.
+  - 替换mmcv中的文件
 
+    ```
+    cp -f mmcv_need/modulated_deform_conv.py mmcv/mmcv/ops/modulated_deform_conv.py
+    cp -f mmcv_need/multi_scale_deform_attn.py mmcv/mmcv/ops/multi_scale_deform_attn.py
+    cp -f mmcv_need/optimizer.py mmcv/mmcv/runner/hooks/optimizer.py
+    cp -f mmcv_need/epoch_based_runner.py mmcv/mmcv/runner/epoch_based_runner.py
+    cp -f mmcv_need/runtime.txt mmcv/requirements/runtime.txt
+    ```
 
-- **`2023/03/29`** Code & model initial release `v1.0`.
-- **`2023/03/21`** :rocket::rocket: UniAD is accepted by CVPR 2023, as an **Award Candidate** (12 out of 2360 accepted papers)!
-- **`2022/12/21`** UniAD [paper](https://arxiv.org/abs/2212.10156) is available on arXiv.
+  - 进入mmcv目录，安装依赖，执行编译安装命令
 
+    ```
+    cd mmcv
+    pip install -r requirements/runtime.txt
+    MMCV_WITH_OPS=1 MAX_JOBS=8 FORCE_NPU=1 python setup.py build_ext
+    MMCV_WITH_OPS=1 FORCE_NPU=1 python setup.py develop
+    ```
 
+- 源码安装mmdet3d
 
-## Getting Started <a name="start"></a>
-- [Installation](docs/INSTALL.md)
-- [Prepare Dataset](docs/DATA_PREP.md)
-- [Evaluation Example](docs/TRAIN_EVAL.md#example)
-- [GPU Requirements](docs/TRAIN_EVAL.md#gpu)
-- [Train/Eval](docs/TRAIN_EVAL.md)
+  - 在模型根目录下，克隆mmdet3d仓
 
-## Results and Pre-trained Models <a name="models"></a>
-UniAD is trained in two stages. Pretrained checkpoints of both stages will be released and the results of each model are listed in the following tables.
+    ```
+    git clone -b v1.0.0rc6 https://github.com/open-mmlab/mmdetection3d.git
+    ```
 
-### Stage1: Perception training
-> We first train the perception modules (i.e., track and map) to obtain a stable weight initlization for the next stage. BEV features are aggregated with 5 frames (queue_length = 5).
+  - 替换mmdetection3d中的文件
 
-| Method | Encoder | Tracking<br>AMOTA | Mapping<br>IoU-lane | config | Download |
-| :---: | :---: | :---: | :---: | :---:|:---:| 
-| UniAD-B | R101 | 0.390 | 0.297 |  [base-stage1](projects/configs/stage1_track_map/base_track_map.py) | [base-stage1](https://github.com/OpenDriveLab/UniAD/releases/download/v1.0/uniad_base_track_map.pth) |
+    ```
+    cp -f mmdet3d_need/__init__.py mmdetection3d/mmdet3d/__init__.py
+    cp -f mmdet3d_need/custom_3d.py mmdetection3d/mmdet3d/datasets/custom_3d.py
+    cp -f mmdet3d_need/runtime.txt mmdetection3d/requirements/runtime.txt
+    ```
 
+  - 进入mmdetection3d目录，执行安装命令
 
+    ```
+    cd mmdetection3d
+    pip install -v -e .
+    ```
 
-### Stage2: End-to-end training
-> We optimize all task modules together, including track, map, motion, occupancy and planning. BEV features are aggregated with 3 frames (queue_length = 3).
+- 在模型根目录下执行以下命令，安装模型对应PyTorch版本需要的依赖。
 
-<!-- 
-Pre-trained models and results under main metrics are provided below. We refer you to the [paper](https://arxiv.org/abs/2212.10156) for more details. -->
+  ```
+  pip install -r requirements.txt
+  ```
 
-| Method | Encoder | Tracking<br>AMOTA | Mapping<br>IoU-lane | Motion<br>minADE |Occupancy<br>IoU-n. | Planning<br>avg.Col. | config | Download |
-| :---: | :---: | :---: | :---: | :---:|:---:| :---: | :---: | :---: |
-| UniAD-B | R101 | 0.363 | 0.313 | 0.705 | 63.7 | 0.29 |  [base-stage2](projects/configs/stage2_e2e/base_e2e.py) | [base-stage2](https://github.com/OpenDriveLab/UniAD/releases/download/v1.0.1/uniad_base_e2e.pth) |
+- 安装ADS加速库，安装方法参考[原仓](https://gitee.com/ascend/ads)，安装后手动source环境变量或将其配置在test/env_npu.sh中。
 
-### Checkpoint Usage
-* Download the checkpoints you need into `UniAD/ckpts/` directory.
-* You can evaluate these checkpoints to reproduce the results, following the `evaluation` section in [TRAIN_EVAL.md](docs/TRAIN_EVAL.md).
-* You can also initialize your own model with the provided weights. Change the `load_from` field to `path/of/ckpt` in the config and follow the `train` section in [TRAIN_EVAL.md](docs/TRAIN_EVAL.md) to start training.
+### 准备数据集
 
+- 根据原仓**Prepare Dataset**章节准备数据集，数据集目录及结构如下：
 
-### Model Structure
-The overall pipeline of UniAD is controlled by [uniad_e2e.py](projects/mmdet3d_plugin/uniad/detectors/uniad_e2e.py) which coordinates all the task modules in `UniAD/projects/mmdet3d_plugin/uniad/dense_heads`. If you are interested in the implementation of a specific task module, please refer to its corresponding file, e.g., [motion_head](projects/mmdet3d_plugin/uniad/dense_heads/motion_head.py).
-
-## TODO List <a name="todos"></a>
-- [ ] All configs & checkpoints
-- [ ] Upgrade the implementation of MapFormer from Panoptic SegFormer to [TopoNet](https://github.com/OpenDriveLab/TopoNet), which features the vectorized map representations and topology reasoning.
-- [ ] Support larger batch size
-- [ ] [Long-term] Improve flexibility for future extensions
-- [x] Fix bug: Unable to reproduce the results of stage1 track-map model when training from scratch. [Ref: https://github.com/OpenDriveLab/UniAD/issues/21]
-- [x] Visualization codes 
-- [x] Separating BEV encoder and tracking module
-- [x] Base-model configs & checkpoints
-- [x] Code initialization
-
-
-## License <a name="license"></a>
-
-All assets and code are under the [Apache 2.0 license](./LICENSE) unless specified otherwise.
-
-## Citation <a name="citation"></a>
-
-Please consider citing our paper if the project helps your research with the following BibTex:
-
-```bibtex
-@inproceedings{hu2023_uniad,
- title={Planning-oriented Autonomous Driving}, 
- author={Yihan Hu and Jiazhi Yang and Li Chen and Keyu Li and Chonghao Sima and Xizhou Zhu and Siqi Chai and Senyao Du and Tianwei Lin and Wenhai Wang and Lewei Lu and Xiaosong Jia and Qiang Liu and Jifeng Dai and Yu Qiao and Hongyang Li},
- booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
- year={2023},
-}
 ```
-## Related resources
+UniAD
+├── data/
+│   ├── nuscenes/
+│   │   ├── can_bus/
+│   │   ├── maps/
+│   │   ├── samples/
+│   │   ├── sweeps/
+│   │   ├── v1.0-test/
+│   │   ├── v1.0-trainval/
+│   ├── infos/
+│   │   ├── nuscenes_infos_temporal_train.pkl
+│   │   ├── nuscenes_infos_temporal_val.pkl
+│   ├── others/
+│   │   ├── motion_anchor_infos_mode6.pkl
+```
 
-[![Awesome](https://awesome.re/badge.svg)](https://awesome.re)
-- [BEVFormer](https://github.com/fundamentalvision/BEVFormer) (:rocket:Ours!)
-- [ST-P3](https://github.com/OpenPerceptionX/ST-P3) (:rocket:Ours!)
-- [FIERY](https://github.com/wayveai/fiery)
-- [MOTR](https://github.com/megvii-research/MOTR)
+> **说明：**
+> 该数据集的训练过程脚本只作为一种参考示例。
+
+### 准备预训练权重
+
+- 根据原仓Installation章节下载预训练权重bevformer_r101_dcn_24ep.pth和uniad_base_track_map.pth，并放在模型根目录ckpts下：
+
+```
+UniAD
+├── ckpts/
+│   ├── bevformer_r101_dcn_24ep.pth
+│   ├── uniad_base_track_map.pth
+```
+
+- （可选）可通过修改config文件中的load_from值来更改预训练权重
+```
+# projects/configs/stage1_track_map.py
+load_from = "ckpts/bevformer_r101_dcn_24ep.pth"
+```
+
+## 快速开始
+
+### 训练任务
+
+本任务主要提供**单机**的**8卡**训练脚本。
+
+#### 开始训练
+
+1. 在模型根目录下，运行训练脚本。
+
+   该模型支持单机8卡训练。
+
+   - 单机8卡性能训练
+
+   ```
+   bash test/train_stage1_performance_8p.sh # stage1
+   bash test/train_stage2_performance_8p.sh # stage2
+   ```
+
+   - 单机8卡精度训练
+
+   ```
+   bash test/train_stage1_full_8p.sh # stage1
+   bash test/train_stage2_full_8p.sh # stage2
+   ```
+
+#### 训练结果
+
+| 阶段     | 芯片          | 卡数 | global batch size | Precision | 性能-单步迭代耗时(ms) |
+|--------| ------------- | ---- |-------------------| --------- |---------------|
+| stage1 | GPU           | 8p   | 1                 | fp32      | 5883          |
+| stage1 | Atlas 800T A2 | 8p   | 1                 | fp32      | 17654         |
+| stage2 | GPU           | 8p   | 1                 | fp32      | 3990          |
+| stage2 | Atlas 800T A2 | 8p   | 1                 | fp32      | 11374         |
+
+# 公网地址说明
+
+代码涉及公网地址参考 public_address_statement.md
+
+# 变更说明
+
+2024.05.30：首次发布。
+
+# FAQ
+
+无

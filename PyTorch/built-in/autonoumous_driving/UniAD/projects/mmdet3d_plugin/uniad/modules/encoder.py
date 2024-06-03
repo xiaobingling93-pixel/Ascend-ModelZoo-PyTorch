@@ -4,7 +4,7 @@
 # ---------------------------------------------
 #  Modified by Zhiqi Li
 # ---------------------------------------------
-
+# Copyright 2024 Huawei Technologies Co., Ltd
 from .custom_base_transformer_layer import MyCustomBaseTransformerLayer
 import copy
 import warnings
@@ -117,8 +117,8 @@ class BEVFormerEncoder(TransformerLayerSequence):
         lidar2img = lidar2img.view(
             1, B, num_cam, 1, 4, 4).repeat(D, 1, 1, num_query, 1, 1)
 
-        reference_points_cam = torch.matmul(lidar2img.to(torch.float32),
-                                            reference_points.to(torch.float32)).squeeze(-1)
+        reference_points_cam = torch.mul(lidar2img.to(torch.float32),
+                                         reference_points.to(torch.float32).transpose(-1, -2)).sum(-1, keepdim=True).squeeze(-1)
         eps = 1e-5
 
         bev_mask = (reference_points_cam[..., 2:3] > eps)

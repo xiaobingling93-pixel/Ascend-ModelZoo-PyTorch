@@ -4,7 +4,7 @@
 # Copyright (c) OpenDriveLab. All rights reserved.                                #
 # Modified from MOTR (https://github.com/megvii-research/MOTR)                    #
 #---------------------------------------------------------------------------------#
-
+# Copyright 2024 Huawei Technologies Co., Ltd
 import copy
 from distutils.command.build import build
 import math
@@ -386,6 +386,9 @@ class ClipMatcher(nn.Module):
         }
         # step1. inherit and update the previous tracks.
         num_disappear_track = 0
+
+        track_instances.obj_idxes = track_instances.obj_idxes.cpu()
+        track_instances.matched_gt_idxes = track_instances.matched_gt_idxes.cpu()
         for j in range(len(track_instances)):
             obj_id = track_instances.obj_idxes[j].item()
             # set new target idx.
@@ -399,6 +402,8 @@ class ClipMatcher(nn.Module):
                         j] = -1  # track-disappear case.
             else:
                 track_instances.matched_gt_idxes[j] = -1
+        track_instances.obj_idxes = track_instances.obj_idxes.npu()
+        track_instances.matched_gt_idxes = track_instances.matched_gt_idxes.npu()
 
         full_track_idxes = torch.arange(
             len(track_instances), dtype=torch.long).to(pred_logits_i.device)

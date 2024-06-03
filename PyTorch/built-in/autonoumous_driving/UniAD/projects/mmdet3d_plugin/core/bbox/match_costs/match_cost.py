@@ -1,3 +1,4 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 import torch
 from mmdet.core.bbox.match_costs.builder import MATCH_COST
 import torch.nn.functional as F
@@ -28,7 +29,7 @@ class BBox3DL1Cost(object):
         return bbox_cost * self.weight
 
 
-@MATCH_COST.register_module()
+@MATCH_COST.register_module(force=True)
 class DiceCost(object):
     """IoUCost.
 
