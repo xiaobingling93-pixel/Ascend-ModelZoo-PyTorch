@@ -252,7 +252,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100070
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/ViT_base"> ViT </a>
+        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/ViT"> ViT </a>
         </td>
         <td>ImageNet</td>
     <td>80.63%(patch32_224)</td>

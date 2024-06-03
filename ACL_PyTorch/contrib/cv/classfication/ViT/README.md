@@ -1,4 +1,4 @@
-# ViT_base模型-推理指导
+# ViT模型-推理指导
 
 
 - [概述](#ZH-CN_TOPIC_0000001172161501)
@@ -27,11 +27,12 @@
 ```
 url=https://github.com/rwightman/pytorch-image-models/blob/master/timm/models/vision_transformer.py
 mode_name = [
-    vit_base_patch8_224, 
-   vit_base_patch16_224, 
-   vit_base_patch16_384, 
+   vit_base_patch8_224,
+   vit_base_patch16_224,
+   vit_base_patch16_384,
    vit_base_patch32_224,
    vit_base_patch32_384,
+   vit_large_patch16_224,
 ]
 ```
 
@@ -39,7 +40,7 @@ mode_name = [
 
 - 输入数据
 
-   1. 对于 vit_base_patch8_224、vit_base_patch16_224 和 vit_base_patch32_224
+   1. 对于 vit_base_patch8_224、vit_base_patch16_224、vit_base_patch32_224 和 vit_large_patch16_224
 
       | 输入数据 | 数据类型 | 大小                      | 数据排布格式 |
       | -------- | -------- | ------------------------- | ------------ |
@@ -82,7 +83,7 @@ mode_name = [
    ```bash
    git clone https://gitee.com/ascend/ModelZoo-PyTorch.git        # 克隆仓库的代码
    git checkout master                                            # 切换到对应分支
-   cd ACL_PyTorch/contrib/cv/classfication/ViT_base     # 切换到模型的代码仓目录
+   cd ACL_PyTorch/contrib/cv/classfication/ViT                    # 切换到模型的代码仓目录
    ```
 
 2. 安装依赖。
@@ -120,7 +121,7 @@ mode_name = [
    # img_size为预处理输出的图像尺寸，可选224或384，需要和模型相对应。
    img_size=224
 
-   python3 Vit_base_preprocess.py --data_path ImageNet/val/ --store_path ./prep_dataset/${img_size} --image_size ${img_size}
+   python3 Vit_preprocess.py --data_path ImageNet/val/ --store_path ./prep_dataset/${img_size} --image_size ${img_size}
    ```
    - 参数说明：
       - --data_path: 数据集路径
@@ -136,13 +137,14 @@ mode_name = [
 
    模型变体较多，可按需下载。根据下表通过搜索文件名找到对应的权重文件下载地址，下载到当前目录下。
 
-   |            模型变体|                                                                                                文件名|
-   |--------------------|------------------------------------------------------------------------------------------------------|
-   | vit_base_patch8_224|  B_8-i21k-300ep-lr_0.001-aug_medium1-wd_0.1-do_0.0-sd_0.0--imagenet2012-steps_20k-lr_0.01-res_224.npz|
-   |vit_base_patch16_224| B_16-i21k-300ep-lr_0.001-aug_medium1-wd_0.1-do_0.0-sd_0.0--imagenet2012-steps_20k-lr_0.01-res_224.npz|
-   |vit_base_patch16_384| B_16-i21k-300ep-lr_0.001-aug_medium1-wd_0.1-do_0.0-sd_0.0--imagenet2012-steps_20k-lr_0.01-res_384.npz|
-   |vit_base_patch32_224|B_32-i21k-300ep-lr_0.001-aug_medium1-wd_0.03-do_0.0-sd_0.0--imagenet2012-steps_20k-lr_0.03-res_224.npz|
-   |vit_base_patch32_384|  B_32-i21k-300ep-lr_0.001-aug_light1-wd_0.1-do_0.0-sd_0.0--imagenet2012-steps_20k-lr_0.03-res_384.npz|
+   |             模型变体|                                                                                                 文件名|
+   |---------------------|------------------------------------------------------------------------------------------------------|
+   |  vit_base_patch8_224|  B_8-i21k-300ep-lr_0.001-aug_medium1-wd_0.1-do_0.0-sd_0.0--imagenet2012-steps_20k-lr_0.01-res_224.npz|
+   | vit_base_patch16_224| B_16-i21k-300ep-lr_0.001-aug_medium1-wd_0.1-do_0.0-sd_0.0--imagenet2012-steps_20k-lr_0.01-res_224.npz|
+   | vit_base_patch16_384| B_16-i21k-300ep-lr_0.001-aug_medium1-wd_0.1-do_0.0-sd_0.0--imagenet2012-steps_20k-lr_0.01-res_384.npz|
+   | vit_base_patch32_224|B_32-i21k-300ep-lr_0.001-aug_medium1-wd_0.03-do_0.0-sd_0.0--imagenet2012-steps_20k-lr_0.03-res_224.npz|
+   | vit_base_patch32_384|  B_32-i21k-300ep-lr_0.001-aug_light1-wd_0.1-do_0.0-sd_0.0--imagenet2012-steps_20k-lr_0.03-res_384.npz|
+   |vit_large_patch16_224| L_16-i21k-300ep-lr_0.001-aug_medium1-wd_0.1-do_0.1-sd_0.1--imagenet2012-steps_20k-lr_0.01-res_224.npz|
 
    然后将权重文件重命名为```模型变体名称.npz```
    ```bash
@@ -161,7 +163,7 @@ mode_name = [
          # model_name为模型变体名称，可根据需要设置，此处以 vit_base_patch8_224 为例
          model_name=vit_base_patch8_224
 
-         python3 Vit_base_pth2onnx.py --batch_size ${bs} --model_path ${model_name}.npz --save_dir models/onnx --model_name ${model_name}
+         python3 Vit_pth2onnx.py --batch_size ${bs} --model_path ${model_name}.npz --save_dir models/onnx --model_name ${model_name}
          ```
          - 参数说明：
             - --batch_size: 批次大小
@@ -253,7 +255,7 @@ mode_name = [
       调用脚本与GT label，可以获得精度数据:
 
       ```bash
-      python3 Vit_base_postprocess.py --save_path result_${model_name}_bs${bs}.json --input_dir ./outputs/${model_name}_bs${bs} --label_path ImageNet/val_label.txt
+      python3 Vit_postprocess.py --save_path result_${model_name}_bs${bs}.json --input_dir ./outputs/${model_name}_bs${bs} --label_path ImageNet/val_label.txt
       ```
 
       - 参数说明：
@@ -275,17 +277,19 @@ mode_name = [
 # 模型推理性能&精度<a name="ZH-CN_TOPIC_0000001172201573"></a>
 
 
-|芯片型号|            模型变体|   Batch Size|  数据集|    参考精度|    NPU精度|性能(fps)|
-|:------:|:------------------:|:-----------:|:------:|:----------:|:---------:|:-------:|
-|   310P3| ViT_base_patch8_224|            1|ImageNet| top1: 85.80|top1: 85.58|    76.42|
-|   310P3| ViT_base_patch8_224| 8 (最优性能)|ImageNet| top1: 85.80|top1: 85.58|    98.48|
-|   310P3|ViT_base_patch16_224|            1|ImageNet| top1: 84.53|top1: 84.16|   342.34|
-|   310P3|ViT_base_patch16_224|16 (最优性能)|ImageNet| top1: 84.53|top1: 84.16|   660.64|
-|   310P3|ViT_base_patch16_384|            1|ImageNet| top1: 86.01|top1: 85.84|   108.87|
-|   310P3|ViT_base_patch16_384| 8 (最优性能)|ImageNet| top1: 86.01|top1: 85.84|   151.01|
-|   310P3|ViT_base_patch32_224|            1|ImageNet| top1: 80.72|top1: 80.63|   431.89|
-|   310P3|ViT_base_patch32_224|64 (最优性能)|ImageNet| top1: 80.72|top1: 80.63|  1679.63|
-|   310P3|ViT_base_patch32_384|            1|ImageNet| top1: 83.35|top1: 83.29|   267.01|
-|   310P3|ViT_base_patch32_384|32 (最优性能)|ImageNet| top1: 83.35|top1: 83.29|   596.55|
+| 芯片型号|             模型变体|   Batch Size|  数据集|    参考精度|    NPU精度|性能(fps)|
+|:------:|:-------------------:|:-----------:|:------:|:----------:|:---------:|:-------:|
+|   310P3|  ViT_base_patch8_224|            1|ImageNet| top1: 85.80|top1: 85.58|    76.42|
+|   310P3|  ViT_base_patch8_224| 8 (最优性能)|ImageNet| top1: 85.80|top1: 85.58|    98.48|
+|   310P3| ViT_base_patch16_224|            1|ImageNet| top1: 84.53|top1: 84.16|   342.34|
+|   310P3| ViT_base_patch16_224|16 (最优性能)|ImageNet| top1: 84.53|top1: 84.16|   660.64|
+|   310P3| ViT_base_patch16_384|            1|ImageNet| top1: 86.01|top1: 85.84|   108.87|
+|   310P3| ViT_base_patch16_384| 8 (最优性能)|ImageNet| top1: 86.01|top1: 85.84|   151.01|
+|   310P3| ViT_base_patch32_224|            1|ImageNet| top1: 80.72|top1: 80.63|   431.89|
+|   310P3| ViT_base_patch32_224|64 (最优性能)|ImageNet| top1: 80.72|top1: 80.63|  1679.63|
+|   310P3| ViT_base_patch32_384|            1|ImageNet| top1: 83.35|top1: 83.29|   267.01|
+|   310P3| ViT_base_patch32_384|32 (最优性能)|ImageNet| top1: 83.35|top1: 83.29|   596.55|
+|   310P3|ViT_large_patch16_224|            1|ImageNet| top1: 83.06|top1: 85.62|   119.80|
+|   310P3|ViT_large_patch16_224| 4 (最优性能)|ImageNet| top1: 83.06|top1: 85.62|   166.43|
 
 > 完整性能数据请查阅文件：`performances.md`
