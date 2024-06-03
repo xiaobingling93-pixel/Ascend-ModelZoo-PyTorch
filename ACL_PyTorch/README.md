@@ -516,6 +516,17 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td></td>
     <td>0.62(bs1)</td>
     <td>bs x 3 x H x W</td>
+    <tr>
+        <td> 100400
+        </td><td>
+        <a href=https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/GLIP_STATIC> GLIP_STATIC </a>
+        </td>
+        <td></td>
+    <td></td>
+        <td></td>
+        <td></td>
+    <td>227.43ms(bs1)</td>
+    <td>1 x 3 x 784 x 1344</td>
 </table>
 
 <p>CV-segmentation</p>

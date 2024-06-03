@@ -1,0 +1,11 @@
+onnx
+torch==1.13.1
+tqdm==4.62.3
+pycocotools==2.07
+pyacl==1.0.0
+torchvision==0.14.1
+timm==0.6.13
+yacs==0.1.8
+transformers==4.30.2
+einops
+prettytable
