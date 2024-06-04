@@ -189,7 +189,6 @@ class TemporalSelfAttention(BaseModule):
             value = value.permute(1, 0, 2)
         bs,  num_query, embed_dims = query.shape
         _, num_value, _ = value.shape
-        assert (spatial_shapes[:, 0] * spatial_shapes[:, 1]).sum() == num_value
         assert self.num_bev_queue == 2
 
         query = torch.cat([value[:bs], query], -1)
