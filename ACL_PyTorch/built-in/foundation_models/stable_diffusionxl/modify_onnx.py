@@ -465,13 +465,6 @@ def parse_arguments():
 def main():
     model = OnnxGraph.parse(args.model)
     del_add(model)
-    if args.FA_soc == 'Duo':
-        add_flash_attention(model, 'FlashAttentionTik', soc_type=1)
-    elif args.FA_soc == 'A2':
-        add_flash_attention(model, 'UnpadFlashAttentionMix', soc_type=2)
-    if args.TOME_num:
-        insert_tome_block(model, args.TOME_num)
-    replace_slice(model, args.faster_gelu)
     if args.parallel:
         batch_size = args.batch_size
     else:
@@ -479,6 +472,16 @@ def main():
     if batch_size > 1:
         change_bs(model, batch_size)
     change_input(model, batch_size)
+    if args.FA_soc == 'Duo':
+        add_flash_attention(model, 'FlashAttentionTik', soc_type=1)
+    elif args.FA_soc == 'A2':
+        if batch_size > 2:
+            print('A2 does not support FA in multi-batch case! The FA modification does not effect.')
+        else:
+            add_flash_attention(model, 'UnpadFlashAttentionMix', soc_type=2)
+    if args.TOME_num:
+        insert_tome_block(model, args.TOME_num)
+    replace_slice(model, args.faster_gelu)
     model.remove_unused_nodes()
     model.save(args.new_model)
 

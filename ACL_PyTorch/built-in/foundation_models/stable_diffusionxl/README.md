@@ -170,9 +170,7 @@
 
          FA、TOME、Gelu融合算子需通过安装与CANN版本对应的推理引擎包(MindIE-RT)来获取，如未安装推理引擎或使用的版本不支持FA、TOME、SliceGelu算子，FA_soc和TOME_num参数请使用默认配置、不设置faster_gelu参数。
 
-         多batch场景限制：
-            1. 暂不支持使用TOME算子优化，TOME_num参数请设置为0
-            2. A2场景下暂不支持FA算子优化，FA_soc参数请设置为None。
+         多batch场景限制：A2场景下暂不支持FA算子优化，FA_soc参数请设置为None。
 
       2. 适配cache方案(可选，可提升性能但可能导致精度下降)
 
