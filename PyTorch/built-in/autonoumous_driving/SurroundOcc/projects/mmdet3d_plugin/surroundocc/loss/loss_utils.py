@@ -1,3 +1,17 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -30,9 +44,9 @@ def geo_scal_loss(pred, ssc_target, semantic=True):
     # Remove unknown voxels
     mask = ssc_target != 255
     nonempty_target = ssc_target != 0
-    nonempty_target = nonempty_target[mask].float()
-    nonempty_probs = nonempty_probs[mask]
-    empty_probs = empty_probs[mask]
+    nonempty_target = torch.where(mask, nonempty_target, 0).float()
+    nonempty_probs = torch.where(mask, nonempty_probs, 0)
+    empty_probs = torch.where(mask, empty_probs, 0)
 
     intersection = (nonempty_target * nonempty_probs).sum()
     precision = intersection / nonempty_probs.sum()
@@ -59,13 +73,14 @@ def sem_scal_loss(pred, ssc_target):
 
         # Remove unknown voxels
         target_ori = ssc_target
-        p = p[mask]
-        target = ssc_target[mask]
 
+        p = torch.where(mask, p, 0)
+        target = torch.where(mask, ssc_target, i + 1)
         completion_target = torch.ones_like(target)
-        completion_target[target != i] = 0
-        completion_target_ori = torch.ones_like(target_ori).float()
-        completion_target_ori[target_ori != i] = 0
+        completion_target *= ~(target != i)
+        completion_target_ori = torch.ones_like(target_ori.to(torch.float))
+        completion_target_ori *= ~(target_ori != i)
+
         if torch.sum(completion_target) > 0:
             count += 1.0
             nominator = torch.sum(p * completion_target)
