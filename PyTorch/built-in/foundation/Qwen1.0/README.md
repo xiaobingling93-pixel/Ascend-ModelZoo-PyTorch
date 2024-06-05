@@ -280,7 +280,7 @@ Qwen1.0
 
 # FAQ
 
-目前精度对比关闭了ds_config_zero2.json中的overlap_comm，开启overlap_comm功能会触发DeepSeed的原生问题。针对此问题，我们已提交了两个issue并附上了相应的Pull Request，以供进一步审查和修复。以下是相关的链接：
+目前精度对比关闭了ds_config_zero2.json中的overlap_comm，开启overlap_comm功能会触发DeepSeed的原生问题，社区已有两个相关issue。我们提交了一个Pull Request，以供进一步审查和修复。以下是相关的链接：
 
 - https://github.com/microsoft/DeepSpeed/issues/5523
 - https://github.com/microsoft/DeepSpeed/issues/5545
