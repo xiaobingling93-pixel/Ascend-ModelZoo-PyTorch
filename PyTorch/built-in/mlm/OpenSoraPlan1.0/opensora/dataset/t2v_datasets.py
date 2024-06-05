@@ -45,6 +45,7 @@ class T2V_dataset(Dataset):
             # cond_mask = torch.cat([torch.ones(1, 60).to(torch.long), torch.ones(1, 60).to(torch.long)], dim=1).squeeze(0)
             # return video, input_ids, cond_mask
             video_path = self.samples[idx]['path']
+            video_path = os.path.join(self.video_folder, video_path)
             video = self.decord_read(video_path)
             video = self.transform(video)  # T C H W -> T C H W
             video = video.transpose(0, 1)  # T C H W -> C T H W

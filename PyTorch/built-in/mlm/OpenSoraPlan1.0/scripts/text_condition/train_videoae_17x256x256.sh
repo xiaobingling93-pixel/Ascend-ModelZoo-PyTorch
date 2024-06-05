@@ -1,6 +1,5 @@
-export WANDB_KEY=""
-export ENTITY=""
-export PROJECT="t2v-f17-256-img4-videovae488-bf16-ckpt-xformers-bs4-lr2e-5-t5"
+source scripts/env_npu.sh
+
 accelerate launch \
     --config_file scripts/accelerate_configs/deepspeed_zero2_config.yaml \
     opensora/train/train_t2v.py \
@@ -8,14 +7,14 @@ accelerate launch \
     --text_encoder_name DeepFloyd/t5-v1_1-xxl \
     --dataset t2v \
     --ae CausalVAEModel_4x8x8 \
-    --ae_path CausalVAEModel_4x8x8 \
-    --data_path /remote-home1/dataset/sharegpt4v_path_cap_64x512x512.json \
-    --video_folder /remote-home1/dataset/data_split_tt \
+    --ae_path LanguageBind/Open-Sora-Plan-v1.0.0/vae \
+    --data_path dataset/msrvtt/train/annotations.json \
+    --video_folder dataset/msrvtt/train/videos \
     --sample_rate 1 \
     --num_frames 17 \
     --max_image_size 256 \
     --gradient_checkpointing \
-    --attention_mode xformers \
+    --attention_mode math \
     --train_batch_size=4 \
     --dataloader_num_workers 10 \
     --gradient_accumulation_steps=1 \
@@ -24,11 +23,10 @@ accelerate launch \
     --lr_scheduler="constant" \
     --lr_warmup_steps=0 \
     --mixed_precision="bf16" \
-    --report_to="wandb" \
-    --checkpointing_steps=500 \
+    --report_to="tensorboard" \
+    --checkpointing_steps=2000 \
     --output_dir="t2v-f17-256-img4-videovae488-bf16-ckpt-xformers-bs4-lr2e-5-t5" \
     --allow_tf32 \
-    --pretrained t2v.pt \
     --use_deepspeed \
     --model_max_length 300 \
     --use_image_num 4 \

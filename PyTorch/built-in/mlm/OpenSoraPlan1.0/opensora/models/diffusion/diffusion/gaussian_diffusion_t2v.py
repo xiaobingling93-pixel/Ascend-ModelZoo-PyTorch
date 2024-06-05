@@ -1,3 +1,4 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 # Modified from OpenAI's diffusion repos
 #     GLIDE: https://github.com/openai/glide-text2im/blob/main/glide_text2im/gaussian_diffusion.py
 #     ADM:   https://github.com/openai/guided-diffusion/blob/main/guided_diffusion
@@ -892,7 +893,7 @@ def _extract_into_tensor(arr, timesteps, broadcast_shape):
                             dimension equal to the length of timesteps.
     :return: a tensor of shape [batch_size, 1, ...] where the shape has K dims.
     """
-    res = th.from_numpy(arr).to(device=timesteps.device)[timesteps].float()
+    res = th.tensor(arr, dtype=th.float32, device=timesteps.device)[timesteps]
     while len(res.shape) < len(broadcast_shape):
         res = res[..., None]
     return res + th.zeros(broadcast_shape, device=timesteps.device)

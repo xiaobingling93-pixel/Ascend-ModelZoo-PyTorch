@@ -1,3 +1,4 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 import torch.nn as nn
 from typing import Union, Tuple
 import torch.nn.functional as F
@@ -6,6 +7,10 @@ from .block import Block
 from .ops import cast_tuple
 from einops import rearrange
 from .ops import video_to_image
+
+from opensora.utils.npu_utils import is_npu_available
+if is_npu_available():
+    import torch_npu
 
 class Conv2d(nn.Conv2d):
     def __init__(
@@ -55,7 +60,10 @@ class CausalConv3d(nn.Module):
         padding = list(cast_tuple(padding, 3))
         padding[0] = 0
         stride = cast_tuple(stride, 3)
-        self.conv = nn.Conv3d(chan_in, chan_out, self.kernel_size, stride=stride, padding=padding)
+        if is_npu_available():
+            self.conv = nn.Conv3d(chan_in, chan_out, self.kernel_size, stride=stride, padding=padding, dtype=torch.bfloat16)
+        else:
+            self.conv = nn.Conv3d(chan_in, chan_out, self.kernel_size, stride=stride, padding=padding)
         self._init_weights(init_method)
         
     def _init_weights(self, init_method):
@@ -95,5 +103,9 @@ class CausalConv3d(nn.Module):
             (1, 1, self.time_kernel_size - 1, 1, 1)
         )   # b c t h w
         x = torch.concatenate((first_frame_pad, x), dim=2)
-        return self.conv(x)
+        if is_npu_available():
+            res = self.conv.to(torch.bfloat16)(x.to(torch.bfloat16)).to(x.dtype)
+            return torch_npu.npu_format_cast(res, 2)
+        else:
+            return self.conv(x)
     

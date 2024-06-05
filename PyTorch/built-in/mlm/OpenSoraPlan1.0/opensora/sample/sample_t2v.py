@@ -1,6 +1,12 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 import math
 import os
+
 import torch
+from opensora.utils.npu_utils import is_npu_available
+if is_npu_available():
+    import torch_npu
+    from torch_npu.contrib import transfer_to_npu
 import argparse
 import torchvision
 

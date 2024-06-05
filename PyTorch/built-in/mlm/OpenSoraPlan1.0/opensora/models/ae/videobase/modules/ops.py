@@ -1,3 +1,4 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 import torch
 from einops import rearrange
 
@@ -12,7 +13,7 @@ def video_to_image(func):
     return wrapper
 
 def nonlinearity(x):
-    return x * torch.sigmoid(x)
+    return torch.nn.functional.silu(x)
 
 def cast_tuple(t, length=1):
     return t if isinstance(t, tuple) else ((t,) * length)

@@ -1,3 +1,4 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 # Copyright (c) Meta Platforms, Inc. and affiliates.
 # All rights reserved.
 
@@ -14,6 +15,7 @@ import os
 import shutil
 from pathlib import Path
 from typing import Optional
+import time
 
 import numpy as np
 from einops import rearrange
@@ -24,6 +26,14 @@ from copy import deepcopy
 
 import accelerate
 import torch
+
+from opensora.utils.npu_utils import is_npu_available
+if is_npu_available():
+    import torch_npu
+    from torch_npu.contrib import transfer_to_npu
+    torch.npu.config.allow_internal_format = False
+    from opensora.utils.npu_utils import AdamW
+
 from torch.nn import functional as F
 import transformers
 from accelerate import Accelerator
@@ -42,6 +52,7 @@ from diffusers.utils import check_min_version, is_wandb_available
 
 from opensora.dataset import getdataset, ae_denorm
 from opensora.models.ae import getae, getae_wrapper
+from opensora.models.ae.imagebase import vae
 from opensora.models.ae.videobase import CausalVQVAEModelWrapper, CausalVAEModelWrapper
 from opensora.models.diffusion.diffusion import create_diffusion_T as create_diffusion
 from opensora.models.diffusion.latte.modeling_latte import LatteT2V
@@ -298,7 +309,10 @@ def main(args):
 
         optimizer_class = bnb.optim.AdamW8bit
     else:
-        optimizer_class = torch.optim.AdamW
+        if is_npu_available():
+            optimizer_class = AdamW
+        else:
+            optimizer_class = torch.optim.AdamW
 
     # Optimizer creation
     params_to_optimize = model.parameters()
@@ -402,7 +416,9 @@ def main(args):
 
     for epoch in range(first_epoch, args.num_train_epochs):
         train_loss = 0.0
+        dataloader_start_time = time.time()
         for step, (x, input_ids, cond_mask) in enumerate(train_dataloader):
+            step_start_time = time.time()
             with accelerator.accumulate(model):
                 # Sample noise that we'll add to the latents
                 x = x.to(accelerator.device)  # B C T+num_images H W, 16 + 4
@@ -418,16 +434,18 @@ def main(args):
                         x = ae.encode(x)  # B C T H W
                         cond = text_enc(input_ids, cond_mask)  # B L -> B L D
                     else:
-                        videos, images = x[:, :, :-args.use_image_num], x[:, :, -args.use_image_num:]
-                        videos = ae.encode(videos)  # B C T H W
-                        images = rearrange(images, 'b c t h w -> (b t) c 1 h w')
-                        images = ae.encode(images)
-                        images = rearrange(images, '(b t) c 1 h w -> b c t h w', t=args.use_image_num)
-                        x = torch.cat([videos, images], dim=2)   #  b c 16+4, h, w
-
-                        # use for loop to avoid OOM, because T5 is too huge...
-                        B, _, _ = input_ids.shape  # B T+num_images L  b 1+4, L
-                        cond = torch.stack([text_enc(input_ids[i], cond_mask[i]) for i in range(B)])  # B 1+num_images L D
+                        B, N, L = input_ids.shape
+                        cond = text_enc(input_ids.reshape(-1, L), cond_mask.reshape(-1, L))
+                        cond = cond.reshape(B, N, L, -1)
+                        if args.ae in vae and args.use_img_from_vid:
+                            x = ae.encode(x)
+                        else:
+                            videos, images = x[:, :, :-args.use_image_num], x[:, :, -args.use_image_num:]
+                            videos = ae.encode(videos)  # B C T H W
+                            images = rearrange(images, 'b c t h w -> (b t) c 1 h w')
+                            images = ae.encode(images)
+                            images = rearrange(images, '(b t) c 1 h w -> b c t h w', t=args.use_image_num)
+                            x = torch.cat([videos, images], dim=2)   #  b c 16+4, h, w
 
                 model_kwargs = dict(encoder_hidden_states=cond, attention_mask=attn_mask,
                                     encoder_attention_mask=cond_mask, use_image_num=args.use_image_num)
@@ -447,6 +465,11 @@ def main(args):
                 optimizer.step()
                 lr_scheduler.step()
                 optimizer.zero_grad()
+
+                step_end_time = time.time()
+                if accelerator.is_main_process:
+                    print(f"steps: {global_step}, dataloader time: {step_start_time - dataloader_start_time}, \
+                          train time: {step_end_time - step_start_time}, train loss: {train_loss}")
 
             # Checks if the accelerator has performed an optimization step behind the scenes
             if accelerator.sync_gradients:
@@ -557,6 +580,7 @@ def main(args):
                         # del ae_, text_enc_, model_, diffusion_, tokenizer_
                         del ae_, model_, diffusion_, tokenizer_
                         torch.cuda.empty_cache()
+            dataloader_start_time = time.time()
 
     accelerator.wait_for_everyone()
     accelerator.end_training()
