@@ -289,7 +289,7 @@ mode_name = [
 |   310P3| ViT_base_patch32_224|64 (最优性能)|ImageNet| top1: 80.72|top1: 80.63|  1679.63|
 |   310P3| ViT_base_patch32_384|            1|ImageNet| top1: 83.35|top1: 83.29|   267.01|
 |   310P3| ViT_base_patch32_384|32 (最优性能)|ImageNet| top1: 83.35|top1: 83.29|   596.55|
-|   310P3|ViT_large_patch16_224|            1|ImageNet| top1: 83.06|top1: 85.62|   119.80|
-|   310P3|ViT_large_patch16_224| 4 (最优性能)|ImageNet| top1: 83.06|top1: 85.62|   166.43|
+|   310P3|ViT_large_patch16_224|            1|ImageNet| top1: 85.84|top1: 85.62|   119.80|
+|   310P3|ViT_large_patch16_224| 4 (最优性能)|ImageNet| top1: 85.84|top1: 85.62|   166.43|
 
 > 完整性能数据请查阅文件：`performances.md`
