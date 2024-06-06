@@ -492,7 +492,7 @@ def apply_optimization(opts) -> None:
         elif opt == "pad_nz_block":
             pad_nz_block(g, reshapes, adds, adds_2, merged_axis)
  
-    g.infershape()
+    g.infer_shape()
     g.save(opts.output_file)
  
  
