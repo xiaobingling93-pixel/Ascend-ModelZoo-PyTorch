@@ -2,7 +2,12 @@
 
 - [目录](#目录)
 - [简介](#简介)
-  - [模型介绍](#模型介绍)
+  - [diffusers介绍](#diffusers介绍)
+  - [openmind-diffusers介绍](#openmind-diffusers介绍)
+  - [环境准备](#环境准备)
+    - [1. 安装依赖](#1-安装依赖)
+    - [2. 安装 diffusers原生开源库](#2-安装-diffusers原生开源库)
+    - [3. 安装 diffusers\_npu](#3-安装-diffusers_npu)
   - [支持任务列表](#支持任务列表)
   - [代码实现](#代码实现)
 - [SDXL](#sdxl)
@@ -47,6 +52,14 @@
     - [推理任务](#推理任务-3)
       - [获取预训练模型](#获取预训练模型-3)
       - [开始推理](#开始推理-3)
+- [Unidiffuser](#unidiffuser)
+  - [准备环境](#准备环境-1)
+    - [安装模型环境](#安装模型环境-4)
+    - [安装昇腾环境](#安装昇腾环境-4)
+  - [快速开始](#快速开始-4)
+    - [推理任务](#推理任务-4)
+      - [获取预训练模型](#获取预训练模型-4)
+      - [开始推理](#开始推理-4)
 - [公网地址说明](#公网地址说明)
 - [变更说明](#变更说明)
   - [变更](#变更)
@@ -102,7 +115,7 @@ https://huggingface.co/docs/diffusers/installation
 | SDXL_Turbo  |   文生图推理    | ✔ |
 | AnimateDiff |   文生图推理    | ✔ |
 | DiT         |   推理         | ✔ |
-
+| Unidiffuser |   多任务推理         | ✔ |
 
 ## 代码实现
 
@@ -534,7 +547,63 @@ motion_lora_with_peft.py`
   python examples/DiT/dit_infer.py   #单卡推理，混精fp16
   ```
 
+# Unidiffuser
 
+## 准备环境
+
+### 安装模型环境
+
+**表 7**  三方库版本支持表
+
+|  三方库   | 支持版本 |
+| :-------: | :------: |
+|  PyTorch  |  2.1.0   |
+| diffusers |  0.28.0  |
+
+### 安装昇腾环境
+
+ 请参考昇腾社区中《[Pytorch框架训练环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/ptes)》文档搭建昇腾环境，本仓已支持表8中软件版本。
+
+  **表 8**  昇腾软件版本支持表
+
+|     软件类型      | 支持版本 |
+| :---------------: | :------: |
+| FrameworkPTAdaper | 在研版本 |
+|       CANN        | 在研版本 |
+|    昇腾NPU固件    | 在研版本 |
+|    昇腾NPU驱动    | 在研版本 |
+
+## 快速开始
+
+### 推理任务
+
+本任务主要提供**fp16**的**单卡**推理脚本。
+
+#### 获取预训练模型
+
+1. 联网情况下，预训练模型会自动下载。
+
+2. 无网络时，用户可访问[huggingface官网](https://hf-mirror.com/thu-ml/unidiffuser-v1/tree/main)自行下载，文件namespace如下：
+
+   ```
+    ./examples/Unidiffuser/unidiffuser-v1
+   ```
+
+#### 开始推理
+
+- 推理前加载环境变量
+  ```shell
+  source /usr/local/Ascend/ascend-toolkit/set_env.sh
+  ```
+- 调用推理脚本
+  ```shell
+  #单卡推理，fp16
+  python examples/Unidiffuser/unidiffuser_unconditional_image_text.py # 图文联合生成
+  python examples/Unidiffuser/unidiffuser_text_to_image.py # 文生图
+  python examples/Unidiffuser/unidiffuser_image_to_text.py # 图生文
+  python examples/Unidiffuser/unidiffuser_image_variation.py # 图像变换
+  python examples/Unidiffuser/unidiffuser_text_variation.py # 文本变换
+  ```
 
 
 # 公网地址说明
@@ -545,6 +614,7 @@ motion_lora_with_peft.py`
 ## 变更
 
 2024.05.20：SDXL、SDXL_turbo、Animatediff流水线样例首次发布。
+2024.06.06：Unidiffuser fp16推理任务发布。
 
 # FAQ
 
