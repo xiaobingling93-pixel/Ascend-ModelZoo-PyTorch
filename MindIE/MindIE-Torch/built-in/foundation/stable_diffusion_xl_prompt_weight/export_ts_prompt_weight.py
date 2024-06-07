@@ -55,6 +55,12 @@ def parse_arguments() -> Namespace:
         choices=[0, 1],
         help="0 is static; 1 is dynamic rankl.",
     )
+    parser.add_argument(
+        "--device",
+        default=0,
+        type=int,
+        help="NPU device",
+    )
 
     return parser.parse_args()
 
@@ -675,7 +681,6 @@ def export(model_path: str, save_dir: str, batch_size: int, steps: int, guidance
 
 
 def main():
-    mindietorch.set_device(3)
     args = parse_arguments()
     export(args.model,
            args.output_dir,
@@ -693,6 +698,7 @@ if __name__ == "__main__":
     min_height, max_height = 512 // 8, 1024 // 8
     min_width, max_width = 512 // 8, 1664 // 8
     args = parse_arguments()
+    mindietorch.set_device(args.device)
     if args.soc == "Duo":
         soc_version = "Ascend310P3"
     elif args.soc == "A2":

@@ -82,6 +82,12 @@ def parse_arguments() -> Namespace:
         default="A2",
         help="soc_version.",
     )
+    parser.add_argument(
+        "--device",
+        default=0,
+        type=int,
+        help="NPU device",
+    )
 
     return parser.parse_args()
 
@@ -453,6 +459,7 @@ def export(model_path: str, controlnet_path: str, vae_path: str, save_dir: str, 
 
 def main():
     args = parse_arguments()
+    mindietorch.set_device(args.device)
     export(args.model, args.controlnet_model, args.vae_model, args.output_dir,
            args.batch_size, args.conditioning_scale,
            args.flag, args.soc)

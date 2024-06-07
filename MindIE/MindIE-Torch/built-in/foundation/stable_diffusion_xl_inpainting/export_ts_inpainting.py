@@ -65,6 +65,12 @@ def parse_arguments() -> Namespace:
         action="store_true",
         help="Use cache during inference."
     )
+    parser.add_argument(
+        "--device",
+        default=0,
+        type=int,
+        help="NPU device",
+    )
 
     return parser.parse_args()
 
@@ -644,6 +650,7 @@ def export(model_path: str, save_dir: str, batch_size: int, flag: int, soc: str,
 
 def main():
     args = parse_arguments()
+    mindietorch.set_device(args.device)
     export(args.model, args.output_dir, args.batch_size, args.flag, args.soc, args.use_cache)
     print("Done.")
 
