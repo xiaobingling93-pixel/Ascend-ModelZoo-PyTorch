@@ -47,7 +47,7 @@ def parse_arguments() -> Namespace:
     parser.add_argument("-steps", "--steps", type=int, default=50, help="steps.")
     parser.add_argument("-guid", "--guidance_scale", type=float, default=5.0, help="guidance_scale")
     parser.add_argument("--use_cache", action="store_true", help="Use cache during inference.")
-    parser.add_argument("--soc", choices=["Duo", "A2"], default="A2", help="soc_version.", )
+    parser.add_argument("--soc", choices=["A2"], default="A2", help="soc_version.", )
     parser.add_argument(
         "--flag",
         type=int,
@@ -289,7 +289,7 @@ def export_unet_init(sd_pipeline: StableDiffusionXLPipeline, save_dir: str, batc
         os.makedirs(unet_path, mode=0o640)
 
     unet_pt_path = os.path.join(unet_path, f"unet_bs{batch_size}.pt")
-    compile_batch_size = batch_size * 2
+    compile_batch_size = batch_size
     unet_compiled_static_path = os.path.join(unet_path, f"unet_bs{compile_batch_size}_compile_static.ts")
     unet_compiled_path = os.path.join(unet_path, f"unet_bs{compile_batch_size}_compile.ts")
 
@@ -394,7 +394,7 @@ def export_unet_skip(sd_pipeline: StableDiffusionXLPipeline, save_dir: str, batc
     if not os.path.exists(unet_path):
         os.makedirs(unet_path, mode=0o640)
 
-    compile_batch_size = batch_size * 2
+    compile_batch_size = batch_size
 
     unet_pt_path = os.path.join(unet_path, f"unet_bs{batch_size}_1.pt")
     unet_compiled_static_path = os.path.join(unet_path, f"unet_bs{compile_batch_size}_compile_1_static.ts")
@@ -507,7 +507,7 @@ def export_unet_cache(sd_pipeline: StableDiffusionXLPipeline, save_dir: str,
         os.makedirs(unet_path, mode=0o640)
 
     unet_pt_path = os.path.join(unet_path, f"unet_bs{batch_size}_0.pt")
-    compile_batch_size = batch_size * 2
+    compile_batch_size = batch_size
     unet_compiled_static_path = os.path.join(unet_path, f"unet_bs{compile_batch_size}_compile_0_static.ts")
     unet_compiled_path = os.path.join(unet_path, f"unet_bs{compile_batch_size}_compile_0.ts")
     unet_model = sd_pipeline.unet
@@ -614,7 +614,7 @@ class VaeExport(torch.nn.Module):
 def export_vae(sd_pipeline: StableDiffusionXLPipeline, save_dir: str, batch_size: int, flag: int) -> None:
     print("Exporting the image decoder...")
 
-    compile_batch_size = batch_size * 2
+    compile_batch_size = batch_size
 
     vae_path = os.path.join(save_dir, "vae")
     if not os.path.exists(vae_path):

@@ -115,6 +115,7 @@ class PromptLoader:
                 catagory_id = self.catagories.index(catagory)
                 self.prompts.append((prompt, catagory_id))
 
+
 class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
     def parser_args(self, args):
         self.args = args
@@ -142,7 +143,7 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
                 tail = "_static"
             elif self.args.flag == 1:
                 tail = ""
-            vae_compiled_path = os.path.join(self.args.output_dir, f"vae/vae_bs{size * 2}_compile{tail}.ts")
+            vae_compiled_path = os.path.join(self.args.output_dir, f"vae/vae_bs{size}_compile{tail}.ts")
             self.compiled_vae_model = torch.jit.load(vae_compiled_path).eval()
 
             clip1_compiled_path = os.path.join(self.args.output_dir, f"clip/clip_bs{size}_compile{tail}.ts")
@@ -152,16 +153,15 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
             self.compiled_clip_model_2 = torch.jit.load(clip2_compiled_path).eval()
 
             if not self.args.use_cache:
-                unet_compiled_path = os.path.join(self.args.output_dir,
-                                                  f"unet/unet_bs{batch_size * 2}_compile{tail}.ts")
+                unet_compiled_path = os.path.join(self.args.output_dir, f"unet/unet_bs{batch_size}_compile{tail}.ts")
                 self.compiled_unet_model = torch.jit.load(unet_compiled_path).eval()
             if self.args.use_cache:
                 unet_skip_compiled_path = os.path.join(self.args.output_dir,
-                                                       f"unet/unet_bs{batch_size * 2}_compile_1{tail}.ts")
+                                                       f"unet/unet_bs{batch_size}_compile_1{tail}.ts")
                 self.compiled_unet_model_skip = torch.jit.load(unet_skip_compiled_path).eval()
 
                 unet_cache_compiled_path = os.path.join(self.args.output_dir,
-                                                        f"unet/unet_bs{batch_size * 2}_compile_0{tail}.ts")
+                                                        f"unet/unet_bs{batch_size}_compile_0{tail}.ts")
                 self.compiled_unet_model_cache = torch.jit.load(unet_cache_compiled_path).eval()
         else:
             print("This operation is not supported!")
@@ -848,7 +848,7 @@ def parse_arguments():
     )
     parser.add_argument(
         "--soc",
-        choices=["Duo", "A2"],
+        choices=["A2"],
         default="A2",
         help="soc_version.",
     )
@@ -942,12 +942,12 @@ def main():
     image_info = []
     current_prompt = None
     for i, input_info in enumerate(prompt_loader):
-        prompts = input_info['prompts']
+        prompt = input_info['prompts']
         catagories = input_info['catagories']
         save_names = input_info['save_names']
         n_prompts = input_info['n_prompts']
 
-        print(f"[{infer_num + n_prompts}/{len(prompt_loader)}]: {prompts}")
+        print(f"[{infer_num + n_prompts}/{len(prompt_loader)}]: {prompt}")
         infer_num += args.batch_size
 
         start_time = time.time()
@@ -961,7 +961,6 @@ def main():
         )
 
         # apply weights
-        prompt = ["a red cat playing with a (ball)1.5", "a red cat playing with a (ball)0.6"]
         conditioning, pooled = compel(prompt)  # 耗时
 
         # generate image
@@ -976,10 +975,10 @@ def main():
                 height=height,
                 width=width,
             )
-        make_image_grid(images[0], rows=1, cols=2)
+        make_image_grid(images[0], rows=1, cols=1)
 
-        images[0][0].save("./results/" + "111.jpg")
-        images[0][1].save("./results/" + "222.jpg")
+        images[0][0].save(os.path.join(save_dir, f"{i}.jpg"))
+
         use_time += time.time() - start_time
 
     print(f"[info] infer number: {infer_num}; use time: {use_time:.3f}s\n"
