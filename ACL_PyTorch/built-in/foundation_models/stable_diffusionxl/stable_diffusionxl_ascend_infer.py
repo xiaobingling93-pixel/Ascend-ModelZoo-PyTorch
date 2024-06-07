@@ -21,6 +21,7 @@ import argparse
 import aclruntime
 from ais_bench.infer.interface import InferSession
 from diffusers.schedulers import *
+import hpsv2
 
 from background_session import BackgroundInferSession
 from pipeline_ascend_stable_diffusionxl import AscendStableDiffusionXLPipeline
@@ -45,6 +46,9 @@ class PromptLoader:
 
         elif prompt_file_type == 'parti':
             self.load_prompts_parti(prompt_file, max_num_prompts)
+
+        elif prompt_file_type == 'hpsv2':
+            self.load_prompts_hpsv2(max_num_prompts, max_num_prompts)
 
         self.current_id = 0
         self.inner_id = 0
@@ -111,6 +115,21 @@ class PromptLoader:
                 catagory_id = self.catagories.index(catagory)
                 self.prompts.append((prompt, catagory_id))
 
+    def load_prompts_hpsv2(self, file_path: str, max_num_prompts: int):
+        all_prompts = hpsv2.benchmark_prompts('all')
+        count = 0
+        for style, prompts in all_prompts.items():
+            for prompt in prompts:
+                count += 1
+                if max_num_prompts and count >= max_num_prompts:
+                    break
+
+                if style not in self.catagories:
+                    self.catagories.append(style)
+
+                catagory_id = self.catagories.index(style)
+                self.prompts.append((prompt, catagory_id))
+
 
 def check_device_range_valid(value):
     # if contain , split to int list
@@ -144,12 +163,12 @@ def parse_arguments():
     parser.add_argument(
         "--prompt_file",
         type=str,
-        required=True,
+        default='prompts.txt',
         help="A prompt file used to generate images.",
     )
     parser.add_argument(
         "--prompt_file_type", 
-        choices=["plain", "parti"],
+        choices=["plain", "parti", 'hpsv2'],
         default="plain", 
         help="Type of prompt file.",
     )
@@ -191,7 +210,7 @@ def parse_arguments():
     )
     parser.add_argument(
         "--scheduler", 
-        choices=["DDIM", "Euler", "DPM", "EulerAncestral", "DPM++SDEKarras"],
+        choices=["None", "DDIM", "Euler", "DPM", "EulerAncestral", "DPM++SDEKarras"],
         default="DDIM", 
         help="Type of Sampling methods. Can choose from DDIM, Euler, DPM",
     )
@@ -242,14 +261,13 @@ def main():
     if args.scheduler == "DDIM":
         pipe.scheduler = DDIMScheduler.from_config(pipe.scheduler.config)
         use_npu_scheduler = True
-
-    if args.scheduler == "Euler":
+    elif args.scheduler == "Euler":
         pipe.scheduler = EulerDiscreteScheduler.from_config(pipe.scheduler.config)
-    if args.scheduler == "DPM":
+    elif args.scheduler == "DPM":
         pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
-    if args.scheduler == "EulerAncestral":
+    elif args.scheduler == "EulerAncestral":
         pipe.scheduler = EulerAncestralDiscreteScheduler.from_config(pipe.scheduler.config)
-    if args.scheduler == "DPM++SDEKarras":
+    elif args.scheduler == "DPM++SDEKarras":
         pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
         pipe.scheduler.config.algorithm_type = 'sde-dpmsolver++'
         pipe.scheduler.config.use_karras_sigmas = True
