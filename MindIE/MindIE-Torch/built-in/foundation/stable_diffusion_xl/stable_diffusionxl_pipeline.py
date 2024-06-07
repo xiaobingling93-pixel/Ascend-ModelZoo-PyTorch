@@ -25,7 +25,7 @@ import mindietorch
 from diffusers import StableDiffusionXLPipeline
 from diffusers.loaders import TextualInversionLoaderMixin
 from diffusers import DDIMScheduler, DPMSolverMultistepScheduler, EulerDiscreteScheduler, SASolverScheduler
-
+from quant_utils import modify_model
 from mindietorch import _enums
 
 clip_time = 0
@@ -130,6 +130,9 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
             self.device_0 = self.args.device[0]
         else:
             self.device_0 = args.device
+        self.data = None
+        if self.args.save_unet_input:
+            self.data = { 'use_cache':self.args.use_cache, 'parallel':isinstance(self.args.device, list)}
 
     def compile_aie_model(self):
         if self.is_init:
@@ -836,6 +839,14 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
             start = time.time()
             if flag_cache:
                 if skip_steps[i]:
+                    if self.data is not None and 'skip' not in self.data:
+                        self.data['skip'] = (latent_model_input.to('cpu'),
+                                           t.to(torch.int64)[None].to('cpu'),
+                                           prompt_embeds.to('cpu'),
+                                           add_text_embeds.to('cpu'),
+                                           add_time_ids.to('cpu'),
+                                           skip_flag.to('cpu'),
+                                           cache.to('cpu'))
                     noise_pred = self.compiled_unet_model_skip(latent_model_input,
                                                                t.to(torch.int64)[None].to(f'npu:{self.device_0}'),
                                                                prompt_embeds.to(f'npu:{self.device_0}'),
@@ -844,6 +855,13 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
                                                                skip_flag.to(f'npu:{self.device_0}'),
                                                                cache, )
                 else:
+                    if self.data is not None and 'cache' not in self.data:
+                        self.data['cache'] = (latent_model_input.to('cpu'),
+                                                 t.to(torch.int64)[None].to('cpu'),
+                                                 prompt_embeds.to('cpu'),
+                                                 add_text_embeds.to('cpu'),
+                                                 add_time_ids.to('cpu'),
+                                                 cache_flag.to('cpu'))
                     outputs = self.compiled_unet_model_cache(latent_model_input,
                                                              t.to(torch.int64)[None].to(f'npu:{self.device_0}'),
                                                              prompt_embeds.to(f'npu:{self.device_0}'),
@@ -854,6 +872,12 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
                     noise_pred = outputs[0]
                     cache = outputs[1]
             else:
+                if self.data is not None and 'no_cache' not in self.data:
+                    self.data['no_cache'] = (latent_model_input.to('cpu'),
+                                                      t.to(torch.int64)[None].to('cpu'),
+                                                      prompt_embeds.to('cpu'),
+                                                      add_text_embeds.to('cpu'),
+                                                      add_time_ids.to('cpu'))
                 noise_pred = self.compiled_unet_model(latent_model_input,
                                                       t.to(torch.int64)[None].to(f'npu:{self.device_0}'),
                                                       prompt_embeds.to(f'npu:{self.device_0}'),
@@ -1032,6 +1056,12 @@ def parse_arguments():
                 30,31,33,34,36,37,39,40,42,43,45,47,48,49",  # 17+33
         help="Steps to use cache data."
     )
+    parser.add_argument(
+        "--save_unet_input",
+        type=bool,
+        default=False,
+        help="save unet input for quant."
+    )
 
     return parser.parse_args()
 
@@ -1121,6 +1151,9 @@ def main():
           f"p1 time: {p1_time / infer_num:.3f}s\n"
           f"p2 time: {p2_time / infer_num:.3f}s\n"
           f"p3 time: {p3_time / infer_num:.3f}s\n")
+
+    if args.save_unet_input:
+        np.save('unet_data.npy', pipe.data)
 
     # Save image information to a json file
     if os.path.exists(args.info_file_save_path):

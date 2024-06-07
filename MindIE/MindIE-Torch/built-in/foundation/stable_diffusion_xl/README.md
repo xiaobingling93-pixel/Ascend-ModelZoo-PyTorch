@@ -244,7 +244,7 @@
       也可手动下载[权重](https://huggingface.co/laion/CLIP-ViT-H-14-laion2B-s32B-b79K/blob/main/open_clip_pytorch_model.bin)
       将权重放到`CLIP-ViT-H-14-laion2B-s32B-b79K`目录下
 
-   2. 使用推理脚本读取Parti数据集，生成图片
+   3. 使用推理脚本读取Parti数据集，生成图片
 
       ```bash
       # 不使用unetCache策略
@@ -303,7 +303,7 @@
       带unetCache，执行完成后会在`./results_PartiPrompts_unetCache`目录下生成推理图片，并且会在当前目录生成一个`image_info.json`文件，记录着图片和prompt的对应关系。
       带unetCache，同时使用双卡并行策略，执行完成后会在`./results_PartiPrompts_unetCache_parallel`目录下生成推理图片，并且会在当前目录生成一个`image_info.json`文件，记录着图片和prompt的对应关系。
 
-   3. 计算CLIP-score
+   4. 计算CLIP-score
 
       ```bash
       python clip_score.py \
@@ -321,7 +321,104 @@
 
       执行完成后会在屏幕打印出精度计算结果。
 
-   
+
+## 量化功能【可选】<a name="section741711594518"></a>
+
+若使用W8A8量化功能，则将上述“1.导出pt模型并进行编译、2.开始推理验证”，替换为以下步骤：
+
+   1. 执行命令：
+
+      ```bash
+      cd quant
+      bash build.sh
+      ```
+
+   2. 导出unet pt模型输入。
+
+      执行命令：
+
+      ```bash
+      # 不使用unetCache策略
+      python3 stable_diffusionxl_pipeline.py \
+              --model ${model_base} \
+              --prompt_file ./prompts.txt \
+              --device 0 \
+              --save_dir ./results \
+              --steps 50 \
+              --output_dir ./models \
+              --soc A2 \
+              --save_unet_input
+
+      # 使用UnetCache策略
+      python3 stable_diffusionxl_pipeline.py \
+              --model ${model_base} \
+              --prompt_file ./prompts.txt \
+              --device 0 \
+              --save_dir ./results_unetCache \
+              --steps 50 \
+              --output_dir ./models \
+              --soc A2 \
+              --use_cache \
+              --save_unet_input
+      ```
+
+   3. 导出pt模型并进行编译。
+
+      执行命令：
+
+      ```bash
+      # 若不使用unetCache，且不使用并行方案
+      python3 export_ts_quant.py --model ${model_base} --output_dir ./models --batch_size 1
+
+      # 若使用unetCache, 但不使用并行方案
+      python3 export_ts_quant.py --model ${model_base} --output_dir ./models --use_cache --batch_size 1
+      
+      # 若使用unetCache, 且使用并行方案
+      python3 export_ts_quant.py --model ${model_base} --output_dir ./models --use_cache --parallel --batch_size 1
+      ```
+
+   4. 开始推理验证。
+
+      执行命令：
+
+      ```bash
+      # 不使用unetCache策略
+      python3 stable_diffusionxl_pipeline.py \
+              --model ${model_base} \
+              --prompt_file ./prompts.txt \
+              --device 0 \
+              --save_dir ./results \
+              --steps 50 \
+              --output_dir ./models \
+              --soc A2 \
+              --quant
+
+      # 使用UnetCache策略
+      python3 stable_diffusionxl_pipeline.py \
+              --model ${model_base} \
+              --prompt_file ./prompts.txt \
+              --device 0 \
+              --save_dir ./results_unetCache \
+              --steps 50 \
+              --output_dir ./models \
+              --soc A2 \
+              --use_cache \
+              --quant
+
+      # 使用UnetCache策略,同时使用双卡并行策略
+      python3 stable_diffusionxl_pipeline_cache_parallel.py \
+              --model ${model_base} \
+              --prompt_file ./prompts.txt \
+              --device 0,1 \
+              --save_dir ./results_unetCache_parallel \
+              --steps 50 \
+              --output_dir ./models \
+              --soc A2 \
+              --use_cache \
+              --quant
+      ```
+
+
 # 模型推理性能&精度<a name="ZH-CN_TOPIC_0000001172201573"></a>
 
 调用ACL接口推理计算，性能参考下列数据。
