@@ -21,14 +21,10 @@ fi
 
 source ${test_path_dir}/env_npu.sh
 
-ASCEND_DEVICE_ID=0
 #创建DeviceID输出目录，不需要修改
-if [ -d ${test_path_dir}/output/${ASCEND_DEVICE_ID} ];then
-    rm -rf ${test_path_dir}/output/${ASCEND_DEVICE_ID}
-    mkdir -p ${test_path_dir}/output/${ASCEND_DEVICE_ID}
-else
-    mkdir -p ${test_path_dir}/output/${ASCEND_DEVICE_ID}
-fi
+output_path=${cur_path}/test/output/${ASCEND_DEVICE_ID}
+
+mkdir -p ${output_path}
 
 #训练开始时间，不需要修改
 start_time=$(date +%s)
@@ -36,7 +32,7 @@ echo "start_time: ${start_time}"
 
 torchrun --nnodes=1 --nproc_per_node=8 --master-port 61888 scripts/train.py \
 configs/opensora-v1-1/train/stage1.py \
---data-path ${data_path} >> ${test_path_dir}/output/$ASCEND_DEVICE_ID/infer_${ASCEND_DEVICE_ID}.log 2>&1 &
+--data-path ${data_path} >> ${test_path_dir}/output/$ASCEND_DEVICE_ID/train_${ASCEND_DEVICE_ID}.log 2>&1 &
 wait
 
 #训练结束时间，不需要修改

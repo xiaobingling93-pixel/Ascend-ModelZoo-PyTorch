@@ -2,6 +2,7 @@
 from copy import deepcopy
 from datetime import timedelta
 from pprint import pprint
+import time
 
 import torch
 import torch.distributed as dist
@@ -246,8 +247,11 @@ def main():
             total=num_steps_per_epoch,
         ) as pbar:
             for step, batch in pbar:
+                start_step_time = time.time()
                 x = batch.pop("video").to(device, dtype)  # [B, C, T, H, W]
                 y = batch.pop("text")
+                data_step_time = time.time()
+
                 # Visual and text encoding
                 with torch.no_grad():
                     # Prepare visual inputs
@@ -286,8 +290,13 @@ def main():
                 log_step += 1
                 acc_step += 1
 
+                train_step_time = time.time()
+
                 # Log to tensorboard
                 if coordinator.is_master() and (global_step + 1) % cfg.log_every == 0:
+                    print(
+                        f"data time {data_step_time - start_step_time} | E2E train time {train_step_time - start_step_time}", flush=True)
+
                     avg_loss = running_loss / log_step
                     pbar.set_postfix({"loss": avg_loss, "step": step, "global_step": global_step})
                     running_loss = 0
@@ -325,7 +334,7 @@ def main():
                     logger.info(
                         f"Saved checkpoint at epoch {epoch} step {step + 1} global_step {global_step + 1} to {exp_dir}"
                     )
-                if cfg.max_train_steps > 0 and step == cfg.max_train_steps:
+                if cfg.max_train_steps > 0 and global_step == cfg.max_train_steps:
                     early_stopping_flag = True
                     break
 

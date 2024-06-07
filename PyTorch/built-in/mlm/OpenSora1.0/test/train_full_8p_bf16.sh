@@ -28,14 +28,10 @@ fi
 
 source ${test_path_dir}/env_npu.sh
 
-ASCEND_DEVICE_ID=0
 #创建DeviceID输出目录，不需要修改
-if [ -d ${test_path_dir}/output/${ASCEND_DEVICE_ID} ];then
-    rm -rf ${test_path_dir}/output/${ASCEND_DEVICE_ID}
-    mkdir -p ${test_path_dir}/output/${ASCEND_DEVICE_ID}
-else
-    mkdir -p ${test_path_dir}/output/${ASCEND_DEVICE_ID}
-fi
+output_path=${cur_path}/test/output/${ASCEND_DEVICE_ID}
+
+mkdir -p ${output_path}
 
 #推理开始时间，不需要修改
 start_time=$(date +%s)
@@ -62,7 +58,7 @@ CaseName=${Network}_bs${BatchSize}_${WORLD_SIZE}'p'_'acc'
 # 结果打印，不需要修改
 echo "------------------ Final result ------------------"
 # 输出性能FPS，需要模型审视修改
-FPS=`grep -a 'FPS' ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log|awk -F "FPS " '{print $2}' | tail -100 | awk '{a+=$1} END {if (NR != 0) printf("%.2f",a/NR)}'`
+FPS=`grep -a 'FPS' ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log|awk -F "FPS " '{print $2}' | tail -100 | awk '{a+=$1} END {if (NR != 0) printf("%.3f",a/NR)}'`
 # 打印，不需要修改
 echo "Final Performance images/sec : $FPS"
 echo "E2E Training Duration sec : $e2e_time"

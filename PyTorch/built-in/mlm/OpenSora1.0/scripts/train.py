@@ -30,7 +30,7 @@ from opensora.utils.config_utils import (
     save_training_config,
 )
 from opensora.utils.misc import all_reduce_mean, format_numel_str, get_model_numel, requires_grad, to_torch_dtype
-from opensora.utils.train_utils import update_ema
+from opensora.utils.train_utils import update_ema, Adamw
 from opensora.utils.device_utils import is_npu_available
 if is_npu_available():
     from torch_npu.contrib import transfer_to_npu
@@ -45,6 +45,9 @@ def main():
     print(cfg)
     exp_name, exp_dir = create_experiment_workspace(cfg)
     save_training_config(cfg._cfg_dict, exp_dir)
+
+    import gc
+    gc.set_threshold(700, 10, 1000)
 
     # ======================================================
     # 2. runtime variables & colossalai launch
@@ -164,7 +167,6 @@ def main():
 
     # 4.5. setup optimizer
     if is_npu_available():
-        from torch.optim import AdamW
         optimizer = AdamW(
             filter(lambda p: p.requires_grad, model.parameters()), lr=cfg.lr, weight_decay=0
         )
@@ -297,7 +299,7 @@ def main():
                     logger.info(
                         f"Saved checkpoint at epoch {epoch} step {step + 1} global_step {global_step + 1} to {exp_dir}"
                     )
-                if cfg.max_train_steps > 0 and step == cfg.max_train_steps:
+                if cfg.max_train_steps > 0 and global_step == cfg.max_train_steps:
                     early_stopping_flag = True
                     break
 
