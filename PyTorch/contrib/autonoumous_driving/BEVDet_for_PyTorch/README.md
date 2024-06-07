@@ -9,6 +9,7 @@
   - [安装模型环境](#安装模型环境)
 - [准备数据集](#准备数据集)
   - [预训练数据集](#预训练数据集)
+  - [获取预训练权重](#获取预训练权重)
 - [快速开始](#快速开始)
   - [训练模型](#训练模型)
   - [训练结果](#训练结果)
@@ -46,7 +47,7 @@
 
   |        软件类型        |   支持版本   |
   |:------------------:|:--------:|
-  | FrameworkPTAdapter | 8.0.RC2  |
+  | FrameworkPTAdapter | 6.0.RC2  |
   |       CANN         | 8.0.RC2  |
   |      昇腾NPU固件       | 24.0.RC2 |
   |      昇腾NPU驱动       | 24.0.RC2 |
@@ -118,6 +119,12 @@ BEVDet_for_PyTorch/data
         bevdetv3-nuscenes_infos_train.pkl
         bevdetv3-nuscenes_infos_val.pkl
 ```
+## 获取预训练权重
+1. 联网情况下，预训练权重会自动下载。
+2. 无网络情况下，用户可以访问pytorch官网自行下载*resnet50*预训练[*resnet18-f37072fd.pth*](https://download.pytorch.org/models/resnet50-0676ba61.pth)。获取对应的预训练模型后，将预训练文件拷贝至对应目录。
+```
+${torch_hub}/checkpoints/resnet50-0676ba61.pth
+```
 
 # 快速开始
 
@@ -134,17 +141,17 @@ BEVDet_for_PyTorch/data
 - 单机单卡训练
 
      ```
-     bash ./test/train_1p.sh --py_config=config/bevdet/bevdet-r50.py # 单卡精度
+     bash ./test/train_1p.sh --py_config=configs/bevdet/bevdet-r50.py # 单卡精度
      
-     bash ./test/train_1p.sh --py_config=config/bevdet/bevdet-r50 --performance=1  # 单卡性能
+     bash ./test/train_1p.sh --py_config=configs/bevdet/bevdet-r50.py --performance=1  # 单卡性能
      ```
    
 - 单机8卡训练
 
      ```
-     bash ./test/train_8p.sh --py_config=config/bevdet/bevdet-r50 # 8卡精度
+     bash ./test/train_8p.sh --py_config=configs/bevdet/bevdet-r50.py # 8卡精度
 
-     bash ./test/train_8p.sh --py_config=config/bevdet/bevdet-r50 --performance=1 # 8卡性能 
+     bash ./test/train_8p.sh --py_config=configs/bevdet/bevdet-r50.py --performance=1 # 8卡性能 
      ```
 
   模型训练脚本参数说明如下。
