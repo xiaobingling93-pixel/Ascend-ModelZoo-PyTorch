@@ -101,10 +101,10 @@
 
       ```bash
       # 静态模型
-      python3 export_ts_controlnet.py --model ${model_base} --controlnet_model ${model_controlnet} --vae_model ${model_vae} --output_dir ./models --batch_size 1 --flag 0 --soc A2
+      python3 export_ts_controlnet.py --model ${model_base} --controlnet_model ${model_controlnet} --vae_model ${model_vae} --output_dir ./models --batch_size 1 --flag 0 --soc A2 --device 0
 
       # 动态分档模型，仅支持1024*1024、512*512两种
-      python3 export_ts_controlnet.py --model ${model_base} --controlnet_model ${model_controlnet} --vae_model ${model_vae} --output_dir ./models --batch_size 1 --flag 1 --soc A2
+      python3 export_ts_controlnet.py --model ${model_base} --controlnet_model ${model_controlnet} --vae_model ${model_vae} --output_dir ./models --batch_size 1 --flag 1 --soc A2 --device 0
 
       ```
 
@@ -117,18 +117,19 @@
       - --batch_size: 设置batch_size, 默认值为1,当前仅支持batch_size=1的场景
       - --falg: 设置模型编译方式。默认值为1。值为0表示静态模型，值为1表示动态分档模型。
       - --soc: 默认值为A2，当前仅支持800IA2场景。
+      - --device：推理设备ID；可用逗号分割传入两个设备ID，此时会使用并行方式进行推理。
 
       静态编译场景：
 
       - ./models/clip/clip_bs{batch_size}.pt, ./models/clip/clip_bs{batch_size}_compile.ts 和 ./models/clip/clip2_bs{batch_size}.pt, ./models/clip/clip2_bs{batch_size}_compile.ts
-      - ./models/unet/unet_bs{batch_size}.pt, ./models/unet/unet_bs{batch_size}_compile_static.ts
-      - ./models/vae/vae_bs{batch_size}.pt, ./models/vae/vae_bs{batch_size}_compile_compile_static.ts
+      - ./models/unet/unet_bs{batch_size*2}.pt, ./models/unet/unet_bs{batch_size*2}_compile_static.ts
+      - ./models/vae/vae_bs{batch_size}.pt, ./models/vae/vae_bs{batch_size}_compile_static.ts
       - ./models/control/control_bs{batch_size}.pt, ./models/control/control_bs{batch_size}_compile_static.ts
 
       动态分档场景：
 
       - ./models/clip/clip_bs{batch_size}.pt, ./models/clip/clip_bs{batch_size}_compile.ts 和 ./models/clip/clip2_bs{batch_size}.pt, ./models/clip/clip2_bs{batch_size}_compile.ts
-      - ./models/unet/unet_bs{batch_size}.pt, ./models/unet/unet_bs{batch_size}_compile.ts
+      - ./models/unet/unet_bs{batch_size*2}.pt, ./models/unet/unet_bs{batch_size*2}_compile.ts
       - ./models/vae/vae_bs{batch_size}.pt, ./models/vae/vae_bs{batch_size}_compile.ts
       - ./models/control/control_bs{batch_size}.pt, ./models/control/control_bs{batch_size}_compile.ts
   
@@ -154,7 +155,7 @@
       - --model：模型名称或本地模型目录的路径。
       - --controlnet_model: controlnet模型权重路径
       - --vae_model: vae模型权重路径
-      - --device：推理设备ID；可用逗号分割传入两个设备ID，此时会使用并行方式进行推理。
+      - --device：推理设备ID。
       - --save_dir：生成图片的存放目录。
       - --output_dir：存放导出模型的目录。
       - --soc: 默认值为A2，当前仅支持800IA2场景。
