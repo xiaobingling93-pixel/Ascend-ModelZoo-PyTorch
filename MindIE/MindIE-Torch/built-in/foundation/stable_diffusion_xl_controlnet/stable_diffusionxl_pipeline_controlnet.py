@@ -67,6 +67,385 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLControlNetPipeline):
         else:
             self.device_0 = args.device
 
+    def compile_aie_model(self):
+        if self.is_init:
+            return
+
+        in_channels = self.unet.config.out_channels
+        sample_size = self.unet.config.sample_size
+        encoder_hidden_size_2 = self.text_encoder_2.config.hidden_size
+        encoder_hidden_size = self.text_encoder.config.hidden_size + encoder_hidden_size_2
+        max_position_embeddings = self.text_encoder.config.max_position_embeddings
+
+        size = self.args.batch_size
+        batch_size = self.args.batch_size * 2
+
+        if self.args.flag == 0 or self.args.flag == 1:
+            tail = ""
+            if self.args.flag == 0:
+                tail = "_static"
+            elif self.args.flag == 1:
+                tail = ""
+            else:
+                print("This operation is not supported!")
+            vae_compiled_path = os.path.join(self.args.output_dir, f"vae/vae_bs{size}_compile{tail}.ts")
+            self.compiled_vae_model = torch.jit.load(vae_compiled_path).eval()
+
+            clip1_compiled_path = os.path.join(self.args.output_dir, f"clip/clip_bs{size}_compile{tail}.ts")
+            self.compiled_clip_model = torch.jit.load(clip1_compiled_path).eval()
+
+            clip2_compiled_path = os.path.join(self.args.output_dir, f"clip/clip2_bs{size}_compile{tail}.ts")
+            self.compiled_clip_model_2 = torch.jit.load(clip2_compiled_path).eval()
+
+            control_compiled_path = os.path.join(self.args.output_dir, f"control/control_bs{size}_compile{tail}.ts")
+            self.compiled_control_model = torch.jit.load(control_compiled_path).eval()
+
+            unet_compiled_path = os.path.join(self.args.output_dir, f"unet/unet_bs{batch_size}_compile{tail}.ts")
+            self.compiled_unet_model = torch.jit.load(unet_compiled_path).eval()
+
+        else:
+            print("This operation is not supported!")
+
+        self.is_init = True
+
+    # Copied from diffusers.pipelines.stable_diffusion.pipeline_stable_diffusion.StableDiffusionPipeline.prepare_ip_adapter_image_embeds
+    def prepare_ip_adapter_image_embeds(self, ip_adapter_image, device, num_images_per_prompt):
+        if not isinstance(ip_adapter_image, list):
+            ip_adapter_image = [ip_adapter_image]
+
+        if len(ip_adapter_image) != len(self.unet.encoder_hid_proj.image_projection_layers):
+            raise ValueError(
+                f"`ip_adapter_image` must have same length as the number of IP Adapters. \
+                    Got {len(ip_adapter_image)} images and {len(self.unet.encoder_hid_proj.image_projection_layers)} IP Adapters."
+            )
+
+        image_embeds = []
+        for single_ip_adapter_image, image_proj_layer in zip(
+                ip_adapter_image, self.unet.encoder_hid_proj.image_projection_layers
+        ):
+            output_hidden_state = not isinstance(image_proj_layer, ImageProjection)
+            single_image_embeds, single_negative_image_embeds = self.encode_image(
+                single_ip_adapter_image, device, 1, output_hidden_state
+            )
+            single_image_embeds = torch.stack([single_image_embeds] * num_images_per_prompt, dim=0)
+            single_negative_image_embeds = torch.stack([single_negative_image_embeds] * num_images_per_prompt, dim=0)
+
+            if self.do_classifier_free_guidance:
+                single_image_embeds = torch.cat([single_negative_image_embeds, single_image_embeds])
+                single_image_embeds = single_image_embeds.to(device)
+
+            image_embeds.append(single_image_embeds)
+
+        return image_embeds
+
+    def check_inputs(
+            self,
+            prompt,
+            prompt_2,
+            image,
+            callback_steps,
+            negative_prompt=None,
+            negative_prompt_2=None,
+            prompt_embeds=None,
+            negative_prompt_embeds=None,
+            pooled_prompt_embeds=None,
+            negative_pooled_prompt_embeds=None,
+            controlnet_conditioning_scale=1.0,
+            control_guidance_start=0.0,
+            control_guidance_end=1.0,
+            callback_on_step_end_tensor_inputs=None,
+    ):
+        if callback_steps is not None and (not isinstance(callback_steps, int) or callback_steps <= 0):
+            raise ValueError(
+                f"`callback_steps` has to be a positive integer but is {callback_steps} of type"
+                f" {type(callback_steps)}."
+            )
+
+        if callback_on_step_end_tensor_inputs is not None and not all(
+                k in self._callback_tensor_inputs for k in callback_on_step_end_tensor_inputs
+        ):
+            raise ValueError(
+                f"`callback_on_step_end_tensor_inputs` has to be in {self._callback_tensor_inputs}, \
+                   but found {[k for k in callback_on_step_end_tensor_inputs if k not in self._callback_tensor_inputs]}"
+            )
+
+        if prompt is not None and prompt_embeds is not None:
+            raise ValueError(
+                f"Cannot forward both `prompt`: {prompt} and `prompt_embeds`: {prompt_embeds}. Please make sure to"
+                " only forward one of the two."
+            )
+        elif prompt_2 is not None and prompt_embeds is not None:
+            raise ValueError(
+                f"Cannot forward both `prompt_2`: {prompt_2} and `prompt_embeds`: {prompt_embeds}. Please make sure to"
+                " only forward one of the two."
+            )
+        elif prompt is None and prompt_embeds is None:
+            raise ValueError(
+                "Provide either `prompt` or `prompt_embeds`. Cannot leave both `prompt` and `prompt_embeds` undefined."
+            )
+        elif prompt is not None and (not isinstance(prompt, str) and not isinstance(prompt, list)):
+            raise ValueError(f"`prompt` has to be of type `str` or `list` but is {type(prompt)}")
+        elif prompt_2 is not None and (not isinstance(prompt_2, str) and not isinstance(prompt_2, list)):
+            raise ValueError(f"`prompt_2` has to be of type `str` or `list` but is {type(prompt_2)}")
+
+        if negative_prompt is not None and negative_prompt_embeds is not None:
+            raise ValueError(
+                f"Cannot forward both `negative_prompt`: {negative_prompt} and `negative_prompt_embeds`:"
+                f" {negative_prompt_embeds}. Please make sure to only forward one of the two."
+            )
+        elif negative_prompt_2 is not None and negative_prompt_embeds is not None:
+            raise ValueError(
+                f"Cannot forward both `negative_prompt_2`: {negative_prompt_2} and `negative_prompt_embeds`:"
+                f" {negative_prompt_embeds}. Please make sure to only forward one of the two."
+            )
+
+        if prompt_embeds is not None and negative_prompt_embeds is not None:
+            if prompt_embeds.shape != negative_prompt_embeds.shape:
+                raise ValueError(
+                    "`prompt_embeds` and `negative_prompt_embeds` must have the same shape when passed directly, but"
+                    f" got: `prompt_embeds` {prompt_embeds.shape} != `negative_prompt_embeds`"
+                    f" {negative_prompt_embeds.shape}."
+                )
+
+        if prompt_embeds is not None and pooled_prompt_embeds is None:
+            raise ValueError(
+                "If `prompt_embeds` are provided, `pooled_prompt_embeds` also have to be passed. \
+                    Make sure to generate `pooled_prompt_embeds` from the same text encoder that was used to generate `prompt_embeds`."
+            )
+
+        if negative_prompt_embeds is not None and negative_pooled_prompt_embeds is None:
+            raise ValueError(
+                "If `negative_prompt_embeds` are provided, `negative_pooled_prompt_embeds` also have to be passed. \
+                    Make sure to generate `negative_pooled_prompt_embeds` from the same text encoder that was used to generate `negative_prompt_embeds`."
+            )
+
+        # `prompt` needs more sophisticated handling when there are multiple
+        # conditionings.
+        if isinstance(self.controlnet, MultiControlNetModel):
+            if isinstance(prompt, list):
+                logger.warning(
+                    f"You have {len(self.controlnet.nets)} ControlNets and you have passed {len(prompt)}"
+                    " prompts. The conditionings will be fixed across the prompts."
+                )
+
+        # Check `image`
+        is_compiled = hasattr(F, "scaled_dot_product_attention") and isinstance(
+            self.controlnet, torch._dynamo.eval_frame.OptimizedModule
+        )
+        if (
+                isinstance(self.controlnet, ControlNetModel)
+                or is_compiled
+                and isinstance(self.controlnet._orig_mod, ControlNetModel)
+        ):
+            self.check_image(image, prompt, prompt_embeds)
+        elif (
+                isinstance(self.controlnet, MultiControlNetModel)
+                or is_compiled
+                and isinstance(self.controlnet._orig_mod, MultiControlNetModel)
+        ):
+            if not isinstance(image, list):
+                raise TypeError("For multiple controlnets: `image` must be type `list`")
+
+            # When `image` is a nested list:
+            # (e.g. [[canny_image_1, pose_image_1], [canny_image_2, pose_image_2]])
+            elif any(isinstance(i, list) for i in image):
+                raise ValueError("A single batch of multiple conditionings are supported at the moment.")
+            elif len(image) != len(self.controlnet.nets):
+                raise ValueError(
+                    f"For multiple controlnets: `image` must have the same length as the number of controlnets, \
+                        but got {len(image)} images and {len(self.controlnet.nets)} ControlNets."
+                )
+
+            for image_ in image:
+                self.check_image(image_, prompt, prompt_embeds)
+        else:
+            assert False
+
+        # Check `controlnet_conditioning_scale`
+        if (
+                isinstance(self.controlnet, ControlNetModel)
+                or is_compiled
+                and isinstance(self.controlnet._orig_mod, ControlNetModel)
+        ):
+            if not isinstance(controlnet_conditioning_scale, float):
+                raise TypeError("For single controlnet: `controlnet_conditioning_scale` must be type `float`.")
+        elif (
+                isinstance(self.controlnet, MultiControlNetModel)
+                or is_compiled
+                and isinstance(self.controlnet._orig_mod, MultiControlNetModel)
+        ):
+            if isinstance(controlnet_conditioning_scale, list):
+                if any(isinstance(i, list) for i in controlnet_conditioning_scale):
+                    raise ValueError("A single batch of multiple conditionings are supported at the moment.")
+            elif isinstance(controlnet_conditioning_scale, list) and len(controlnet_conditioning_scale) != len(
+                    self.controlnet.nets
+            ):
+                raise ValueError(
+                    "For multiple controlnets: When `controlnet_conditioning_scale` is specified as `list`, it must have"
+                    " the same length as the number of controlnets"
+                )
+        else:
+            assert False
+
+        if not isinstance(control_guidance_start, (tuple, list)):
+            control_guidance_start = [control_guidance_start]
+
+        if not isinstance(control_guidance_end, (tuple, list)):
+            control_guidance_end = [control_guidance_end]
+
+        if len(control_guidance_start) != len(control_guidance_end):
+            raise ValueError(
+                f"`control_guidance_start` has {len(control_guidance_start)} elements, but `control_guidance_end` \
+                    has {len(control_guidance_end)} elements. Make sure to provide the same number of elements to each list."
+            )
+
+        if isinstance(self.controlnet, MultiControlNetModel):
+            if len(control_guidance_start) != len(self.controlnet.nets):
+                raise ValueError(
+                    f"`control_guidance_start`: {control_guidance_start} has {len(control_guidance_start)} \
+                        elements but there are {len(self.controlnet.nets)} controlnets available. Make sure to provide {len(self.controlnet.nets)}."
+                )
+
+        for start, end in zip(control_guidance_start, control_guidance_end):
+            if start >= end:
+                raise ValueError(
+                    f"control guidance start: {start} cannot be larger or equal to control guidance end: {end}."
+                )
+            if start < 0.0:
+                raise ValueError(f"control guidance start: {start} can't be smaller than 0.")
+            if end > 1.0:
+                raise ValueError(f"control guidance end: {end} can't be larger than 1.0.")
+
+    # Copied from diffusers.pipelines.controlnet.pipeline_controlnet.StableDiffusionControlNetPipeline.check_image
+    def check_image(self, image, prompt, prompt_embeds):
+        image_is_pil = isinstance(image, PIL.Image.Image)
+        image_is_tensor = isinstance(image, torch.Tensor)
+        image_is_np = isinstance(image, np.ndarray)
+        image_is_pil_list = isinstance(image, list) and isinstance(image[0], PIL.Image.Image)
+        image_is_tensor_list = isinstance(image, list) and isinstance(image[0], torch.Tensor)
+        image_is_np_list = isinstance(image, list) and isinstance(image[0], np.ndarray)
+
+        if (
+                not image_is_pil
+                and not image_is_tensor
+                and not image_is_np
+                and not image_is_pil_list
+                and not image_is_tensor_list
+                and not image_is_np_list
+        ):
+            raise TypeError(
+                f"image must be passed and be one of PIL image, numpy array, torch tensor, \
+                    list of PIL images, list of numpy arrays or list of torch tensors, but is {type(image)}"
+            )
+
+        if image_is_pil:
+            image_batch_size = 1
+        else:
+            image_batch_size = len(image)
+
+        if prompt is not None and isinstance(prompt, str):
+            prompt_batch_size = 1
+        elif prompt is not None and isinstance(prompt, list):
+            prompt_batch_size = len(prompt)
+        elif prompt_embeds is not None:
+            prompt_batch_size = prompt_embeds.shape[0]
+
+        if image_batch_size != 1 and image_batch_size != prompt_batch_size:
+            raise ValueError(
+                f"If image batch size is not 1, image batch size must be same as prompt batch size. \
+                    image batch size: {image_batch_size}, prompt batch size: {prompt_batch_size}"
+            )
+
+    # Copied from diffusers.pipelines.controlnet.pipeline_controlnet.StableDiffusionControlNetPipeline.prepare_image
+    def prepare_image(
+            self,
+            image,
+            width,
+            height,
+            batch_size,
+            num_images_per_prompt,
+            device,
+            dtype,
+            do_classifier_free_guidance=False,
+            guess_mode=False,
+    ):
+        image = self.control_image_processor.preprocess(image, height=height, width=width).to(dtype=torch.float32)
+        image_batch_size = image.shape[0]
+
+        if image_batch_size == 1:
+            repeat_by = batch_size
+        else:
+            # image batch size is the same as prompt batch size
+            repeat_by = num_images_per_prompt
+
+        image = image.repeat_interleave(repeat_by, dim=0)
+
+        image = image.to(device="cpu", dtype=dtype)
+
+        if do_classifier_free_guidance and not guess_mode:
+            image = torch.cat([image] * 2)
+
+        return image
+
+    # Copied from diffusers.pipelines.stable_diffusion.pipeline_stable_diffusion.StableDiffusionPipeline.prepare_latents
+    def prepare_latents(self, batch_size, num_channels_latents, height, width, dtype, device, generator, latents=None):
+        shape = (batch_size, num_channels_latents, height // self.vae_scale_factor, width // self.vae_scale_factor)
+        if isinstance(generator, list) and len(generator) != batch_size:
+            raise ValueError(
+                f"You have passed a list of generators of length {len(generator)}, but requested an effective batch"
+                f" size of {batch_size}. Make sure the batch size matches the length of the generators."
+            )
+
+        if latents is None:
+            latents = randn_tensor(shape, generator=generator, device=device, dtype=dtype)
+        else:
+            latents = latents.to(device)
+
+        # scale the initial noise by the standard deviation required by the scheduler
+        latents = latents * self.scheduler.init_noise_sigma
+        return latents
+
+    # Copied from diffusers.pipelines.stable_diffusion_xl.pipeline_stable_diffusion_xl.StableDiffusionXLPipeline._get_add_time_ids
+    def _get_add_time_ids(
+            self, original_size, crops_coords_top_left, target_size, dtype, text_encoder_projection_dim=None
+    ):
+        add_time_ids = list(original_size + crops_coords_top_left + target_size)
+
+        passed_add_embed_dim = (
+                self.unet.config.addition_time_embed_dim * len(add_time_ids) + text_encoder_projection_dim
+        )
+        expected_add_embed_dim = self.unet.add_embedding.linear_1.in_features
+
+        if expected_add_embed_dim != passed_add_embed_dim:
+            raise ValueError(
+                f"Model expects an added time embedding vector of length {expected_add_embed_dim}, \
+                    but a vector of {passed_add_embed_dim} was created. The model has an incorrect config. \
+                        Please check `unet.config.time_embedding_type` and `text_encoder_2.config.projection_dim`."
+            )
+
+        add_time_ids = torch.tensor([add_time_ids], dtype=dtype)
+        return add_time_ids
+
+    # Copied from diffusers.pipelines.stable_diffusion.pipeline_stable_diffusion_upscale.StableDiffusionUpscalePipeline.upcast_vae
+    def upcast_vae(self):
+        dtype = self.vae.dtype
+        self.vae.to(dtype=torch.float32)
+        use_torch_2_0_or_xformers = isinstance(
+            self.vae.decoder.mid_block.attentions[0].processor,
+            (
+                AttnProcessor2_0,
+                XFormersAttnProcessor,
+                LoRAXFormersAttnProcessor,
+                LoRAAttnProcessor2_0,
+            ),
+        )
+        # if xformers or torch_2_0 is used attention block does not need
+        # to be in float32 which can save lots of memory
+        if use_torch_2_0_or_xformers:
+            self.vae.post_quant_conv.to(dtype)
+            self.vae.decoder.conv_in.to(dtype)
+            self.vae.decoder.mid_block.to(dtype)
+
     # Copied from diffusers.pipelines.stable_diffusion.pipeline_stable_diffusion.StableDiffusionPipeline.enable_freeu
     def enable_freeu(self, s1: float, s2: float, b1: float, b2: float):
         r"""Enables the FreeU mechanism as in https://arxiv.org/abs/2309.11497.
@@ -945,3 +1324,155 @@ def check_device_range_valid(value):
                 "device:{} is invalid. valid value range is [{}, {}]".format(
                     ivalue, min_value, max_value))
         return ivalue
+
+
+def parse_arguments():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-m",
+        "--model",
+        type=str,
+        default="./stable-diffusion-xl-base-1.0",
+        help="Path or name of the pre-trained model.",
+    )
+    parser.add_argument(
+        "-control",
+        "--controlnet_model",
+        type=str,
+        default="./controlnet-canny-sdxl-1.0",
+        help="Path or name of the pre-trained controlnet model.",
+    )
+    parser.add_argument(
+        "-vae",
+        "--vae_model",
+        type=str,
+        default="./sdxl-vae-fp16-fix",
+        help="Path or name of the pre-trained vae model.",
+    )
+    parser.add_argument(
+        "--save_dir",
+        type=str,
+        default="./results",
+        help="Path to save result images.",
+    )
+    parser.add_argument(
+        "--device",
+        type=check_device_range_valid,
+        default=0,
+        help="NPU device id.",
+    )
+    parser.add_argument(
+        "-bs",
+        "--batch_size",
+        type=int,
+        default=1,
+        help="Batch size."
+    )
+    parser.add_argument(
+        "-o",
+        "--output_dir",
+        type=str,
+        default="./models",
+        help="Path of directory to save compiled models.",
+    )
+    parser.add_argument(
+        "--soc",
+        choices=["A2"],
+        default="A2",
+        help="soc_version.",
+    )
+    parser.add_argument(
+        "-cond_scale",
+        "--conditioning_scale",
+        type=float,
+        default=0.5,
+        help="conditioning_scale"
+    )
+    parser.add_argument(
+        "--flag",
+        type=int,
+        default=1,
+        choices=[0, 1],
+        help="0 is static; 1 is dynamic rankl.",
+    )
+    parser.add_argument(
+        "--w_h",
+        type=int,
+        default=1024,
+        choices=[512, 1024],
+        help="512: witdh=height=512, 1024:width=height=1024",
+    )
+    parser.add_argument(
+        "--img_path",
+        type=str,
+        default="./hf-logo.png",
+        help="images path",
+    )
+    parser.add_argument(
+        "--prompt",
+        type=str,
+        default="aerial view, a futuristic research complex in a bright foggy jungle, hard lighting",
+        help="prompt",
+    )
+    parser.add_argument(
+        "--negative_prompt",
+        type=str,
+        default="low quality, bad quality, sketches",
+        help="negative_prompt",
+    )
+
+    return parser.parse_args()
+
+
+def main():
+    args = parse_arguments()
+    save_dir = args.save_dir
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+
+    prompt = args.prompt
+    negative_prompt = args.negative_prompt
+
+    image = load_image(args.img_path)
+
+    controlnet_conditioning_scale = 0.5  # recommended for good generalization
+
+    controlnet = ControlNetModel.from_pretrained(args.controlnet_model)
+    vae = AutoencoderKL.from_pretrained(args.vae_model)
+    pipe = AIEStableDiffusionXLPipeline.from_pretrained(args.model, controlnet=controlnet, vae=vae).to("cpu")
+    pipe.enable_model_cpu_offload()
+
+    pipe.parser_args(args)
+    pipe.compile_aie_model()
+    mindietorch.set_device(args.device)
+
+    image = np.array(image)
+    image = cv2.Canny(image, 100, 200)
+    image = image[:, :, None]
+    image = np.concatenate([image, image, image], axis=2)
+    image = Image.fromarray(image)
+
+    stream = mindietorch.npu.Stream("npu:" + str(args.device))
+    height = 1024
+    width = 1024
+    if args.w_h == 1024:
+        height = 1024
+        width = 1024
+    elif args.w_h == 512:
+        height = 512
+        width = 512
+    else:
+        print("This operation is not supported!")
+
+    with mindietorch.npu.stream(stream):
+        images = pipe.ascendie_infer(
+            prompt, negative_prompt=negative_prompt, height=height, width=width, image=image,
+            controlnet_conditioning_scale=controlnet_conditioning_scale
+        )
+    images[0][0].save(os.path.join(save_dir, f"hug_lab.png"))
+
+    mindietorch.finalize()
+
+
+if __name__ == "__main__":
+    main()

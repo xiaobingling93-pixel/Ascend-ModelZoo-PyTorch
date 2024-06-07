@@ -1,4 +1,4 @@
-# stable-diffusionxl模型-推理指导
+# stable-diffusionxl-controlnet模型-推理指导
 
 - [概述](#ZH-CN_TOPIC_0000001172161501)
 
@@ -13,7 +13,11 @@
 # 概述`<a name="ZH-CN_TOPIC_0000001172161501"></a>`
 
    ControlNet是一种神经网络架构，可将控制信息添加到预训练的扩散模型中。作用是通过添加额外控制条件，来引导Stable Diffusion生成图像，从而提升 AI 图像生成的可控性和精度。在使用ControlNet模型之后，Stable Diffusion模型的权重被复制出两个相同的部分，分别是“锁定”副本和“可训练”副本。ControlNet主要在“可训练”副本上施加控制条件，然后将施加控制条件之后的结果和原来SD模型的结果相加获得最终的输出结果。神经架构与“零卷积”（零初始化卷积层）连接，参数从零逐渐增长，确保微调的过程不会受到噪声影响。这样可以使用小批量数据集就能对控制条件进行学习训练，同时不会破坏Stable Diffusion模型原本的能力。如今ControlNet的应用包括：控制人物姿势、线稿上色、画质修复等。
-
+- 参考实现：
+  ```bash
+   # controlnet-canny-sdxl-1.0
+   https://huggingface.co/diffusers/controlnet-canny-sdxl-1.0
+  ```
 # 推理环境准备`<a name="ZH-CN_TOPIC_0000001126281702"></a>`
 
 - 该模型需要以下插件与驱动
@@ -60,7 +64,8 @@
 
 1. 获取原始数据集。
 
-   本模型输入文本信息生成图片，无需数据集。
+   ControlNet是一个控制预训练图像扩散模型的神经网络，允许输入调节图像，然后使用该调节图像来操控图像生成。调节图像可从官网下载。
+   wget https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/sd_controlnet/hf-logo.png
 
 ## 模型推理`<a name="section741711594517"></a>`
 
@@ -83,22 +88,25 @@
       git clone https://huggingface.co/madebyollin/sdxl-vae-fp16-fix
       ```
    1. 导出pt模型并进行编译。(可选)
-
+      
+      设置模型名称或路径
+      ```bash
       # xl (执行时下载权重)
-
       model_base="stabilityai/stable-diffusion-xl-base-1.0"
-      model_controlnet="controlnet-canny-sdxl-1.0"
-      model_vae="sdxl-vae-fp16-fix"
-
-      # xl (使用上一步下载的权重)
-
-      model_base="./stable-diffusion-xl-base-1.0"
+      # controlnet-canny-sdxl-1.0 (执行时下载权重)
       model_controlnet="diffusers/controlnet-canny-sdxl-1.0"
+      # sdxl-vae-fp16-fix (执行时下载权重)
       model_vae="madebyollin/sdxl-vae-fp16-fix"
 
+      # xl (使用上一步下载的权重)
+      model_base="./stable-diffusion-xl-base-1.0"
+      # controlnet-canny-sdxl-1.0 (使用上一步下载的权重)
+      model_controlnet="./controlnet-canny-sdxl-1.0"
+      # sdxl-vae-fp16-fix (使用上一步下载的权重)
+      model_vae="./sdxl-vae-fp16-fix"
+      ```
+
       执行命令：
-
-
       ```bash
       # 静态模型
       python3 export_ts_controlnet.py --model ${model_base} --controlnet_model ${model_controlnet} --vae_model ${model_vae} --output_dir ./models --batch_size 1 --flag 0 --soc A2 --device 0

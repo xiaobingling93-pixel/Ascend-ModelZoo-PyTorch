@@ -378,10 +378,11 @@ class ControlNetExport(torch.nn.Module):
 
 def export_control(model, save_path, controlnet_path, conditioning_scale, flag, soc_version: str,
                    batch_size: int):
+    print("Exporting the controlnet...")
     control_path = os.path.join(save_path, "control")
     if not os.path.exists(control_path):
         os.makedirs(control_path, mode=0o744)
-    control_pt_path = os.path.join(control_path, "control_bs{batch_size}.pt")
+    control_pt_path = os.path.join(control_path, f"control_bs{batch_size}.pt")
     control_compiled_static_path = os.path.join(control_path, f"control_bs{batch_size}_compile_static.ts")
     control_compiled_path = os.path.join(control_path, f"control_bs{batch_size}_compile.ts")
     controlnet = ControlNetModel.from_pretrained(controlnet_path)
@@ -452,8 +453,8 @@ def export(model_path: str, controlnet_path: str, vae_path: str, save_dir: str, 
 
     export_clip(pipeline, save_dir, batch_size, flag, soc_version)
     export_vae(pipeline, save_dir, batch_size, flag, vae_path, soc_version)
-    # controlnet功能，只支持800IA2单卡不带unetcache
     export_unet(pipeline, save_dir, batch_size * 2, flag, soc_version)
+    # controlnet功能，只支持800IA2单卡不带unetcache
     export_control(pipeline, save_dir, controlnet_path, conditioning_scale, flag, soc_version, batch_size)
 
 
