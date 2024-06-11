@@ -277,7 +277,7 @@ def export_unet_init(sd_pipeline: StableDiffusionXLPipeline, save_dir: str, batc
     if os.path.exists(unet_pt_path):
         return
 
-    unet_model = sd_pipeline.unet
+    unet_model = copy.deepcopy(sd_pipeline.unet)
 
     sample_size = unet_model.config.sample_size
     in_channels = unet_model.config.in_channels
@@ -324,7 +324,7 @@ def export_unet(sd_pipeline: StableDiffusionXLPipeline, save_dir: str, batch_siz
     if os.path.exists(unet_pt_path):
         return
 
-    unet_model = sd_pipeline.unet
+    unet_model = copy.deepcopy(sd_pipeline.unet)
 
     sample_size = unet_model.config.sample_size
     in_channels = unet_model.config.in_channels
@@ -338,11 +338,12 @@ def export_unet(sd_pipeline: StableDiffusionXLPipeline, save_dir: str, batch_siz
 
 def trace_quant_model(model, calib_datas, input_shape, pt_path):
     save_path = pt_path[:-3]
+    quant_model = copy.deepcopy(model)
     export_model = copy.deepcopy(model)
     quant_config = QuantConfig(disable_names=[],
                                amp_num=0, input_shape=input_shape,
                                act_method=0, quant_mode=0, a_signed=True)
-    calibrator = Calibrator(model, quant_config, calib_data=calib_datas)
+    calibrator = Calibrator(quant_model, quant_config, calib_data=calib_datas)
     calibrator.run()
     calibrator.export_param(os.path.join(save_path, 'quant_weights'))
     input_scale = np.load(os.path.join(save_path, 'quant_weights', 'input_scale.npy'), allow_pickle=True).item()
