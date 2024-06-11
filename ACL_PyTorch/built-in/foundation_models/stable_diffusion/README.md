@@ -410,7 +410,7 @@
    2. 使用推理脚本读取Parti数据集，生成图片
       ```bash
       # 普通方式
-      numactl -C 0 python3 python3 stable_diffusion_ascend_infer.py \
+      numactl -C 0 python3 stable_diffusion_ascend_infer.py \
               --model ${model_base} \
               --model_dir ./models_bs${bs} \
               --prompt_file ./PartiPrompts.tsv \
@@ -424,7 +424,7 @@
               --use_cache
 
       # 并行方式
-      numactl -C 0 python3 python3 stable_diffusion_ascend_infer.py \
+      numactl -C 0 python3 stable_diffusion_ascend_infer.py \
               --model ${model_base} \
               --model_dir ./models_bs${bs} \
               --prompt_file ./PartiPrompts.tsv \

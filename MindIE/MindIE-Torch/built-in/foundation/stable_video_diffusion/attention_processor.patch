@@ -1,0 +1,152 @@
+--- attention_processor.py	2024-05-21 11:01:29.469113600 +0800
++++ attention_processor_new.py	2024-05-21 11:01:29.469113600 +0800
+@@ -22,7 +22,7 @@
+ from ..utils.import_utils import is_xformers_available
+ from ..utils.torch_utils import maybe_allow_in_graph
+ from .lora import LoRACompatibleLinear, LoRALinearLayer
+-
++import math
+ 
+ logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
+ 
+@@ -204,11 +204,11 @@
+         # set attention processor
+         # We use the AttnProcessor2_0 by default when torch 2.x is used which uses
+         # torch.nn.functional.scaled_dot_product_attention for native Flash/memory_efficient_attention
+-        # but only if it has the default `scale` argument. TODO remove scale_qk check when we move to torch 2.1
+-        if processor is None:
+-            processor = (
+-                AttnProcessor2_0() if hasattr(F, "scaled_dot_product_attention") and self.scale_qk else AttnProcessor()
+-            )
++        # if processor is None:
++        #     processor = (
++        #         AttnProcessor2_0() if hasattr(F, "scaled_dot_product_attention") and self.scale_qk else AttnProcessor()
++        #     )
++        processor=AttnProcessor()
+         self.set_processor(processor)
+ 
+     def set_use_memory_efficient_attention_xformers(
+@@ -366,10 +366,10 @@
+             # set attention processor
+             # We use the AttnProcessor2_0 by default when torch 2.x is used which uses
+             # torch.nn.functional.scaled_dot_product_attention for native Flash/memory_efficient_attention
+-            # but only if it has the default `scale` argument. TODO remove scale_qk check when we move to torch 2.1
+-            processor = (
+-                AttnProcessor2_0() if hasattr(F, "scaled_dot_product_attention") and self.scale_qk else AttnProcessor()
+-            )
++            # processor = (
++            #     AttnProcessor2_0() if hasattr(F, "scaled_dot_product_attention") and self.scale_qk else AttnProcessor()
++            # )
++            processor =  AttnProcessor()
+ 
+         self.set_processor(processor)
+ 
+@@ -999,11 +999,104 @@
+             key = encoder_hidden_states_key_proj
+             value = encoder_hidden_states_value_proj
+ 
++        def flash_attention_causal_forward(Q, K, V, mask=None, dropout_p=0.0, is_causal=False, scale=None):
++            BLOCK_SIZE = 1024
++            NEG_INF =-1e10 #  -1e10 # -infinity
++            EPSILON = 1e-10 
++            O = torch.zeros_like(Q).float()
++            l = torch.zeros(Q.shape[:-1])[...,None].float()
++            m = (torch.ones(Q.shape[:-1])[...,None] * NEG_INF).float()
++
++            # O = O.to(device='cuda')
++            # l = l.to(device='cuda')
++            # m = m.to(device='cuda')
++            device_tmp = Q.device
++            O = O.to(device_tmp)
++            l = l.to(device_tmp)
++            m = m.to(device_tmp)
++
++            Q_BLOCK_SIZE = min(BLOCK_SIZE, Q.shape[-1])
++            KV_BLOCK_SIZE = BLOCK_SIZE
++
++            Q_BLOCKS = torch.split(Q.float(), Q_BLOCK_SIZE, dim=2)
++            K_BLOCKS = torch.split(K.float(), KV_BLOCK_SIZE, dim=2)
++            V_BLOCKS = torch.split(V.float(), KV_BLOCK_SIZE, dim=2)
++
++            Tr = Q_BLOCKS.size[0]#len(Q_BLOCKS)
++            Tc = K_BLOCKS.size[0]#len(K_BLOCKS)
++
++            O_BLOCKS = list(torch.split(O, Q_BLOCK_SIZE, dim=2))
++            l_BLOCKS = list(torch.split(l, Q_BLOCK_SIZE, dim=2))
++            m_BLOCKS = list(torch.split(m, Q_BLOCK_SIZE, dim=2))
++
++            # Q_LEN = Q.shape[2]
++            # K_LEN = K.shape[2]
++
++            # Q_RANGE = torch.arange(Q_LEN)[:,None] + (K_LEN - Q_LEN)
++            # K_RANGE = torch.arange(K_LEN)[None,:]
++
++            # Q_RANGE = Q_RANGE.to(device='cuda')
++            # K_RANGE = K_RANGE.to(device='cuda')
++            # Q_RANGE = Q_RANGE.to(device_tmp)
++            # K_RANGE = K_RANGE.to(device_tmp)
++
++            # Q_RANGE_BLOCKS = torch.split(Q_RANGE, Q_BLOCK_SIZE, dim=0)
++            # K_RANGE_BLOCKS = torch.split(K_RANGE, KV_BLOCK_SIZE, dim=1)
++
++            for j in range(Tc):
++                Kj = K_BLOCKS[j]
++                Vj = V_BLOCKS[j]
++                # K_RANGE_BLOCKSj = K_RANGE_BLOCKS[j]
++
++                for i in range(Tr):
++                    Qi = Q_BLOCKS[i]
++                    Oi = O_BLOCKS[i]
++                    li = l_BLOCKS[i]
++                    mi = m_BLOCKS[i]
++                    # Q_RANGE_BLOCKSi = Q_RANGE_BLOCKS[i]
++                    scale_factor = 1 / math.sqrt(query.size(-1)) if scale is None else scale
++
++                    # scale = 1 / np.sqrt(Q.shape[-1])
++                    Qi_scaled  = Qi * scale_factor
++
++                    S_ij = torch.einsum('... i d, ... j d -> ... i j', Qi_scaled, Kj)
++                    
++                    # print('===============>')
++
++                    # Masking
++                    # causal_mask = Q_RANGE_BLOCKSi >= K_RANGE_BLOCKSj
++                    # print('NEG_INF:',NEG_INF)
++                    # S_ij = torch.where(causal_mask > 0, S_ij, NEG_INF)
++
++                    m_block_ij, _ = torch.max(S_ij, dim=-1, keepdim=True)
++                    P_ij = torch.exp(S_ij - m_block_ij)
++                    # Masking
++                    # P_ij = torch.where(causal_mask > 0, P_ij, 0)
++
++                    l_block_ij = torch.sum(P_ij, dim=-1, keepdim=True) + EPSILON
++
++                    P_ij_Vj = torch.einsum('... i j, ... j d -> ... i d', P_ij, Vj)
++
++                    mi_new = torch.maximum(m_block_ij, mi)
++                    li_new = torch.exp(mi - mi_new) * li + torch.exp(m_block_ij - mi_new) * l_block_ij
++                    li_new =  li_new + EPSILON
++                    O_BLOCKS[i] = (li/li_new) * torch.exp(mi - mi_new) * Oi + (torch.exp(m_block_ij - mi_new) / li_new) * P_ij_Vj
++                    l_BLOCKS[i] = li_new
++                    m_BLOCKS[i] = mi_new
++                    # if torch.isnan(O_BLOCKS[i]).any():
++                    #     print('O_BLOCKS=====>:',O_BLOCKS[i].dtype)
++                
++            O = torch.cat(O_BLOCKS, dim=2)
++            l = torch.cat(l_BLOCKS, dim=2)
++            m = torch.cat(m_BLOCKS, dim=2)
++            # return O, l, m
++            return O.half()  
++
+         # the output of sdp = (batch, num_heads, seq_len, head_dim)
+-        # TODO: add support for attn.scale when we move to Torch 2.1
+-        hidden_states = F.scaled_dot_product_attention(
+-            query, key, value, attn_mask=attention_mask, dropout_p=0.0, is_causal=False
+-        )
++        # hidden_states = F.scaled_dot_product_attention(
++        #     query, key, value, attn_mask=attention_mask, dropout_p=0.0, is_causal=False
++        # )
++        hidden_states = flash_attention_causal_forward(query, key, value, attn_mask=attention_mask, dropout_p=0.0, is_causal=False)
+         hidden_states = hidden_states.transpose(1, 2).reshape(batch_size, -1, residual.shape[1])
+ 
+         # linear proj

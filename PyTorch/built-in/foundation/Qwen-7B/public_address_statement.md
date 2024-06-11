@@ -1,0 +1,31 @@
+| 类型 | 开源代码地址 | 文件名 | 公网IP地址/公网URL地址/域名/邮箱地址 | 用途说明 |
+| ---- | ------------ | ------ | ------------------------------------ | -------- |
+| 开源代码引入 | https://github.com/THUDM/ChatGLM2-6B/blob/main/ptuning/web_demo.py|ChatGLM2-6B/web_demo.py | https://github.com/GaiZhenbiao/ChuanhuChatGP | 源码实现 |
+| 开源代码引入 | https://github.com/hiyouga/LLaMA-Factory/setup.py|Qwen-7B/setup.py | https://github.com/hiyouga/LLaMA-Factory | 源码实现 |
+| 开源代码引入 | https://github.com/hiyouga/LLaMA-Factory/data/belle_multiturn/belle_multiturn.py|Qwen-7B/data/belle_multiturn/belle_multiturn.py | https://huggingface.co/datasets/BelleGroup/multiturn_chat_0.8M | 源码实现 |
+| 开源代码引入 | https://github.com/hiyouga/LLaMA-Factory/data/belle_multiturn/belle_multiturn.py|Qwen-7B/data/belle_multiturn/belle_multiturn.py | https://huggingface.co/datasets/BelleGroup/multiturn_chat_0.8M/resolve/main/multiturn_chat_0.8M.json | 源码实现 |
+| 开源代码引入 | https://github.com/hiyouga/LLaMA-Factory/data/hh_rlhf_en/hh_rlhf_en.py|Qwen-7B/data/hh_rlhf_en/hh_rlhf_en.py | https://huggingface.co/datasets/Anthropic/hh-rlhf | 源码实现 |
+| 开源代码引入 | https://github.com/hiyouga/LLaMA-Factory/data/hh_rlhf_en/hh_rlhf_en.py|Qwen-7B/data/hh_rlhf_en/hh_rlhf_en.py | https://huggingface.co/datasets/Anthropic/hh-rlhf/resolve/main/ | 源码实现 |
+| 开源代码引入 | https://github.com/hiyouga/LLaMA-Factory/data/ultra_chat/ultra_chat.py|Qwen-7B/data/ultra_chat/ultra_chat.py | https://github.com/thunlp/ultrachat | 源码实现 |
+| 开源代码引入 | https://github.com/hiyouga/LLaMA-Factory/data/ultra_chat/ultra_chat.py|Qwen-7B/data/ultra_chat/ultra_chat.py | https://huggingface.co/datasets/stingning/ultrachat | 源码实现 |
+| 开源代码引入 | https://github.com/hiyouga/LLaMA-Factory/data/ultra_chat/ultra_chat.py|Qwen-7B/data/ultra_chat/ultra_chat.py | https://huggingface.co/datasets/stingning/ultrachat/resolve/main/train_{idx}.jsonl | 源码实现 |
+| 开源代码引入 | https://github.com/hiyouga/LLaMA-Factory/evaluation/ceval/ceval.py|Qwen-7B/evaluation/ceval/ceval.py | https://github.com/thunlp/ultrachat | 源码实现 |
+| 开源代码引入 | https://github.com/hiyouga/LLaMA-Factory/evaluation/cmmlu/cmmlu.py|Qwen-7B/evaluation/cmmlu/cmmlu.py | https://github.com/haonan-li/CMMLU | 源码实现 |
+| 开源代码引入 | https://github.com/hiyouga/LLaMA-Factory/evaluation/mmlu/mmlu.py|Qwen-7B/evaluation/mmlu/mmlu.py | https://github.com/haonan-li/CMMLU | 源码实现 |
+| 开源代码引入 | https://github.com/hiyouga/LLaMA-Factory/src/llmtuner/eval/evaluator.py|Qwen-7B/src/llmtuner/eval/evaluator.py | https://github.com/hendrycks/test/blob/master/evaluate_flan.py | 源码实现 |
+| 开源代码引入 | https://github.com/hiyouga/LLaMA-Factory/src/llmtuner/extras/patches/llama_patch.py|Qwen-7B/src/llmtuner/extras/patches/llama_patch.py | https://github.com/huggingface/transformers/blob/main/src/transformers/models/llama/modeling_llama.py | 源码实现 |
+| 开源代码引入 | https://github.com/hiyouga/LLaMA-Factory/src/llmtuner/model/utils.py|Qwen-7B/src/llmtuner/model/utils.py | https://github.com/huggingface/transformers/blob/v4.31.0/src/transformers/modeling_utils.py | 源码实现 |
+| 开源代码引入 | https://github.com/hiyouga/LLaMA-Factory/src/llmtuner/model/utils.py|Qwen-7B/src/llmtuner/model/utils.py | https://github.com/huggingface/peft/blob/v0.2.0/src/peft/utils/other.py | 源码实现 |
+| 开源代码引入 | https://github.com/hiyouga/LLaMA-Factory/src/llmtuner/train/utils.py|Qwen-7B/src/llmtuner/train/utils.py | https://github.com/huggingface/peft/issues/1090 | 源码实现 |
+| 开源代码引入 | https://github.com/hiyouga/LLaMA-Factory/src/llmtuner/train/dpo/workflow.py|Qwen-7B/src/llmtuner/train/dpo/workflow.py | https://github.com/huggingface/trl/blob/main/examples/research_projects/stack_llama_2/scripts/dpo_llama2.py | 源码实现 |
+| 开源代码引入 | https://github.com/hiyouga/LLaMA-Factory/src/llmtuner/train/ppo/workflow.py|Qwen-7B/src/llmtuner/train/ppo/workflow.py | https://github.com/lvwerra/trl/blob/main/examples/research_projects/stack_llama/scripts/rl_training.py | 源码实现 |
+| 开源代码引入 | https://github.com/hiyouga/LLaMA-Factory/src/llmtuner/train/pt/workflow.py|Qwen-7B/src/llmtuner/train/pt/workflow.py | https://github.com/huggingface/transformers/blob/v4.30.2/src/transformers/trainer.py | 源码实现 |
+| 开源代码引入 | https://github.com/hiyouga/LLaMA-Factory/src/llmtuner/train/rm/trainer.py|Qwen-7B/src/llmtuner/train/rm/trainer.py | https://github.com/huggingface/transformers/blob/v4.30.2/src/transformers/trainer.py | 源码实现 |
+| 开源代码引入 | https://github.com/hiyouga/LLaMA-Factory/src/llmtuner/train/rm/workflow.py|Qwen-7B/src/llmtuner/train/rm/workflow.py | https://github.com/CarperAI/trlx/blob/main/examples/summarize_rlhf/reward_model/train_reward_model_gptj.py | 源码实现 |
+| 开源代码引入 | https://github.com/hiyouga/LLaMA-Factory/src/llmtuner/train/sft/workflow.py|Qwen-7B/src/llmtuner/train/sft/workflow.py | https://github.com/huggingface/transformers/blob/v4.34.1/examples/pytorch/summarization/run_summarization.py | 源码实现 |
+| 开源代码引入 | https://github.com/hiyouga/LLaMA-Factory/src/llmtuner/webui/interface.py|Qwen-7B/src/llmtuner/webui/interface.py | https://github.com/hiyouga/LLaMA-Factory | 源码实现 |
+| 开源代码引入 | https://github.com/hiyouga/LLaMA-Factory/tests/cal_flops.py|Qwen-7B/tests/cal_flops.py | https://www.deepspeed.ai/tutorials/flops-profiler/ | 源码实现 |
+| 开源代码引入 | https://github.com/hiyouga/LLaMA-Factory/tests/cal_lr.py|Qwen-7B/tests/cal_lr.py | https://github.com/imoneoi/openchat/blob/master/ochat/training_deepspeed/train.py | 源码实现 |
+| 开源代码引入 | https://github.com/hiyouga/LLaMA-Factory/tests/llamafy_baichuan2.py|Qwen-7B/tests/llamafy_baichuan2.py | https://huggingface.co/fireballoon/baichuan-llama-7b/blob/main/convert_baichuan_to_llama.py | 源码实现 |
+| 开源代码引入 | https://github.com/hiyouga/LLaMA-Factory/tests/llamafy_baichuan2.py|Qwen-7B/tests/llamafy_baichuan2.py | https://huggingface.co/hiyouga/Baichuan2-7B-Base-LLaMAfied | 源码实现 |
+| 开源代码引入 | https://github.com/hiyouga/LLaMA-Factory/tests/quantize.py|Qwen-7B/tests/quantize.py | https://github.com/PanQiWei/AutoGPTQ | 源码实现 |

@@ -1,0 +1,23 @@
+--- activations.py	2024-05-15 08:25:05.724000000 +0000
++++ activations_new.py	2024-05-15 08:25:05.724000000 +0000
+@@ -90,12 +90,18 @@
+         linear_cls = LoRACompatibleLinear if not USE_PEFT_BACKEND else nn.Linear
+ 
+         self.proj = linear_cls(dim_in, dim_out * 2, bias=bias)
++    
++    def gelu_t(self, gate: torch.Tensor) -> torch.Tensor:
++        import math
++        return gate * 0.5 * (1.0 + torch.erf(gate / math.sqrt(2.0)))
+ 
+     def gelu(self, gate: torch.Tensor) -> torch.Tensor:
+         if gate.device.type != "mps":
+-            return F.gelu(gate)
++            return self.gelu_t(gate)
++            # return F.gelu(gate)
+         # mps: gelu is not implemented for float16
+-        return F.gelu(gate.to(dtype=torch.float32)).to(dtype=gate.dtype)
++        return self.gelu_t(gate.to(dtype=torch.float32)).to(dtype=gate.dtype)
++        # return F.gelu(gate.to(dtype=torch.float32)).to(dtype=gate.dtype)
+ 
+     def forward(self, hidden_states, scale: float = 1.0):
+         args = () if USE_PEFT_BACKEND else (scale,)

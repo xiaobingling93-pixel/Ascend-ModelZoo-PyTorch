@@ -80,7 +80,7 @@ class TransformerConfig(ModelParallelConfig):
                                      intensive part of attention is checkpointed.  These memory intensive activations
                                      are also less compute intensive which makes activation checkpointing more efficient
                                      for LLMs (20B+).  See Reducing Activation Recomputation in Large Transformer
-                                     Models: https://arxiv.org/abs/2205.05198 for more details.  'full' will checkpoint
+                                     Models for more details.  'full' will checkpoint
                                      the entire transformer layer.  Must be 'selective' or 'full'. 'selective' always uses all layers.
                                      Defaults to None.
 
@@ -99,8 +99,7 @@ class TransformerConfig(ModelParallelConfig):
         distribute_saved_activations (bool): If true, distribute recomputed activations across the model parallel
                                              group. Defaults to None.
 
-        # fp8 related (via Transformer Engine). For detailed info, refer the the Transformer Engine docs at
-        # https://docs.nvidia.com/deeplearning/transformer-engine/user-guide/api/common.html
+        # fp8 related (via Transformer Engine).
 
         fp8 (str): If set, enables the use of FP8 precision through Transformer Engine. There are 2 predefined choices: (1) 'e4m3'
                    uniformly uses e4m3 for all FP8 tensors, (2) 'hybrid' uses e4m3 for all FP8 activation and weight tensors and
@@ -181,7 +180,6 @@ class TransformerConfig(ModelParallelConfig):
 
     def __post_init__(self):
         """ Python dataclass method that is used to modify attributes after initialization.
-            See https://docs.python.org/3/library/dataclasses.html#post-init-processing for more details.
         """
         super().__post_init__()
         if self.fp16 and self.bf16:

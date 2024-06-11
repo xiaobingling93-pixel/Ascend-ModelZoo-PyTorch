@@ -37,11 +37,10 @@
 
   | Torch_Version      | 三方库依赖版本                                 |
   | :--------: | :----------------------------------------------------------: |
-  | PyTorch 1.5 | torchvision==0.6.0 |
-  | PyTorch 1.8 | torchvision==0.9.1 |
   | PyTorch 1.11 | torchvision==0.12.0 |
   | PyTorch 2.1 | torchvision==0.16.0 |
   | PyTorch 2.2 | torchvision==0.17.0 |
+  | PyTorch 2.3 | torchvision==0.18.1 |
 
 - 环境准备指导。
 
@@ -51,15 +50,13 @@
 
   在模型源码包根目录下执行命令，安装模型对应PyTorch版本需要的依赖。
   ```
-  pip install -r 1.5_requirements.txt  # PyTorch1.5版本
-  
-  pip install -r 1.8_requirements.txt  # PyTorch1.8版本
-
   pip install -r 1.11_requirements.txt  # PyTorch1.11版本
 
   pip install -r 2.1_requirements.txt  # PyTorch2.1版本
 
   pip install -r 2.2_requirements.txt  # PyTorch2.2版本
+
+  pip install -r 2.3_requirements.txt  # PyTorch2.3版本
   ```
   > **说明：** 
   >只需执行一条对应的PyTorch版本依赖安装命令。

@@ -1,9 +1,6 @@
 #!/bin/bash
 
 # Data preparation for our framework: preprocessing the WoW and WoI datasets
-# The datasets can be downloaded through the following links:
-# WoW: https://parl.ai/projects/wizard_of_wikipedia/
-# WoI: https://parl.ai/projects/sea/
 
 DIR=`pwd`
 # Before running the preprocessing, please download 

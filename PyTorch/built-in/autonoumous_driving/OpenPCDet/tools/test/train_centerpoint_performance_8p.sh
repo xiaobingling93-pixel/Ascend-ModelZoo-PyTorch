@@ -23,7 +23,7 @@ Network="CenterPoint"
 #训练batch_size
 batch_size=12
 #训练模型配置文件
-cfg_file="cfgs/nuscenes_models/cbgs_dyn_pp_centerpoint.yaml"
+cfg_file="cfgs/nuscenes_models/cbgs_dyn_pp_centerpoint_performance.yaml"
 
 
 #设置环境变量，不需要修改

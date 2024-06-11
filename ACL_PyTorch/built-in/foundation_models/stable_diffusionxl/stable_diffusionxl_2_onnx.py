@@ -39,13 +39,6 @@ def parse_arguments() -> Namespace:
         help="Path or name of the pre-trained model.",
     )
     parser.add_argument(
-        "-bs",
-        "--batch_size", 
-        type=int, 
-        default=1, 
-        help="Batch size."
-    )
-    parser.add_argument(
         "-steps",
         "--steps", 
         type=int, 
@@ -79,8 +72,6 @@ class NewDdim(nn.Module):
         timestep: int,
         sample: torch.FloatTensor,
         step_index: int):
-        noise_pred_uncond, noise_pred_text = model_output.chunk(2)
-        model_output = noise_pred_uncond + self.guidance_scale * (noise_pred_text - noise_pred_uncond)
         alpha_prod_t = self.alphas_cumprod[timestep]
         alpha_prod_t_prev = self.alpha_prod_t_prev_cache[step_index]
         beta_prod_t = 1 - alpha_prod_t
@@ -98,7 +89,7 @@ def export_ddim(sd_pipeline: StableDiffusionXLPipeline, save_dir: str, steps: in
         os.makedirs(ddim_path, mode=0o744)
     
     dummy_input = (
-                   torch.randn(2, 4, 128, 128),
+                   torch.randn(1, 4, 128, 128),
                    torch.tensor(981),
                    torch.randn(1, 4, 128, 128),
                    torch.tensor(0)
@@ -126,14 +117,18 @@ def export_ddim(sd_pipeline: StableDiffusionXLPipeline, save_dir: str, steps: in
         new_ddim,
         dummy_input,
         os.path.join(ddim_path, "ddim.onnx"),
-        input_names=["noises", "timestep", "latents", "step_index"],
+        input_names=["noise_pred", "timestep", "latents", "step_index"],
         output_names=["out_latents"],
+        dynamic_axes={
+            "noise_pred": {0: 'bs'},
+            "latents": {0: 'bs'},
+        },
         opset_version=11,
-        verbose=False
+        verbose=False,
     )
 
 
-def export_encoder(sd_pipeline: StableDiffusionXLPipeline, save_dir: str, batch_size:int) -> None:
+def export_encoder(sd_pipeline: StableDiffusionXLPipeline, save_dir: str) -> None:
     print("Exporting the text encoder...")
     encoder_path = os.path.join(save_dir, "text_encoder")
     if not os.path.exists(encoder_path):
@@ -143,7 +138,7 @@ def export_encoder(sd_pipeline: StableDiffusionXLPipeline, save_dir: str, batch_
 
     max_position_embeddings = encoder_model.config.max_position_embeddings
     dummy_input = (
-        torch.ones([batch_size, max_position_embeddings], dtype=torch.int64),
+        torch.ones([1, max_position_embeddings], dtype=torch.int64),
         None,
         None,
         None,
@@ -156,6 +151,7 @@ def export_encoder(sd_pipeline: StableDiffusionXLPipeline, save_dir: str, batch_
         os.path.join(encoder_path, "text_encoder.onnx"),
         input_names=["prompt"],
         output_names=["text_embeddings"],
+        dynamic_axes={"prompt": {0: 'bs'}},
         opset_version=11,
     )
 
@@ -168,11 +164,12 @@ def export_encoder(sd_pipeline: StableDiffusionXLPipeline, save_dir: str, batch_
         os.path.join(encoder_path, "text_encoder_2.onnx"),
         input_names=["prompt"],
         output_names=["text_embeddings"],
+        dynamic_axes={"prompt": {0: 'bs'}},
         opset_version=11,
     )
 
 
-def export_unet(sd_pipeline: StableDiffusionXLPipeline, save_dir: str, batch_size: int) -> None:
+def export_unet(sd_pipeline: StableDiffusionXLPipeline, save_dir: str) -> None:
     print("Exporting the image information creater...")
     unet_path = os.path.join(save_dir, "unet")
     if not os.path.exists(unet_path):
@@ -189,18 +186,18 @@ def export_unet(sd_pipeline: StableDiffusionXLPipeline, save_dir: str, batch_siz
     max_position_embeddings = encoder_model.config.max_position_embeddings
 
     dummy_input = (
-        torch.ones([batch_size, in_channels, sample_size, sample_size], dtype=torch.float32),
+        torch.ones([1, in_channels, sample_size, sample_size], dtype=torch.float32),
         torch.ones([1], dtype=torch.int64),
         torch.ones(
-            [batch_size, max_position_embeddings, encoder_hidden_size], dtype=torch.float32
+            [1, max_position_embeddings, encoder_hidden_size], dtype=torch.float32
         ),
         None,
         None,
         None,
         None,
         {
-            "text_embeds": torch.ones([batch_size, encoder_hidden_size_2], dtype=torch.float32),
-            "time_ids": torch.ones([batch_size, 6], dtype=torch.float32)
+            "text_embeds": torch.ones([1, encoder_hidden_size_2], dtype=torch.float32),
+            "time_ids": torch.ones([1, 6], dtype=torch.float32)
         },
         {}
     )
@@ -215,7 +212,7 @@ def export_unet(sd_pipeline: StableDiffusionXLPipeline, save_dir: str, batch_siz
     )
 
 
-def export_vae(sd_pipeline: StableDiffusionXLPipeline, save_dir: str, batch_size: int) -> None:
+def export_vae(sd_pipeline: StableDiffusionXLPipeline, save_dir: str) -> None:
     print("Exporting the image decoder...")
 
     vae_path = os.path.join(save_dir, "vae")
@@ -228,7 +225,7 @@ def export_vae(sd_pipeline: StableDiffusionXLPipeline, save_dir: str, batch_size
     sample_size = unet_model.config.sample_size
     in_channels = unet_model.config.out_channels
 
-    dummy_input = torch.ones([batch_size, in_channels, sample_size, sample_size])
+    dummy_input = torch.ones([1, in_channels, sample_size, sample_size])
 
     torch.onnx.export(
         vae_model.decoder,
@@ -236,25 +233,26 @@ def export_vae(sd_pipeline: StableDiffusionXLPipeline, save_dir: str, batch_size
         os.path.join(vae_path, "vae.onnx"),
         input_names=["latents"],
         output_names=["image"],
+        dynamic_axes={"latents": {0: 'bs'}},
         opset_version=11,
     )
 
 
-def export_onnx(model_path: str, save_dir: str, batch_size:int, steps:int, guidance_scale:float) -> None:
+def export_onnx(model_path: str, save_dir: str, steps:int, guidance_scale:float) -> None:
     pipeline = StableDiffusionXLPipeline.from_pretrained(model_path).to("cpu")
 
-    export_encoder(pipeline, save_dir, batch_size)
+    export_encoder(pipeline, save_dir)
 
-    export_unet(pipeline, save_dir, batch_size * 2)
+    export_unet(pipeline, save_dir)
 
-    export_vae(pipeline, save_dir, batch_size)
+    export_vae(pipeline, save_dir)
 
     export_ddim(pipeline, save_dir, steps, guidance_scale)
 
 
 def main():
     args = parse_arguments()
-    export_onnx(args.model, args.output_dir, args.batch_size, args.steps, args.guidance_scale)
+    export_onnx(args.model, args.output_dir, args.steps, args.guidance_scale)
     print("Done.")
 
 

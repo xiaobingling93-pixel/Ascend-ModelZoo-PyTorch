@@ -156,5 +156,5 @@ if __name__=="__main__":
 
     onnx_graph = OnnxGraph.parse(input_model)
     main(onnx_graph)
-    onnx_graph.infershape()
+    onnx_graph.infer_shape()
     onnx_graph.save(output_model)

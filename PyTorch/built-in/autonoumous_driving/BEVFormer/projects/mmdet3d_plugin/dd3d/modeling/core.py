@@ -1,4 +1,5 @@
 # Copyright 2021 Toyota Research Institute.  All rights reserved.
+# Copyright 2024 Huawei Technologies Co., Ltd
 import torch
 from torch import nn
 

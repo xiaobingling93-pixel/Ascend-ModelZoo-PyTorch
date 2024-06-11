@@ -32,6 +32,7 @@ _dim_ = 256
 _pos_dim_ = _dim_//2
 _ffn_dim_ = _dim_*2
 _num_levels_ = 4
+bs_ = 1
 bev_h_ = 200
 bev_w_ = 200
 queue_length = 4 # each sequence contains `queue_length` frames.
@@ -61,6 +62,7 @@ model = dict(
         relu_before_extra_convs=True),
     pts_bbox_head=dict(
         type='BEVFormerHead',
+        bs=bs_,
         bev_h=bev_h_,
         bev_w=bev_w_,
         num_query=900,
@@ -83,6 +85,8 @@ model = dict(
                 return_intermediate=False,
                 transformerlayers=dict(
                     type='BEVFormerLayer',
+                    bev_h=bev_h_,
+                    bev_w=bev_w_,
                     attn_cfgs=[
                         dict(
                             type='TemporalSelfAttention',
@@ -195,7 +199,7 @@ test_pipeline = [
 ]
 
 data = dict(
-    samples_per_gpu=1,
+    samples_per_gpu=bs_,
     workers_per_gpu=4,
     train=dict(
         type=dataset_type,
@@ -215,7 +219,7 @@ data = dict(
              data_root=data_root,
              ann_file=data_root + 'nuscenes_infos_temporal_val.pkl',
              pipeline=test_pipeline,  bev_size=(bev_h_, bev_w_),
-             classes=class_names, modality=input_modality, samples_per_gpu=1),
+             classes=class_names, modality=input_modality, samples_per_gpu=bs_),
     test=dict(type=dataset_type,
               data_root=data_root,
               ann_file=data_root + 'nuscenes_infos_temporal_val.pkl',
@@ -226,7 +230,7 @@ data = dict(
 )
 
 optimizer = dict(
-    type='AdamW',
+    type='NpuFusedAdamW',
     lr=2e-4,
     paramwise_cfg=dict(
         custom_keys={

@@ -7,6 +7,8 @@
 # Modified from mmdetection3d (https://github.com/open-mmlab/mmdetection3d)
 # Copyright (c) OpenMMLab. All rights reserved.
 # ------------------------------------------------------------------------
+# Copyright 2024 Huawei Technologies Co., Ltd
+#-------------------------------------------------------------------------
 
 import torch
 import mmcv
@@ -41,7 +43,8 @@ class Petr3D(MVXTwoStageDetector):
                  img_rpn_head=None,
                  train_cfg=None,
                  test_cfg=None,
-                 pretrained=None):
+                 pretrained=None,
+                 only_eval=False):
         super(Petr3D, self).__init__(pts_voxel_layer, pts_voxel_encoder,
                              pts_middle_encoder, pts_fusion_layer,
                              img_backbone, pts_backbone, img_neck, pts_neck,
@@ -49,6 +52,7 @@ class Petr3D(MVXTwoStageDetector):
                              train_cfg, test_cfg, pretrained)
         self.grid_mask = GridMask(True, True, rotate=1, offset=False, ratio=0.5, mode=1, prob=0.7)
         self.use_grid_mask = use_grid_mask
+        self.only_eval = only_eval
 
     def extract_img_feat(self, img, img_metas):
         """Extract features of images."""
@@ -181,7 +185,12 @@ class Petr3D(MVXTwoStageDetector):
                 raise TypeError('{} must be a list, but got {}'.format(
                     name, type(var)))
         img = [img] if img is None else img
-        return self.simple_test(img_metas[0], img[0], **kwargs)
+        if self.only_eval:
+            return self.simple_test((img_metas[0].data)[0], (img[0].data)[0].to(torch.npu.current_device()), **kwargs)
+        else:
+            return self.simple_test(img_metas[0], img[0], **kwargs)
+
+
 
     def simple_test_pts(self, x, img_metas, rescale=False):
         """Test function of point cloud branch."""

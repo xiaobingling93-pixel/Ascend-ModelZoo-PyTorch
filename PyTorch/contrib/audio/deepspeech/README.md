@@ -41,6 +41,16 @@ DeepSpeech2是一个建立在端到端深度学习之上，将大多数模块替
   | :--------: | :----------------------------------------------------------: |
   | PyTorch 1.5 | - |
   | PyTorch 1.8 | - |
+  | PyTorch 1.11 | numba < 0.50.0 |
+
+- 当前模型支持的 CANN版本和hdk版本如下表所示。
+
+  **表 2**  CANN与hdk版本要求
+  | 软件名称      | 版本要求                                 |
+  | :--------: | :----------------------------------------------------------: |
+  | CANN | >=7.0.0  |
+  | hdk |  >=23.0.0 |
+
 
 - 环境准备指导。
 
@@ -116,7 +126,7 @@ DeepSpeech2是一个建立在端到端深度学习之上，将大多数模块替
      启动单卡训练。
 
      ```
-     bash ./test/train_full_1p.sh --data_path=./data/ # 单卡精度
+     bash ./test/train_full_1p.sh --data_path=./data/         # 单卡精度
      bash ./test/train_performance_1p.sh --data_path=./data/  # 单卡性能
      ```
 
@@ -125,7 +135,7 @@ DeepSpeech2是一个建立在端到端深度学习之上，将大多数模块替
      启动8卡训练。
 
      ```
-     bash ./test/train_full_8p.sh --data_path=./data/ # 8卡精度
+     bash ./test/train_full_8p.sh --data_path=./data/           # 8卡精度
      bash ./test/train_performance_8p.sh --data_path=./data/    # 8卡性能   
      ```
    
@@ -157,11 +167,11 @@ DeepSpeech2是一个建立在端到端深度学习之上，将大多数模块替
 
 ## 变更
 
-2022.12.20：整改Readme，重新发布。
+2024.06.04：整改Readme，重新发布。
 
 ## FAQ
 
-无。
+镜像推荐使用ubuntu 18.04
 
 # 公网地址说明
 

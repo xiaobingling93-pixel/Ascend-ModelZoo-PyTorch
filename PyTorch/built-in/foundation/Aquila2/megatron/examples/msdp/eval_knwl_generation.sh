@@ -32,7 +32,7 @@ python -m torch.distributed.launch $DISTRIBUTED_ARGS ./tasks/msdp/main.py \
 # Evaluate BLEU, METEOR, and ROUGE-L scores.
 ############################################
 
-# We follow the nlg-eval (https://github.com/Maluuba/nlg-eval) to 
+# We follow the nlg-eval to 
 # evaluate the BLEU, METEOR, and ROUGE-L scores. 
 
 # To evaluate on these metrics, please setup the environments based on 

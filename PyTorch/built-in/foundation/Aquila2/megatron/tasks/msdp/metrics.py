@@ -1,9 +1,3 @@
-
-# The following code is adapted from
-# https://github.com/facebookresearch/ParlAI/blob/master/parlai/core/metrics.py, 
-# which is licensed under the MIT license. More details on the license can be 
-# found at https://github.com/facebookresearch/ParlAI/blob/master/LICENSE.
-
 """Provides standard metric evaluations for dialog."""
 
 from collections import Counter

@@ -1,0 +1,16 @@
+colossalai
+accelerate
+diffusers
+ftfy
+gdown
+mmengine
+pre-commit
+av
+tensorboard
+timm
+tqdm
+transformers
+wandb
+scipy
+decorator
+attrs

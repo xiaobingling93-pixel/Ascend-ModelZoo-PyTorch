@@ -1,6 +1,7 @@
 
 # ---------------------------------------------
 # Copyright (c) OpenMMLab. All rights reserved.
+# Copyright 2024 Huawei Technologies Co., Ltd
 # ---------------------------------------------
 #  Modified by Zhiqi Li
 # ---------------------------------------------
@@ -21,7 +22,9 @@ from mmcv.runner.base_module import BaseModule, ModuleList, Sequential
 from projects.mmdet3d_plugin.models.utils.bricks import run_time
 import ads.common
 
-
+bev_mask_global = torch.tensor([]).npu()
+indexes_global = None
+max_len_global = None
 @ATTENTION.register_module()
 class SpatialCrossAttention(BaseModule):
     """An attention module used in BEVFormer.
@@ -129,10 +132,18 @@ class SpatialCrossAttention(BaseModule):
 
         D = reference_points_cam.size(3)
         indexes = []
-        for i, mask_per_img in enumerate(bev_mask):
-            index_query_per_img = mask_per_img[0].sum(-1).nonzero().squeeze(-1)
-            indexes.append(index_query_per_img)
-        max_len = max([len(each) for each in indexes])
+        global bev_mask_global, indexes_global, max_len_global
+        if bev_mask.equal(bev_mask_global):
+            indexes = indexes_global
+            max_len = max_len_global
+        else:
+            for i, mask_per_img in enumerate(bev_mask):
+                index_query_per_img = mask_per_img[0].sum(-1).to(torch.float).nonzero().squeeze(-1)
+                indexes.append(index_query_per_img)
+            max_len = max([len(each) for each in indexes])
+            bev_mask_global = bev_mask.clone()
+            indexes_global = indexes
+            max_len_global = max_len
 
         # each camera only interacts with its corresponding BEV queries. This step can  greatly save GPU memory.
         queries_rebatch = query.new_zeros(
@@ -323,7 +334,6 @@ class MSDeformableAttention3D(BaseModule):
 
         bs, num_query, _ = query.shape
         bs, num_value, _ = value.shape
-        assert (spatial_shapes[:, 0] * spatial_shapes[:, 1]).sum() == num_value
 
         value = self.value_proj(value)
         if key_padding_mask is not None:
@@ -360,7 +370,6 @@ class MSDeformableAttention3D(BaseModule):
                 bs, num_query, num_heads, num_levels, num_all_points // num_Z_anchors, num_Z_anchors, xy)
             sampling_locations = reference_points + sampling_offsets
             bs, num_query, num_heads, num_levels, num_points, num_Z_anchors, xy = sampling_locations.shape
-            assert num_all_points == num_points * num_Z_anchors
 
             sampling_locations = sampling_locations.view(
                 bs, num_query, num_heads, num_levels, num_all_points, xy)

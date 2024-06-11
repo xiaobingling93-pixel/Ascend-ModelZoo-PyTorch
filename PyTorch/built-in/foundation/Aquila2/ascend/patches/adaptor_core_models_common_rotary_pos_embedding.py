@@ -1,3 +1,4 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 # Copyright 2023 The HuggingFace Inc. team. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +23,6 @@ def apply_rotary_pos_emb(t, freqs):
     """
     input tensor t is of shape [seq_length, ..., dim]
     rotary positional embeding tensor freqs is of shape [seq_length, ..., dim]
-    check https://kexue.fm/archives/8265 for detailed formulas
     """
     return torch_npu.npu_rotary_mul(t, freqs.cos(), freqs.sin())
 

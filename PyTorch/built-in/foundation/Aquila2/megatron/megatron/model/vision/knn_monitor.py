@@ -98,9 +98,7 @@ def get_feature_bank():
     return _FEATURE_BANK
 
 
-# knn monitor as in InstDisc https://arxiv.org/abs/1805.01978
-# implementation follows http://github.com/zhirongw/lemniscate.pytorch and
-# https://github.com/leftthomas/SimCLR
+# knn monitor as in InstDisc
 def knn_predict(feature, feature_bank, feature_labels, classes, knn_k, knn_t):
     # compute cos similarity between each feature vector and feature bank ---> [B, N]
     sim_matrix = torch.mm(feature, feature_bank)

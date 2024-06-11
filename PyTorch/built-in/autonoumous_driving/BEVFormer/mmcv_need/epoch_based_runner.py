@@ -1,4 +1,5 @@
 # Copyright (c) OpenMMLab. All rights reserved.
+# Copyright 2024 Huawei Technologies Co., Ltd
 import os.path as osp
 import platform
 import shutil
@@ -7,6 +8,7 @@ import warnings
 from typing import Any, Dict, List, Optional, Tuple
 
 import torch
+import torch_npu
 from torch.utils.data import DataLoader
 
 import mmcv
@@ -15,6 +17,7 @@ from .builder import RUNNERS
 from .checkpoint import save_checkpoint
 from .utils import get_host_info
 
+torch.npu.config.allow_internal_format = False
 
 @RUNNERS.register_module()
 class EpochBasedRunner(BaseRunner):

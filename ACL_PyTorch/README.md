@@ -1,5 +1,5 @@
 <h1>欢迎使用Ascend ACL_PyTorch</h1>
-<p>为方便更多开发者体验和使用昇腾芯片澎湃推理算力，该目录下提供了经典和主流算法模型实现昇腾服务器推理的端到端流程，更多模型持续更新中。如果您有任何需求，请在<a href="https://gitee.com/ascend/modelzoo/issues">modelzoo/issues</a>提交issue，我们会及时处理。</p>
+<p>为方便更多开发者体验和使用昇腾芯片澎湃推理算力，该目录下提供了经典和主流算法模型实现昇腾服务器推理的端到端流程，更多模型持续更新中。如果您有任何需求，请在<a href="https://gitee.com/ascend/modelzoo/issues">modelzoo/issues</a>提交issue，我们会及时处理。如果您希望适配您的自定义模型，我们同时提供在昇腾设备上自行适配模型的<a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/docs/README.md">ONNX推理流程</a>。</p>
 <h2>如何贡献</h2>
 <p>在开始贡献之前，请先阅读<a href="https://gitee.com/ascend/modelzoo/blob/master/CONTRIBUTING.md">CONTRIBUTING</a>。
 谢谢！</p>
@@ -252,7 +252,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100070
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/ViT_base"> ViT </a>
+        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/ViT"> ViT </a>
         </td>
         <td>ImageNet</td>
     <td>80.63%(patch32_224)</td>
@@ -516,6 +516,17 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td></td>
     <td>0.62(bs1)</td>
     <td>bs x 3 x H x W</td>
+    <tr>
+        <td> 100400
+        </td><td>
+        <a href=https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/GLIP_STATIC> GLIP_STATIC </a>
+        </td>
+        <td></td>
+    <td></td>
+        <td></td>
+        <td></td>
+    <td>227.43ms(bs1)</td>
+    <td>1 x 3 x 784 x 1344</td>
 </table>
 
 <p>CV-segmentation</p>

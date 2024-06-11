@@ -766,7 +766,7 @@ def main(args):
         train_dataset_group,
         shuffle=True,
         collate_fn=collator,
-        batch_size=args.train_batch_size,
+        batch_size=1,
         num_workers=n_workers,
     )
 
@@ -958,7 +958,6 @@ def main(args):
             if accelerator.sync_gradients:
                 progress_bar.update(1)
                 global_step += 1
-                accelerator.log({"train_loss": train_loss}, step=global_step)
                 train_loss = 0.0
 
                 if global_step % args.checkpointing_steps == 0:

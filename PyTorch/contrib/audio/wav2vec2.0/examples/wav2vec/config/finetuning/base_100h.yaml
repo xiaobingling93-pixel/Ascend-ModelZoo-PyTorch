@@ -31,6 +31,7 @@ dataset:
   validate_interval: 50
   validate_interval_updates: 1000
   valid_subset: valid
+  shuffle: true
 
 distributed_training:
   ddp_backend: legacy_ddp

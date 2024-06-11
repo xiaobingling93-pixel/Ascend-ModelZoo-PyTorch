@@ -1,0 +1,37 @@
+--- vision_transformer.py	2024-05-16 14:54:32.831213500 +0800
++++ vision_transformer_new.py	2024-05-16 15:01:23.736957600 +0800
+@@ -87,17 +87,23 @@
+         q, k, v = qkv.unbind(0)
+         q, k = self.q_norm(q), self.k_norm(k)
+ 
+-        if self.fused_attn:
+-            x = F.scaled_dot_product_attention(
+-                q, k, v,
+-                dropout_p=self.attn_drop.p if self.training else 0.,
+-            )
+-        else:
+-            q = q * self.scale
+-            attn = q @ k.transpose(-2, -1)
+-            attn = attn.softmax(dim=-1)
+-            attn = self.attn_drop(attn)
+-            x = attn @ v
++        # if self.fused_attn:
++        #     x = F.scaled_dot_product_attention(
++        #         q, k, v,
++        #         dropout_p=self.attn_drop.p if self.training else 0.,
++        #     )
++        # else:
++        #     q = q * self.scale
++        #     attn = q @ k.transpose(-2, -1)
++        #     attn = attn.softmax(dim=-1)
++        #     attn = self.attn_drop(attn)
++        #     x = attn @ v
++
++        q = q * self.scale
++        attn = q @ k.transpose(-2, -1)
++        attn = attn.softmax(dim=-1)
++        attn = self.attn_drop(attn)
++        x = attn @ v
+ 
+         x = x.transpose(1, 2).reshape(B, N, C)
+         x = self.proj(x)

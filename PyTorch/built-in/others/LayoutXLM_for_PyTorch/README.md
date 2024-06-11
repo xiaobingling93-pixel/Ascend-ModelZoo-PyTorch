@@ -33,15 +33,11 @@ LayoutLMv2详见 [README_MV2.md](README_MV2.md)
 
 - 当前模型支持的 PyTorch 版本和已知三方库依赖如下表所示。
 
-  ****表 1**** 版本支持表
+  **表 1** 版本支持表
 
   | Torch_Version     | 三方库依赖版本 |
   | --------          |:---------:|
   | PyTorch 1.8       | transformers==4.5.1; detectron2==0.3; seqeval==1.2.2; datasets==2.7.1; packaging==21.0|
-  | PyTorch 1.11       | transformers==4.5.1; detectron2==0.3; seqeval==1.2.2; datasets==2.7.1; packaging==21.0, tokenizers==0.12.0; sacremoses==0.1.1; torchvision==0.12.0; pillow==9.2.0 |
-  | PyTorch 2.1       | transformers==4.5.1; detectron2==0.3; seqeval==1.2.2; datasets==2.7.1; packaging==21.0|
-
-  1.11版本需要将`/site-packages/transformers/__init__.py`中第43行的代码注释掉，取消版本强校验。
 
 - 环境准备指导。
 

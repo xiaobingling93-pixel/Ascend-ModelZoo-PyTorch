@@ -433,9 +433,7 @@ class PSNR(object):
 
 
 class SSIM(object):
-    '''
-    modified from https://github.com/jorge-pessoa/pytorch-msssim
-    '''
+
     def __init__(self, des="structural similarity index"):
         self.des = des
 

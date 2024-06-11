@@ -28,8 +28,15 @@ def wrap_non_distributed_model(model, device='cuda', dim=0, *args, **kwargs):
         model(nn.Module): the model to be parallelized.
     """
     if device == 'npu':
-        from mmcv.device.npu import NPUDataParallel
-        model = NPUDataParallel(model.npu(), dim=dim, *args, **kwargs)
+        import torch
+        from mmcv.runner import get_dist_info
+        from mmcv.device.npu import NPUDistributedDataParallel
+
+        rank, world_size = get_dist_info()
+        torch.distributed.init_process_group(backend="hccl",
+                                             world_size=world_size,
+                                             rank=rank)
+        model = NPUDistributedDataParallel(model.npu(), dim=dim, *args, **kwargs)
     elif device == 'cuda':
         from mmcv.parallel import MMDataParallel
         model = MMDataParallel(model.cuda(), dim=dim, *args, **kwargs)

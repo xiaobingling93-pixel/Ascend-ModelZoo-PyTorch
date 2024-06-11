@@ -35,7 +35,7 @@ class MLP(MegatronModule):
 
         self.config: TransformerConfig = config
 
-        # If this is a gated linear unit we double the output width, see https://arxiv.org/pdf/2002.05202.pdf
+        # If this is a gated linear unit we double the output width
         ffn_hidden_size = self.config.ffn_hidden_size
         if self.config.gated_linear_unit:
             ffn_hidden_size *= 2

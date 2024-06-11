@@ -1,7 +1,21 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ============================================================================
+
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch
-
 
 from ..utils import box_utils
 
@@ -37,11 +51,14 @@ class MultiboxLoss(nn.Module):
             loss = -F.log_softmax(confidence, dim=2)[:, :, 0]
             mask = box_utils.hard_negative_mining(loss, labels, self.neg_pos_ratio)
 
-        confidence = confidence[mask, :]
-        classification_loss = F.cross_entropy(confidence.reshape(-1, num_classes), labels[mask], size_average=False)
+        classification_loss = F.cross_entropy(confidence.reshape(-1, num_classes).contiguous(), labels.reshape(-1).contiguous(), size_average=False, reduce=False)
+        classification_loss = (classification_loss * mask.reshape(-1).contiguous().float()).sum()
+
         pos_mask = labels > 0
-        predicted_locations = predicted_locations[pos_mask, :].reshape(-1, 4)
-        gt_locations = gt_locations[pos_mask, :].reshape(-1, 4)
-        smooth_l1_loss = F.smooth_l1_loss(predicted_locations, gt_locations, size_average=False)
-        num_pos = gt_locations.size(0)
+        predicted_locations = predicted_locations.reshape(-1, 4).contiguous()
+        gt_locations = gt_locations.reshape(-1, 4).contiguous()
+        smooth_l1_loss = F.smooth_l1_loss(predicted_locations, gt_locations, size_average=False, reduce=False)
+        smooth_l1_loss = smooth_l1_loss * pos_mask.reshape(-1).contiguous().unsqueeze(1).float()
+        num_pos =  pos_mask.sum().item()
+        smooth_l1_loss = smooth_l1_loss.sum()
         return smooth_l1_loss/num_pos, classification_loss/num_pos

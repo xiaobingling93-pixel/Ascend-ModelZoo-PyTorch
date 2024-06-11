@@ -1,8 +1,6 @@
 #!/bin/bash
 
 # Finetune a BERT or pretrained ICT model using Google natural question data 
-# Datasets can be downloaded from the following link:
-# https://github.com/facebookresearch/DPR/blob/master/data/download_data.py
 
 WORLD_SIZE=8
 

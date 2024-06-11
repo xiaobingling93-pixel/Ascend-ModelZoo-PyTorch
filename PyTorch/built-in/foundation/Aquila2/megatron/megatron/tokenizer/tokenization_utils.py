@@ -5,7 +5,6 @@ from typing import Any, Dict, List, Optional, Tuple, Union, overload
 class Trie:
     """
     Trie in Python. Creates a Trie out of a list of words. The trie is used to split on `added_tokens` in one pass
-    Loose reference https://en.wikipedia.org/wiki/Trie
     """
 
     def __init__(self):

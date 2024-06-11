@@ -320,7 +320,7 @@ def train(args):
     n_workers = min(args.max_data_loader_n_workers, os.cpu_count() - 1)  # cpu_count-1 ただし最大で指定された数まで
     train_dataloader = torch.utils.data.DataLoader(
         train_dataset_group,
-        batch_size=args.train_batch_size,
+        batch_size=1,
         shuffle=False,
         collate_fn=collator,
         num_workers=n_workers,

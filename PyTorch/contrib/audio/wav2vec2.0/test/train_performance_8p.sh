@@ -128,6 +128,7 @@ echo "$data_path"
 fairseq-hydra-train \
     task.data=./data/manifest \
     dataset.batch_size=$batch_size \
+    dataset.shuffle=false \
     hydra.run.dir=$PWD \
     distributed_training.distributed_world_size=8 \
     optimization.max_update=800 \

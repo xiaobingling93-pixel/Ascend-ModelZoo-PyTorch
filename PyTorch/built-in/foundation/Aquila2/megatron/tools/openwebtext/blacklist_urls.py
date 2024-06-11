@@ -206,10 +206,6 @@ def extention_is_in_blacklist(url):
         return True
     return False
 
-
-# Malformed urls.
-# This function is adapted from:
-#   https://stackoverflow.com/questions/7160737/python-how-to-validate-a-url-in-python-malformed-or-not
 url_regex = re.compile(
     r'^(?:http)s?://' # http:// or https://
     r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|' #domain...

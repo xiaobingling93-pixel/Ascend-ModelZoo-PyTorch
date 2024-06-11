@@ -34,6 +34,7 @@ class BEVFormerHead(DETRHead):
                  bbox_coder=None,
                  num_cls_fcs=2,
                  code_weights=None,
+                 bs=1,
                  bev_h=30,
                  bev_w=30,
                  **kwargs):
@@ -65,6 +66,7 @@ class BEVFormerHead(DETRHead):
             *args, transformer=transformer, **kwargs)
         self.code_weights = nn.Parameter(torch.tensor(
             self.code_weights, requires_grad=False), requires_grad=False)
+        self.bev_mask = torch.zeros((bs, self.bev_h, self.bev_w)).npu()
 
     def _init_layers(self):
         """Initialize classification branch and regression branch of head."""
@@ -131,14 +133,17 @@ class BEVFormerHead(DETRHead):
                 head with normalized coordinate format (cx, cy, w, l, cz, h, theta, vx, vy). \
                 Shape [nb_dec, bs, num_query, 9].
         """
-        bs, num_cam, _, _, _ = mlvl_feats[0].shape
         dtype = mlvl_feats[0].dtype
-        object_query_embeds = self.query_embedding.weight.to(dtype)
-        bev_queries = self.bev_embedding.weight.to(dtype)
+        object_query_embeds = self.query_embedding.weight
+        bev_queries = self.bev_embedding.weight
 
-        bev_mask = torch.zeros((bs, self.bev_h, self.bev_w),
-                               device=bev_queries.device).to(dtype)
-        bev_pos = self.positional_encoding(bev_mask).to(dtype)
+        bev_mask = self.bev_mask
+        bev_pos = self.positional_encoding(bev_mask)
+
+        if dtype == torch.float16:
+            object_query_embeds = object_query_embeds.to(dtype)
+            bev_queries = bev_queries.to(dtype)
+            bev_pos = bev_pos.to(dtype)
 
         if only_bev:  # only use encoder to obtain BEV features, TODO: refine the workaround
             return self.transformer.get_bev_features(

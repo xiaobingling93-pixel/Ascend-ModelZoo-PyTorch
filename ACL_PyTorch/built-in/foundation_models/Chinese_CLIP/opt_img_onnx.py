@@ -13,6 +13,7 @@
 # limitations under the License.
 
 
+import argparse
 import sys
 from typing import List, Optional, Union
  
@@ -117,7 +118,8 @@ def get_layernorm_add_nodes(graph: OnnxGraph) -> List[OnnxNode]:
 def get_layernorm_add_nodes_2(graph: OnnxGraph) -> List[OnnxNode]:
     # Pattern: Reshape -> MatMul -> Add -> [Add]
     all_add_nodes = graph.get_nodes("Add")
-    return pattern_select(graph, all_add_nodes, ["Reshape", ("MatMul", 1), ("Add", 1)])
+    return pattern_select(graph, all_add_nodes, ["Reshape", ("MatMul", 1), ("Add", 1)]) or \
+        pattern_select(graph, all_add_nodes, ["Reshape", ("MatMul", 0), ("Add", 1)])
 
 
 def get_attention_add_nodes_3(graph: OnnxGraph) -> List[OnnxNode]:
@@ -172,7 +174,7 @@ def merge_bmm_axis(graph: OnnxGraph, anchor_reshapes: List[OnnxNode], anchor_add
  
  
 def cal_padding_shape(graph: OnnxGraph, merged: bool=False) -> tuple:
-    bs, c, w, h = graph["image"].shape
+    bs, c, w, h = graph.inputs[0].shape
     first_reshape = graph.get_nodes("Reshape")[0]
     _, hidden_dim1, _ = graph[first_reshape.inputs[1]].value
     hidden_dim2 = c * w * h // hidden_dim1 + 1
@@ -229,12 +231,50 @@ def pad_nz_block(
                 next_node.inputs[next_node.inputs.index(output_name)] = f"{new_slice_name}_output"
 
 
+def convert_gemm_to_matmul_add(graph: OnnxGraph, anchor_gemms: List[OnnxNode]) -> None:
+    """
+    pattern:
+                   Reshape(2-dims)                                 Reshape                                                  
+                      |                                               |                                            
+                    Gemm                                            MatMul                     
+                      |                     =======>                  |
+                   Reshape(3-dims)                                   Add
+                      |                                               |
+                     Add                                             Add
+                                                   
+    """
+    for gemm_node in anchor_gemms:
+        reshape_before_gemm = graph.get_prev_node(gemm_node.inputs[0])
+        reshape_after_gemm = graph.get_next_nodes(gemm_node.outputs[0])[0]
+        if reshape_before_gemm.op_type != "Reshape" or reshape_after_gemm.op_type != "Reshape":
+            continue
+        
+        new_matmul_name = f"matmul_replace_{gemm_node.name}"
+        graph.add_node(
+            new_matmul_name,
+            "MatMul",
+            inputs = [reshape_before_gemm.outputs[0], gemm_node.inputs[1]],
+            outputs = [f"{new_matmul_name}_out"]
+        )
+
+        new_add_name = f"add_replace_{gemm_node.name}"
+        graph.add_node(
+            new_add_name,
+            "Add",
+            inputs = [f"{new_matmul_name}_out", gemm_node.inputs[2]],
+            outputs = [reshape_after_gemm.outputs[0]]
+        )
+
+        graph.remove(gemm_node.name, {})
+        graph.remove(reshape_after_gemm.name, {})
+
+
 def delete_transpose(graph: OnnxGraph, anchor_transposes: List[OnnxNode]) -> None:
     for transpose_node in anchor_transposes:
         graph.remove(transpose_node.name)
 
 
-def adapt_for_attention_pattern(
+def adapt_for_layernormqkv(
     graph: OnnxGraph, 
     anchor_adds: List[OnnxNode],
     anchor_softmaxes: List[OnnxNode]
@@ -383,23 +423,66 @@ def adapt_for_flashattention(graph: OnnxGraph, anchor_softmaxes: List[OnnxNode])
         graph.remove(transpose_before_matmul.name, {})
         graph.remove(matmul_after_softmax.name, {})
 
+
+def adapt_for_attentionscore(graph: OnnxGraph, anchor_softmaxes: List[OnnxNode]) -> None:
+    """
+    pattern:
+            /         |          \                                          /        |          \
+      Squeeze_v   Squeeze_q   Squeeze_k                              Squeeze_v   Squeeze_q   Squeeze_k
+            |         |          |                                         |         |          |
+            |         |       Transpose_k                                  |         |       Transpose_k
+            |         |         /                 adapt                    |         |          /
+            |       Div        /                 =======>                  |        Muls       /
+            |          \      /                                             \          \      /
+             \         MatMul                                                \          MatMul
+              \           |                                                   \           |
+               \       SoftMax                                                 \        SoftMax
+                \        /                                                      \        /
+                  MatMul                                                          MatMul
+                    |                                                               |
+                 Transpose                                                       Transpose
+                    |                                                               | 
+                  Reshape                                                         Reshape
+
+    """
+    for softmax_node in anchor_softmaxes:
+        matmul_before_softmax = graph.get_prev_node(softmax_node.inputs[0])
+        div_before_matmul = graph.get_prev_node(matmul_before_softmax.inputs[0])
+
+        new_mul_name = f"Mul_before_{softmax_node.name}"
+        new_mul_node = graph.add_node(new_mul_name, "Mul")
+        div_value = graph[div_before_matmul.inputs[1]].value
+        new_mul_init = graph.add_initializer(
+            f"{new_mul_name}_init",
+            np.array(1/div_value, dtype="float16")
+        )
+        graph.insert_node(softmax_node.name, new_mul_node, mode="before")
+        new_mul_node.inputs.append(new_mul_init.name)
+        
+
  
-def apply_optimization(onnx_path: str, save_path: str, model_config: str) -> None:
-    plan = optimize_plans.get(model_config)
+def apply_optimization(opts) -> None:
+    plan = optimize_plans.get(opts.model_config)
     merged_axis = False
  
-    g = OnnxGraph.parse(onnx_path)
+    g = OnnxGraph.parse(opts.input_file)
+    gemms = g.get_nodes("Gemm")
+    softmaxes = g.get_nodes("Softmax")
+    if gemms:
+        convert_gemm_to_matmul_add(g, gemms)
     reshapes = get_attention_reshape_nodes(g)
     transposes = get_first_layernorm_transpose_nodes(g) + \
         get_last_layernorm_transpose_nodes(g)
     adds = get_layernorm_add_nodes(g)
     adds_2 = get_layernorm_add_nodes_2(g)
     adds_3 = get_attention_add_nodes_3(g)
-    softmaxes = g.get_nodes("Softmax")
-
+    
     delete_transpose(g, transposes)
-    adapt_for_attention_pattern(g, adds_3, softmaxes)
-    adapt_for_flashattention(g, softmaxes)
+    adapt_for_layernormqkv(g, adds_3, softmaxes)
+    if opts.use_flashattention:
+        adapt_for_flashattention(g, softmaxes)
+    else:
+        adapt_for_attentionscore(g, softmaxes)
  
     for opt in plan:
         if opt == "merge_bmm_axis":
@@ -409,13 +492,21 @@ def apply_optimization(onnx_path: str, save_path: str, model_config: str) -> Non
         elif opt == "pad_nz_block":
             pad_nz_block(g, reshapes, adds, adds_2, merged_axis)
  
-    g.infershape()
-    g.save(save_path)
+    g.infer_shape()
+    g.save(opts.output_file)
  
  
 if __name__ == "__main__":
-    input_model = sys.argv[1]
-    output_model = sys.argv[2]
-    config = sys.argv[3]
+    parser = argparse.ArgumentParser(description="img onnx modification")
+    parser.add_argument("--input_file", type=str, required=True,
+                        help="path to input onnx")
+    parser.add_argument("--output_file", type=str, required=True,
+                        help="path to output onnx")
+    parser.add_argument("--model_config", type=str, required=True,
+                        help="model_config of ViT", 
+                        choices=["vit_base_patch8_224", "vit_base_patch16_224", "vit_base_patch16_384", "vit_base_patch32_224", "vit_base_patch32_384"])
+    parser.add_argument("--use_flashattention", action="store_true",
+                        help="If passed, use flashattention.")
+    args = parser.parse_args()
  
-    apply_optimization(input_model, output_model, config)
+    apply_optimization(args)

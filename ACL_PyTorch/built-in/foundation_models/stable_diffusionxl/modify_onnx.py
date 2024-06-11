@@ -88,12 +88,17 @@ def add_flash_attention(model, fa_name, soc_type):
             model.insert_node(node.name, cast)
 
 
-def change_input_type(model):
-    model.remove('t')
-    model.add_input('t', 'int32', [1])
-    model.inputs[4], model.inputs[3] = model.inputs[3], model.inputs[4]
-    model.inputs[3], model.inputs[2] = model.inputs[2], model.inputs[3]
-    model.inputs[2], model.inputs[1] = model.inputs[1], model.inputs[2]
+def change_input(model, bs):
+    inputs = [inp.name for inp in model.inputs]
+    for inp in inputs:
+        shape = model[inp].shape
+        dtype = model[inp].dtype
+        if inp == 't':
+            dtype = 'int32'
+        else:
+            shape[0] *= bs
+        model.remove(inp)
+        model.add_input(inp, shape=shape, dtype=dtype)
 
 
 def get_index(model, init, name):
@@ -351,7 +356,7 @@ def build_tome_block(model, name, inputs, inputs_un):
     unmerge_inputs = inputs_un + [name + 'TopK_output_1', name + 'FindMax_output_1']
     model.add_node(
         name + 'tome/TomeUnmerge',
-        'TomeUnmerge',
+        'TomeUnmerged',
         inputs=unmerge_inputs,
         outputs=[name + 'TomeUngerme_output']
     )
@@ -395,6 +400,23 @@ def insert_tome_block(model, max_num):
                 model[reshape.inputs[1]].value = shape
 
 
+def change_bs(model, bs):
+    node = model.get_nodes('Expand')[0]
+    node.inputs[1] = 'bs'
+    model.add_initializer('bs', value=np.array([bs]))
+    
+    inits = [init.name for init in model.initializers]
+    shapes = []
+    for node in model.get_nodes('Reshape'):
+        shape = node.inputs[1]
+        if shape in inits and shape not in shapes:
+            shapes.append(shape)
+            value = model[shape].value.copy()
+            value[0] *= bs
+            model[shape].value = value
+
+    model.update_map()
+
 def parse_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -426,19 +448,39 @@ def parse_arguments():
         action="store_true",
         help="Use specific gelu operation"
     )
+    parser.add_argument(
+        "--batch_size",
+        type=int,
+        default=1,
+        help="Batch size"
+    )
+    parser.add_argument(
+        "--parallel",
+        action="store_true",
+        help="Use parallel unet model"
+    )
     return parser.parse_args()
 
 
 def main():
     model = OnnxGraph.parse(args.model)
     del_add(model)
+    if args.parallel:
+        batch_size = args.batch_size
+    else:
+        batch_size = args.batch_size * 2
+    if batch_size > 1:
+        change_bs(model, batch_size)
+    change_input(model, batch_size)
     if args.FA_soc == 'Duo':
         add_flash_attention(model, 'FlashAttentionTik', soc_type=1)
     elif args.FA_soc == 'A2':
-        add_flash_attention(model, 'UnpadFlashAttentionMix', soc_type=2)
+        if batch_size > 2:
+            print('A2 does not support FA in multi-batch case! The FA modification does not effect.')
+        else:
+            add_flash_attention(model, 'UnpadFlashAttentionMix', soc_type=2)
     if args.TOME_num:
         insert_tome_block(model, args.TOME_num)
-    change_input_type(model)
     replace_slice(model, args.faster_gelu)
     model.remove_unused_nodes()
     model.save(args.new_model)

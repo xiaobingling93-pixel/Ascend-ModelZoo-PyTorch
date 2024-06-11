@@ -1,0 +1,6 @@
+pillow==10.2.0
+torchvision==0.18.1
+fvcore
+pycocotools
+cloudpickle
+tensorboard==1.15.0

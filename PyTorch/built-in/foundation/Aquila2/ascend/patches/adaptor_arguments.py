@@ -1,3 +1,4 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 # Copyright 2023 The HuggingFace Inc. team. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -127,9 +128,7 @@ def _add_training_args(parser):
                        dest='bias_dropout_fusion')
     group.add_argument('--use-flash-attn', action='store_true',
                        help='use FlashAttention implementation of attention, '
-                       'FlashAttention v2 implementation as higher priority. '
-                       'v1: https://arxiv.org/abs/2205.14135, '
-                       'v2: https://tridao.me/publications/flash2/flash2.pdf')
+                       'FlashAttention v2 implementation as higher priority. ')
     group.add_argument('--disable-bias-linear', action='store_false',
                        help='Disable bias in the linear layers',
                        dest='add_bias_linear')

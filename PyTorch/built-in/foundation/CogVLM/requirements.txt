@@ -1,7 +1,7 @@
 numpy
 torchvision==0.16.0
 SwissArmyTransformer==0.4.11
-transformers>=4.36.2
+transformers==4.36.2
 xformers==0.0.22.post7
 spacy>=3.6.0
 pillow>=10.2.0

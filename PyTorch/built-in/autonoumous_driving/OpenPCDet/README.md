@@ -30,6 +30,7 @@ code_path=PyTorch/built-in/autonoumous_driving
 | Torch_Version | 三方库依赖版本            |
 | - |--------------------|
 | PyTorch 2.1.0 | torchvision 0.16.2 |
+| PyTorch 2.3.1 | torchvision 0.18.1 |
 
 - 环境准备指导。 
 
@@ -40,7 +41,8 @@ code_path=PyTorch/built-in/autonoumous_driving
 在模型源码包所在目录下执行相应命令，安装模型需要的依赖
 ```shell
 cd ./OpenPCDet
-pip install -r requirements.txt && cd ../
+pip install -r requirements.txt && cd ../   # PyTorch 2.1版本
+pip install -r 2.3_requirements.txt && cd ../   # PyTorch 2.3版本
 ```
 
 #### 2. 手动编译安装cumm和spconv

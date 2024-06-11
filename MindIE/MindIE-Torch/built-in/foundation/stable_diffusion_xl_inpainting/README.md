@@ -1,0 +1,194 @@
+# stable-diffusionxl-inpainting模型-推理指导  
+
+
+- [概述](#ZH-CN_TOPIC_0000001172161501)
+  
+   - [输入输出数据](#section540883920406)
+
+- [推理环境准备](#ZH-CN_TOPIC_0000001126281702)
+
+- [快速上手](#ZH-CN_TOPIC_0000001126281700)
+
+  - [获取源码](#section4622531142816)
+  - [模型推理](#section741711594517)
+
+- [模型推理性能&精度](#ZH-CN_TOPIC_0000001172201573)
+
+
+# 概述<a name="ZH-CN_TOPIC_0000001172161501"></a>
+
+   stable diffusion xl inpainting，图像重绘。是指对图像进行修改、调整和优化的过程。可以包括对图像的颜色、对比度、亮度、饱和度等进行调整，以及修复图像中的缺陷、删除不需要的元素、添加新的图像内容等操作。主要是通过给定一个想要编辑的区域mask，并在这个区域mask圈定的范围内进行文本生成图像的操作，从而编辑mask区域的图像内容。图像inpainting整体上和图生图流程一致，不过为了保证mask以外的图像区域不发生改变，在去噪过程的每一步，我们利用mask将Latent特征中不需要重建的部分都替换成原图最初的特征，只在mask部分进行特征的重建与优化。
+
+- 参考实现：
+  ```bash
+   # stable-diffusion-xl-1.0-inpainting-0.1
+   https://huggingface.co/diffusers/stable-diffusion-xl-1.0-inpainting-0.1
+  ```
+ 
+
+# 推理环境准备<a name="ZH-CN_TOPIC_0000001126281702"></a>
+
+- 该模型需要以下插件与驱动
+
+  **表 1**  版本配套表
+  | 配套   | 版本    | 环境准备指导 |
+  | ------ | ------- | ------------ |
+  | Python | 3.10.13 | -            |
+  | torch  | 2.1.0   | -            |                                                      |
+
+该模型性能受CPU规格影响，建议使用64核CPU（arm）以复现性能
+
+
+# 快速上手<a name="ZH-CN_TOPIC_0000001126281700"></a>
+
+## 获取源码<a name="section4622531142816"></a>
+
+1. 安装依赖。
+   ```bash
+   pip3 install -r requirements.txt
+   ```
+
+2. 安装mindie包
+
+   ```bash
+   # 安装mindie
+   chmod +x ./Ascend-mindie_xxx.run
+   ./Ascend-mindie_xxx.run --install
+   source /usr/local/Ascend/mindie/set_env.sh
+   ```
+   
+3. 代码修改
+
+   执行命令：
+   
+   ```bash
+   python3 stable_diffusion_clip_patch.py
+   ```
+   
+   ```bash
+   python3 stable_diffusion_attention_patch.py
+   ```
+   
+   ```bash
+   # 若使用unetCache
+   python3 stable_diffusionxl_unet_patch.py
+   ```
+   
+## 准备数据集<a name="section183221994411"></a>
+
+1. 获取原始数据集。
+
+   Inpainting图像重绘。图像编辑是指对图像进行修改、调整和优化的过程。可以包括对图像的颜色、对比度、亮度、饱和度等进行调整，以及修复图像中的缺陷、删除不需要的元素、添加新的图像内容等操作。
+   img: wget https://raw.githubusercontent.com/CompVis/latent-diffusion/main/data/inpainting_examples/overture-creations-5sI6fQgYIuo.png
+   mask img: wget https://raw.githubusercontent.com/CompVis/latent-diffusion/main/data/inpainting_examples/overture-creations-5sI6fQgYIuo_mask.png
+
+
+## 模型推理<a name="section741711594517"></a>
+
+1. 模型转换。
+   使用Pytorch导出pt模型，然后使用MindIE推理引擎转换为适配昇腾的模型。
+
+   0. 获取权重（可选）
+
+      可提前下载权重，放到代码同级目录下，以避免执行后面步骤时可能会出现下载失败。
+
+      ```bash
+      # 需要使用 git-lfs (https://git-lfs.com)
+      git lfs install
+
+      # xl
+      git clone https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0
+      ```
+
+   1. 导出pt模型并进行编译。(可选)
+      
+      ```bash
+      # xl (执行时下载权重)
+      model_base="stabilityai/stable-diffusion-xl-base-1.0"
+      
+      # xl (使用上一步下载的权重)
+      model_base="./stable-diffusion-xl-base-1.0"
+      ```
+
+      执行命令：
+
+      ```bash
+      python3 export_ts_inpainting.py --model ${model_base} --output_dir ./models --batch_size 1 --flag 1 --soc A2 --device 0
+      ```
+      参数说明：
+      - --model：模型权重路径
+      - --output_dir: ONNX模型输出目录
+      - --batch_size: 设置batch_size, 默认值为1,当前仅支持batch_size=1的场景
+      - --flag：默认为1。0代表静态，只支持分辨率为1024x1024；1代表动态分档，支持的分辨率为1024x1024和512x512。
+      - --soc：当前仅支持A2。
+      - --device：推理设备ID
+      - --use_cache: 【可选】在推理过程中使用cache
+
+      静态编译场景：
+
+      - ./models/clip/clip_bs{batch_size}.pt, ./models/clip/clip_bs{batch_size}_compile.ts 和 ./models/clip/clip2_bs{batch_size}.pt, ./models/clip/clip2_bs{batch_size}_compile.ts
+      - ./models/unet/unet_bs{batch_size*2}.pt, ./models/unet/unet_bs{batch_size*2}_compile_static.ts
+      - ./models/vae/vae_bs{batch_size}.pt, ./models/vae/vae_bs{batch_size}_compile_static.ts
+      - ./models/image_encode/image_encode_bs{batch_size}.pt, ./models/image_encode/image_encode_bs{batch_size}_compile_static.ts
+
+      动态分档场景：
+
+      - ./models/clip/clip_bs{batch_size}.pt, ./models/clip/clip_bs{batch_size}_compile.ts 和 ./models/clip/clip2_bs{batch_size}.pt, ./models/clip/clip2_bs{batch_size}_compile.ts
+      - ./models/unet/unet_bs{batch_size*2}.pt, ./models/unet/unet_bs{batch_size*2}_compile.ts
+      - ./models/vae/vae_bs{batch_size}.pt, ./models/vae/vae_bs{batch_size}_compile.ts
+      - ./models/image_encode/image_encode_bs{batch_size}.pt, ./models/image_encode/image_encode_bs{batch_size}_compile.ts
+      
+   
+2. 开始推理验证。
+
+   1. 执行推理脚本。
+      ```bash
+      # 不使用unetCache策略
+      python3 stable_diffusionxl_pipeline_inpainting.py \
+              --model ${model_base} \
+              --prompt_file ./prompts.txt \
+              --save_dir ./results \
+              --steps 30 \
+              --device 0 \
+              --output_dir ./models \
+              --soc A2 \
+              --flag 1 \
+              --w_h 1024 \
+              --strength 0.99 \
+              --img_url ./imgs \
+              --mask_url ./mask_imgs
+      
+      # 使用UnetCache策略
+      python3 stable_diffusionxl_pipeline_inpainting.py \
+              --model ${model_base} \
+              --prompt_file ./prompts.txt \
+              --save_dir ./results \
+              --steps 30 \
+              --device 0 \
+              --output_dir ./models \
+              --soc A2 \
+              --flag 1 \
+              --w_h 1024 \
+              --strength 0.99 \
+              --img_url ./imgs \
+              --mask_url ./mask_imgs \
+              --use_cache
+      
+      ```
+      
+      参数说明：
+      - --model：模型名称或本地模型目录的路径。
+      - --prompt_file：提示词文件。
+      - --save_dir：生成图片的存放目录。
+      - --steps：生成图片迭代次数。
+      - --device：推理设备ID；可用逗号分割传入两个设备ID，此时会使用并行方式进行推理。
+      - --output_dir：存放导出模型的目录。
+      - --soc：当前仅支持A2。
+      - --flag：默认为1。0代表静态，只支持分辨率为1024x1024；1代表动态分档，支持的分辨率为1024x1024和512x512。**注意**：请与导出模型时设置的flag保持一致
+      - --w_h: image的宽高，设置为1024表示宽高均为1024，设置为512表示宽高均为512。仅支持这两种分辨率。
+      - --strength：当w_h=1024时，设置该值为0.99。当w_h=512时，设置该值为0.6。
+      - --img_url: img图片路径
+      - --mask_url: mask_imgs图片路径
+      - --use_cache：【可选】在推理过程中使用cache。
+       
+      执行完成后在 `./results`目录下生成推理图片。

@@ -134,7 +134,8 @@ if (($resume==0)); then
     --cfg-options data_root=$data_path \
     --cfg-options train_dataloader.dataset.data_root=$data_path \
     --cfg-options val_dataloader.dataset.data_root=$data_path \
-    --cfg-options test_dataloader.dataset.data_root=$data_path
+    --cfg-options test_dataloader.dataset.data_root=$data_path \
+    --cfg-options runner_type=FCNRunner
 else
     python3 ./tools/train.py ./configs/fcn/fcn_r18b-d8_4xb2-80k_cityscapes-769x769.py \
     --work-dir=${work_dir} --resume \
@@ -145,7 +146,8 @@ else
     --cfg-options data_root=$data_path \
     --cfg-options train_dataloader.dataset.data_root=$data_path \
     --cfg-options val_dataloader.dataset.data_root=$data_path \
-    --cfg-options test_dataloader.dataset.data_root=$data_path
+    --cfg-options test_dataloader.dataset.data_root=$data_path \
+    --cfg-options runner_type=FCNRunner
 fi
 
 

@@ -93,28 +93,36 @@
       # 需要使用 git-lfs (https://git-lfs.com)
       git lfs install
 
-      # xl
+      # 下载权重
       git clone https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0
       ```
 
    1. 导出ONNX模型
 
+      设置模型名称或路径
+      ```bash
+      # base (执行时下载权重)
+      model_base="stabilityai/stable-diffusion-xl-base-1.0"
+
+      # base (下载的权重路径)
+      model_base="./stable-diffusion-xl-base-1.0"
+      ```
+
       执行命令：
 
       ```bash
-      python3 stable_diffusionxl_2_onnx.py --model ${model_base} --output_dir ./models_bs1 --batch_size 1
+      python3 stable_diffusionxl_2_onnx.py --model ${model_base} --output_dir ./models
 
       ```
 
       参数说明：
       - --model：模型权重路径
       - --output_dir: ONNX模型输出目录
-      - --batch_size：模型batch size
  
       
       执行成功后生成onnx模型：
          ```
-         |—— models_bs1
+         |—— models
                 |—— text_encoder 
                        |—— text_encoder.onnx 
                        |—— text_encoder_2.onnx 
@@ -128,16 +136,35 @@
 
    2. 优化onnx模型
 
-      1. 模型优化
+      不建议同时使用量化与unet cache方案，精度可能会下降超过10%。
+
+      1. 量化（可选，可提升性能但可能导致精度下降）
+
+         量化步骤请参考[量化指导](./README_quant.md)
+
+      2. 模型优化
 
          运行modify_onnx.py脚本。
          ```bash 
+         bs=1
+         # 非并行方案
          python3 modify_onnx.py \
-               --model models_bs1/unet/unet.onnx \
-               --new_model models_bs1/unet/unet_md.onnx \
+               --model models/unet/unet.onnx \
+               --new_model models/unet/unet_md.onnx \
                --FA_soc A2 \
                --TOME_num 10 \
-               --faster_gelu
+               --faster_gelu \
+               --batch_size ${bs}
+         
+         # 并行方案
+         python3 modify_onnx.py \
+               --model models/unet/unet.onnx \
+               --new_model models/unet/unet_md.onnx \
+               --FA_soc A2 \
+               --TOME_num 10 \
+               --faster_gelu \
+               --batch_size ${bs} \
+               --parallel
          ```
          参数说明：
          - --model：onnx模型路径。
@@ -145,14 +172,18 @@
          - --FA_soc：使用FA算子的硬件形态。目前FlashAttention算子支持Atlas 300I Duo/Pro和Atlas 800I A2，请根据硬件设置参数为Duo或A2，其他不支持硬件请设置为None。
          - --TOME_num：插入TOME插件的数量，有效取值为[0, 10]。如果设置这个参数对精度造成影响，建议调小此值。目前支持Atlas 300I Duo/Pro和Atlas 800I A2，其他不支持硬件请设置为0。默认选取10。
          - --faster_gelu：使用slice+gelu的融合算子。
+         - --batch_size：生成适用于指定batch_size的模型，默认值为1。
+         - --parallel：生成适用于并行方案的模型
 
          FA、TOME、Gelu融合算子需通过安装与CANN版本对应的推理引擎包(MindIE-RT)来获取，如未安装推理引擎或使用的版本不支持FA、TOME、SliceGelu算子，FA_soc和TOME_num参数请使用默认配置、不设置faster_gelu参数。
 
-      2. 适配cache方案(可选，可提升性能但可能导致精度下降)
+         多batch场景限制：A2场景下暂不支持FA算子优化，FA_soc参数请设置为None。
+
+      3. 适配cache方案(可选，可提升性能但可能导致精度下降)
 
          运行unet_cache.py脚本
          ```bash
-         python3 unet_cache.py --model models_bs${bs}/unet/unet_md.onnx --save_dir models_bs${bs}/unet/
+         python3 unet_cache.py --model models/unet/unet_md.onnx --save_dir models/unet/
          ```
 
    
@@ -192,17 +223,19 @@
 
          ```bash
          # text_encoder
-         cd ./models_bs1/text_encoder
+         cd ./models/text_encoder
          atc --framework=5 \
              --model=./text_encoder.onnx \
              --output=./text_encoder \
              --input_format=ND \
+             --input_shape="prompt:${bs},77" \
              --log=error \
              --soc_version=Ascend${chip_name}
          atc --framework=5 \
              --model=./text_encoder_2.onnx \
              --output=./text_encoder_2 \
              --input_format=ND \
+             --input_shape="prompt:${bs},77" \
              --log=error \
              --soc_version=Ascend${chip_name}
          
@@ -242,17 +275,19 @@
 
          # vae
          atc --framework=5 \
-             --model=./models_bs1/vae/vae.onnx \
-             --output=./models_bs1/vae/vae \
+             --model=./models/vae/vae.onnx \
+             --output=./models/vae/vae \
              --input_format=NCHW \
+             --input_shape="latents:${bs},4,128,128" \
              --log=error \
              --soc_version=Ascend${chip_name}
 
-         # ddim
+         # 如果使用ddim采样器
          atc --framework=5 \
-             --model=./models_bs1/ddim/ddim.onnx \
-             --output=./models_bs1/ddim/ddim \
+             --model=./models/ddim/ddim.onnx \
+             --output=./models/ddim/ddim \
              --input_format=ND \
+             --input_shape="noise_pred:${bs},4,128,128;latents:${bs},4,128,128" \
              --log=error \
              --soc_version=Ascend${chip_name} 
          ```
@@ -268,7 +303,7 @@
 
       执行成功后生成om模型列表：  
          ```
-         |—— models_bs1
+         |—— models
                  |—— text_encoder
                         |—— text_encoder.om
                         |—— text_encoder_2.om
@@ -282,7 +317,7 @@
        
 2. 开始推理验证。
     
-    安装绑核工具并根据NUMA亲和性配置任务进程与NUMA node 的映射关系是为了排除cpu的影响
+    安装绑核工具并根据NUMA亲和性配置任务进程与NUMA node 的映射关系是为了排除cpu的影响。
 
      安装绑核工具
       ```
@@ -292,25 +327,43 @@
       ```
       lspci -vs bus-id
       ```
-      bus-id可通过npu-smi info获得，查询到NUMA node，在推理命令前加上对应的数字
+      bus-id可通过`npu-smi info`获得，查询到NUMA node，在推理命令前加上对应的数字。
       ```
       NUMA node0: 0-23
       NUMA node1: 24-47
       NUMA node2: 48-71
       NUMA node3: 72-95
       ```
-
-     当前查到NUMA node是3，对应72-95，推荐绑定其中单核以获得更好的性能
+      查到NUMA node后，使用`lscpu`获得NUMA node对应的CPU核，推荐绑定其中单核以获得更好的性能。
+      ```shell
+      NUMA node0: 0-23
+      NUMA node1: 24-47
+      NUMA node2: 48-71
+      NUMA node3: 72-95
+      ```
 
    1. 执行推理脚本。
+
       ```bash
+      # 非并行方案
       numactl -C 72 python3 stable_diffusionxl_ascend_infer.py \
               --model ${model_base} \
-              --model_dir ./models_bs1 \
+              --model_dir ./models \
               --prompt_file ./prompts.txt \
               --device 0 \
               --save_dir ./results \
-              --batch_size 1 \
+              --batch_size ${bs} \
+              --steps 50 \
+              --use_cache
+
+      # 并行方案
+      numactl -C 72 python3 stable_diffusionxl_ascend_infer.py \
+              --model ${model_base} \
+              --model_dir ./models \
+              --prompt_file ./prompts.txt \
+              --device 0,1 \
+              --save_dir ./results \
+              --batch_size ${bs} \
               --steps 50 \
               --use_cache
       ```
@@ -324,7 +377,8 @@
       - --steps：生成图片迭代次数。
       - --device：推理设备ID；可用逗号分割传入两个设备ID，此时会使用并行方式进行推理。
       - --use_cache: 在推理过程中使用cache。
-      - --cache_steps: 使用cache的迭代次数，迭代次数越多性能越好，但次数过多可能会导致精度下降。
+      - --cache_steps: 使用cache的迭代次数，迭代次数越多性能越好，但次数过多可能会导致精度下降。取值范围为[1, stpes-1]。
+      - --scheduler：采样器。可选None、DDIM、Euler、DPM、EulerAncestral、DPM++SDEKarras。None即为默认scheduler。
       
       执行完成后在`./results`目录下生成推理图片。并在终端显示推理时间，参考如下：
 
@@ -335,7 +389,9 @@
 
 ## 精度验证<a name="section741711594518"></a>
 
-   由于生成的图片存在随机性，所以精度验证将使用CLIP-score来评估图片和输入文本的相关性，分数的取值范围为[-1, 1]，越高越好。
+   由于生成的图片存在随机性，提供两种精度验证方法：
+   1. CLIP-score（文图匹配度量）：评估图片和输入文本的相关性，分数的取值范围为[-1, 1]，越高越好。使用Parti数据集进行验证。
+   2. HPSv2（图片美学度量）：评估生成图片的人类偏好评分，分数的取值范围为[0, 1]，越高越好。使用HPSv2数据集进行验证
 
    注意，由于要生成的图片数量较多，进行完整的精度验证需要耗费很长的时间。
 
@@ -345,28 +401,75 @@
       wget https://raw.githubusercontent.com/google-research/parti/main/PartiPrompts.tsv --no-check-certificate
       ```
 
-   2. 下载Clip模型权重
+   2. 下载模型权重
 
       ```bash
+      # Clip Score 和 HPSv2 均需使用的权重
       GIT_LFS_SKIP_SMUDGE=1 
       git clone https://huggingface.co/laion/CLIP-ViT-H-14-laion2B-s32B-b79K
       cd ./CLIP-ViT-H-14-laion2B-s32B-b79K
-      ```
-      也可手动下载[权重](https://huggingface.co/laion/CLIP-ViT-H-14-laion2B-s32B-b79K/blob/main/open_clip_pytorch_model.bin)
-      将权重放到`CLIP-ViT-H-14-laion2B-s32B-b79K`目录下
 
-   2. 使用推理脚本读取Parti数据集，生成图片
+      # HPSv2权重
+      wget https://huggingface.co/spaces/xswu/HPSv2/resolve/main/HPS_v2_compressed.pt
+      ```
+      也可手动下载[CLIP权重](https://huggingface.co/laion/CLIP-ViT-H-14-laion2B-s32B-b79K/blob/main/open_clip_pytorch_model.bin)
+      将权重放到`CLIP-ViT-H-14-laion2B-s32B-b79K`目录下，手动下载[HPSv2权重](https://huggingface.co/spaces/xswu/HPSv2/resolve/main/HPS_v2_compressed.pt)放到当前路径
+
+
+   2. 使用推理脚本生成图片
+
       ```bash
+      # Clip Score
+      # 非并行方案
       python3 stable_diffusionxl_ascend_infer.py \
               --model ${model_base} \
-              --model_dir ./models_bs1 \
+              --model_dir ./models \
               --prompt_file ./PartiPrompts.tsv \
               --prompt_file_type parti \
               --num_images_per_prompt 4 \
               --max_num_prompts 0 \
               --device 0 \
               --save_dir ./results \
-              --batch_size 1 \
+              --batch_size ${bs} \
+              --steps 50 \
+              --use_cache
+              
+      # 并行方案
+      python3 stable_diffusionxl_ascend_infer.py \
+              --model ${model_base} \
+              --model_dir ./models \
+              --prompt_file ./PartiPrompts.tsv \
+              --prompt_file_type parti \
+              --num_images_per_prompt 4 \
+              --max_num_prompts 0 \
+              --device 0,1 \
+              --save_dir ./results \
+              --batch_size ${bs} \
+              --steps 50 \
+              --use_cache
+
+      # HPSv2
+      # 非并行方案
+      python3 stable_diffusionxl_ascend_infer.py \
+              --model ${model_base} \
+              --model_dir ./models \
+              --prompt_file_type hpsv2 \
+              --max_num_prompts 0 \
+              --device 0 \
+              --save_dir ./results \
+              --batch_size ${bs} \
+              --steps 50 \
+              --use_cache
+              
+      # 并行方案
+      python3 stable_diffusionxl_ascend_infer.py \
+              --model ${model_base} \
+              --model_dir ./models \
+              --prompt_file_type hpsv2 \
+              --max_num_prompts 0 \
+              --device 0,1 \
+              --save_dir ./results \
+              --batch_size ${bs} \
               --steps 50 \
               --use_cache
       ```
@@ -375,7 +478,7 @@
       - --model：模型名称或本地模型目录的路径。
       - --model_dir：存放导出模型的目录。
       - --prompt_file：提示词文件。
-      - --prompt_file_type: prompt文件类型，用于指定读取方式。
+      - --prompt_file_type: prompt文件类型，用于指定读取方式，可选plain，parti，hpsv2。
       - --num_images_per_prompt: 每个prompt生成的图片数量。
       - --max_num_prompts：限制prompt数量为前X个，0表示不限制。
       - --save_dir：生成图片的存放目录。
@@ -387,24 +490,41 @@
 
       执行完成后会在`./results`目录下生成推理图片，并且会在当前目录生成一个`image_info.json`文件，记录着图片和prompt的对应关系。
 
-   4. 计算CLIP-score
+   4. 计算精度指标
+   
+      1. CLIP-score
 
-      ```bash
-      python clip_score.py \
-             --device=cpu \
-             --image_info="image_info.json" \
-             --model_name="ViT-H-14" \
-             --model_weights_path="./CLIP-ViT-H-14-laion2B-s32B-b79K/open_clip_pytorch_model.bin"
-      ```
+         ```bash
+         python3 clip_score.py \
+               --device=cpu \
+               --image_info="image_info.json" \
+               --model_name="ViT-H-14" \
+               --model_weights_path="./CLIP-ViT-H-14-laion2B-s32B-b79K/open_clip_pytorch_model.bin"
+         ```
 
-      参数说明：
-      - --device: 推理设备。
-      - --image_info: 上一步生成的`image_info.json`文件。
-      - --model_name: Clip模型名称。
-      - --model_weights_path: Clip模型权重文件路径。
+         参数说明：
+         - --device: 推理设备。
+         - --image_info: 上一步生成的`image_info.json`文件。
+         - --model_name: Clip模型名称。
+         - --model_weights_path: Clip模型权重文件路径。
 
-      执行完成后会在屏幕打印出精度计算结果。
+         执行完成后会在屏幕打印出精度计算结果。
+      
+      2. HPSv2
 
+         ```bash
+         python3 hpsv2_score.py \
+               --image_info="image_info.json" \
+               --HPSv2_checkpoint="./HPS_v2_compressed.pt" \
+               --clip_checkpoint="./CLIP-ViT-H-14-laion2B-s32B-b79K/open_clip_pytorch_model.bin"
+         ```
+
+         参数说明：
+         - --image_info: 上一步生成的`image_info.json`文件。
+         - --HPSv2_checkpoint: HPSv2模型权重文件路径。
+         - --clip_checkpointh: Clip模型权重文件路径。
+
+         执行完成后会在屏幕打印出精度计算结果。
    
 # 模型推理性能&精度<a name="ZH-CN_TOPIC_0000001172201573"></a>
 
@@ -412,27 +532,9 @@
 
 ### StableDiffusionxl
 
-| 硬件形态 | 迭代次数 | 平均耗时    | cpu规格 |
-| :------: | :--: | :--------: | :--------: |
-| A2  |    50  |  6.542s   | 64核(arm) |
+| 硬件形态 | batch size | 迭代次数 | 平均耗时    | 优化方案 | 精度  | 采样器 |
+| :------: | :-----: | :----: | :--------: | :--------: | :----: | :----: |
+| A2  |  1  |   50  |  4.88s   | 非并行，FA+TOME+faster_gelu，unet_cache | 0.376 | ddim |
+| DUO |  1  |   50  |  10.44s   | 并行，FA+TOME+faster_gelu，unet_cache | 0.376 | ddim |
 
 性能测试需要独占npu和cpu
-
-迭代50次的参考精度结果如下：
-
-   ```
-   average score: 0.378
-   category average scores:
-   [Abstract], average score: 0.265
-   [Vehicles], average score: 0.380
-   [Illustrations], average score: 0.372
-   [Arts], average score: 0.414
-   [World Knowledge], average score: 0.391
-   [People], average score: 0.379
-   [Animals], average score: 0.390
-   [Artifacts], average score: 0.373
-   [Food & Beverage], average score: 0.372
-   [Produce & Plants], average score: 0.370
-   [Outdoor Scenes], average score: 0.373
-   [Indoor Scenes], average score: 0.389
-   ```

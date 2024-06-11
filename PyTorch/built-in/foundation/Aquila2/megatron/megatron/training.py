@@ -502,7 +502,6 @@ def mup_refresh_args(args):
     args.ffn_hidden_size = 4 * args.hidden_size
 
     if args.swiglu:
-        # Ref: https://github.com/facebookresearch/llama/blob/main/llama/model.py#L161-L162
         if args.multiple_of is not None:
             hidden_dim = int(4 * args.hidden_size * 2 / 3)
             args.ffn_hidden_size = args.multiple_of * \
@@ -550,7 +549,6 @@ def mup_apply(model):
         """Initialize the weights.
 
            This function is implemented based on `_init_wights` 
-           (https://github.com/microsoft/mutransformers/blob/main/mutransformers/models/gpt2/modeling_gpt2.py#L475)
 
             muP swap constant std normal init with normal_ from `mup.init`.
             Because `_init_weights` is called in `__init__`, before `infshape` is set,

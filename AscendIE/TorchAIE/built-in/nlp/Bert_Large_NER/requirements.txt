@@ -1,8 +1,0 @@
-numpy==1.26.2
-torch==2.0.1+cpu
-torchvision==0.15.2+cpu
-datasets==2.15.0
-tqdm==4.66.1
-decorator==4.3.0
-evaluate==0.4.1
-seqeval==1.2.2

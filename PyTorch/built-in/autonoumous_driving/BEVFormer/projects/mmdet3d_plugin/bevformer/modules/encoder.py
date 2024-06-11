@@ -1,6 +1,7 @@
 
 # ---------------------------------------------
 # Copyright (c) OpenMMLab. All rights reserved.
+# Copyright 2024 Huawei Technologies Co., Ltd
 # ---------------------------------------------
 #  Modified by Zhiqi Li
 # ---------------------------------------------
@@ -262,6 +263,8 @@ class BEVFormerLayer(MyCustomBaseTransformerLayer):
     """
 
     def __init__(self,
+                 bev_h,
+                 bev_w,
                  attn_cfgs,
                  feedforward_channels,
                  ffn_dropout=0.0,
@@ -280,6 +283,8 @@ class BEVFormerLayer(MyCustomBaseTransformerLayer):
             ffn_num_fcs=ffn_num_fcs,
             **kwargs)
         self.fp16_enabled = False
+        self.level_start_index = torch.tensor([0]).npu()
+        self.spatial_shapes = torch.tensor([[bev_h, bev_w]]).npu()
         assert len(operation_order) == 6
         assert set(operation_order) == set(
             ['self_attn', 'norm', 'cross_attn', 'ffn'])
@@ -367,9 +372,8 @@ class BEVFormerLayer(MyCustomBaseTransformerLayer):
                     attn_mask=attn_masks[attn_index],
                     key_padding_mask=query_key_padding_mask,
                     reference_points=ref_2d,
-                    spatial_shapes=torch.tensor(
-                        [[bev_h, bev_w]], device=query.device),
-                    level_start_index=torch.tensor([0], device=query.device),
+                    spatial_shapes=self.spatial_shapes,
+                    level_start_index=self.level_start_index,
                     **kwargs)
                 attn_index += 1
                 identity = query

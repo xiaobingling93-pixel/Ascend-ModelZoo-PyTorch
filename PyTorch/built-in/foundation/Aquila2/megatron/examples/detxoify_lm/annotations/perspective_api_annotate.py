@@ -30,7 +30,7 @@ class PerspectiveApiScorer:
 
     def __init__(self):
         """
-        :param api_key: the API key to use. For details, see https://support.perspectiveapi.com/s/docs-get-started
+        :param api_key: the API key to use
         """
         api_key = ''
         self._service = discovery.build(

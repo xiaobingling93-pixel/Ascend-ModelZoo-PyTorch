@@ -12,15 +12,10 @@ import pickle
 import sys
 import os
 
-# This function is adapted from:
-#   https://github.com/mattilyra/LSH/blob/master/examples/Introduction.ipynb
 def shingles(text, char_ngram=5):
     return set(text[head:head + char_ngram]
                for head in range(0, len(text) - char_ngram))
 
-
-# This function is adapted from:
-#  https://github.com/mattilyra/LSH/blob/master/examples/Introduction.ipynb
 def jaccard(set_a, set_b, args):
     if len(set_a) < 1 or len(set_b) < 1:
         return 0.0

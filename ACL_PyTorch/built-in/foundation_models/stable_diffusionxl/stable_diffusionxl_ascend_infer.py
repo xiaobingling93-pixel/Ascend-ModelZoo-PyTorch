@@ -20,8 +20,10 @@ import argparse
 
 import aclruntime
 from ais_bench.infer.interface import InferSession
-from diffusers import DPMSolverMultistepScheduler, EulerDiscreteScheduler, DDIMScheduler
+from diffusers.schedulers import *
+import hpsv2
 
+from background_session import BackgroundInferSession
 from pipeline_ascend_stable_diffusionxl import AscendStableDiffusionXLPipeline
 
 
@@ -44,6 +46,9 @@ class PromptLoader:
 
         elif prompt_file_type == 'parti':
             self.load_prompts_parti(prompt_file, max_num_prompts)
+
+        elif prompt_file_type == 'hpsv2':
+            self.load_prompts_hpsv2(max_num_prompts, max_num_prompts)
 
         self.current_id = 0
         self.inner_id = 0
@@ -110,6 +115,41 @@ class PromptLoader:
                 catagory_id = self.catagories.index(catagory)
                 self.prompts.append((prompt, catagory_id))
 
+    def load_prompts_hpsv2(self, file_path: str, max_num_prompts: int):
+        all_prompts = hpsv2.benchmark_prompts('all')
+        count = 0
+        for style, prompts in all_prompts.items():
+            for prompt in prompts:
+                count += 1
+                if max_num_prompts and count >= max_num_prompts:
+                    break
+
+                if style not in self.catagories:
+                    self.catagories.append(style)
+
+                catagory_id = self.catagories.index(style)
+                self.prompts.append((prompt, catagory_id))
+
+
+def check_device_range_valid(value):
+    # if contain , split to int list
+    min_value = 0
+    max_value = 255
+    if ',' in value:
+        ilist = [ int(v) for v in value.split(',') ]
+        for ivalue in ilist[:2]:
+            if ivalue < min_value or ivalue > max_value:
+                raise argparse.ArgumentTypeError("{} of device:{} is invalid. valid value range is [{}, {}]".format(
+                    ivalue, value, min_value, max_value))
+        return ilist[:2]
+    else:
+		# default as single int value
+        ivalue = int(value)
+        if ivalue < min_value or ivalue > max_value:
+            raise argparse.ArgumentTypeError("device:{} is invalid. valid value range is [{}, {}]".format(
+                ivalue, min_value, max_value))
+        return ivalue
+
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
@@ -123,12 +163,12 @@ def parse_arguments():
     parser.add_argument(
         "--prompt_file",
         type=str,
-        required=True,
+        default='prompts.txt',
         help="A prompt file used to generate images.",
     )
     parser.add_argument(
         "--prompt_file_type", 
-        choices=["plain", "parti"],
+        choices=["plain", "parti", 'hpsv2'],
         default="plain", 
         help="Type of prompt file.",
     )
@@ -170,13 +210,13 @@ def parse_arguments():
     )
     parser.add_argument(
         "--scheduler", 
-        choices=["DDIM", "Euler", "DPM"],
+        choices=["None", "DDIM", "Euler", "DPM", "EulerAncestral", "DPM++SDEKarras"],
         default="DDIM", 
         help="Type of Sampling methods. Can choose from DDIM, Euler, DPM",
     )
     parser.add_argument(
         "--device", 
-        type=int, 
+        type=check_device_range_valid, 
         default=0, 
         help="NPU device id."
     )
@@ -207,27 +247,44 @@ def parse_arguments():
 def main():
     args = parse_arguments()
     save_dir = args.save_dir
-    device = args.device
+    device = None
+    device_2 = None
+
+    if isinstance(args.device, list):
+        device, device_2 = args.device
+    else:
+        device = args.device
 
     pipe = AscendStableDiffusionXLPipeline.from_pretrained(args.model).to("cpu")
+    use_npu_scheduler = False
 
     if args.scheduler == "DDIM":
         pipe.scheduler = DDIMScheduler.from_config(pipe.scheduler.config)
-    if args.scheduler == "Euler":
+        use_npu_scheduler = True
+    elif args.scheduler == "Euler":
         pipe.scheduler = EulerDiscreteScheduler.from_config(pipe.scheduler.config)
-    if args.scheduler == "DPM":
+    elif args.scheduler == "DPM":
         pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
-
+    elif args.scheduler == "EulerAncestral":
+        pipe.scheduler = EulerAncestralDiscreteScheduler.from_config(pipe.scheduler.config)
+    elif args.scheduler == "DPM++SDEKarras":
+        pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
+        pipe.scheduler.config.algorithm_type = 'sde-dpmsolver++'
+        pipe.scheduler.config.use_karras_sigmas = True
 
     encoder_om = os.path.join(args.model_dir, "text_encoder", "text_encoder.om")
     encoder_om_2 = os.path.join(args.model_dir, "text_encoder", "text_encoder_2.om")
     vae_om = os.path.join(args.model_dir, "vae", "vae.om")
-    scheduler_om = os.path.join(args.model_dir, "ddim", "ddim.om")
 
     encoder_session = InferSession(device, encoder_om)
     encoder_session_2 = InferSession(device, encoder_om_2)
     vae_session = InferSession(device, vae_om)
-    scheduler_session = InferSession(device, scheduler_om)
+
+    if use_npu_scheduler:
+        scheduler_om = os.path.join(args.model_dir, "ddim", "ddim.om")
+        scheduler_session = InferSession(device, scheduler_om)
+    else:
+        scheduler_session = None
 
     skip_status = [0] * args.steps
     if args.use_cache:
@@ -248,6 +305,14 @@ def main():
             aclruntime.InferenceSession(unet_cache_om, device, aclruntime.session_options()),
             None,
         ]
+
+    unet_session_bg = None
+    if device_2:
+        unet_session_bg = BackgroundInferSession.clone(
+            unet_session[0], 
+            device_2, 
+            [unet_cache_om, unet_skip_om]
+        )
 
     if not os.path.exists(save_dir):
         os.makedirs(save_dir, mode=0o744)
@@ -279,13 +344,14 @@ def main():
             prompts_2,
             encoder_session,
             encoder_session_2,
-            unet_session,
+            [unet_session, unet_session_bg],
             scheduler_session,
             vae_session,
             skip_status,
             device_id=device,
             num_inference_steps=args.steps,
             guidance_scale=5.0,
+            use_npu_scheduler=use_npu_scheduler,
         )
 
         use_time += time.time() - start_time
@@ -301,6 +367,9 @@ def main():
 
             image_info[-1]['images'].append(image_save_path)
 
+    if unet_session_bg:
+        unet_session_bg.stop()
+
     # Save image information to a json file
     if os.path.exists(args.info_file_save_path):
         os.remove(args.info_file_save_path)
@@ -312,16 +381,6 @@ def main():
         f"[info] infer number: {infer_num}; use time: {use_time:.3f}s; "
         f"average time: {use_time/infer_num:.3f}s"
     )
-
-    # free npu resource
-    encoder_session.free_resource()
-    encoder_session_2.free_resource()
-    vae_session.free_resource()
-    scheduler_session.free_resource()
-    unet_session[0].free_resource()
-    if args.use_cache:
-        unet_session[1].free_resource()
-    InferSession.finalize()
 
 
 if __name__ == "__main__":

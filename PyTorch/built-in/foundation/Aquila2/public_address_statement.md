@@ -1,0 +1,9 @@
+| 类型 | 开源代码地址 | 文件名 | 公网IP地址/公网URL地址/域名/邮箱地址 | 用途说明 |
+| ---- | ------------ | ------ | ------------------------------------ | -------- |
+| 开源代码引入 | https://github.com/FlagOpen/FlagScale/blob/release/v0.2/megatron/megatron/tokenizer/gpt2_tokenization.py | .\Aquila2\megatron\megatron\tokenizer\gpt2_tokenization.py | https://s3.amazonaws.com/models.huggingface.co/bert/gpt2-vocab.json | 词表文件公网下载地址 |
+| 开源代码引入 | https://github.com/FlagOpen/FlagScale/blob/release/v0.2/megatron/megatron/tokenizer/gpt2_tokenization.py | .\Aquila2\megatron\megatron\tokenizer\gpt2_tokenization.py   | https://s3.amazonaws.com/models.huggingface.co/bert/gpt2-merges.txt | 词表文件公网下载地址 |
+|	开源代码引入	| https://github.com/FlagOpen/FlagScale/blob/release/v0.2/megatron/megatron/core/package_info.py |	.\Aquila2\megatron\megatron\core\package_info.py	| https://docs.nvidia.com/deeplearning/nemo/user-guide/docs/en/stable/ | 	工具公网主页地址	 |
+|	开源代码引入	| https://github.com/FlagOpen/FlagScale/blob/release/v0.2/megatron/megatron/core/package_info.py |	.\Aquila2\megatron\megatron\core\package_info.py	| https://github.com/NVIDIA/Megatron-LM/megatron/core | 	工具公网地址	 |
+| 开源代码引入 | https://github.com/FlagOpen/FlagScale/blob/release/v0.2/megatron/megatron/core/package_info.py | .\Aquila2\megatron\megatron\core\package_info.py             | https://github.com/NVIDIA/Megatron-LM/releases               | 工具公网地址         |
+| 开源代码引入 | https://github.com/FlagOpen/FlagScale/blob/release/v0.2/megatron/examples/detxoify_lm/perspective_api.py | .\Aquila2\megatron\examples\detxoify_lm\perspective_api.py   | https://commentanalyzer.googleapis.com/$discovery/rest?version=v1alpha1 | 云服务公网地址       |
+| 开源代码引入 | https://github.com/FlagOpen/FlagScale/blob/release/v0.2/megatron/examples/detxoify_lm/annotations/perspective_api_annotate.py | .\Aquila2\megatron\examples\detxoify_lm\annotations\perspective_api_annotate.py | https://commentanalyzer.googleapis.com/$discovery/rest?version=v1alpha1 | 云服务公网地址       |

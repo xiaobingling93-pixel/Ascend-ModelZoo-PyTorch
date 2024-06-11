@@ -31,7 +31,6 @@ gpt_options=" \
        --train-iters 0 \
        --resume-dataloader \
        $MODEL_ARGS \
-       --train-data ${train_data} \
        --test-data ${test_data} \
        --distributed-backend nccl \
        --lr-decay-style cosine \

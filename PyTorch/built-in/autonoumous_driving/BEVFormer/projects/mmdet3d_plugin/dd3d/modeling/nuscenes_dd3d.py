@@ -1,4 +1,5 @@
 # Copyright 2021 Toyota Research Institute.  All rights reserved.
+# Copyright 2024 Huawei Technologies Co., Ltd
 import torch
 import torch.nn.functional as F
 from fvcore.nn.smooth_l1_loss import smooth_l1_loss

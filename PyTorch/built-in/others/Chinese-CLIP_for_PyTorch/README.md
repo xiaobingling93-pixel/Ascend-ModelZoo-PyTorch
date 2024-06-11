@@ -129,7 +129,7 @@
   **表 2**  训练结果展示表
 
 
-  | pretrain_model |  NAME  | image_to_text_R@5 | text_to_image_R@5 |   FPS   | Epochs | batch_size |
+  | pretrain_model |  NAME  | text_to_image_R@5 | image_to_text_R@5 |   FPS   | Epochs | batch_size |
 |:--------------:|:------:|:-----------------:|:-----------------:|:-------:|:------:|:----------:|
   |     vit-b      | 8p-NPU |       94.76       |       98.7        | 2280.00 |   3    |    128     |
   |     vit-b      | 8p-竞品V |       94.63       |       98.97       | 2512.40 |   3    |    128     |

@@ -1,0 +1,171 @@
+diff --git a/mmcv/ops/deform_conv.py b/mmcv/ops/deform_conv.py
+index 73472dc9..5be258c0 100644
+--- a/mmcv/ops/deform_conv.py
++++ b/mmcv/ops/deform_conv.py
+@@ -1,7 +1,11 @@
+ # Copyright (c) OpenMMLab. All rights reserved.
++# ------------------------------------------------------------------------
++# Copyright 2024 Huawei Technologies Co., Ltd
++#-------------------------------------------------------------------------
+ from typing import Optional, Tuple, Union
+ 
+ import torch
++import torch_npu
+ import torch.nn as nn
+ import torch.nn.functional as F
+ from torch import Tensor
+@@ -52,7 +56,7 @@ class DeformConv2dFunction(Function):
+         input_tensor, weight, offset_out, offset_all, sort_index_for_npu_bp = \
+             ctx.saved_tensors
+         grad_input, grad_weight, grad_offset_all, grad_bias = \
+-            torch.npu_deformable_conv2dbk(
++            torch_npu.npu_deformable_conv2dbk(
+                 input_tensor, grad_output, offset_out, weight, offset_all,
+                 kernel_size=[weight.shape[3], weight.shape[2]],
+                 stride=[1, 1, ctx.stride[0], ctx.stride[1]],
+diff --git a/mmcv/ops/modulated_deform_conv.py b/mmcv/ops/modulated_deform_conv.py
+index 4c735e2a..f8350b19 100644
+--- a/mmcv/ops/modulated_deform_conv.py
++++ b/mmcv/ops/modulated_deform_conv.py
+@@ -1,8 +1,12 @@
+ # Copyright (c) OpenMMLab. All rights reserved.
++# ------------------------------------------------------------------------
++# Copyright 2024 Huawei Technologies Co., Ltd
++#-------------------------------------------------------------------------
+ import math
+ from typing import Optional, Tuple, Union
+ 
+ import torch
++import torch_npu
+ import torch.nn as nn
+ from torch.autograd import Function
+ from torch.autograd.function import once_differentiable
+@@ -56,7 +60,7 @@ class ModulatedDeformConv2dFunction(Function):
+                 kernel_w, kernel_h, ctx.deform_groups)
+         select_offset = offset.index_select(1, sort_index_fp)
+         offset_all = torch.cat([select_offset, mask], dim=1)
+-        output, offset_out = torch.npu_deformable_conv2d(
++        output, offset_out = torch_npu.npu_deformable_conv2d(
+             input_tensor,
+             weight,
+             offset_all,
+@@ -81,7 +85,7 @@ class ModulatedDeformConv2dFunction(Function):
+         input_tensor, weight, offset_out, offset_all, sort_index_bp = \
+             ctx.saved_tensors
+         grad_input, grad_weight, grad_offset_all, grad_bias = \
+-            torch.npu_deformable_conv2dbk(
++            torch_npu.npu_deformable_conv2dbk(
+                 input_tensor, grad_output, offset_out, weight, offset_all,
+                 kernel_size=[weight.shape[3], weight.shape[2]],
+                 stride=[1, 1, ctx.stride[0], ctx.stride[1]],
+diff --git a/mmcv/runner/epoch_based_runner.py b/mmcv/runner/epoch_based_runner.py
+index d6e90692..9d9ec3c0 100644
+--- a/mmcv/runner/epoch_based_runner.py
++++ b/mmcv/runner/epoch_based_runner.py
+@@ -1,4 +1,7 @@
+ # Copyright (c) OpenMMLab. All rights reserved.
++# ------------------------------------------------------------------------
++# Copyright 2024 Huawei Technologies Co., Ltd
++#-------------------------------------------------------------------------
+ import os.path as osp
+ import platform
+ import shutil
+@@ -46,14 +49,58 @@ class EpochBasedRunner(BaseRunner):
+         self._max_iters = self._max_epochs * len(self.data_loader)
+         self.call_hook('before_train_epoch')
+         time.sleep(2)  # Prevent possible deadlock during epoch transition
+-        for i, data_batch in enumerate(self.data_loader):
+-            self.data_batch = data_batch
+-            self._inner_iter = i
+-            self.call_hook('before_train_iter')
+-            self.run_iter(data_batch, train_mode=True, **kwargs)
+-            self.call_hook('after_train_iter')
+-            del self.data_batch
+-            self._iter += 1
++
++        profiling = False
++        if profiling:
++            import torch_npu
++            # NPU的数据默认采集level0，若想要更多CANN及NPU的性能数据，可通过拓展参数配置
++            experimental_config = torch_npu.profiler._ExperimentalConfig(
++                profiler_level=torch_npu.profiler.ProfilerLevel.Level2,
++                aic_metrics=torch_npu.profiler.AiCMetrics.PipeUtilization,
++                l2_cache=True,
++                data_simplification = False
++            )
++            # profiler_level：设置Profiling采集的Level，默认Level0。
++            # Level0：采集上层应用数据、底层NPU数据（Ascend
++            # Headware数据）以及NPU上执行的算子信息
++            # Level1：在Level0的基础上多采集CANN层AscendCL数据和NPU上执行的AI
++            # Core性能指标信息
++            # Level2：在Level1的基础上多采集CANN层GE、Runtime数据以及HCCL、AICPU数据以及AI
++            # Core性能指标信息
++            # aic_metrics：Level0默认不采集AIC Metrics，Level1和Level2默认开启Metrics，默认为PipeUtilization（支持PipeUtilization、ArithmeticUtilization、Memory、MemoryL0、MemoryUB、ResourceConflictRatio、L2Cache）
++            # l2_cache：选择是否采集L2Cache的数据，耗时开关，默认False
++
++            with torch_npu.profiler.profile(
++                    activities=[torch_npu.profiler.ProfilerActivity.CPU, torch_npu.profiler.ProfilerActivity.NPU],
++                    #activities=[torch_npu.profiler.ProfilerActivity.NPU],
++                    # 默认CPU、NPU均打开
++                    with_stack=True,  # 采集torch op的函数调用栈的开关，默认关闭
++                    record_shapes=True,  # 采集torch op的input shape和input type的开关，默认关闭
++                    profile_memory=True,  # 采集memory相关数据的开关，默认关闭
++                    schedule=torch_npu.profiler.schedule(wait=2, warmup=4, active=2, repeat=1, skip_first=10),
++                    experimental_config=experimental_config,
++                    on_trace_ready=torch_npu.profiler.tensorboard_trace_handler("./result_dir")  # 导出tensorboard可呈现的数据形式
++            ) as prof:
++                for i, data_batch in enumerate(self.data_loader):
++                    self.data_batch = data_batch
++                    self._inner_iter = i
++                    self.call_hook('before_train_iter')
++                    self.run_iter(data_batch, train_mode=True, **kwargs)
++                    self.call_hook('after_train_iter')
++                    del self.data_batch
++                    self._iter += 1
++                    prof.step()
++
++        else:
++            for i, data_batch in enumerate(self.data_loader):
++                self.data_batch = data_batch
++                self._inner_iter = i
++                self.call_hook('before_train_iter')
++                self.run_iter(data_batch, train_mode=True, **kwargs)
++                self.call_hook('after_train_iter')
++                del self.data_batch
++                self._iter += 1
++
+ 
+         self.call_hook('after_train_epoch')
+         self._epoch += 1
+diff --git a/mmcv/runner/hooks/optimizer.py b/mmcv/runner/hooks/optimizer.py
+index 93015475..207b52f5 100644
+--- a/mmcv/runner/hooks/optimizer.py
++++ b/mmcv/runner/hooks/optimizer.py
+@@ -1,4 +1,7 @@
+ # Copyright (c) OpenMMLab. All rights reserved.
++# ------------------------------------------------------------------------
++# Copyright 2024 Huawei Technologies Co., Ltd
++#-------------------------------------------------------------------------
+ import copy
+ import logging
+ from collections import defaultdict
+@@ -52,7 +55,9 @@ class OptimizerHook(Hook):
+         self.grad_clip = grad_clip
+         self.detect_anomalous_params = detect_anomalous_params
+ 
+-    def clip_grads(self, params):
++    def clip_grads(self, params, runner=None):
++        if IS_NPU_AVAILABLE and runner is not None:
++            return runner.optimizer.clip_grad_norm_fused_(**self.grad_clip)
+         params = list(
+             filter(lambda p: p.requires_grad and p.grad is not None, params))
+         if len(params) > 0:
+@@ -291,7 +296,7 @@ if (TORCH_VERSION != 'parrots'
+             self.loss_scaler.unscale_(runner.optimizer)
+             # grad clip
+             if self.grad_clip is not None:
+-                grad_norm = self.clip_grads(runner.model.parameters())
++                grad_norm = self.clip_grads(runner.model.parameters(), runner)
+                 if grad_norm is not None:
+                     # Add grad norm to the logger
+                     runner.log_buffer.update({'grad_norm': float(grad_norm)},

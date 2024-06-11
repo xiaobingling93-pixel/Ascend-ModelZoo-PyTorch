@@ -26,4 +26,4 @@ model = dict(
         loss_decode=dict(type='CrossEntropyLoss', use_sigmoid=False, loss_weight=0.4)
     ))
 
-optimizer = dict(type='SGD', lr=0.01, momentum=0.9, weight_decay=0.0005)
+optimizer = dict(type='NpuFusedSGD', lr=0.01, momentum=0.9, weight_decay=0.0005)

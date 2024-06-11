@@ -1,5 +1,6 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
 # Copyright 2021 Toyota Research Institute.  All rights reserved.
+# Copyright 2024 Huawei Technologies Co., Ltd
 # Adapted from detectron2:
 #   https://github.com/facebookresearch/detectron2/blob/master/detectron2/data/detection_utils.py
 import numpy as np

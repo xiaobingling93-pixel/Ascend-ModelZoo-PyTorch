@@ -1,32 +1,42 @@
-import torch
-from vision.ssd.mobilenetv1_ssd import create_mobilenetv1_ssd, create_mobilenetv1_ssd_predictor
-from vision.datasets.voc_dataset import VOCDataset
-from vision.utils import box_utils, measurements
-from vision.utils.misc import str2bool, Timer
+# Copyright 2024 Huawei Technologies Co., Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ============================================================================
 import argparse
 import pathlib
-import numpy as np
-import logging
-import sys
 
+import numpy as np
+import torch
+import torch_npu
+from torch_npu.contrib import transfer_to_npu
+
+from vision.datasets.voc_dataset import VOCDataset
+from vision.ssd.mobilenetv1_ssd import (create_mobilenetv1_ssd,
+                                        create_mobilenetv1_ssd_predictor)
+from vision.utils import box_utils, measurements
+from vision.utils.misc import Timer, str2bool
 
 parser = argparse.ArgumentParser(description="SSD Evaluation on VOC Dataset.")
-parser.add_argument('--net', default="mb1-ssd",
-                    help="The network architecture, it should be mb1-ssd.")
 parser.add_argument("--trained_model", type=str)
-
-parser.add_argument("--dataset_type", default="voc", type=str,
-                    help='Specify dataset type. Currently support voc.')
 parser.add_argument("--dataset", type=str, help="The root directory of the VOC dataset or Open Images dataset.")
 parser.add_argument("--label_file", type=str, help="The label file path.")
-parser.add_argument("--use_cuda", type=str2bool, default=True)
 parser.add_argument("--use_2007_metric", type=str2bool, default=True)
 parser.add_argument("--nms_method", type=str, default="hard")
 parser.add_argument("--iou_threshold", type=float, default=0.5, help="The threshold of Intersection over Union.")
 parser.add_argument("--eval_dir", default="eval_results", type=str, help="The directory to store evaluation results.")
 args = parser.parse_args()
-DEVICE = torch.device("cuda:0" if torch.cuda.is_available() and args.use_cuda else "cpu")
 
+DEVICE = torch.device("npu:0" if torch.npu.is_available() else "cpu")
 
 def group_annotation_by_class(dataset):
     true_case_stat = {}
@@ -117,30 +127,18 @@ if __name__ == '__main__':
     eval_path.mkdir(exist_ok=True)
     timer = Timer()
     class_names = [name.strip() for name in open(args.label_file).readlines()]
-
-    if args.dataset_type == "voc":
-        dataset = VOCDataset(args.dataset, is_test=True)
-    else:
-        raise ValueError(f"Dataset type {args.dataset_type} is not supported.")
-    
+    dataset = VOCDataset(args.dataset, is_test=True)
     true_case_stat, all_gb_boxes, all_difficult_cases = group_annotation_by_class(dataset)
-    if args.net == 'mb1-ssd':
-        net = create_mobilenetv1_ssd(len(class_names), is_test=True)
-    else:
-        logging.fatal("The net type is wrong. It should be mb1-ssd.")
-        parser.print_help(sys.stderr)
-        sys.exit(1)
+
+    net = create_mobilenetv1_ssd(len(class_names), is_test=True)
 
     timer.start("Load Model")
     net.load(args.trained_model)
-    net = net.to(DEVICE)
     print(f'It took {timer.end("Load Model")} seconds to load the model.')
-    if args.net == 'mb1-ssd':
-        predictor = create_mobilenetv1_ssd_predictor(net, nms_method=args.nms_method, device=DEVICE)
-    else:
-        logging.fatal("The net type is wrong. It should be one of vgg16-ssd, mb1-ssd and mb1-ssd-lite.")
-        parser.print_help(sys.stderr)
-        sys.exit(1)
+    net = net.to(DEVICE)
+
+
+    predictor = create_mobilenetv1_ssd_predictor(net, nms_method=args.nms_method, device=DEVICE)
 
     results = []
     for i in range(len(dataset)):
