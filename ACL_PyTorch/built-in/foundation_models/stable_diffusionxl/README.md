@@ -136,10 +136,15 @@
 
    2. 优化onnx模型
 
-      1. 模型优化
+      1. 量化（可选，可提升性能但可能导致精度下降）
+
+         量化步骤请参考[量化指导](./README_quant.md)
+
+      2. 模型优化
 
          运行modify_onnx.py脚本。
          ```bash 
+         bs=1
          # 非并行方案
          python3 modify_onnx.py \
                --model models/unet/unet.onnx \
@@ -172,7 +177,7 @@
 
          多batch场景限制：A2场景下暂不支持FA算子优化，FA_soc参数请设置为None。
 
-      2. 适配cache方案(可选，可提升性能但可能导致精度下降)
+      3. 适配cache方案(可选，可提升性能但可能导致精度下降)
 
          运行unet_cache.py脚本
          ```bash
