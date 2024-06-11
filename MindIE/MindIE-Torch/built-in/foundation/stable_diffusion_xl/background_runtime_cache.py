@@ -118,7 +118,6 @@ class BackgroundRuntime:
     ) -> None:
         # The sub process function
         # Create a runtime
-        mindietorch.set_device(device_id)
 
         # Tell the main function that we are ready
         model_cache = torch.jit.load(model_path[0]).eval()
@@ -134,7 +133,7 @@ class BackgroundRuntime:
             np.frombuffer(b, dtype=t).reshape(s) for (b, s, t) in zip(
                 output_spaces, io_info.output_shapes, io_info.output_dtypes)
         ]
-
+        mindietorch.set_device(device_id)
         # Tell the main function that we are ready
         sync_pipe.send('')
 

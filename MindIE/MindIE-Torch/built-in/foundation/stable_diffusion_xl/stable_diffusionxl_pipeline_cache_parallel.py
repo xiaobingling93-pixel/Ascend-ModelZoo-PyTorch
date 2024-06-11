@@ -136,8 +136,6 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
         if self.is_init:
             return
 
-        mindietorch.set_device(self.device_0)
-
         in_channels = self.unet.config.out_channels
         sample_size = self.unet.config.sample_size
         encoder_hidden_size_2 = self.text_encoder_2.config.hidden_size
@@ -1098,6 +1096,7 @@ def main():
 
     pipe.parser_args(args)
     pipe.compile_aie_model()
+    mindietorch.set_device(pipe.device_0)
     skip_steps = [0] * args.steps
     flag_cache = 0
     if args.use_cache:
