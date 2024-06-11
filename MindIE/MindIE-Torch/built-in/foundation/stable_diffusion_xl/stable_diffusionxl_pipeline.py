@@ -1062,12 +1062,20 @@ def parse_arguments():
         default=False,
         help="save unet input for quant."
     )
+    parser.add_argument(
+        "--quant",
+        type=bool,
+        default=False,
+        help="use quantize unet."
+    )
 
     return parser.parse_args()
 
 
 def main():
     args = parse_arguments()
+    if args.quant:
+        torch.ops.load_library("./quant/build/libquant_ops.so")
     save_dir = args.save_dir
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
