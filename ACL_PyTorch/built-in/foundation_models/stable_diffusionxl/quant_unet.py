@@ -223,7 +223,7 @@ class StableDiffusionXLDumpPipeline(AscendStableDiffusionXLPipeline):
 
             inputs = [
                 latent_model_input.numpy(),
-                t_numpy.astype,
+                t_numpy,
                 prompt_embeds,
                 add_text_embeds,
                 add_time_ids,
