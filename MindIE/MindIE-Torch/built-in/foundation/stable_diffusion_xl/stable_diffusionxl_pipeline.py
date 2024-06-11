@@ -1058,14 +1058,12 @@ def parse_arguments():
     )
     parser.add_argument(
         "--save_unet_input",
-        type=bool,
-        default=False,
+        action="store_true",
         help="save unet input for quant."
     )
     parser.add_argument(
         "--quant",
-        type=bool,
-        default=False,
+        action="store_true",
         help="use quantize unet."
     )
 
