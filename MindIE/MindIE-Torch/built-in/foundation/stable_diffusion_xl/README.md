@@ -326,14 +326,16 @@
 
 若使用W8A8量化功能，则将上述“1.导出pt模型并进行编译、2.开始推理验证”，替换为以下步骤：
 
-   1. 执行命令：
+   1. 量化编译。./quant/build.sh中的TorchPath需要指定为python安装torch的路径。
+   
+      执行命令：
 
       ```bash
       cd quant
       bash build.sh
       ```
 
-   2. 导出unet pt模型输入。
+   2. 导出unet pt模型的输入。
 
       执行命令：
 
