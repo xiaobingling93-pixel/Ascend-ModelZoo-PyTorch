@@ -45,7 +45,7 @@ gpt_options=" \
        --split 1. \
        --deepspeed_config test_config_bf16.json \
        --skip-init \
-       --seed 1234 
+       --seed 1234 > train_cogvlm.log 2>&1 & 
 "
 
               
