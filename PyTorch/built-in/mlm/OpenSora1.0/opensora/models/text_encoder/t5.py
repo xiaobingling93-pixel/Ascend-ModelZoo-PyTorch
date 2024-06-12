@@ -37,7 +37,7 @@ from opensora.registry import MODELS
 
 
 class T5Embedder:
-    available_models = ["DeepFloyd/t5-v1_1-xxl"]
+    available_models = ["DeepFloyd/t5-v1_1-xxl", "google/mt5-xxl"]
     bad_punct_regex = re.compile(
         r"[" + "#®•©™&@·º½¾¿¡§~" + "\)" + "\(" + "\]" + "\[" + "\}" + "\{" + "\|" + "\\" + "\/" + "\*" + r"]{1,}"
     )  # noqa
@@ -100,7 +100,10 @@ class T5Embedder:
         self.use_text_preprocessing = use_text_preprocessing
         self.hf_token = hf_token
 
-        assert from_pretrained in self.available_models
+        # 从模型路径中提取模型名称
+        model_name = "/".join(from_pretrained.rstrip("/").rsplit("/", 2)[-2:])
+        assert model_name in self.available_models
+
         self.tokenizer = AutoTokenizer.from_pretrained(from_pretrained, cache_dir=cache_dir)
         self.model = T5EncoderModel.from_pretrained(from_pretrained, cache_dir=cache_dir, **t5_model_kwargs).eval()
         self.model_max_length = model_max_length
