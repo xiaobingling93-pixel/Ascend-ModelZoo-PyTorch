@@ -13,11 +13,14 @@ from colossalai.nn.optimizer import HybridAdam
 from colossalai.utils import get_current_device
 from tqdm import tqdm
 
+import adaptor
 from opensora.acceleration.checkpoint import set_grad_checkpoint
 from opensora.acceleration.parallel_states import (
     get_data_parallel_group,
     set_data_parallel_group,
     set_sequence_parallel_group,
+    initialize_sequence_parallel_group_for_send_recv_overlap,
+    get_sequence_parallel_group_for_send_recv_overlap,
 )
 from opensora.acceleration.plugin import ZeroSeqParallelPlugin
 from opensora.datasets import DatasetFromCSV, get_transforms_image, get_transforms_video, prepare_dataloader
@@ -89,6 +92,7 @@ def main():
             initial_scale=2**16,
             max_norm=cfg.grad_clip,
         )
+        initialize_sequence_parallel_group_for_send_recv_overlap(cfg.use_cp_send_recv_overlap, cfg.sp_size)
         set_sequence_parallel_group(plugin.sp_group)
         set_data_parallel_group(plugin.dp_group)
     else:
@@ -154,7 +158,19 @@ def main():
     )
 
     # 4.2. create ema
-    ema = deepcopy(model).to(torch.float32).to(device)
+    model_state_dict = model.state_dict()
+    ema = build_module(
+        cfg.model,
+        MODELS,
+        input_size=latent_size,
+        in_channels=vae.out_channels,
+        caption_channels=text_encoder.output_dim,
+        model_max_length=text_encoder.model_max_length,
+        dtype=dtype,
+    )
+    ema = ema.to(torch.float32).to(device)
+    ema.load_state_dict(model_state_dict)
+
     requires_grad(ema, False)
     ema_shape_dict = record_model_param_shape(ema)
 

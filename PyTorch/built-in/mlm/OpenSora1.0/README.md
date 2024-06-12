@@ -71,8 +71,15 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
    source ${cann_install_path}/ascend-toolkit/set_env.sh              # 激活cann环境
    cd OpenSora1.0
    pip install -v -e .                                                # 安装本地代码仓，同时自动安装依赖
+   # 以https://gitee.com/aijgnem/MindSpeed最新文档为准，安装 MindSpeed
+   git clone https://gitee.com/ascend/MindSpeed.git
+   pip install -e MindSpeed
+   # 以https://gitee.com/aijgnem/MindSpeed最新文档为准，获取 Megatron-LM 并指定 commit id
+   git clone https://github.com/NVIDIA/Megatron-LM.git
+   cd Megatron-LM # 启动脚本，PYTHONPATH添加Megatron-LM路径，如 export PYTHONPATH=$PYTHONPATH:./Megatron-LM
+   git checkout core_r0.6.0
+   cd ..
    ```
-
 ### 安装昇腾环境
 
   请参考昇腾社区中《[Pytorch框架训练环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/ptes)》文档搭建昇腾环境，本仓已支持表2中软件版本。
@@ -195,8 +202,8 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
    --max_train_steps                    //最大训练步数，默认是0，不会提前停止。 
    ```
 #### 序列并行
-   以16x256x256的训练任务为示例。
-   若要使能序列并行，请进入configs文件：configs/opensora/train/16x256x256.py，
+   以120x256x256的训练任务为示例。
+   若要使能序列并行，请进入configs文件：configs/opensora/train/120x256x256-sp.py，
    在：
    ```
    # Define model
@@ -220,6 +227,13 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
       enable_layernorm_kernel=True,
       enable_sequence_parallelism=True,
 )
+   ```
+   并且增加
+   ```
+   sp_size = 8 # 当sp_size设置为1时，将不会使能序列并行
+   # context_parallel_algo设置为'megatron_cp_algo'表示序列并行使用ring attention算法, 设置为"ulysses_cp_algo"表示序列并行算法使用ulysses算法
+   context_parallel_algo = 'megatron_cp_algo' 
+   use_cp_send_recv_overlap = True # 是否开启序列并行send recv overlap, 仅在context_parallel_algo设置为'megatron_cp_algo'有效
    ```
    即可，之后按照前面提及的单机八卡训练任务开展训练。
    
