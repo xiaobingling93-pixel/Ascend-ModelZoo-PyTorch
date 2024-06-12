@@ -195,9 +195,9 @@ load_from = "ckpts/bevformer_r101_dcn_24ep.pth"
 
 | 阶段     | 芯片          | 卡数 | global batch size | Precision | 性能-单步迭代耗时(ms) |
 |--------| ------------- | ---- |-------------------| --------- |---------------|
-| stage1 | GPU           | 8p   | 1                 | fp32      | 5883          |
+| stage1 | 竞品A           | 8p   | 1                 | fp32      | 5883          |
 | stage1 | Atlas 800T A2 | 8p   | 1                 | fp32      | 17654         |
-| stage2 | GPU           | 8p   | 1                 | fp32      | 3990          |
+| stage2 | 竞品A           | 8p   | 1                 | fp32      | 3990          |
 | stage2 | Atlas 800T A2 | 8p   | 1                 | fp32      | 11374         |
 
 # 公网地址说明
