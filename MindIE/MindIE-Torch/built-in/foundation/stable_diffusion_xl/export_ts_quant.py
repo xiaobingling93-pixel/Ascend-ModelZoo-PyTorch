@@ -416,9 +416,9 @@ if __name__ == '__main__':
 
     if args.parallel:
         # 双卡
-        export_ddim_parallel(pipeline, args.output_dir, args.steps, args.guidance_scale, batch_size)
+        export_ddim_parallel(pipeline, args.output_dir, args.steps, args.guidance_scale, args.batch_size)
     else:
         # 单卡
-        export_ddim(pipeline, args.output_dir, args.steps, args.guidance_scale, batch_size * 2)
+        export_ddim(pipeline, args.output_dir, args.steps, args.guidance_scale, args.batch_size * 2)
 
     print('succ')
