@@ -2,7 +2,7 @@
 
 
 - [概述](#ZH-CN_TOPIC_0000001172161501)
-   
+  
    - [输入输出数据](#section540883920406)
 
 - [推理环境准备](#ZH-CN_TOPIC_0000001126281702)
@@ -123,41 +123,23 @@
       执行命令：
 
       ```bash
-      # 若不使用unetCache，且不使用并行方案
-      python3 export_ts.py --model ${model_base} --output_dir ./models --batch_size 1
-
-      # 若使用unetCache, 但不使用并行方案
-      python3 export_ts.py --model ${model_base} --output_dir ./models --use_cache --batch_size 1
+      # 使用unetCache, 非并行
+      python3 export_ts.py --model ${model_base} --output_dir ./models --use_cache --batch_size 1 --flag 0 --soc A2 --device 0
       
-      # 若使用unetCache, 且使用并行方案
-      python3 export_ts.py --model ${model_base} --output_dir ./models --use_cache --parallel --batch_size 1
-
+      # 使用unetCache, 并行
+      python3 export_ts.py --model ${model_base} --output_dir ./models --use_cache --parallel --batch_size 1 --flag 0 --soc Duo --device 0
       ```
       参数说明：
       - --model：模型权重路径
       - --output_dir: ONNX模型输出目录
-      - --use_cache: 在推理过程中使用cache
-      - --parallel: 导出适用于并行方案的模型，当前仅带unetCache优化时，支持并行
+      - --use_cache: 【可选】在推理过程中使用cache
+      - --parallel: 【可选】导出适用于并行方案的模型，当前仅带unetCache优化时，支持并行
       - --batch_size: 设置batch_size, 默认值为1,当前仅支持batch_size=1的场景
+      - --flag：默认为0。0代表静态，只支持分辨率为1024x1024；1代表动态分档，支持的分辨率为1024x1024和512x512；2代表动态shape，height的范围为[512, 1024]，width的范围是[512, 1664]。
+      - --soc：只支持Duo和A2。默认为A2
+      - --device：推理设备ID
       
-      不使用unetCache，且不使用双卡并行，执行成功后会生成pt模型：
-         - ./models/clip/clip_bs{batch_size}.pt.pt  和 ./models/clip/clip2_bs{batch_size}.pt
-         - ./models/unet/unet_bs{batch_size*2}.pt
-         - ./models/vae/vae_bs{batch_size}.pt
-         - ./models/ddim/ddim{batch_size*2}.pt
-      
-      使用unetCache，但不使用并行方案，执行成功后会生成pt模型：
-         - ./models/clip/clip_bs{batch_size}.pt.pt  和 ./models/clip/clip2_bs{batch_size}.pt
-         - ./models/unet/unet_bs{batch_size*2}_0.pt 和 ./models/unet/unet_bs{batch_size*2}_1.pt
-         - ./models/vae/vae_bs{batch_size}.pt
-         - ./models/ddim/ddim{batch_size*2}.pt
-      
-      使用unetCache，且使用并行方案，执行成功后会生成pt模型：
-         - ./models/clip/clip_bs{batch_size}.pt.pt  和 ./models/clip/clip2_bs{batch_size}.pt
-         - ./models/unet/unet_bs{batch_size}_0.pt 和 ./models/unet/unet_bs{batch_size}_1.pt
-         - ./models/vae/vae_bs{batch_size}.pt
-         - ./models/ddim/ddim{batch_size}.pt
-
+   
 2. 开始推理验证。
 
    1. 执行推理脚本。
@@ -170,8 +152,10 @@
               --save_dir ./results \
               --steps 50 \
               --output_dir ./models \
-              --soc A2
-
+              --flag 0 \
+              --height 1024 \
+              --width 1024
+      
       # 使用UnetCache策略
       python3 stable_diffusionxl_pipeline.py \
               --model ${model_base} \
@@ -180,8 +164,10 @@
               --save_dir ./results_unetCache \
               --steps 50 \
               --output_dir ./models \
-              --soc A2 \
-              --use_cache
+              --use_cache \
+              --flag 0 \
+              --height 1024 \
+              --width 1024
       
       # 使用UnetCache策略,同时使用双卡并行策略
       python3 stable_diffusionxl_pipeline_cache_parallel.py \
@@ -191,10 +177,12 @@
               --save_dir ./results_unetCache_parallel \
               --steps 50 \
               --output_dir ./models \
-              --soc A2 \
-              --use_cache
+              --use_cache \
+              --flag 0 \
+              --height 1024 \
+              --width 1024
       ```
-
+      
       参数说明：
       - --model：模型名称或本地模型目录的路径。
       - --output_dir：存放导出模型的目录。
@@ -203,20 +191,23 @@
       - --batch_size：模型batch size。
       - --steps：生成图片迭代次数。
       - --device：推理设备ID；可用逗号分割传入两个设备ID，此时会使用并行方式进行推理。
-      - --use_cache: 在推理过程中使用cache。
+      - --use_cache: 【可选】在推理过程中使用cache。
       - --cache_steps: 使用cache的迭代次数，迭代次数越多性能越好，但次数过多可能会导致精度下降。
+      - --flag：默认为0。0代表静态，只支持分辨率为1024x1024；1代表动态分档，支持的分辨率为1024x1024和512x512；2代表动态shape，height的范围为[512, 1024]，width的范围是[512, 1664]。**注意**：请与导出模型时设置的flag保持一致
+      - --height：与flag标志位对应的height一致
+      - --width：与flag标志位对应的width一致
       
       不带unetCache策略，执行完成后在`./results`目录下生成推理图片。并在终端显示推理时间，参考如下：
-
+   
       ```
       [info] infer number: 16; use time: 150.567s; average time: 9.410s
       ```
-
+      
       带unetCache策略，执行完成后在`./results_unetCache`目录下生成推理图片。并在终端显示推理时间，参考如下：
       ```
       [info] infer number: 16; use time: 71.855s; average time: 4.491s
       ```
-    
+      
       带unetCache策略，同时使用双卡并行策略，执行完成后在`./results_unetCache_parallel`目录下生成推理图片。并在终端显示推理时间，参考如下：
       ```
       [info] infer number: 16; use time: 47.351s; average time: 2.959s
@@ -257,8 +248,11 @@
               --device 0 \
               --save_dir ./results_PartiPrompts \
               --steps 50 \
-              --output_dir ./models
-
+              --output_dir ./models \
+              --flag 0 \
+              --height 1024 \
+              --width 1024
+      
       # 使用UnetCache策略
       python3 stable_diffusionxl_pipeline.py \
               --model ${model_base} \
@@ -270,8 +264,11 @@
               --save_dir ./results_PartiPrompts_unetCache \
               --steps 50 \
               --output_dir ./models \
-              --use_cache
-
+              --use_cache \
+              --flag 0 \
+              --height 1024 \
+              --width 1024
+      
       # 使用UnetCache策略,同时使用双卡并行策略
       python3 stable_diffusionxl_pipeline_cache_parallel.py \
               --model ${model_base} \
@@ -279,14 +276,17 @@
               --prompt_file_type parti \
               --num_images_per_prompt 4 \
               --max_num_prompts 0 \
-              --device 0 \
+              --device 0,1 \
               --save_dir ./results_PartiPrompts_unetCache_parallel \
               --steps 50 \
               --output_dir ./models \
-              --use_cache
-
-      ```
+              --use_cache \
+              --flag 0 \
+              --height 1024 \
+              --width 1024
       
+      ```
+
       参数说明：
       - --model：模型名称或本地模型目录的路径。
       - --output_dir：存放导出模型的目录。

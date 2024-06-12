@@ -1,5 +1,5 @@
---- ../mindie-sdxl/unet_2d_condition_bak.py	2024-04-17 07:41:03.000000000 +0000
-+++ ../mindie-sdxl/unet_2d_condition.py	2024-04-17 07:41:05.000000000 +0000
+--- unet_2d_condition.py	2024-06-04 17:04:44.033309200 +0800
++++ unet_2d_condition_new.py	2024-06-04 17:27:41.224501400 +0800
 @@ -855,6 +855,8 @@
          down_intrablock_additional_residuals: Optional[Tuple[torch.Tensor]] = None,
          encoder_attention_mask: Optional[torch.Tensor] = None,
@@ -12,7 +12,7 @@
 @@ -1110,29 +1112,56 @@
              down_intrablock_additional_residuals = down_block_additional_residuals
              is_adapter = True
-
+ 
 -        down_block_res_samples = (sample,)
 -        for downsample_block in self.down_blocks:
 -            if hasattr(downsample_block, "has_cross_attention") and downsample_block.has_cross_attention:
@@ -34,8 +34,6 @@
 -                sample, res_samples = downsample_block(hidden_states=sample, temb=emb, scale=lora_scale)
 -                if is_adapter and len(down_intrablock_additional_residuals) > 0:
 -                    sample += down_intrablock_additional_residuals.pop(0)
--
--            down_block_res_samples += res_samples
 +        if not if_skip:
 +            down_block_res_samples = (sample,)
 +            for downsample_block in self.down_blocks:
@@ -84,14 +82,15 @@
 +                    sample, res_samples = downsample_block(hidden_states=sample, temb=emb, scale=lora_scale)
 +                    if is_adapter and len(down_intrablock_additional_residuals) > 0:
 +                        sample += down_intrablock_additional_residuals.pop(0)
-+
+ 
+-            down_block_res_samples += res_samples
 +                down_block_res_samples += res_samples
-
+ 
          if is_controlnet:
              new_down_block_res_samples = ()
-@@ -1146,61 +1175,93 @@
+@@ -1146,61 +1175,97 @@
              down_block_res_samples = new_down_block_res_samples
-
+ 
          # 4. mid
 -        if self.mid_block is not None:
 -            if hasattr(self.mid_block, "has_cross_attention") and self.mid_block.has_cross_attention:
@@ -136,10 +135,10 @@
 +                    sample += down_intrablock_additional_residuals.pop(0)
 +        else:
 +            sample = inputCache
-
+ 
          if is_controlnet:
              sample = sample + mid_block_additional_residual
-
+ 
          # 5. up
 -        for i, upsample_block in enumerate(self.up_blocks):
 -            is_final_block = i == len(self.up_blocks) - 1
@@ -180,7 +179,7 @@
 +
 +                # if we have not reached the final block and need to forward the
 +                # upsample size, we do it here
-+                if not is_final_block and forward_upsample_size:
++                if not is_final_block:
 +                    upsample_size = down_block_res_samples[-1].shape[2:]
 +
 +                if hasattr(upsample_block, "has_cross_attention") and upsample_block.has_cross_attention:
@@ -209,7 +208,11 @@
 +        else:
 +
 +            for i, upsample_block in enumerate(self.up_blocks):
-+                if i==1:
++                is_final_block = i == len(self.up_blocks) - 1
++                if not is_final_block:
++                    upsample_size = down_block_res_samples[0].shape[2:]
++
++                if i == 1:
 +                    res_samples = down_block_res_samples[-4:-1]
 +                    sample = upsample_block(
 +                        hidden_states=sample,
@@ -221,7 +224,7 @@
 +                        attention_mask=attention_mask,
 +                        encoder_attention_mask=encoder_attention_mask,
 +                    )
-+                if i==2:
++                if i == 2:
 +                    res_samples = down_block_res_samples[:3]
 +                    sample = upsample_block(
 +                        hidden_states=sample,
@@ -230,15 +233,15 @@
 +                        upsample_size=upsample_size,
 +                        scale=lora_scale,
 +                    )
-
+ 
          # 6. post-process
          if self.conv_norm_out:
-@@ -1215,4 +1276,7 @@
+@@ -1215,4 +1280,7 @@
          if not return_dict:
              return (sample,)
-
+ 
 -        return UNet2DConditionOutput(sample=sample)
-+        if (not if_skip):
++        if not if_skip:
 +            return (sample, inputCache)
 +        else:
 +            return UNet2DConditionOutput(sample=sample)
