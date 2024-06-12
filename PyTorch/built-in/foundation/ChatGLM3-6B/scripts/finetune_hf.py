@@ -19,7 +19,6 @@ import functools
 from pathlib import Path
 from typing import Any, Optional, Union, Dict, Tuple, Mapping
 
-import jieba
 import numpy as np
 import ruamel.yaml as yaml
 import torch
@@ -465,7 +464,7 @@ def main(
         data_dir,
         model_dir,
         config_file,
-        shuffle,
+        shuffle: bool,
         auto_resume_from_checkpoint: str = typer.Argument(
             default='',
             help='If entered as yes, automatically use the latest save checkpoint. If it is a numerical example 12 15, use the corresponding save checkpoint. If the input is no, restart training'

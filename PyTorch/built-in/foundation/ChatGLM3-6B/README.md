@@ -49,7 +49,7 @@
 
   | Torch_Version      | 三方库依赖版本                                 |
   | :--------: | :----------------------------------------------------------: |
-  | PyTorch 2.1 |transformers == 4.38.0; deepspeed == 0.14.2 |
+  | PyTorch 2.1 |transformers == 4.39.2; deepspeed == 0.14.2 |
   
 - 安装依赖。
 
