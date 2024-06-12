@@ -74,7 +74,7 @@ class QuantLinearModule(nn.Module):
 
 
 def modify_model(model, input_scale_dict, input_offset_dict, weight_scale_dict, weight_offset_dict, quant_weight_dict):
-    torch.ops.load_library("./cpp/build/libquant_ops.so")
+    torch.ops.load_library("./quant/build/libquant_ops.so")
     for name, layer in model.named_modules():
         if name in input_scale_dict:
             if quant_weight_dict[name] is None:
