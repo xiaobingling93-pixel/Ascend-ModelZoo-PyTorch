@@ -28,6 +28,8 @@ from opensora.models.layers.blocks import (
 )
 from opensora.registry import MODELS
 from opensora.utils.ckpt_utils import load_checkpoint
+from opensora.utils.device_utils import is_npu_available
+from opensora.utils.train_utils import NpuRotaryEmbedding
 
 
 class STDiT2Block(nn.Module):
@@ -95,7 +97,7 @@ class STDiT2Block(nn.Module):
         # x_mask: [B, T]
         x = rearrange(x, "B (T S) C -> B T S C", T=T, S=S)
         masked_x = rearrange(masked_x, "B (T S) C -> B T S C", T=T, S=S)
-        x = torch.where(x_mask[:, :, None, None], x, masked_x)
+        x = torch.where(torch.tile(x_mask[:, :, None, None], (1, 1, x.shape[-2], x.shape[-1])), x, masked_x)
         x = rearrange(x, "B T S C -> B (T S) C")
         return x
 
@@ -117,9 +119,10 @@ class STDiT2Block(nn.Module):
             ).chunk(3, dim=1)
 
         # modulate
-        x_m = t2i_modulate(self.norm1(x), shift_msa, scale_msa)
+        x_norm1 = self.norm1(x)
+        x_m = t2i_modulate(x_norm1, shift_msa, scale_msa)
         if x_mask is not None:
-            x_m_zero = t2i_modulate(self.norm1(x), shift_msa_zero, scale_msa_zero)
+            x_m_zero = t2i_modulate(x_norm1, shift_msa_zero, scale_msa_zero)
             x_m = self.t_mask_select(x_mask, x_m, x_m_zero, T, S)
 
         # spatial branch
@@ -135,9 +138,10 @@ class STDiT2Block(nn.Module):
         x = x + self.drop_path(x_s)
 
         # modulate
-        x_m = t2i_modulate(self.norm_temp(x), shift_tmp, scale_tmp)
+        x_norm_temp = self.norm_temp(x)
+        x_m = t2i_modulate(x_norm_temp, shift_tmp, scale_tmp)
         if x_mask is not None:
-            x_m_zero = t2i_modulate(self.norm_temp(x), shift_tmp_zero, scale_tmp_zero)
+            x_m_zero = t2i_modulate(x_norm_temp, shift_tmp_zero, scale_tmp_zero)
             x_m = self.t_mask_select(x_mask, x_m, x_m_zero, T, S)
 
         # temporal branch
@@ -156,9 +160,10 @@ class STDiT2Block(nn.Module):
         x = x + self.cross_attn(x, y, mask)
 
         # modulate
-        x_m = t2i_modulate(self.norm2(x), shift_mlp, scale_mlp)
+        x_norm2 = self.norm2(x)
+        x_m = t2i_modulate(x_norm2, shift_mlp, scale_mlp)
         if x_mask is not None:
-            x_m_zero = t2i_modulate(self.norm2(x), shift_mlp_zero, scale_mlp_zero)
+            x_m_zero = t2i_modulate(x_norm2, shift_mlp_zero, scale_mlp_zero)
             x_m = self.t_mask_select(x_mask, x_m, x_m_zero, T, S)
 
         # mlp
@@ -231,7 +236,10 @@ class STDiT2(nn.Module):
         )
 
         drop_path = [x.item() for x in torch.linspace(0, drop_path, depth)]
-        self.rope = RotaryEmbedding(dim=self.hidden_size // self.num_heads)  # new
+        if is_npu_available():
+            self.rope = NpuRotaryEmbedding(dim=self.hidden_size // self.num_heads)
+        else:
+            self.rope = RotaryEmbedding(dim=self.hidden_size // self.num_heads)  # new
         self.blocks = nn.ModuleList(
             [
                 STDiT2Block(

@@ -161,7 +161,7 @@ def main():
 
     # 4.5. setup optimizer
     if is_npu_available():
-        from torch.optim import AdamW
+        from mindspeed.optimizer.adamw import AdamW
         optimizer = AdamW(
             filter(lambda p: p.requires_grad, model.parameters()),
             lr=cfg.lr,

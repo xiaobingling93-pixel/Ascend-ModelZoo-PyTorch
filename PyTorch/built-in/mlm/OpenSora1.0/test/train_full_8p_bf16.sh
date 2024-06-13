@@ -42,7 +42,7 @@ torchrun --nnodes=1 --nproc_per_node=${WORLD_SIZE} --master-port ${MASTER_PORT} 
  configs/opensora/train/120x256x256.py \
  --batch-size ${BATCH_SIZE} \
  --max-train-steps ${max_train_steps} \
- >> ${test_path_dir}/output/$ASCEND_DEVICE_ID/train_${ASCEND_DEVICE_ID}.log 2>&1 &
+ > ${test_path_dir}/output/$ASCEND_DEVICE_ID/train_${ASCEND_DEVICE_ID}.log 2>&1 &
 
 wait
 

@@ -33,7 +33,7 @@ from opensora.utils.config_utils import (
     save_training_config,
 )
 from opensora.utils.misc import all_reduce_mean, format_numel_str, get_model_numel, requires_grad, to_torch_dtype
-from opensora.utils.train_utils import update_ema, Adamw
+from opensora.utils.train_utils import update_ema, AdamW
 from opensora.utils.device_utils import is_npu_available
 if is_npu_available():
     from torch_npu.contrib import transfer_to_npu

@@ -43,7 +43,7 @@ echo "start_time: ${start_time}"
 torchrun --nnodes=1 --nproc_per_node=${WORLD_SIZE} --master-port ${MASTER_PORT} scripts/inference.py \
  configs/opensora/inference/120x256x256.py \
  --batch-size ${BATCH_SIZE} \
- >> ${test_path_dir}/output/$ASCEND_DEVICE_ID/infer_${ASCEND_DEVICE_ID}.log 2>&1 &
+ > ${test_path_dir}/output/$ASCEND_DEVICE_ID/infer_${ASCEND_DEVICE_ID}.log 2>&1 &
 
 wait
 

@@ -1,3 +1,4 @@
+
 # OpenSora1.1 for PyTorch
 # 目录
 
@@ -69,6 +70,17 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
    source ${cann_install_path}/ascend-toolkit/set_env.sh              # 激活cann环境
    cd OpenSora1.1
    pip install -v -e .                                                # 安装本地代码仓，同时自动安装依赖
+   ```
+   安装mindspeed：
+   ```
+   git clone https://gitee.com/ascend/MindSpeed.git
+   pip install -e MindSpeed
+   ```
+   获取 Megatron-LM 并指定 commit id:
+   ```
+   git clone https://github.com/NVIDIA/Megatron-LM.git
+   cd Megatron-LM
+   git checkout core_r0.6.0
    ```
 
 ### 安装昇腾环境
@@ -164,6 +176,13 @@ https://github.com/hpcaitech/Open-Sora?tab=readme-ov-file#data-processing
    ```shell
    bash test/train_full_8p_opensorav1_1.sh --data_path=train_data.csv
    # 混合精度BF16，八卡训练，stage1
+   ```
+   对于本模型，可以采用绑核优化，以绑核方式启动。
+   绑核方法参考：https://gitee.com/ascend/att/tree/master/profiler/affinity_cpu_bind
+   本模型使用示例如下：
+   ```
+   python3 bind_core.py \
+   -app="bash test/train_full_18p_opensorav1_1.sh --data_path=train_data.csv"
    ```
 
 ### 推理任务

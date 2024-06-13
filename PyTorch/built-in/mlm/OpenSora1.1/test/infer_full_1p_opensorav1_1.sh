@@ -54,7 +54,7 @@ python scripts/inference.py \
  --prompt "A beautiful sunset over the city" \
  --num-frames ${NUM_FRAMES} \
  --image-size ${IMAGE_SIZE_H} ${IMAGE_SIZE_W} \
- >> ${test_path_dir}/output/$ASCEND_DEVICE_ID/infer_${ASCEND_DEVICE_ID}.log 2>&1 &
+ > ${test_path_dir}/output/$ASCEND_DEVICE_ID/infer_${ASCEND_DEVICE_ID}.log 2>&1 &
 
 wait
 

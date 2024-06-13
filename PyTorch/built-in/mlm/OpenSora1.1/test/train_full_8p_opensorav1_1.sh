@@ -32,7 +32,7 @@ echo "start_time: ${start_time}"
 
 torchrun --nnodes=1 --nproc_per_node=8 --master-port 61888 scripts/train.py \
 configs/opensora-v1-1/train/stage1.py \
---data-path ${data_path} >> ${test_path_dir}/output/$ASCEND_DEVICE_ID/train_${ASCEND_DEVICE_ID}.log 2>&1 &
+--data-path ${data_path} > ${test_path_dir}/output/$ASCEND_DEVICE_ID/train_${ASCEND_DEVICE_ID}.log 2>&1 &
 wait
 
 #训练结束时间，不需要修改
