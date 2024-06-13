@@ -143,7 +143,7 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
         batch_size = self.args.batch_size
         if self.args.flag == 0 or self.args.flag == 1:
             if self.args.flag == 0:
-                tail = "_static"
+                tail = f"_static_{self.args.height}x{self.args.width}"
             elif self.args.flag == 1:
                 tail = ""
             vae_compiled_path = os.path.join(self.args.output_dir, f"vae/vae_bs{batch_size}_compile{tail}.ts")

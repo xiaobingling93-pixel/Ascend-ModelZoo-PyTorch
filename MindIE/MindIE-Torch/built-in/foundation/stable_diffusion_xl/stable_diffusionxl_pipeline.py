@@ -26,7 +26,6 @@ from diffusers import StableDiffusionXLPipeline
 from diffusers.loaders import TextualInversionLoaderMixin
 from diffusers.schedulers import *
 from quant_utils import modify_model
-from mindietorch import _enums
 
 clip_time = 0
 unet_time = 0
@@ -140,11 +139,13 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
         size = self.args.batch_size
         batch_size = self.args.batch_size * 2
 
-        if self.args.flag == 0 or self.args.flag == 1:
+        if self.args.flag in [0, 1, 3]:
             if self.args.flag == 0:
-                tail = "_static"
+                tail = f"_static_{self.args.height}x{self.args.width}"
             elif self.args.flag == 1:
                 tail = ""
+            else:
+                tail = f"_quant_{self.args.height}x{self.args.width}"
 
             vae_compiled_path = os.path.join(self.args.output_dir, f"vae/vae_bs{size}_compile{tail}.ts")
             self.compiled_vae_model = torch.jit.load(vae_compiled_path).eval()
@@ -876,10 +877,10 @@ def parse_arguments():
     )
     parser.add_argument(
         "--flag",
-        choices=[0, 1, 2],
+        choices=[0, 1, 2, 3],
         default=0,
         type=int,
-        help="0 is static; 1 is dynami dims; 2 is dynamic range.",
+        help="0 is static; 1 is dynami dims; 2 is dynamic range; 3 is quant",
     )
     parser.add_argument(
         "--height",
@@ -891,7 +892,9 @@ def parse_arguments():
         "--width",
         default=1024,
         type=int,
-        help="image width",
+        help="image width"
+    )
+    parser.add_argument(
         "--save_unet_input",
         action="store_true",
         help="save unet input for quant."

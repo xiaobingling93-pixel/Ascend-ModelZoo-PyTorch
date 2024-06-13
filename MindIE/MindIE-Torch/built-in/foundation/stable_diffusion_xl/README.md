@@ -102,26 +102,28 @@
 
    0. 获取权重（可选）
 
-      可提前下载权重，放到代码同级目录下，以避免执行后面步骤时可能会出现下载失败。
+       可提前下载权重，放到代码同级目录下，以避免执行后面步骤时可能会出现下载失败。
 
-      ```bash
-      # 需要使用 git-lfs (https://git-lfs.com)
-      git lfs install
-
-      # xl
-      git clone https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0
-      ```
+       ```bash
+       # 需要使用 git-lfs (https://git-lfs.com)
+       git lfs install
+       
+       # xl
+       git clone https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0
+       ```
 
    1. 导出pt模型并进行编译。(可选)
 
+      ```bash
       # xl (执行时下载权重)
       model_base="stabilityai/stable-diffusion-xl-base-1.0"
       
-      # xl (使用上一步下载的权重)
+      xl (使用上一步下载的权重)
       model_base="./stable-diffusion-xl-base-1.0"
+      ```
 
       执行命令：
-
+   
       ```bash
       # 使用unetCache, 非并行
       python3 export_ts.py --model ${model_base} --output_dir ./models --use_cache --batch_size 1 --flag 0 --soc A2 --device 0
@@ -138,7 +140,6 @@
       - --flag：默认为0。0代表静态，只支持分辨率为1024x1024；1代表动态分档，支持的分辨率为1024x1024和512x512；2代表动态shape，height的范围为[512, 1024]，width的范围是[512, 1664]。
       - --soc：只支持Duo和A2。默认为A2
       - --device：推理设备ID
-      
    
 2. 开始推理验证。
 
@@ -324,10 +325,20 @@
 
 ## 量化功能【可选】<a name="section741711594518"></a>
 
-若使用W8A8量化功能，则将上述“1.导出pt模型并进行编译、2.开始推理验证”，替换为以下步骤：
+若使用W8A8量化功能，分辨率只支持1024x1024和512x512：
 
-   1. 量化编译。./quant/build.sh中的TorchPath需要指定为python安装torch的路径。
-   
+   1. 导出模型，height只支持1024和512，width只支持1024和512
+
+      ```bash
+      # 使用unetCache, 非并行
+      python3 export_ts.py --model ${model_base} --output_dir ./models --use_cache --batch_size 1 --flag 0 --soc A2 --device 0 --height 1024 --width 1024
+      
+      # 不使用unetCache, 非并行
+      python3 export_ts.py --model ${model_base} --output_dir ./models --batch_size 1 --flag 0 --soc A2 --device 0 --height 1024 --width 1024
+      ```
+
+   2. 量化编译。./quant/build.sh中的TorchPath需要指定为python安装torch的路径。
+
       执行命令：
 
       ```bash
@@ -335,88 +346,79 @@
       bash build.sh
       ```
 
-   2. 导出unet pt模型的输入。
+   3. 导出unet pt模型的输入。
 
       执行命令：
 
       ```bash
-      # 不使用unetCache策略
+      # 若使用UnetCache策略
       python3 stable_diffusionxl_pipeline.py \
               --model ${model_base} \
               --prompt_file ./prompts.txt \
               --device 0 \
-              --save_dir ./results \
+              --save_dir ./results_temp \
               --steps 50 \
               --output_dir ./models \
-              --soc A2 \
-              --save_unet_input
-
-      # 使用UnetCache策略
-      python3 stable_diffusionxl_pipeline.py \
-              --model ${model_base} \
-              --prompt_file ./prompts.txt \
-              --device 0 \
-              --save_dir ./results_unetCache \
-              --steps 50 \
-              --output_dir ./models \
-              --soc A2 \
               --use_cache \
+              --flag 0 \
+              --height 1024 \
+              --width 1024 \
+              --save_unet_input
+      # 若不使用UnetCache策略
+      python3 stable_diffusionxl_pipeline.py \
+              --model ${model_base} \
+              --prompt_file ./prompts.txt \
+              --device 0 \
+              --save_dir ./results_temp \
+              --steps 50 \
+              --output_dir ./models \
+              --flag 0 \
+              --height 1024 \
+              --width 1024 \
               --save_unet_input
       ```
 
-   3. 导出pt模型并进行编译。
+   4. 导出pt模型并进行编译。
 
       执行命令：
 
       ```bash
-      # 若不使用unetCache，且不使用并行方案
-      python3 export_ts_quant.py --model ${model_base} --output_dir ./models --batch_size 1
-
-      # 若使用unetCache, 但不使用并行方案
-      python3 export_ts_quant.py --model ${model_base} --output_dir ./models --use_cache --batch_size 1
+      # 若使用unetCache, 且非并行
+      python3 export_ts_quant.py --model ${model_base} --output_dir ./models_quant --use_cache --batch_size 1 --soc A2 --device 0 --height 1024 --width 1024
       
-      # 若使用unetCache, 且使用并行方案
-      python3 export_ts_quant.py --model ${model_base} --output_dir ./models --use_cache --parallel --batch_size 1
+      # 若不使用unetCache, 且非并行
+      python3 export_ts_quant.py --model ${model_base} --output_dir ./models_quant --batch_size 1 --soc A2 --device 0 --height 1024 --width 1024
       ```
 
-   4. 开始推理验证。
+   5. 开始推理验证。
 
       执行命令：
 
       ```bash
-      # 不使用unetCache策略
+      # 使用UnetCache策略，且非并行
       python3 stable_diffusionxl_pipeline.py \
               --model ${model_base} \
               --prompt_file ./prompts.txt \
               --device 0 \
-              --save_dir ./results \
+              --save_dir ./results_quant \
               --steps 50 \
-              --output_dir ./models \
-              --soc A2 \
+              --output_dir ./models_quant \
+              --flag 3 \
+              --use_cache \
+              --height 1024 \
+              --width 1024 \
               --quant
-
-      # 使用UnetCache策略
+      # 不使用UnetCache策略，且非并行
       python3 stable_diffusionxl_pipeline.py \
               --model ${model_base} \
               --prompt_file ./prompts.txt \
               --device 0 \
-              --save_dir ./results_unetCache \
+              --save_dir ./results_quant \
               --steps 50 \
-              --output_dir ./models \
-              --soc A2 \
-              --use_cache \
-              --quant
-
-      # 使用UnetCache策略,同时使用双卡并行策略
-      python3 stable_diffusionxl_pipeline_cache_parallel.py \
-              --model ${model_base} \
-              --prompt_file ./prompts.txt \
-              --device 0,1 \
-              --save_dir ./results_unetCache_parallel \
-              --steps 50 \
-              --output_dir ./models \
-              --soc A2 \
-              --use_cache \
+              --output_dir ./models_quant \
+              --flag 3 \
+              --height 1024 \
+              --width 1024 \
               --quant
       ```
 

@@ -60,6 +60,18 @@ def parse_arguments() -> Namespace:
         type=int,
         help="NPU device",
     )
+    parser.add_argument(
+        "--height",
+        default=1024,
+        type=int,
+        help="image height",
+    )
+    parser.add_argument(
+        "--width",
+        default=1024,
+        type=int,
+        help="image width"
+    )
     return parser.parse_args()
 
 def trace_clip(sd_pipeline, batch_size, clip_pt_path, clip2_pt_path):
@@ -83,6 +95,8 @@ def export_clip(sd_pipeline, args):
     flag, batch_size = args.flag, args.batch_size
     clip_pt_path = os.path.join(clip_path, f"clip_bs{batch_size}.pt")
     clip2_pt_path = os.path.join(clip_path, f"clip2_bs{batch_size}.pt")
+    clip1_compiled_static_path = os.path.join(clip_path, f"clip_bs{batch_size}_compile_static_{args.height}x{args.width}.ts")
+    clip2_compiled_static_path = os.path.join(clip_path, f"clip2_bs{batch_size}_compile_static_{args.height}x{args.width}.ts")
     clip1_compiled_path = os.path.join(clip_path, f"clip_bs{batch_size}_compile.ts")
     clip2_compiled_path = os.path.join(clip_path, f"clip2_bs{batch_size}_compile.ts")
     clip1_compiled_dynamic_path = os.path.join(clip_path, f"clip_compile_dynamic.ts")
@@ -95,7 +109,16 @@ def export_clip(sd_pipeline, args):
     trace_clip(sd_pipeline, batch_size, clip_pt_path, clip2_pt_path)
 
     # compile
-    if flag == 0 or flag == 1:
+    if flag == 0:
+        if not os.path.exists(clip1_compiled_static_path):
+            model = torch.jit.load(clip_pt_path).eval()
+            inputs = [mindietorch.Input((batch_size, max_position_embeddings), dtype=mindietorch.dtype.INT64)]
+            compile_clip(model, inputs, clip1_compiled_static_path, soc_version)
+        if not os.path.exists(clip2_compiled_static_path):
+            model = torch.jit.load(clip2_pt_path).eval()
+            inputs = [mindietorch.Input((batch_size, max_position_embeddings), dtype=mindietorch.dtype.INT64)]
+            compile_clip(model, inputs, clip2_compiled_static_path, soc_version)
+    elif flag == 1:
         if not os.path.exists(clip1_compiled_path):
             model = torch.jit.load(clip_pt_path).eval()
             inputs = [mindietorch.Input((batch_size, max_position_embeddings), dtype=mindietorch.dtype.INT64)]
@@ -124,8 +147,9 @@ def export_vae(sd_pipeline, args):
     if not os.path.exists(vae_path):
         os.makedirs(vae_path, mode=0o640)
     flag, batch_size = args.flag, args.batch_size
+    height_size, width_size = args.height // 8, args.width // 8
     vae_pt_path = os.path.join(vae_path, f"vae_bs{batch_size}.pt")
-    vae_compiled_static_path = os.path.join(vae_path, f"vae_bs{batch_size}_compile_static.ts")
+    vae_compiled_static_path = os.path.join(vae_path, f"vae_bs{batch_size}_compile_static_{args.height}x{args.width}.ts")
     vae_compiled_path = os.path.join(vae_path, f"vae_bs{batch_size}_compile.ts")
     vae_compiled_dynamic_path = os.path.join(vae_path, f"vae_compile_dynamic.ts")
 
@@ -146,19 +170,17 @@ def export_vae(sd_pipeline, args):
         if not os.path.exists(vae_compiled_static_path):
             model = torch.jit.load(vae_pt_path).eval()
             inputs = [
-                mindietorch.Input((batch_size, in_channels, sample_size, sample_size), dtype=mindietorch.dtype.FLOAT)]
+                mindietorch.Input((batch_size, in_channels, height_size, width_size), dtype=mindietorch.dtype.FLOAT)]
             compile_vae(model, inputs, vae_compiled_static_path, soc_version)
     elif flag == 1:
         # 动态dims
         if not os.path.exists(vae_compiled_path):
             model = torch.jit.load(vae_pt_path).eval()
             inputs = []
-            inputs_gear_1 = [
-                mindietorch.Input((batch_size, in_channels, 1024 // 8, 1024 // 8), dtype=mindietorch.dtype.FLOAT)]
-            inputs.append(inputs_gear_1)
-            inputs_gear_2 = [
-                mindietorch.Input((batch_size, in_channels, 512 // 8, 512 // 8), dtype=mindietorch.dtype.FLOAT)]
-            inputs.append(inputs_gear_2)
+            for i in range(len(heights)):
+                inputs_gear = [
+                    mindietorch.Input((batch_size, in_channels, heights[i] // 8, widths[i] // 8), dtype=mindietorch.dtype.FLOAT)]
+                inputs.append(inputs_gear)
             compile_vae(model, inputs, vae_compiled_path, soc_version)
     elif flag == 2:
         # 动态shape
@@ -175,8 +197,9 @@ def export_unet_init(sd_pipeline, args):
     if not os.path.exists(unet_path):
         os.makedirs(unet_path, mode=0o640)
     flag, batch_size = args.flag, args.batch_size * 2
+    height_size, width_size = args.height // 8, args.width // 8
     unet_pt_path = os.path.join(unet_path, f"unet_bs{batch_size}.pt")
-    unet_compiled_static_path = os.path.join(unet_path, f"unet_bs{batch_size}_compile_static.ts")
+    unet_compiled_static_path = os.path.join(unet_path, f"unet_bs{batch_size}_compile_static_{args.height}x{args.width}.ts")
     unet_compiled_path = os.path.join(unet_path, f"unet_bs{batch_size}_compile.ts")
     unet_compiled_dynamic_path = os.path.join(unet_path, f"unet_compile_dynamic.ts")
 
@@ -210,7 +233,7 @@ def export_unet_init(sd_pipeline, args):
         if not os.path.exists(unet_compiled_static_path):
             model = torch.jit.load(unet_pt_path).eval()
             inputs = [
-                mindietorch.Input((batch_size, in_channels, sample_size, sample_size),
+                mindietorch.Input((batch_size, in_channels, height_size, width_size),
                                     dtype=mindietorch.dtype.FLOAT),
                 mindietorch.Input((1,), dtype=mindietorch.dtype.INT64),
                 mindietorch.Input((batch_size, max_position_embeddings, encoder_hidden_size),
@@ -223,26 +246,17 @@ def export_unet_init(sd_pipeline, args):
         if not os.path.exists(unet_compiled_path):
             model = torch.jit.load(unet_pt_path).eval()
             inputs = []
-            inputs_gear_1 = [
-                mindietorch.Input((batch_size, in_channels, 1024 // 8, 1024 // 8),
-                                    dtype=mindietorch.dtype.FLOAT),
-                mindietorch.Input((1,), dtype=mindietorch.dtype.INT64),
-                mindietorch.Input((batch_size, max_position_embeddings, encoder_hidden_size),
-                                    dtype=mindietorch.dtype.FLOAT),
-                mindietorch.Input((batch_size, encoder_hidden_size_2),
-                                    dtype=mindietorch.dtype.FLOAT),
-                mindietorch.Input((batch_size, 6), dtype=mindietorch.dtype.FLOAT)]
-            inputs.append(inputs_gear_1)
-            inputs_gear_2 = [
-                mindietorch.Input((batch_size, in_channels, 512 // 8, 512 // 8),
-                                    dtype=mindietorch.dtype.FLOAT),
-                mindietorch.Input((1,), dtype=mindietorch.dtype.INT64),
-                mindietorch.Input((batch_size, max_position_embeddings, encoder_hidden_size),
-                                    dtype=mindietorch.dtype.FLOAT),
-                mindietorch.Input((batch_size, encoder_hidden_size_2),
-                                    dtype=mindietorch.dtype.FLOAT),
-                mindietorch.Input((batch_size, 6), dtype=mindietorch.dtype.FLOAT)]
-            inputs.append(inputs_gear_2)
+            for i in range(len(heights)):
+                inputs_gear = [
+                    mindietorch.Input((batch_size, in_channels, heights[i] // 8, widths[i] // 8),
+                                        dtype=mindietorch.dtype.FLOAT),
+                    mindietorch.Input((1,), dtype=mindietorch.dtype.INT64),
+                    mindietorch.Input((batch_size, max_position_embeddings, encoder_hidden_size),
+                                        dtype=mindietorch.dtype.FLOAT),
+                    mindietorch.Input((batch_size, encoder_hidden_size_2),
+                                        dtype=mindietorch.dtype.FLOAT),
+                    mindietorch.Input((batch_size, 6), dtype=mindietorch.dtype.FLOAT)]
+                inputs.append(inputs_gear)
             compile_unet_init(model, inputs, unet_compiled_path, soc_version)
     elif flag == 2:
         if not os.path.exists(unet_compiled_dynamic_path):
@@ -277,8 +291,9 @@ def export_unet_cache(sd_pipeline, args):
         parallel = ""
         batch_size = args.batch_size * 2
     flag = args.flag
+    height_size, width_size = args.height // 8, args.width // 8
     unet_pt_path = os.path.join(unet_path, f"unet_bs{batch_size}_0.pt")
-    unet_compiled_static_path = os.path.join(unet_path, f"unet_bs{batch_size}_{parallel}compile_0_static.ts")
+    unet_compiled_static_path = os.path.join(unet_path, f"unet_bs{batch_size}_{parallel}compile_0_static_{args.height}x{args.width}.ts")
     unet_compiled_path = os.path.join(unet_path, f"unet_bs{batch_size}_{parallel}compile_0.ts")
     unet_compiled_dynamic_path = os.path.join(unet_path, f"unet_{parallel}compile_0_dynamic.ts")
     
@@ -313,7 +328,7 @@ def export_unet_cache(sd_pipeline, args):
         if not os.path.exists(unet_compiled_static_path):
             model = torch.jit.load(unet_pt_path).eval()
             inputs = [
-                mindietorch.Input((batch_size, in_channels, sample_size, sample_size),
+                mindietorch.Input((batch_size, in_channels, height_size, width_size),
                                     dtype=mindietorch.dtype.FLOAT),
                 mindietorch.Input((1,), dtype=mindietorch.dtype.INT64),
                 mindietorch.Input((batch_size, max_position_embeddings, encoder_hidden_size),
@@ -328,28 +343,18 @@ def export_unet_cache(sd_pipeline, args):
         if not os.path.exists(unet_compiled_path):
             model = torch.jit.load(unet_pt_path).eval()
             inputs = []
-            inputs_gear_1 = [
-                mindietorch.Input((batch_size, in_channels, 1024 // 8, 1024 // 8),
-                                    dtype=mindietorch.dtype.FLOAT),
-                mindietorch.Input((1,), dtype=mindietorch.dtype.INT64),
-                mindietorch.Input((batch_size, max_position_embeddings, encoder_hidden_size),
-                                    dtype=mindietorch.dtype.FLOAT),
-                mindietorch.Input((batch_size, encoder_hidden_size_2),
-                                    dtype=mindietorch.dtype.FLOAT),
-                mindietorch.Input((batch_size, 6), dtype=mindietorch.dtype.FLOAT),
-                mindietorch.Input((1,), dtype=mindietorch.dtype.INT64)]
-            inputs.append(inputs_gear_1)
-            inputs_gear_2 = [
-                mindietorch.Input((batch_size, in_channels, 512 // 8, 512 // 8),
-                                    dtype=mindietorch.dtype.FLOAT),
-                mindietorch.Input((1,), dtype=mindietorch.dtype.INT64),
-                mindietorch.Input((batch_size, max_position_embeddings, encoder_hidden_size),
-                                    dtype=mindietorch.dtype.FLOAT),
-                mindietorch.Input((batch_size, encoder_hidden_size_2),
-                                    dtype=mindietorch.dtype.FLOAT),
-                mindietorch.Input((batch_size, 6), dtype=mindietorch.dtype.FLOAT),
-                mindietorch.Input((1,), dtype=mindietorch.dtype.INT64)]
-            inputs.append(inputs_gear_2)
+            for i in range(len(heights)):
+                inputs_gear = [
+                    mindietorch.Input((batch_size, in_channels, heights[i] // 8, widths[i] // 8),
+                                        dtype=mindietorch.dtype.FLOAT),
+                    mindietorch.Input((1,), dtype=mindietorch.dtype.INT64),
+                    mindietorch.Input((batch_size, max_position_embeddings, encoder_hidden_size),
+                                        dtype=mindietorch.dtype.FLOAT),
+                    mindietorch.Input((batch_size, encoder_hidden_size_2),
+                                        dtype=mindietorch.dtype.FLOAT),
+                    mindietorch.Input((batch_size, 6), dtype=mindietorch.dtype.FLOAT),
+                    mindietorch.Input((1,), dtype=mindietorch.dtype.INT64)]
+                inputs.append(inputs_gear)
             compile_unet_cache(model, inputs, unet_compiled_path, soc_version)
     elif flag == 2:
         if not os.path.exists(unet_compiled_dynamic_path):
@@ -390,8 +395,9 @@ def export_unet_skip(sd_pipeline, args):
         parallel = ""
         batch_size = args.batch_size * 2
     flag = args.flag
+    height_size, width_size = args.height // 8, args.width // 8
     unet_pt_path = os.path.join(unet_path, f"unet_bs{batch_size}_1.pt")
-    unet_compiled_static_path = os.path.join(unet_path, f"unet_bs{batch_size}_{parallel}compile_1_static.ts")
+    unet_compiled_static_path = os.path.join(unet_path, f"unet_bs{batch_size}_{parallel}compile_1_static_{args.height}x{args.width}.ts")
     unet_compiled_path = os.path.join(unet_path, f"unet_bs{batch_size}_{parallel}compile_1.ts")
     unet_compiled_dynamic_path = os.path.join(unet_path, f"unet_{parallel}compile_1_dynamic.ts")
     
@@ -428,7 +434,7 @@ def export_unet_skip(sd_pipeline, args):
         if not os.path.exists(unet_compiled_static_path):
             model = torch.jit.load(unet_pt_path).eval()
             inputs = [
-                mindietorch.Input((batch_size, in_channels, sample_size, sample_size),
+                mindietorch.Input((batch_size, in_channels, height_size, width_size),
                                     dtype=mindietorch.dtype.FLOAT),
                 mindietorch.Input((1,), dtype=mindietorch.dtype.INT64),
                 mindietorch.Input((batch_size, max_position_embeddings, encoder_hidden_size),
@@ -437,7 +443,7 @@ def export_unet_skip(sd_pipeline, args):
                                     dtype=mindietorch.dtype.FLOAT),
                 mindietorch.Input((batch_size, 6), dtype=mindietorch.dtype.FLOAT),
                 mindietorch.Input((1,), dtype=mindietorch.dtype.INT64),
-                mindietorch.Input((batch_size, 1280, math.ceil(sample_size / 2), math.ceil(sample_size / 2)),
+                mindietorch.Input((batch_size, 1280, math.ceil(height_size / 2), math.ceil(width_size / 2)),
                                   dtype=mindietorch.dtype.FLOAT)]
             compile_unet_skip(model, inputs, unet_compiled_static_path, soc_version)
     elif flag == 1:
@@ -445,32 +451,20 @@ def export_unet_skip(sd_pipeline, args):
         if not os.path.exists(unet_compiled_path):
             model = torch.jit.load(unet_pt_path).eval()
             inputs = []
-            inputs_gear_1 = [
-                mindietorch.Input((batch_size, in_channels, 1024 // 8, 1024 // 8),
-                                    dtype=mindietorch.dtype.FLOAT),
-                mindietorch.Input((1,), dtype=mindietorch.dtype.INT64),
-                mindietorch.Input((batch_size, max_position_embeddings, encoder_hidden_size),
-                                    dtype=mindietorch.dtype.FLOAT),
-                mindietorch.Input((batch_size, encoder_hidden_size_2),
-                                    dtype=mindietorch.dtype.FLOAT),
-                mindietorch.Input((batch_size, 6), dtype=mindietorch.dtype.FLOAT),
-                mindietorch.Input((1,), dtype=mindietorch.dtype.INT64),
-                mindietorch.Input((batch_size, 1280, math.ceil(1024 // 8 / 2), math.ceil(1024 // 8 / 2)),
-                                  dtype=mindietorch.dtype.FLOAT)]
-            inputs.append(inputs_gear_1)
-            inputs_gear_2 = [
-                mindietorch.Input((batch_size, in_channels, 512 // 8, 512 // 8),
-                                    dtype=mindietorch.dtype.FLOAT),
-                mindietorch.Input((1,), dtype=mindietorch.dtype.INT64),
-                mindietorch.Input((batch_size, max_position_embeddings, encoder_hidden_size),
-                                    dtype=mindietorch.dtype.FLOAT),
-                mindietorch.Input((batch_size, encoder_hidden_size_2),
-                                    dtype=mindietorch.dtype.FLOAT),
-                mindietorch.Input((batch_size, 6), dtype=mindietorch.dtype.FLOAT),
-                mindietorch.Input((1,), dtype=mindietorch.dtype.INT64),
-                mindietorch.Input((batch_size, 1280, math.ceil(512 // 8 / 2), math.ceil(512 // 8 / 2)),
-                                  dtype=mindietorch.dtype.FLOAT)]
-            inputs.append(inputs_gear_2)
+            for i in range(len(heights)):
+                inputs_gear = [
+                    mindietorch.Input((batch_size, in_channels, heights[i] // 8, widths[i] // 8),
+                                        dtype=mindietorch.dtype.FLOAT),
+                    mindietorch.Input((1,), dtype=mindietorch.dtype.INT64),
+                    mindietorch.Input((batch_size, max_position_embeddings, encoder_hidden_size),
+                                        dtype=mindietorch.dtype.FLOAT),
+                    mindietorch.Input((batch_size, encoder_hidden_size_2),
+                                        dtype=mindietorch.dtype.FLOAT),
+                    mindietorch.Input((batch_size, 6), dtype=mindietorch.dtype.FLOAT),
+                    mindietorch.Input((1,), dtype=mindietorch.dtype.INT64),
+                    mindietorch.Input((batch_size, 1280, math.ceil(heights[i] // 8 / 2), math.ceil(widths[i] // 8 / 2)),
+                                    dtype=mindietorch.dtype.FLOAT)]
+                inputs.append(inputs_gear)
             compile_unet_skip(model, inputs, unet_compiled_path, soc_version)
     elif flag == 2:
         if not os.path.exists(unet_compiled_dynamic_path):
@@ -538,14 +532,12 @@ def export_ddim(sd_pipeline, args):
     if not os.path.exists(ddim_path):
         os.makedirs(ddim_path, mode=0o744)
     flag, batch_size = args.flag, args.batch_size * 2
+    height_size, width_size = args.height // 8, args.width // 8
     ddim_pt_path = os.path.join(ddim_path, f"ddim_bs{batch_size}.pt")
-    scheduler_compiled_static_path = os.path.join(ddim_path, f"ddim_bs{batch_size}_compile_static.ts")
+    scheduler_compiled_static_path = os.path.join(ddim_path, f"ddim_bs{batch_size}_compile_static_{args.height}x{args.width}.ts")
     scheduler_compiled_path = os.path.join(ddim_path, f"ddim_bs{batch_size}_compile.ts")
     scheduler_compiled_dynamic_path = os.path.join(ddim_path, f"ddim_compile_dynamic.ts")
 
-    unet_model = sd_pipeline.unet
-    ddim_model = sd_pipeline.scheduler
-    sample_size = unet_model.config.sample_size
     in_channels = 4
 
     # trace
@@ -557,10 +549,10 @@ def export_ddim(sd_pipeline, args):
         if not os.path.exists(scheduler_compiled_static_path):
             model = torch.jit.load(ddim_pt_path).eval()
             inputs = [
-                mindietorch.Input((batch_size, in_channels, sample_size, sample_size),
+                mindietorch.Input((batch_size, in_channels, height_size, width_size),
                                   dtype=mindietorch.dtype.FLOAT),
                 mindietorch.Input((1,), dtype=mindietorch.dtype.INT64),
-                mindietorch.Input((batch_size // 2, in_channels, sample_size, sample_size),
+                mindietorch.Input((batch_size // 2, in_channels, height_size, width_size),
                                   dtype=mindietorch.dtype.FLOAT),
                 mindietorch.Input((1,), dtype=mindietorch.dtype.INT64)
             ]
@@ -570,22 +562,15 @@ def export_ddim(sd_pipeline, args):
         if not os.path.exists(scheduler_compiled_path):
             model = torch.jit.load(ddim_pt_path).eval()
             inputs = []
-            inputs_gear_1 = [
-                mindietorch.Input((batch_size, in_channels, 1024 // 8, 1024 // 8),
-                                  dtype=mindietorch.dtype.FLOAT),
-                mindietorch.Input((1,), dtype=mindietorch.dtype.INT64),
-                mindietorch.Input((batch_size // 2, in_channels, 1024 // 8, 1024 // 8),
-                                  dtype=mindietorch.dtype.FLOAT),
-                mindietorch.Input((1,), dtype=mindietorch.dtype.INT64)]
-            inputs.append(inputs_gear_1)
-            inputs_gear_2 = [
-                mindietorch.Input((batch_size, in_channels, 512 // 8, 512 // 8),
-                                  dtype=mindietorch.dtype.FLOAT),
-                mindietorch.Input((1,), dtype=mindietorch.dtype.INT64),
-                mindietorch.Input((batch_size // 2, in_channels, 512 // 8, 512 // 8),
-                                  dtype=mindietorch.dtype.FLOAT),
-                mindietorch.Input((1,), dtype=mindietorch.dtype.INT64)]
-            inputs.append(inputs_gear_2)
+            for i in range(len(heights)):
+                inputs_gear = [
+                    mindietorch.Input((batch_size, in_channels, heights[i] // 8, widths[i] // 8),
+                                    dtype=mindietorch.dtype.FLOAT),
+                    mindietorch.Input((1,), dtype=mindietorch.dtype.INT64),
+                    mindietorch.Input((batch_size // 2, in_channels, heights[i] // 8, widths[i] // 8),
+                                    dtype=mindietorch.dtype.FLOAT),
+                    mindietorch.Input((1,), dtype=mindietorch.dtype.INT64)]
+                inputs.append(inputs_gear)
             compile_ddim(model, inputs, scheduler_compiled_path, soc_version)
     elif flag == 2:
         if not os.path.exists(scheduler_compiled_dynamic_path):
@@ -640,13 +625,12 @@ def export_ddim_parallel(sd_pipeline, args):
     if not os.path.exists(ddim_path):
         os.makedirs(ddim_path, mode=0o744)
     flag, batch_size = args.flag, args.batch_size
+    height_size, width_size = args.height // 8, args.width // 8
     ddim_pt_path = os.path.join(ddim_path, f"ddim_bs{batch_size}.pt")
-    scheduler_compiled_static_path = os.path.join(ddim_path, f"ddim_bs{batch_size}_parallel_compile_static.ts")
+    scheduler_compiled_static_path = os.path.join(ddim_path, f"ddim_bs{batch_size}_parallel_compile_static_{args.height}x{args.width}.ts")
     scheduler_compiled_path = os.path.join(ddim_path, f"ddim_bs{batch_size}_parallel_compile.ts")
     scheduler_compiled_dynamic_path = os.path.join(ddim_path, f"ddim_parallel_compile_dynamic.ts")
 
-    unet_model = sd_pipeline.unet
-    sample_size = unet_model.config.sample_size
     in_channels = 4
 
     # trace
@@ -658,12 +642,12 @@ def export_ddim_parallel(sd_pipeline, args):
         if not os.path.exists(scheduler_compiled_static_path):
             model = torch.jit.load(ddim_pt_path).eval()
             inputs = [
-                mindietorch.Input((batch_size, in_channels, sample_size, sample_size),
+                mindietorch.Input((batch_size, in_channels, height_size, width_size),
                                   dtype=mindietorch.dtype.FLOAT),
-                mindietorch.Input((batch_size, in_channels, sample_size, sample_size),
+                mindietorch.Input((batch_size, in_channels, height_size, width_size),
                                   dtype=mindietorch.dtype.FLOAT),
                 mindietorch.Input((1,), dtype=mindietorch.dtype.INT64),
-                mindietorch.Input((batch_size, in_channels, sample_size, sample_size),
+                mindietorch.Input((batch_size, in_channels, height_size, width_size),
                                   dtype=mindietorch.dtype.FLOAT),
                 mindietorch.Input((1,), dtype=mindietorch.dtype.INT64)]
             compile_ddim(model, inputs, scheduler_compiled_static_path, soc_version)
@@ -672,26 +656,17 @@ def export_ddim_parallel(sd_pipeline, args):
         if not os.path.exists(scheduler_compiled_path):
             model = torch.jit.load(ddim_pt_path).eval()
             inputs = []
-            inputs_gear_1 = [
-                mindietorch.Input((batch_size, in_channels, 1024 // 8, 1024 // 8),
-                                  dtype=mindietorch.dtype.FLOAT),
-                mindietorch.Input((batch_size, in_channels, 1024 // 8, 1024 // 8),
-                                  dtype=mindietorch.dtype.FLOAT),
-                mindietorch.Input((1,), dtype=mindietorch.dtype.INT64),
-                mindietorch.Input((batch_size, in_channels, 1024 // 8, 1024 // 8),
-                                  dtype=mindietorch.dtype.FLOAT),
-                mindietorch.Input((1,), dtype=mindietorch.dtype.INT64)]
-            inputs.append(inputs_gear_1)
-            inputs_gear_2 = [
-                mindietorch.Input((batch_size, in_channels, 512 // 8, 512 // 8),
-                                  dtype=mindietorch.dtype.FLOAT),
-                mindietorch.Input((batch_size, in_channels, 512 // 8, 512 // 8),
-                                  dtype=mindietorch.dtype.FLOAT),
-                mindietorch.Input((1,), dtype=mindietorch.dtype.INT64),
-                mindietorch.Input((batch_size, in_channels, 512 // 8, 512 // 8),
-                                  dtype=mindietorch.dtype.FLOAT),
-                mindietorch.Input((1,), dtype=mindietorch.dtype.INT64)]
-            inputs.append(inputs_gear_2)
+            for i in range(len(heights)):
+                inputs_gear = [
+                    mindietorch.Input((batch_size, in_channels, heights[i] // 8, widths[i] // 8),
+                                    dtype=mindietorch.dtype.FLOAT),
+                    mindietorch.Input((batch_size, in_channels, heights[i] // 8, widths[i] // 8),
+                                    dtype=mindietorch.dtype.FLOAT),
+                    mindietorch.Input((1,), dtype=mindietorch.dtype.INT64),
+                    mindietorch.Input((batch_size, in_channels, heights[i] // 8, widths[i] // 8),
+                                    dtype=mindietorch.dtype.FLOAT),
+                    mindietorch.Input((1,), dtype=mindietorch.dtype.INT64)]
+                inputs.append(inputs_gear)
             compile_ddim(model, inputs, scheduler_compiled_path, soc_version)
     elif flag == 2:
         if not os.path.exists(scheduler_compiled_dynamic_path):
@@ -735,9 +710,14 @@ def main():
     mindietorch.finalize()
 
 if __name__ == "__main__":
+    # 动态shape支持的分辨率
     min_batch, max_batch = 1, 32
     min_height, max_height = 512 // 8, 1024 // 8
     min_width, max_width = 512 // 8, 1664 // 8
+    # 动态分档支持的分辨率
+    heights = [1024, 512]
+    widths = [1024, 512]
+    
     args = parse_arguments()
     if args.soc == "Duo":
         soc_version = "Ascend310P3"
