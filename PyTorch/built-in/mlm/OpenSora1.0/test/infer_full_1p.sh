@@ -3,6 +3,7 @@ BATCH_SIZE=1
 export WORLD_SIZE=1
 export MASTER_PORT=29500
 export MASTER_ADDR=127.0.0.1
+export PYTHONPATH=$PYTHONPATH:./Megatron-LM
 
 for para in $*
 do

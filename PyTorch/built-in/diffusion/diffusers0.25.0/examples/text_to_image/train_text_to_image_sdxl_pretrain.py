@@ -88,6 +88,8 @@ DATASET_NAME_MAPPING = {
 }
 
 torch.npu.config.allow_internal_format=False
+gc.set_threshold(700, 10, 1000)
+
 
 def save_model_card(
     repo_id: str,

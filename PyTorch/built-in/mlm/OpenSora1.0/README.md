@@ -1,4 +1,4 @@
-# OpenSora1.0 for Pytorch
+# OpenSora1.0 for PyTorch
 # 目录
 
 -   [简介](#简介)
@@ -68,24 +68,32 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
 
 
    ```python
-   source ${cann_install_path}/ascend-toolkit/set_env.sh              # 激活cann环境
+   source ${cann_install_path}/ascend-toolkit/set_env.sh              # 激活cann环境，默认在/usr/local/Ascend下
    cd OpenSora1.0
    pip install -v -e .                                                # 安装本地代码仓，同时自动安装依赖
+   # 以https://gitee.com/aijgnem/MindSpeed最新文档为准，安装 MindSpeed
+   git clone https://gitee.com/ascend/MindSpeed.git
+   pip install -e MindSpeed
+   # 以https://gitee.com/aijgnem/MindSpeed最新文档为准，获取 Megatron-LM 并指定 commit id
+   git clone https://github.com/NVIDIA/Megatron-LM.git
+   cd Megatron-LM 
+   # 注意：启动脚本PYTHONPATH添加Megatron-LM路径，如 export PYTHONPATH=$PYTHONPATH:./Megatron-LM
+   git checkout core_r0.6.0
+   cd ..
    ```
-
 ### 安装昇腾环境
 
   请参考昇腾社区中《[Pytorch框架训练环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/ptes)》文档搭建昇腾环境，本仓已支持表2中软件版本。
                 
-  
+
   **表 2**  昇腾软件版本支持表
 
-  | 软件类型   |   支持版本   |
-  | :--------: |:--------:|
-  | FrameworkPTAdapter |   在研版本   |
-  | CANN |   在研版本   |
-  | 昇腾NPU固件 |   在研版本   | 
-  | 昇腾NPU驱动 | 在研版本 |
+| 软件类型   |   支持版本   |
+| :--------: |:--------:|
+| FrameworkPTAdapter |   在研版本   |
+| CANN |   在研版本   |
+| 昇腾NPU固件 |   在研版本   |
+| 昇腾NPU驱动 | 在研版本 |
 
   
 
@@ -168,7 +176,7 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
 #### 开始训练
 1. 进入解压后的源码包根目录。
 
-   ```
+   ```shell
    cd /${模型文件夹名称} 
    ```
 
@@ -183,55 +191,77 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
      bash test/train_full_8p_bf16.sh # 8卡训练，混精bf16
      bash test/train_full_8p_bf16.sh --max_train_steps=200 # 8卡性能，混精bf16
      ```
-      
-   - 模型训练python训练脚本参数说明如下。
+     
+     模型训练python训练脚本参数说明如下。
+     
+     ```
+     scripts/train.py
+     config                               //配置文件路径
+     --seed                               //随机种子
+     --data_path                          //数据集标注csv文件路径    
+     --batch_size                         //设置batch_size
+     --max_train_steps                    //最大训练步数，默认是0，不会提前停止。 
+     ```
+     
    
-   ```shell
-   scripts/train.py
-   config                               //配置文件路径
-   --seed                               //随机种子
-   --data_path                          //数据集标注csv文件路径    
-   --batch_size                         //设置batch_size
-   --max_train_steps                    //最大训练步数，默认是0，不会提前停止。 
-   ```
-#### 序列并行
-   以16x256x256的训练任务为示例。
-   若要使能序列并行，请进入configs文件：configs/opensora/train/16x256x256.py，
-   在：
-   ```
-   # Define model
-   model = dict(
-      type="STDiT-XL/2",
-      space_scale=0.5,
-      time_scale=1.0,
-      from_pretrained="PixArt-XL-2-512x512.pth",
-      enable_flashattn=True,
-      enable_layernorm_kernel=True,
-   )
-   ```
-   增加enable_sequence_parallelism=True，如下：
-   ```
-   model = dict(
-      type="STDiT-XL/2",
-      space_scale=0.5,
-      time_scale=1.0,
-      from_pretrained="PixArt-XL-2-512x512.pth",
-      enable_flashattn=True,
-      enable_layernorm_kernel=True,
-      enable_sequence_parallelism=True,
-)
-   ```
-   即可，之后按照前面提及的单机八卡训练任务开展训练。
-   
-   
+   - 序列并行(以120x256x256的训练任务为示例)
+     
+     若要使能序列并行，需要修改配置文件：configs/opensora/train/120x256x256-sp.py
+     
+     - 添加enable_sequence_parallelism
+     
+     ```python
+     # 修改前
+     # Define model
+     model = dict(
+        type="STDiT-XL/2",
+        space_scale=0.5,
+        time_scale=1.0,
+        from_pretrained="PixArt-XL-2-512x512.pth",
+        enable_flashattn=True,
+        enable_layernorm_kernel=True,
+     )
+     
+     # 修改后，增加enable_sequence_parallelism=True：
+     model = dict(
+         type="STDiT-XL/2",
+         space_scale=0.5,
+         time_scale=1.0,
+         from_pretrained="PixArt-XL-2-512x512.pth",
+         enable_flashattn=True,
+         enable_layernorm_kernel=True,
+         enable_sequence_parallelism=True,
+     )
+     ```
+     
+     - 增加序列并行其他配置
+     
+     ```python
+     sp_size = 8
+     context_parallel_algo = 'megatron_cp_algo' 
+     use_cp_send_recv_overlap = True
+     ```
+     
+     参数说明：
+     
+     ```
+     sp_size: 序列并行大小，当sp_size设置为1时，将不会使能序列并行
+     context_parallel_algo：是否开启序列并行send recv overlap, 仅在context_parallel_algo设置为'megatron_cp_algo'有效
+     context_parallel_algo:设置为'megatron_cp_algo'表示序列并行使用ring attention算法, 设置为"ulysses_cp_algo"表示序列并行算法使用ulysses算法
+     ```
+     
+     即可，之后按照前面提及的单机八卡训练任务开展训练。
+
+
+
 #### 训练结果
 
 
 ##### 性能
 | 芯片 | 卡数 | FPS  | batch_size | AMP_Type | Torch_Version |
 |:---:|:---:|:----:|:----------:|:---:|:---:|
-| GPU | 8p | 3.56 |     8      | bf16 | 2.1 |
-| Atlas A2 | 8p | 2.35 |     8      | bf16 | 2.1 |
+| 竞品A | 8p | 3.56 |     8      | bf16 | 2.1 |
+| Atlas 800T A2 | 8p | 2.35 |     8      | bf16 | 2.1 |
 
 
 

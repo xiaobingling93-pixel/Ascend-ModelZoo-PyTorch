@@ -115,6 +115,54 @@ class PatchEmbed3D(nn.Module):
             x = x.flatten(2).transpose(1, 2)  # BCTHW -> BNC
         return x
 
+class CoreAttention(torch.nn.Module):
+    def __init__(self, enable_flashattn, num_heads, scale, attn_drop):
+        super().__init__()
+        self.enable_flashattn = enable_flashattn
+        self.num_heads = num_heads
+        self.scale = scale
+        self.attn_drop = attn_drop
+
+    def forward(self, q, k, v):
+        if not self.enable_flashattn:
+            # q.shape: b h s d
+            dtype = q.dtype
+            q = q * self.scale
+            # translate attn to float32
+            attn = q @ k.transpose(-2, -1)
+            attn = attn.to(torch.float32)
+            attn = attn.softmax(dim=-1)
+            # cast back attn to original dtype
+            attn = attn.to(dtype)
+            attn = self.attn_drop(attn)
+            x = attn @ v
+            return x
+        if is_npu_available() and q.dtype in [torch.float16, torch.bfloat16]:
+            num_head = q.shape[-2]
+            q, k, v = [rearrange(x, 's b h d -> s b (h d)') for x in [q, k, v]]
+            x = torch_npu.npu_fusion_attention(
+                q, k, v, num_head, input_layout="SBH",
+                pse=None,
+                scale=self.scale,
+                pre_tockens=65536,
+                next_tockens=65536,
+                keep_prob=1. - self.attn_drop.p if self.training else 1.,
+                sync=False,
+                inner_precise=0,
+            )[0]
+
+        else:
+            from flash_attn import flash_attn_func
+
+            x = flash_attn_func(
+                q,
+                k,
+                v,
+                dropout_p=self.attn_drop.p if self.training else 0.0,
+                softmax_scale=self.scale,
+            )
+        return x
+
 
 class Attention(nn.Module):
     def __init__(
@@ -142,53 +190,26 @@ class Attention(nn.Module):
         self.attn_drop = nn.Dropout(attn_drop)
         self.proj = nn.Linear(dim, dim)
         self.proj_drop = nn.Dropout(proj_drop)
-
+        self.core_attention = CoreAttention(enable_flashattn=enable_flashattn, num_heads=num_heads, scale=self.scale,
+                                           attn_drop=self.attn_drop)
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         B, N, C = x.shape
         qkv = self.qkv(x)
         qkv_shape = (B, N, 3, self.num_heads, self.head_dim)
         if self.enable_flashattn:
-            qkv_permute_shape = (2, 0, 1, 3, 4)
+            qkv_permute_shape = (2, 1, 0, 3, 4)
         else:
             qkv_permute_shape = (2, 0, 3, 1, 4)
         qkv = qkv.view(qkv_shape).permute(qkv_permute_shape)
         q, k, v = qkv.unbind(0)
         q, k = self.q_norm(q), self.k_norm(k)
+
+        x = self.core_attention(q, k, v)
         if self.enable_flashattn:
-            if is_npu_available() and q.dtype in [torch.float16, torch.bfloat16]:
-                x = torch_npu.npu_fusion_attention(
-                    q, k, v, self.num_heads, input_layout="BSND",
-                    pse=None,
-                    scale=self.scale,
-                    pre_tockens=65536,
-                    next_tockens=65536,
-                    keep_prob=1.-self.attn_drop.p if self.training else 1.,
-                    sync=False,
-                    inner_precise=0,
-                )[0]
-            else:
-                from flash_attn import flash_attn_func
-
-                x = flash_attn_func(
-                    q,
-                    k,
-                    v,
-                    dropout_p=self.attn_drop.p if self.training else 0.0,
-                    softmax_scale=self.scale,
-                )
+            x = x.transpose(0, 1)
         else:
-            dtype = q.dtype
-            q = q * self.scale
-            attn = q @ k.transpose(-2, -1)  # translate attn to float32
-            attn = attn.to(torch.float32)
-            attn = attn.softmax(dim=-1)
-            attn = attn.to(dtype)  # cast back attn to original dtype
-            attn = self.attn_drop(attn)
-            x = attn @ v
-
-        x_output_shape = (B, N, C)
-        if not self.enable_flashattn:
             x = x.transpose(1, 2)
+        x_output_shape = (B, N, C)
         x = x.reshape(x_output_shape)
         x = self.proj(x)
         x = self.proj_drop(x)
@@ -367,8 +388,8 @@ class SeqParallelMultiHeadCrossAttention(MultiHeadCrossAttention):
 
         # shape:
         # q, k, v: [B, SUB_N, NUM_HEADS, HEAD_DIM]
-        q = self.q_linear(x).view(B, -1, self.num_heads, self.head_dim)
-        kv = self.kv_linear(cond).view(B, -1, 2, self.num_heads, self.head_dim)
+        q = self.q_linear(x).view(1, -1, self.num_heads, self.head_dim)
+        kv = self.kv_linear(cond).view(1, -1, 2, self.num_heads, self.head_dim)
         k, v = kv.unbind(2)
 
         # apply all_to_all to gather sequence and split attention heads

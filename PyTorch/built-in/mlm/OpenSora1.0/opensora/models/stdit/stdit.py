@@ -45,12 +45,10 @@ class STDiTBlock(nn.Module):
         self.hidden_size = hidden_size
         self.enable_flashattn = enable_flashattn
         self._enable_sequence_parallelism = enable_sequence_parallelism
-
+        self.attn_cls = Attention
         if enable_sequence_parallelism:
-            self.attn_cls = SeqParallelAttention
             self.mha_cls = SeqParallelMultiHeadCrossAttention
         else:
-            self.attn_cls = Attention
             self.mha_cls = MultiHeadCrossAttention
 
         self.norm1 = get_layernorm(hidden_size, eps=1e-6, affine=False, use_kernel=enable_layernorm_kernel)

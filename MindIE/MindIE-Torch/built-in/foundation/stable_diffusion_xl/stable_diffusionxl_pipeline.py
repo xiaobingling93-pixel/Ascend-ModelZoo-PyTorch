@@ -1,4 +1,4 @@
-# Copyright 2023 Huawei Technologies Co., Ltd
+# Copyright 2024 Huawei Technologies Co., Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,9 +24,8 @@ import torch
 import mindietorch
 from diffusers import StableDiffusionXLPipeline
 from diffusers.loaders import TextualInversionLoaderMixin
-from diffusers import DDIMScheduler, DPMSolverMultistepScheduler, EulerDiscreteScheduler, SASolverScheduler
+from diffusers.schedulers import *
 from quant_utils import modify_model
-from mindietorch import _enums
 
 clip_time = 0
 unet_time = 0
@@ -137,235 +136,61 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
     def compile_aie_model(self):
         if self.is_init:
             return
-
-        in_channels = self.unet.config.out_channels
-        sample_size = self.unet.config.sample_size
-        encoder_hidden_size_2 = self.text_encoder_2.config.hidden_size
-        encoder_hidden_size = self.text_encoder.config.hidden_size + encoder_hidden_size_2
-        max_position_embeddings = self.text_encoder.config.max_position_embeddings
-
         size = self.args.batch_size
         batch_size = self.args.batch_size * 2
 
-        if self.args.soc == "Duo":
-            soc_version = "Ascend310P3"
-        elif self.args.soc == "A2":
-            soc_version = "Ascend910B4"
-        else:
-            print("unsupport soc_version, please check!")
-            return
+        if self.args.flag in [0, 1, 3]:
+            if self.args.flag == 0:
+                tail = f"_static_{self.args.height}x{self.args.width}"
+            elif self.args.flag == 1:
+                tail = ""
+            else:
+                tail = f"_quant_{self.args.height}x{self.args.width}"
 
-        vae_compiled_path = os.path.join(self.args.output_dir, f"vae/vae_bs{size}_aie_compile.ts")
-        if os.path.exists(vae_compiled_path):
+            vae_compiled_path = os.path.join(self.args.output_dir, f"vae/vae_bs{size}_compile{tail}.ts")
             self.compiled_vae_model = torch.jit.load(vae_compiled_path).eval()
-        else:
-            model = torch.jit.load(os.path.join(self.args.output_dir, f"vae/vae_bs{size}.pt")).eval()
-
-            if size <= 2:
-                self.compiled_vae_model = (
-                    mindietorch.compile(model,
-                                        inputs=[
-                                            mindietorch.Input((self.args.batch_size, in_channels,
-                                                               sample_size, sample_size),
-                                                              dtype=mindietorch.dtype.FLOAT)],
-                                        allow_tensor_replace_int=True,
-                                        require_full_compilation=True,
-                                        truncate_long_and_double=True,
-                                        soc_version=soc_version,
-                                        precision_policy=_enums.PrecisionPolicy.FP16,
-                                        optimization_level=0
-                                        ))
-            else:
-                min_shape = (1, 4, 128, 128)
-                max_shape = (32, 4, 128, 128)
-
-                self.compiled_vae_model = (
-                    mindietorch.compile(model,
-                                        inputs=[
-                                            mindietorch.Input(min_shape=min_shape,
-                                                              max_shape=max_shape,
-                                                              dtype=mindietorch.dtype.FLOAT)],
-                                        allow_tensor_replace_int=True,
-                                        require_full_compilation=True,
-                                        truncate_long_and_double=True,
-                                        soc_version=soc_version,
-                                        precision_policy=_enums.PrecisionPolicy.FP16,
-                                        optimization_level=0
-                                        ))
-            torch.jit.save(self.compiled_vae_model, vae_compiled_path)
-
-        clip1_compiled_path = os.path.join(self.args.output_dir, f"clip/clip_bs{size}_aie_compile.ts")
-        if os.path.exists(clip1_compiled_path):
+        
+            clip1_compiled_path = os.path.join(self.args.output_dir, f"clip/clip_bs{size}_compile{tail}.ts")
             self.compiled_clip_model = torch.jit.load(clip1_compiled_path).eval()
-        else:
-            model = torch.jit.load(os.path.join(self.args.output_dir, f"clip/clip_bs{size}.pt")).eval()
-            self.compiled_clip_model = (
-                mindietorch.compile(model,
-                                    inputs=[mindietorch.Input((self.args.batch_size,
-                                                               max_position_embeddings),
-                                                              dtype=mindietorch.dtype.INT64)],
-                                    allow_tensor_replace_int=True,
-                                    require_full_compilation=False,
-                                    truncate_long_and_double=False,
-                                    precision_policy=_enums.PrecisionPolicy.FP16,
-                                    soc_version=soc_version,
-                                    optimization_level=0))
-            torch.jit.save(self.compiled_clip_model, clip1_compiled_path)
 
-        clip2_compiled_path = os.path.join(self.args.output_dir, f"clip/clip2_bs{size}_aie_compile.ts")
-        if os.path.exists(clip2_compiled_path):
+            clip2_compiled_path = os.path.join(self.args.output_dir, f"clip/clip2_bs{size}_compile{tail}.ts")
             self.compiled_clip_model_2 = torch.jit.load(clip2_compiled_path).eval()
-        else:
-            model = torch.jit.load(os.path.join(self.args.output_dir, f"clip/clip2_bs{size}.pt")).eval()
-            self.compiled_clip_model_2 = (
-                mindietorch.compile(model,
-                                    inputs=[mindietorch.Input((self.args.batch_size,
-                                                               max_position_embeddings),
-                                                              dtype=mindietorch.dtype.INT64)],
-                                    allow_tensor_replace_int=True,
-                                    require_full_compilation=False,
-                                    truncate_long_and_double=False,
-                                    min_block_size=1,
-                                    precision_policy=_enums.PrecisionPolicy.FP16,
-                                    soc_version=soc_version,
-                                    optimization_level=0))
-            torch.jit.save(self.compiled_clip_model_2, clip2_compiled_path)
 
-        scheduler_compiled_path = os.path.join(self.args.output_dir, f"ddim/ddim{batch_size}_aie_compile.ts")
-        if os.path.exists(scheduler_compiled_path):
+            scheduler_compiled_path = os.path.join(self.args.output_dir, f"ddim/ddim_bs{batch_size}_compile{tail}.ts")
             self.compiled_scheduler = torch.jit.load(scheduler_compiled_path).eval()
-        else:
-            model = torch.jit.load(os.path.join(self.args.output_dir, f"ddim/ddim{batch_size}.pt")).eval()
 
-            self.compiled_scheduler = (
-                mindietorch.compile(model,
-                                    inputs=[mindietorch.Input((batch_size,
-                                                               in_channels, sample_size,
-                                                               sample_size),
-                                                              dtype=mindietorch.dtype.FLOAT),
-                                            mindietorch.Input((1,),
-                                                              dtype=mindietorch.dtype.INT64),
-                                            mindietorch.Input((batch_size // 2,
-                                                               in_channels, sample_size,
-                                                               sample_size),
-                                                              dtype=mindietorch.dtype.FLOAT),
-                                            mindietorch.Input((1,),
-                                                              dtype=mindietorch.dtype.INT64)],
-                                    allow_tensor_replace_int=True,
-                                    require_full_compilation=True,
-                                    truncate_long_and_double=False,
-                                    precision_policy=_enums.PrecisionPolicy.FP16,
-                                    soc_version=soc_version,
-                                    optimization_level=0))
-            torch.jit.save(self.compiled_scheduler, scheduler_compiled_path)
-
-        if not self.args.use_cache:
-            unet_compiled_path = os.path.join(self.args.output_dir, f"unet/unet_bs{batch_size}_aie_compile.ts")
-            if os.path.exists(unet_compiled_path):
+            if not self.args.use_cache:
+                unet_compiled_path = os.path.join(self.args.output_dir, f"unet/unet_bs{batch_size}_compile{tail}.ts")
                 self.compiled_unet_model = torch.jit.load(unet_compiled_path).eval()
-            else:
-                model = torch.jit.load(os.path.join(self.args.output_dir, f"unet/unet_bs{batch_size}.pt")).eval()
-
-                self.compiled_unet_model = (
-                    mindietorch.compile(model,
-                                        inputs=[mindietorch.Input((batch_size,
-                                                                   in_channels, sample_size,
-                                                                   sample_size),
-                                                                  dtype=mindietorch.dtype.FLOAT),
-                                                mindietorch.Input((1,),
-                                                                  dtype=mindietorch.dtype.INT64),
-                                                mindietorch.Input((batch_size,
-                                                                   max_position_embeddings,
-                                                                   encoder_hidden_size),
-                                                                  dtype=mindietorch.dtype.FLOAT),
-                                                mindietorch.Input((batch_size,
-                                                                   encoder_hidden_size_2),
-                                                                  dtype=mindietorch.dtype.FLOAT),
-                                                mindietorch.Input((batch_size, 6),
-                                                                  dtype=mindietorch.dtype.FLOAT),
-                                                ],
-                                        allow_tensor_replace_int=True,
-                                        require_full_compilation=True,
-                                        truncate_long_and_double=True,
-                                        soc_version=soc_version,
-                                        precision_policy=_enums.PrecisionPolicy.FP16,
-                                        optimization_level=0
-                                        ))
-                torch.jit.save(self.compiled_unet_model, unet_compiled_path)
-
-        if self.args.use_cache:
-            unet_skip_compiled_path = os.path.join(self.args.output_dir, f"unet/unet_bs{batch_size}_aie_compile_1.ts")
-            if os.path.exists(unet_skip_compiled_path):
+            if self.args.use_cache:
+                unet_skip_compiled_path = os.path.join(self.args.output_dir, f"unet/unet_bs{batch_size}_compile_1{tail}.ts")
                 self.compiled_unet_model_skip = torch.jit.load(unet_skip_compiled_path).eval()
-            else:
-                model = torch.jit.load(os.path.join(self.args.output_dir, f"unet/unet_bs{batch_size}_1.pt")).eval()
 
-                self.compiled_unet_model_skip = (
-                    mindietorch.compile(model,
-                                        inputs=[mindietorch.Input((batch_size,
-                                                                   in_channels, sample_size,
-                                                                   sample_size),
-                                                                  dtype=mindietorch.dtype.FLOAT),
-                                                mindietorch.Input((1,),
-                                                                  dtype=mindietorch.dtype.INT64),
-                                                mindietorch.Input((batch_size,
-                                                                   max_position_embeddings,
-                                                                   encoder_hidden_size),
-                                                                  dtype=mindietorch.dtype.FLOAT),
-                                                mindietorch.Input((batch_size,
-                                                                   encoder_hidden_size_2),
-                                                                  dtype=mindietorch.dtype.FLOAT),
-                                                mindietorch.Input((batch_size, 6),
-                                                                  dtype=mindietorch.dtype.FLOAT),
-                                                mindietorch.Input((1,),
-                                                                  dtype=mindietorch.dtype.INT64),
-                                                mindietorch.Input(
-                                                    (batch_size, 1280, sample_size // 2, sample_size // 2),
-                                                    dtype=mindietorch.dtype.FLOAT),
-                                                ],
-                                        allow_tensor_replace_int=True,
-                                        require_full_compilation=True,
-                                        truncate_long_and_double=True,
-                                        soc_version=soc_version,
-                                        precision_policy=_enums.PrecisionPolicy.FP16,
-                                        optimization_level=0
-                                        ))
-                torch.jit.save(self.compiled_unet_model_skip, unet_skip_compiled_path)
-
-            unet_cache_compiled_path = os.path.join(self.args.output_dir, f"unet/unet_bs{batch_size}_aie_compile_0.ts")
-            if os.path.exists(unet_cache_compiled_path):
+                unet_cache_compiled_path = os.path.join(self.args.output_dir, f"unet/unet_bs{batch_size}_compile_0{tail}.ts")
                 self.compiled_unet_model_cache = torch.jit.load(unet_cache_compiled_path).eval()
-            else:
-                model = torch.jit.load(os.path.join(self.args.output_dir, f"unet/unet_bs{batch_size}_0.pt")).eval()
-                self.compiled_unet_model_cache = (
-                    mindietorch.compile(model,
-                                        inputs=[mindietorch.Input((batch_size,
-                                                                   in_channels, sample_size,
-                                                                   sample_size),
-                                                                  dtype=mindietorch.dtype.FLOAT),
-                                                mindietorch.Input((1,),
-                                                                  dtype=mindietorch.dtype.INT64),
-                                                mindietorch.Input((batch_size,
-                                                                   max_position_embeddings,
-                                                                   encoder_hidden_size),
-                                                                  dtype=mindietorch.dtype.FLOAT),
-                                                mindietorch.Input((batch_size,
-                                                                   encoder_hidden_size_2),
-                                                                  dtype=mindietorch.dtype.FLOAT),
-                                                mindietorch.Input((batch_size, 6),
-                                                                  dtype=mindietorch.dtype.FLOAT),
-                                                mindietorch.Input((1,),
-                                                                  dtype=mindietorch.dtype.INT64),
-                                                ],
-                                        allow_tensor_replace_int=True,
-                                        require_full_compilation=False,
-                                        truncate_long_and_double=False,
-                                        soc_version=soc_version,
-                                        precision_policy=_enums.PrecisionPolicy.FP16,
-                                        optimization_level=0,
-                                        ))
-                torch.jit.save(self.compiled_unet_model_cache, unet_cache_compiled_path)
+        elif self.args.flag == 2:
+            tail = "_dynamic"
+            vae_compiled_path = os.path.join(self.args.output_dir, f"vae/vae_compile{tail}.ts")
+            self.compiled_vae_model = torch.jit.load(vae_compiled_path).eval()
+        
+            clip1_compiled_path = os.path.join(self.args.output_dir, f"clip/clip_compile{tail}.ts")
+            self.compiled_clip_model = torch.jit.load(clip1_compiled_path).eval()
 
+            clip2_compiled_path = os.path.join(self.args.output_dir, f"clip/clip2_compile{tail}.ts")
+            self.compiled_clip_model_2 = torch.jit.load(clip2_compiled_path).eval()
+
+            scheduler_compiled_path = os.path.join(self.args.output_dir, f"ddim/ddim_compile{tail}.ts")
+            self.compiled_scheduler = torch.jit.load(scheduler_compiled_path).eval()
+
+            if not self.args.use_cache:
+                unet_compiled_path = os.path.join(self.args.output_dir, f"unet/unet_compile{tail}.ts")
+                self.compiled_unet_model = torch.jit.load(unet_compiled_path).eval()
+            if self.args.use_cache:
+                unet_skip_compiled_path = os.path.join(self.args.output_dir, f"unet/unet_compile_1{tail}.ts")
+                self.compiled_unet_model_skip = torch.jit.load(unet_skip_compiled_path).eval()
+
+                unet_cache_compiled_path = os.path.join(self.args.output_dir, f"unet/unet_compile_0{tail}.ts")
+                self.compiled_unet_model_cache = torch.jit.load(unet_cache_compiled_path).eval()
         self.is_init = True
 
     def encode_prompt(
@@ -1033,14 +858,8 @@ def parse_arguments():
         help="Path of directory to save compiled models.",
     )
     parser.add_argument(
-        "--soc",
-        choices=["Duo", "A2"],
-        default="A2",
-        help="soc_version.",
-    )
-    parser.add_argument(
         "--scheduler",
-        choices=["DDIM", "Euler", "DPM", "SA-Solver"],
+        choices=["DDIM", "Euler", "DPM", "SA-Solver", "EulerAncestral", "DPM++SDEKarras"],
         default="DDIM",
         help="Type of Sampling methods. Can choose from DDIM, Euler, DPM, SA-Solver",
     )
@@ -1057,10 +876,33 @@ def parse_arguments():
         help="Steps to use cache data."
     )
     parser.add_argument(
+        "--flag",
+        choices=[0, 1, 2, 3],
+        default=0,
+        type=int,
+        help="0 is static; 1 is dynami dims; 2 is dynamic range; 3 is quant",
+    )
+    parser.add_argument(
+        "--height",
+        default=1024,
+        type=int,
+        help="image height",
+    )
+    parser.add_argument(
+        "--width",
+        default=1024,
+        type=int,
+        help="image width"
+    )
+    parser.add_argument(
         "--save_unet_input",
-        type=bool,
-        default=False,
+        action="store_true",
         help="save unet input for quant."
+    )
+    parser.add_argument(
+        "--quant",
+        action="store_true",
+        help="use quantize unet."
     )
 
     return parser.parse_args()
@@ -1068,6 +910,8 @@ def parse_arguments():
 
 def main():
     args = parse_arguments()
+    if args.quant:
+        torch.ops.load_library("./quant/build/libquant_ops.so")
     save_dir = args.save_dir
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
@@ -1084,6 +928,12 @@ def main():
         pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
     if args.scheduler == "SA-Solver":
         pipe.scheduler = SASolverScheduler.from_config(pipe.scheduler.config)
+    if args.scheduler == "EulerAncestral":
+        pipe.scheduler = EulerAncestralDiscreteScheduler.from_config(pipe.scheduler.config)
+    if args.scheduler == "DPM++SDEKarras":
+        pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
+        pipe.scheduler.config.algorithm_type = 'sde-dpmsolver++'
+        pipe.scheduler.config.use_karras_sigmas = True
 
     pipe.parser_args(args)
     pipe.compile_aie_model()
@@ -1124,6 +974,8 @@ def main():
             images = pipe.ascendie_infer(
                 prompts,
                 prompts_2,
+                width=args.width,
+                height=args.height,
                 num_inference_steps=args.steps,
                 guidance_scale=5.0,  # 7.5,
                 skip_steps=skip_steps,

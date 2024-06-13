@@ -42,6 +42,8 @@ def fix_mul(graph):
                 fixed_value[value_mask_pos] = FP16_MAX_VALUE
                 fixed_value[value_mask_neg] = FP16_MIN_VALUE
                 initializer.value = fixed_value
+    for clip_node in graph.get_nodes('Clip'):
+        graph.remove(clip_node.name)
 
 if __name__ == '__main__':
     input_path = sys.argv[1]
