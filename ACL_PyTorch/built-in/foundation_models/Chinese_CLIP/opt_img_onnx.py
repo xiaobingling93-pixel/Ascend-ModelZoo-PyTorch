@@ -127,7 +127,12 @@ def get_attention_add_nodes_3(graph: OnnxGraph) -> List[OnnxNode]:
     all_add_nodes = graph.get_nodes("Add")
     return pattern_select(graph, all_add_nodes, None, ["Slice"])
 
- 
+def get_layernorm_reducemean_nodes(graph: OnnxGraph) -> List[OnnxNode]:
+    all_reducemean_nodes = graph.get_nodes("ReduceMean")
+    return pattern_select(graph, all_reducemean_nodes, None, [("Sub", 0), "Div", "Mul", "Add", "MatMul", "Add", "Reshape", "Transpose", "Split"]) or \
+        pattern_select(graph, all_reducemean_nodes, None, [("Sub", 1), "Div", "Mul", "Add", "MatMul", "Add", "Reshape", "Transpose", "Split"])
+
+
 def merge_bmm_axis(graph: OnnxGraph, anchor_reshapes: List[OnnxNode], anchor_adds: List[OnnxNode]) -> None:
     reshape_inits = List(set(node.inputs[1] for node in anchor_reshapes))
     original_shape = graph[reshape_inits[0]].value
@@ -458,40 +463,146 @@ def adapt_for_attentionscore(graph: OnnxGraph, anchor_softmaxes: List[OnnxNode])
         )
         graph.insert_node(softmax_node.name, new_mul_node, mode="before")
         new_mul_node.inputs.append(new_mul_init.name)
+
+
+def split_layernormqkv_and_flashattention(
+    graph: OnnxGraph, 
+    anchor_reducemeans: List[OnnxNode],
+    anchor_splits: List[OnnxNode],
+    anchor_flashattentions: List[OnnxNode]
+) -> None:
+    """
+    If batch size is 20, split layernormqkv and flashattention with 4bs and 16bs.
+    """
+    for reducemean, split, flashattention in zip(anchor_reducemeans, anchor_splits, anchor_flashattentions):
+        # extract subgraph for copy
+        graph.extract_subgraph(
+            [reducemean.name],
+            [flashattention.name],
+            "./temp.onnx"
+        )
+        temp_graph = OnnxGraph.parse("temp.onnx")
+        for node in temp_graph.nodes:
+            node.name += "_copy"
+            node.inputs = [inp + "_copy" for inp in node.inputs]
+            node.outputs = [out + "_copy" for out in node.outputs]
+        for initializer in temp_graph.initializers:
+            initializer.name += "_copy"
+        temp_graph.update_map()
+
+        # get nodes
+        sub = graph.get_next_nodes(reducemean.outputs[0])[0]
+        transpose = graph.get_prev_node(split.inputs[0])
+        reshape = graph.get_prev_node(transpose.inputs[0])
         
+        temp_reducemean = temp_graph.get_nodes("ReduceMean")[0]
+        temp_sub = temp_graph.get_next_nodes(temp_reducemean.outputs[0])[0]
+        temp_split = temp_graph.get_nodes("Split")[0]
+        temp_transpose = temp_graph.get_prev_node(temp_split.inputs[0])
+        temp_reshape = temp_graph.get_prev_node(temp_transpose.inputs[0])
+        temp_flashattention = temp_graph.get_nodes("FlashAttentionTik")[0]
+
+        # create new Slice node
+        new_slice_4bs_name = f"Slice_4bs_before_{reducemean.name}"
+        new_slice_4bs_init_starts = graph.add_initializer(f"{new_slice_4bs_name}_init_starts", np.array([0]))
+        new_slice_4bs_init_ends = graph.add_initializer(f"{new_slice_4bs_name}_init_ends", np.array([4]))
+        new_slice_4bs_init_axes = graph.add_initializer(f"{new_slice_4bs_name}_init_axes", np.array([0]))
+        graph.add_node(
+            new_slice_4bs_name, 
+            "Slice",
+            inputs=[reducemean.inputs[0], new_slice_4bs_init_starts.name, \
+                    new_slice_4bs_init_ends.name, new_slice_4bs_init_axes.name],
+            outputs=[f"{new_slice_4bs_name}_output"],
+            )
+
+        new_slice_16bs_name = f"Slice_16bs_before_{reducemean.name}"
+        new_slice_16bs_init_starts = graph.add_initializer(f"{new_slice_16bs_name}_init_starts", np.array([4]))
+        new_slice_16bs_init_ends = graph.add_initializer(f"{new_slice_16bs_name}_init_ends", np.array([20]))
+        new_slice_16bs_init_axes = graph.add_initializer(f"{new_slice_16bs_name}_init_axes", np.array([0]))
+        graph.add_node(
+            new_slice_16bs_name, 
+            "Slice",
+            inputs=[reducemean.inputs[0], new_slice_16bs_init_starts.name, \
+                    new_slice_16bs_init_ends.name, new_slice_16bs_init_axes.name],
+            outputs=[f"{new_slice_16bs_name}_output"],
+            )
+        
+        reducemean.inputs = [f"{new_slice_4bs_name}_output"]
+        sub.inputs = [f"{new_slice_4bs_name}_output", reducemean.outputs[0]]
+        temp_reducemean.inputs = [f"{new_slice_16bs_name}_output"]
+        temp_sub.inputs[0] = f"{new_slice_16bs_name}_output"
+
+        # create new Concat node
+        new_concat_name = f"Concat_after_{flashattention.name}"
+        new_concat_node = graph.add_node(
+            new_concat_name,
+            "Concat",
+            attrs={"axis":0}
+        )
+        graph.insert_node(flashattention.name, new_concat_node, mode="after")
+        new_concat_node.inputs.append(f"{new_concat_name}_input")
+        temp_flashattention.outputs = [f"{new_concat_name}_input"]
+
+        # fix reshape for bs4
+        reshape_init = graph[reshape.inputs[1]]
+        shape = reshape_init.value
+        reshape_init.value = np.hstack((np.array([4]), shape[1:]))
+
+        temp_reshape_init = temp_graph[temp_reshape.inputs[1]]
+        temp_shape = temp_reshape_init.value
+        temp_reshape_init.value = np.hstack((np.array([16]), shape[1:]))
+
+        # merge subgraph
+        graph.nodes.extend(temp_graph.nodes)
+        graph.initializers.extend(temp_graph.initializers)
+        graph.initializers = list(set(graph.initializers))
+        graph.update_map()
 
  
 def apply_optimization(opts) -> None:
+    
     plan = optimize_plans.get(opts.model_config)
     merged_axis = False
- 
     g = OnnxGraph.parse(opts.input_file)
-    gemms = g.get_nodes("Gemm")
-    softmaxes = g.get_nodes("Softmax")
-    if gemms:
-        convert_gemm_to_matmul_add(g, gemms)
-    reshapes = get_attention_reshape_nodes(g)
-    transposes = get_first_layernorm_transpose_nodes(g) + \
-        get_last_layernorm_transpose_nodes(g)
-    adds = get_layernorm_add_nodes(g)
-    adds_2 = get_layernorm_add_nodes_2(g)
-    adds_3 = get_attention_add_nodes_3(g)
-    
-    delete_transpose(g, transposes)
-    adapt_for_layernormqkv(g, adds_3, softmaxes)
-    if opts.use_flashattention:
-        adapt_for_flashattention(g, softmaxes)
+    bs = g.inputs[0].shape[0]
+
+    supported_bs = [1, 4, 8, 16, 24, 32, 40, 48, 56, 64, 20]
+    if bs not in supported_bs:
+        raise ValueError(f"The batch size is {bs}. Only support batch size {supported_bs}")
     else:
-        adapt_for_attentionscore(g, softmaxes)
+        g = OnnxGraph.parse(opts.input_file)
+        gemms = g.get_nodes("Gemm")
+        softmaxes = g.get_nodes("Softmax")
+        if gemms:
+            convert_gemm_to_matmul_add(g, gemms)
+        reshapes = get_attention_reshape_nodes(g)
+        transposes = get_first_layernorm_transpose_nodes(g) + \
+            get_last_layernorm_transpose_nodes(g)
+        adds = get_layernorm_add_nodes(g)
+        adds_2 = get_layernorm_add_nodes_2(g)
+        adds_3 = get_attention_add_nodes_3(g)
+        
+        delete_transpose(g, transposes)
+        adapt_for_layernormqkv(g, adds_3, softmaxes)
+        if opts.use_flashattention:
+            adapt_for_flashattention(g, softmaxes)
+        else:
+            adapt_for_attentionscore(g, softmaxes)
+    
+        for opt in plan:
+            if opt == "merge_bmm_axis":
+                merge_bmm_axis(g, reshapes, adds)
+                merged_axis = True
+    
+            elif opt == "pad_nz_block":
+                pad_nz_block(g, reshapes, adds, adds_2, merged_axis)
  
-    for opt in plan:
-        if opt == "merge_bmm_axis":
-            merge_bmm_axis(g, reshapes, adds)
-            merged_axis = True
- 
-        elif opt == "pad_nz_block":
-            pad_nz_block(g, reshapes, adds, adds_2, merged_axis)
- 
+    if bs == 20 and args.use_flashattention:
+        reducemeans = get_layernorm_reducemean_nodes(g)
+        splits = g.get_nodes("Split")
+        flashattentions = g.get_nodes("FlashAttentionTik")
+        split_layernormqkv_and_flashattention(g, reducemeans, splits, flashattentions)
+    
     g.infer_shape()
     g.save(opts.output_file)
  
@@ -504,7 +615,8 @@ if __name__ == "__main__":
                         help="path to output onnx")
     parser.add_argument("--model_config", type=str, required=True,
                         help="model_config of ViT", 
-                        choices=["vit_base_patch8_224", "vit_base_patch16_224", "vit_base_patch16_384", "vit_base_patch32_224", "vit_base_patch32_384"])
+                        choices=["vit_base_patch8_224", "vit_base_patch16_224", \
+                                 "vit_base_patch16_384", "vit_base_patch32_224", "vit_base_patch32_384"])
     parser.add_argument("--use_flashattention", action="store_true",
                         help="If passed, use flashattention.")
     args = parser.parse_args()
