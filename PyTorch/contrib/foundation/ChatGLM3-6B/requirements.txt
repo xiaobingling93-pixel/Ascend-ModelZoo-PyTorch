@@ -1,8 +1,8 @@
 # basic requirements
 
-transformers==4.40.0
+transformers==4.39.3
 cpm_kernels>=1.0.11
-torch>=2.3.0
+torch==2.2.0
 vllm>=0.4.2
 gradio>=4.26.0
 sentencepiece>=0.2.0
@@ -23,5 +23,5 @@ rouge_chinese>=1.0.3
 jupyter>=1.0.0
 datasets>=2.18.0
 peft>=0.10.0
-deepspeed==0.13.1
+deepspeed>=0.13.1
 mpi4py>=3.1.5

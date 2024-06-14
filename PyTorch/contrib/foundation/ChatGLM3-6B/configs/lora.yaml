@@ -28,7 +28,7 @@ training_args:
   evaluation_strategy: no
   eval_steps: 3000
   # settings for optimizer
-  optim: adamw_torch
+  optim: adamw_npu
   # adam_epsilon: 1e-6
   # uncomment the following line to detect nan or inf values
   # debug: underflow_overflow

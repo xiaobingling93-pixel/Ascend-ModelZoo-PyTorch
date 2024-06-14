@@ -1,4 +1,18 @@
 # -*- coding: utf-8 -*-
+# Copyright 2024 Huawei Technologies Co., Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import os
 import jieba
 import dataclasses as dc
@@ -9,6 +23,7 @@ from typing import Annotated, Any, Optional, Union
 import numpy as np
 import ruamel.yaml as yaml
 import torch
+import torch_npu
 import typer
 from datasets import Dataset, DatasetDict, NamedSplit, Split, load_dataset
 from nltk.translate.bleu_score import SmoothingFunction, sentence_bleu
@@ -31,8 +46,8 @@ from transformers import (
     Seq2SeqTrainingArguments, AutoConfig,
 )
 from transformers import DataCollatorForSeq2Seq as _DataCollatorForSeq2Seq
-
 from transformers import Seq2SeqTrainer as _Seq2SeqTrainer
+from cpu_binding import bind_cpus
 
 ModelType = Union[PreTrainedModel, PeftModelForCausalLM]
 TokenizerType = Union[PreTrainedTokenizer, PreTrainedTokenizerFast]
@@ -395,14 +410,14 @@ def load_tokenizer_and_model(
                 model_dir,
                 trust_remote_code=True,
                 config=config,
-            )
+            ).to("npu")
         if peft_config.peft_type.name == "LORA":
             model = AutoModelForCausalLM.from_pretrained(
                 model_dir,
                 trust_remote_code=True,
                 empty_init=False,
                 use_cache=False
-            )
+            ).to("npu")
             model = get_peft_model(model, peft_config)
             model.print_trainable_parameters()
     else:
@@ -411,7 +426,7 @@ def load_tokenizer_and_model(
             trust_remote_code=True,
             empty_init=False,
             use_cache=False
-        )
+        ).to("npu")
     print_model_size(model)
     return tokenizer, model
 
@@ -527,7 +542,8 @@ def main(
             return_tensors='pt',
         ),
         train_dataset=train_dataset,
-        eval_dataset=val_dataset.select(list(range(50))),
+        eval_dataset=val_dataset.select(
+            list(range(50))) if ft_config.training_args.evaluation_strategy != "no" else None,
         tokenizer=tokenizer if use_tokenizer else None,  # LORA does not need tokenizer
         compute_metrics=functools.partial(compute_metrics, tokenizer=tokenizer),
     )
@@ -571,4 +587,5 @@ def main(
 
 
 if __name__ == '__main__':
+    bind_cpus(ratio=1.0)
     app()

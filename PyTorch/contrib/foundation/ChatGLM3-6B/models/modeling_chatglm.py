@@ -1,12 +1,28 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 """ PyTorch ChatGLM model. """
 
 import math
 import copy
+import os
 import warnings
 import re
 import sys
 
 import torch
+import torch_npu
 import torch.utils.checkpoint
 import torch.nn.functional as F
 from torch import nn
@@ -28,7 +44,8 @@ from transformers.generation.utils import LogitsProcessorList, StoppingCriteriaL
 from .configuration_chatglm import ChatGLMConfig
 
 # flags required to enable jit fusion kernels
-
+USE_FLASH = bool(os.getenv("IS_USE_FLASH", 0))
+torch.npu.config.allow_internal_format = False
 if sys.platform != 'darwin':
     torch._C._jit_set_profiling_mode(False)
     torch._C._jit_set_profiling_executor(False)
@@ -157,7 +174,6 @@ class RotaryEmbedding(nn.Module):
         )
 
 
-@torch.jit.script
 def apply_rotary_pos_emb(x: torch.Tensor, rope_cache: torch.Tensor) -> torch.Tensor:
     # x: [sq, b, np, hn]
     sq, b, np, hn = x.size(0), x.size(1), x.size(2), x.size(3)
@@ -167,10 +183,12 @@ def apply_rotary_pos_emb(x: torch.Tensor, rope_cache: torch.Tensor) -> torch.Ten
     rope_cache = rope_cache[:sq]
     xshaped = x.reshape(sq, -1, np, rot_dim // 2, 2)
     rope_cache = rope_cache.view(sq, -1, 1, xshaped.size(3), 2)
+    xshaped_1, xshaped_2 = torch.chunk(xshaped, 2, dim=-1)
+    rope_cache_1, rope_cache_2 = torch.chunk(rope_cache, 2, dim=-1)
     x_out2 = torch.stack(
         [
-            xshaped[..., 0] * rope_cache[..., 0] - xshaped[..., 1] * rope_cache[..., 1],
-            xshaped[..., 1] * rope_cache[..., 0] + xshaped[..., 0] * rope_cache[..., 1],
+            xshaped_1 * rope_cache_1 - xshaped_2 * rope_cache_2,
+            xshaped_2 * rope_cache_1 + xshaped_1 * rope_cache_2,
         ],
         -1,
     )
@@ -185,11 +203,7 @@ class RMSNorm(torch.nn.Module):
         self.eps = eps
 
     def forward(self, hidden_states: torch.Tensor):
-        input_dtype = hidden_states.dtype
-        variance = hidden_states.to(torch.float32).pow(2).mean(-1, keepdim=True)
-        hidden_states = hidden_states * torch.rsqrt(variance + self.eps)
-
-        return (self.weight * hidden_states).to(input_dtype)
+        return torch_npu.npu_rms_norm(hidden_states, self.weight, epsilon=self.eps)[0]
 
 
 class CoreAttention(torch.nn.Module):
@@ -220,92 +234,109 @@ class CoreAttention(torch.nn.Module):
 
     def forward(self, query_layer, key_layer, value_layer, attention_mask):
         pytorch_major_version = int(torch.__version__.split('.')[0])
-        if pytorch_major_version >= 2:
-            query_layer, key_layer, value_layer = [k.permute(1, 2, 0, 3) for k in [query_layer, key_layer, value_layer]]
-            if attention_mask is None and query_layer.shape[2] == key_layer.shape[2]:
-                context_layer = torch.nn.functional.scaled_dot_product_attention(query_layer, key_layer, value_layer,
-                                                                                 is_causal=True)
-            else:
-                if attention_mask is not None:
-                    attention_mask = ~attention_mask
-                context_layer = torch.nn.functional.scaled_dot_product_attention(query_layer, key_layer, value_layer,
-                                                                                 attention_mask)
-            context_layer = context_layer.permute(2, 0, 1, 3)
+        if USE_FLASH:
+            output_size = (query_layer.size(1), query_layer.size(2), query_layer.size(0), key_layer.size(0))
+            alpha = (1.0 / self.norm_factor)
+            query_layer = query_layer * alpha
+            query_layer = query_layer.view(output_size[2], output_size[0], -1)
+            key_layer = key_layer.view(output_size[2], output_size[0], -1)
+            value_layer = value_layer.view(output_size[2], output_size[0], -1)
+            out = torch_npu.npu_fusion_attention(query_layer, key_layer, value_layer, output_size[1], "SBH", pse=None,
+                                                 padding_mask=None, atten_mask=attention_mask, scale=self.coeff,
+                                                 keep_prob=1.0, pre_tockens=key_layer.shape[0], next_tockens=0)[0]
+            context_layer = out.view(output_size[2], output_size[0], output_size[1], -1)
             new_context_layer_shape = context_layer.size()[:-2] + (self.hidden_size_per_partition,)
             context_layer = context_layer.reshape(*new_context_layer_shape)
         else:
-            # Raw attention scores
+            if pytorch_major_version >= 2:
+                query_layer, key_layer, value_layer = [k.permute(1, 2, 0, 3) for k in
+                                                       [query_layer, key_layer, value_layer]]
+                if attention_mask is None and query_layer.shape[2] == key_layer.shape[2]:
+                    context_layer = torch.nn.functional.scaled_dot_product_attention(query_layer, key_layer,
+                                                                                     value_layer,
+                                                                                     is_causal=True)
+                else:
+                    if attention_mask is not None:
+                        attention_mask = ~attention_mask
+                    context_layer = torch.nn.functional.scaled_dot_product_attention(query_layer, key_layer,
+                                                                                     value_layer,
+                                                                                     attention_mask)
+                context_layer = context_layer.permute(2, 0, 1, 3)
+                new_context_layer_shape = context_layer.size()[:-2] + (self.hidden_size_per_partition,)
+                context_layer = context_layer.reshape(*new_context_layer_shape)
+            else:
+                # Raw attention scores
 
-            # [b, np, sq, sk]
-            output_size = (query_layer.size(1), query_layer.size(2), query_layer.size(0), key_layer.size(0))
+                # [b, np, sq, sk]
+                output_size = (query_layer.size(1), query_layer.size(2), query_layer.size(0), key_layer.size(0))
 
-            # [sq, b, np, hn] -> [sq, b * np, hn]
-            query_layer = query_layer.view(output_size[2], output_size[0] * output_size[1], -1)
-            # [sk, b, np, hn] -> [sk, b * np, hn]
-            key_layer = key_layer.view(output_size[3], output_size[0] * output_size[1], -1)
+                # [sq, b, np, hn] -> [sq, b * np, hn]
+                query_layer = query_layer.view(output_size[2], output_size[0] * output_size[1], -1)
+                # [sk, b, np, hn] -> [sk, b * np, hn]
+                key_layer = key_layer.view(output_size[3], output_size[0] * output_size[1], -1)
 
-            # preallocting input tensor: [b * np, sq, sk]
-            matmul_input_buffer = torch.empty(
-                output_size[0] * output_size[1], output_size[2], output_size[3], dtype=query_layer.dtype,
-                device=query_layer.device
-            )
+                # preallocting input tensor: [b * np, sq, sk]
+                matmul_input_buffer = torch.empty(
+                    output_size[0] * output_size[1], output_size[2], output_size[3], dtype=query_layer.dtype,
+                    device=query_layer.device
+                )
 
-            # Raw attention scores. [b * np, sq, sk]
-            matmul_result = torch.baddbmm(
-                matmul_input_buffer,
-                query_layer.transpose(0, 1),  # [b * np, sq, hn]
-                key_layer.transpose(0, 1).transpose(1, 2),  # [b * np, hn, sk]
-                beta=0.0,
-                alpha=(1.0 / self.norm_factor),
-            )
+                # Raw attention scores. [b * np, sq, sk]
+                matmul_result = torch.baddbmm(
+                    matmul_input_buffer,
+                    query_layer.transpose(0, 1),  # [b * np, sq, hn]
+                    key_layer.transpose(0, 1).transpose(1, 2),  # [b * np, hn, sk]
+                    beta=0.0,
+                    alpha=(1.0 / self.norm_factor),
+                )
 
-            # change view to [b, np, sq, sk]
-            attention_scores = matmul_result.view(*output_size)
+                # change view to [b, np, sq, sk]
+                attention_scores = matmul_result.view(*output_size)
 
-            # ===========================
-            # Attention probs and dropout
-            # ===========================
+                # ===========================
+                # Attention probs and dropout
+                # ===========================
 
-            # attention scores and attention mask [b, np, sq, sk]
-            if self.attention_softmax_in_fp32:
-                attention_scores = attention_scores.float()
-            if self.coeff is not None:
-                attention_scores = attention_scores * self.coeff
-            if attention_mask is None and attention_scores.shape[2] == attention_scores.shape[3]:
-                attention_mask = torch.ones(output_size[0], 1, output_size[2], output_size[3],
-                                            device=attention_scores.device, dtype=torch.bool)
-                attention_mask.tril_()
-                attention_mask = ~attention_mask
-            if attention_mask is not None:
-                attention_scores = attention_scores.masked_fill(attention_mask, float("-inf"))
-            attention_probs = F.softmax(attention_scores, dim=-1)
-            attention_probs = attention_probs.type_as(value_layer)
+                # attention scores and attention mask [b, np, sq, sk]
+                if self.attention_softmax_in_fp32:
+                    attention_scores = attention_scores.float()
+                if self.coeff is not None:
+                    attention_scores = attention_scores * self.coeff
+                if attention_mask is None and attention_scores.shape[2] == attention_scores.shape[3]:
+                    attention_mask = torch.ones(output_size[0], 1, output_size[2], output_size[3],
+                                                device=attention_scores.device, dtype=torch.bool)
+                    attention_mask.tril_()
+                    attention_mask = ~attention_mask
+                if attention_mask is not None:
+                    attention_scores = attention_scores.masked_fill(attention_mask, float("-inf"))
+                attention_probs = F.softmax(attention_scores, dim=-1)
+                attention_probs = attention_probs.type_as(value_layer)
 
-            # This is actually dropping out entire tokens to attend to, which might
-            # seem a bit unusual, but is taken from the original Transformer paper.
-            attention_probs = self.attention_dropout(attention_probs)
-            # =========================
-            # Context layer. [sq, b, hp]
-            # =========================
+                # This is actually dropping out entire tokens to attend to, which might
+                # seem a bit unusual, but is taken from the original Transformer paper.
+                attention_probs = self.attention_dropout(attention_probs)
+                # =========================
+                # Context layer. [sq, b, hp]
+                # =========================
 
-            # value_layer -> context layer.
-            # [sk, b, np, hn] --> [b, np, sq, hn]
+                # value_layer -> context layer.
+                # [sk, b, np, hn] --> [b, np, sq, hn]
 
-            # context layer shape: [b, np, sq, hn]
-            output_size = (value_layer.size(1), value_layer.size(2), query_layer.size(0), value_layer.size(3))
-            # change view [sk, b * np, hn]
-            value_layer = value_layer.view(value_layer.size(0), output_size[0] * output_size[1], -1)
-            # change view [b * np, sq, sk]
-            attention_probs = attention_probs.view(output_size[0] * output_size[1], output_size[2], -1)
-            # matmul: [b * np, sq, hn]
-            context_layer = torch.bmm(attention_probs, value_layer.transpose(0, 1))
-            # change view [b, np, sq, hn]
-            context_layer = context_layer.view(*output_size)
-            # [b, np, sq, hn] --> [sq, b, np, hn]
-            context_layer = context_layer.permute(2, 0, 1, 3).contiguous()
-            # [sq, b, np, hn] --> [sq, b, hp]
-            new_context_layer_shape = context_layer.size()[:-2] + (self.hidden_size_per_partition,)
-            context_layer = context_layer.view(*new_context_layer_shape)
+                # context layer shape: [b, np, sq, hn]
+                output_size = (value_layer.size(1), value_layer.size(2), query_layer.size(0), value_layer.size(3))
+                # change view [sk, b * np, hn]
+                value_layer = value_layer.view(value_layer.size(0), output_size[0] * output_size[1], -1)
+                # change view [b * np, sq, sk]
+                attention_probs = attention_probs.view(output_size[0] * output_size[1], output_size[2], -1)
+                # matmul: [b * np, sq, hn]
+                context_layer = torch.bmm(attention_probs, value_layer.transpose(0, 1))
+                # change view [b, np, sq, hn]
+                context_layer = context_layer.view(*output_size)
+                # [b, np, sq, hn] --> [sq, b, np, hn]
+                context_layer = context_layer.permute(2, 0, 1, 3).contiguous()
+                # [sq, b, np, hn] --> [sq, b, hp]
+                new_context_layer_shape = context_layer.size()[:-2] + (self.hidden_size_per_partition,)
+                context_layer = context_layer.view(*new_context_layer_shape)
 
         return context_layer
 
@@ -479,8 +510,7 @@ class MLP(torch.nn.Module):
         )
 
         def swiglu(x):
-            x = torch.chunk(x, 2, dim=-1)
-            return F.silu(x[0]) * x[1]
+            return torch_npu.npu_swiglu(x, -1)
 
         self.activation_func = swiglu
 
@@ -675,6 +705,13 @@ class ChatGLMPreTrainedModel(PreTrainedModel):
         """Initialize the weights."""
         return
 
+    def get_masks_(self, input_ids, device):
+        batch_size, seq_length = input_ids.shape
+        attention_mask = torch.ones(batch_size, 1, seq_length, seq_length, device=input_ids.device)
+        attention_mask.tril_()
+        attention_mask = (attention_mask < 0.5).bool()
+        return attention_mask
+
     def get_masks(self, input_ids, past_key_values, padding_mask=None):
         batch_size, seq_length = input_ids.shape
         full_attention_mask = torch.ones(batch_size, seq_length, seq_length, device=input_ids.device)
@@ -821,6 +858,8 @@ class ChatGLMModel(ChatGLMPreTrainedModel):
         if full_attention_mask is None:
             if (attention_mask is not None and not attention_mask.all()) or (past_key_values and seq_length != 1):
                 full_attention_mask = self.get_masks(input_ids, past_key_values, padding_mask=attention_mask)
+            else:
+                full_attention_mask = self.get_masks_(input_ids, device=input_ids.device)
 
         # Rotary positional embeddings
         rotary_pos_emb = self.rotary_pos_emb(self.seq_length)
@@ -1016,8 +1055,10 @@ class ChatGLMForConditionalGeneration(ChatGLMPreTrainedModel):
                 history.append({"role": "assistant", "metadata": metadata, "content": content})
                 if history[0]["role"] == "system" and "tools" in history[0]:
                     content = "\n".join(content.split("\n")[1:-1])
+
                     def tool_call(**kwargs):
                         return kwargs
+
                     parameters = eval(content)
                     content = {"name": metadata.strip(), "parameters": parameters}
                 else:
@@ -1048,7 +1089,7 @@ class ChatGLMForConditionalGeneration(ChatGLMPreTrainedModel):
 
     @torch.inference_mode()
     def stream_chat(self, tokenizer, query: str, history: List[Dict] = None, role: str = "user",
-                    past_key_values=None,max_length: int = 8192, do_sample=True, top_p=0.8, temperature=0.8,
+                    past_key_values=None, max_length: int = 8192, do_sample=True, top_p=0.8, temperature=0.8,
                     logits_processor=None, return_past_key_values=False, **kwargs):
         if history is None:
             history = []
