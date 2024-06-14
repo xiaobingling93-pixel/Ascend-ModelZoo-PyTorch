@@ -24,6 +24,7 @@ import random
 import re
 import shutil
 import torch
+
 if torch.__version__ >= '1.8':
     import torch_npu
 import sys
@@ -34,15 +35,20 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Union
 
 from tqdm.auto import tqdm
+
 try:
     from torch_npu.utils.profiler import Profile
 except ImportError:
     print("Profile not in torch_npu.utils.profiler now... Auto Profile disabled.", flush=True)
+
+
     class Profile:
         def __init__(self, *args, **kwargs):
             pass
+
         def start(self):
             pass
+
         def end(self):
             pass
 
@@ -146,7 +152,6 @@ from .trainer_utils import (
 from .training_args import OptimizerNames, ParallelMode, TrainingArguments
 from .utils import logging
 
-
 _is_torch_generator_available = False
 _is_native_amp_available = False
 
@@ -160,6 +165,7 @@ if is_in_notebook():
 
 if is_apex_available():
     from apex import amp
+
     amp.register_half_function(torch_npu, 'npu_linear')
 
 if version.parse(torch.__version__) >= version.parse("1.6"):
@@ -195,12 +201,10 @@ if is_sagemaker_mp_enabled():
 
     from .trainer_pt_utils import smp_forward_backward, smp_forward_only, smp_gather, smp_nested_concat
 
-
 if TYPE_CHECKING:
     import optuna
 
 logger = logging.get_logger(__name__)
-
 
 # Name of the files used for checkpointing
 TRAINING_ARGS_NAME = "training_args.bin"
@@ -1067,9 +1071,13 @@ class Trainer:
         # Mixed precision training with apex (torch < 1.6)
         if self.use_apex:
             if training:
-                model, self.optimizer = amp.initialize(model, self.optimizer, opt_level=self.args.fp16_opt_level, loss_scale=self.args.loss_scale, combine_grad=self.args.use_combine_grad, combine_ddp=self.args.use_combine_ddp)
+                model, self.optimizer = amp.initialize(model, self.optimizer, opt_level=self.args.fp16_opt_level,
+                                                       loss_scale=self.args.loss_scale,
+                                                       combine_grad=self.args.use_combine_grad,
+                                                       combine_ddp=self.args.use_combine_ddp)
             elif self.optimizer is None:
-                model = amp.initialize(model, self.optimizer, opt_level=self.args.fp16_opt_level, loss_scale=self.args.loss_scale, combine_grad=self.args.use_combine_grad)
+                model = amp.initialize(model, self.optimizer, opt_level=self.args.fp16_opt_level,
+                                       loss_scale=self.args.loss_scale, combine_grad=self.args.use_combine_grad)
 
         # Multi-gpu training (should be after apex fp16 initialization)
         if self.args.n_gpu > 1:
@@ -1122,7 +1130,6 @@ class Trainer:
                     broadcast_buffers=False,
                     **kwargs,
                 )
-
 
         return model
 
@@ -1246,18 +1253,19 @@ class Trainer:
                 )
                 # May be slightly incorrect if the last batch in the training datalaoder has a smaller size but it's
                 # the best we can do.
-                num_train_samples = args.max_steps * total_train_batch_size
+                num_train_samples = (self.args.max_steps - self.args.skip_steps) * total_train_batch_size
             else:
                 max_steps = math.ceil(args.num_train_epochs * num_update_steps_per_epoch)
                 num_train_epochs = math.ceil(args.num_train_epochs)
-                num_train_samples = len(self.train_dataset) * args.num_train_epochs
+                num_train_samples = len(self.train_dataset) * args.num_train_epochs - (
+                    self.args.skip_steps * total_train_batch_size)
         else:
             # see __init__. max_steps is set when the dataset has no __len__
             max_steps = args.max_steps
             # Setting a very large number of epochs so we go as many times as necessary over the iterator.
             num_train_epochs = sys.maxsize
             num_update_steps_per_epoch = max_steps
-            num_train_samples = args.max_steps * total_train_batch_size
+            num_train_samples = (self.args.max_steps - self.args.skip_steps) * total_train_batch_size
 
         if DebugOption.UNDERFLOW_OVERFLOW in self.args.debug:
             if self.args.n_gpu > 1:
@@ -1419,6 +1427,10 @@ class Trainer:
             profiler = Profile(start_step=int(os.getenv("PROFILE_START_STEP", 10)),
                                profile_type=os.getenv("PROFILE_TYPE"))
             for step, inputs in enumerate(epoch_iterator):
+                # 运行到skip_steps时，开始计时
+                if epoch == int(self.args.skip_steps / steps_in_epoch) \
+                    and step == self.args.skip_steps % steps_in_epoch:
+                    start_time = time.time()
 
                 # Skip past any already trained steps if resuming training
                 if steps_trained_in_current_epoch > 0:
@@ -1608,7 +1620,9 @@ class Trainer:
         self._total_loss_scalar += tr_loss.item()
         train_loss = self._total_loss_scalar / self.state.global_step
 
-        metrics = speed_metrics("train", start_time, num_samples=num_train_samples, num_steps=self.state.max_steps)
+        # 计算跳过skip_steps后的实际FPS，不计算动态shape的算子编译时间
+        metrics = speed_metrics("train", start_time, num_samples=num_train_samples,
+                                num_steps=self.state.max_steps - self.args.skip_steps)
         self.store_flos()
         metrics["total_flos"] = self.state.total_flos
         metrics["train_loss"] = train_loss
@@ -2432,7 +2446,6 @@ class Trainer:
 
         # if eval is called w/o train init deepspeed here
         if args.deepspeed and not self.deepspeed:
-
             # XXX: eval doesn't have `resume_from_checkpoint` arg but we should be able to do eval
             # from the checkpoint eventually
             deepspeed_engine, _, _ = deepspeed_init(
@@ -2512,7 +2525,8 @@ class Trainer:
             if logits is not None:
                 logits = self._pad_across_processes(logits)
                 if self.preprocess_logits_for_metrics is not None:
-                    logits = self.preprocess_logits_for_metrics(logits.view(observed_batch_size, -1, logits.shape[-1]), labels)
+                    logits = self.preprocess_logits_for_metrics(logits.view(observed_batch_size, -1, logits.shape[-1]),
+                                                                labels)
                 logits = self._nested_gather(logits)
                 preds_host.append(logits)
             self.control = self.callback_handler.on_prediction_step(args, self.state, self.control)
@@ -2967,7 +2981,6 @@ class Trainer:
 
         # if eval is called w/o train init deepspeed here
         if args.deepspeed and not self.deepspeed:
-
             # XXX: eval doesn't have `resume_from_checkpoint` arg but we should be able to do eval
             # from the checkpoint eventually
             deepspeed_engine, _, _ = deepspeed_init(self, num_training_steps=0, resume_from_checkpoint=None)

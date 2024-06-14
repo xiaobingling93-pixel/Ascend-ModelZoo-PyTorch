@@ -84,6 +84,7 @@ python3 -m torch.distributed.launch --nproc_per_node 8 run_translation.py \
     --half_precision_backend apex \
     --download_max_retries 1 \
     --max_step 600 \
+    --skip_steps 50 \
     --save_step 5000 >${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log 2>&1 &
 
 wait
@@ -95,7 +96,7 @@ e2e_time=$(($end_time - $start_time))
 #结果打印，不需要修改
 echo "------------------ Final result ------------------"
 #输出性能FPS，需要模型审视修改
-FPS=$(grep "it/s" ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log | tail -n 2 | awk "NR==1 {print}" | awk -F "100%" '{print $NF}' | awk -F "]" '{print $1}' | awk -F ", " '{print $2}' | sed 's/^[ \t]*//g')
+FPS=$(grep "train_steps_per_second" ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log | awk 'END {print}' | awk -F "=" '{print $2}' | sed 's/^[ \t]*//g')
 FPS=`echo "$FPS" | awk '{printf "%.2f\n",$1*8}'`
 #打印，不需要修改
 echo "Final Performance iter/sec : $FPS"
