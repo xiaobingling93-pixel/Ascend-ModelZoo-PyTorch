@@ -25,6 +25,7 @@ import torch.nn as nn
 from diffusers import DDIMScheduler
 from diffusers import StableDiffusionXLPipeline
 from compile_model import *
+import mindietorch
 
 
 def parse_arguments() -> Namespace:
