@@ -141,7 +141,6 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
             return
         args = parse_arguments()
 
-        mindietorch.set_device(self.device_0)
         in_channels = self.unet.config.out_channels
         sample_size = self.unet.config.sample_size
         encoder_hidden_size = self.text_encoder.config.hidden_size
@@ -1005,6 +1004,7 @@ def main():
     if args.scheduler == "SA-Solver":
         pipe.scheduler = SASolverScheduler.from_config(pipe.scheduler.config)
     pipe.compile_aie_model()
+    mindietorch.set_device(pipe.device_0)
 
     skip_steps = [0] * args.steps
 
