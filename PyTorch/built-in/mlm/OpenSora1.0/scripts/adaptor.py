@@ -118,8 +118,8 @@ def core_attention_forward(self, q, k, v):
     return x
 
 def exe_adaptation():
-    opensora.models.layers.blocks.Attention.__init__ = attention_init_wrapper(
-        opensora.models.layers.blocks.Attention.__init__)
+    opensora.models.layers.blocks.AttentionWithCp.__init__ = attention_init_wrapper(
+        opensora.models.layers.blocks.AttentionWithCp.__init__)
     opensora.models.layers.blocks.CoreAttention.forward = core_attention_forward
 
 

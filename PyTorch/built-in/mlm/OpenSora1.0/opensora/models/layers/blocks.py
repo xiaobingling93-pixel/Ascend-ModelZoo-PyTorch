@@ -115,6 +115,86 @@ class PatchEmbed3D(nn.Module):
             x = x.flatten(2).transpose(1, 2)  # BCTHW -> BNC
         return x
 
+
+class Attention(nn.Module):
+    def __init__(
+        self,
+        dim: int,
+        num_heads: int = 8,
+        qkv_bias: bool = False,
+        qk_norm: bool = False,
+        attn_drop: float = 0.0,
+        proj_drop: float = 0.0,
+        norm_layer: nn.Module = nn.LayerNorm,
+        enable_flashattn: bool = False,
+    ) -> None:
+        super().__init__()
+        assert dim % num_heads == 0, "dim should be divisible by num_heads"
+        self.dim = dim
+        self.num_heads = num_heads
+        self.head_dim = dim // num_heads
+        self.scale = self.head_dim**-0.5
+        self.enable_flashattn = enable_flashattn
+
+        self.qkv = nn.Linear(dim, dim * 3, bias=qkv_bias)
+        self.q_norm = norm_layer(self.head_dim) if qk_norm else nn.Identity()
+        self.k_norm = norm_layer(self.head_dim) if qk_norm else nn.Identity()
+        self.attn_drop = nn.Dropout(attn_drop)
+        self.proj = nn.Linear(dim, dim)
+        self.proj_drop = nn.Dropout(proj_drop)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        B, N, C = x.shape
+        qkv = self.qkv(x)
+        qkv_shape = (B, N, 3, self.num_heads, self.head_dim)
+        if self.enable_flashattn:
+            qkv_permute_shape = (2, 0, 1, 3, 4)
+        else:
+            qkv_permute_shape = (2, 0, 3, 1, 4)
+        qkv = qkv.view(qkv_shape).permute(qkv_permute_shape)
+        q, k, v = qkv.unbind(0)
+        q, k = self.q_norm(q), self.k_norm(k)
+        if self.enable_flashattn:
+            if is_npu_available() and q.dtype in [torch.float16, torch.bfloat16]:
+                x = torch_npu.npu_fusion_attention(
+                    q, k, v, self.num_heads, input_layout="BSND",
+                    pse=None,
+                    scale=self.scale,
+                    pre_tockens=65536,
+                    next_tockens=65536,
+                    keep_prob=1.-self.attn_drop.p if self.training else 1.,
+                    sync=False,
+                    inner_precise=0,
+                )[0]
+            else:
+                from flash_attn import flash_attn_func
+
+                x = flash_attn_func(
+                    q,
+                    k,
+                    v,
+                    dropout_p=self.attn_drop.p if self.training else 0.0,
+                    softmax_scale=self.scale,
+                )
+        else:
+            dtype = q.dtype
+            q = q * self.scale
+            attn = q @ k.transpose(-2, -1)  # translate attn to float32
+            attn = attn.to(torch.float32)
+            attn = attn.softmax(dim=-1)
+            attn = attn.to(dtype)  # cast back attn to original dtype
+            attn = self.attn_drop(attn)
+            x = attn @ v
+
+        x_output_shape = (B, N, C)
+        if not self.enable_flashattn:
+            x = x.transpose(1, 2)
+        x = x.reshape(x_output_shape)
+        x = self.proj(x)
+        x = self.proj_drop(x)
+        return x
+
+
 class CoreAttention(torch.nn.Module):
     def __init__(self, enable_flashattn, num_heads, scale, attn_drop):
         super().__init__()
@@ -164,7 +244,7 @@ class CoreAttention(torch.nn.Module):
         return x
 
 
-class Attention(nn.Module):
+class AttentionWithCp(Attention):
     def __init__(
         self,
         dim: int,
@@ -176,22 +256,19 @@ class Attention(nn.Module):
         norm_layer: nn.Module = nn.LayerNorm,
         enable_flashattn: bool = False,
     ) -> None:
-        super().__init__()
-        assert dim % num_heads == 0, "dim should be divisible by num_heads"
-        self.dim = dim
-        self.num_heads = num_heads
-        self.head_dim = dim // num_heads
-        self.scale = self.head_dim**-0.5
-        self.enable_flashattn = enable_flashattn
-
-        self.qkv = nn.Linear(dim, dim * 3, bias=qkv_bias)
-        self.q_norm = norm_layer(self.head_dim) if qk_norm else nn.Identity()
-        self.k_norm = norm_layer(self.head_dim) if qk_norm else nn.Identity()
-        self.attn_drop = nn.Dropout(attn_drop)
-        self.proj = nn.Linear(dim, dim)
-        self.proj_drop = nn.Dropout(proj_drop)
+        super().__init__(
+            dim=dim,
+            num_heads=num_heads,
+            qkv_bias=qkv_bias,
+            qk_norm=qk_norm,
+            attn_drop=attn_drop,
+            proj_drop=proj_drop,
+            norm_layer=norm_layer,
+            enable_flashattn=enable_flashattn,
+        )
         self.core_attention = CoreAttention(enable_flashattn=enable_flashattn, num_heads=num_heads, scale=self.scale,
-                                           attn_drop=self.attn_drop)
+                                            attn_drop=self.attn_drop)
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         B, N, C = x.shape
         qkv = self.qkv(x)
