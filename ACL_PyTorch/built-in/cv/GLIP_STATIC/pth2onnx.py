@@ -41,7 +41,7 @@ def main():
     )
     parser.add_argument(
         "--model_type",
-        choice=["lang","rpn_head","backbone"]
+        choices=["lang","rpn_head","backbone"],
         help="convert model type",
     )
 
