@@ -261,6 +261,18 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <td>1679.63(patch32_224 bs64)</td>
     <td>bs x 3 x 224 x 224</td>
     </tr>
+    <tr>
+        <td> 100401
+        </td><td>
+        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/foundation_models/Chinese_CLIP"> Chinese-CLIP </a>
+        </td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    <td>33ms(img,bs20)</td>
+    <td>20 x 3 x 224 x 224</td>
+    </tr>
 </table>
 
 <p>CV-detection</p>
