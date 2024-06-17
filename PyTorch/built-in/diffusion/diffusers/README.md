@@ -60,6 +60,16 @@
     - [推理任务](#推理任务-4)
       - [获取预训练模型](#获取预训练模型-4)
       - [开始推理](#开始推理-4)
+- [SD3](#SD3)
+  - [准备环境](#准备环境-5)
+    - [安装模型环境](#安装模型环境-5)
+    - [安装昇腾环境](#安装昇腾环境-5)
+  - [快速开始](#快速开始-5)
+    - [训练任务](#训练任务-5)
+      - [获取预训练模型](#获取预训练模型-5)
+      - [开始训练](#开始训练-1)  
+    - [推理任务](#推理任务-5)
+     - [开始推理](#开始推理-5)
 - [公网地址说明](#公网地址说明)
 - [变更说明](#变更说明)
   - [变更](#变更)
@@ -116,6 +126,7 @@ https://huggingface.co/docs/diffusers/installation
 | AnimateDiff |   文生图推理    | ✔ |
 | DiT         |   推理         | ✔ |
 | Unidiffuser |   多任务推理         | ✔ |
+| SD3 |   dreambooth         | ✔ |
 
 ## 代码实现
 
@@ -605,6 +616,67 @@ motion_lora_with_peft.py`
   python examples/Unidiffuser/unidiffuser_text_variation.py # 文本变换
   ```
 
+# SD3
+
+## 准备环境
+
+### 安装模型环境
+
+**表 7**  三方库版本支持表
+
+|  三方库   | 支持版本 |
+| :-------: | :------: |
+|  PyTorch  |  2.1.0   |
+| diffusers |  0.29.0  |
+
+使用以下命令安装模型环境：
+```shell
+pip install -r examples\SD3\requirements_sd3.txt
+```
+
+### 安装昇腾环境
+
+ 请参考昇腾社区中《[Pytorch框架训练环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/ptes)》文档搭建昇腾环境，本仓已支持表8中软件版本。
+
+  **表 8**  昇腾软件版本支持表
+
+|     软件类型      | 支持版本 |
+| :---------------: | :------: |
+| FrameworkPTAdaper | 在研版本 |
+|       CANN        | 在研版本 |
+|    昇腾NPU固件    | 在研版本 |
+|    昇腾NPU驱动    | 在研版本 |
+
+## 快速开始
+
+### 训练任务
+
+本任务主要提供**fp32**的**8p**训练脚本。
+
+#### 获取预训练模型
+
+1. 联网情况下，预训练模型会自动下载。
+
+2. 无网络时，用户可访问[huggingface官网](https://hf-mirror.com/stabilityai/stable-diffusion-3-medium)自行下载，文件namespace如下：
+
+   ```
+    stabilityai/stable-diffusion-3-medium
+   ```
+3. 准备图片数据集
+
+#### 开始训练
+
+  ```shell
+  bash examples/SD3/sd3_text2img_dreambooth.sh
+  ```
+### 推理任务
+
+#### 开始推理
+
+  调用推理脚本：
+  ```shell
+  python examples/SD3/sd3_infer.py
+  ```  
 
 # 公网地址说明
 代码涉及公网地址参考 public_address_statement.md
@@ -615,6 +687,7 @@ motion_lora_with_peft.py`
 
 2024.05.20：SDXL、SDXL_turbo、Animatediff流水线样例首次发布。
 2024.06.06：Unidiffuser fp16推理任务发布。
+2024.06.17：SD3 dreambooth训练与推理任务发布。
 
 # FAQ
 
