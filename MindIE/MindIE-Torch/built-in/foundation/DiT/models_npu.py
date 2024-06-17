@@ -35,12 +35,12 @@ class MindIEDiT(DiT):
         eps = torch.cat([half_eps, half_eps], dim=0)
         return torch.cat([eps, rest], dim=1)
     
-    def set_npu_model_stream(self, parallel, device, image_size, mindie_model_path):
+    def set_npu_model_stream(self, parallel, device, image_size, mindie_model_path, dit_compiled_model):
         latent_size = image_size // 8
         self.device, device_2 = device, device + 1
         self.stream = mindietorch.npu.Stream(f"npu:{self.device}")
         self.parallel = parallel
-        self.model_npu = torch.jit.load(mindie_model_path).eval()
+        self.model_npu = dit_compiled_model
         if parallel:
             runtime_info = RuntimeIOInfo(
                 input_shapes=[(1, 4, latent_size, latent_size), (1,), (1,)],

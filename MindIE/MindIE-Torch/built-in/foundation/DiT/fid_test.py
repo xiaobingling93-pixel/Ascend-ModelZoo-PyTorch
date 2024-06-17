@@ -53,6 +53,7 @@ def main(args):
         mindie_model_path = f"{args.output_dir}/dit/dit_model_{args.image_size}_compiled.pt"
     vae_compiled_model_path = f"{args.output_dir}/vae/vae_{args.vae}_{args.image_size}_compiled.pt"
     vae_compiled_model = torch.jit.load(vae_compiled_model_path).eval()
+    dit_compiled_model = torch.jit.load(mindie_model_path).eval()
 
     if args.ckpt is None:
         assert args.model == "DiT-XL/2", "Only DiT-XL/2 models are available for auto-download."
@@ -72,7 +73,7 @@ def main(args):
     diffusion = create_diffusion(str(args.num_sampling_steps))
 
     mindietorch.set_device(device_id)
-    model.set_npu_model_stream(args.parallel, device_id, args.image_size, mindie_model_path)
+    model.set_npu_model_stream(args.parallel, device_id, args.image_size, mindie_model_path, dit_compiled_model)
 
     all_class = 1000
     for i in range(all_class):
