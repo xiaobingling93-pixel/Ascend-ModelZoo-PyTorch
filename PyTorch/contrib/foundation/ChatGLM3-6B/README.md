@@ -80,28 +80,27 @@
   ```
 
 #### 亲和优化
-   优化涉及到transformers和torch内部代码修改
-- 查看transformers和torch安装路径
+   优化涉及到transformers内部代码修改
+- 查看transformers安装路径
   ```shell
   pip show transformers
-  pip show torch
   ```
 - 计算图优化
   ```shell
-  cp script/transformers/trainer_pt_utils.py your/path/to/transformers/trainer_pt_utils.py
+  cp script/transformers_op/trainer_pt_utils.py your/path/to/transformers/trainer_pt_utils.py
   ```
 - 优化器优化
   ```shell
-  cp transformers/optimization.py your/path/to/transformers/optimization.py
-  cp transformers/training_args.py your/path/to/transformers/training_args.py
-  cp transformers/trainer.py your/path/to/transformers/trainer.py
+  cp script/transformers_op/optimization.py your/path/to/transformers/optimization.py
+  cp script/transformers_op/training_args.py your/path/to/transformers/training_args.py
+  cp script/transformers_op/trainer.py your/path/to/transformers/trainer.py
   ```
 
 ## 准备数据集
 
 ### 准备训练数据集
 
-  用户可以在根目录创建文件夹`data`,自行下载AdvertiseGen数据集，并将其放在`data`路径下;
+  用户首先在根目录创建文件夹`data`,然后下载AdvertiseGen数据集，并将其放在`data`路径下;
 - 解压AdvertiseGen.tar.gz
   ```shell
   tar -xzvf AdvertiseGen.tar.gz
@@ -157,7 +156,7 @@
 
     启动8卡微调
     ```shell
-    bash scripts/run_train_8p_glm_lora.sh
+    bash script/run_train_8p_glm_lora.sh
     ```
     模型训练脚本参数说明如下
     ```
@@ -175,10 +174,10 @@
 
 **表 3**  训练结果展示表
 
-|芯片           |卡数|模型      |Iterations|Train Samples per Second|
-|---------------|---|-----------|------------|--------------------------|
-|竞品A          |8p|ChatGLM3-6B|1000      |3.652                   |
-|Atlas 800T A2|8p|ChatGLM3-6B|1000      |4.826                   |
+|芯片           |卡数|模型      |Iterations| Train Steps per Second |
+|---------------|---|-----------|------------|------------------------|
+|竞品A          |8p|ChatGLM3-6B|1000      | 3.652                  |
+|Atlas 800T A2|8p|ChatGLM3-6B|1000      | 4.826                  |
 
 
 
