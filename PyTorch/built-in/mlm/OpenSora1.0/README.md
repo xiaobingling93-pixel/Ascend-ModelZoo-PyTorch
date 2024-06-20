@@ -253,6 +253,26 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
      即可，之后按照前面提及的单机八卡训练任务开展训练。
 
 
+   - VAE序列并行(以120x256x256的训练任务为示例)
+   
+      若要使能VAE序列并行，需要修改配置文件：configs/opensora/train/120x256x256-dsp.py
+     
+     - 添加enable_sequence_parallelism
+     
+      ```python
+      # 修改前
+      vae = dict(
+         type="VideoAutoencoderKL",
+         from_pretrained="stabilityai/sd-vae-ft-ema",
+      )
+
+      # 修改后，增加enable_sequence_parallelism=True：
+      vae = dict(
+         type="VideoAutoencoderKL",
+         from_pretrained="stabilityai/sd-vae-ft-ema",
+         enable_sequence_parallelism=True,
+      )
+      ```
 
 #### 训练结果
 

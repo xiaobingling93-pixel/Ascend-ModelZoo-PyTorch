@@ -4,20 +4,25 @@ from diffusers.models import AutoencoderKL, AutoencoderKLTemporalDecoder
 from einops import rearrange
 
 from opensora.registry import MODELS
+from opensora.acceleration.communications import gather_forward_split_backward, split_forward_gather_backward
+from opensora.acceleration.parallel_states import get_sequence_parallel_group
 
 
 @MODELS.register_module()
 class VideoAutoencoderKL(nn.Module):
-    def __init__(self, from_pretrained=None, micro_batch_size=None):
+    def __init__(self, from_pretrained=None, micro_batch_size=None, enable_sequence_parallelism=False):
         super().__init__()
         self.module = AutoencoderKL.from_pretrained(from_pretrained)
         self.out_channels = self.module.config.latent_channels
         self.patch_size = (1, 8, 8)
         self.micro_batch_size = micro_batch_size
+        self.enable_sequence_parallelism = enable_sequence_parallelism
 
     def encode(self, x):
         # x: (B, C, T, H, W)
         B = x.shape[0]
+        if self.enable_sequence_parallelism:
+            x = split_forward_gather_backward(x, get_sequence_parallel_group(), dim=2, grad_scale="down")
         x = rearrange(x, "B C T H W -> (B T) C H W")
 
         if self.micro_batch_size is None:
@@ -30,7 +35,11 @@ class VideoAutoencoderKL(nn.Module):
                 x_bs = self.module.encode(x_bs).latent_dist.sample().mul_(0.18215)
                 x_out.append(x_bs)
             x = torch.cat(x_out, dim=0)
+        
         x = rearrange(x, "(B T) C H W -> B C T H W", B=B)
+        if self.enable_sequence_parallelism:
+            x = gather_forward_split_backward(x, get_sequence_parallel_group(), dim=2, grad_scale="up")
+
         return x
 
     def decode(self, x):
