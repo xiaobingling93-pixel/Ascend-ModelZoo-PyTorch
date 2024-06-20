@@ -48,7 +48,7 @@
   | 配套                                                         | 版本    | 环境准备指导                                                 |
   | ------------------------------------------------------------ | ------- | ------------------------------------------------------------ |
   | 固件与驱动                                                   | 24.1.rc1  | [Pytorch框架推理环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies) |
-  | CANN（+MindIE-RT）                                              | 8.0.RC1(1.0.RC1) | -                                                            |
+  | CANN（+MindIE-RT）                                              | 8.0.RC2(1.0.RC2) | -                                                            |
   | Python                                                       | 3.10   | -                                                            |                                                           |
 如在优化模型时使用了--FA、--TOME_num、--faster_gelu参数，需要安装与CANN包配套版本的MindIE-RT
 
@@ -147,9 +147,14 @@
          运行modify_onnx.py脚本。
          ```bash 
          bs=1
+         # 量化模型
+         unet_model="models/unet_quant/unet.onnx"
+         # 非量化模型
+         unet_model="models/unet/unet.onnx"
+
          # 非并行方案
          python3 modify_onnx.py \
-               --model models/unet/unet.onnx \
+               --model ${unet_model} \
                --new_model models/unet/unet_md.onnx \
                --FA_soc A2 \
                --TOME_num 10 \
@@ -158,7 +163,7 @@
          
          # 并行方案
          python3 modify_onnx.py \
-               --model models/unet/unet.onnx \
+               --model ${unet_model} \
                --new_model models/unet/unet_md.onnx \
                --FA_soc A2 \
                --TOME_num 10 \
@@ -317,32 +322,24 @@
        
 2. 开始推理验证。
     
-    安装绑核工具并根据NUMA亲和性配置任务进程与NUMA node 的映射关系是为了排除cpu的影响。
+   1. 安装绑核工具并根据NUMA亲和性配置任务进程与NUMA node 的映射关系是为了排除cpu的影响
 
-     安装绑核工具
+      安装绑核工具
       ```
       yum install numactl
       ```
-      查询卡的NUMA node
-      ```
-      lspci -vs bus-id
-      ```
-      bus-id可通过`npu-smi info`获得，查询到NUMA node，在推理命令前加上对应的数字。
-      ```
-      NUMA node0: 0-23
-      NUMA node1: 24-47
-      NUMA node2: 48-71
-      NUMA node3: 72-95
-      ```
-      查到NUMA node后，使用`lscpu`获得NUMA node对应的CPU核，推荐绑定其中单核以获得更好的性能。
-      ```shell
-      NUMA node0: 0-23
-      NUMA node1: 24-47
-      NUMA node2: 48-71
-      NUMA node3: 72-95
-      ```
+      通过`npu-smi info`查询device的bus-id，并根据bus-id通过`lspci -vs bus-id`查询卡的NUMA node。
 
-   1. 执行推理脚本。
+      查到NUMA node后，使用`lscpu`获得NUMA node对应的CPU核，推荐绑定其中单核以获得更好的性能。
+      ```bash
+      NUMA node0: 0-23
+      NUMA node1: 24-47
+      NUMA node2: 48-71
+      NUMA node3: 72-95
+      ```
+      例如，device对应的NUMA node为3，则在NUMA node3对应的CPU核中选择一个，比如72
+
+   2. 执行推理脚本。
 
       ```bash
       # 非并行方案
@@ -410,7 +407,7 @@
       cd ./CLIP-ViT-H-14-laion2B-s32B-b79K
 
       # HPSv2权重
-      wget https://huggingface.co/spaces/xswu/HPSv2/resolve/main/HPS_v2_compressed.pt
+      wget https://huggingface.co/spaces/xswu/HPSv2/resolve/main/HPS_v2_compressed.pt --no-check-certificate
       ```
       也可手动下载[CLIP权重](https://huggingface.co/laion/CLIP-ViT-H-14-laion2B-s32B-b79K/blob/main/open_clip_pytorch_model.bin)
       将权重放到`CLIP-ViT-H-14-laion2B-s32B-b79K`目录下，手动下载[HPSv2权重](https://huggingface.co/spaces/xswu/HPSv2/resolve/main/HPS_v2_compressed.pt)放到当前路径
