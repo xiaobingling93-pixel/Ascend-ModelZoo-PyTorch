@@ -246,8 +246,8 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
      
      ```
      sp_size: 序列并行大小，当sp_size设置为1时，将不会使能序列并行
-     context_parallel_algo：是否开启序列并行send recv overlap, 仅在context_parallel_algo设置为'megatron_cp_algo'有效
-     context_parallel_algo:设置为'megatron_cp_algo'表示序列并行使用ring attention算法, 设置为"ulysses_cp_algo"表示序列并行算法使用ulysses算法
+     use_cp_send_recv_overlap：是否开启序列并行send recv overlap, 仅在context_parallel_algo设置为'megatron_cp_algo'有效
+     context_parallel_algo:设置为'megatron_cp_algo'表示序列并行使用ring attention算法, 设置为"ulysses_cp_algo"表示序列并行算法使用ulysses算法, 设置为"dsp_cp_algo"表示序列并行算法使用dsp算法
      ```
      
      即可，之后按照前面提及的单机八卡训练任务开展训练。
@@ -258,10 +258,12 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
 
 
 ##### 性能
-| 芯片 | 卡数 | FPS  | batch_size | AMP_Type | Torch_Version |
-|:---:|:---:|:----:|:----------:|:---:|:---:|
-| 竞品A | 8p | 3.56 |     8      | bf16 | 2.1 |
-| Atlas 800T A2 | 8p | 2.35 |     8      | bf16 | 2.1 |
+| 芯片 | 卡数 | FPS  | batch_size | sp_size | AMP_Type | Torch_Version |
+|:---:|:---:|:----:|:----------:|:---:|:---:|:---:|
+| 竞品A | 8p | 3.56 |     8     |1 | bf16 | 2.1 |
+| Atlas 800T A2 | 8p | 2.35 |     8 |1       | bf16 | 2.1 |
+| 竞品A-sp | 8p | 7.08 |     8     |8 | bf16 | 2.1 |
+| Atlas 800T A2-dsp + vae sp | 8p | 5.88 |     8 |8       | bf16 | 2.1 |
 
 
 

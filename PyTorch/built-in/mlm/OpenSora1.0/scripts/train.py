@@ -87,7 +87,7 @@ def main():
     elif cfg.plugin == "zero2-seq":
         plugin = ZeroSeqParallelPlugin(
             sp_size=cfg.sp_size,
-            stage=2,
+            stage=1,
             precision=cfg.dtype,
             initial_scale=2**16,
             max_norm=cfg.grad_clip,

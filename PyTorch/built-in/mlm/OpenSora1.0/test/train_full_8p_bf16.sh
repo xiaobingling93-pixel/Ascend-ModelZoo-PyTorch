@@ -39,7 +39,7 @@ start_time=$(date +%s)
 echo "start_time: ${start_time}"
 
 torchrun --nnodes=1 --nproc_per_node=${WORLD_SIZE} --master-port ${MASTER_PORT} scripts/train.py \
- configs/opensora/train/120x256x256.py \
+ configs/opensora/train/120x256x256-dsp.py \
  --batch-size ${BATCH_SIZE} \
  --max-train-steps ${max_train_steps} \
  > ${test_path_dir}/output/$ASCEND_DEVICE_ID/train_${ASCEND_DEVICE_ID}.log 2>&1 &
