@@ -88,6 +88,7 @@ taskset -c 0-${cpu_number} nohup python3 -W ignore train.py experiments/seg_dete
     --distributed \
     --device_list "0,1,2,3,4,5,6,7" \
     --num_gpus 8 \
+    --num_workers 8 \
     --local_rank 0 \
     --dist_backend 'hccl' \
     --world_size 1 \
