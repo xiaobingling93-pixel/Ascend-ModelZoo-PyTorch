@@ -2,8 +2,6 @@
 
 
 - [概述](#ZH-CN_TOPIC_0000001172161501)
-  
-   - [输入输出数据](#section540883920406)
 
 - [推理环境准备](#ZH-CN_TOPIC_0000001126281702)
 
@@ -11,8 +9,6 @@
 
   - [获取源码](#section4622531142816)
   - [模型推理](#section741711594517)
-
-- [模型推理性能&精度](#ZH-CN_TOPIC_0000001172201573)
 
 
 # 概述<a name="ZH-CN_TOPIC_0000001172161501"></a>
@@ -79,9 +75,13 @@
 1. 获取原始数据集。
 
    Inpainting图像重绘。图像编辑是指对图像进行修改、调整和优化的过程。可以包括对图像的颜色、对比度、亮度、饱和度等进行调整，以及修复图像中的缺陷、删除不需要的元素、添加新的图像内容等操作。
-   img: wget https://raw.githubusercontent.com/CompVis/latent-diffusion/main/data/inpainting_examples/overture-creations-5sI6fQgYIuo.png
-   mask img: wget https://raw.githubusercontent.com/CompVis/latent-diffusion/main/data/inpainting_examples/overture-creations-5sI6fQgYIuo_mask.png
-
+   ```bash
+   # img
+   wget https://raw.githubusercontent.com/CompVis/latent-diffusion/main/data/inpainting_examples/overture-creations-5sI6fQgYIuo.png
+   
+   #mask img
+   wget https://raw.githubusercontent.com/CompVis/latent-diffusion/main/data/inpainting_examples/overture-creations-5sI6fQgYIuo_mask.png
+   ```
 
 ## 模型推理<a name="section741711594517"></a>
 
@@ -120,21 +120,21 @@
       - --output_dir: ONNX模型输出目录
       - --batch_size: 设置batch_size, 默认值为1,当前仅支持batch_size=1的场景
       - --flag：默认为1。0代表静态，只支持分辨率为1024x1024；1代表动态分档，支持的分辨率为1024x1024和512x512。
-      - --soc：当前仅支持A2。
+      - --soc：当前仅支持A2。A2特指910B4。
       - --device：推理设备ID
       - --use_cache: 【可选】在推理过程中使用cache
 
       静态编译场景：
 
       - ./models/clip/clip_bs{batch_size}.pt, ./models/clip/clip_bs{batch_size}_compile.ts 和 ./models/clip/clip2_bs{batch_size}.pt, ./models/clip/clip2_bs{batch_size}_compile.ts
-      - ./models/unet/unet_bs{batch_size*2}.pt, ./models/unet/unet_bs{batch_size*2}_compile_static.ts
+      - ./models/unet/unet_bs{batch_size x 2}.pt, ./models/unet/unet_bs{batch_size x 2}_compile_static.ts
       - ./models/vae/vae_bs{batch_size}.pt, ./models/vae/vae_bs{batch_size}_compile_static.ts
       - ./models/image_encode/image_encode_bs{batch_size}.pt, ./models/image_encode/image_encode_bs{batch_size}_compile_static.ts
 
       动态分档场景：
 
       - ./models/clip/clip_bs{batch_size}.pt, ./models/clip/clip_bs{batch_size}_compile.ts 和 ./models/clip/clip2_bs{batch_size}.pt, ./models/clip/clip2_bs{batch_size}_compile.ts
-      - ./models/unet/unet_bs{batch_size*2}.pt, ./models/unet/unet_bs{batch_size*2}_compile.ts
+      - ./models/unet/unet_bs{batch_size x 2}.pt, ./models/unet/unet_bs{batch_size x 2}_compile.ts
       - ./models/vae/vae_bs{batch_size}.pt, ./models/vae/vae_bs{batch_size}_compile.ts
       - ./models/image_encode/image_encode_bs{batch_size}.pt, ./models/image_encode/image_encode_bs{batch_size}_compile.ts
       
@@ -183,7 +183,7 @@
       - --steps：生成图片迭代次数。
       - --device：推理设备ID；可用逗号分割传入两个设备ID，此时会使用并行方式进行推理。
       - --output_dir：存放导出模型的目录。
-      - --soc：当前仅支持A2。
+      - --soc：当前仅支持A2。A2特指910B4。
       - --flag：默认为1。0代表静态，只支持分辨率为1024x1024；1代表动态分档，支持的分辨率为1024x1024和512x512。**注意**：请与导出模型时设置的flag保持一致
       - --w_h: image的宽高，设置为1024表示宽高均为1024，设置为512表示宽高均为512。仅支持这两种分辨率。
       - --strength：当w_h=1024时，设置该值为0.99。当w_h=512时，设置该值为0.6。

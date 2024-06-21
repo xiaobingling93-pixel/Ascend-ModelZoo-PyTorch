@@ -2,23 +2,23 @@
 
 - [概述](#ZH-CN_TOPIC_0000001172161501)
 
-  - [输入输出数据](#section540883920406)
 - [推理环境准备](#ZH-CN_TOPIC_0000001126281702)
+
 - [快速上手](#ZH-CN_TOPIC_0000001126281700)
 
   - [获取源码](#section4622531142816)
   - [模型推理](#section741711594517)
-- [模型推理性能&amp;精度](#ZH-CN_TOPIC_0000001172201573)
 
-# 概述`<a name="ZH-CN_TOPIC_0000001172161501"></a>`
+# 概述<a name="ZH-CN_TOPIC_0000001172161501"></a>
 
-   ControlNet是一种神经网络架构，可将控制信息添加到预训练的扩散模型中。作用是通过添加额外控制条件，来引导Stable Diffusion生成图像，从而提升 AI 图像生成的可控性和精度。在使用ControlNet模型之后，Stable Diffusion模型的权重被复制出两个相同的部分，分别是“锁定”副本和“可训练”副本。ControlNet主要在“可训练”副本上施加控制条件，然后将施加控制条件之后的结果和原来SD模型的结果相加获得最终的输出结果。神经架构与“零卷积”（零初始化卷积层）连接，参数从零逐渐增长，确保微调的过程不会受到噪声影响。这样可以使用小批量数据集就能对控制条件进行学习训练，同时不会破坏Stable Diffusion模型原本的能力。如今ControlNet的应用包括：控制人物姿势、线稿上色、画质修复等。
+   ControlNet是一种神经网络架构，可将控制信息添加到预训练的扩散模型中。作用是通过添加额外控制条件，来引导Stable Diffusion生成图像，从而提升 AI 图像生成的可控性和精度。在使用ControlNet模型之后，Stable Diffusion模型的权重被复制出两个相同的部分，分别是“锁定”副本和“可训练”副本。ControlNet主要在“可训练”副本上施加控制条件，然后将施加控制条件之后的结果和原来SD模型的结果相加获得最终的输出结果。神经架构与“零卷积”（零初始化卷积层）连接，参数从零逐渐增长，确保微调的过程不会受到噪声影响。这样可以使用小批量数据集就能对控制条件进行学习训练，同时不会破坏Stable Diffusion模型原本的能力。
+   ControlNet的应用包括：控制人物姿势、线稿上色、画质修复等。
 - 参考实现：
   ```bash
    # controlnet-canny-sdxl-1.0
    https://huggingface.co/diffusers/controlnet-canny-sdxl-1.0
   ```
-# 推理环境准备`<a name="ZH-CN_TOPIC_0000001126281702"></a>`
+# 推理环境准备<a name="ZH-CN_TOPIC_0000001126281702"></a>
 
 - 该模型需要以下插件与驱动
 
@@ -31,9 +31,9 @@
 
 该模型性能受CPU规格影响，建议使用64核CPU（arm）以复现性能
 
-# 快速上手`<a name="ZH-CN_TOPIC_0000001126281700"></a>`
+# 快速上手<a name="ZH-CN_TOPIC_0000001126281700"></a>
 
-## 获取源码`<a name="section4622531142816"></a>`
+## 获取源码<a name="section4622531142816"></a>
 
 1. 安装依赖。
 
@@ -60,14 +60,16 @@
    python3 stable_diffusion_attention_patch.py
    ```
 
-## 准备数据集`<a name="section183221994411"></a>`
+## 准备数据集<a name="section183221994411"></a>
 
 1. 获取原始数据集。
 
    ControlNet是一个控制预训练图像扩散模型的神经网络，允许输入调节图像，然后使用该调节图像来操控图像生成。调节图像可从官网下载。
+   ```bash
    wget https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/sd_controlnet/hf-logo.png
+   ```
 
-## 模型推理`<a name="section741711594517"></a>`
+## 模型推理<a name="section741711594517"></a>
 
 1. 模型转换。
    使用Pytorch导出pt模型，然后使用MindIE推理引擎转换为适配昇腾的模型。
@@ -124,20 +126,20 @@
       - --output_dir: ONNX模型输出目录
       - --batch_size: 设置batch_size, 默认值为1,当前仅支持batch_size=1的场景
       - --falg: 设置模型编译方式。默认值为1。值为0表示静态模型，值为1表示动态分档模型。
-      - --soc: 默认值为A2，当前仅支持800IA2场景。
+      - --soc: 默认值为A2，当前仅支持800IA2场景。A2特指910B4。
       - --device：推理设备ID；可用逗号分割传入两个设备ID，此时会使用并行方式进行推理。
 
       静态编译场景：
 
       - ./models/clip/clip_bs{batch_size}.pt, ./models/clip/clip_bs{batch_size}_compile.ts 和 ./models/clip/clip2_bs{batch_size}.pt, ./models/clip/clip2_bs{batch_size}_compile.ts
-      - ./models/unet/unet_bs{batch_size*2}.pt, ./models/unet/unet_bs{batch_size*2}_compile_static.ts
+      - ./models/unet/unet_bs{batch_size x 2}.pt, ./models/unet/unet_bs{batch_size x 2}_compile_static.ts
       - ./models/vae/vae_bs{batch_size}.pt, ./models/vae/vae_bs{batch_size}_compile_static.ts
       - ./models/control/control_bs{batch_size}.pt, ./models/control/control_bs{batch_size}_compile_static.ts
 
       动态分档场景：
 
       - ./models/clip/clip_bs{batch_size}.pt, ./models/clip/clip_bs{batch_size}_compile.ts 和 ./models/clip/clip2_bs{batch_size}.pt, ./models/clip/clip2_bs{batch_size}_compile.ts
-      - ./models/unet/unet_bs{batch_size*2}.pt, ./models/unet/unet_bs{batch_size*2}_compile.ts
+      - ./models/unet/unet_bs{batch_size x 2}.pt, ./models/unet/unet_bs{batch_size x 2}_compile.ts
       - ./models/vae/vae_bs{batch_size}.pt, ./models/vae/vae_bs{batch_size}_compile.ts
       - ./models/control/control_bs{batch_size}.pt, ./models/control/control_bs{batch_size}_compile.ts
   
@@ -166,7 +168,7 @@
       - --device：推理设备ID。
       - --save_dir：生成图片的存放目录。
       - --output_dir：存放导出模型的目录。
-      - --soc: 默认值为A2，当前仅支持800IA2场景。
+      - --soc: 默认值为A2，当前仅支持800IA2场景。A2特指910B4。
       - --falg: 设置模型编译方式。默认值为1。值为0表示静态模型，值为1表示动态分档模型。
       - --w_h: image的宽高，设置为1024表示宽高均为1024，设置为512表示宽高均为512。仅支持这两种分辨率。
     

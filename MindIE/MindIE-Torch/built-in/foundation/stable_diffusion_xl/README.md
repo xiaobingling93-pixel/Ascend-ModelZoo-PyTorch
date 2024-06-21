@@ -138,7 +138,7 @@
       - --parallel: 【可选】导出适用于并行方案的模型，当前仅带unetCache优化时，支持并行
       - --batch_size: 设置batch_size, 默认值为1,当前仅支持batch_size=1的场景
       - --flag：默认为0。0代表静态，只支持分辨率为1024x1024；1代表动态分档，支持的分辨率为1024x1024和512x512；2代表动态shape，height的范围为[512, 1024]，width的范围是[512, 1664]。
-      - --soc：只支持Duo和A2。默认为A2
+      - --soc：只支持Duo和A2。默认为A2。A2特指910B4。
       - --device：推理设备ID
    
 2. 开始推理验证。
@@ -292,7 +292,7 @@
       - --model：模型名称或本地模型目录的路径。
       - --output_dir：存放导出模型的目录。
       - --prompt_file：提示词文件。
-      - --prompt_file_type: prompt文件类型，用于指定读取方式。
+      - --prompt_file_type: prompt文件类型，用于指定读取方式，可选plain，parti，hpsv2。
       - --num_images_per_prompt: 每个prompt生成的图片数量。
       - --max_num_prompts：限制prompt数量为前X个，0表示不限制。
       - --save_dir：生成图片的存放目录。

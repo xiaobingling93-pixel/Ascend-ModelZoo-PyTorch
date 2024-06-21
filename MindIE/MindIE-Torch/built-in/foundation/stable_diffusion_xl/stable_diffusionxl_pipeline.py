@@ -19,6 +19,7 @@ import os
 import time
 from typing import Callable, List, Optional, Union
 import numpy as np
+import hpsv2
 
 import torch
 import mindietorch
@@ -51,9 +52,12 @@ class PromptLoader:
 
         if prompt_file_type == 'plain':
             self.load_prompts_plain(prompt_file, max_num_prompts)
-
         elif prompt_file_type == 'parti':
             self.load_prompts_parti(prompt_file, max_num_prompts)
+        elif prompt_file_type == 'hpsv2':
+            self.load_prompts_hpsv2(max_num_prompts)
+        else:
+            print("This operation is not supported!")
 
         self.current_id = 0
         self.inner_id = 0
@@ -118,6 +122,21 @@ class PromptLoader:
                     self.catagories.append(catagory)
 
                 catagory_id = self.catagories.index(catagory)
+                self.prompts.append((prompt, catagory_id))
+
+    def load_prompts_hpsv2(self, max_num_prompts: int):
+        all_prompts = hpsv2.benchmark_prompts('all')
+        count = 0
+        for style, prompts in all_prompts.items():
+            for prompt in prompts:
+                count += 1
+                if max_num_prompts and count >= max_num_prompts:
+                    break
+
+                if style not in self.catagories:
+                    self.catagories.append(style)
+
+                catagory_id = self.catagories.index(style)
                 self.prompts.append((prompt, catagory_id))
 
 
@@ -803,7 +822,7 @@ def parse_arguments():
     )
     parser.add_argument(
         "--prompt_file_type",
-        choices=["plain", "parti"],
+        choices=["plain", "parti", "hpsv2"],
         default="plain",
         help="Type of prompt file.",
     )

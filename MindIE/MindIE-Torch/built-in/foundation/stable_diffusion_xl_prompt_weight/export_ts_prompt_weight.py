@@ -265,6 +265,7 @@ def trace_unet_init(sd_pipeline, batch_size, unet_pt_path):
     in_channels = unet_model.config.in_channels
     max_position_embeddings = encoder_model.config.max_position_embeddings
     encoder_hidden_size_2 = encoder_model_2.config.hidden_size
+    encoder_hidden_size = encoder_model.config.hidden_size + encoder_hidden_size_2
 
     if not os.path.exists(unet_pt_path):
         dummy_input = (

@@ -2,8 +2,6 @@
 
 
 - [概述](#ZH-CN_TOPIC_0000001172161501)
-  
-   - [输入输出数据](#section540883920406)
 
 - [推理环境准备](#ZH-CN_TOPIC_0000001126281702)
 
@@ -11,8 +9,6 @@
 
   - [获取源码](#section4622531142816)
   - [模型推理](#section741711594517)
-
-- [模型推理性能&精度](#ZH-CN_TOPIC_0000001172201573)
 
 
 # 概述<a name="ZH-CN_TOPIC_0000001172161501"></a>
@@ -71,7 +67,6 @@
    # 若使用unetCache
    python3 stable_diffusionxl_unet_patch.py
    ```
-   ```
    
 ## 准备数据集<a name="section183221994411"></a>
 
@@ -118,9 +113,24 @@
       - --output_dir: ONNX模型输出目录
       - --batch_size: 设置batch_size, 默认值为1,当前仅支持batch_size=1的场景
       - --flag：默认为1。0代表静态，只支持分辨率为1024x1024；1代表动态分档，支持的分辨率为1024x1024和512x512。
-      - --soc：只支持Duo和A2。默认为A2
+      - --soc：只支持Duo和A2。默认为A2，A2特指910B4。
       - --device：推理设备ID
       - --use_cache: 【可选】在推理过程中使用cache
+      
+      静态编译场景：
+
+      - ./models/clip/clip_bs{batch_size}.pt, ./models/clip/clip_bs{batch_size}_compile.ts 和 ./models/clip/clip2_bs{batch_size}.pt, ./models/clip/clip2_bs{batch_size}_compile.ts
+      - ./models/unet/unet_bs{batch_size x 2}.pt, ./models/unet/unet_bs{batch_size x 2}_compile_static.ts
+      - ./models/vae/vae_bs{batch_size}.pt, ./models/vae/vae_bs{batch_size}_compile_static.ts
+      - ./models/ddim/ddim_bs{batch_size}.pt, ./models/ddim/ddim_bs{batch_size}_compile_static.ts
+
+      动态分档场景：
+
+      - ./models/clip/clip_bs{batch_size}.pt, ./models/clip/clip_bs{batch_size}_compile.ts 和 ./models/clip/clip2_bs{batch_size}.pt, ./models/clip/clip2_bs{batch_size}_compile.ts
+      - ./models/unet/unet_bs{batch_size x 2}.pt, ./models/unet/unet_bs{batch_size x 2}_compile.ts
+      - ./models/vae/vae_bs{batch_size}.pt, ./models/vae/vae_bs{batch_size}_compile.ts
+      - ./models/ddim/ddim_bs{batch_size}.pt, ./models/ddim/ddim_bs{batch_size}_compile.ts
+      
       
    
 2. 开始推理验证。

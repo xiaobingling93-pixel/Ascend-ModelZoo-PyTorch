@@ -696,7 +696,7 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
                     ])
 
             latent_model_input_npu = latent_model_input.to(f'npu:{self.device_0}')
-            t_npu = t[None].to(f'npu:{self.device_0}')
+            t_npu = t.to(torch.int64)[None].to(f'npu:{self.device_0}')
             text_embeddings_npu = text_embeddings.to(f'npu:{self.device_0}')
 
             start = time.time()
