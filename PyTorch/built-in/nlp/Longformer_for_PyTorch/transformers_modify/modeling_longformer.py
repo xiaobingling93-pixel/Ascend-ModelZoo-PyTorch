@@ -765,20 +765,16 @@ class LongformerSelfAttention(nn.Module):
     def _chunk(hidden_states, window_overlap, onnx_export: bool = False):
         """convert into overlapping chunks. Chunk size = 2w, overlap size = w"""
         if not onnx_export:
-            # non-overlapping chunks of size = 2w
-            hidden_states = hidden_states.view(
-                hidden_states.size(0),
-                torch.div(hidden_states.size(1), (window_overlap * 2), rounding_mode="trunc"),
-                window_overlap * 2,
-                hidden_states.size(2),
-            )
-            # use `as_strided` to make the chunks overlap with an overlap size = window_overlap
-            chunk_size = list(hidden_states.size())
-            chunk_size[1] = chunk_size[1] * 2 - 1
+            chunk_size1 = torch.div(hidden_states.size(1), (window_overlap * 2), rounding_mode="trunc")
+            chunk_size1 = chunk_size1 * 2 - 1
 
-            chunk_stride = list(hidden_states.stride())
-            chunk_stride[1] = chunk_stride[1] // 2
-            return hidden_states.as_strided(size=chunk_size, stride=chunk_stride)
+            to_cat_list = []
+            hidden_states_unsqueeze = hidden_states.unsqueeze(1)
+            for i in range(chunk_size1):
+                start = i * window_overlap
+                to_cat = hidden_states_unsqueeze[:,:,start:(start +2*window_overlap),:]
+                to_cat_list.append(to_cat)
+            return torch.cat(to_cat_list, 1)
 
         # When exporting to ONNX, use this separate logic
         # have to use slow implementation since as_strided, unfold and 2d-tensor indexing aren't supported (yet) in ONNX export
@@ -922,9 +918,13 @@ class LongformerSelfAttention(nn.Module):
             chunked_value_stride[2],
         )
 
-        value1 = padded_value.unsqueeze(1)[:, :, :(3*window_overlap), :]
-        value2 = padded_value.unsqueeze(1)[:, :, (padded_value.shape[1] - (3*window_overlap)):, :]
-        chunked_value = torch.cat([value1, value2], 1)
+        to_cat_list = []
+        padded_value_unsqueeze = padded_value.unsqueeze(1)
+        for i in range(chunks_count + 1):
+            start = i * window_overlap
+            to_cat = padded_value_unsqueeze[:,:, start:(start + 3 * window_overlap)]
+            to_cat_list.append(to_cat)
+        chunked_value = torch.cat(to_cat_list, 1)
 
         chunked_attn_probs = self._pad_and_diagonalize(chunked_attn_probs)
 
