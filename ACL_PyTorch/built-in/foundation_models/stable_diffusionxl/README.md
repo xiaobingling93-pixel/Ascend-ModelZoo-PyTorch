@@ -48,9 +48,9 @@
   | 配套                                                         | 版本    | 环境准备指导                                                 |
   | ------------------------------------------------------------ | ------- | ------------------------------------------------------------ |
   | 固件与驱动                                                   | 24.1.rc1  | [Pytorch框架推理环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies) |
-  | CANN（+MindIE-RT）                                              | 8.0.RC2(1.0.RC2) | -                                                            |
+  | CANN（+MindIE）                                              | 8.0.RC2(1.0.RC2) | -                                                            |
   | Python                                                       | 3.10   | -                                                            |                                                           |
-如在优化模型时使用了--FA、--TOME_num、--faster_gelu参数，需要安装与CANN包配套版本的MindIE-RT
+如在优化模型时使用了--FA、--TOME_num、--faster_gelu参数，需要安装与CANN包配套版本的MindIE
 
 该模型性能受CPU规格影响，建议使用64核CPU（arm）以复现性能
 
@@ -62,6 +62,10 @@
 1. 安装依赖。
    ```bash
    pip3 install -r requirements.txt
+
+   git clone https://github.com/tgxs002/HPSv2.git
+   cd HPSv2
+   pip3 install -e .
    ```
 
 2. 代码修改
@@ -77,7 +81,7 @@
 
    请访问[AIT代码仓](https://gitee.com/ascend/ait/tree/master/ait#ait)，根据readme文档进行工具安装。可只安装需要的组件：debug surgeon，其他组件为可选安装。
    
-   请访问[ais_bench](https://gitee.com/ascend/tools/tree/master/ais-bench_workload/tool/ais_bench)，根据readme文件进行工具安装。
+   请访问[ais_bench](https://gitee.com/ascend/tools/tree/master/ais-bench_workload/tool/ais_bench)，根据readme文件进行工具安装，建议使用whl包进行安装。
    
 
 ## 模型推理<a name="section741711594517"></a>
@@ -180,7 +184,7 @@
          - --batch_size：生成适用于指定batch_size的模型，默认值为1。
          - --parallel：生成适用于并行方案的模型
 
-         FA、TOME、Gelu融合算子需通过安装与CANN版本对应的推理引擎包(MindIE-RT)来获取，如未安装推理引擎或使用的版本不支持FA、TOME、SliceGelu算子，FA_soc和TOME_num参数请使用默认配置、不设置faster_gelu参数。
+         FA、TOME、Gelu融合算子需通过安装与CANN版本对应的推理引擎包(MindIE)来获取，如未安装推理引擎或使用的版本不支持FA、TOME、SliceGelu算子，FA_soc和TOME_num参数请使用默认配置、不设置faster_gelu参数。
 
          多batch场景限制：A2场景下暂不支持FA算子优化，FA_soc参数请设置为None。
 
@@ -200,7 +204,7 @@
          source /usr/local/Ascend/ascend-toolkit/set_env.sh
 
          # 如果安装了推理引擎算子包，需配置推理引擎路径
-         source /usr/local/Ascend/mindie-rt/set_env.sh
+         source /usr/local/Ascend/mindie/set_env.sh
          ```
 
          > **说明：** 
@@ -382,6 +386,12 @@
       ```
       [info] infer number: 16; use time: 104.6s; average time: 6.542s
       ```
+      *注意*：
+
+         如果使用arm机器，出现`*torch*.so*: cannot allocate memory in static TLS block`报错，则增加环境变量指向报错路径
+         ```bash
+         export LD_PRELOAD=报错.so路径:$LD_PRELOAD
+         ```
    
 
 ## 精度验证<a name="section741711594518"></a>
@@ -413,7 +423,7 @@
       将权重放到`CLIP-ViT-H-14-laion2B-s32B-b79K`目录下，手动下载[HPSv2权重](https://huggingface.co/spaces/xswu/HPSv2/resolve/main/HPS_v2_compressed.pt)放到当前路径
 
 
-   2. 使用推理脚本生成图片
+   3. 使用推理脚本生成图片
 
       ```bash
       # Clip Score
