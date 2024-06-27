@@ -16,6 +16,7 @@ import argparse
 import torch
 import time
 import os
+from tqdm import tqdm
 from background_session import BackgroundInferSession
 from torchvision.utils import save_image
 from diffusion import create_diffusion
@@ -72,7 +73,7 @@ def infer(x, t, y, cfg_scale, sessions):
     return torch.cat([eps, rest], dim=1)
 
 
-def encoder_for_dit(class_labels, sessions, vae, diffusion, device):
+def encoder_for_dit(class_labels, sessions, vae, diffusion, device, progress=True):
     torch.manual_seed(args.seed)
     # Create sampling noise:
     n = len(class_labels)
@@ -91,13 +92,16 @@ def encoder_for_dit(class_labels, sessions, vae, diffusion, device):
     start = time.time()
     # Sample images:
     samples = diffusion.p_sample_loop(
-        infer, z.shape, z, clip_denoised=False, model_kwargs=model_kwargs, progress=True, device=device
+        infer, z.shape, z, clip_denoised=False, model_kwargs=model_kwargs, progress=progress, device=device
     )
     # Remove null class samples
     samples, _ = samples.chunk(2, dim=0)
     samples = torch.tensor(vae.infer([(samples / vae.scaling_factor)])[0])
     end = time.time()
-    print(f"sample time is: {(end - start):.2f}s")
+    if progress:
+        print(f"sample time is: {(end - start):.2f}s")
+    else:
+        tqdm.write(f"sample {class_labels[0]} time is: {(end - start):.2f}s")
 
     # Save and display images:
     save_image(
@@ -133,8 +137,8 @@ def main():
 
     # Labels to condition the model with (feel free to change): 
     if args.class_label == -1 :
-        for i in range(1000):
-            encoder_for_dit([i], sessions, vae, diffusion, device)
+        for i in tqdm(range(1000)):
+            encoder_for_dit([i], sessions, vae, diffusion, device, False)
     else:
         encoder_for_dit([args.class_label], sessions, vae, diffusion, device)
 

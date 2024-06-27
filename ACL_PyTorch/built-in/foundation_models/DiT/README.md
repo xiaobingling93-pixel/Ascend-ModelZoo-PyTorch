@@ -79,6 +79,7 @@ latent_size = image_size // 8
    cd DiT
    git reset --hard ed81ce2229091fd4ecc9a223645f95cf379d582b
    cd ../
+   mv sample_npu.py background_session.py DiT_pt2onnx.py ./DiT/
    ```
 
 2. 安装依赖。
@@ -149,7 +150,6 @@ latent_size = image_size // 8
       1. 移动DiT_pt2onnx.py至DiT目录，使用DiT_pt2onnx.py导出onnx文件。
 
          ```
-         mv DiT_pt2onnx.py ./DiT/
          python3 ./DiT/DiT_pt2onnx.py --image_size 512 --model_path ./DiT-XL-2-512x512.pt
          ```
 
@@ -159,7 +159,7 @@ latent_size = image_size // 8
 
            -   --model\_path: pt文件路径。
            -   --save\_dir: 生成的onnx保存路径。
-           -   --image\_size: 输入图片的大小。
+           -   --image\_size: 分辨率，支持256和512。默认为256。
            -   --model\_name: 模型名称。
            -   --num\_classes: 类别数量。
            -   --vae: 图片解码模式。
@@ -297,9 +297,6 @@ latent_size = image_size // 8
       移动sample_npu.py, background_session.py至DiT目录，进行模型推理。
 
       ```
-      mv ./sample_npu.py ./DiT/
-      mv ./background_session.py ./DiT/
-
       # Duo
       python3 ./DiT/sample_npu.py \
          --image_size 512 \
@@ -318,7 +315,7 @@ latent_size = image_size // 8
 
         -   --model: dit模型的om文件路径。
         -   --vae: vae模型的om文件路径。
-        -   --image\_size: 输入图片大小。
+        -   --image\_size: 分辨率，支持256和512。默认为256。
         -   --num\_classes: 图片类别数量。
         -   --num\_sampling\_steps: 每批次输入做推理的次数。
         -   --device\_id： NPU设备编号。
@@ -330,7 +327,7 @@ latent_size = image_size // 8
 
    3. 精度验证。
 
-      下载数据集[ImageNet512x512](https://openaipublic.blob.core.windows.net/diffusion/jul-2021/ref_batches/imagenet/512/VIRTUAL_imagenet512.npz)，放在任意路径
+      下载数据集[ImageNet512x512](https://openaipublic.blob.core.windows.net/diffusion/jul-2021/ref_batches/imagenet/512/VIRTUAL_imagenet512.npz)和[ImageNet256x256](https://openaipublic.blob.core.windows.net/diffusion/jul-2021/ref_batches/imagenet/256/VIRTUAL_imagenet256_labeled.npz)，放在任意路径
 
       然后执行以下命令：
 
@@ -377,7 +374,9 @@ latent_size = image_size // 8
 
 调用ACL接口推理计算，性能参考下列数据。
 
-| 硬件形态 | 迭代次数 | 平均耗时 |
-| -------- | -------- | -------- |
-| Duo      | 250      | 22.17s    |
-| A2       | 250      | 10.79s   |
+| 分辨率 | 硬件形态 | 迭代次数 | 平均耗时 |
+| ------ | -------- | -------- | -------- |
+| 512    | Duo      | 250      | 22.17s   |
+|        | A2       | 250      | 10.79s   |
+| 256    | Duo      | 250      | 6.23s    |
+|        | A2       | 250      | 3.2s     |
