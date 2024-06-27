@@ -1,0 +1,11 @@
+--- ./pruned_transducer_stateless5/conformer.py	2024-03-18 17:36:34.852000000 +0800
++++ ./pruned_transducer_stateless5/new_conformer.py	2024-03-18 17:35:14.136000000 +0800
+@@ -193,7 +193,7 @@
+             )  # (T, N, C)
+
+         x = x.permute(1, 0, 2)  # (T, N, C) ->(N, T, C)
+-        return x, lengths
++        return x#, lengths
+
+     @torch.jit.export
+     def get_init_state(

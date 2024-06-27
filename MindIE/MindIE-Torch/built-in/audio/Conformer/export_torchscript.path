@@ -1,0 +1,333 @@
+--- ./pruned_transducer_stateless5/export-onnx.py	2024-03-26 15:07:15.360000000 +0800
++++ ./pruned_transducer_stateless5/export_torchscript.py	2024-03-18 16:36:38.728000000 +0800
+@@ -28,7 +28,7 @@
+ 2. Export the model to ONNX
+
+ ./pruned_transducer_stateless5/export-onnx.py \
+-  --lang-dir $repo/data/lang_char \
++  --tokens $repo/data/lang_char/tokens.txt \
+   --epoch 99 \
+   --avg 1 \
+   --use-averaged-model 0 \
+@@ -55,6 +55,7 @@
+ from pathlib import Path
+ from typing import Dict, Tuple
+
++import k2
+ import onnx
+ import torch
+ import torch.nn as nn
+@@ -70,8 +71,7 @@
+     find_checkpoints,
+     load_checkpoint,
+ )
+-from icefall.lexicon import Lexicon
+-from icefall.utils import setup_logger, str2bool
++from icefall.utils import num_tokens, setup_logger, str2bool
+
+
+ def get_parser():
+@@ -128,10 +128,10 @@
+     )
+
+     parser.add_argument(
+-        "--lang-dir",
++        "--tokens",
+         type=str,
+-        default="data/lang_char",
+-        help="The lang dir",
++        default="data/lang_char/tokens.txt",
++        help="Path to the tokens.txt",
+     )
+
+     parser.add_argument(
+@@ -146,22 +146,22 @@
+     return parser
+
+
+-def add_meta_data(filename: str, meta_data: Dict[str, str]):
+-    """Add meta data to an ONNX model. It is changed in-place.
++# def add_meta_data(filename: str, meta_data: Dict[str, str]):
++#     """Add meta data to an ONNX model. It is changed in-place.
+
+-    Args:
+-      filename:
+-        Filename of the ONNX model to be changed.
+-      meta_data:
+-        Key-value pairs.
+-    """
+-    model = onnx.load(filename)
+-    for key, value in meta_data.items():
+-        meta = model.metadata_props.add()
+-        meta.key = key
+-        meta.value = value
++#     Args:
++#       filename:
++#         Filename of the ONNX model to be changed.
++#       meta_data:
++#         Key-value pairs.
++#     """
++#     model = onnx.load(filename)
++#     for key, value in meta_data.items():
++#         meta = model.metadata_props.add()
++#         meta.key = key
++#         meta.value = value
+
+-    onnx.save(model, filename)
++#     onnx.save(model, filename)
+
+
+ class OnnxEncoder(nn.Module):
+@@ -196,12 +196,13 @@
+             - encoder_out, A 3-D tensor of shape (N, T', joiner_dim)
+             - encoder_out_lens, A 1-D tensor of shape (N,)
+         """
+-        encoder_out, encoder_out_lens = self.encoder(x, x_lens)
++        # encoder_out, encoder_out_lens = self.encoder(x, x_lens)
++        encoder_out = self.encoder(x, x_lens)
+
+         encoder_out = self.encoder_proj(encoder_out)
+         # Now encoder_out is of shape (N, T, joiner_dim)
+
+-        return encoder_out, encoder_out_lens
++        return encoder_out#, encoder_out_lens
+
+
+ class OnnxDecoder(nn.Module):
+@@ -254,10 +255,10 @@
+         return logit
+
+
+-def export_encoder_model_onnx(
++def export_encoder_torchscript(
+     encoder_model: OnnxEncoder,
+     encoder_filename: str,
+-    opset_version: int = 11,
++    # opset_version: int = 11,
+ ) -> None:
+     """Export the given encoder model to ONNX format.
+     The exported model has two inputs:
+@@ -278,40 +279,16 @@
+       opset_version:
+         The opset version to use.
+     """
+-    x = torch.zeros(1, 100, 80, dtype=torch.float32)
++    x = torch.rand(1, 100, 80, dtype=torch.float32)
+     x_lens = torch.tensor([100], dtype=torch.int64)
++    encoder_ts = torch.jit.trace(encoder_model, (x, x_lens))
++    # encoder_ts = torch.jit.trace(encoder_model, x)
++    torch.jit.save(encoder_ts, encoder_filename)
+
+-    torch.onnx.export(
+-        encoder_model,
+-        (x, x_lens),
+-        encoder_filename,
+-        verbose=False,
+-        opset_version=opset_version,
+-        input_names=["x", "x_lens"],
+-        output_names=["encoder_out", "encoder_out_lens"],
+-        dynamic_axes={
+-            "x": {0: "N", 1: "T"},
+-            "x_lens": {0: "N"},
+-            "encoder_out": {0: "N", 1: "T"},
+-            "encoder_out_lens": {0: "N"},
+-        },
+-    )
+-
+-    meta_data = {
+-        "model_type": "conformer",
+-        "version": "1",
+-        "model_author": "k2-fsa",
+-        "comment": "stateless5",
+-    }
+-    logging.info(f"meta_data: {meta_data}")
+-
+-    add_meta_data(filename=encoder_filename, meta_data=meta_data)
+-
+-
+-def export_decoder_model_onnx(
++def export_decoder_torchscript(
+     decoder_model: OnnxDecoder,
+     decoder_filename: str,
+-    opset_version: int = 11,
++    # opset_version: int = 11,
+ ) -> None:
+     """Export the decoder model to ONNX format.
+
+@@ -334,33 +311,14 @@
+     context_size = decoder_model.decoder.context_size
+     vocab_size = decoder_model.decoder.vocab_size
+
+-    y = torch.zeros(10, context_size, dtype=torch.int64)
+-    decoder_model = torch.jit.script(decoder_model)
+-    torch.onnx.export(
+-        decoder_model,
+-        y,
+-        decoder_filename,
+-        verbose=False,
+-        opset_version=opset_version,
+-        input_names=["y"],
+-        output_names=["decoder_out"],
+-        dynamic_axes={
+-            "y": {0: "N"},
+-            "decoder_out": {0: "N"},
+-        },
+-    )
+-
+-    meta_data = {
+-        "context_size": str(context_size),
+-        "vocab_size": str(vocab_size),
+-    }
+-    add_meta_data(filename=decoder_filename, meta_data=meta_data)
+-
++    y = torch.rand(10, context_size).to(dtype=torch.int64)
++    decoder_model = torch.jit.trace(decoder_model, y)
++    torch.jit.save(decoder_model, decoder_filename)
+
+-def export_joiner_model_onnx(
++def export_joiner_torchscript(
+     joiner_model: nn.Module,
+     joiner_filename: str,
+-    opset_version: int = 11,
++    # opset_version: int = 11,
+ ) -> None:
+     """Export the joiner model to ONNX format.
+     The exported joiner model has two inputs:
+@@ -377,28 +335,8 @@
+
+     projected_encoder_out = torch.rand(11, joiner_dim, dtype=torch.float32)
+     projected_decoder_out = torch.rand(11, joiner_dim, dtype=torch.float32)
+-
+-    torch.onnx.export(
+-        joiner_model,
+-        (projected_encoder_out, projected_decoder_out),
+-        joiner_filename,
+-        verbose=False,
+-        opset_version=opset_version,
+-        input_names=[
+-            "encoder_out",
+-            "decoder_out",
+-        ],
+-        output_names=["logit"],
+-        dynamic_axes={
+-            "encoder_out": {0: "N"},
+-            "decoder_out": {0: "N"},
+-            "logit": {0: "N"},
+-        },
+-    )
+-    meta_data = {
+-        "joiner_dim": str(joiner_dim),
+-    }
+-    add_meta_data(filename=joiner_filename, meta_data=meta_data)
++    joiner_ts = torch.jit.trace(joiner_model, (projected_encoder_out, projected_decoder_out))
++    torch.jit.save(joiner_ts, joiner_filename)
+
+
+ @torch.no_grad()
+@@ -417,9 +355,9 @@
+
+     logging.info(f"device: {device}")
+
+-    lexicon = Lexicon(params.lang_dir)
+-    params.blank_id = 0
+-    params.vocab_size = max(lexicon.tokens) + 1
++    token_table = k2.SymbolTable.from_file(params.tokens)
++    params.blank_id = token_table["<blk>"]
++    params.vocab_size = num_tokens(token_table) + 1
+
+     logging.info(params)
+
+@@ -541,60 +479,60 @@
+     opset_version = 13
+
+     logging.info("Exporting encoder")
+-    encoder_filename = params.exp_dir / f"encoder-{suffix}.onnx"
+-    export_encoder_model_onnx(
++    encoder_filename = params.exp_dir / f"exported_encoder-{suffix}.ts"
++    export_encoder_torchscript(
+         encoder,
+         encoder_filename,
+-        opset_version=opset_version,
++        # opset_version=opset_version,
+     )
+     logging.info(f"Exported encoder to {encoder_filename}")
+
+     logging.info("Exporting decoder")
+-    decoder_filename = params.exp_dir / f"decoder-{suffix}.onnx"
+-    export_decoder_model_onnx(
++    decoder_filename = params.exp_dir / f"exported_decoder-{suffix}.ts"
++    export_decoder_torchscript(
+         decoder,
+         decoder_filename,
+-        opset_version=opset_version,
++        # opset_version=opset_version,
+     )
+     logging.info(f"Exported decoder to {decoder_filename}")
+
+     logging.info("Exporting joiner")
+-    joiner_filename = params.exp_dir / f"joiner-{suffix}.onnx"
+-    export_joiner_model_onnx(
++    joiner_filename = params.exp_dir / f"exported_joiner-{suffix}.ts"
++    export_joiner_torchscript(
+         joiner,
+         joiner_filename,
+-        opset_version=opset_version,
++        # opset_version=opset_version,
+     )
+     logging.info(f"Exported joiner to {joiner_filename}")
+
+     # Generate int8 quantization models
+     # See https://onnxruntime.ai/docs/performance/model-optimizations/quantization.html#data-type-selection
+
+-    logging.info("Generate int8 quantization models")
++        # logging.info("Generate int8 quantization models")
+
+-    encoder_filename_int8 = params.exp_dir / f"encoder-{suffix}.int8.onnx"
+-    quantize_dynamic(
+-        model_input=encoder_filename,
+-        model_output=encoder_filename_int8,
+-        op_types_to_quantize=["MatMul"],
+-        weight_type=QuantType.QInt8,
+-    )
+-
+-    decoder_filename_int8 = params.exp_dir / f"decoder-{suffix}.int8.onnx"
+-    quantize_dynamic(
+-        model_input=decoder_filename,
+-        model_output=decoder_filename_int8,
+-        op_types_to_quantize=["MatMul"],
+-        weight_type=QuantType.QInt8,
+-    )
+-
+-    joiner_filename_int8 = params.exp_dir / f"joiner-{suffix}.int8.onnx"
+-    quantize_dynamic(
+-        model_input=joiner_filename,
+-        model_output=joiner_filename_int8,
+-        op_types_to_quantize=["MatMul"],
+-        weight_type=QuantType.QInt8,
+-    )
++        # encoder_filename_int8 = params.exp_dir / f"encoder-{suffix}.int8.onnx"
++        # quantize_dynamic(
++        #     model_input=encoder_filename,
++        #     model_output=encoder_filename_int8,
++        #     op_types_to_quantize=["MatMul"],
++        #     weight_type=QuantType.QInt8,
++        # )
++
++        # decoder_filename_int8 = params.exp_dir / f"decoder-{suffix}.int8.onnx"
++        # quantize_dynamic(
++        #     model_input=decoder_filename,
++        #     model_output=decoder_filename_int8,
++        #     op_types_to_quantize=["MatMul"],
++        #     weight_type=QuantType.QInt8,
++        # )
++
++        # joiner_filename_int8 = params.exp_dir / f"joiner-{suffix}.int8.onnx"
++        # quantize_dynamic(
++        #     model_input=joiner_filename,
++        #     model_output=joiner_filename_int8,
++        #     op_types_to_quantize=["MatMul"],
++        #     weight_type=QuantType.QInt8,
++        # )
+
+
+ if __name__ == "__main__":
