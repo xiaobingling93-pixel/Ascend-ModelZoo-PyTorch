@@ -1,0 +1,242 @@
+diff --git a/egs/librispeech/ASR/zipformer/aie_pretrained-streaming.py b/egs/librispeech/ASR/zipformer/aie_pretrained-streaming.py
+index e011c4b..493bf0c 100755
+--- a/egs/librispeech/ASR/zipformer/aie_pretrained-streaming.py
++++ b/egs/librispeech/ASR/zipformer/aie_pretrained-streaming.py
+@@ -72,6 +72,7 @@ the exported ONNX models do support batch processing.
+ import argparse
+ import logging
+ from typing import Dict, List, Optional, Tuple
++import json
+ 
+ import k2
+ import numpy as np
+@@ -79,6 +80,7 @@ import onnxruntime as ort
+ import torch
+ import torchaudio
+ from kaldifeat import FbankOptions, OnlineFbank, OnlineFeature
++import mindietorch
+ 
+ 
+ def get_parser():
+@@ -86,6 +88,20 @@ def get_parser():
+         formatter_class=argparse.ArgumentDefaultsHelpFormatter
+     )
+ 
++    parser.add_argument(
++        "--encoder-meta-data-path",
++        type=str,
++        required=True,
++        help="Path to encoder meta data.",
++    )
++
++    parser.add_argument(
++        "--decoder-meta-data-path",
++        type=str,
++        required=True,
++        help="Path to decoder meta data.",
++    )
++
+     parser.add_argument(
+         "--encoder-model-filename",
+         type=str,
+@@ -128,7 +144,9 @@ def get_parser():
+ class OnnxModel:
+     def __init__(
+         self,
++        encoder_meta_data_path: str,
+         encoder_model_filename: str,
++        decoder_meta_data_path: str,
+         decoder_model_filename: str,
+         joiner_model_filename: str,
+     ):
+@@ -138,20 +156,20 @@ class OnnxModel:
+ 
+         self.session_opts = session_opts
+ 
+-        self.init_encoder(encoder_model_filename)
+-        self.init_decoder(decoder_model_filename)
++        self.init_encoder(encoder_meta_data_path, encoder_model_filename)
++        self.init_decoder(decoder_meta_data_path, decoder_model_filename)
+         self.init_joiner(joiner_model_filename)
+ 
+-    def init_encoder(self, encoder_model_filename: str):
+-        self.encoder = ort.InferenceSession(
+-            encoder_model_filename,
+-            sess_options=self.session_opts,
+-            providers=["CPUExecutionProvider"],
+-        )
+-        self.init_encoder_states()
++    def init_encoder(self, encoder_meta_data_path, encoder_model_filename: str):
++        self.encoder = torch.jit.load(encoder_model_filename)
++        self.encoder.eval()
++
++        self.init_encoder_states(encoder_meta_data_path)
++
++    def init_encoder_states(self, encoder_meta_data_path, batch_size: int = 1):
++        with open(encoder_meta_data_path, "r") as f:
++            encoder_meta = json.load(f)
+ 
+-    def init_encoder_states(self, batch_size: int = 1):
+-        encoder_meta = self.encoder.get_modelmeta().custom_metadata_map
+         logging.info(f"encoder_meta={encoder_meta}")
+ 
+         model_type = encoder_meta["model_type"]
+@@ -225,7 +243,7 @@ class OnnxModel:
+                 ]
+         embed_states = torch.zeros(batch_size, 128, 3, 19).numpy()
+         self.states.append(embed_states)
+-        processed_lens = torch.zeros(batch_size, dtype=torch.int64).numpy()
++        processed_lens = torch.zeros(batch_size, dtype=torch.int32).numpy()
+         self.states.append(processed_lens)
+ 
+         self.num_encoders = num_encoders
+@@ -233,14 +251,13 @@ class OnnxModel:
+         self.segment = T
+         self.offset = decode_chunk_len
+ 
+-    def init_decoder(self, decoder_model_filename: str):
+-        self.decoder = ort.InferenceSession(
+-            decoder_model_filename,
+-            sess_options=self.session_opts,
+-            providers=["CPUExecutionProvider"],
+-        )
++    def init_decoder(self, decoder_meta_data_path, decoder_model_filename: str):
++        self.decoder = torch.jit.load(decoder_model_filename)
++        self.decoder.eval()
++
++        with open(decoder_meta_data_path, "r") as f:
++            decoder_meta = json.load(f)
+ 
+-        decoder_meta = self.decoder.get_modelmeta().custom_metadata_map
+         self.context_size = int(decoder_meta["context_size"])
+         self.vocab_size = int(decoder_meta["vocab_size"])
+ 
+@@ -248,16 +265,8 @@ class OnnxModel:
+         logging.info(f"vocab_size: {self.vocab_size}")
+ 
+     def init_joiner(self, joiner_model_filename: str):
+-        self.joiner = ort.InferenceSession(
+-            joiner_model_filename,
+-            sess_options=self.session_opts,
+-            providers=["CPUExecutionProvider"],
+-        )
+-
+-        joiner_meta = self.joiner.get_modelmeta().custom_metadata_map
+-        self.joiner_dim = int(joiner_meta["joiner_dim"])
+-
+-        logging.info(f"joiner_dim: {self.joiner_dim}")
++        self.joiner = torch.jit.load(joiner_model_filename)
++        self.joiner.eval()
+ 
+     def _build_encoder_input_output(
+         self,
+@@ -316,8 +325,9 @@ class OnnxModel:
+ 
+         return encoder_input, encoder_output
+ 
+-    def _update_states(self, states: List[np.ndarray]):
+-        self.states = states
++    def _update_states(self, states: Tuple[torch.Tensor]):
++        for i in range(len(self.states)):
++            self.states[i] = states[i].cpu().numpy()
+ 
+     def run_encoder(self, x: torch.Tensor) -> torch.Tensor:
+         """
+@@ -330,11 +340,17 @@ class OnnxModel:
+         """
+         encoder_input, encoder_output_names = self._build_encoder_input_output(x)
+ 
+-        out = self.encoder.run(encoder_output_names, encoder_input)
++        inputs = []
++        for i, val in enumerate(encoder_input.values()):
++            inputs.append(torch.from_numpy(val).to(f'npu:{device}'))
+ 
+-        self._update_states(out[1:])
++        stream = mindietorch.npu.Stream(f'npu:{device}')
++        with mindietorch.npu.stream(stream):
++            out = self.encoder(*inputs)
++            stream.synchronize()
+ 
+-        return torch.from_numpy(out[0])
++        self._update_states(out[1:])
++        return out[0].cpu()
+ 
+     def run_decoder(self, decoder_input: torch.Tensor) -> torch.Tensor:
+         """
+@@ -344,12 +360,12 @@ class OnnxModel:
+         Returns:
+           Return a 2-D tensor of shape (N, joiner_dim)
+         """
+-        out = self.decoder.run(
+-            [self.decoder.get_outputs()[0].name],
+-            {self.decoder.get_inputs()[0].name: decoder_input.numpy()},
+-        )[0]
++        stream = mindietorch.npu.Stream(f'npu:{device}')
++        with mindietorch.npu.stream(stream):
++            out = self.decoder(decoder_input.to(f'npu:{device}'))
++            stream.synchronize()
+ 
+-        return torch.from_numpy(out)
++        return out.cpu()
+ 
+     def run_joiner(
+         self, encoder_out: torch.Tensor, decoder_out: torch.Tensor
+@@ -363,15 +379,13 @@ class OnnxModel:
+         Returns:
+           Return a 2-D tensor of shape (N, vocab_size)
+         """
+-        out = self.joiner.run(
+-            [self.joiner.get_outputs()[0].name],
+-            {
+-                self.joiner.get_inputs()[0].name: encoder_out.numpy(),
+-                self.joiner.get_inputs()[1].name: decoder_out.numpy(),
+-            },
+-        )[0]
+ 
+-        return torch.from_numpy(out)
++        stream = mindietorch.npu.Stream(f'npu:{device}')
++        with mindietorch.npu.stream(stream):
++            out = self.joiner(encoder_out.to(f'npu:{device}'), decoder_out.to(f'npu:{device}'))
++            stream.synchronize()
++
++        return out.cpu()
+ 
+ 
+ def read_sound_files(
+@@ -445,7 +459,7 @@ def greedy_search(
+     if decoder_out is None:
+         assert hyp is None, hyp
+         hyp = [blank_id] * context_size
+-        decoder_input = torch.tensor([hyp], dtype=torch.int64)
++        decoder_input = torch.tensor([hyp], dtype=torch.int32)
+         decoder_out = model.run_decoder(decoder_input)
+     else:
+         assert hyp is not None, hyp
+@@ -459,7 +473,7 @@ def greedy_search(
+         if y != blank_id:
+             hyp.append(y)
+             decoder_input = hyp[-context_size:]
+-            decoder_input = torch.tensor([decoder_input], dtype=torch.int64)
++            decoder_input = torch.tensor([decoder_input], dtype=torch.int32)
+             decoder_out = model.run_decoder(decoder_input)
+ 
+     return hyp, decoder_out
+@@ -472,7 +486,9 @@ def main():
+     logging.info(vars(args))
+ 
+     model = OnnxModel(
++        encoder_meta_data_path=args.encoder_meta_data_path,
+         encoder_model_filename=args.encoder_model_filename,
++        decoder_meta_data_path=args.decoder_meta_data_path,
+         decoder_model_filename=args.decoder_model_filename,
+         joiner_model_filename=args.joiner_model_filename,
+     )
+@@ -543,5 +559,8 @@ def main():
+ if __name__ == "__main__":
+     formatter = "%(asctime)s %(levelname)s [%(filename)s:%(lineno)d] %(message)s"
+ 
++    device = 0
++    mindietorch.set_device(device)
++
+     logging.basicConfig(format=formatter, level=logging.INFO)
+     main()
