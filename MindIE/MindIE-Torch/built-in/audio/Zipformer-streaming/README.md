@@ -27,12 +27,11 @@
 
 | 配套                          | 版本          | 
 |-----------------------------|-------------| 
-| CANN                        | 8.0.RC1     | -                                                       |
+| CANN                        | 8.0.RC2     | -                                                       |
 | Python                      | 3.10.13     |                                                           
 | torch                       | 2.1.0       |
-| Ascend-mindie-rt_1.0.RC1    | -           
-| Ascend-mindie-torch-1.0.RC1 | -           
-| 芯片类型                        | Ascend310P3 | -                                                         |
+| MindIE                      | 1.0.RC2.B071 |           
+| NPU version                     | Ascend310P3 | -                                                         |
 
 # 快速上手<a name="ZH-CN_TOPIC_0000001126281700"></a>
 
