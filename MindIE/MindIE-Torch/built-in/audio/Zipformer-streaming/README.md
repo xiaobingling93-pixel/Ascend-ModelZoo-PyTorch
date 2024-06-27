@@ -108,23 +108,28 @@ icefall-asr-zipformer-streaming-wenetspeech-20230615
     cp egs/librispeech/ASR/zipformer/export-onnx-streaming.py egs/librispeech/ASR/zipformer/export-aie-streaming.py
     cp egs/librispeech/ASR/zipformer/onnx_pretrained-streaming.py egs/librispeech/ASR/zipformer/aie_pretrained-streaming.py
    
-    patch -p1 < export_onnx.patch
-    patch -p1 < export_aie.patch
-    patch -p1 < aie_streaming_infer.diff
+    patch -p1 < ../export_onnx.patch
+    patch -p1 < ../export_aie.patch
+    patch -p1 < ../aie_streaming_infer.diff
     ```
 2. 将本代码仓的性能精度测试相关脚本（perf_test_aie.py, perf_test_onnx.py, precision_test.py, utils.py）
 拷贝到icefall/egs/librispeech/ASR/zipformer目录下。
 
 3. 导出onnx模型，用于精度测试。
-    ```shell
+   ```shell
    cd icefall/egs/librispeech/ASR/zipformer
-    # 注意将"icefall-asr-zipformer-streaming-wenetspeech-20230615"修改为实际路径
+   ```
+   ```shell
+   # 注意将`MODEL_PATH`修改为"icefall-asr-zipformer-streaming-wenetspeech-20230615"的绝对路径
+   export MODEL_PATH=/absolute/path/to/icefall-asr-zipformer-streaming-wenetspeech-20230615
+   ```
+   ```shell
    python ./export-onnx-streaming.py \
-     --tokens icefall-asr-zipformer-streaming-wenetspeech-20230615/data/lang_char/tokens.txt \
+     --tokens ${MODEL_PATH}/data/lang_char/tokens.txt \
      --use-averaged-model 0 \
      --epoch 12 \
      --avg 1 \
-     --exp-dir icefall-asr-zipformer-streaming-wenetspeech-20230615/exp \
+     --exp-dir ${MODEL_PATH}/exp \
      --num-encoder-layers "2,2,3,4,3,2" \
      --downsampling-factor "1,2,4,8,4,2" \
      --feedforward-dim "512,768,1024,1536,1024,768" \
@@ -149,14 +154,19 @@ icefall-asr-zipformer-streaming-wenetspeech-20230615
 4. 导出torchscript模型，并进行编译。
    ```shell
    cd icefall/egs/librispeech/ASR/zipformer
-   
+   ```
+   ```shell
+   # 注意将`MODEL_PATH`修改为"icefall-asr-zipformer-streaming-wenetspeech-20230615"的绝对路径
+   export MODEL_PATH=/absolute/path/to/icefall-asr-zipformer-streaming-wenetspeech-20230615
+   ```
+   ```shell
    # 注意将"icefall-asr-zipformer-streaming-wenetspeech-20230615"修改为实际路径
    python ./export-aie-streaming.py \
-     --tokens icefall-asr-zipformer-streaming-wenetspeech-20230615/data/lang_char/tokens.txt \
+     --tokens ${MODEL_PATH}/data/lang_char/tokens.txt \
      --use-averaged-model 0 \
      --epoch 12 \
      --avg 1 \
-     --exp-dir icefall-asr-zipformer-streaming-wenetspeech-20230615/exp \
+     --exp-dir ${MODEL_PATH}/exp \
      --num-encoder-layers "2,2,3,4,3,2" \
      --downsampling-factor "1,2,4,8,4,2" \
      --feedforward-dim "512,768,1024,1536,1024,768" \
@@ -193,10 +203,10 @@ icefall-asr-zipformer-streaming-wenetspeech-20230615
       python ./aie_pretrained-streaming.py \
         --encoder-meta-data-path=./encoder_meta_data.json \
         --decoder-meta-data-path=./decoder_meta_data.json \
-        --encoder-model-filename icefall-asr-zipformer-streaming-wenetspeech-20230615/exp/encoder-epoch-12-avg-1-chunk-16-left-128_aie.pt \
-        --decoder-model-filename icefall-asr-zipformer-streaming-wenetspeech-20230615/exp/decoder-epoch-12-avg-1-chunk-16-left-128_aie.pt \
-        --joiner-model-filename icefall-asr-zipformer-streaming-wenetspeech-20230615/exp/joiner-epoch-12-avg-1-chunk-16-left-128_aie.pt \
-        --tokens icefall-asr-zipformer-streaming-wenetspeech-20230615/data/lang_char/tokens.txt \
+        --encoder-model-filename ${MODEL_PATH}/exp/encoder-epoch-12-avg-1-chunk-16-left-128_aie.pt \
+        --decoder-model-filename ${MODEL_PATH}/exp/decoder-epoch-12-avg-1-chunk-16-left-128_aie.pt \
+        --joiner-model-filename ${MODEL_PATH}/exp/joiner-epoch-12-avg-1-chunk-16-left-128_aie.pt \
+        --tokens ${MODEL_PATH}/data/lang_char/tokens.txt \
         ./zh.wav
       ```
       执行结束后，会在命令行看到如下输出，说明推理成功，且结果正确：
@@ -210,14 +220,14 @@ icefall-asr-zipformer-streaming-wenetspeech-20230615
    
     # 注意将"icefall-asr-zipformer-streaming-wenetspeech-20230615"修改为实际路径
    python precision_test.py \
-     --encoder_onnx_path=icefall-asr-zipformer-streaming-wenetspeech-20230615/exp/encoder-epoch-12-avg-1-chunk-16-left-128.onnx \
-     --encoder_aie_path=icefall-asr-zipformer-streaming-wenetspeech-20230615/exp/encoder-epoch-12-avg-1-chunk-16-left-128_aie.pt \
-     --decoder_onnx_path=icefall-asr-zipformer-streaming-wenetspeech-20230615/exp/decoder-epoch-12-avg-1-chunk-16-left-128.onnx \
-     --decoder_aie_path=icefall-asr-zipformer-streaming-wenetspeech-20230615/exp/decoder-epoch-12-avg-1-chunk-16-left-128_aie.pt \
-     --joiner_onnx_path=icefall-asr-zipformer-streaming-wenetspeech-20230615/exp/joiner-epoch-12-avg-1-chunk-16-left-128.onnx \
-     --joiner_aie_path=icefall-asr-zipformer-streaming-wenetspeech-20230615/exp/joiner-epoch-12-avg-1-chunk-16-left-128_aie.pt
+     --encoder_onnx_path=${MODEL_PATH}/exp/encoder-epoch-12-avg-1-chunk-16-left-128.onnx \
+     --encoder_aie_path=${MODEL_PATH}/exp/encoder-epoch-12-avg-1-chunk-16-left-128_aie.pt \
+     --decoder_onnx_path=${MODEL_PATH}/exp/decoder-epoch-12-avg-1-chunk-16-left-128.onnx \
+     --decoder_aie_path=${MODEL_PATH}/exp/decoder-epoch-12-avg-1-chunk-16-left-128_aie.pt \
+     --joiner_onnx_path=${MODEL_PATH}/exp/joiner-epoch-12-avg-1-chunk-16-left-128.onnx \
+     --joiner_aie_path=${MODEL_PATH}/exp/joiner-epoch-12-avg-1-chunk-16-left-128_aie.pt
    ```
-    执行结束后，会在命令行看到如下输出，说明三个模型的精度均达标，即aie与onnx模型每个输出节点的相似度均大于0.99：
+    执行结束后，会在命令行看到如下输出，说明三个模型的精度均达标，即MindIE ts模型与onnx模型每个输出节点的相似度均大于0.99：
     ```shell
    === Compare the outputs of ONNX and AIE ===
    Start comparing encoder...
@@ -233,15 +243,15 @@ icefall-asr-zipformer-streaming-wenetspeech-20230615
    Number of outputs with cosine similarity > 0.99: 1
     ```
 7. 性能测试
-   1. aie模型性能测试
+   1. MindIE ts模型性能测试
       ```shell
       cd icefall/egs/librispeech/ASR/zipformer
       
       python perf_test_aie.py \
         --encoder_meta_data_path=./encoder_meta_data.json \
-        --encoder_aie_path=icefall-asr-zipformer-streaming-wenetspeech-20230615/exp/encoder-epoch-12-avg-1-chunk-16-left-128_aie.pt \
-        --decoder_aie_path=icefall-asr-zipformer-streaming-wenetspeech-20230615/exp/decoder-epoch-12-avg-1-chunk-16-left-128_aie.pt \
-        --joiner_aie_path=icefall-asr-zipformer-streaming-wenetspeech-20230615/exp/joiner-epoch-12-avg-1-chunk-16-left-128_aie.pt \
+        --encoder_aie_path=${MODEL_PATH}/exp/encoder-epoch-12-avg-1-chunk-16-left-128_aie.pt \
+        --decoder_aie_path=${MODEL_PATH}/exp/decoder-epoch-12-avg-1-chunk-16-left-128_aie.pt \
+        --joiner_aie_path=${MODEL_PATH}/exp/joiner-epoch-12-avg-1-chunk-16-left-128_aie.pt \
         --device_id=0
       ```
       执行结束后，三个模型的性能信息会打印在命令行，如下所示：
@@ -269,9 +279,9 @@ icefall-asr-zipformer-streaming-wenetspeech-20230615
       cd icefall/egs/librispeech/ASR/zipformer
       
       python perf_test_onnx.py \
-        --encoder_path icefall-asr-zipformer-streaming-wenetspeech-20230615/exp/encoder-epoch-12-avg-1-chunk-16-left-128.onnx \
-        --decoder_path icefall-asr-zipformer-streaming-wenetspeech-20230615/exp/decoder-epoch-12-avg-1-chunk-16-left-128.onnx \
-        --joiner_path icefall-asr-zipformer-streaming-wenetspeech-20230615/exp/joiner-epoch-12-avg-1-chunk-16-left-128.onnx \
+        --encoder_path ${MODEL_PATH}/exp/encoder-epoch-12-avg-1-chunk-16-left-128.onnx \
+        --decoder_path ${MODEL_PATH}/exp/decoder-epoch-12-avg-1-chunk-16-left-128.onnx \
+        --joiner_path ${MODEL_PATH}/exp/joiner-epoch-12-avg-1-chunk-16-left-128.onnx \
         --use_gpu  # 若使用CPU，请删除此参数
       ```
       执行结束后，三个模型的性能信息会打印在命令行，如下所示：
