@@ -1,4 +1,3 @@
-
 import logging
 import os
 import sys
@@ -13,7 +12,6 @@ from rouge_chinese import Rouge
 from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
 import torch
 import torch_npu
-import deepspeed_npu
 from torch_npu.contrib import transfer_to_npu
 
 import transformers
@@ -32,6 +30,7 @@ from arguments import ModelArguments, DataTrainingArguments
 
 logger = logging.getLogger(__name__)
 
+
 def main():
     parser = HfArgumentParser((ModelArguments, DataTrainingArguments, Seq2SeqTrainingArguments))
     if len(sys.argv) == 2 and sys.argv[1].endswith(".json"):
@@ -40,8 +39,6 @@ def main():
         model_args, data_args, training_args = parser.parse_json_file(json_file=os.path.abspath(sys.argv[1]))
     else:
         model_args, data_args, training_args = parser.parse_args_into_dataclasses()
-
-
 
     # Set seed before initializing model.
     set_seed(training_args.seed)
@@ -71,8 +68,6 @@ def main():
     config.prefix_projection = model_args.prefix_projection
 
     tokenizer = AutoTokenizer.from_pretrained(model_args.model_name_or_path, trust_remote_code=True)
-
-
 
     prefix = data_args.source_prefix if data_args.source_prefix is not None else ""
 
@@ -119,7 +114,6 @@ def main():
         return model_inputs
 
     def preprocess_function_train(examples):
-        # max_seq_length = data_args.max_source_length + data_args.max_target_length + 1
         max_seq_length = data_args.max_source_length + data_args.max_target_length
 
         model_inputs = {
@@ -137,17 +131,15 @@ def main():
                 a_ids = tokenizer.encode(text=prompt, add_special_tokens=True, truncation=True,
                                          max_length=data_args.max_source_length)
                 b_ids = tokenizer.encode(text=answer, add_special_tokens=False, truncation=True,
-                                         max_length=data_args.max_target_length)
+                                         max_length=data_args.max_target_length - 1)
 
                 context_length = len(a_ids)
-                # Tag:差不多 a+b+eos;
+                # Tag:a+b+eos;
                 input_ids = a_ids + b_ids + [tokenizer.eos_token_id]
                 labels = [tokenizer.pad_token_id] * context_length + b_ids + [tokenizer.eos_token_id]
-                # print("input_ids.shape, labels.shape ", input_ids.shape, labels.shape)
                 pad_len = max_seq_length - len(input_ids)
                 input_ids = input_ids + [tokenizer.pad_token_id] * pad_len
                 labels = labels + [tokenizer.pad_token_id] * pad_len
-                # print("2==== input_ids.shape, labels.shape ", input_ids.shape, labels.shape)
                 if data_args.ignore_pad_token_for_loss:
                     labels = [(l if l != tokenizer.pad_token_id else -100) for l in labels]
 
@@ -173,12 +165,10 @@ def main():
             model_inputs_datasets = datasets.Dataset.from_pandas(pd.DataFrame(train_dataset))
             model_inputs_datasets.save_to_disk(f"{phase}_datasets")
 
-
     func_dict = {"train": preprocess_function_train, "validation": preprocess_function_eval,
                  "test": preprocess_function_eval}
     if training_args.do_train:
         process_dataset("train")
-        # print_dataset_example(train_dataset[0])
     elif training_args.do_eval:
         process_dataset("validation")
     elif training_args.do_predict:

@@ -13,3 +13,6 @@ accelerate
 sse-starlette
 datasets
 peft
+deepspeed==0.14.4
+decorator
+scipy

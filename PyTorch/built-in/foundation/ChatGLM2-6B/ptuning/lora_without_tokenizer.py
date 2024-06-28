@@ -45,7 +45,6 @@ from rouge_chinese import Rouge
 from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
 import torch
 import torch_npu
-import deepspeed_npu
 from torch_npu.contrib import transfer_to_npu
 
 import transformers

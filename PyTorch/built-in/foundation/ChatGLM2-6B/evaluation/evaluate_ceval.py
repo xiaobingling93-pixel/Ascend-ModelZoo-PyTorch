@@ -18,6 +18,8 @@ import glob
 import re
 import json
 import torch
+import torch_npu
+from torch_npu.contrib import transfer_to_npu
 import torch.utils.data
 from transformers import AutoTokenizer, AutoModel
 from tqdm import tqdm
