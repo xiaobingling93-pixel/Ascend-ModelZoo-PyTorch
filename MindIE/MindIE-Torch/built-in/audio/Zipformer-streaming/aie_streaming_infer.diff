@@ -238,5 +238,6 @@ index e011c4b..493bf0c 100755
 +    device = 0
 +    mindietorch.set_device(device)
 +
-     logging.basicConfig(format=formatter, level=logging.INFO)
+-    logging.basicConfig(format=formatter, level=logging.INFO)
++    logging.getLogger().setLevel(logging.INFO)
      main()
