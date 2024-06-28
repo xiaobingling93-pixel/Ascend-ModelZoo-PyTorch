@@ -278,12 +278,12 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
 
 
 ##### 性能
-| 芯片 | 卡数 | FPS  | batch_size | sp_size | AMP_Type | Torch_Version |
-|:---:|:---:|:----:|:----------:|:---:|:---:|:---:|
-| 竞品A | 8p | 3.56 |     8     |1 | bf16 | 2.1 |
-| Atlas 800T A2 | 8p | 2.35 |     8 |1       | bf16 | 2.1 |
-| 竞品A-sp | 8p | 7.08 |     8     |8 | bf16 | 2.1 |
-| Atlas 800T A2-dsp + vae sp | 8p | 5.88 |     8 |8       | bf16 | 2.1 |
+| 芯片 | 卡数 |  FPS  | batch_size | sp_size | AMP_Type | Torch_Version |
+|:---:|:---:|:-----:|:----------:|:---:|:---:|:---:|
+| 竞品A | 8p | 3.56  |     8      |1 | bf16 | 2.1 |
+| Atlas 800T A2 | 8p | 2.35  |     8      |1       | bf16 | 2.1 |
+| 竞品A-sp | 8p | 0.885 |     1      |8 | bf16 | 2.1 |
+| Atlas 800T A2-dsp + vae sp | 8p | 0.68  |     1      |8       | bf16 | 2.1 |
 
 
 
