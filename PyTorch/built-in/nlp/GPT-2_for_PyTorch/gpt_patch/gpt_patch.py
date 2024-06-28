@@ -1051,6 +1051,10 @@ torch.npu.set_option(option)
 # cast weight for NPU
 torch.nn.Module.cast_weight = cast_weight
 
+# delete checkout for torch.autograd.Function.apply for torch
+if torch.__version__ >= "2.0":
+    delattr(torch.autograd.Function, "apply")
+
 # fix mismatch for NPU in deepspeed
 engine.DeepSpeedEngine._configure_fp16_optimizer = _configure_fp16_optimizer
 deepspeed.runtime.utils.PartitionedTensor.from_meta = FromMeta
