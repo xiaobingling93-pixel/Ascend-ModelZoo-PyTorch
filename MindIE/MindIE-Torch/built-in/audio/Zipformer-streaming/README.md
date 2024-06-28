@@ -256,12 +256,12 @@ icefall-asr-zipformer-streaming-wenetspeech-20230615
       ```
       执行结束后，三个模型的性能信息会打印在命令行，如下所示：
       ```shell
-      Encoder latency: 19.92 ms
-      Encoder throughput: 50.19 fps
-      Decoder latency: 0.19 ms
-      Decoder throughput: 5353.36 fps
-      Joiner latency: 0.23 ms
-      Joiner throughput: 4387.90 fps
+      Encoder latency: 18.14 ms
+      Encoder throughput: 55.12 fps
+      Decoder latency: 0.18 ms
+      Decoder throughput: 5592.55 fps
+      Joiner latency: 0.21 ms
+      Joiner throughput: 4859.97 fps
       ```
    2. onnx模型性能测试。  
       1. （可选）若使用GPU，请确保已安装CUDA和pytorch-gpu版本，同时需安装onnxruntime-gpu，如下所示：
@@ -286,12 +286,12 @@ icefall-asr-zipformer-streaming-wenetspeech-20230615
       ```
       执行结束后，三个模型的性能信息会打印在命令行，如下所示：
       ```shell
-      Encoder latency: 58.07 ms
-      Encoder throughput: 17.22 fps
-      Decoder latency: 1.80 ms
-      Decoder throughput: 555.71 fps
-      Joiner latency: 0.20 ms
-      Joiner throughput: 5032.52 fps
+      Encoder latency: 47.35 ms
+      Encoder throughput: 21.12 fps
+      Decoder latency: 0.12 ms
+      Decoder throughput: 8526.05 fps
+      Joiner latency: 0.19 ms
+      Joiner throughput: 5366.10 fps
       ```
 
 # 模型推理性能精度<a name="ZH-CN_TOPIC_0000001172201573"></a>
