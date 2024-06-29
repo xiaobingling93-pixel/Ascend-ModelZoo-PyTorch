@@ -12,7 +12,7 @@ num_workers = 4
 dtype = "bf16"
 grad_checkpoint = False
 plugin = "zero2-seq"
-sp_size = 8 # 当sp_size设置为1时，将不会使能序列并行
+sp_size = 4 # 当sp_size设置为1时，将不会使能序列并行
 # context_parallel_algo设置为'megatron_cp_algo'表示序列并行使用ring attention算法, 设置为"ulysses_cp_algo"表示序列并行算法使用ulysses算法, 设置为"dsp_cp_algo"表示序列并行算法使用dsp算法
 context_parallel_algo = 'dsp_cp_algo'
 use_cp_send_recv_overlap = False  # 是否开启序列并行send recv overlap, 仅在context_parallel_algo设置为'megatron_cp_algo'有效

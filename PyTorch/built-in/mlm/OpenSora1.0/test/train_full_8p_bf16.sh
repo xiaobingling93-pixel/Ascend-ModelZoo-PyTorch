@@ -1,6 +1,6 @@
 # 微调生成的ckpt路径
 Network="OpenSora"
-BATCH_SIZE=1
+BATCH_SIZE=2
 max_train_steps=0
 export WORLD_SIZE=8
 export MASTER_PORT=29500
