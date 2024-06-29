@@ -2,6 +2,9 @@
 
 
 ##################基础配置参数，需要模型审视修改##################
+# 设置OMP线程数
+export OMP_NUM_THREADS=5
+
 # 必选字段(必须在此处定义的参数): Network batch_size RANK_SIZE
 #网络名称，同目录名称
 Network="wav2vec2.0"
