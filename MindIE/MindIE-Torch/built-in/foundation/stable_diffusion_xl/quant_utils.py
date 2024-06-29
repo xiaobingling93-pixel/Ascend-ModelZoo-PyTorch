@@ -59,11 +59,7 @@ class QuantLinearModule(nn.Module):
         self.layer = layer
         self.weight = torch.nn.Parameter(quant_weight, requires_grad=False)
         self.set_bias = False
-        if self.layer.bias is not None:
-            self.bias = torch.nn.Parameter(torch.round(self.layer.bias / torch.squeeze(input_scale) / torch.squeeze(
-                weight_scale)).to(torch.int32), requires_grad=False)
-        else:
-            self.bias = None
+        self.bias = layer.bias
         self.de_quant = DeQuantize(deq_scale)
 
     def forward(self, x, scale: float = 1.0):
@@ -74,7 +70,6 @@ class QuantLinearModule(nn.Module):
 
 
 def modify_model(model, input_scale_dict, input_offset_dict, weight_scale_dict, weight_offset_dict, quant_weight_dict):
-    torch.ops.load_library("./quant/build/libquant_ops.so")
     for name, layer in model.named_modules():
         if name in input_scale_dict:
             if quant_weight_dict[name] is None:
@@ -98,6 +93,12 @@ def modify_model(model, input_scale_dict, input_offset_dict, weight_scale_dict, 
             if isinstance(layer, nn.Conv2d):
                 quant_module = QuantConvModule(layer, input_scale, input_offset, quant_weight, weight_scale, deq_scale)
             elif isinstance(layer, nn.Linear):
+
+                correction = quant_weight.to(torch.float32).sum(dim=1)*input_offset.to(torch.float32)
+                ori_bias = layer.bias if layer.bias is not None else 0
+                int_bias = torch.nn.Parameter(torch.round(ori_bias/torch.Tensor(x_scale)-correction).to(torch.int32),
+                                              requires_grad=False)
+                layer.bias = int_bias
                 quant_module = QuantLinearModule(layer, input_scale, input_offset, quant_weight, weight_scale,
                                                  deq_scale)
             else:

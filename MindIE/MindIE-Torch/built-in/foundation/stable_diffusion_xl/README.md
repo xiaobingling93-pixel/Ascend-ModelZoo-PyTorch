@@ -390,6 +390,11 @@
       python3 export_ts_quant.py --model ${model_base} --output_dir ./models_quant --batch_size 1 --soc A2 --device 0 --height 1024 --width 1024
       ```
 
+      参数说明：
+      - --batch_size：设置batch_size, 默认值为1, 可支持batch_size=2的场景
+      - --height：默认分辨率为1024x1024，可支持512x512的场景（性能受影响）
+      - --width：默认分辨率为1024x1024，可支持512x512的场景（性能受影响）
+
    5. 开始推理验证。
 
       执行命令：
@@ -405,6 +410,7 @@
               --output_dir ./models_quant \
               --flag 3 \
               --use_cache \
+              --batch_size 1 \
               --height 1024 \
               --width 1024 \
               --quant
@@ -417,6 +423,7 @@
               --steps 50 \
               --output_dir ./models_quant \
               --flag 3 \
+              --batch_size 1 \
               --height 1024 \
               --width 1024 \
               --quant

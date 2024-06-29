@@ -95,11 +95,9 @@ def export_clip(sd_pipeline, args):
     clip_path = os.path.join(args.output_dir, "clip")
     if not os.path.exists(clip_path):
         os.makedirs(clip_path, mode=0o640)
-    batch_size = args.batch_size
+    batch_size = 1
     clip_pt_path = os.path.join(clip_path, f"clip_bs{batch_size}.pt")
     clip2_pt_path = os.path.join(clip_path, f"clip2_bs{batch_size}.pt")
-    clip1_compiled_path = os.path.join(clip_path, f"clip_bs{batch_size}_compile_quant_{args.height}x{args.width}.ts")
-    clip2_compiled_path = os.path.join(clip_path, f"clip2_bs{batch_size}_compile_quant_{args.height}x{args.width}.ts")
 
     encoder_model = sd_pipeline.text_encoder
     max_position_embeddings = encoder_model.config.max_position_embeddings
@@ -108,6 +106,9 @@ def export_clip(sd_pipeline, args):
     trace_clip(sd_pipeline, batch_size, clip_pt_path, clip2_pt_path)
 
     # compile
+    batch_size = args.batch_size
+    clip1_compiled_path = os.path.join(clip_path, f"clip_bs{batch_size}_compile_quant_{args.height}x{args.width}.ts")
+    clip2_compiled_path = os.path.join(clip_path, f"clip2_bs{batch_size}_compile_quant_{args.height}x{args.width}.ts")
     if not os.path.exists(clip1_compiled_path):
         model = torch.jit.load(clip_pt_path).eval()
         inputs = [mindietorch.Input((batch_size, max_position_embeddings), dtype=mindietorch.dtype.INT64)]
@@ -122,10 +123,9 @@ def export_vae(sd_pipeline, args):
     vae_path = os.path.join(args.output_dir, "vae")
     if not os.path.exists(vae_path):
         os.makedirs(vae_path, mode=0o640)
-    batch_size = args.batch_size
+    batch_size = 1
     height_size, width_size = args.height // 8, args.width // 8
     vae_pt_path = os.path.join(vae_path, f"vae_bs{batch_size}.pt")
-    vae_compiled_path = os.path.join(vae_path, f"vae_bs{batch_size}_compile_quant_{args.height}x{args.width}.ts")
 
     vae_model = sd_pipeline.vae
     unet_model = sd_pipeline.unet
@@ -139,6 +139,8 @@ def export_vae(sd_pipeline, args):
         torch.jit.trace(vae_export, dummy_input).save(vae_pt_path)
 
     # compile
+    batch_size = args.batch_size
+    vae_compiled_path = os.path.join(vae_path, f"vae_bs{batch_size}_compile_quant_{args.height}x{args.width}.ts")
     if not os.path.exists(vae_compiled_path):
         model = torch.jit.load(vae_pt_path).eval()
         inputs = [
@@ -146,7 +148,7 @@ def export_vae(sd_pipeline, args):
         compile_vae(model, inputs, vae_compiled_path, soc_version)
 
 def trace_ddim(sd_pipeline, args, ddim_pt_path):
-    batch_size = args.batch_size * 2
+    batch_size = 2
     if not os.path.exists(ddim_pt_path):
         dummy_input = (
             torch.randn([batch_size, 4, 128, 128], dtype=torch.float32),
@@ -180,10 +182,9 @@ def export_ddim(sd_pipeline, args):
     ddim_path = os.path.join(args.output_dir, "ddim")
     if not os.path.exists(ddim_path):
         os.makedirs(ddim_path, mode=0o744)
-    batch_size = args.batch_size * 2
+    batch_size = 2
     height_size, width_size = args.height // 8, args.width // 8
     ddim_pt_path = os.path.join(ddim_path, f"ddim_bs{batch_size}.pt")
-    scheduler_compiled_path = os.path.join(ddim_path, f"ddim_bs{batch_size}_compile_quant_{args.height}x{args.width}.ts")
 
     unet_model = sd_pipeline.unet
     ddim_model = sd_pipeline.scheduler
@@ -193,6 +194,8 @@ def export_ddim(sd_pipeline, args):
     # trace
     trace_ddim(sd_pipeline, args, ddim_pt_path)
     # compile
+    batch_size = args.batch_size * 2
+    scheduler_compiled_path = os.path.join(ddim_path, f"ddim_bs{batch_size}_compile_quant_{args.height}x{args.width}.ts")
     if not os.path.exists(scheduler_compiled_path):
         model = torch.jit.load(ddim_pt_path).eval()
         inputs = [
@@ -206,7 +209,7 @@ def export_ddim(sd_pipeline, args):
         compile_ddim(model, inputs, scheduler_compiled_path, soc_version)
 
 def trace_ddim_parallel(sd_pipeline, args, ddim_pt_path):
-    batch_size = args.batch_size
+    batch_size = 1
     if not os.path.exists(ddim_pt_path):
         dummy_input = (
             torch.randn([batch_size, 4, 128, 128], dtype=torch.float32),
@@ -241,16 +244,17 @@ def export_ddim_parallel(sd_pipeline, args):
     ddim_path = os.path.join(args.output_dir, "ddim")
     if not os.path.exists(ddim_path):
         os.makedirs(ddim_path, mode=0o640)
-    batch_size = args.batch_size
+    batch_size = 1
     height_size, width_size = args.height // 8, args.width // 8
     ddim_pt_path = os.path.join(ddim_path, f"ddim_bs{batch_size}.pt")
-    scheduler_compiled_path = os.path.join(ddim_path, f"ddim_bs{batch_size}_parallel_compile_quant_{args.height}x{args.width}.ts")
 
     in_channels = 4
 
     # trace
     trace_ddim_parallel(sd_pipeline, args, ddim_pt_path)
     # compile
+    batch_size = args.batch_size
+    scheduler_compiled_path = os.path.join(ddim_path, f"ddim_bs{batch_size}_parallel_compile_quant_{args.height}x{args.width}.ts")
     if not os.path.exists(scheduler_compiled_path):
         model = torch.jit.load(ddim_pt_path).eval()
         inputs = [
@@ -276,8 +280,8 @@ def trace_quant_model(model, calib_datas, input_shape, pt_path):
     calibrator.export_param(os.path.join(save_path, 'quant_weights'))
     input_scale = np.load(os.path.join(save_path, 'quant_weights', 'input_scale.npy'), allow_pickle=True).item()
     input_offset = np.load(os.path.join(save_path, 'quant_weights', 'input_offset.npy'), allow_pickle=True).item()
-    weight_scale = np.load(os.path.join(save_path, 'quant_weights', 'input_scale.npy'), allow_pickle=True).item()
-    weight_offset = np.load(os.path.join(save_path, 'quant_weights', 'weight_scale.npy'), allow_pickle=True).item()
+    weight_scale = np.load(os.path.join(save_path, 'quant_weights', 'weight_scale.npy'), allow_pickle=True).item()
+    weight_offset = np.load(os.path.join(save_path, 'quant_weights', 'weight_offset.npy'), allow_pickle=True).item()
     quant_weight = np.load(os.path.join(save_path, 'quant_weights', 'quant_weight.npy'), allow_pickle=True).item()
 
     export_model = modify_model(export_model, input_scale, input_offset, weight_scale, weight_offset, quant_weight)
@@ -290,13 +294,12 @@ def export_unet_cache(sd_pipeline, args, input_data):
         os.makedirs(unet_path, mode=0o640)
     if input_data['parallel']:
         parallel = "parallel_"
-        batch_size = args.batch_size
+        batch_size = 1
     else:
         parallel = ""
-        batch_size = args.batch_size * 2
+        batch_size = 2
     height_size, width_size = args.height // 8, args.width // 8
     unet_pt_path = os.path.join(unet_path, f"unet_bs{batch_size}_0.pt")
-    unet_compiled_path = os.path.join(unet_path, f"unet_bs{batch_size}_{parallel}compile_0_quant_{args.height}x{args.width}.ts")
 
     unet_model = copy.deepcopy(sd_pipeline.unet)
     sample_size = unet_model.config.sample_size
@@ -314,6 +317,8 @@ def export_unet_cache(sd_pipeline, args, input_data):
         unet.eval()
         trace_quant_model(unet, calib_datas, [batch_size, in_channels, sample_size, sample_size], unet_pt_path)
     # compile
+    batch_size = args.batch_size * 2
+    unet_compiled_path = os.path.join(unet_path, f"unet_bs{batch_size}_{parallel}compile_0_quant_{args.height}x{args.width}.ts")
     if not os.path.exists(unet_compiled_path):
         model = torch.jit.load(unet_pt_path).eval()
         inputs = [
@@ -335,13 +340,12 @@ def export_unet_skip(sd_pipeline, args, input_data):
         os.makedirs(unet_path, mode=0o640)
     if input_data['parallel']:
         parallel = "parallel_"
-        batch_size = args.batch_size
+        batch_size = 1
     else:
         parallel = ""
-        batch_size = args.batch_size * 2
+        batch_size = 2
     height_size, width_size = args.height // 8, args.width // 8
     unet_pt_path = os.path.join(unet_path, f"unet_bs{batch_size}_1.pt")
-    unet_compiled_path = os.path.join(unet_path, f"unet_bs{batch_size}_{parallel}compile_1_quant_{args.height}x{args.width}.ts")
 
     unet_model = copy.deepcopy(sd_pipeline.unet)
     sample_size = unet_model.config.sample_size
@@ -359,6 +363,8 @@ def export_unet_skip(sd_pipeline, args, input_data):
         unet.eval()
         trace_quant_model(unet, calib_datas, [batch_size, in_channels, sample_size, sample_size], unet_pt_path)
     # compile
+    batch_size = args.batch_size * 2
+    unet_compiled_path = os.path.join(unet_path, f"unet_bs{batch_size}_{parallel}compile_1_quant_{args.height}x{args.width}.ts")
     if not os.path.exists(unet_compiled_path):
         model = torch.jit.load(unet_pt_path).eval()
         inputs = [
@@ -381,10 +387,9 @@ def export_unet_init(sd_pipeline, args, input_data):
     unet_path = os.path.join(args.output_dir, "unet")
     if not os.path.exists(unet_path):
         os.makedirs(unet_path, mode=0o640)
-    batch_size = args.batch_size * 2
+    batch_size = 2
     height_size, width_size = args.height // 8, args.width // 8
     unet_pt_path = os.path.join(unet_path, f"unet_bs{batch_size}.pt")
-    unet_compiled_path = os.path.join(unet_path, f"unet_bs{batch_size}_compile_quant_{args.height}x{args.width}.ts")
 
     unet_model = copy.deepcopy(sd_pipeline.unet)
     encoder_model = sd_pipeline.text_encoder
@@ -402,6 +407,8 @@ def export_unet_init(sd_pipeline, args, input_data):
         unet.eval()
         trace_quant_model(unet, calib_datas, [batch_size, in_channels, sample_size, sample_size], unet_pt_path)
     # compile
+    batch_size = args.batch_size * 2
+    unet_compiled_path = os.path.join(unet_path, f"unet_bs{batch_size}_compile_quant_{args.height}x{args.width}.ts")
     if not os.path.exists(unet_compiled_path):
         model = torch.jit.load(unet_pt_path).eval()
         inputs = [
@@ -438,6 +445,7 @@ def export(args):
 def main():
     args = parse_arguments()
     mindietorch.set_device(args.device)
+    torch.ops.load_library("./quant/build/libquant_ops.so")
     export(args)
     print("Done.")
     mindietorch.finalize()
