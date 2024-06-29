@@ -57,47 +57,30 @@ def evaluation(image_bin_path, image_feat_bin_path, text_bin_path, ids_path, mas
     model.to(device)
     model.eval()
 
-    # make sure right orders of bin files according to the sumary.json file
-    def resolve_summary_file(summary_file):
-        sumary = json.load(open(summary_file, 'r'))
-        bin_dir = ['' for i in range(len(sumary['filesinfo']))]
-        for key in sumary['filesinfo']:
-            infile = sumary['filesinfo'][key]['infiles'][0]
-            id = int(infile.split('/')[-1][0:-4])
-            outfile = sumary['filesinfo'][key]['outfiles'][0]
-            outfile = outfile.split('/')[-1]
-            bin_dir[id] = outfile
-        return bin_dir
-
-    image_embed_sumary_file = os.path.join(image_bin_path, 'sumary.json')
-    image_embed_dir = resolve_summary_file(image_embed_sumary_file)
-
-    image_feat_summary_file = os.path.join(image_feat_bin_path, 'sumary.json')
-    image_feat_dir = resolve_summary_file(image_feat_summary_file)
-
-    text_embed_sumary_file = os.path.join(text_bin_path, 'sumary.json')
-    text_embed_dir = resolve_summary_file(text_embed_sumary_file)
+    image_embed_files = os.listdir(image_bin_path)
+    image_feat_files = os.listdir(image_feat_bin_path)
+    text_embed_files = os.listdir(text_bin_path)
 
     # read bin files
     text_embeds = []  # [256]
     image_embeds = []  # [256]
     image_feats = []  # [577*768]
 
-    for image_bin in image_embed_dir:
-        files = np.fromfile(image_bin_path + image_bin,
-                            dtype=np.float32)  # [256]
-        image_embeds.append(files)
-
-    for image_feat_bin in image_feat_dir:
-        files = np.fromfile(image_feat_bin_path +
-                            image_feat_bin, dtype=np.float32)  # [443136]
-        data = files.reshape(577, 768)
-        image_feats.append(data)
-
-    for text_bin in text_embed_dir:
-        text_files = np.fromfile(
-            text_bin_path + text_bin, dtype=np.float32)  # [256]
-        text_embeds.append(text_files)
+    for file in image_embed_files:
+        file_path = os.path.join(image_bin_path, file)
+        image_embed = np.fromfile(file_path, dtype=np.float32)  # [256]
+        image_embeds.append(image_embed)
+        
+    for file in image_feat_files:
+        file_path = os.path.join(image_feat_path, file)
+        image_feat = np.fromfile(file_path, dtype=np.float32)  # [443136]
+        image_feat = image_feat.reshape(577, 768)
+        image_feats.append(image_feat)
+        
+    for file in text_embed_files:
+        file_path = os.path.join(text_bin_path, file)
+        text_embed = np.fromfile(file_path, dtype=np.float32)  # [256]
+        text_embeds.append(text_embed)
 
     print("Load bins completed.")
 
@@ -154,7 +137,7 @@ def evaluation(image_bin_path, image_feat_bin_path, text_bin_path, ids_path, mas
     sims_matrix = image_embeds @ text_embeds.t()
     sims_matrix = sims_matrix.to(device)
     score_matrix_i2t = torch.full(
-        (len(image_embed_dir), len(text_embed_dir)), -100.0).to(device)
+        (len(image_embed_files), len(text_embed_files)), -100.0).to(device)
 
     num_tasks = utils.get_world_size()
     rank = utils.get_rank()
@@ -186,7 +169,7 @@ def evaluation(image_bin_path, image_feat_bin_path, text_bin_path, ids_path, mas
 
     sims_matrix = sims_matrix.t()
     score_matrix_t2i = torch.full(
-        (len(text_embed_dir), len(image_embed_dir)), -100.0)
+        (len(text_embed_files), len(image_embed_files)), -100.0)
     score_matrix_t2i = score_matrix_t2i.to(device)
 
     step = sims_matrix.size(0)//num_tasks + 1
