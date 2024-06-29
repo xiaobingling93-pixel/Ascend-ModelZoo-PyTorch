@@ -76,6 +76,7 @@ if [ x"${etp_flag}" != x"true" ];then
 fi
 #训练开始时间，不需要修改
 start_time=$(date +%s)
+KERNEL_NUM=$(($(nproc)/8))
 for((RANK_ID=$RANK_ID_START;RANK_ID<$((RANK_SIZE+RANK_ID_START));RANK_ID++));
 do
     #设置环境变量，不需要修改
@@ -96,22 +97,48 @@ do
     #let a=RANK_ID*12
     #let b=RANK_ID+1
     #let c=b*12-1
-    nohup python3 ${cur_path}/main.py \
-        --arch=mobilenet \
-        --data=${data_path} \
-        --batch_size=${batch_size} \
-        --learning-rate=${learning_rate} \
-        --epochs=$train_epochs \
-        --apex \
-        --apex-opt-level='O1' \
-        --workers=128 \
-        --print-freq=1 \
-        --distributed \
-		--lr-step-size=2 \
-		--lr-gamma=0.973 \
-		--wd=0.00001 \
-        --world-size=1 \
-        --dist-rank=0 > $test_path_dir/output/$ASCEND_DEVICE_ID/train_$ASCEND_DEVICE_ID.log 2>&1 &
+    if [ $(uname -m) = "aarch64"]
+    then
+        PID_START=$((KERNEL_NUM * RANK_ID))
+        PID_END=$((PID_START + KERNEL_NUM - 1))
+        taskset -c $PID_START-$PID_END nohup python3 ${cur_path}/main.py \
+            --arch=mobilenet \
+            --data=${data_path} \
+            --batch_size=${batch_size} \
+            --learning-rate=${learning_rate} \
+            --epochs=$train_epochs \
+            --apex \
+            --apex-opt-level='O1' \
+            --workers=128 \
+            --print-freq=1 \
+            --distributed \
+            --lr-step-size=2 \
+            --lr-gamma=0.973 \
+            --wd=0.00001 \
+            --world-size=1 \
+            --max_steps=64 \
+            --data_shuffle \
+            --dist-rank=0 > $test_path_dir/output/$ASCEND_DEVICE_ID/train_$ASCEND_DEVICE_ID.log 2>&1 &
+    else
+        nohup python3 ${cur_path}/main.py \
+           --arch=mobilenet \
+            --data=${data_path} \
+            --batch_size=${batch_size} \
+            --learning-rate=${learning_rate} \
+            --epochs=$train_epochs \
+            --apex \
+            --apex-opt-level='O1' \
+            --workers=128 \
+            --print-freq=1 \
+            --distributed \
+            --lr-step-size=2 \
+            --lr-gamma=0.973 \
+            --wd=0.00001 \
+            --world-size=1 \
+            --max_steps=64 \
+            --data_shuffle \
+            --dist-rank=0 > $test_path_dir/output/$ASCEND_DEVICE_ID/train_$ASCEND_DEVICE_ID.log 2>&1 & 
+fi
 done
 wait
 #训练结束时间，不需要修改
