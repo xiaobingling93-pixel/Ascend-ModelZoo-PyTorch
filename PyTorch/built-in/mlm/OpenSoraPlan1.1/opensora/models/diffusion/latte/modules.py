@@ -1,4 +1,6 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 from importlib import import_module
+import math
 
 import numpy as np
 from typing import Any, Dict, Optional, Tuple, Callable
@@ -28,6 +30,9 @@ if is_xformers_available():
 else:
     xformers = None
 
+from opensora.utils.npu_utils import is_npu_available
+if is_npu_available():
+    import torch_npu
 
 class CombinedTimestepSizeEmbeddings(nn.Module):
     """
@@ -936,7 +941,7 @@ class AttnProcessor2_0:
             hidden_states = attn.group_norm(hidden_states.transpose(1, 2)).transpose(1, 2)
 
         args = () if USE_PEFT_BACKEND else (scale,)
-        query = attn.to_q(hidden_states, *args)
+        query = attn.to_q(hidden_states, *args).contiguous()
 
         if encoder_hidden_states is None:
             encoder_hidden_states = hidden_states
@@ -945,53 +950,73 @@ class AttnProcessor2_0:
 
         
 
-        key = attn.to_k(encoder_hidden_states, *args)
-        value = attn.to_v(encoder_hidden_states, *args)
+        key = attn.to_k(encoder_hidden_states, *args).contiguous()
+        value = attn.to_v(encoder_hidden_states, *args).contiguous()
 
         inner_dim = key.shape[-1]
         head_dim = inner_dim // attn.heads
 
-        query = query.view(batch_size, -1, attn.heads, head_dim).transpose(1, 2)
+        if is_npu_available() and not self.use_rope and query.dtype in (torch.float16, torch.bfloat16):
+            scale = 1 / math.sqrt(head_dim)
+            mask = attention_mask
+            if attention_mask is not None:
+                mask = mask.bool().expand(-1, -1, query.shape[1], -1)
+            hidden_states = torch_npu.npu_fusion_attention(
+                query,
+                key,
+                value,
+                head_num=attn.heads,
+                input_layout="BSH",
+                scale=scale,
+                pse=None,
+                atten_mask=mask,
+                pre_tockens=2147483647,
+                next_tockens=2147483647,
+                keep_prob=1,
+                inner_precise=0
+            )[0].contiguous()
+        else:
+            query = query.view(batch_size, -1, attn.heads, head_dim).transpose(1, 2)
 
-        key = key.view(batch_size, -1, attn.heads, head_dim).transpose(1, 2)
-        value = value.view(batch_size, -1, attn.heads, head_dim).transpose(1, 2)
+            key = key.view(batch_size, -1, attn.heads, head_dim).transpose(1, 2)
+            value = value.view(batch_size, -1, attn.heads, head_dim).transpose(1, 2)
 
-        if self.use_rope:
-            # require the shape of (batch_size x nheads x ntokens x dim)
-            if position_q.ndim == 3:
-                query = self.rope2d(query, position_q) 
-            elif position_q.ndim == 2:
-                query = self.rope1d(query, position_q) 
-            else:
-                raise NotImplementedError
-            if position_k.ndim == 3:
-                key = self.rope2d(key, position_k)
-            elif position_k.ndim == 2:
-                key = self.rope1d(key, position_k)
-            else:
-                raise NotImplementedError
+            if self.use_rope:
+                # require the shape of (batch_size x nheads x ntokens x dim)
+                if position_q.ndim == 3:
+                    query = self.rope2d(query, position_q)
+                elif position_q.ndim == 2:
+                    query = self.rope1d(query, position_q)
+                else:
+                    raise NotImplementedError
+                if position_k.ndim == 3:
+                    key = self.rope2d(key, position_k)
+                elif position_k.ndim == 2:
+                    key = self.rope1d(key, position_k)
+                else:
+                    raise NotImplementedError
 
-        # the output of sdp = (batch, num_heads, seq_len, head_dim)
-        # TODO: add support for attn.scale when we move to Torch 2.1
-        if self.attention_mode == 'flash':
-            assert attention_mask is None or torch.all(attention_mask.bool()), 'flash-attn do not support attention_mask'
-            with torch.backends.cuda.sdp_kernel(enable_math=False, enable_flash=True, enable_mem_efficient=False):
-                hidden_states = F.scaled_dot_product_attention(
-                    query, key, value, dropout_p=0.0, is_causal=False
-                )
-        elif self.attention_mode == 'xformers':
-            with torch.backends.cuda.sdp_kernel(enable_math=False, enable_flash=False, enable_mem_efficient=True):
+            # the output of sdp = (batch, num_heads, seq_len, head_dim)
+            # TODO: add support for attn.scale when we move to Torch 2.1
+            if self.attention_mode == 'flash':
+                assert attention_mask is None or torch.all(attention_mask.bool()), 'flash-attn do not support attention_mask'
+                with torch.backends.cuda.sdp_kernel(enable_math=False, enable_flash=True, enable_mem_efficient=False):
+                    hidden_states = F.scaled_dot_product_attention(
+                        query, key, value, dropout_p=0.0, is_causal=False
+                    )
+            elif self.attention_mode == 'xformers':
+                with torch.backends.cuda.sdp_kernel(enable_math=False, enable_flash=False, enable_mem_efficient=True):
+                    hidden_states = F.scaled_dot_product_attention(
+                        query, key, value, attn_mask=attention_mask, dropout_p=0.0, is_causal=False
+                    )
+            elif self.attention_mode == 'math':
                 hidden_states = F.scaled_dot_product_attention(
                     query, key, value, attn_mask=attention_mask, dropout_p=0.0, is_causal=False
                 )
-        elif self.attention_mode == 'math':
-            hidden_states = F.scaled_dot_product_attention(
-                query, key, value, attn_mask=attention_mask, dropout_p=0.0, is_causal=False
-            )
-        else:
-            raise NotImplementedError(f'Found attention_mode: {self.attention_mode}')
-        hidden_states = hidden_states.transpose(1, 2).reshape(batch_size, -1, attn.heads * head_dim)
-        hidden_states = hidden_states.to(query.dtype)
+            else:
+                raise NotImplementedError(f'Found attention_mode: {self.attention_mode}')
+            hidden_states = hidden_states.transpose(1, 2).reshape(batch_size, -1, attn.heads * head_dim)
+            hidden_states = hidden_states.to(query.dtype)
 
         # linear proj
         hidden_states = attn.to_out[0](hidden_states, *args)

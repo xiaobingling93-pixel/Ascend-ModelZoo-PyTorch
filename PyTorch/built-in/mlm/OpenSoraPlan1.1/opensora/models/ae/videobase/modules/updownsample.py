@@ -1,3 +1,4 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 from typing import Union, Tuple
 import torch
 import torch.nn as nn
@@ -9,6 +10,10 @@ from .ops import cast_tuple, video_to_image
 from .conv import CausalConv3d
 from einops import rearrange
 from .block import Block
+
+from opensora.utils.npu_utils import is_npu_available
+if is_npu_available():
+    import torch_npu
 
 class Upsample(Block):
     def __init__(self, in_channels, out_channels):
@@ -115,14 +120,20 @@ class TimeDownsample2x(Block):
     ):
         super().__init__()
         self.kernel_size = kernel_size
-        self.conv = nn.AvgPool3d((kernel_size,1,1), stride=(2,1,1))
-        
+        self.conv = nn.AvgPool1d(kernel_size, stride=2)
+
     def forward(self, x):
         first_frame_pad = x[:, :, :1, :, :].repeat(
             (1, 1, self.kernel_size - 1, 1, 1)
         )
         x = torch.concatenate((first_frame_pad, x), dim=2)
-        return self.conv(x)
+        n, c, d, h, w = x.shape
+
+        if is_npu_available():
+            conv_res = self.conv(torch_npu.npu_confusion_transpose(x, (0, 1, 3, 4, 2), (n, c * h * w, d), True))
+            return conv_res.reshape(n, c, h, w, -1).permute(0, 1, 4, 2, 3)
+        else:
+            return self.conv(x)
 
 class TimeUpsample2x(Block):
     def __init__(
@@ -148,7 +159,7 @@ class TimeDownsampleRes2x(nn.Module):
     ):
         super().__init__()
         self.kernel_size = cast_tuple(kernel_size, 3)
-        self.avg_pool = nn.AvgPool3d((kernel_size,1,1), stride=(2,1,1))
+        self.avg_pool = nn.AvgPool1d(kernel_size, stride=2)
         self.conv = nn.Conv3d(
             in_channels, out_channels, self.kernel_size, stride=(2,1,1), padding=(0,1,1)
         )
@@ -160,7 +171,13 @@ class TimeDownsampleRes2x(nn.Module):
             (1, 1, self.kernel_size[0] - 1, 1, 1)
         )
         x = torch.concatenate((first_frame_pad, x), dim=2)
-        return alpha * self.avg_pool(x) + (1 - alpha) * self.conv(x)
+        n, c, d, h, w = x.shape
+        if is_npu_available():
+            pool_res = self.avg_pool(x.float().permute(0, 1, 3, 4, 2).reshape(n, c*h*w, d)).reshape(n, c, h, w, -1).permute(0, 1, 4, 2, 3)
+            return alpha * pool_res.to(x.dtype) + (1 - alpha) * self.conv(x)
+        else:
+            pool_res = self.avg_pool(x.permute(0, 1, 3, 4, 2).reshape(n, c*h*w, d)).reshape(n, c, h, w, -1).permute(0, 1, 4, 2, 3)
+            return alpha * pool_res + (1 - alpha) * self.conv(x)
 
 class TimeUpsampleRes2x(nn.Module):
     def __init__(

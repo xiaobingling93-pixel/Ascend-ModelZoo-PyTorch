@@ -1,3 +1,4 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 from importlib import import_module
 import math
 
@@ -892,6 +893,9 @@ class AttnProcessor2_0:
 
         if is_npu_available() and query.dtype in (torch.float16, torch.bfloat16):
             scale = 1 / math.sqrt(head_dim)
+            mask = attention_mask
+            if attention_mask is not None:
+                mask = mask.bool().expand(-1, -1, query.shape[1], -1)
             hidden_states = torch_npu.npu_fusion_attention(
                     query,
                     key, 
@@ -900,6 +904,7 @@ class AttnProcessor2_0:
                     input_layout="BSH", 
                     scale=scale,
                     pse=None,
+                    atten_mask=mask,
                     pre_tockens=2147483647,
                     next_tockens=2147483647,
                     keep_prob=1.0,

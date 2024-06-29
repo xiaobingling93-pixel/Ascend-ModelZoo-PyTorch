@@ -1,3 +1,4 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 # Copyright (c) Meta Platforms, Inc. and affiliates.
 # All rights reserved.
 
@@ -23,6 +24,14 @@ from torch.utils.data import DataLoader
 from copy import deepcopy
 import accelerate
 import torch
+
+from opensora.utils.npu_utils import is_npu_available
+if is_npu_available():
+    import torch_npu
+    from torch_npu.contrib import transfer_to_npu
+    torch.npu.config.allow_internal_format = False
+    from mindspeed.optimizer.adamw import AdamW
+
 from torch.nn import functional as F
 import transformers
 from accelerate import Accelerator
@@ -47,6 +56,7 @@ from opensora.models.diffusion.latte.modeling_latte import LatteT2V
 from opensora.models.text_encoder import get_text_enc, get_text_warpper
 from opensora.utils.dataset_utils import Collate
 from opensora.models.ae import ae_stride_config, ae_channel_config
+from opensora.models.ae.imagebase import vae
 from opensora.models.diffusion import Diffusion_models
 from opensora.sample.pipeline_videogen import VideoGenPipeline
 from opensora.utils.utils import print_grad_norm
@@ -310,7 +320,10 @@ def main(args):
 
         optimizer_class = bnb.optim.AdamW8bit
     else:
-        optimizer_class = torch.optim.AdamW
+        if is_npu_available():
+            optimizer_class = AdamW
+        else:
+            optimizer_class = torch.optim.AdamW
 
     # Optimizer creation
     params_to_optimize = model.parameters()
@@ -429,11 +442,11 @@ def main(args):
                 
                 with torch.no_grad():
                     # use for loop to avoid OOM, because T5 is too huge...
-                    B, _, _ = input_ids.shape  # B T+num_images L  b 1+4, L
-                    cond = torch.stack([text_enc(input_ids[i], cond_mask[i]) for i in range(B)])  # B 1+num_images L D
+                    B, N, L = input_ids.shape  # B T+num_images L  b 1+4, L
+                    cond = text_enc(input_ids.reshape(-1, L), cond_mask.reshape(-1, L)).reshape(B, N, L, -1)  # B 1+num_images L D
                     
                     # Map input images to latent space + normalize latents
-                    if args.use_image_num == 0:
+                    if args.use_image_num == 0 or (args.ae in vae and args.use_img_from_vid):
                         x = ae.encode(x)  # B C T H W
                     else:
                         videos, images = x[:, :, :-args.use_image_num], x[:, :, -args.use_image_num:]
@@ -505,7 +518,6 @@ def main(args):
                 optimizer.step()
                 lr_scheduler.step()
                 optimizer.zero_grad()
-
             # Checks if the accelerator has performed an optimization step behind the scenes
             if accelerator.sync_gradients:
                 progress_bar.update(1)
