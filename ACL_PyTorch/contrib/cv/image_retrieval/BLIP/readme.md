@@ -274,11 +274,6 @@ BLIP模型为一种新的Vision-Language Pre-training框架，它可以灵活地
    2. 执行推理。
 
         ```
-         mkdir coco2014_infer
-         mkdir coco2014_infer/image_embed
-         mkdir coco2014_infer/image_feat
-         mkdir coco2014_infer/text_embed
-
          python -m ais_bench \
                --model ./BLIP_image_bs${batchsize}.om \
                --input ./coco2014_bin/img/ \
