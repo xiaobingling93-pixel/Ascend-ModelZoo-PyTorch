@@ -1,5 +1,5 @@
---- attention_processor.py	2024-02-22 19:06:56.596000000 +0800
-+++ attention_processor.py	2024-02-22 19:07:17.232000000 +0800
+--- attention_processor.py	2024-07-02 07:42:32.312000000 +0000
++++ attention_processor.py	2024-07-02 07:44:55.100000000 +0000
 @@ -205,10 +205,11 @@
          # We use the AttnProcessor2_0 by default when torch 2.x is used which uses
          # torch.nn.functional.scaled_dot_product_attention for native Flash/memory_efficient_attention
@@ -14,5 +14,5 @@
 +        #     )
 +        processor = AttnProcessor()
          self.set_processor(processor)
-
+ 
      def set_use_memory_efficient_attention_xformers(

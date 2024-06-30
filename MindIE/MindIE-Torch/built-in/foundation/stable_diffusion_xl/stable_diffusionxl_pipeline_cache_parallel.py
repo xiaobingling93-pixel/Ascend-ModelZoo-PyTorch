@@ -1004,7 +1004,8 @@ def main():
             flag_ddim=flag_ddim,
             flag_cache=flag_cache,
         )
-        use_time += time.time() - start_time
+        if i > 4: # do not count the time spent inferring the first 0 to 4 images
+            use_time += time.time() - start_time
 
         for j in range(n_prompts):
             image_save_path = os.path.join(save_dir, f"{save_names[j]}.png")
@@ -1017,6 +1018,7 @@ def main():
 
             image_info[-1]['images'].append(image_save_path)
 
+    infer_num = infer_num - 5 # do not count the time spent inferring the first 5 images
     print(f"[info] infer number: {infer_num}; use time: {use_time:.3f}s\n"
           f"average time: {use_time / infer_num:.3f}s\n"
           f"clip time: {clip_time / infer_num:.3f}s\n"
