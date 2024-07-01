@@ -1,8 +1,8 @@
 #!/bin/bash
 source groundingdino_npu/env_npu.sh
 PYTHON_PATH="Python Env Path"
-export ADS_PYTHON_PATH=${PYTHON_PATH}/lib/python3.8
-export ASCEND_CUSTOM_OPP_PATH=${ADS_PYTHON_PATH}/site-packages/ads/packages/vendors/customize
+export Mx_Driving_PYTHON_PATH=${PYTHON_PATH}/lib/python3.8
+export ASCEND_CUSTOM_OPP_PATH=${Mx_Driving_PYTHON_PATH}/site-packages/mx_driving/packages/vendors/customize
 export LD_LIBRARY_PATH=${ASCEND_CUSTOM_OPP_PATH}/op_api/lib/:$LD_LIBRARY_PATH
 
 python groundingdino_npu/image_demo_npu.py \

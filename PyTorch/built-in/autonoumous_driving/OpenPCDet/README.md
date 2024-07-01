@@ -137,12 +137,12 @@ cd ../ && pip install pytorch_scatter/dist/torch_scatter-*.whl
 python -c "import torch_scatter"
 ```
 
-#### 2.5 编译安装ads
-参考ADS官方gitee仓README安装编译构建并安装ADS包：[参考链接](https://gitee.com/ascend/ads)
+#### 2.5 编译安装mxDriving
+参考mxDriving官方gitee仓README安装编译构建并安装mxDriving包：[参考链接](https://gitee.com/ascend/mxDriving)
 
 【注意】安装完毕后建议运行以下命令，如无报错，证明安装无误，可继续安装流程
 ```shell
-python -c "import ads"
+python -c "import mx_driving"
 ```
 
 #### 2.6 编译安装OpenPCDet

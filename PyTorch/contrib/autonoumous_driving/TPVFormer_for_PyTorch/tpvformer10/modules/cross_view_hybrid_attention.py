@@ -17,7 +17,7 @@ from mmcv.ops.multi_scale_deform_attn import multi_scale_deformable_attn_pytorch
 import math
 import torch
 import torch_npu
-import ads.common
+import mx_driving.common
 import torch.nn as nn
 from mmcv.cnn import xavier_init, constant_init
 from mmcv.cnn.bricks.registry import ATTENTION
@@ -202,7 +202,7 @@ class TPVCrossViewHybridAttention(BaseModule):
                 f' 2, but get {reference_points.shape[-1]} instead.')
         
 
-        output = ads.common.npu_multi_scale_deformable_attn_function(
+        output = mx_driving.common.npu_multi_scale_deformable_attn_function(
             value, spatial_shapes, level_start_index, sampling_locations, attention_weights)
 
         outputs = self.reshape_output(output, query_lens)

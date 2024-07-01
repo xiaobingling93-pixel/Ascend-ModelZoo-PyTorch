@@ -66,7 +66,7 @@ Grounding DINO是一个开放集目标检测模型，可以根据输入文本检
 |        CANN        | 8.0.RC1  |
 |      昇腾NPU固件       | 24.1.RC1 |
 |      昇腾NPU驱动       | 24.1.RC1 |
-|        ADS         |  v2.1.0  |
+|        Mx_Driving         |  6.0.RC2  |
 
 ### 安装模型环境
 
@@ -88,8 +88,8 @@ Grounding DINO是一个开放集目标检测模型，可以根据输入文本检
  pip install torch-2.1.0-cp38-cp38m-linux_aarch64.whl
  pip install torch_npu-2.1.0.XXX-cp38-cp38m-linux_aarch64.whl
  
- # 安装 ads-accelerator
- pip install ads_accelerator-*-cp38-cp38-linux_aarch64.whl
+ # 安装 mx_driving-accelerator
+ pip install mx_driving_accelerator-*-cp38-cp38-linux_aarch64.whl
 
  # 修改 ascend-toolkit 路径
  source /usr/local/Ascend/ascend-toolkit/set_env.sh 
@@ -249,8 +249,8 @@ python tools/dataset_converters/refcoco2odvg.py refcoco/mdetr_annotations
    # 修改 Python 路径
    PYTHON_PATH="Python Env Path"
    
-   export ADS_PYTHON_PATH=${PYTHON_PATH}/lib/python3.8
-   export ASCEND_CUSTOM_OPP_PATH=${ADS_PYTHON_PATH}/site-packages/ads/packages/vendors/customize
+   export Mx_Driving_PYTHON_PATH=${PYTHON_PATH}/lib/python3.8
+   export ASCEND_CUSTOM_OPP_PATH=${Mx_Driving_PYTHON_PATH}/site-packages/mx_driving/packages/vendors/customize
    export LD_LIBRARY_PATH=${ASCEND_CUSTOM_OPP_PATH}/op_api/lib/:$LD_LIBRARY_PATH
    python groundingdino_npu/image_demo_npu.py \
           demo/demo.jpg \

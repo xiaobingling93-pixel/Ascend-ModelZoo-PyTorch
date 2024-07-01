@@ -61,14 +61,14 @@
   |      三方库       |  支持版本  |
   |:--------------:|:------:|
   |    PyTorch     |  2.1   |
-  |    ADS-Accelerator     | latest |
+  |    Mx_Driving-Accelerator     | latest |
   |      mmcv      |  1.x   |
   |     mmdet      | 2.28.2 |
   | mmsegmentation | 0.30.0 |
 
-- 安装ADS-Accelerator
+- 安装Mx_Driving-Accelerator
 
-  请参考昇腾[ads](https://gitee.com/ascend/ads)代码仓说明编译安装ADS-Accelerator
+  请参考昇腾[mxDriving](https://gitee.com/ascend/mxDriving)代码仓说明编译安装Mx_Driving-Accelerator
 
 - 安装基础依赖
 

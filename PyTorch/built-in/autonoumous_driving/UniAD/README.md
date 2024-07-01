@@ -118,7 +118,7 @@
   pip install -r requirements.txt
   ```
 
-- 安装ADS加速库，安装方法参考[原仓](https://gitee.com/ascend/ads)，安装后手动source环境变量或将其配置在test/env_npu.sh中。
+- 安装mxDriving加速库，安装方法参考[原仓](https://gitee.com/ascend/mxDriving)，安装后手动source环境变量或将其配置在test/env_npu.sh中。
 
 ### 准备数据集
 

@@ -20,7 +20,7 @@ import math
 from mmcv.runner import force_fp32
 from mmcv.runner.base_module import BaseModule, ModuleList, Sequential
 from projects.mmdet3d_plugin.models.utils.bricks import run_time
-import ads.common
+import mx_driving.common
 
 bev_mask_global = torch.tensor([]).npu()
 indexes_global = None
@@ -387,7 +387,7 @@ class MSDeformableAttention3D(BaseModule):
 
         if torch.cuda.is_available() and value.is_cuda:
 
-            output = ads.common.npu_multi_scale_deformable_attn_function(value, spatial_shapes, level_start_index, 
+            output = mx_driving.common.npu_multi_scale_deformable_attn_function(value, spatial_shapes, level_start_index,
                                                                          sampling_locations, attention_weights)
         else:
             output = multi_scale_deformable_attn_pytorch(

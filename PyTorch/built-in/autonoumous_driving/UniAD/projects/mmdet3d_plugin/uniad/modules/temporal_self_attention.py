@@ -17,7 +17,7 @@ from mmcv.utils import (ConfigDict, build_from_cfg, deprecated_api_warning,
                         to_2tuple)
 
 from mmcv.utils import ext_loader
-import ads.common
+import mx_driving.common
 
 ext_module = ext_loader.load_ext(
     '_ext', ['ms_deform_attn_backward', 'ms_deform_attn_forward'])
@@ -238,7 +238,7 @@ class TemporalSelfAttention(BaseModule):
                 f' 2 or 4, but get {reference_points.shape[-1]} instead.')
         if torch.cuda.is_available() and value.is_cuda:
 
-            output = ads.common.npu_multi_scale_deformable_attn_function(value, spatial_shapes, level_start_index,
+            output = mx_driving.common.npu_multi_scale_deformable_attn_function(value, spatial_shapes, level_start_index,
                                                                          sampling_locations, attention_weights)
         else:
 
