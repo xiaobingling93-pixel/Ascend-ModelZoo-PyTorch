@@ -55,10 +55,10 @@
 
   | 配套                                                         | 版本    | 环境准备指导                                                 |
   | ------------------------------------------------------------ | ------- | ------------------------------------------------------------ |
-  | 固件与驱动                                                   | 1.0.17  | [Pytorch框架推理环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies) |
-  | CANN                                                         | 6.0.RC1 | -                                                            |
-  | Python                                                       | 3.7.5   | -                                                            |
-  | PyTorch                                                      | 1.8.0+ | -                                                            |
+  | 固件与驱动                                                   | 24.1RC2 | [Pytorch框架推理环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies) |
+  | CANN                                                         | 8.0.RC2 | -                                                            |
+  | Python                                                       | 3.10 | -                                                            |
+  | PyTorch                                                      | 1.13.1 | -                                                            |
   | 说明：Atlas 300I Duo 推理卡请以CANN版本选择实际固件与驱动版本。 | \       | \                                                            |
 
 
@@ -69,7 +69,7 @@
 
 1. 获取源码。
 
-   ```
+   ```shell
    git clone https://gitee.com/ascend/ModelZoo-PyTorch.git        # 克隆仓库的代码
    git checkout master         # 切换到对应分支
    cd ACL_PyTorch/built-in/cv/SwinTransformer_for_Pytorch              # 切换到模型的代码仓目录
@@ -81,7 +81,14 @@
    pip3 install -r requirements.txt
    ```
 
-   安装 [ait](https://gitee.com/ascend/ait/tree/master/ait)。
+3. 安装改图工具 ait surgeon，详见网址https://gitee.com/ascend/ait/tree/master/ait。
+
+   ```
+   git clone https://gitee.com/ascend/ait.git
+   cd ait/ait
+   pip install .
+   ait install surgeon
+   ```
 
 ## 准备数据集<a name="section183221994411"></a>
 
@@ -176,10 +183,10 @@
 
          ```
          # 以bs8，配置为swin_base_patch4_window12_384的模型为例
-         atc --model=models/onnx/swin_base_patch4_window12_384_bs8_opt.onnx --framework=5 --output=models/om/swin_base_patch4_window12_384_bs8 --input_format=NCHW --log=debug --soc_version=${chip_name} --output_type=FP16 --optypelist_for_implmode="Gelu" --op_select_implmode=high_performance --insert_op_conf aipp_384.config --enable_small_channel 1
+         atc --model=models/onnx/swin_base_patch4_window12_384_bs8_opt.onnx --framework=5 --output=models/om/swin_base_patch4_window12_384_bs8 --input_format=NCHW --log=debug --soc_version=${chip_name} --output_type=FP16 --optypelist_for_implmode="Gelu" --op_select_implmode=high_performance --insert_op_conf aipp_384.config --enable_small_channel 1 --fusion_switch_file switch.cfg
          
          # 以bs8，配置为swin_tiny_patch4_window7_224的模型为例
-         atc --model=models/onnx/swin_tiny_patch4_window7_224_bs8_opt.onnx --framework=5 --output=models/om/swin_tiny_patch4_window7_224_bs8 --input_format=NCHW --log=debug --soc_version=${chip_name} --output_type=FP16 --optypelist_for_implmode="Gelu" --op_select_implmode=high_performance --insert_op_conf aipp_224.config --enable_small_channel 1
+         atc --model=models/onnx/swin_tiny_patch4_window7_224_bs8_opt.onnx --framework=5 --output=models/om/swin_tiny_patch4_window7_224_bs8 --input_format=NCHW --log=debug --soc_version=${chip_name} --output_type=FP16 --optypelist_for_implmode="Gelu" --op_select_implmode=high_performance --insert_op_conf aipp_224.config --enable_small_channel 1 --fusion_switch_file switch.cfg
          ```
          
          - 参数说明：
@@ -190,7 +197,8 @@
            -   --input\_format：输入数据的格式。
            -   --log：日志级别。
            -   --soc\_version：处理器型号。
-         
+           -   --fusion_switch_file: 通过配置文件关闭指定的融合规则。
+           
            运行成功后生成swin_base_patch4_window12_384_bs8.om或swin_tiny_patch4_window7_224_bs8.om模型文件。
 
 2. 开始推理验证。<u>***根据实际推理工具编写***</u>
