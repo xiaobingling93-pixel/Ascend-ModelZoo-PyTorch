@@ -1,3 +1,17 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import torch
 from torchvision.utils import save_image
 from diffusion import create_diffusion
@@ -10,7 +24,12 @@ from models_npu import DiT_models
 
 def parse_arguments() -> Namespace:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", type=str, choices=list(DiT_models.keys()), default="DiT-XL/2")
+    parser.add_argument(
+        "--model",
+        type=str,
+        choices=list(DiT_models.keys()),
+        default="DiT-XL/2"
+    )
     parser.add_argument("--vae", type=str, choices=["ema", "mse"], default="mse")
     parser.add_argument("--image_size", type=int, choices=[256, 512], default=512)
     parser.add_argument("--num-classes", type=int, default=1000)
@@ -33,6 +52,28 @@ def parse_arguments() -> Namespace:
         help="Path of directory to save models"
     )
     return parser.parse_args()
+
+def warm_up(args, dit_compiled_model, vae_compiled_model):
+    batch = 1 if args.parallel else 2
+    latent_size = args.image_size // 8
+    x1 = torch.ones([batch, 4, latent_size, latent_size], dtype=torch.float32)
+    x2 = torch.ones([batch,], dtype=torch.int64)
+    x3 = torch.ones([batch,], dtype=torch.int64)
+    x4 = torch.ones([1, 4, latent_size, latent_size], dtype=torch.int64)
+    count = 5
+    stream = mindietorch.npu.Stream(f"npu:{args.device}")
+    for _ in range(count):
+        with mindietorch.npu.stream(stream):
+            dit_out_npu = dit_compiled_model(x1.to(f"npu:{args.device}"),
+                                             x2.to(f"npu:{args.device}"),
+                                             x3.to(f"npu:{args.device}"))
+            stream.synchronize()
+        dit_out_cpu = dit_out_npu.to("cpu")
+
+        with mindietorch.npu.stream(stream):
+            vae_out_npu = vae_compiled_model(x4.to(f"npu:{args.device}"))
+            stream.synchronize()
+        vae_out_cpu = vae_out_npu.to("cpu")
 
 def main(args):
     torch.manual_seed(args.seed)
@@ -78,6 +119,7 @@ def main(args):
     model_kwargs = dict(y=y, cfg_scale=args.cfg_scale)
 
     mindietorch.set_device(device_id)
+    warm_up(args, dit_compiled_model, vae_compiled_model)
     model.set_npu_model_stream(args.parallel, device_id, args.image_size, mindie_model_path, dit_compiled_model)
     start = time.time()
     samples = diffusion.p_sample_loop(

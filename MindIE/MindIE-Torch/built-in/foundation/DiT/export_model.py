@@ -1,3 +1,17 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import argparse
 import os
 from argparse import Namespace
@@ -116,7 +130,13 @@ def export_dit(args, soc_version):
         torch.jit.save(compiled_model, compiled_path)
 
 def export_vae(args, soc_version):
-    kind = args.vae_model[-3:]
+    if "ema" in args.vae_model:
+        kind = "ema"
+    elif "mse" in args.vae_model:
+        kind = "mse"
+    else:
+        print("unsupport vae weights name, must be sd-vae-ft-ema or sd-vae-ft-mse.")
+        return
     print(f"start trace vae_{kind}_{args.image_size}---------->")
     vae_path = os.path.join(args.output_dir, "vae")
     if not os.path.exists(vae_path):
