@@ -136,12 +136,6 @@ done
 
 wait
 
-python3 ${cur_path}/tools/test.py ${cur_path}/configs/deeplabv3/deeplabv3_r50-d8_512x1024_40k_cityscapes.py \
-        ${cur_path}/work_dirs/deeplabv3_r50-d8_512x1024_40k_cityscapes/latest.pth \
-        --eval mIoU >> ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log 2>&1 &
-
-wait
-
 # 复原参数
 sed -i "s|max_iters=1000|max_iters=7000|g" configs/deeplabv3/deeplabv3_r50-d8_512x1024_40k_cityscapes.py
 
@@ -157,11 +151,6 @@ FPS=`grep "FPS" ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVIC
 FPS=`awk 'BEGIN{printf "%.2f\n", '${FPS}'*'${nnodes}'}'`
 #打印，不需要修改
 echo "Final Performance images/sec : $FPS"
-
-#输出训练精度,需要模型审视修改
-train_accuracy=`grep '|'  ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log| awk 'END {print}'| awk -F " " '{print $2}'`
-#打印，不需要修改
-echo "Final Train Accuracy : ${train_accuracy}"
 echo "E2E Training Duration sec : $e2e_time"
 
 #性能看护结果汇总
