@@ -125,7 +125,8 @@ class PromptLoader:
                 self.prompts.append((prompt, catagory_id))
 
     def load_prompts_hpsv2(self, max_num_prompts: int):
-        all_prompts = hpsv2.benchmark_prompts('all')
+        with open('hpsv2_benchmark_prompts.json', 'r') as file:
+            all_prompts = json.load(file)
         count = 0
         for style, prompts in all_prompts.items():
             for prompt in prompts:

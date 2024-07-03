@@ -60,6 +60,11 @@
 1. 安装依赖。
    ```bash
    pip3 install -r requirements.txt
+
+   # 若要使用hpsv2验证精度，则还需要按照以下步骤安装hpsv2
+   git clone https://github.com/tgxs002/HPSv2.git
+   cd HPSv2
+   pip3 install -e .
    ```
 
 2. 安装mindie包
@@ -74,6 +79,10 @@
 3. 代码修改
 
    执行命令：
+
+   ```bash
+   # 若环境没有patch工具，请自行安装
+   ```
    
    ```bash
    python3 stable_diffusion_clip_patch.py
@@ -149,18 +158,21 @@
       python3 stable_diffusionxl_pipeline.py \
               --model ${model_base} \
               --prompt_file ./prompts.txt \
+              --prompt_file_type plain \
               --device 0 \
               --save_dir ./results \
               --steps 50 \
               --output_dir ./models \
               --flag 0 \
               --height 1024 \
-              --width 1024
+              --width 1024 \
+              --batch_size 1
       
       # 使用UnetCache策略
       python3 stable_diffusionxl_pipeline.py \
               --model ${model_base} \
               --prompt_file ./prompts.txt \
+              --prompt_file_type plain \
               --device 0 \
               --save_dir ./results_unetCache \
               --steps 50 \
@@ -168,12 +180,14 @@
               --use_cache \
               --flag 0 \
               --height 1024 \
-              --width 1024
+              --width 1024 \
+              --batch_size 1
       
       # 使用UnetCache策略,同时使用双卡并行策略
       python3 stable_diffusionxl_pipeline_cache_parallel.py \
               --model ${model_base} \
               --prompt_file ./prompts.txt \
+              --prompt_file_type plain \
               --device 0,1 \
               --save_dir ./results_unetCache_parallel \
               --steps 50 \
@@ -181,13 +195,15 @@
               --use_cache \
               --flag 0 \
               --height 1024 \
-              --width 1024
+              --width 1024 \
+              --batch_size 1
       ```
       
       参数说明：
       - --model：模型名称或本地模型目录的路径。
       - --output_dir：存放导出模型的目录。
       - --prompt_file：提示词文件。
+      - --prompt_file_type: prompt文件类型，用于指定读取方式，可选plain，parti，hpsv2。
       - --save_dir：生成图片的存放目录。
       - --batch_size：模型batch size。
       - --steps：生成图片迭代次数。
@@ -216,7 +232,9 @@
 
 ## 精度验证<a name="section741711594518"></a>
 
-   由于生成的图片存在随机性，所以精度验证将使用CLIP-score来评估图片和输入文本的相关性，分数的取值范围为[-1, 1]，越高越好。
+   由于生成的图片存在随机性，提供两种精度验证方法：
+   1. CLIP-score（文图匹配度量）：评估图片和输入文本的相关性，分数的取值范围为[-1, 1]，越高越好。使用Parti数据集进行验证。
+   2. HPSv2（图片美学度量）：评估生成图片的人类偏好评分，分数的取值范围为[0, 1]，越高越好。使用HPSv2数据集进行验证
 
    注意，由于要生成的图片数量较多，进行完整的精度验证需要耗费很长的时间。
 
@@ -226,15 +244,19 @@
       wget https://raw.githubusercontent.com/google-research/parti/main/PartiPrompts.tsv --no-check-certificate
       ```
 
-   2. 下载Clip模型权重
+   2. 下载模型权重
 
       ```bash
+      # Clip Score和HPSv2均需要使用的权重
       GIT_LFS_SKIP_SMUDGE=1 
       git clone https://huggingface.co/laion/CLIP-ViT-H-14-laion2B-s32B-b79K
       cd ./CLIP-ViT-H-14-laion2B-s32B-b79K
+      
+      # HPSv2权重
+      wget https://huggingface.co/spaces/xswu/HPSv2/resolve/main/HPS_v2_compressed.pt --no-check-certificate
       ```
       也可手动下载[权重](https://huggingface.co/laion/CLIP-ViT-H-14-laion2B-s32B-b79K/blob/main/open_clip_pytorch_model.bin)
-      将权重放到`CLIP-ViT-H-14-laion2B-s32B-b79K`目录下
+      将权重放到`CLIP-ViT-H-14-laion2B-s32B-b79K`目录下，手动下载[HPSv2权重](https://huggingface.co/spaces/xswu/HPSv2/resolve/main/HPS_v2_compressed.pt)放到当前路径
 
    3. 使用推理脚本读取Parti数据集，生成图片
 
@@ -252,7 +274,8 @@
               --output_dir ./models \
               --flag 0 \
               --height 1024 \
-              --width 1024
+              --width 1024 \
+              --batch_size 1
       
       # 使用UnetCache策略
       python3 stable_diffusionxl_pipeline.py \
@@ -268,7 +291,8 @@
               --use_cache \
               --flag 0 \
               --height 1024 \
-              --width 1024
+              --width 1024 \
+              --batch_size 1
       
       # 使用UnetCache策略,同时使用双卡并行策略
       python3 stable_diffusionxl_pipeline_cache_parallel.py \
@@ -284,16 +308,16 @@
               --use_cache \
               --flag 0 \
               --height 1024 \
-              --width 1024
-      
+              --width 1024 \
+              --batch_size 1
       ```
 
       参数说明：
       - --model：模型名称或本地模型目录的路径。
       - --output_dir：存放导出模型的目录。
       - --prompt_file：提示词文件。
-      - --prompt_file_type: prompt文件类型，用于指定读取方式，可选plain，parti，hpsv2。
-      - --num_images_per_prompt: 每个prompt生成的图片数量。
+      - --prompt_file_type: prompt文件类型，用于指定读取方式，可选plain，parti，hpsv2。注意使用hpsv2时，设置num_images_per_prompt=1即可。
+      - --num_images_per_prompt: 每个prompt生成的图片数量。注意使用hpsv2时，设置num_images_per_prompt=1即可。
       - --max_num_prompts：限制prompt数量为前X个，0表示不限制。
       - --save_dir：生成图片的存放目录。
       - --batch_size：模型batch size。
@@ -304,23 +328,41 @@
       带unetCache，执行完成后会在`./results_PartiPrompts_unetCache`目录下生成推理图片，并且会在当前目录生成一个`image_info.json`文件，记录着图片和prompt的对应关系。
       带unetCache，同时使用双卡并行策略，执行完成后会在`./results_PartiPrompts_unetCache_parallel`目录下生成推理图片，并且会在当前目录生成一个`image_info.json`文件，记录着图片和prompt的对应关系。
 
-   4. 计算CLIP-score
+   4. 计算精度指标
+   
+      1. CLIP-score
 
-      ```bash
-      python clip_score.py \
-             --device=cpu \
-             --image_info="image_info.json" \
-             --model_name="ViT-H-14" \
-             --model_weights_path="./CLIP-ViT-H-14-laion2B-s32B-b79K/open_clip_pytorch_model.bin"
-      ```
+         ```bash
+         python3 clip_score.py \
+               --device=cpu \
+               --image_info="image_info.json" \
+               --model_name="ViT-H-14" \
+               --model_weights_path="./CLIP-ViT-H-14-laion2B-s32B-b79K/open_clip_pytorch_model.bin"
+         ```
 
-      参数说明：
-      - --device: 推理设备。
-      - --image_info: 上一步生成的`image_info.json`文件。
-      - --model_name: Clip模型名称。
-      - --model_weights_path: Clip模型权重文件路径。
+         参数说明：
+         - --device: 推理设备。
+         - --image_info: 上一步生成的`image_info.json`文件。
+         - --model_name: Clip模型名称。
+         - --model_weights_path: Clip模型权重文件路径。
 
-      执行完成后会在屏幕打印出精度计算结果。
+         执行完成后会在屏幕打印出精度计算结果。
+      
+      2. HPSv2
+
+         ```bash
+         python3 hpsv2_score.py \
+               --image_info="image_info.json" \
+               --HPSv2_checkpoint="./HPS_v2_compressed.pt" \
+               --clip_checkpoint="./CLIP-ViT-H-14-laion2B-s32B-b79K/open_clip_pytorch_model.bin"
+         ```
+
+         参数说明：
+         - --image_info: 上一步生成的`image_info.json`文件。
+         - --HPSv2_checkpoint: HPSv2模型权重文件路径。
+         - --clip_checkpointh: Clip模型权重文件路径。
+
+         执行完成后会在屏幕打印出精度计算结果。
 
 
 ## 量化功能【可选】<a name="section741711594518"></a>

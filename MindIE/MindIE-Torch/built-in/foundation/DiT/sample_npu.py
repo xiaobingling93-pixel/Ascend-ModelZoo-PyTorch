@@ -51,6 +51,7 @@ def parse_arguments() -> Namespace:
         default="./models",
         help="Path of directory to save models"
     )
+    parser.add_argument("--warmup", action="store_true", help="Use warmup")
     return parser.parse_args()
 
 def warm_up(args, dit_compiled_model, vae_compiled_model):
@@ -119,7 +120,8 @@ def main(args):
     model_kwargs = dict(y=y, cfg_scale=args.cfg_scale)
 
     mindietorch.set_device(device_id)
-    warm_up(args, dit_compiled_model, vae_compiled_model)
+    if args.warmup:
+        warm_up(args, dit_compiled_model, vae_compiled_model)
     model.set_npu_model_stream(args.parallel, device_id, args.image_size, mindie_model_path, dit_compiled_model)
     start = time.time()
     samples = diffusion.p_sample_loop(

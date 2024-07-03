@@ -47,13 +47,14 @@ latent_size = image_size // 8
 
    ```bash
    git clone https://github.com/facebookresearch/DiT
-   mv background_runtime.py export_model.py models_npu.py sample_npu.py vision.patch timm_patch.py requirements.txt ./DiT
+   mv background_runtime.py export_model.py models_npu.py sample_npu.py vision.patch timm_patch.py requirements.txt fid_test.py ./DiT
    ```
 
 2. 安装依赖
 
    ```bash
    pip3 install -r requirements.txt
+
    ```
 
 3. 安装mindie包
@@ -67,6 +68,8 @@ latent_size = image_size // 8
 4. 代码修改
 
    ```
+   cd ./DiT
+   # 若环境没有patch工具，请自行安装
    python3 timm_patch.py
    ```
 
@@ -147,7 +150,8 @@ latent_size = image_size // 8
       --device 0 \
       --class_label 0 \
       --output_dir ./models \
-      --parallel
+      --parallel \
+      --warmup
       
       # A2
       python3 sample_npu.py \
@@ -156,7 +160,8 @@ latent_size = image_size // 8
       --ckpt ./DiT-XL-2-512x512.pt \
       --device 0 \
       --class_label 0 \
-      --output_dir ./models
+      --output_dir ./models \
+      --warmup
       ```
 
       参数说明：
@@ -168,10 +173,11 @@ latent_size = image_size // 8
       - --class_label：可在0~999中任意指定一个整数，代表image_net的种类
       - --output_dir：上一步骤指定的pt模型输出目录
       - --parallel：【可选】模型使用并行进行推理
+      - --warmup:【可选】，使用warmup可以使模型的推理时间更准确
 
 4. 精度验证
 
-   下载数据集[ImageNet512x512](https://openaipublic.blob.core.windows.net/diffusion/jul-2021/ref_batches/imagenet/512/VIRTUAL_imagenet512.npz)和[ImageNet256x256](https://openaipublic.blob.core.windows.net/diffusion/jul-2021/ref_batches/imagenet/256/VIRTUAL_imagenet256_labeled.npz)，放在任意路径
+   下载数据集[ImageNet512x512](https://openaipublic.blob.core.windows.net/diffusion/jul-2021/ref_batches/imagenet/512/VIRTUAL_imagenet512.npz)(VIRTUAL_imagenet512.npz)和[ImageNet256x256](https://openaipublic.blob.core.windows.net/diffusion/jul-2021/ref_batches/imagenet/256/VIRTUAL_imagenet256_labeled.npz)(VIRTUAL_imagenet256_labeled.npz)，放在任意路径
 
    然后执行以下命令：
 
@@ -204,7 +210,10 @@ latent_size = image_size // 8
    之后进行FID计算：
    
    ```bash
-   python3 -m pytorch_fid ./VIRTUAL_imagenet512.npz ./results 
+   # 512分辨率使用VIRTUAL_imagenet512.npz数据集
+   python3 -m pytorch_fid ./VIRTUAL_imagenet512.npz ./results
+   # 256分辨率使用VIRTUAL_imagenet256_labeled.npz数据集
+   python3 -m pytorch_fid ./VIRTUAL_imagenet256_labeled.npz ./results 
    ```
 
 # 模型推理性能&精度
