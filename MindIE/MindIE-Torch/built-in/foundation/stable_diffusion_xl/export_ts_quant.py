@@ -34,7 +34,7 @@ def parse_arguments() -> Namespace:
         "-o",
         "--output_dir",
         type=str,
-        default="./models",
+        default="./models_quant",
         help="Path of directory to save pt models.",
     )
     parser.add_argument(
@@ -268,16 +268,17 @@ def export_ddim_parallel(sd_pipeline, args):
             mindietorch.Input((1,), dtype=mindietorch.dtype.INT64)]
         compile_ddim(model, inputs, scheduler_compiled_path, soc_version)
 
-def trace_quant_model(model, calib_datas, input_shape, pt_path):
-    save_path = pt_path[:-3]
+def trace_quant_model(model, calib_datas, input_shape, pt_path, need_calib=True):
+    save_path = os.path.dirname(os.path.split(pt_path)[0])
     quant_model = copy.deepcopy(model)
     export_model = copy.deepcopy(model)
-    quant_config = QuantConfig(disable_names=[],
-                               amp_num=0, input_shape=input_shape,
-                               act_method=0, quant_mode=0, a_signed=True)
-    calibrator = Calibrator(quant_model, quant_config, calib_data=calib_datas)
-    calibrator.run()
-    calibrator.export_param(os.path.join(save_path, 'quant_weights'))
+    if need_calib:
+        quant_config = QuantConfig(disable_names=[],
+                                   amp_num=0, input_shape=input_shape,
+                                   act_method=0, quant_mode=0, a_signed=True, sigma=40)
+        calibrator = Calibrator(quant_model, quant_config, calib_data=calib_datas)
+        calibrator.run()
+        calibrator.export_param(os.path.join(save_path, 'quant_weights'))
     input_scale = np.load(os.path.join(save_path, 'quant_weights', 'input_scale.npy'), allow_pickle=True).item()
     input_offset = np.load(os.path.join(save_path, 'quant_weights', 'input_offset.npy'), allow_pickle=True).item()
     weight_scale = np.load(os.path.join(save_path, 'quant_weights', 'weight_scale.npy'), allow_pickle=True).item()
@@ -315,7 +316,7 @@ def export_unet_cache(sd_pipeline, args, input_data):
         calib_datas = [list(input_data['cache'])]
         unet = UnetExport(unet_model)
         unet.eval()
-        trace_quant_model(unet, calib_datas, [batch_size, in_channels, sample_size, sample_size], unet_pt_path)
+        trace_quant_model(unet, calib_datas, [batch_size, in_channels, sample_size, sample_size], unet_pt_path, need_calib=True)
     # compile
     batch_size = args.batch_size * 2
     unet_compiled_path = os.path.join(unet_path, f"unet_bs{batch_size}_{parallel}compile_0_quant_{args.height}x{args.width}.ts")
@@ -361,7 +362,7 @@ def export_unet_skip(sd_pipeline, args, input_data):
         calib_datas = [list(input_data['skip'])]
         unet = UnetExport(unet_model)
         unet.eval()
-        trace_quant_model(unet, calib_datas, [batch_size, in_channels, sample_size, sample_size], unet_pt_path)
+        trace_quant_model(unet, calib_datas, [batch_size, in_channels, sample_size, sample_size], unet_pt_path, need_calib=False)
     # compile
     batch_size = args.batch_size * 2
     unet_compiled_path = os.path.join(unet_path, f"unet_bs{batch_size}_{parallel}compile_1_quant_{args.height}x{args.width}.ts")
@@ -405,7 +406,7 @@ def export_unet_init(sd_pipeline, args, input_data):
         calib_datas = [list(input_data['no_cache'])]
         unet = UnetExportInit(unet_model)
         unet.eval()
-        trace_quant_model(unet, calib_datas, [batch_size, in_channels, sample_size, sample_size], unet_pt_path)
+        trace_quant_model(unet, calib_datas, [batch_size, in_channels, sample_size, sample_size], unet_pt_path, need_calib=True)
     # compile
     batch_size = args.batch_size * 2
     unet_compiled_path = os.path.join(unet_path, f"unet_bs{batch_size}_compile_quant_{args.height}x{args.width}.ts")

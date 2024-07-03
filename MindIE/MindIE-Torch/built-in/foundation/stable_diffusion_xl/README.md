@@ -62,7 +62,7 @@
    pip3 install -r requirements.txt
    ```
 
-2. 安装mindie和mindietorch包
+2. 安装mindie包
 
    ```bash
    # 安装mindie
