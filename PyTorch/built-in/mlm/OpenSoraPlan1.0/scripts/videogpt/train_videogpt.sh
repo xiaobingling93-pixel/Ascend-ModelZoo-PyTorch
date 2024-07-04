@@ -10,17 +10,20 @@ mkdir -p ${output_path}
 start_time=$(date +%s)
 echo "start_time: ${start_time}"
 
+batch_size=1
+max_steps=2000
+
 accelerate launch \
   --config_file scripts/accelerate_configs/ddp_config.yaml \
   opensora/train/train_videogpt.py \
   --do_train \
   --seed 1234 \
   --data_path "/MSRVTT/" \
-  --per_device_train_batch_size 1  \
+  --per_device_train_batch_size $batch_size  \
   --gradient_accumulation_steps 1 \
   --learning_rate 1e-5 \
   --weight_decay 0. \
-  --max_steps 2000 \
+  --max_steps $max_steps \
   --lr_scheduler_type cosine \
   --max_grad_norm 1.0 \
   --save_strategy steps \
@@ -40,3 +43,32 @@ accelerate launch \
   --report_to tensorboard \
   --dataloader_num_workers 10 > ${output_path}/train.log 2>&1 &
 wait
+
+#训练结束时间，不需要修改
+end_time=$(date +%s)
+e2e_time=$(($end_time - $start_time))
+
+#结果打印，不需要修改
+echo "------------------ Final result ------------------"
+
+#输出性能FPS，需要模型审视修改
+FPSs=$(grep "$max_steps/$max_steps " ${output_path}/train.log | awk '{print $NF}' | grep "s/it" | tail -n 1 | grep -oP '\d*\.\d+')
+FPSt=$(grep "$max_steps/$max_steps " ${output_path}/train.log | awk '{print $NF}' | grep "it/s" | tail -n 1 | grep -oP '\d*\.\d+')
+
+#吞吐量
+if [ $FPSt = "" ]; then
+  FPS=$(awk 'BEGIN{printf "%.2f\n", '${FPSs}'}')
+  ActualFPS=$(echo "scale=2; a=1/$FPS; if(length(a)==scale(a)) print 0;print a "| bc)
+else
+  ActualFPS=$(awk 'BEGIN{printf "%.2f\n", '${FPSt}'}')
+fi
+
+#打印，不需要修改
+echo "Final Performance images/sec : $ActualFPS it/s"
+
+#打印，不需要修改
+echo "E2E Training Duration sec : $e2e_time"
+
+Es=$(echo "scale=3; b=$e2e_time/$max_steps; if(length(b)==scale(b)) print 0;print b " | bc)
+#单迭代训练时长
+echo "Final E2E Training Performance E2E/step : ${Es}"
