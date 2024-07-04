@@ -1,0 +1,372 @@
+# Copyright 2023 Huawei Technologies Co., Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import os
+import csv
+import time
+import json
+import argparse
+
+import aclruntime
+from ais_bench.infer.interface import InferSession
+from diffusers.schedulers import *
+from diffusers.utils import load_image
+
+from background_session import BackgroundInferSession
+from pipeline_ascend_stable_diffusionxl import AscendStableDiffusionXLImg2ImgPipeline
+
+
+class DataLoader:
+    def __init__(
+        self,
+        info_file: str,
+        batch_size: int,
+        num_images_per_prompt: int=1,
+        max_num_prompts: int=0
+    ):
+        self.prompts = []
+        self.batch_size = batch_size
+        self.num_images_per_prompt = num_images_per_prompt
+        self.categories = []
+        self.root_path = os.path.dirname(info_file)
+
+        self.current_id = 0
+        self.inner_id = 0
+        self.load_data(info_file, max_num_prompts)
+
+    def __len__(self):
+        return len(self.prompts) * self.num_images_per_prompt
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.current_id == len(self.prompts):
+            raise StopIteration
+
+        ret = {
+            'prompts': [],
+            'images': [],
+            'categories': [],
+            'save_names': [],
+            'n_prompts': self.batch_size,
+        }
+        for _ in range(self.batch_size):
+            if self.current_id == len(self.prompts):
+                ret['prompts'].append('')
+                ret['images'].append(image)
+                ret['save_names'].append('')
+                ret['categories'].append('')
+                ret['n_prompts'] -= 1
+
+            else:
+                prompt, image_file, category_id = self.prompts[self.current_id]
+                image_path = os.path.join(self.root_path, image_file)
+                image = load_image(image_path).convert('RGB')
+                save_path = os.path.basename(image_file).split('.')[0]
+                ret['prompts'].append(prompt)
+                ret['images'].append(image)
+                ret['categories'].append(self.categories[category_id])
+                ret['save_names'].append(f'{save_path}_{self.inner_id}')
+
+                self.inner_id += 1
+                if self.inner_id == self.num_images_per_prompt:
+                    self.inner_id = 0
+                    self.current_id += 1
+
+        return ret
+
+    def load_data(self, file_path: str, max_num_prompts: int):
+        with os.fdopen(os.open(file_path, os.O_RDONLY), "r") as f:
+            image_info = json.load(f)
+        count = 0
+        for info in image_info:
+            image_files = info['images']
+            category = info['category']
+            prompt = info['prompt']
+
+            if category not in self.categories:
+                self.categories.append(category)
+            category_id = self.categories.index(category)
+            for image_file in image_files:
+                self.prompts.append((prompt, image_file, category_id))
+            count += 1
+            if max_num_prompts and count == max_num_prompts:
+                break
+
+
+def check_device_range_valid(value):
+    # if contain , split to int list
+    min_value = 0
+    max_value = 255
+    if ',' in value:
+        ilist = [ int(v) for v in value.split(',') ]
+        for ivalue in ilist[:2]:
+            if ivalue < min_value or ivalue > max_value:
+                raise argparse.ArgumentTypeError("{} of device:{} is invalid. valid value range is [{}, {}]".format(
+                    ivalue, value, min_value, max_value))
+        return ilist[:2]
+    else:
+		# default as single int value
+        ivalue = int(value)
+        if ivalue < min_value or ivalue > max_value:
+            raise argparse.ArgumentTypeError("device:{} is invalid. valid value range is [{}, {}]".format(
+                ivalue, min_value, max_value))
+        return ivalue
+
+
+def parse_arguments():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-m",
+        "--model",
+        type=str,
+        default="stabilityai/stable-diffusion-2-1-base",
+        help="Path or name of the pre-trained model.",
+    )
+    parser.add_argument(
+        "--image_info",
+        type=str,
+        default="./image_info.json",
+        help="Image_info json file.",
+    )
+    parser.add_argument(
+        "--model_dir",
+        type=str,
+        default="./models",
+        help="Base path of om models.",
+    )
+    parser.add_argument(
+        "--save_dir", 
+        type=str, 
+        default="./results", 
+        help="Path to save result images.",
+    )
+    parser.add_argument(
+        "--info_file_save_path", 
+        type=str, 
+        default="./refiner_image_info.json", 
+        help="Path to save image information file.",
+    )
+    parser.add_argument(
+        "--steps", 
+        type=int, 
+        default=50, 
+        help="Number of inference steps.",
+    )
+    parser.add_argument(
+        "--num_images_per_prompt",
+        default=1,
+        type=int,
+        help="Number of images generated for each prompt.",
+    )
+    parser.add_argument(
+        "--max_num_prompts",
+        default=0,
+        type=int,
+        help="Limit the number of prompts (0: no limit).",
+    )
+    parser.add_argument(
+        "--scheduler", 
+        choices=["None", "DDIM", "Euler", "DPM", "EulerAncestral", "DPM++SDEKarras"],
+        default="DDIM", 
+        help="Type of Sampling methods. Can choose from DDIM, Euler, DPM",
+    )
+    parser.add_argument(
+        "--device", 
+        type=check_device_range_valid, 
+        default=0, 
+        help="NPU device id."
+    )
+    parser.add_argument(
+        "-bs",
+        "--batch_size", 
+        type=int, 
+        default=1, 
+        help="Batch size."
+    )
+    parser.add_argument(
+        "--strength", 
+        type=float, 
+        default=0.3, 
+        help="Must be between 0 and 1."
+    )
+    parser.add_argument(
+        "--use_cache", 
+        action="store_true",
+        help="Use cache during inference."
+    )
+    parser.add_argument(
+        "--cache_steps", 
+        type=str, 
+        default="1,2,4,6,7,9,10,12,13,14,16,18,19,21,23,24,26,27,29,\
+                30,31,33,34,36,37,39,40,42,43,45,47,48,49", 
+        help="Steps to use cache data."
+    )
+
+    return parser.parse_args()
+
+
+def main():
+    args = parse_arguments()
+    save_dir = args.save_dir
+    device = None
+    device_2 = None
+
+    if isinstance(args.device, list):
+        device, device_2 = args.device
+    else:
+        device = args.device
+
+    pipe = AscendStableDiffusionXLImg2ImgPipeline.from_pretrained(args.model).to("cpu")
+    use_npu_scheduler = False
+
+    if args.scheduler == "DDIM":
+        pipe.scheduler = DDIMScheduler.from_config(pipe.scheduler.config)
+        use_npu_scheduler = True
+    elif args.scheduler == "Euler":
+        pipe.scheduler = EulerDiscreteScheduler.from_config(pipe.scheduler.config)
+    elif args.scheduler == "DPM":
+        pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
+    elif args.scheduler == "EulerAncestral":
+        pipe.scheduler = EulerAncestralDiscreteScheduler.from_config(pipe.scheduler.config)
+    elif args.scheduler == "DPM++SDEKarras":
+        pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
+        pipe.scheduler.config.algorithm_type = 'sde-dpmsolver++'
+        pipe.scheduler.config.use_karras_sigmas = True
+
+    if pipe.text_encoder:
+        encoder_om = os.path.join(args.model_dir, "text_encoder", "text_encoder.om")
+        encoder_session = InferSession(device, encoder_om)
+    else:
+        encoder_session = None
+    encoder_om_2 = os.path.join(args.model_dir, "text_encoder", "text_encoder_2.om")
+    encoder_session_2 = InferSession(device, encoder_om_2)
+    vae_encoder_om = os.path.join(args.model_dir, "vae", "vae_encoder.om")
+    vae_encoder_session = InferSession(device, vae_encoder_om)
+    vae_decoder_om = os.path.join(args.model_dir, "vae", "vae_decoder.om")
+    vae_decoder_session = InferSession(device, vae_decoder_om)
+
+    if use_npu_scheduler:
+        scheduler_om = os.path.join(args.model_dir, "ddim", "ddim.om")
+        scheduler_session = InferSession(device, scheduler_om)
+    else:
+        scheduler_session = None
+
+    skip_status = [0] * args.steps
+    if args.use_cache:
+        for i in args.cache_steps.split(','):
+            if int(i) >= args.steps:
+                continue
+            skip_status[int(i)] = 1
+        unet_cache_om = os.path.join(args.model_dir, "unet", "unet_cache.om")
+        unet_skip_om = os.path.join(args.model_dir, "unet", "unet_skip.om")
+        unet_session = [
+            aclruntime.InferenceSession(unet_cache_om, device, aclruntime.session_options()),
+            aclruntime.InferenceSession(unet_skip_om, device, aclruntime.session_options()),
+        ]
+    else:
+        unet_cache_om = os.path.join(args.model_dir, "unet", "unet.om")
+        unet_skip_om = ""
+        unet_session = [
+            aclruntime.InferenceSession(unet_cache_om, device, aclruntime.session_options()),
+            None,
+        ]
+
+    unet_session_bg = None
+    if device_2:
+        unet_session_bg = BackgroundInferSession.clone(
+            unet_session[0], 
+            device_2, 
+            [unet_cache_om, unet_skip_om]
+        )
+
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir, mode=0o744)
+
+    use_time = 0
+
+    infer_num = 0
+    refiner_image_info = []
+    current_prompt = None
+
+    data_loader = DataLoader(args.image_info, 
+                                 args.batch_size,
+                                 args.num_images_per_prompt,
+                                 args.max_num_prompts)
+
+    infer_num = 0
+    image_info = []
+    current_prompt = None
+    negative_prompt = [""] * args.batch_size
+    for _, input_info in enumerate(data_loader):
+        prompts = input_info['prompts']
+        images = input_info['images']
+        categories = input_info['categories']
+        save_names = input_info['save_names']
+        n_prompts = input_info['n_prompts']
+        
+        print(f"[{infer_num + n_prompts}/{len(data_loader)}]: {prompts}")
+        infer_num += args.batch_size
+
+        start_time = time.time()
+        images = pipe.ascend_infer(
+            prompt=prompts,
+            negative_prompt=negative_prompt,
+            image=images,
+            strength=args.strength,
+            encode_session=encoder_session,
+            encode_session_2=encoder_session_2,
+            unet_sessions=[unet_session, unet_session_bg],
+            scheduler_session=scheduler_session,
+            vae_encoder_session=vae_encoder_session, 
+            vae_decoder_session=vae_decoder_session,
+            skip_status=skip_status,
+            device_id=device,
+            num_inference_steps=args.steps,
+            guidance_scale=5.0,
+            use_npu_scheduler=use_npu_scheduler,
+        )
+
+        use_time += time.time() - start_time
+
+        for j in range(n_prompts):
+            image_save_path = os.path.join(save_dir, f"{save_names[j]}.png")
+            image = images[0][j]
+            image.save(image_save_path)
+
+            if current_prompt != prompts[j]:
+                current_prompt = prompts[j]
+                image_info.append({'images': [], 'prompt': current_prompt, 'category': categories[j]})
+
+            image_info[-1]['images'].append(image_save_path)
+
+    if unet_session_bg:
+        unet_session_bg.stop()
+
+    # Save image information to a json file
+    if os.path.exists(args.info_file_save_path):
+        os.remove(args.info_file_save_path)
+        
+    with os.fdopen(os.open(args.info_file_save_path, os.O_RDWR|os.O_CREAT, 0o644), "w") as f:
+        json.dump(image_info, f)
+
+    print(
+        f"[info] infer number: {infer_num}; use time: {use_time:.3f}s; "
+        f"average time: {use_time/infer_num:.3f}s"
+    )
+
+
+if __name__ == "__main__":
+    main()
