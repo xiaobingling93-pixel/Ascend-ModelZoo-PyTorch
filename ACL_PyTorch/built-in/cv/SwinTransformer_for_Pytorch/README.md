@@ -5,8 +5,6 @@
 
     - [输入输出数据](#section540883920406)
 
-
-
 - [推理环境准备](#ZH-CN_TOPIC_0000001126281702)
 
 - [快速上手](#ZH-CN_TOPIC_0000001126281700)
@@ -134,17 +132,17 @@
            -   --model_name：模型名，例如：swin_base_patch4_window12_384，swin_tiny_patch4_window7_224 等。
            -   --batch_size：模型对应batch_size。
 
-         获得swin_base_patch4_window12_384_bs${bs}.onnx或swin_tiny_patch4_window7_224_bs${bs}.onnx文件。
+         获得`swin_base_patch4_window12_384_bs${bs}.onnx`或`swin_tiny_patch4_window7_224_bs${bs}.onnx`文件。
 
       2. 优化ONNX文件。
 
          ```
          # 以bs8为例
-         python3 -m onnxsim models/onnx/swin_base_patch4_window12_384_bs8.onnx models/onnx/swin_base_patch4_window12_384_bs8.onnx
-         python3 opt_onnx.py -i models/onnx/swin_base_patch4_window12_384_bs8.onnx -o models/onnx/swin_base_patch4_window12_384_bs8_opt.onnx
+         python3 -m onnxsim models/onnx/swin_base_patch4_window12_384_bs${bs}.onnx models/onnx/swin_base_patch4_window12_384_bs${bs}.onnx
+         python3 opt_onnx.py -i models/onnx/swin_base_patch4_window12_384_bs${bs}.onnx -o models/onnx/swin_base_patch4_window12_384_bs${bs}_opt.onnx
          ```
 
-         获得swin_base_patch4_window12_384_bs8_opt.onnx文件。
+         获得`swin_base_patch4_window12_384_bs${bs}_opt.onnx`或`swin_tiny_patch4_window7_224_bs${bs}_opt.onnx`文件。
 
    3. 使用ATC工具将ONNX模型转OM模型。
 
@@ -176,10 +174,10 @@
 
          ```
          # 以bs8，配置为swin_base_patch4_window12_384的模型为例
-         atc --model=models/onnx/swin_base_patch4_window12_384_bs8_opt.onnx --framework=5 --output=models/om/swin_base_patch4_window12_384_bs8 --input_format=NCHW --log=debug --soc_version=${chip_name} --output_type=FP16 --optypelist_for_implmode="Gelu" --op_select_implmode=high_performance --insert_op_conf aipp_384.config --enable_small_channel 1 --fusion_switch_file switch.cfg
+         atc --model=models/onnx/swin_base_patch4_window12_384_bs${bs}_opt.onnx --framework=5 --output=models/om/swin_base_patch4_window12_384_bs${bs} --input_format=NCHW --log=error --soc_version=${chip_name} --output_type=FP16 --optypelist_for_implmode="Gelu" --op_select_implmode=high_performance --insert_op_conf aipp_384.config --enable_small_channel 1 --fusion_switch_file switch.cfg
          
          # 以bs8，配置为swin_tiny_patch4_window7_224的模型为例
-         atc --model=models/onnx/swin_tiny_patch4_window7_224_bs8_opt.onnx --framework=5 --output=models/om/swin_tiny_patch4_window7_224_bs8 --input_format=NCHW --log=debug --soc_version=${chip_name} --output_type=FP16 --optypelist_for_implmode="Gelu" --op_select_implmode=high_performance --insert_op_conf aipp_224.config --enable_small_channel 1 --fusion_switch_file switch.cfg
+         atc --model=models/onnx/swin_tiny_patch4_window7_224_bs${bs}_opt.onnx --framework=5 --output=models/om/swin_tiny_patch4_window7_224_bs${bs} --input_format=NCHW --log=debug --soc_version=${chip_name} --output_type=FP16 --optypelist_for_implmode="Gelu" --op_select_implmode=high_performance --insert_op_conf aipp_224.config --enable_small_channel 1 --fusion_switch_file switch.cfg
          ```
          
          - 参数说明：
@@ -192,7 +190,7 @@
            -   --soc\_version：处理器型号。
            -   --fusion_switch_file: 通过配置文件关闭指定的融合规则。
            
-           运行成功后生成swin_base_patch4_window12_384_bs8.om或swin_tiny_patch4_window7_224_bs8.om模型文件。
+           运行成功后生成`swin_base_patch4_window12_384_bs${bs}.om`或`swin_tiny_patch4_window7_224_bs${bs}.om`文件。
 
 2. 开始推理验证。<u>***根据实际推理工具编写***</u>
 
