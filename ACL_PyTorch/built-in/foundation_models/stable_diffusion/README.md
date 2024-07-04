@@ -80,7 +80,7 @@
 
    1. 请访问[ais_bench推理工具](https://gitee.com/ascend/tools/tree/master/ais-bench_workload/tool/ais_bench)，根据readme文件进行工具安装。
 
-   2. 请访问[AIT代码仓](https://gitee.com/ascend/ait/tree/master/ait#ait)，根据readme文档安装debug surgeon，其他组件为可选安装。
+   2. 请访问[msit代码仓](https://gitee.com/ascend/msit/tree/master/msit/)，根据readme文档进行工具安装 debug surgeon。
    
 ## 准备数据集<a name="section183221994411"></a>
 

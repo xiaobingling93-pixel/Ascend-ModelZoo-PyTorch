@@ -77,9 +77,9 @@
    patch  -p0 ${TRANSFORMERS_PATH}/models/clip/modeling_clip.py clip.patch 
    ```
 
-3. 安装昇腾统一推理工具（AIT）
+3. 安装昇腾推理工具
 
-   请访问[AIT代码仓](https://gitee.com/ascend/ait/tree/master/ait#ait)，根据readme文档进行工具安装。可只安装需要的组件：debug surgeon，其他组件为可选安装。
+   请访问[msit代码仓](https://gitee.com/ascend/msit/tree/master/msit/)，根据readme文档进行工具安装。可只安装需要的组件：debug surgeon，其他组件为可选安装。
    
    请访问[ais_bench](https://gitee.com/ascend/tools/tree/master/ais-bench_workload/tool/ais_bench)，根据readme文件进行工具安装，建议使用whl包进行安装。
    

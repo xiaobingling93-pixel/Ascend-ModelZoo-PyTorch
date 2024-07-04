@@ -80,11 +80,9 @@
    patch -p1 < differences.patch
    ```
 
-4. 安装昇腾统一推理工具（AIT）
+4. 安装推理工具
 
-   请访问[AIT代码仓](https://gitee.com/ascend/ait/tree/master/ait#ait)，根据readme文档进行工具安装。
-
-   安装AIT时，可只安装需要的组件：benchmark，其他组件为可选安装。
+   请访问[ais_bench](https://gitee.com/ascend/tools/tree/master/ais-bench_workload/tool/ais_bench)，根据readme文件进行工具安装，建议使用whl包进行安装。
    
 ## 准备数据集<a name="section183221994411"></a>
 

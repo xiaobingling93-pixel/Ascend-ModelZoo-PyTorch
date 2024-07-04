@@ -80,9 +80,11 @@
    pip3 install -r requirements.txt
    ```
 
-3. 安装昇腾统一推理工具（AIT）
+3. 安装昇腾推理工具
 
-   请访问[AIT代码仓](https://gitee.com/ascend/ait/tree/master/ait#ait)，根据readme文档进行工具安装。
+   请访问[msit代码仓](https://gitee.com/ascend/msit/tree/master/msit/)，根据readme文档进行工具安装。可只安装需要的组件：debug surgeon，其他组件为可选安装。
+   
+   请访问[ais_bench](https://gitee.com/ascend/tools/tree/master/ais-bench_workload/tool/ais_bench)，根据readme文件进行工具安装，建议使用whl包进行安装。
 
 4. 获取开源代码仓。
    在已下载的源码包根目录下，执行如下命令。
@@ -235,9 +237,9 @@
 
         ```bash
         mkdir -p ./output_data/bs${bs}
-        ait benchmark --om-model ./models/om/bert_base_chinese_bs${bs}.om --input ./preprocessed_data_bs${bs}/input_data --output ./output_data --output-dirname bs${bs} --device 0 --outfmt NPY
+        python3 -m ais_bench --om-model ./models/om/bert_base_chinese_bs${bs}.om --input ./preprocessed_data_bs${bs}/input_data --output ./output_data --output-dirname bs${bs} --device 0 --outfmt NPY
         # 使能分档加速（可选）
-        ait benchmark --om-model ./models/om/bert_base_chinese_bs${bs}_rank.om --input ./preprocessed_data_bs${bs}_rank/input_data --output ./output_data_rank --output-dirname bs${bs} --device 0  --outfmt NPY --auto-set-dymdims-mode True
+        python3 -m ais_bench --om-model ./models/om/bert_base_chinese_bs${bs}_rank.om --input ./preprocessed_data_bs${bs}_rank/input_data --output ./output_data_rank --output-dirname bs${bs} --device 0  --outfmt NPY --auto-set-dymdims-mode True
         ```
         -   参数说明：
 

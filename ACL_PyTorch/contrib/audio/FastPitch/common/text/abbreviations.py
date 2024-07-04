@@ -24,7 +24,7 @@ _url_re = re.compile(r'([a-zA-Z])\.(com|gov|org)')
 _abbreviations = [(re.compile('\\b%s\\.' % x[0], re.IGNORECASE), x[1]) for x in [
     ('mrs', 'misess'),
     ('ms', 'miss'),
-    ('mr', 'mister'),
+    ('mr', 'msiter'),
     ('dr', 'doctor'),
     ('st', 'saint'),
     ('co', 'company'),

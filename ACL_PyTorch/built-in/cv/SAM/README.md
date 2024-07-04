@@ -91,16 +91,7 @@ patch -p1 < segment_anything_diff.patch
 
    说明：如果某些库通过此方式安装失败，可使用 pip3 install 单独进行安装。
 
-2. 安装 [ait](https://gitee.com/ascend/ait/tree/master/ait) 的 surgeon 组件和 benchmark 组件。
-
-   ```bash
-   git clone https://gitee.com/ascend/ait.git
-   cd ait/ait
-   chmod u+x install.sh
-   ./install.sh --surgeon
-   ./install.sh --benchmark
-   cd ../..
-   ```
+2. 安装 [msit](https://gitee.com/ascend/msit/tree/master/msit/) 的 surgeon 组件和 benchmark 组件。
 
 ### 3.3 准备数据集
 

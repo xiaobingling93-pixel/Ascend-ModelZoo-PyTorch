@@ -45,11 +45,11 @@ torch_aie_extension实现了一个SDWebUI界面的插件，用优化后的diffus
 ```bash
    pip install -r requirements.txt
 ```
-2. 安装昇腾统一推理工具（AIT）
+2. 安装昇腾推理工具
 
-   请访问[AIT代码仓](https://gitee.com/ascend/ait/tree/master/ait#ait)，根据readme文档进行工具安装。
-
-   安装AIT时，可只安装需要的组件：benchmark和debug，其他组件为可选安装。
+   请访问[mist代码仓](https://gitee.com/ascend/msit/tree/master/msit/)，根据readme文档进行工具安装。可只安装需要的组件：debug surgeon，其他组件为可选安装。
+   
+   请访问[ais_bench](https://gitee.com/ascend/tools/tree/master/ais-bench_workload/tool/ais_bench)，根据readme文件进行工具安装，建议使用whl包进行安装。
 
 2. 代码修改，修改clip和cross_attention，用于导出正确的模型
 ```bash

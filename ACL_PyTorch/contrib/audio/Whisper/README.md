@@ -205,7 +205,7 @@ Whisper_for_PyTorch
 ### 2 开始推理验证
 
 1. 安装`ais_bench`推理工具
-   请访问[ais_bench推理工具](https://gitee.com/ascend/ait/tree/master/ait/components/benchmark)代码仓，根据readme文档进行工具安装。
+   请访问[ais_bench](https://gitee.com/ascend/tools/tree/master/ais-bench_workload/tool/ais_bench)，根据readme文件进行工具安装，建议使用whl包进行安装。
 
 2. 执行推理 
    运行`om_val.py`推理`OM`模型，默认为转录任务，模型将输入的语音文件转化为对应的文字。若使用的为多语言模型则可进行翻译任务，将其他语种的语音文件，翻译为英文的语音文件。
