@@ -1,0 +1,14 @@
+aipp_op {
+    aipp_mode: static
+    input_format: RGB888_U8
+
+    src_image_size_w: 480
+    src_image_size_h: 480
+
+    min_chn_0: 122.7709383
+    min_chn_1: 116.7460125
+    min_chn_2: 104.09373615000001
+    var_reci_chn_0: 0.01459842661924292
+    var_reci_chn_1: 0.015007768493717056
+    var_reci_chn_2: 0.014220065717024088
+}
