@@ -20,6 +20,13 @@ else
     test_path_dir=${cur_path}/test
 fi
 
+# 非平台场景时source 环境变量
+check_etp_flag=`env | grep etp_running_flag`
+etp_flag=`echo ${check_etp_flag#*=}`
+if [ x"${etp_flag}" != x"true" ];then
+    source ${test_path_dir}/env_npu.sh
+fi
+
 python run_ner_crf.py \
   --model_type=bert \
   --model_name_or_path=$BERT_BASE_DIR \

@@ -430,7 +430,7 @@ def main():
     torch_npu.npu.set_compile_mode(jit_compile=False)
     args = get_argparse().parse_args()
 
-    if args.local_rank==0 and not os.path.exists(args.output_dir):
+    if not os.path.exists(args.output_dir):
         os.mkdir(args.output_dir)
     args.output_dir = args.output_dir + '{}'.format(args.model_type)
     if not os.path.exists(args.output_dir):

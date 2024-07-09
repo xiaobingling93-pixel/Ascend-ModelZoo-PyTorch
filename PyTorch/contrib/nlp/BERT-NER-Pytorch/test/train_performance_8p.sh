@@ -32,6 +32,14 @@ if [ -d ${test_path_dir}/output/${ASCEND_DEVICE_ID} ];then
 else
     mkdir -p ${test_path_dir}/output/$ASCEND_DEVICE_ID
 fi
+
+# 非平台场景时source 环境变量
+check_etp_flag=`env | grep etp_running_flag`
+etp_flag=`echo ${check_etp_flag#*=}`
+if [ x"${etp_flag}" != x"true" ];then
+    source ${test_path_dir}/env_npu.sh
+fi
+
 start_time=$(date +%s) 
 python -m torch.distributed.launch --nproc_per_node $RANK_SIZE \
   --master_addr $MASTER_ADDR --master_port $MASTER_PORT run_ner_crf.py \

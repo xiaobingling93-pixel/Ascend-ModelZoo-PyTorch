@@ -17,10 +17,10 @@ BERT-CRF 是用于自然语言处理中实体识别任务的模型
 * 当前模型支持的PyTorch版本和已知三方库依赖如下表所示
 表1 依赖库列表
 
-| 依赖名 | 版本号 |
-| --- | --- |
-| PyTorch | 1.11.0 |
-| transformers | 4.29.2 |
+| Torch_Version      | 三方库依赖版本                      |
+| :--------: | :----------------------------------------: |
+| PyTorch 1.11   | transformers 4.29.2 |
+| PyTorch 2.1   | transformers 4.29.2 |
 
 * 环境中也需要安装对应版本的CANN和torch_npu，可参考《[PyTorch框架训练环境准备](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/63RC1alpha002/softwareinstall/instg/instg_000018.html)》
 * 安装依赖：
@@ -60,10 +60,21 @@ BERT-NER-Pytorch
 
 ## 开始训练
 ### 运行训练脚本
-* 启动单机8卡训练
-```
-bash test/train_full_8p.sh 
-```
+
+- 单机8卡训练
+
+    ```
+    bash test/train_full_8p.sh      # 8卡精度训练
+    bash test/train_performance_8p.sh    # 8卡性能训练  
+    ```
+
+- 单机16卡训练
+
+    ```
+    bash test/train_full_8p.sh     # 16卡精度训练
+    bash test/train_performance_16p.sh    # 16卡性能训练  
+    ```
+
 
 训练完成后，权重文件保存在当前路径下，并输出模型训练精度和性能信息。
 
