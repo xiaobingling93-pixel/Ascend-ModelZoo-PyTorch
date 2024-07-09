@@ -10,12 +10,11 @@ batch_size=8192
 export RANK_SIZE=16
 # 数据集路径,保持为空,不需要修改
 data_path=""
-image_size=192
 
 # 训练epoch 90
 train_epochs=90
 # 加载数据进程数
-workers=600
+workers=512
 device_id=0
 # 参数校验，data_path为必传参数，其他参数的增删由模型自身决定；此处新增参数需在上面有定义并赋值
 for para in $*
@@ -103,7 +102,6 @@ do
             --epochs $train_epochs \
             --gpu ${RANK_ID} \
             --rank 0 \
-            --image_size ${image_size} \
             --multiprocessing-distributed > ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log 2>&1 &
     else
         nohup python3 main.py \

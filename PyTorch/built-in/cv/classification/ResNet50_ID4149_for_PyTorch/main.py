@@ -127,7 +127,6 @@ parser.add_argument('--opt-level', default='O2', type=str,
 parser.add_argument('--warmup', default=8, type=int, metavar='E', help='number of warmup epochs')
 parser.add_argument('--label-smoothing', default=0.1, type=float, metavar='S', help='label smoothing')
 parser.add_argument('--addr', default='127.0.0.1', type=str, help='master addr')
-parser.add_argument('--image_size', default=224, type=int, required=False, help='size of image')
 best_acc1 = 0
 
 def lr_policy(lr_fn):
@@ -358,7 +357,7 @@ def main_worker(gpu, ngpus_per_node, args):
         train_dataset = datasets.ImageFolder(
             traindir,
             transforms.Compose([
-                transforms.RandomResizedCrop(args.image_size),
+                transforms.RandomResizedCrop(224),
                 transforms.RandomHorizontalFlip(),
             ]))
 
