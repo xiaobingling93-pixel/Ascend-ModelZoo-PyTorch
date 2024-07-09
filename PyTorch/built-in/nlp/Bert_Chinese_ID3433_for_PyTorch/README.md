@@ -247,7 +247,6 @@ BERT的全称是Bidirectional Encoder Representation from Transformers，即双�
 | 8p-竞品V |  0.59 | 898 |  3   |    O2     |      1.5      |
 | 1p-NPU  |  - | 128.603  |  3   |    O2    |      1.8      |
 | 8p-NPU  |  0.59 | 936.505  |  3   |    O2    |      1.8      |
-| 16p-NPU  |  0.59 | 3755.46  |  3   |    O2    |      2.1      |
 
 # 版本说明
 
