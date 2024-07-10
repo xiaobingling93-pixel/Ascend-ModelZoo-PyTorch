@@ -12,7 +12,7 @@
 
 # 概述<a name="ZH-CN_TOPIC_0000001172161501"></a>
 
-([来自开源代码仓](https://github.com/openai/whisper))Whisper是一种通用语音识别模型。它是在各种音频的大型数据集上训练的，也是一个多任务模型，可以执行多语言语音识别、语音翻译和语言识别。
+([来自开源代码仓](https://github.com/openai/whisper))Whisper是一种通用语音识别模型。它是在各种音频的大型数据集上训练的，也是一个多任务模型，可以执行多语言语音识别、语音翻译和语言识别。该项目基于whisper-v1（暂不支持v2, v3），演示如何使用MindIE组件对主要计算模块进行加速。
   
 
 # 推理环境准备\[所有版本\]<a name="ZH-CN_TOPIC_0000001126281702"></a>
@@ -22,11 +22,21 @@
   **表 1**  版本配套表
   | 配套    | 版本     |
   |---------| ------- |
-  | 固件与驱动 | 24.1.rc1  |
-  | CANN | 8.0.rc2 |
+  | 固件与驱动 | -  |
+  | CANN | - |
   | Python | 3.10.13 |
   | PyTorch | 2.1.0 |
-  | MindIE | 1.0.RC2.B071 |
+  | MindIE | - |
+  
+  注意：由于MindIE暂无支持该模型的商发版本，烦请用户联系华为工程师获取对应的固件驱动，CANN，MindIE PoC版本链接。
+  固件驱动和CANN的安装，请参考昇腾官方文档[环境快速部署](https://www.hiascend.com/document/detail/zh/quick-installation/24.0.RC1/quickinstg/800_3000/quickinstg_800_3000_0001.html)。
+
+  MindIE的安装需要先source toolkit的环境变量，然后直接安装，以默认安装路径`/usr/local/Ascend`为例：
+  ```
+  source /usr/local/Ascend/ascend-tookit/set_env.sh
+  bash Ascend-mindie_*.run --install
+  ```
+
 
 # 快速上手<a name="ZH-CN_TOPIC_0000001126281700"></a>
 
@@ -57,6 +67,8 @@
 
 3. 模型编译
     ```
+    source /usr/local/Ascend/ascend-tookit/set_env.sh
+    source /usr/local/Ascend/mindie/set_env.sh
     python3 compile.py
     ```
     执行完成后将在`/tmp/models`目录下生成`encoder_compiled.ts`, `language_detection_compiled.ts`, `decoder_prefill_compiled.ts`, `decoder_decode_compiled.ts`四个文件。
