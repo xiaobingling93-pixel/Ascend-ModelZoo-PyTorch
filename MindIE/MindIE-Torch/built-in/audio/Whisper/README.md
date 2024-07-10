@@ -76,8 +76,8 @@
     参数说明：
     - --model_path：导出的Torchscript模型路径，模型编译后保存在同一路径， 默认为`/tmp/models`。
     - --beam_size: 集束搜索参数，默认为5。与推理参数保持一致，如模型导出时指定了该参数，在编译时需要保持一致。
-    - --nblocks: 模型Blocks参数，跟模型大小相关，tiny 4, base 6, small 12, medium 24, large 32。
-    - --hidden: 模型特征向量长度，跟模型大小相关，tiny 384, base 512, small 768, medium 1024, large 1280。
+    - --nblocks: 模型Blocks参数，跟模型大小相关，tiny 4, base 6, small 12, medium 24, large-v1 32。
+    - --hidden: 模型特征向量长度，跟模型大小相关，tiny 384, base 512, small 768, medium 1024, large-v1 1280。
     - --soc_version: 芯片类型，当前仅在Ascend310P3上调试。
 
 4. 模型推理
@@ -98,7 +98,7 @@
     whisper zh.wav --model tiny --initial_prompt "简体翻译："
     ```
 
-    注：默认`芯片ID为0`，模型路径为`/tmp/models`。如需修改，可在打完补丁后手动修改`whisper/decoding.py`和`whisper/model.py`文件，可使用全局替换文件中的`npu:0`, `/tmp/models`, `torch_aie.set_device(0)`。
+    注：默认`芯片ID为0`，模型路径为`/tmp/models`。如需修改，可在打完补丁后手动修改`whisper/decoding.py`和`whisper/model.py`文件，可使用全局替换文件中的`npu:0`, `/tmp/models`, `mindietorch.set_device(0)`。
 
 
 # 模型推理性能精度<a name="ZH-CN_TOPIC_0000001172201573"></a>
