@@ -95,7 +95,7 @@ nohup python3 -m torch.distributed.launch --nproc_per_node 16 run_mlm.py \
         --model_type bert \
         --config_name ./bert-${model_size}-chinese/config.json \
         --tokenizer_name ./bert-${model_size}-chinese \
-        --max_seq_length 384 \
+        --max_seq_length 512 \
         --train_file ${data_path} \
         --eval_metric_path ./accuracy.py \
         --line_by_line \
