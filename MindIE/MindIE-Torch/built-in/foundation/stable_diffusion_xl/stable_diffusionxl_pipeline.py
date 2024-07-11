@@ -19,7 +19,6 @@ import os
 import time
 from typing import Callable, List, Optional, Union
 import numpy as np
-import hpsv2
 
 import torch
 import mindietorch

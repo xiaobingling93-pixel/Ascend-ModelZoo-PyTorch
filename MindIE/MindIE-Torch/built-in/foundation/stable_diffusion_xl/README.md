@@ -142,20 +142,47 @@
       ```
       参数说明：
       - --model：模型权重路径
-      - --output_dir: ONNX模型输出目录
-      - --use_cache: 【可选】在推理过程中使用cache
-      - --parallel: 【可选】导出适用于并行方案的模型，当前仅带unetCache优化时，支持并行
-      - --batch_size: 设置batch_size, 默认值为1,当前仅支持batch_size=1的场景
+      - --output_dir: 存放导出模型的路径
+      - --use_cache: 【可选】推荐在推理过程中使用unetCache策略
+      - --parallel: 【可选】导出适用于并行方案的模型, 当前仅带unetCache优化时，支持并行
+      - --batch_size: 设置batch_size, 默认值为1, 当前仅支持batch_size=1的场景
       - --flag：默认为0。0代表静态，只支持分辨率为1024x1024；1代表动态分档，支持的分辨率为1024x1024和512x512；2代表动态shape，height的范围为[512, 1024]，width的范围是[512, 1664]。
       - --soc：只支持Duo和A2。默认为A2。A2特指910B4。
       - --device：推理设备ID
    
 2. 开始推理验证。
 
-   1. 执行推理脚本。
+   1. 开启cpu高性能模式
+      ```bash
+      echo performance |tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
+      sysctl -w vm.swappiness=0
+      sysctl -w kernel.numa_balancing=0
+      ```
+
+   2. 安装绑核工具
+      ```bash
+      apt-get update
+      apt-get install numactl
+      ```
+      查询卡的NUMA node
+      ```shell
+      lspci -vs bus-id
+      ```
+      bus-id可通过npu-smi info获得，查询到NUMA node，在推理命令前加上对应的数字
+
+      可通过lscpu获得NUMA node对应的CPU核数
+      ```shell
+      NUMA node0: 0-23
+      NUMA node1: 24-47
+      NUMA node2: 48-71
+      NUMA node3: 72-95
+      ```
+      当前查到NUMA node是0，对应0-23，推荐绑定其中单核以获得更好的性能。
+   
+   3. 执行推理脚本。
       ```bash
       # 不使用unetCache策略
-      python3 stable_diffusionxl_pipeline.py \
+      numactl -C 0-23 python3 stable_diffusionxl_pipeline.py \
               --model ${model_base} \
               --prompt_file ./prompts.txt \
               --prompt_file_type plain \
@@ -169,7 +196,7 @@
               --batch_size 1
       
       # 使用UnetCache策略
-      python3 stable_diffusionxl_pipeline.py \
+      numactl -C 0-23 python3 stable_diffusionxl_pipeline.py \
               --model ${model_base} \
               --prompt_file ./prompts.txt \
               --prompt_file_type plain \
@@ -184,7 +211,7 @@
               --batch_size 1
       
       # 使用UnetCache策略,同时使用双卡并行策略
-      python3 stable_diffusionxl_pipeline_cache_parallel.py \
+      numactl -C 0-23 python3 stable_diffusionxl_pipeline_cache_parallel.py \
               --model ${model_base} \
               --prompt_file ./prompts.txt \
               --prompt_file_type plain \
@@ -200,7 +227,7 @@
       ```
       
       参数说明：
-      - --model：模型名称或本地模型目录的路径。
+      - --model：模型权重路径。
       - --output_dir：存放导出模型的目录。
       - --prompt_file：提示词文件。
       - --prompt_file_type: prompt文件类型，用于指定读取方式，可选plain，parti，hpsv2。
@@ -208,27 +235,14 @@
       - --batch_size：模型batch size。
       - --steps：生成图片迭代次数。
       - --device：推理设备ID；可用逗号分割传入两个设备ID，此时会使用并行方式进行推理。
-      - --use_cache: 【可选】在推理过程中使用cache。
-      - --cache_steps: 使用cache的迭代次数，迭代次数越多性能越好，但次数过多可能会导致精度下降。
+      - --use_cache: 【可选】推荐在推理过程中使用unetCache策略。
       - --flag：默认为0。0代表静态，只支持分辨率为1024x1024；1代表动态分档，支持的分辨率为1024x1024和512x512；2代表动态shape，height的范围为[512, 1024]，width的范围是[512, 1664]。**注意**：请与导出模型时设置的flag保持一致
       - --height：与flag标志位对应的height一致
       - --width：与flag标志位对应的width一致
       
-      不带unetCache策略，执行完成后在`./results`目录下生成推理图片。并在终端显示推理时间，参考如下：
-   
-      ```
-      [info] infer number: 16; use time: 150.567s; average time: 9.410s
-      ```
-      
-      带unetCache策略，执行完成后在`./results_unetCache`目录下生成推理图片。并在终端显示推理时间，参考如下：
-      ```
-      [info] infer number: 16; use time: 71.855s; average time: 4.491s
-      ```
-      
-      带unetCache策略，同时使用双卡并行策略，执行完成后在`./results_unetCache_parallel`目录下生成推理图片。并在终端显示推理时间，参考如下：
-      ```
-      [info] infer number: 16; use time: 47.351s; average time: 2.959s
-      ```
+      不带unetCache策略，执行完成后在`./results`目录下生成推理图片，在当前目录生成一个`image_info.json`文件，记录着图片和prompt的对应关系，并在终端显示推理时间。
+      带unetCache策略，执行完成后在`./results_unetCache`目录下生成推理图片，在当前目录生成一个`image_info.json`文件，记录着图片和prompt的对应关系。并在终端显示推理时间。
+      带unetCache策略，同时使用双卡并行策略，执行完成后在`./results_unetCache_parallel`目录下生成推理图片，在当前目录生成一个`image_info.json`文件，记录着图片和prompt的对应关系。并在终端显示推理时间。
 
 ## 精度验证<a name="section741711594518"></a>
 
@@ -310,10 +324,11 @@
               --height 1024 \
               --width 1024 \
               --batch_size 1
+      
       ```
 
       参数说明：
-      - --model：模型名称或本地模型目录的路径。
+      - --model：模型权重路径。
       - --output_dir：存放导出模型的目录。
       - --prompt_file：提示词文件。
       - --prompt_file_type: prompt文件类型，用于指定读取方式，可选plain，parti，hpsv2。注意使用hpsv2时，设置num_images_per_prompt=1即可。
@@ -324,9 +339,9 @@
       - --steps：生成图片迭代次数。
       - --device：推理设备ID；可用逗号分割传入两个设备ID，此时会使用并行方式进行推理。
 
-      不带unetCache，执行完成后会在`./results_PartiPrompts`目录下生成推理图片，并且会在当前目录生成一个`image_info.json`文件，记录着图片和prompt的对应关系。
-      带unetCache，执行完成后会在`./results_PartiPrompts_unetCache`目录下生成推理图片，并且会在当前目录生成一个`image_info.json`文件，记录着图片和prompt的对应关系。
-      带unetCache，同时使用双卡并行策略，执行完成后会在`./results_PartiPrompts_unetCache_parallel`目录下生成推理图片，并且会在当前目录生成一个`image_info.json`文件，记录着图片和prompt的对应关系。
+      不带unetCache策略，执行完成后在`./results_PartiPrompts`目录下生成推理图片，在当前目录生成一个`image_info.json`文件，记录着图片和prompt的对应关系，并在终端显示推理时间。
+      带unetCache策略，执行完成后在`./results_PartiPrompts_unetCache`目录下生成推理图片，在当前目录生成一个`image_info.json`文件，记录着图片和prompt的对应关系。并在终端显示推理时间。
+      带unetCache策略，同时使用双卡并行策略，执行完成后在`./results_PartiPrompts_unetCache_parallel`目录下生成推理图片，在当前目录生成一个`image_info.json`文件，记录着图片和prompt的对应关系。并在终端显示推理时间。
 
    4. 计算精度指标
    
@@ -367,16 +382,16 @@
 
 ## 量化功能【可选】<a name="section741711594518"></a>
 
-若使用W8A8量化功能，分辨率只支持1024x1024和512x512：
+可使用W8A8量化功能提升性能，但可能导致精度下降。默认batch_size为1，默认分辨率为1024x1024，可支持batch_size为2、分辨率为512x512的场景（修改第4. 5.步参数即可）
 
-   1. 导出模型，height只支持1024和512，width只支持1024和512
+   1. 导出浮点pt模型并进行编译。
 
       ```bash
       # 使用unetCache, 非并行
-      python3 export_ts.py --model ${model_base} --output_dir ./models --use_cache --batch_size 1 --flag 0 --soc A2 --device 0 --height 1024 --width 1024
+      python3 export_ts.py --model ${model_base} --output_dir ./models --use_cache --flag 0 --soc A2 --device 0
       
       # 不使用unetCache, 非并行
-      python3 export_ts.py --model ${model_base} --output_dir ./models --batch_size 1 --flag 0 --soc A2 --device 0 --height 1024 --width 1024
+      python3 export_ts.py --model ${model_base} --output_dir ./models --flag 0 --soc A2 --device 0
       ```
 
    2. 量化编译。./quant/build.sh中的TorchPath需要指定为python安装torch的路径。
@@ -388,7 +403,7 @@
       bash build.sh
       ```
 
-   3. 导出unet pt模型的输入。
+   3. 导出浮点unet模型的输入。执行完毕后会在当前路径下生成unet_data.npy文件。
 
       执行命令：
 
@@ -403,8 +418,6 @@
               --output_dir ./models \
               --use_cache \
               --flag 0 \
-              --height 1024 \
-              --width 1024 \
               --save_unet_input
       # 若不使用UnetCache策略
       python3 stable_diffusionxl_pipeline.py \
@@ -415,12 +428,10 @@
               --steps 50 \
               --output_dir ./models \
               --flag 0 \
-              --height 1024 \
-              --width 1024 \
               --save_unet_input
       ```
 
-   4. 导出pt模型并进行编译。
+   4. 导出量化pt模型并进行编译。
 
       执行命令：
 
@@ -433,9 +444,11 @@
       ```
 
       参数说明：
-      - --batch_size：设置batch_size, 默认值为1, 可支持batch_size=2的场景
-      - --height：默认分辨率为1024x1024，可支持512x512的场景（性能受影响）
-      - --width：默认分辨率为1024x1024，可支持512x512的场景（性能受影响）
+      - --model：模型权重路径
+      - --output_dir：存放导出模型的目录，执行完成后在`./models_quant`目录下生成量化模型。
+      - --batch_size：默认batch_size为1（可支持batch_size=2的场景, 性能受影响）
+      - --height：默认分辨率为1024x1024（可支持512x512的场景, 性能受影响）
+      - --width：默认分辨率为1024x1024（可支持512x512的场景, 性能受影响）
 
    5. 开始推理验证。
 
@@ -443,7 +456,7 @@
 
       ```bash
       # 使用UnetCache策略，且非并行
-      python3 stable_diffusionxl_pipeline.py \
+      numactl -C 0-23 python3 stable_diffusionxl_pipeline.py \
               --model ${model_base} \
               --prompt_file ./prompts.txt \
               --device 0 \
@@ -456,8 +469,9 @@
               --height 1024 \
               --width 1024 \
               --quant
+
       # 不使用UnetCache策略，且非并行
-      python3 stable_diffusionxl_pipeline.py \
+      numactl -C 0-23 python3 stable_diffusionxl_pipeline.py \
               --model ${model_base} \
               --prompt_file ./prompts.txt \
               --device 0 \
@@ -470,6 +484,8 @@
               --width 1024 \
               --quant
       ```
+      
+      执行完成后在`./results_quant`目录下生成推理图片，在当前目录生成一个`image_info.json`文件，记录着图片和prompt的对应关系。并在终端显示推理时间。
 
 
 # 模型推理性能&精度<a name="ZH-CN_TOPIC_0000001172201573"></a>
@@ -478,27 +494,9 @@
 
 ### StableDiffusionxl
 
-| 硬件形态 | 迭代次数 | 平均耗时    | cpu规格 |
-| :------: | :--: | :--------: | :--------: |
-| A2  |    50  |  6.542s   | 64核(arm) |
+| 硬件形态  | cpu规格 | batch size | 迭代次数 | 优化手段 | 平均耗时 | 精度  | 采样器 |
+| :------: | :------: | :------: | :------: | :------: | :------: | :------: |
+| A2  | 64核(arm) |  1  |  50  | with UnetCache, w/o 量化 |  4s   | clip score 0.376 | ddim |
+| A2  | 64核(arm) |  1  |  50  | with UnetCache, with 量化 |  3.6s   | clip score 0.371 | ddim |
 
 性能测试需要独占npu和cpu
-
-迭代50次的参考精度结果如下：
-
-   ```
-   average score: 0.378
-   category average scores:
-   [Abstract], average score: 0.265
-   [Vehicles], average score: 0.380
-   [Illustrations], average score: 0.372
-   [Arts], average score: 0.414
-   [World Knowledge], average score: 0.391
-   [People], average score: 0.379
-   [Animals], average score: 0.390
-   [Artifacts], average score: 0.373
-   [Food & Beverage], average score: 0.372
-   [Produce & Plants], average score: 0.370
-   [Outdoor Scenes], average score: 0.373
-   [Indoor Scenes], average score: 0.389
-   ```

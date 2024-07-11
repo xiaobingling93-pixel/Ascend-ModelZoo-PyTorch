@@ -60,7 +60,7 @@ def warm_up(args, dit_compiled_model, vae_compiled_model):
     x1 = torch.ones([batch, 4, latent_size, latent_size], dtype=torch.float32)
     x2 = torch.ones([batch,], dtype=torch.int64)
     x3 = torch.ones([batch,], dtype=torch.int64)
-    x4 = torch.ones([1, 4, latent_size, latent_size], dtype=torch.int64)
+    x4 = torch.ones([1, 4, latent_size, latent_size], dtype=torch.float32)
     count = 5
     stream = mindietorch.npu.Stream(f"npu:{args.device}")
     for _ in range(count):
