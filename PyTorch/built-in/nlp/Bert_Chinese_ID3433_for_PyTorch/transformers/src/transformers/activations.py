@@ -49,8 +49,7 @@ class GELUActivation(nn.Module):
         if version.parse(torch.__version__) < version.parse("1.4") or use_gelu_python:
             self.act = self._gelu_python
         else:
-            #self.act = nn.functional.gelu
-            self.act = torch_npu.fast_gelu
+            self.act = nn.functional.gelu
 
     def _gelu_python(self, input: Tensor) -> Tensor:
         return input * 0.5 * (1.0 + torch.erf(input / math.sqrt(2.0)))
