@@ -6,7 +6,11 @@ DIR=`pwd`
 # Please set the options below according to the comments.
 # For multi-gpu workers training, these options should be manually set for each worker.
 # After setting the options, please run the script on each worker.
+save_log=finetune4B.log
 
+#训练开始时间，不需要修改
+start_time=$(date +%s)
+echo "start_time: ${start_time}"
 
 MODEL="../Qwen/Qwen1.5-4B-Chat" # Set the path if you do not want to load from huggingface directly
 # ATTENTION: specify the path to your training data, which should be a json file consisting of a list of conversations.
@@ -89,4 +93,24 @@ torchrun $DISTRIBUTED_ARGS  ../finetune.py \
     --use_lora ${USE_LORA} \
     --q_lora ${Q_LORA} \
     --gradient_checkpointing \
-    --deepspeed ${DS_CONFIG_PATH}
+    --deepspeed ${DS_CONFIG_PATH} >$save_log 2>&1 &
+
+wait
+#训练结束时间，不需要修改
+end_time=$(date +%s)
+e2e_time=$(($end_time - $start_time))
+
+
+#结果打印，不需要修改
+echo "------------------ Final result ------------------"
+
+#获取性能数据，不需要修改
+ActualPerformance=`cat $save_log | grep -a "train_samples_per_second" | awk -F "train_samples_per_second" '{print $NF}' | cut -d "," -f 1 | cut -d " " -f 2`
+echo "Final Performance train_samples/sec : $ActualPerformance"
+
+#loss值，不需要修改
+ActualLoss=$(grep -o "'loss': [0-9.]*" $save_log | awk 'END {print $NF}')
+
+#打印，不需要修改
+echo "Final Train Loss : ${ActualLoss}"
+echo "E2E Training Duration sec : $e2e_time"
