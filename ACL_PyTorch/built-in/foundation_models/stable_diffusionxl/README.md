@@ -18,6 +18,8 @@
 # 概述<a name="ZH-CN_TOPIC_0000001172161501"></a>
 
    SDXL 由一组用于潜在扩散的专家管道组成： 在第一步中，使用基础模型生成（噪声）潜伏， 然后使用专门用于最终降噪步骤的细化模型[此处获得](https://huggingface.co/stabilityai/stable-diffusion-xl-refiner-1.0/)
+   
+   **说明：**后续更新请参考[MindIE-Torch](../../../../MindIE/MindIE-Torch/built-in/foundation/stable_diffusion_xl/README.md)(0711)
 
 - 参考实现：
   ```bash
