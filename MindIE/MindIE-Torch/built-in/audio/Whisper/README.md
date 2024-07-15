@@ -112,6 +112,10 @@
     参数说明：
     - --sim_threshold: 余弦相似度阈值，默认0.99。
     - --ntokens: prefill阶段输入token数量，decode阶段缓存token数量，默认100。
+    - --nblocks: 模型Blocks参数，跟模型大小相关，tiny 4, base 6, small 12, medium 24, large-v1 32。
+    - --hidden: 模型特征向量长度，跟模型大小相关，tiny 384, base 512, small 768, medium 1024, large-v1 1280。
+    - --n_mels: 梅尔频率滤波器数量，large-v3 128, 其余 80。 注意large表示large-v3。
+    其他参数请参考脚本`parse_args`部分。
 
     执行结束后，期望输出如下：
     ```
@@ -131,6 +135,12 @@
     ```
     python perf_test_aie.py
     ```
+
+    参数说明：
+    - --nblocks: 模型Blocks参数，跟模型大小相关，tiny 4, base 6, small 12, medium 24, large-v1 32。
+    - --hidden: 模型特征向量长度，跟模型大小相关，tiny 384, base 512, small 768, medium 1024, large-v1 1280。
+    - --n_mels: 梅尔频率滤波器数量，large-v3 128, 其余 80。 注意large表示large-v3。
+    其他参数请参考脚本`parse_args`部分。
 
     执行结束后，期望输出如下：
     ```
@@ -160,6 +170,10 @@
 
     参数说明：
     - --use_gpu: 使能gpu推理，不加该选项默认cpu。
+    - --nblocks: 模型Blocks参数，跟模型大小相关，tiny 4, base 6, small 12, medium 24, large-v1 32。
+    - --hidden: 模型特征向量长度，跟模型大小相关，tiny 384, base 512, small 768, medium 1024, large-v1 1280。
+    - --n_mels: 梅尔频率滤波器数量，large-v3 128, 其余 80。 注意large表示large-v3。
+    其他参数请参考脚本`parse_args`部分。
 
     执行结束后，期望输出如下：
     ```

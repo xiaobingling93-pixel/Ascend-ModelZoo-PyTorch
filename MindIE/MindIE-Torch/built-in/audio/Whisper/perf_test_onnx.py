@@ -17,7 +17,6 @@ import time
 import onnxruntime as ort
 import numpy as np
 
-_N_MEL = 80
 _FRAMES = 3000
 _MAX_TOKEN = 224
 _HALF_FRAMES = 1500
@@ -45,7 +44,7 @@ def test(encoder_path, provider, output_names, onnx_inputs, meta=""):
 
 
 def test_encoder(args, provider):
-    x = np.ones((1, _N_MEL, _FRAMES), dtype=np.float16 if args.use_gpu else np.float32)
+    x = np.ones((1, args.n_mels, _FRAMES), dtype=np.float16 if args.use_gpu else np.float32)
     onnx_inputs = {'mel': ort.OrtValue.ortvalue_from_numpy(x)}
     output_names = ['ret']
 
@@ -100,6 +99,7 @@ def parse_args():
     parser.add_argument("--ntokens", type=int, default=100)
     parser.add_argument("--nblocks", type=int, default=4)
     parser.add_argument("--hidden", type=int, default=384)
+    parser.add_argument("--n_mels", type=int, default=80)
 
     args = parser.parse_args()
     return args
