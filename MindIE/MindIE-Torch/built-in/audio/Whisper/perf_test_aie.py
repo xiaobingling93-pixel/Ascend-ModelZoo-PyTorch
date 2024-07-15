@@ -17,7 +17,6 @@ import time
 import torch
 import mindietorch
 
-_N_MEL = 80
 _FRAMES = 3000
 _HALF_FRAMES = 1500
 _MAX_TOKEN = 224
@@ -51,7 +50,7 @@ def test_encoder(args):
     model.eval()
 
     inputs = [
-        torch.ones((1, _N_MEL, _FRAMES), dtype=torch.float32).to(device)
+        torch.ones((1, args.n_mels, _FRAMES), dtype=torch.float32).to(device)
     ]
 
     test(inputs, model, stream, "Encoder")
@@ -109,6 +108,7 @@ def parse_args():
     parser.add_argument("--ntokens", type=int, default=100)
     parser.add_argument("--nblocks", type=int, default=4)
     parser.add_argument("--hidden", type=int, default=384)
+    parser.add_argument("--n_mels", type=int, default=80)
     parser.add_argument("--device_id", type=int, help="NPU device id", default=0)
 
     args = parser.parse_args()
