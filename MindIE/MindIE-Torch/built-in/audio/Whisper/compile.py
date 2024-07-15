@@ -17,7 +17,6 @@ import argparse
 import torch
 import mindietorch
 
-_N_MEL = 80
 _FRAMES = 3000
 _HALF_FRAMES = 1500
 _MAX_TOKEN = 224
@@ -29,6 +28,7 @@ def parse_args():
     parser.add_argument("--beam_size", type=int, default=5)
     parser.add_argument("--nblocks", type=int, default=4)
     parser.add_argument("--hidden", type=int, default=384)
+    parser.add_argument("--n_mels", type=int, default=80)
     parser.add_argument("--soc_version", default="Ascend310P3")
     args = parser.parse_args()
     return args
@@ -48,7 +48,7 @@ def compile_and_save(ts_model, input_info, soc_version, save_path):
 
 def encoder(args):
     ts_model = torch.jit.load(f"{args.model_path}/encoder.ts")
-    input_mel_info = mindietorch.Input([1, _N_MEL, _FRAMES])
+    input_mel_info = mindietorch.Input([1, args.n_mels, _FRAMES])
     input_info = [input_mel_info]
     save_path = f"{args.model_path}/encoder_compiled.ts"
     compile_and_save(ts_model, input_info, args.soc_version, save_path)
