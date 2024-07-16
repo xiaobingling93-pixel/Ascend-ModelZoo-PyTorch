@@ -486,6 +486,56 @@
       
       执行完成后在`./results_quant`目录下生成推理图片，在当前目录生成一个`image_info.json`文件，记录着图片和prompt的对应关系。并在终端显示推理时间。
 
+      6. 使用推理脚本读取Parti数据集，生成图片。
+
+      执行命令：
+
+      ```bash
+      # 使用UnetCache策略，且非并行
+      numactl -C 0-23 python3 stable_diffusionxl_pipeline.py \
+              --model ${model_base} \
+              --prompt_file ./PartiPrompts.tsv \
+              --prompt_file_type parti \
+              --num_images_per_prompt 4 \
+              --max_num_prompts 0 \
+              --device 0 \
+              --save_dir ./results_PartiPrompts_quant_unetCache \
+              --steps 50 \
+              --output_dir ./models_quant \
+              --flag 3 \
+              --use_cache \
+              --batch_size 1 \
+              --height 1024 \
+              --width 1024 \
+              --quant
+      
+      # 不使用UnetCache策略，且非并行
+      numactl -C 0-23 python3 stable_diffusionxl_pipeline.py \
+              --model ${model_base} \
+              --prompt_file ./PartiPrompts.tsv \
+              --prompt_file_type parti \
+              --num_images_per_prompt 4 \
+              --max_num_prompts 0 \
+              --device 0 \
+              --save_dir ./results_PartiPrompts_quant \
+              --steps 50 \
+              --output_dir ./models_quant \
+              --flag 3 \
+              --batch_size 1 \
+              --height 1024 \
+              --width 1024 \
+              --quant
+      ```
+
+      参数说明：
+      - --prompt_file_type: prompt文件类型，用于指定读取方式，可选plain，parti，hpsv2。注意使用hpsv2时，设置num_images_per_prompt=1即可。
+      - --num_images_per_prompt: 每个prompt生成的图片数量。注意使用hpsv2时，设置num_images_per_prompt=1即可。
+      
+      不带unetCache策略，执行完成后在`./results_PartiPrompts_quant`目录下生成推理图片，在当前目录生成一个`image_info.json`文件，记录着图片和prompt的对应关系，并在终端显示推理时间。
+      带unetCache策略，执行完成后在`./results_PartiPrompts_quant_unetCache`目录下生成推理图片，在当前目录生成一个`image_info.json`文件，记录着图片和prompt的对应关系。并在终端显示推理时间。
+      
+      计算精度指标CLIP-score和HPSv2同浮点。
+
 
 # 模型推理性能&精度<a name="ZH-CN_TOPIC_0000001172201573"></a>
 
