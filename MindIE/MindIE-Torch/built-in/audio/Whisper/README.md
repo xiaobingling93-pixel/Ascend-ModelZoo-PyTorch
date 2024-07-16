@@ -52,10 +52,11 @@
     pip3 install .
     cd ..
     wget https://paddlespeech.bj.bcebos.com/PaddleAudio/zh.wav
-    mkdir /tmp/models
+    mkdir /tmp/models && mkdir /tmp/models/onnx
+    mkdir /tmp/models/onnx/encode /tmp/models/onnx/decode /tmp/models/onnx/prefill
     whisper zh.wav --model tiny
     ```
-    执行上述步骤需要依赖`ffmpeg`，ubuntu下可通过`apt-get install ffmpeg`安装。完成上述步骤将在`/tmp/models`目录下生成`encoder.ts/onnx`, `decoder_prefill.ts/onnx`, `decoder_decode.onnx`6个文件。
+    执行上述步骤需要依赖`ffmpeg`，ubuntu下可通过`apt-get install ffmpeg`安装。完成上述步骤将在`/tmp/models`目录下生成`encoder.ts`, `decoder_prefill.ts`, `decoder_decode`, onnx文件也会保存在对应目录下用于后续精度性能验证。
 
     如需修改模型路径，可在打完补丁后手动修改`whisper/decoding.py`和`whisper/model.py`文件，后续步骤模型推理同样需要修改对应模型的载入路径。
 
@@ -115,7 +116,7 @@
     - --nblocks: 模型Blocks参数，跟模型大小相关，tiny 4, base 6, small 12, medium 24, large-v1 32。
     - --hidden: 模型特征向量长度，跟模型大小相关，tiny 384, base 512, small 768, medium 1024, large-v1 1280。
     - --n_mels: 梅尔频率滤波器数量，large-v3 128, 其余 80。 注意large表示large-v3。
-    其他参数请参考脚本`parse_args`部分。
+    - 其他参数请参考脚本`parse_args`部分。
 
     执行结束后，期望输出如下：
     ```
@@ -140,7 +141,7 @@
     - --nblocks: 模型Blocks参数，跟模型大小相关，tiny 4, base 6, small 12, medium 24, large-v1 32。
     - --hidden: 模型特征向量长度，跟模型大小相关，tiny 384, base 512, small 768, medium 1024, large-v1 1280。
     - --n_mels: 梅尔频率滤波器数量，large-v3 128, 其余 80。 注意large表示large-v3。
-    其他参数请参考脚本`parse_args`部分。
+    - 其他参数请参考脚本`parse_args`部分。
 
     执行结束后，期望输出如下：
     ```
@@ -173,7 +174,7 @@
     - --nblocks: 模型Blocks参数，跟模型大小相关，tiny 4, base 6, small 12, medium 24, large-v1 32。
     - --hidden: 模型特征向量长度，跟模型大小相关，tiny 384, base 512, small 768, medium 1024, large-v1 1280。
     - --n_mels: 梅尔频率滤波器数量，large-v3 128, 其余 80。 注意large表示large-v3。
-    其他参数请参考脚本`parse_args`部分。
+    - 其他参数请参考脚本`parse_args`部分。
 
     执行结束后，期望输出如下：
     ```
@@ -188,8 +189,8 @@
     
     | 模型    | pt插件 - 310P性能（时延/吞吐率） | T4性能（时延/吞吐率） | A10性能（时延/吞吐率）|
     |---------|--------------------------------|---------------------|--------------------|
-    | encoder | 7.75 ms / 128.97 fps | 9.31 ms / 107.47 fps | 4.21 ms / 237.50 fps |
-    | prefill | 10.14 ms / 98.63 fps | 72.08 ms / 13.87 fps | 45.15 ms / 22.15 fps |
-    | decode  | 2.92 ms / 342.55 fps | 10.46 ms / 95.62 fps | 4.91 ms / 203.61 fps |
+    | encoder (tiny) | 7.75 ms / 128.97 fps | 9.31 ms / 107.47 fps | 4.21 ms / 237.50 fps |
+    | prefill (tiny) | 10.14 ms / 98.63 fps | 72.08 ms / 13.87 fps | 45.15 ms / 22.15 fps |
+    | decode (tiny) | 2.92 ms / 342.55 fps | 10.46 ms / 95.62 fps | 4.91 ms / 203.61 fps |
 
     注：在实际推理中encoder和prefill均调用一次，decode会调用多次（上面数据假设缓存token长度为100）。并且在whisper全流程推理中还包括后处理，cache重新排布等步骤，以上数据仅作参考。

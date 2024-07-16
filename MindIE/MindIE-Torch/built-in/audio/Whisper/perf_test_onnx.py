@@ -91,9 +91,13 @@ def test_decoder_decode(args, provider):
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--encoder_onnx_path',type=str, default='/tmp/models/encoder.onnx')
-    parser.add_argument('--decoder_prefill_onnx_path',type=str, default='/tmp/models/decoder_prefill.onnx')
-    parser.add_argument('--decoder_decode_onnx_path',type=str, default='/tmp/models/decoder_decode.onnx')
+    parser.add_argument('--encoder_onnx_path',type=str, default='/tmp/models/onnx/encode/encoder.onnx')
+    parser.add_argument(
+        "--decoder_prefill_onnx_path",
+        type=str,
+        default="/tmp/models/onnx/prefill/decoder_prefill.onnx",
+    )
+    parser.add_argument('--decoder_decode_onnx_path',type=str, default='/tmp/models/onnx/decode/decoder_decode.onnx')
     parser.add_argument("--use_gpu", action="store_true")
     parser.add_argument("--beam_size", type=int, default=5)
     parser.add_argument("--ntokens", type=int, default=100)
