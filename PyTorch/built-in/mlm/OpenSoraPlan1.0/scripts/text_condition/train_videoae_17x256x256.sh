@@ -1,3 +1,25 @@
+#!/bin/bash
+
+###############指定训练脚本执行路径###############
+# cd到与test文件夹同层级目录下执行脚本，提高兼容性；test_path_dir为包含test文件夹的路径
+cur_path=$(pwd)
+cur_path_last_dirname=${cur_path##*/}
+if [ x"${cur_path_last_dirname}" == x"test" ]; then
+  test_path_dir=${cur_path}
+  cd ..
+  cur_path=$(pwd)
+else
+  test_path_dir=${cur_path}/test
+fi
+
+if [ ! -d $test_path_dir ]; then
+    mkdir -p $test_path_dir
+fi
+
+log_file=$test_path_dir/train_$(date +%y%m%d%H%M).log
+
+start_time=$(date +%s)
+
 source scripts/env_npu.sh
 
 accelerate launch \
@@ -30,4 +52,21 @@ accelerate launch \
     --use_deepspeed \
     --model_max_length 300 \
     --use_image_num 4 \
-    --use_img_from_vid
+    --use_img_from_vid > $log_file 2>&1 &
+wait
+
+# 训练结束时间，不需要修改
+end_time=$(date +%s)
+e2e_time=$(( $end_time - $start_time ))
+
+# 结果打印，不需要修改
+echo "------------------ Final result ------------------"
+# 输出性能FPS，需要模型审视修改
+avg_time=`grep -a 'steps: '  $log_file|awk -F "train time:" '{print $2}' | awk -F ", " '{print $1}' | awk '{a+=$1} END {if (NR != 0) printf("%.3f",a/NR)}'`
+Iteration_time=$avg_time
+
+# 打印，不需要修改
+echo "Iteration time : $Iteration_time"
+
+# 打印，不需要修改
+echo "E2E Training Duration sec : $e2e_time"
