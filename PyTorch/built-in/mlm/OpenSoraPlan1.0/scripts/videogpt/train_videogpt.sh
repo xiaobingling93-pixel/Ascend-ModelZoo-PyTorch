@@ -56,7 +56,7 @@ FPSs=$(grep "$max_steps/$max_steps " ${output_path}/train.log | awk '{print $NF}
 FPSt=$(grep "$max_steps/$max_steps " ${output_path}/train.log | awk '{print $NF}' | grep "it/s" | tail -n 1 | grep -oP '\d*\.\d+')
 
 #吞吐量
-if [ $FPSt = "" ]; then
+if [ x"$FPSt" == x"" ]; then
   FPS=$(awk 'BEGIN{printf "%.2f\n", '${FPSs}'}')
   ActualFPS=$(echo "scale=2; a=1/$FPS; if(length(a)==scale(a)) print 0;print a "| bc)
 else
