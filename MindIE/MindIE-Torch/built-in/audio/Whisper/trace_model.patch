@@ -20,7 +20,7 @@ index 49485d0..495fe45 100644
 +        torch.onnx.export(
 +            model.encoder,
 +            (mel),
-+            "/tmp/models/encoder.onnx",
++            "/tmp/models/onnx/encode/encoder.onnx",
 +            opset_version=11,
 +            input_names=["mel"],
 +            output_names=["ret"]
@@ -60,7 +60,7 @@ index 49485d0..495fe45 100644
 +            torch.onnx.export(
 +                self.model.decoder,
 +                (tokens, audio_features, pos_embed, self.cache_dyn, self.cache_sta),
-+                "/tmp/models/decoder_decode.onnx",
++                "/tmp/models/onnx/decode/decoder_decode.onnx",
 +                opset_version=11,
 +                input_names=["tokens", "audio_features", "pos_embed", "cache_dyn", "cache_sta"],
 +                output_names=["logits", "new_cache_dyn", "new_cache_sta"],
@@ -84,7 +84,7 @@ index 49485d0..495fe45 100644
 +            torch.onnx.export(
 +                self.model.decoder,
 +                (tokens, audio_features, pos_embed),
-+                "/tmp/models/decoder_prefill.onnx",
++                "/tmp/models/onnx/prefill/decoder_prefill.onnx",
 +                opset_version=11,
 +                input_names=["tokens", "audio_features", "pos_embed"],
 +                output_names=["logits", "cache_dyn", "cache_sta"],
