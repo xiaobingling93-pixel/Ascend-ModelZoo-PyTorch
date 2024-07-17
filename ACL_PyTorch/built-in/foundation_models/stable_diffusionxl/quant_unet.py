@@ -20,6 +20,7 @@ from ais_bench.infer.interface import InferSession
 from diffusers import DPMSolverMultistepScheduler, EulerDiscreteScheduler, DDIMScheduler
 from modelslim.onnx.squant_ptq.onnx_quant_tools import OnnxCalibrator
 from modelslim.onnx.squant_ptq.quant_config import QuantConfig
+from auto_optimizer import OnnxGraph
 import numpy as np
 import onnx
 import torch
@@ -258,6 +259,66 @@ class StableDiffusionXLDumpPipeline(AscendStableDiffusionXLPipeline):
         return dump_data
 
 
+def get_quant_data(node, param, graph):
+    input_scale = param.input_scale
+    weight_scale = param.weight_scale
+    input_offset = param.input_offset
+    quant_weight = param.quant_weight
+    node_name = '_'.join(node.inputs[1].split('_')[:-1])
+    scale = input_scale[node_name] * weight_scale[node_name]
+    packed_weight_np_data = scale.squeeze()
+    float32_scale_deq = np.array(packed_weight_np_data, np.float32)
+    uint32_scale_deq = np.frombuffer(float32_scale_deq, np.uint32)
+    uint64_result = np.zeros(float32_scale_deq.shape, np.int64)
+    if len(uint64_result.shape) == 0:
+        uint64_result = np.expand_dims(uint64_result, axis=0)
+    uint64_result |= np.int64(uint32_scale_deq)
+    graph.add_initializer('_'.join([node.name, 'scale']), uint64_result)
+    graph.add_initializer('_'.join([node.name, 'offset']), np.array(0).astype(np.float32))
+    correction = quant_weight[node_name].astype(np.float32).sum(axis=0)*input_offset[node_name].astype(np.float32)
+
+    return scale, correction
+
+
+def modify_quant_fuse(unet, quant, param):
+    quant_graph = OnnxGraph.parse(quant)
+    unet_graph = OnnxGraph.parse(unet)
+    quant_op_type = "AscendDequant"
+    quant_list = quant_graph.get_nodes(quant_op_type)
+    input_scale = param.input_scale
+    weight_scale = param.weight_scale
+    input_offset = param.input_offset
+    quant_weight = param.quant_weight
+    for node in quant_list:
+        pre_node = quant_graph.get_prev_node(node.inputs[0])
+        if pre_node.op_type == "MatMul":
+            _, _ = get_quant_data(pre_node, param, quant_graph)
+            x = pre_node.inputs[1]
+            w = quant_graph[x].value
+            quant_graph[x].value = w.transpose(1,0)
+            quant_graph.add_node('_'.join([pre_node.name, 'quant']), "QuantBatchMatMul", inputs=[pre_node.inputs[0], x, '_'.join([pre_node.name, 'scale']), \
+                                 '_'.join([pre_node.name, 'offset'])], outputs=[node.outputs[0]], attrs={"dtype":0, "transpose_x2":True})
+            quant_graph.remove(pre_node.name, mapping={})
+            quant_graph.remove(node.name, mapping={})
+            quant_graph.update_map()
+        elif pre_node.op_type == "Add":
+            matmul_node = quant_graph.get_prev_node(pre_node.inputs[0])
+            scale, correction = get_quant_data(matmul_node, param, quant_graph)
+            x = matmul_node.inputs[1]
+            w = quant_graph[x].value
+            quant_graph[x].value = w.transpose(1,0)
+            ori_bias = np.round(unet_graph[unet_graph[pre_node.name].inputs[0]].value / scale - correction).astype(np.int32)
+            quant_graph.add_initializer('_'.join([matmul_node.name, 'bias']), ori_bias)
+            quant_graph.add_node('_'.join([matmul_node.name, 'quant']), "QuantBatchMatMul", inputs=[matmul_node.inputs[0], x, '_'.join([matmul_node.name, 'scale']), \
+                                 '_'.join([matmul_node.name, 'offset']), '_'.join([matmul_node.name, 'bias'])], outputs=[node.outputs[0]], attrs={"dtype":0, "transpose_x2":True})
+            quant_graph.remove(pre_node.name, mapping={})
+            quant_graph.remove(matmul_node.name, mapping={})
+            quant_graph.remove(node.name, mapping={})
+            quant_graph.update_map()
+
+    return quant_graph
+
+
 def parse_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -314,7 +375,7 @@ def parse_arguments():
         action='store_true', 
         help="do not use real data"
     )
-
+    
     return parser.parse_args()
 
 
@@ -429,7 +490,10 @@ def main():
         os.makedirs(quant_path, mode=0o744)
     quant_onnx = os.path.join(quant_path, 'unet.onnx')
     calib.export_quant_onnx(quant_onnx, use_external=True)
-
+    quant_numpy = calib._get_quant_params()
+    graph = modify_quant_fuse(unet_onnx, quant_onnx, quant_numpy)
+    fuse_path = os.path.join(quant_path, 'unet_fuse.onnx')
+    graph.save(fuse_path)
 
 if __name__ == "__main__":
     main()

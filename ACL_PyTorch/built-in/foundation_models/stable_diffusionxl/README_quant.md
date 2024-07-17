@@ -34,8 +34,8 @@ python3 quant_unet.py \
 - --save_path：量化模型的储存目录，为model_dir下的子文件夹名。
 - --data_free：使用虚拟数据。
 
-执行成功后生成`models_bs${bs}/unet_quant`文件夹，包含unet.onnx模型及权重。
-        
+执行成功后生成`models_bs${bs}/unet_quant`文件夹，包含unet.onnx模型, unet_fuse.onnx(matmul和dequant算子融合)模型及权重。
+
 ### 真实数据校准
 1. 使用ATC工具将ONNX模型转OM模型。
 
@@ -60,7 +60,7 @@ python3 quant_unet.py \
     2. 执行ATC命令。
 
         ```bash
-        # 为减少量化耗时，建议使用bs=1场景进行量化
+        # 为减少量化耗时，要求使用bs=1场景进行量化
         bs=1
         # text_encoder
         cd ./models/text_encoder

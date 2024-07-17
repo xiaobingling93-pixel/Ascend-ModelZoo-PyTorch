@@ -38,7 +38,7 @@ def add_flash_attention(model, fa_name, soc_type):
             matmul = model[name[:-3] + 'to_q/MatMul']
             reshape = model[name[:-3] + 'Reshape']
             seqlen = 4096
-            if soc_type == 2 and model[reshape.inputs[1]].value[1] != seqlen:
+            if soc_type == 3 and model[reshape.inputs[1]].value[1] != seqlen:
                 continue
             softmax_node = model.get_next_nodes(node.outputs[0])[0]
             if soc_type == 1:
@@ -49,11 +49,18 @@ def add_flash_attention(model, fa_name, soc_type):
 
             # add flashattention
             new_node = model.add_node(name[:-3] + fa_name, fa_name)
+            if soc_type == 3:
+                new_node.attrs = {
+                    'input_layout': 'BSH',
+                    'num_heads': 10, 
+                    'scale_value': 0.125, 
+                    'next_tokens': 65535
+                }
             inputs = [None, None, None]
             # input 0: q
             if soc_type == 1:
                 matmul_node = model.get_prev_node(softmax_node.inputs[0])
-            if soc_type == 2:
+            if soc_type == 3:
                 matmul_node = model.get_prev_node(node.inputs[0])
             inputs[0] = matmul_node.inputs[0]
             # input 1: k
@@ -82,10 +89,6 @@ def add_flash_attention(model, fa_name, soc_type):
                 model.remove(prev_node.name)
             next_node = model.get_next_nodes(node.outputs[0])[0]
             model.remove(next_node.name)
-        if soc_type == 2:
-            name = node.name.replace(fa_name, 'Cast')
-            cast = model.add_node(name, 'Cast', attrs={'to': 1})
-            model.insert_node(node.name, cast)
 
 
 def change_input(model, bs):
@@ -164,6 +167,8 @@ def get_block(model):
     norms = []
     for node in model.get_nodes('Add'):
         next_nodes = model.get_next_nodes(node.outputs[0])
+        if next_nodes[0].op_type == 'AscendQuant':
+            next_nodes = model.get_next_nodes(next_nodes[0].outputs[0])
         if len(next_nodes) != 3:
             continue
         op_type = set(n.op_type for n in next_nodes)
@@ -475,10 +480,7 @@ def main():
     if args.FA_soc == 'Duo':
         add_flash_attention(model, 'FlashAttentionTik', soc_type=1)
     elif args.FA_soc == 'A2':
-        if batch_size > 2:
-            print('A2 does not support FA in multi-batch case! The FA modification does not effect.')
-        else:
-            add_flash_attention(model, 'UnpadFlashAttentionMix', soc_type=2)
+        add_flash_attention(model, 'NPUPromptFlashAttention', soc_type=3)
     if args.TOME_num:
         insert_tome_block(model, args.TOME_num)
     replace_slice(model, args.faster_gelu)

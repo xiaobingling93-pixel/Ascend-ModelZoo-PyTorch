@@ -154,7 +154,7 @@
          ```bash 
          bs=1
          # 量化模型
-         unet_model="models/unet_quant/unet.onnx"
+         unet_model="models/unet_quant/unet_fuse.onnx"
          # 非量化模型
          unet_model="models/unet/unet.onnx"
 
@@ -188,7 +188,6 @@
 
          FA、TOME、Gelu融合算子需通过安装与CANN版本对应的推理引擎包(MindIE)来获取，如未安装推理引擎或使用的版本不支持FA、TOME、SliceGelu算子，FA_soc和TOME_num参数请使用默认配置、不设置faster_gelu参数。
 
-         多batch场景限制：A2场景下暂不支持FA算子优化，FA_soc参数请设置为None。
 
       3. 适配cache方案(可选，可提升性能但可能导致精度下降)
 
@@ -416,7 +415,6 @@
       # Clip Score 和 HPSv2 均需使用的权重
       GIT_LFS_SKIP_SMUDGE=1 
       git clone https://huggingface.co/laion/CLIP-ViT-H-14-laion2B-s32B-b79K
-      cd ./CLIP-ViT-H-14-laion2B-s32B-b79K
 
       # HPSv2权重
       wget https://huggingface.co/spaces/xswu/HPSv2/resolve/main/HPS_v2_compressed.pt --no-check-certificate
