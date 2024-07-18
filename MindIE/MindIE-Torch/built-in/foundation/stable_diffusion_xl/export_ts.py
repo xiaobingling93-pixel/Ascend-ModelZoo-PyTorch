@@ -715,8 +715,8 @@ if __name__ == "__main__":
     min_height, max_height = 512 // 8, 1024 // 8
     min_width, max_width = 512 // 8, 1664 // 8
     # 动态分档支持的分辨率
-    heights = [1024, 512]
-    widths = [1024, 512]
+    heights = [1024, 512, 936, 768, 576]
+    widths = [1024, 512, 1664, 1360, 1024]
     
     args = parse_arguments()
     if args.soc == "Duo":
