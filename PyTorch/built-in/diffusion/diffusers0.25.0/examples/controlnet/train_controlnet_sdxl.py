@@ -63,6 +63,19 @@ check_min_version("0.25.0")
 
 logger = get_logger(__name__)
 
+try:
+    from torch_npu.utils.profiler import Profile
+except ImportError:
+    print("Profile not in torch_npu.utils.profiler now.. Auto Profile disabled.", flush=True)
+    class Profile:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def start(self):
+            pass
+
+        def end(self):
+            pass
 
 def log_validation(vae, unet, controlnet, args, accelerator, weight_dtype, step):
     logger.info("Running validation... ")
@@ -1111,10 +1124,12 @@ def main(args):
         # Only show the progress bar once on each machine.
         disable=not accelerator.is_local_main_process,
     )
-
+    profile = Profile(start_step=int(os.getenv('PROFILE_START_STEP', 10)),
+                            profile_type=os.getenv('PROFILE_TYPE'))
     image_logs = None
     for epoch in range(first_epoch, args.num_train_epochs):
         step_end_time = time.time()
+        profile.start()
         for step, batch in enumerate(train_dataloader):
             step_data_time = time.time() - step_end_time
             with accelerator.accumulate(controlnet):
@@ -1225,11 +1240,11 @@ def main(args):
                         )
                         if args.pretrained_vae_model_name_or_path is None:
                             vae.to(torch.float32)
-
+            profile.end()
             logs = {"loss": loss.detach().item(), "lr": lr_scheduler.get_last_lr()[0]}
             progress_bar.set_postfix(**logs)
             accelerator.log(logs, step=global_step)
-
+            
             if global_step >= args.max_train_steps:
                 break
 

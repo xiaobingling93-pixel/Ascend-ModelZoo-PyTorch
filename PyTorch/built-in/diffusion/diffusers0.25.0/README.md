@@ -279,10 +279,10 @@
 ##### 性能
 | 芯片 | 卡数 | FPS | batch_size | AMP_Type | Torch_Version |
 |:---:|:---:|:---:|:---:|:---:|:---:|
-| GPU | 8p | 22.61 | 4 | bf16 | 2.1 |
-| Atlas A2 | 8p | 23.18 | 4 | bf16 | 2.1 |
-| GPU | 8p | 22.32 | 4 | fp16 | 2.1 |
-| Atlas A2 | 8p | 22.81 | 4 | fp16 | 2.1 |
+| 竞品A | 8p | 22.61 | 4 | bf16 | 2.1 |
+| Atlas 200T A2 Box16 | 8p | 23.18 | 4 | bf16 | 2.1 |
+| 竞品A | 8p | 22.32 | 4 | fp16 | 2.1 |
+| Atlas 200T A2 Box16 | 8p | 22.81 | 4 | fp16 | 2.1 |
 
 ### 微调任务
 本任务主要提供LoRA和Controlnet两种微调下游任务的8卡训练脚本，包括使用和不使用deepspeed分布式训练。
@@ -334,14 +334,14 @@
 ##### 性能
 | 芯片 | 卡数 | 任务 | FPS | batch_size | AMP_Type | Torch_Version | deepspeed |
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| GPU | 8p | LoRA | 23.38 | 7 | fp16 | 2.1 | ✔ |
-| Atlas A2 |8p | LoRA  | 28.75 | 7 | fp16 | 2.1 | ✔ |
-| GPU | 8p | LoRA | 19.48 | 3 | fp16 | 2.1 | ✘ |
-| Atlas A2 |8p | LoRA  | 18.76 | 3 | fp16 | 2.1 | ✘ |
-| GPU | 8p | Controlnet | 32.5 | 5 | fp16 | 2.1 | ✔ |
-| Atlas A2 |8p | Controlnet  | 28.42 | 5 | fp16 | 2.1 | ✔ |
-| GPU | 8p | Controlnet | 20.52 | 2 | fp16 | 2.1 | ✘ |
-| Atlas A2 |8p | Controlnet | 32.69 | 2 | fp16 | 2.1 | ✘ |
+| 竞品A | 8p | LoRA | 23.38 | 7 | fp16 | 2.1 | ✔ |
+| Atlas 200T A2 Box16 |8p | LoRA  | 28.75 | 7 | fp16 | 2.1 | ✔ |
+| 竞品A | 8p | LoRA | 19.48 | 3 | fp16 | 2.1 | ✘ |
+| Atlas 200T A2 Box16 |8p | LoRA  | 18.76 | 3 | fp16 | 2.1 | ✘ |
+| 竞品A | 8p | Controlnet | 32.5 | 5 | fp16 | 2.1 | ✔ |
+| Atlas 200T A2 Box16 |8p | Controlnet  | 28.42 | 5 | fp16 | 2.1 | ✔ |
+| 竞品A | 8p | Controlnet | 20.52 | 2 | fp16 | 2.1 | ✘ |
+| Atlas 200T A2 Box16 |8p | Controlnet | 32.69 | 2 | fp16 | 2.1 | ✘ |
 
 ### 推理任务
 本任务主要以预训练模型为主，展示推理任务，包括单卡预训练推理。
@@ -494,8 +494,8 @@
 
 | 芯片       | 卡数 | Denoise FPS | batch_size |  AMP_Type  | Torch_Version | 
 |----------|:--:|:-----------:|:----------:|:----------:|:-------------:|
-| GPU      | 8p |    4.88     |     8      |    fp16    |      2.1      |
-| Atlas A2 | 8p |    4.06     |     8      |    fp16    |      2.1      |
+| 竞品A      | 8p |    4.88     |     8      |    fp16    |      2.1      |
+| Atlas 200T A2 Box16 | 8p |    4.06     |     8      |    fp16    |      2.1      |
 
  > 注：denoise FPS是根据denoise的单步时间计算的FPS（帧数/时间），等于BatchSize/denoise step time.
 

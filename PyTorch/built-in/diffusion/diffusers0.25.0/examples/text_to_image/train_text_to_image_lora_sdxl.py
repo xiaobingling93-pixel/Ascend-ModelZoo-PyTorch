@@ -62,6 +62,19 @@ check_min_version("0.25.0")
 torch.npu.config.allow_internal_format = False
 logger = get_logger(__name__)
 
+try:
+    from torch_npu.utils.profiler import Profile
+except ImportError:
+    print("Profile not in torch_npu.utils.profiler now.. Auto Profile disabled.", flush=True)
+    class Profile:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def start(self):
+            pass
+
+        def end(self):
+            pass
 
 def save_model_card(
     repo_id: str,
@@ -964,7 +977,9 @@ def main(args):
         # Only show the progress bar once on each machine.
         disable=not accelerator.is_local_main_process,
     )
-
+    profile = Profile(start_step=int(os.getenv('PROFILE_START_STEP', 10)),
+                          profile_type=os.getenv('PROFILE_TYPE'))
+    
     for epoch in range(first_epoch, args.num_train_epochs):
         unet.train()
         if args.train_text_encoder:
@@ -974,6 +989,7 @@ def main(args):
         step_end_time = time.time()
         for step, batch in enumerate(train_dataloader):
             step_data_time = time.time() - step_end_time
+            profile.start()
             with accelerator.accumulate(unet):
                 # Convert images to latent space
                 if args.pretrained_vae_model_name_or_path is not None:
@@ -1072,7 +1088,7 @@ def main(args):
                 optimizer.step()
                 lr_scheduler.step()
                 optimizer.zero_grad()
-
+                profile.end()
                 step_total_time = time.time() - step_end_time
                 accelerator.print(f"step_train_time: {step_total_time}")
                 accelerator.print(f"step_data_time: {step_data_time}")

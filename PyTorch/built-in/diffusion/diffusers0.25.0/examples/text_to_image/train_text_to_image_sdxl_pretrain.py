@@ -77,6 +77,20 @@ from diffusers.utils.import_utils import is_xformers_available
 import collect_dataset
 import pretrain_model
 
+try:
+    from torch_npu.utils.profiler import Profile
+except ImportError:
+    print("Profile not in torch_npu.utils.profiler now.. Auto Profile disabled.", flush=True)
+    class Profile:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def start(self):
+            pass
+
+        def end(self):
+            pass
+
 # Will error if the minimal version of diffusers is not installed. Remove at your own risks.
 check_min_version("0.25.0")
 
@@ -852,6 +866,8 @@ def main(args):
         disable=not accelerator.is_local_main_process,
     )
 
+    profile = Profile(start_step=int(os.getenv('PROFILE_START_STEP', 10)),
+                    profile_type=os.getenv('PROFILE_TYPE'))
     for epoch in range(first_epoch, args.num_train_epochs):
         train_loss = 0.0
         sdxl_model.train()
@@ -861,6 +877,7 @@ def main(args):
         for step, batch in enumerate(train_dataloader):
             step_data_time = time.time() - step_end_time
             current_step.value = global_step
+            profile.start()
             with accelerator.accumulate(sdxl_model):
                 # Sample noise that we'll add to the latents
                 if "latents" in batch and batch["latents"] is not None:
@@ -987,7 +1004,8 @@ def main(args):
                     accelerator.save_state(save_path)
                     accelerator.wait_for_everyone()
                     logger.info(f"Saved state to {save_path}")
-
+                
+            profile.end()
             logs = {"step_loss": loss.detach().item(), "lr": lr_scheduler.get_last_lr()[0]}
             progress_bar.set_postfix(**logs)
 
