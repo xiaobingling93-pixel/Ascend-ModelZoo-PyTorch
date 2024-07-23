@@ -181,7 +181,7 @@ class BertEmbeddings(nn.Module):
         # self.LayerNorm is not snake-cased to stick with TensorFlow model variable name and be able to load
         # any TensorFlow checkpoint file
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
-        self.dropout = torch_npu.contrib.module.npu_modules.DropoutWithByteMask(config.hidden_dropout_prob)
+        self.dropout = torch_npu.contrib.module.DropoutWithByteMask(config.hidden_dropout_prob)
         # position_ids (1, len position emb) is contiguous in memory and exported when serialized
         self.position_embedding_type = getattr(config, "position_embedding_type", "absolute")
         self.register_buffer("position_ids", torch.arange(config.max_position_embeddings).expand((1, -1)))
@@ -246,7 +246,7 @@ class BertSelfAttention(nn.Module):
         self.key = NpuLinear(config.hidden_size, self.all_head_size)
         self.value = NpuLinear(config.hidden_size, self.all_head_size)
 
-        self.dropout = torch_npu.contrib.module.npu_modules.DropoutWithByteMask(config.attention_probs_dropout_prob)
+        self.dropout = torch_npu.contrib.module.DropoutWithByteMask(config.attention_probs_dropout_prob)
         self.position_embedding_type = position_embedding_type or getattr(
             config, "position_embedding_type", "absolute"
         )
@@ -297,7 +297,7 @@ class BertSelfOutput(nn.Module):
         super().__init__()
         self.dense = NpuLinear(config.hidden_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
-        self.dropout = torch_npu.contrib.module.npu_modules.DropoutWithByteMask(config.hidden_dropout_prob)
+        self.dropout = torch_npu.contrib.module.DropoutWithByteMask(config.hidden_dropout_prob)
 
     def forward(self, hidden_states, input_tensor):
         hidden_states = self.dense(hidden_states)
@@ -381,7 +381,7 @@ class BertOutput(nn.Module):
         self.dense = NpuLinear(config.intermediate_size, config.hidden_size)
         if is_last_layer:
             self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
-        self.dropout = torch_npu.contrib.module.npu_modules.DropoutWithByteMask(config.hidden_dropout_prob)
+        self.dropout = torch_npu.contrib.module.DropoutWithByteMask(config.hidden_dropout_prob)
 
     def forward(self, hidden_states, input_tensor):
         hidden_states = self.dense(hidden_states)
@@ -1478,7 +1478,7 @@ class BertForSequenceClassification(BertPreTrainedModel):
         classifier_dropout = (
             config.classifier_dropout if config.classifier_dropout is not None else config.hidden_dropout_prob
         )
-        self.dropout = torch_npu.contrib.module.npu_modules.DropoutWithByteMask(classifier_dropout)
+        self.dropout = torch_npu.contrib.module.DropoutWithByteMask(classifier_dropout)
         self.classifier = nn.Linear(config.hidden_size, config.num_labels)
 
         # Initialize weights and apply final processing
@@ -1578,7 +1578,7 @@ class BertForMultipleChoice(BertPreTrainedModel):
         classifier_dropout = (
             config.classifier_dropout if config.classifier_dropout is not None else config.hidden_dropout_prob
         )
-        self.dropout = torch_npu.contrib.module.npu_modules.DropoutWithByteMask(classifier_dropout)
+        self.dropout = torch_npu.contrib.module.DropoutWithByteMask(classifier_dropout)
         self.classifier = nn.Linear(config.hidden_size, 1)
 
         # Initialize weights and apply final processing
@@ -1676,7 +1676,7 @@ class BertForTokenClassification(BertPreTrainedModel):
         classifier_dropout = (
             config.classifier_dropout if config.classifier_dropout is not None else config.hidden_dropout_prob
         )
-        self.dropout = torch_npu.contrib.module.npu_modules.DropoutWithByteMask(classifier_dropout)
+        self.dropout = torch_npu.contrib.module.DropoutWithByteMask(classifier_dropout)
         self.classifier = nn.Linear(config.hidden_size, config.num_labels)
 
         # Initialize weights and apply final processing
