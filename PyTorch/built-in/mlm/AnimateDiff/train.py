@@ -139,7 +139,7 @@ def main(
     torch.manual_seed(seed)
     
     # Logging folder
-    folder_name = "debug" if is_debug else name + datetime.datetime.now().strftime("-%Y-%m-%dT%H-%M-%S")
+    folder_name = "debug" if is_debug else name
     output_dir = os.path.join(output_dir, folder_name)
     if is_debug and os.path.exists(output_dir):
         os.system(f"rm -rf {output_dir}")
