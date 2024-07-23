@@ -1,15 +1,50 @@
-from prefigure.prefigure import get_all_args, push_wandb_config
+# Copyright 2024 Huawei Technologies Co. Ltd
+
+from prefigure.prefigure import get_all_args
 import json
 import os
 import torch
 import pytorch_lightning as pl
 import random
+from pytorch_lightning.loops.fetchers import _DataFetcher
 
 from stable_audio_tools.data.dataset import create_dataloader_from_config
 from stable_audio_tools.models import create_model_from_config
 from stable_audio_tools.models.utils import load_ckpt_state_dict, remove_weight_norm_from_model
 from stable_audio_tools.training import create_training_wrapper_from_config, create_demo_callback_from_config
 from stable_audio_tools.training.utils import copy_state_dict
+
+from torch_npu.contrib import transfer_to_npu
+
+torch.npu.config.allow_internal_format = False
+torch.npu.set_compile_mode(jit_compile=False)
+
+
+def setup_device(self, device: torch.device) -> None:
+    torch.cuda.set_device(device)
+
+# Use patch to set device
+pl.accelerators.cuda.CUDAAccelerator.setup_device = setup_device
+
+def run(self, data_fetcher: _DataFetcher) -> None:
+    import time
+    self.reset()
+    self.on_run_start(data_fetcher)
+    time_start = time.time()
+    while not self.done:
+        try:
+            self.advance(data_fetcher)
+            self.on_advance_end(data_fetcher)
+            self._restarting = False
+            time_end = time.time()
+            self.trainer.print("train time: ", time_end - time_start)
+            time_start = time_end
+        except StopIteration:
+            break
+    self._restarting = False
+
+# Use patch to add train time print
+pl.loops.training_epoch_loop._TrainingEpochLoop.run = run
 
 class ExceptionCallback(pl.Callback):
     def on_exception(self, trainer, module, err):
@@ -68,15 +103,10 @@ def main():
 
     training_wrapper = create_training_wrapper_from_config(model_config, model)
 
-    wandb_logger = pl.loggers.WandbLogger(project=args.name)
-    wandb_logger.watch(training_wrapper)
 
     exc_callback = ExceptionCallback()
     
-    if args.save_dir and isinstance(wandb_logger.experiment.id, str):
-        checkpoint_dir = os.path.join(args.save_dir, wandb_logger.experiment.project, wandb_logger.experiment.id, "checkpoints") 
-    else:
-        checkpoint_dir = None
+    checkpoint_dir = args.save_dir
 
     ckpt_callback = pl.callbacks.ModelCheckpoint(every_n_train_steps=args.checkpoint_every, dirpath=checkpoint_dir, save_top_k=-1)
     save_model_config_callback = ModelConfigEmbedderCallback(model_config)
@@ -87,7 +117,6 @@ def main():
     args_dict = vars(args)
     args_dict.update({"model_config": model_config})
     args_dict.update({"dataset_config": dataset_config})
-    push_wandb_config(wandb_logger, args_dict)
 
     #Set multi-GPU strategy if specified
     if args.strategy:
@@ -113,10 +142,9 @@ def main():
         strategy=strategy,
         precision=args.precision,
         accumulate_grad_batches=args.accum_batches, 
-        callbacks=[ckpt_callback, demo_callback, exc_callback, save_model_config_callback],
-        logger=wandb_logger,
+        callbacks=[ckpt_callback, exc_callback, save_model_config_callback],
         log_every_n_steps=1,
-        max_epochs=10000000,
+        max_steps=args.max_steps,
         default_root_dir=args.save_dir,
         gradient_clip_val=args.gradient_clip_val,
         reload_dataloaders_every_n_epochs = 0

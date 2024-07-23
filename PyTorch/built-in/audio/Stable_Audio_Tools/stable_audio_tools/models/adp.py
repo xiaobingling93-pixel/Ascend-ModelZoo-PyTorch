@@ -1,3 +1,5 @@
+# Copyright 2024 Huawei Technologies Co. Ltd
+
 # Copied and modified from https://github.com/archinetai/audio-diffusion-pytorch/blob/v0.0.94/audio_diffusion_pytorch/modules.py under MIT License
 # License can be found in LICENSES/LICENSE_ADP.txt
 
@@ -447,14 +449,8 @@ class AttentionBase(nn.Module):
         if not self.use_flash:
             return
 
-        device_properties = torch.cuda.get_device_properties(torch.device('cuda'))
+        self.sdp_kernel_config = (True, False, False)
 
-        if device_properties.major == 8 and device_properties.minor == 0:
-            # Use flash attention for A100 GPUs
-            self.sdp_kernel_config = (True, False, False)
-        else:
-            # Don't use flash attention for other GPUs
-            self.sdp_kernel_config = (False, True, True)
 
     def forward(
         self, q: Tensor, k: Tensor, v: Tensor, mask: Optional[Tensor] = None, is_causal: bool = False

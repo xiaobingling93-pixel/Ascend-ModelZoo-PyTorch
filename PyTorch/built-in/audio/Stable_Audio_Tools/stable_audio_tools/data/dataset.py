@@ -1,3 +1,5 @@
+# Copyright 2024 Huawei Technologies Co. Ltd
+
 import importlib
 import numpy as np
 import io
@@ -51,6 +53,7 @@ def fast_scandir(
         sf, f = fast_scandir(dir, ext)
         subfolders.extend(sf)
         files.extend(f)
+    files.sort()
     return subfolders, files
 
 def keyword_scandir(
