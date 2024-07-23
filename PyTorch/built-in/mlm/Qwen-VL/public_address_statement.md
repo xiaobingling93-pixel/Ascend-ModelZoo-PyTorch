@@ -19,3 +19,4 @@
 | 开源代码引入 | https://github.com/QwenLM/Qwen-VL/blob/master/eval_mm/infographicsvqa_eval.py | ./eval_mm/infographicsvqa_eval.py |        https://rrc.cvc.uab.es/?ch=17&com=introduction        | Overview - Document Visual Question Answerin |
 | 开源代码引入 | https://github.com/QwenLM/Qwen-VL/blob/master/openai_api.py | ./openai_api.py | https://platform.openai.com/docs/api-reference/chat | openAI api reference |
 | 开源代码引入 | https://www.modelscope.cn/models/qwen/Qwen-VL-Chat/file/view/master?fileName=visual.py&status=1 | ./models/visual.py | https://github.com/facebookresearch/mae/blob/efb2a8062c206524e35e47d04501ed4f544c0ae8/util/pos_embed.py#L20 | source code of facebookresearch/mae |
+|开源代码引入| https://github.com/QwenLM/Qwen-VL/blob/master/README.md | ./infer.py | https://qianwen-res.oss-cn-beijing.aliyuncs.com/Qwen-VL/assets/demo.jpeg | demo image for inference |

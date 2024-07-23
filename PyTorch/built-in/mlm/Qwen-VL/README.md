@@ -10,9 +10,9 @@
 本仓已经支持以下模型任务类型
 
 |  模型  | 任务列表 | 是否支持 |
-|:----:|:----:|:-----:|
-| Qwen-VL |  训练  | ✔ |
-| Qwen-VL | 在线推理 | ✔ |
+|:----:|:----:|:----:|
+| Qwen-VL |  训练  |  ✔   |
+| Qwen-VL | 在线推理 | demo |
 
 
 
@@ -182,7 +182,15 @@
    --gradient_accumulation_steps        //梯度累积大小  
    --num_train_epochs                   //设置训练轮数
    ```
+    支持单机单卡demo版本推理：
    
+   ```shell
+   bash test/infer_demo.sh # 运行单卡推理demo
+   ```
+   需要修改shell脚本中模型文件路径后运行。
+   
+   
+
 #### 训练结果
 
 
