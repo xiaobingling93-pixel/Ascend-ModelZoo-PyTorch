@@ -1,4 +1,4 @@
-# Copyright 2021 Huawei Technologies Co., Ltd
+# Copyright 2024 Huawei Technologies Co., Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,8 +16,10 @@ import os
 path = os.getcwd()
 
 
-if not os.path.exists('1'):
-    os.mkdir('1')
+convert_dir = 'convert'
+if not os.path.exists(convert_dir):
+    os.mkdir(convert_dir)
+
 with open('FDDB_dets.txt', 'r') as f:
     while(True):
         img_name = f.readline().strip('\n').replace('/', '_')
@@ -25,11 +27,9 @@ with open('FDDB_dets.txt', 'r') as f:
             pass
         else:
             break
-        # print(img_name)
         raw = f.readline().strip('\n').split('.')[0]
         file_name = ''.join([img_name, '.txt'])
-        # print(file_name)
-        os.chdir(os.path.join(path, '1'))
+        os.chdir(os.path.join(path, convert_dir))
         with open(file_name, 'w') as new_file:
             new_file.write(img_name+'\n')
             new_file.write(raw+'\n')
