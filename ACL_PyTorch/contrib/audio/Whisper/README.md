@@ -120,7 +120,7 @@ Whisper_for_PyTorch
 
 1. 获取权重文件
 
-    下载[权重文件](https://openaipublic.azureedge.net/main/whisper/models/ed3a0b6b1c0edf879ad9b11b1af5a0e6ab5db9205f891f668f8b0e6c6326e34e/base.en.pt)，以`base.en`为例，将下载的模型文件`base.en.pt`放在项目目录下。
+    下载[权重文件](https://openaipublic.azureedge.net/main/whisper/models/25a8566e1d0c1e2231d1c762132cd20e0f96a85d16145c3a00adf5d1ac670ead/base.en.pt)，以`base.en`为例，将下载的模型文件`base.en.pt`放在项目目录下。
 
 2. 导出`ONNX`模型
 
