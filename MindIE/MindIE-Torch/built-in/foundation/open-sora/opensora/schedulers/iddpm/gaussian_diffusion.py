@@ -15,6 +15,7 @@ import math
 
 import numpy as np
 import torch as th
+import torch
 
 from .diffusion_utils import discretized_gaussian_log_likelihood, normal_kl
 
@@ -239,7 +240,8 @@ class GaussianDiffusion:
         )
         return posterior_mean, posterior_variance, posterior_log_variance_clipped
 
-    def p_mean_variance(self, model, x, t, clip_denoised=True, denoised_fn=None, model_kwargs=None):
+    def p_mean_variance(self, model, x, t, clip_denoised=True, denoised_fn=None,
+                        use_cache=0, current_if_cache=0, delta_cache=None, model_kwargs=None):
         """
         Apply the model to get p(x_{t-1} | x_t), as well as a prediction of
         the initial x, x_0.
@@ -262,11 +264,25 @@ class GaussianDiffusion:
         if model_kwargs is None:
             model_kwargs = {}
 
-        B, C = x.shape[:2]
+        B, C = x.shape[:2]  # x:[2, 4, 16, 32, 32]
+
         assert t.shape == (B,)
-        model_output = model(x, t, **model_kwargs)
+        if not use_cache:
+            model_output = model(x, t, **model_kwargs)
+        elif not current_if_cache:
+            model_kwargs['use_cache'] = use_cache
+            model_kwargs['current_if_cache'] = current_if_cache
+            model_kwargs['delta_cache'] = delta_cache
+            model_output, delta_cache = model(x, t, **model_kwargs)  # 会去调用respcae.py-->__call__
+        else:
+            model_kwargs['use_cache'] = use_cache
+            model_kwargs['current_if_cache'] = current_if_cache
+            model_kwargs['delta_cache'] = delta_cache
+            model_output = model(x, t, **model_kwargs)
+
         if isinstance(model_output, tuple):
             model_output, extra = model_output
+
         else:
             extra = None
 
@@ -315,6 +331,7 @@ class GaussianDiffusion:
             "log_variance": model_log_variance,
             "pred_xstart": pred_xstart,
             "extra": extra,
+            "delta_cache": delta_cache
         }
 
     def _predict_xstart_from_eps(self, x_t, t, eps):
@@ -360,14 +377,17 @@ class GaussianDiffusion:
         return out
 
     def p_sample(
-        self,
-        model,
-        x,
-        t,
-        clip_denoised=True,
-        denoised_fn=None,
-        cond_fn=None,
-        model_kwargs=None,
+            self,
+            model,
+            x,
+            t,
+            clip_denoised=True,
+            denoised_fn=None,
+            cond_fn=None,
+            model_kwargs=None,
+            use_cache=0,
+            current_if_cache=0,
+            delta_cache=None
     ):
         """
         Sample x_{t-1} from the model at the given timestep.
@@ -392,25 +412,31 @@ class GaussianDiffusion:
             clip_denoised=clip_denoised,
             denoised_fn=denoised_fn,
             model_kwargs=model_kwargs,
+            use_cache=use_cache,
+            current_if_cache=current_if_cache,
+            delta_cache=delta_cache
         )
+
         noise = th.randn_like(x)
         nonzero_mask = (t != 0).float().view(-1, *([1] * (len(x.shape) - 1)))  # no noise when t == 0
         if cond_fn is not None:
             out["mean"] = self.condition_mean(cond_fn, out, x, t, model_kwargs=model_kwargs)
         sample = out["mean"] + nonzero_mask * th.exp(0.5 * out["log_variance"]) * noise
-        return {"sample": sample, "pred_xstart": out["pred_xstart"]}
+        return {"sample": sample, "pred_xstart": out["pred_xstart"], "delta_cache": out['delta_cache']}
 
     def p_sample_loop(
-        self,
-        model,
-        shape,
-        noise=None,
-        clip_denoised=True,
-        denoised_fn=None,
-        cond_fn=None,
-        model_kwargs=None,
-        device=None,
-        progress=False,
+            self,
+            model,
+            shape,
+            noise=None,
+            clip_denoised=True,
+            denoised_fn=None,
+            cond_fn=None,
+            model_kwargs=None,
+            device=None,
+            progress=False,
+            use_cache=0,
+            cache_steps=None
     ):
         """
         Generate samples from the model.
@@ -432,30 +458,34 @@ class GaussianDiffusion:
         """
         final = None
         for sample in self.p_sample_loop_progressive(
-            model,
-            shape,
-            noise=noise,
-            clip_denoised=clip_denoised,
-            denoised_fn=denoised_fn,
-            cond_fn=cond_fn,
-            model_kwargs=model_kwargs,
-            device=device,
-            progress=progress,
+                model,
+                shape,
+                noise=noise,
+                clip_denoised=clip_denoised,
+                denoised_fn=denoised_fn,
+                cond_fn=cond_fn,
+                model_kwargs=model_kwargs,
+                device=device,
+                progress=progress,
+                use_cache=use_cache,
+                cache_steps=cache_steps
         ):
             final = sample
         return final["sample"]
 
     def p_sample_loop_progressive(
-        self,
-        model,
-        shape,
-        noise=None,
-        clip_denoised=True,
-        denoised_fn=None,
-        cond_fn=None,
-        model_kwargs=None,
-        device=None,
-        progress=False,
+            self,
+            model,
+            shape,
+            noise=None,
+            clip_denoised=True,
+            denoised_fn=None,
+            cond_fn=None,
+            model_kwargs=None,
+            device=None,
+            progress=False,
+            use_cache=0,
+            cache_steps=None
     ):
         """
         Generate samples from the model and yield intermediate samples from
@@ -479,18 +509,55 @@ class GaussianDiffusion:
 
             indices = tqdm(indices)
 
+        delta_cache = torch.tensor([])
+
         for i in indices:
             t = th.tensor([i] * shape[0], device=device)
+            if i % 2 == 0:
+                current_if_cache = 1
+            elif i % 2 == 1:
+                current_if_cache = 0
+
             with th.no_grad():
-                out = self.p_sample(
-                    model,
-                    img,
-                    t,
-                    clip_denoised=clip_denoised,
-                    denoised_fn=denoised_fn,
-                    cond_fn=cond_fn,
-                    model_kwargs=model_kwargs,
-                )
+
+                if not use_cache:
+                    out = self.p_sample(
+                        model,
+                        img,
+                        t,
+                        clip_denoised=clip_denoised,
+                        denoised_fn=denoised_fn,
+                        cond_fn=cond_fn,
+                        model_kwargs=model_kwargs
+                    )
+                elif not current_if_cache:
+                    out = self.p_sample(
+                        model,
+                        img,
+                        t,
+                        clip_denoised=clip_denoised,
+                        denoised_fn=denoised_fn,
+                        cond_fn=cond_fn,
+                        model_kwargs=model_kwargs,
+                        use_cache=use_cache,
+                        current_if_cache=current_if_cache,
+                        # delta_cache=delta_cache
+                    )
+                    delta_cache = out['delta_cache']
+                else:
+                    out = self.p_sample(
+                        model,
+                        img,
+                        t,
+                        clip_denoised=clip_denoised,
+                        denoised_fn=denoised_fn,
+                        cond_fn=cond_fn,
+                        model_kwargs=model_kwargs,
+                        use_cache=use_cache,
+                        current_if_cache=current_if_cache,
+                        delta_cache=delta_cache
+                    )
+
                 yield out
                 img = out["sample"]
 

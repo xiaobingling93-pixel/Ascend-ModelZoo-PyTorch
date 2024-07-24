@@ -11,17 +11,17 @@ from .respace import SpacedDiffusion, space_timesteps
 @SCHEDULERS.register_module("iddpm")
 class IDDPM(SpacedDiffusion):
     def __init__(
-        self,
-        num_sampling_steps=None,
-        timestep_respacing=None,
-        noise_schedule="linear",
-        use_kl=False,
-        sigma_small=False,
-        predict_xstart=False,
-        learn_sigma=True,
-        rescale_learned_sigmas=False,
-        diffusion_steps=1000,
-        cfg_scale=4.0,
+            self,
+            num_sampling_steps=None,
+            timestep_respacing=None,
+            noise_schedule="linear",
+            use_kl=False,
+            sigma_small=False,
+            predict_xstart=False,
+            learn_sigma=True,
+            rescale_learned_sigmas=False,
+            diffusion_steps=1000,
+            cfg_scale=4.0,
     ):
         betas = gd.get_named_beta_schedule(noise_schedule, diffusion_steps)
         if use_kl:
@@ -51,13 +51,15 @@ class IDDPM(SpacedDiffusion):
         self.cfg_scale = cfg_scale
 
     def sample(
-        self,
-        model,
-        text_encoder,
-        z_size,
-        prompts,
-        device,
-        additional_args=None,
+            self,
+            model,
+            text_encoder,
+            z_size,
+            prompts,
+            device,
+            additional_args=None,
+            use_cache=0,
+            cache_steps=[]
     ):
         n = len(prompts)
         z = torch.randn(n, *z_size, device=device)
@@ -77,6 +79,8 @@ class IDDPM(SpacedDiffusion):
             model_kwargs=model_args,
             progress=True,
             device=device,
+            use_cache=use_cache,
+            cache_steps=cache_steps
         )
         samples, _ = samples.chunk(2, dim=0)
         return samples
@@ -88,8 +92,16 @@ def forward_with_cfg(model, x, timestep, y, cfg_scale, **kwargs):
     combined = torch.cat([half, half], dim=0)
     model_out = model.forward(combined, timestep, y, **kwargs)
     model_out = model_out["x"] if isinstance(model_out, dict) else model_out
-    eps, rest = model_out[:, :3], model_out[:, 3:]
+    if isinstance(model_out, tuple):
+        model_out_new, tmp = model_out
+        eps, rest = model_out_new[:, :3], model_out_new[:, 3:]
+    else:
+        eps, rest = model_out[:, :3], model_out[:, 3:]
+
     cond_eps, uncond_eps = torch.split(eps, len(eps) // 2, dim=0)
     half_eps = uncond_eps + cfg_scale * (cond_eps - uncond_eps)
     eps = torch.cat([half_eps, half_eps], dim=0)
-    return torch.cat([eps, rest], dim=1)
+    if isinstance(model_out, tuple):
+        return torch.cat([eps, rest], dim=1), tmp
+    else:
+        return torch.cat([eps, rest], dim=1)

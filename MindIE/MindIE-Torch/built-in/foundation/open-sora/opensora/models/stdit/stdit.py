@@ -2,6 +2,7 @@ import numpy as np
 import torch
 import torch.distributed as dist
 import torch.nn as nn
+import os
 from einops import rearrange
 from timm.models.layers import DropPath
 from timm.models.vision_transformer import Mlp
@@ -27,18 +28,19 @@ from opensora.models.layers.blocks import (
 from opensora.registry import MODELS
 from opensora.utils.ckpt_utils import load_checkpoint
 
+
 class STDiTBlock(nn.Module):
     def __init__(
-        self,
-        hidden_size,
-        num_heads,
-        d_s=None,
-        d_t=None,
-        mlp_ratio=4.0,
-        drop_path=0.0,
-        enable_flashattn=False,
-        enable_layernorm_kernel=False,
-        enable_sequence_parallelism=False,
+            self,
+            hidden_size,
+            num_heads,
+            d_s=None,
+            d_t=None,
+            mlp_ratio=4.0,
+            drop_path=0.0,
+            enable_flashattn=False,
+            enable_layernorm_kernel=False,
+            enable_sequence_parallelism=False,
     ):
         super().__init__()
         self.hidden_size = hidden_size
@@ -65,7 +67,7 @@ class STDiTBlock(nn.Module):
             in_features=hidden_size, hidden_features=int(hidden_size * mlp_ratio), act_layer=approx_gelu, drop=0
         )
         self.drop_path = DropPath(drop_path) if drop_path > 0.0 else nn.Identity()
-        self.scale_shift_table = nn.Parameter(torch.randn(6, hidden_size) / hidden_size**0.5)
+        self.scale_shift_table = nn.Parameter(torch.randn(6, hidden_size) / hidden_size ** 0.5)
 
         # temporal attention
         self.d_s = d_s
@@ -88,7 +90,7 @@ class STDiTBlock(nn.Module):
         B, N, C = x.shape
 
         shift_msa, scale_msa, gate_msa, shift_mlp, scale_mlp, gate_mlp = (
-            self.scale_shift_table[None] + t.reshape(B, 6, -1)
+                self.scale_shift_table[None] + t.reshape(B, 6, -1)
         ).chunk(6, dim=1)
         x_m = t2i_modulate(self.norm1(x), shift_msa, scale_msa)
 
@@ -118,30 +120,32 @@ class STDiTBlock(nn.Module):
 @MODELS.register_module()
 class STDiT(nn.Module):
     def __init__(
-        self,
-        input_size=(1, 32, 32),
-        in_channels=4,
-        patch_size=(1, 2, 2),
-        hidden_size=1152,
-        depth=28,
-        num_heads=16,
-        mlp_ratio=4.0,
-        class_dropout_prob=0.1,
-        pred_sigma=True,
-        drop_path=0.0,
-        no_temporal_pos_emb=False,
-        caption_channels=4096,
-        model_max_length=120,
-        dtype=torch.float32,
-        space_scale=1.0,
-        time_scale=1.0,
-        freeze=None,
-        enable_flashattn=False,
-        enable_layernorm_kernel=False,
-        enable_sequence_parallelism=False,
-        use_mindie=False,
-        device_id=0,
-        absolute_path=None
+            self,
+            input_size=(1, 32, 32),
+            in_channels=4,
+            patch_size=(1, 2, 2),
+            hidden_size=1152,
+            depth=28,
+            num_heads=16,
+            mlp_ratio=4.0,
+            class_dropout_prob=0.1,
+            pred_sigma=True,
+            drop_path=0.0,
+            no_temporal_pos_emb=False,
+            caption_channels=4096,
+            model_max_length=120,
+            dtype=torch.float32,
+            space_scale=1.0,
+            time_scale=1.0,
+            freeze=None,
+            enable_flashattn=False,
+            enable_layernorm_kernel=False,
+            enable_sequence_parallelism=False,
+            use_mindie=False,
+            device_id=0,
+            absolute_path=None,
+            cache_start=7,  # 256: 7, 512:4
+            num_cache_layer=11  # 256: 11, 512:21
     ):
         super().__init__()
         self.pred_sigma = pred_sigma
@@ -215,11 +219,21 @@ class STDiT(nn.Module):
             self.sp_rank = None
         self.use_mindie = use_mindie
         self.absolute_path = absolute_path
+
         if self.use_mindie:
-            self.model_npu = torch.jit.load(f"{self.absolute_path}/dit/dit_256_256_compiled.pt").eval()
+            if os.path.exists(f"{self.absolute_path}/dit/dit_256_256_compiled.pt"):
+                self.model_npu = torch.jit.load(f"{self.absolute_path}/dit/dit_256_256_compiled.pt").eval()
+            if os.path.exists(f"{self.absolute_path}/dit/dit_256_256_0_compiled.pt"):
+                self.model_npu_cache = torch.jit.load(f"{self.absolute_path}/dit/dit_256_256_0_compiled.pt").eval()
+            if os.path.exists(f"{self.absolute_path}/dit/dit_256_256_1_compiled.pt"):
+                self.model_npu_skip = torch.jit.load(f"{self.absolute_path}/dit/dit_256_256_1_compiled.pt").eval()
             self.device_id = device_id
 
-    def forward(self, x, timestep, y, mask=None):
+        # delta cache configs
+        self.num_cache_layer = num_cache_layer
+        self.cache_start = cache_start
+
+    def forward(self, x, timestep, y, mask=None, use_cache=0, current_if_cache=0, delta_cache=torch.tensor([])):
         """
         Forward pass of STDiT.
         Args:
@@ -228,14 +242,42 @@ class STDiT(nn.Module):
             y (torch.Tensor): representation of prompts; of shape [B, 1, N_token, C]
             mask (torch.Tensor): mask for selecting prompt tokens; of shape [B, N_token]
 
+
         Returns:
             x (torch.Tensor): output latent representation; of shape [B, C, T, H, W]
         """
         if self.use_mindie:
-            x = self.model_npu(x.to(f"npu:{self.device_id}"),
-                               timestep.to(f"npu:{self.device_id}"),
-                               y.to(f"npu:{self.device_id}"),
-                               mask.to(f"npu:{self.device_id}")).to('cpu')
+            if not use_cache:
+                out = self.model_npu(x.to(f"npu:{self.device_id}"),
+                                     timestep.to(f"npu:{self.device_id}"),
+                                     y.to(f"npu:{self.device_id}"),
+                                     mask.to(f"npu:{self.device_id}"))
+                x = out.to('cpu')
+            elif not current_if_cache:
+                use_cache_tensor = torch.ones([1], dtype=torch.long)
+                cache_flag = torch.zeros([1], dtype=torch.long)
+
+                # x:[2,4,16,32,32]
+                out = self.model_npu_cache(x.to(f"npu:{self.device_id}"),
+                                           timestep.to(f"npu:{self.device_id}"),
+                                           y.to(f"npu:{self.device_id}"),
+                                           mask.to(f"npu:{self.device_id}"),
+                                           use_cache_tensor.to(f"npu:{self.device_id}"),
+                                           cache_flag.to(f"npu:{self.device_id}"),
+                                           )
+                x = out[0].to('cpu')  # [2,8,16,32,32]
+                delta_cache = out[1]
+            else:
+                use_cache_tensor = torch.ones([1], dtype=torch.long)
+                skip_flag = torch.ones([1], dtype=torch.long)
+                out = self.model_npu_skip(x.to(f"npu:{self.device_id}"),
+                                          timestep.to(f"npu:{self.device_id}"),
+                                          y.to(f"npu:{self.device_id}"),
+                                          mask.to(f"npu:{self.device_id}"),
+                                          use_cache_tensor.to(f"npu:{self.device_id}"),
+                                          skip_flag.to(f"npu:{self.device_id}"),
+                                          delta_cache, )
+                x = out.to('cpu')
         else:
             x = x.to(self.dtype)
             timestep = timestep.to(self.dtype)
@@ -266,17 +308,12 @@ class STDiT(nn.Module):
                 y = y.squeeze(1).view(1, -1, x.shape[-1])
 
             # blocks
-            for i, block in enumerate(self.blocks):
-                if i == 0:
-                    if self.enable_sequence_parallelism:
-                        tpe = torch.chunk(
-                            self.pos_embed_temporal, dist.get_world_size(get_sequence_parallel_group()), dim=1
-                        )[self.sp_rank].contiguous()
-                    else:
-                        tpe = self.pos_embed_temporal
-                else:
-                    tpe = None
-                x = auto_grad_checkpoint(block, x, y, t0, y_lens, tpe)
+            if not use_cache:
+                x = self.forward_blocks(x, y, t0, y_lens, use_cache, current_if_cache, delta_cache)
+            elif not current_if_cache:
+                x, delta_cache = self.forward_blocks(x, y, t0, y_lens, use_cache, current_if_cache, delta_cache)
+            else:
+                x = self.forward_blocks(x, y, t0, y_lens, use_cache, current_if_cache, delta_cache)
 
             if self.enable_sequence_parallelism:
                 x = gather_forward_split_backward(x, get_sequence_parallel_group(), dim=1, grad_scale="up")
@@ -288,7 +325,52 @@ class STDiT(nn.Module):
 
             # cast to float32 for better accuracy
             x = x.to(torch.float32)
+
+        if not use_cache:
+            return x
+        elif not current_if_cache:
+            return (x, delta_cache)
+        else:
+            return x
+
+    # forward blocks in range [start_idx, end_idx)
+    # return input and output
+    def forward_blocks_range(self, x, y, t0, y_lens, start_idx, end_idx):
+        for block_idx, block in enumerate(self.blocks[start_idx: end_idx]):
+            if (start_idx == 0) & (block_idx == 0):
+                tpe = self.pos_embed_temporal
+            else:
+                tpe = None
+            x = block(x, y, t0, y_lens, tpe)
         return x
+
+    def forward_blocks(self, x, y, t0, y_lens, use_cache=0, current_if_cache=0, delta_cache=torch.tensor([])):
+
+        if not use_cache:
+            x = self.forward_blocks_range(x, y, t0, y_lens,
+                                          0, len(self.blocks))
+        else:
+            cache_end = np.minimum(self.cache_start + self.num_cache_layer, len(self.blocks))
+            # 1.0 infer [0, cache_start)
+            x = self.forward_blocks_range(x, y, t0, y_lens,
+                                          0, self.cache_start)
+            if not current_if_cache:
+                # 2.0 infer [cache_start, cache_end)
+                tmp = self.forward_blocks_range(x, y, t0, y_lens,
+                                                self.cache_start, cache_end)
+                delta_cache = tmp - x
+            else:
+                tmp = x + delta_cache
+
+            # 3.0 infer [cache_end, len(self.blocks))
+            x = self.forward_blocks_range(tmp, y, t0, y_lens,
+                                          cache_end, len(self.blocks))
+        if not use_cache:
+            return x
+        elif not current_if_cache:
+            return x, delta_cache
+        else:
+            return x
 
     def unpatchify(self, x):
         """

@@ -1,5 +1,6 @@
 import os
 import torch
+import time
 import torch.distributed as dist
 from mmengine.runner import set_random_seed
 from opensora.datasets import save_sample
@@ -101,8 +102,14 @@ def main():
     sample_idx = 0
     save_dir = cfg.save_dir
     os.makedirs(save_dir, exist_ok=True)
+    use_cache = 1
+    cache_steps = []
+    use_time = 0
+    infer_num = 0
     for i in range(0, len(prompts), cfg.batch_size):
         batch_prompts = prompts[i : i + cfg.batch_size]
+        infer_num += 1
+        start_time = time.time()
         samples = scheduler.sample(
             model,
             text_encoder,
@@ -110,11 +117,16 @@ def main():
             prompts=batch_prompts,
             device=device,
             additional_args=model_args,
+            use_cache=use_cache,
+            cache_steps=cache_steps
         )
         if use_mindie:
             samples = vae_npu(samples.to(dtype).to(f"npu:{device_id}")).to('cpu')
         else:
             samples = vae.decode(samples.to(dtype))
+
+        if i > 4:
+            use_time += (time.time() - start_time)
 
         for idx, sample in enumerate(samples):
             print(f"Prompt: {batch_prompts[idx]}")
@@ -123,6 +135,8 @@ def main():
             sample_idx += 1
     if use_mindie:
         mindietorch.finalize()
+    infer_num = infer_num - 5
+    print(f"average time: {use_time / infer_num:.3f}s\n")
 
 if __name__ == "__main__":
     main()
