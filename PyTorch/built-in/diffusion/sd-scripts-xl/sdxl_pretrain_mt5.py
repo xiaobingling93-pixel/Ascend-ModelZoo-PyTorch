@@ -15,6 +15,20 @@ import torch
 import torch_npu
 
 try:
+    from torch_npu.utils.profiler import Profile
+except ImportError:
+    print("Profile not in torch_npu.utils.profiler now.. Auto Profile disabled.", flush=True)
+    class Profile:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def start(self):
+            pass
+
+        def end(self):
+            pass
+
+try:
     import intel_extension_for_pytorch as ipex
 
     if torch.xpu.is_available():
@@ -399,9 +413,11 @@ def train(args):
         current_epoch.value = epoch + 1
 
         sdxlPretrainModels.train()
-
+        profiler = Profile(start_step=int(os.getenv('PROFILE_START_STEP', 10)),
+                          profile_type=os.getenv('PROFILE_TYPE'))
         step_end_time = time.time()
         for step, batch in enumerate(train_dataloader):
+            profiler.start()
             step_data_time = time.time() - step_end_time
             current_step.value = global_step
             with accelerator.accumulate(sdxlPretrainModels):
@@ -451,6 +467,7 @@ def train(args):
                 optimizer.step()
                 lr_scheduler.step()
                 optimizer.zero_grad(set_to_none=True)
+                profiler.end()
 
             #Checks if the accelerator has performed an optimization step behind the scenes
             if accelerator.sync_gradients:
