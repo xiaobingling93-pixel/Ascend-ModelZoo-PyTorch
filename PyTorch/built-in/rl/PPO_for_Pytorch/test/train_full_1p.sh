@@ -51,11 +51,12 @@ RANK_ID=0
 KERNEL_NUM=$(($(nproc)/8))
 PID_START=$((KERNEL_NUM * RANK_ID))
 PID_END=$((PID_START + KERNEL_NUM - 1))
+export OMP_NUM_THREADS=5
 
 model_seeds=$(seq 1 3)
 for seed in $model_seeds  
 do
-  taskset -c $PID_START-$PID_END python3 -u train.py \
+  python3 -u train.py \
     --env-name=BipedalWalker-v2 \
     --has-continuous-action-space \
     --max-ep-len=1500 \
@@ -85,7 +86,7 @@ do
   echo $ckpt_path
   for seed_j in $model_seeds
   do
-    taskset -c $PID_START-$PID_END python3 -u test.py \
+    python3 -u test.py \
       --env-name=BipedalWalker-v2 \
       --has-continuous-action-space \
       --max-ep-len=1500 \

@@ -51,8 +51,9 @@ RANK_ID=0
 KERNEL_NUM=$(($(nproc)/8))
 PID_START=$((KERNEL_NUM * RANK_ID))
 PID_END=$((PID_START + KERNEL_NUM - 1))
+export OMP_NUM_THREADS=5
 
-taskset -c $PID_START-$PID_END python3 -u train.py \
+python3 -u train.py \
     --env-name=BipedalWalker-v2 \
     --has-continuous-action-space \
     --max-ep-len=1500 \
