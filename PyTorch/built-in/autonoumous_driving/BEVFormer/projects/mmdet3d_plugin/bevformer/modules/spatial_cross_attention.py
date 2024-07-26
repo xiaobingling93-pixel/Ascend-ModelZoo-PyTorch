@@ -25,6 +25,7 @@ import mx_driving.common
 bev_mask_global = torch.tensor([]).npu()
 indexes_global = None
 max_len_global = None
+bev_mask_id_global = -1
 @ATTENTION.register_module()
 class SpatialCrossAttention(BaseModule):
     """An attention module used in BEVFormer.
@@ -132,8 +133,9 @@ class SpatialCrossAttention(BaseModule):
 
         D = reference_points_cam.size(3)
         indexes = []
-        global bev_mask_global, indexes_global, max_len_global
-        if bev_mask.equal(bev_mask_global):
+        global bev_mask_global, indexes_global, max_len_global, bev_mask_id_global
+        bev_mask_id = id(bev_mask)
+        if bev_mask_id == bev_mask_id_global:
             indexes = indexes_global
             max_len = max_len_global
         else:
@@ -144,6 +146,7 @@ class SpatialCrossAttention(BaseModule):
             bev_mask_global = bev_mask.clone()
             indexes_global = indexes
             max_len_global = max_len
+            bev_mask_id_global = bev_mask_id
 
         # each camera only interacts with its corresponding BEV queries. This step can  greatly save GPU memory.
         queries_rebatch = query.new_zeros(
