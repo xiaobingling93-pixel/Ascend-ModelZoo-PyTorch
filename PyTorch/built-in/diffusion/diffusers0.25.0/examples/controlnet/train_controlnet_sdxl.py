@@ -1129,8 +1129,8 @@ def main(args):
     image_logs = None
     for epoch in range(first_epoch, args.num_train_epochs):
         step_end_time = time.time()
-        profile.start()
         for step, batch in enumerate(train_dataloader):
+            profile.start()
             step_data_time = time.time() - step_end_time
             with accelerator.accumulate(controlnet):
                 # Convert images to latent space
