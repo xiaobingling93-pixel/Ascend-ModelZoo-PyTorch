@@ -86,7 +86,7 @@ class RobertaEmbeddings(nn.Module):
         # self.LayerNorm is not snake-cased to stick with TensorFlow model variable name and be able to load
         # any TensorFlow checkpoint file
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
-        self.dropout = torch_npu.contrib.module.DropoutWithByteMask(config.hidden_dropout_prob)
+        self.dropout = nn.DropoutWithByteMask(config.hidden_dropout_prob)
         # position_ids (1, len position emb) is contiguous in memory and exported when serialized
         self.position_embedding_type = getattr(config, "position_embedding_type", "absolute")
         self.register_buffer("position_ids", torch.arange(config.max_position_embeddings).expand((1, -1)))
@@ -179,7 +179,7 @@ class RobertaSelfAttention(nn.Module):
         self.key = NpuLinear(config.hidden_size, self.all_head_size)
         self.value = NpuLinear(config.hidden_size, self.all_head_size)
 
-        self.dropout = torch_npu.contrib.module.DropoutWithByteMask(config.attention_probs_dropout_prob)
+        self.dropout = nn.DropoutWithByteMask(config.attention_probs_dropout_prob)
         self.position_embedding_type = position_embedding_type or getattr(
             config, "position_embedding_type", "absolute"
         )
@@ -293,7 +293,7 @@ class RobertaSelfOutput(nn.Module):
         super().__init__()
         self.dense = NpuLinear(config.hidden_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
-        self.dropout = torch_npu.contrib.module.DropoutWithByteMask(config.hidden_dropout_prob)
+        self.dropout = nn.DropoutWithByteMask(config.hidden_dropout_prob)
 
     def forward(self, hidden_states, input_tensor):
         hidden_states = self.dense(hidden_states)
@@ -374,7 +374,7 @@ class RobertaOutput(nn.Module):
         super().__init__()
         self.dense = NpuLinear(config.intermediate_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
-        self.dropout = torch_npu.contrib.module.DropoutWithByteMask(config.hidden_dropout_prob)
+        self.dropout = nn.DropoutWithByteMask(config.hidden_dropout_prob)
 
     def forward(self, hidden_states, input_tensor):
         hidden_states = self.dense(hidden_states)
@@ -1272,7 +1272,7 @@ class RobertaForMultipleChoice(RobertaPreTrainedModel):
         super().__init__(config)
 
         self.roberta = RobertaModel(config)
-        self.dropout = torch_npu.contrib.module.DropoutWithByteMask(config.hidden_dropout_prob)
+        self.dropout = nn.DropoutWithByteMask(config.hidden_dropout_prob)
         self.classifier = nn.Linear(config.hidden_size, 1)
 
         # Initialize weights and apply final processing
@@ -1370,7 +1370,7 @@ class RobertaForTokenClassification(RobertaPreTrainedModel):
         classifier_dropout = (
             config.classifier_dropout if config.classifier_dropout is not None else config.hidden_dropout_prob
         )
-        self.dropout = torch_npu.contrib.module.DropoutWithByteMask(classifier_dropout)
+        self.dropout = nn.DropoutWithByteMask(classifier_dropout)
         self.classifier = nn.Linear(config.hidden_size, config.num_labels)
 
         # Initialize weights and apply final processing
@@ -1445,7 +1445,7 @@ class RobertaClassificationHead(nn.Module):
         classifier_dropout = (
             config.classifier_dropout if config.classifier_dropout is not None else config.hidden_dropout_prob
         )
-        self.dropout = torch_npu.contrib.module.DropoutWithByteMask(classifier_dropout)
+        self.dropout = nn.DropoutWithByteMask(classifier_dropout)
         self.out_proj = nn.Linear(config.hidden_size, config.num_labels)
 
     def forward(self, features, **kwargs):

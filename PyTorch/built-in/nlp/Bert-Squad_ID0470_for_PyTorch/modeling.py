@@ -351,7 +351,7 @@ class BertEmbeddings(nn.Module):
         # self.LayerNorm is not snake-cased to stick with TensorFlow model variable name and be able to load
         # any TensorFlow checkpoint file
         self.LayerNorm = BertLayerNorm(config.hidden_size, eps=1e-12)
-        self.dropout = torch_npu.contrib.module.DropoutWithByteMask(config.hidden_dropout_prob)
+        self.dropout = nn.DropoutWithByteMask(config.hidden_dropout_prob)
 
     def forward(self, input_ids, token_type_ids):
         seq_length = input_ids.size(1)
@@ -383,7 +383,7 @@ class BertSelfAttention(nn.Module):
         self.key = NpuLinear(config.hidden_size, self.all_head_size)
         self.value = NpuLinear(config.hidden_size, self.all_head_size)
 
-        self.dropout = torch_npu.contrib.module.DropoutWithByteMask(config.attention_probs_dropout_prob)
+        self.dropout = nn.DropoutWithByteMask(config.attention_probs_dropout_prob)
         self.attention_probs_dropout_prob = config.attention_probs_dropout_prob
 
     def transpose_for_qkv(self, x):
@@ -446,7 +446,7 @@ class BertSelfOutput(nn.Module):
         super(BertSelfOutput, self).__init__()
         self.dense = NpuLinear(config.hidden_size, config.hidden_size)
         self.LayerNorm = BertLayerNorm(config.hidden_size, eps=1e-12)
-        self.dropout = torch_npu.contrib.module.DropoutWithByteMask(config.hidden_dropout_prob)
+        self.dropout = nn.DropoutWithByteMask(config.hidden_dropout_prob)
 
     def forward(self, hidden_states, input_tensor):
         hidden_states = self.dense(hidden_states)
@@ -482,7 +482,7 @@ class BertOutput(nn.Module):
         super(BertOutput, self).__init__()
         self.dense = NpuLinear(config.intermediate_size, config.hidden_size)
         self.LayerNorm = BertLayerNorm(config.hidden_size, eps=1e-12)
-        self.dropout = torch_npu.contrib.module.DropoutWithByteMask(config.hidden_dropout_prob)
+        self.dropout = nn.DropoutWithByteMask(config.hidden_dropout_prob)
 
     def forward(self, hidden_states, input_tensor):
         hidden_states = self.dense(hidden_states)
@@ -1108,7 +1108,7 @@ class BertForSequenceClassification(BertPreTrainedModel):
         super(BertForSequenceClassification, self).__init__(config)
         self.num_labels = num_labels
         self.bert = BertModel(config)
-        self.dropout = torch_npu.contrib.module.DropoutWithByteMask(config.hidden_dropout_prob)
+        self.dropout = nn.DropoutWithByteMask(config.hidden_dropout_prob)
         self.classifier = nn.Linear(config.hidden_size, num_labels)
         self.apply(self.init_bert_weights)
 
@@ -1166,7 +1166,7 @@ class BertForMultipleChoice(BertPreTrainedModel):
         super(BertForMultipleChoice, self).__init__(config)
         self.num_choices = num_choices
         self.bert = BertModel(config)
-        self.dropout = torch_npu.contrib.module.DropoutWithByteMask(config.hidden_dropout_prob)
+        self.dropout = nn.DropoutWithByteMask(config.hidden_dropout_prob)
         self.classifier = nn.Linear(config.hidden_size, 1)
         self.apply(self.init_bert_weights)
 
@@ -1236,7 +1236,7 @@ class BertForTokenClassification(BertPreTrainedModel):
         super(BertForTokenClassification, self).__init__(config)
         self.num_labels = num_labels
         self.bert = BertModel(config)
-        self.dropout = torch_npu.contrib.module.DropoutWithByteMask(config.hidden_dropout_prob)
+        self.dropout = nn.DropoutWithByteMask(config.hidden_dropout_prob)
         self.classifier = nn.Linear(config.hidden_size, num_labels)
         self.apply(self.init_bert_weights)
 
@@ -1303,7 +1303,7 @@ class BertForQuestionAnswering(BertPreTrainedModel):
         super(BertForQuestionAnswering, self).__init__(config)
         self.bert = BertModel(config)
         # TODO check with Google if it's normal there is no dropout on the token classifier of SQuAD in the TF version
-        self.dropout = torch_npu.contrib.module.DropoutWithByteMask(config.hidden_dropout_prob)
+        self.dropout = nn.DropoutWithByteMask(config.hidden_dropout_prob)
         self.qa_outputs = nn.Linear(config.hidden_size, 2)
         self.apply(self.init_bert_weights)
 
