@@ -34,6 +34,7 @@ p2_time = 0
 p3_time = 0
 scheduler_time = 0
 
+
 class PromptLoader:
     def __init__(
             self,
@@ -150,15 +151,15 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
 
             self.compiled_clip_model = (
                 mindietorch.compile(model,
-                                  inputs=[mindietorch.Input((self.args.batch_size,
-                                                           max_position_embeddings),
-                                                          dtype=mindietorch.dtype.INT64)],
-                                  allow_tensor_replace_int=True,
-                                  require_full_compilation=True,
-                                  truncate_long_and_double=True,
-                                  precision_policy=_enums.PrecisionPolicy.FP16,
-                                  soc_version=soc_version,
-                                  optimization_level=0))
+                                    inputs=[mindietorch.Input((self.args.batch_size,
+                                                               max_position_embeddings),
+                                                              dtype=mindietorch.dtype.INT64)],
+                                    allow_tensor_replace_int=True,
+                                    require_full_compilation=True,
+                                    truncate_long_and_double=True,
+                                    precision_policy=_enums.PrecisionPolicy.FP16,
+                                    soc_version=soc_version,
+                                    optimization_level=0))
             torch.jit.save(self.compiled_clip_model, clip_compiled_path)
 
         vae_compiled_path = os.path.join(self.args.output_dir, f"vae/vae_bs{size}_aie_compile.ts")
@@ -169,17 +170,17 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
 
             self.compiled_vae_model = (
                 mindietorch.compile(model,
-                                  inputs=[
-                                      mindietorch.Input((self.args.batch_size, in_channels,
-                                                       sample_size, sample_size),
-                                                      dtype=mindietorch.dtype.FLOAT)],
-                                  allow_tensor_replace_int=True,
-                                  require_full_compilation=True,
-                                  truncate_long_and_double=True,
-                                  soc_version=soc_version,
-                                  precision_policy=_enums.PrecisionPolicy.FP16,
-                                  optimization_level=0
-                                  ))
+                                    inputs=[
+                                        mindietorch.Input((self.args.batch_size, in_channels,
+                                                           sample_size, sample_size),
+                                                          dtype=mindietorch.dtype.FLOAT)],
+                                    allow_tensor_replace_int=True,
+                                    require_full_compilation=True,
+                                    truncate_long_and_double=True,
+                                    soc_version=soc_version,
+                                    precision_policy=_enums.PrecisionPolicy.FP16,
+                                    optimization_level=0
+                                    ))
             torch.jit.save(self.compiled_vae_model, vae_compiled_path)
 
         scheduler_compiled_path = os.path.join(self.args.output_dir, f"ddim/ddim{batch_size}_aie_compile.ts")
@@ -190,77 +191,49 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
 
             self.compiled_scheduler = (
                 mindietorch.compile(model,
-                                  inputs=[mindietorch.Input((batch_size,
-                                                           in_channels, sample_size,
-                                                           sample_size),
-                                                          dtype=mindietorch.dtype.FLOAT),
-                                          mindietorch.Input((1,),
-                                                          dtype=mindietorch.dtype.INT64),
-                                          mindietorch.Input((batch_size//2,
-                                                           in_channels, sample_size,
-                                                           sample_size),
-                                                          dtype=mindietorch.dtype.FLOAT),
-                                          mindietorch.Input((1,),
-                                                          dtype=mindietorch.dtype.INT64)],
-                                  allow_tensor_replace_int=True,
-                                  require_full_compilation=False,
-                                  truncate_long_and_double=False,
-                                  precision_policy=_enums.PrecisionPolicy.FP16,
-                                  soc_version=soc_version,
-                                  optimization_level=0))
+                                    inputs=[mindietorch.Input((batch_size,
+                                                               in_channels, sample_size,
+                                                               sample_size),
+                                                              dtype=mindietorch.dtype.FLOAT),
+                                            mindietorch.Input((1,),
+                                                              dtype=mindietorch.dtype.INT64),
+                                            mindietorch.Input((batch_size // 2,
+                                                               in_channels, sample_size,
+                                                               sample_size),
+                                                              dtype=mindietorch.dtype.FLOAT),
+                                            mindietorch.Input((1,),
+                                                              dtype=mindietorch.dtype.INT64)],
+                                    allow_tensor_replace_int=True,
+                                    require_full_compilation=False,
+                                    truncate_long_and_double=False,
+                                    precision_policy=_enums.PrecisionPolicy.FP16,
+                                    soc_version=soc_version,
+                                    optimization_level=0))
             torch.jit.save(self.compiled_scheduler, scheduler_compiled_path)
 
         cat_compiled_path = os.path.join(self.args.output_dir, "cat/cat_aie_compile.ts")
         if os.path.exists(cat_compiled_path):
-            self.compiled_cat = torch.jit.load(cat_compiled_path).eval() 
+            self.compiled_cat = torch.jit.load(cat_compiled_path).eval()
         else:
             model = torch.jit.load(os.path.join(self.args.output_dir, "cat/cat.pt")).eval()
 
             self.compiled_cat = (
                 mindietorch.compile(model,
-                                  inputs=[mindietorch.Input((batch_size//2,
-                                                           in_channels, sample_size,
-                                                           sample_size),
-                                                          dtype=mindietorch.dtype.FLOAT),
-                                          mindietorch.Input((1,),
-                                                          dtype=mindietorch.dtype.FLOAT)],
-                                  allow_tensor_replace_int=True,
-                                  require_full_compilation=True,
-                                  truncate_long_and_double=True,
-                                  precision_policy=_enums.PrecisionPolicy.FP16,
-                                  soc_version=soc_version,
-                                  optimization_level=0))
-            torch.jit.save(self.compiled_cat, cat_compiled_path)
-
-        if not args.use_cache:
-            unet_compiled_path = os.path.join(self.args.output_dir, f"unet/unet_bs{batch_size}_aie_compile.ts")
-            if os.path.exists(unet_compiled_path):
-                self.compiled_unet = torch.jit.load(unet_compiled_path).eval()
-            else:
-                model = torch.jit.load(os.path.join(self.args.output_dir, f"unet/unet_bs{batch_size}.pt")).eval()
-
-                self.compiled_unet = (
-                    mindietorch.compile(model,
-                                    inputs=[mindietorch.Input((batch_size,
-                                                            in_channels, sample_size,
-                                                            sample_size),
-                                                            dtype=mindietorch.dtype.FLOAT),
+                                    inputs=[mindietorch.Input((batch_size // 2,
+                                                               in_channels, sample_size,
+                                                               sample_size),
+                                                              dtype=mindietorch.dtype.FLOAT),
                                             mindietorch.Input((1,),
-                                                            dtype=mindietorch.dtype.INT64),
-                                            mindietorch.Input((batch_size,
-                                                            max_position_embeddings,
-                                                            encoder_hidden_size),
-                                                            dtype=mindietorch.dtype.FLOAT)],
+                                                              dtype=mindietorch.dtype.FLOAT)],
                                     allow_tensor_replace_int=True,
                                     require_full_compilation=True,
                                     truncate_long_and_double=True,
-                                    soc_version=soc_version,
                                     precision_policy=_enums.PrecisionPolicy.FP16,
-                                    optimization_level=0
-                                    ))
-                torch.jit.save(self.compiled_unet, unet_compiled_path)
+                                    soc_version=soc_version,
+                                    optimization_level=0))
+            torch.jit.save(self.compiled_cat, cat_compiled_path)
 
-        else:
+        if args.use_cache:
             unet_cache_compiled_path = os.path.join(self.args.output_dir, f"unet/unet_bs{batch_size}_aie_compile_0.ts")
             if os.path.exists(unet_cache_compiled_path):
                 self.compiled_unet_cache = torch.jit.load(unet_cache_compiled_path).eval()
@@ -269,25 +242,25 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
 
                 self.compiled_unet_cache = (
                     mindietorch.compile(unet_cache,
-                                    inputs=[mindietorch.Input((batch_size,
-                                                            in_channels, sample_size,
-                                                            sample_size),
-                                                            dtype=mindietorch.dtype.FLOAT),
-                                            mindietorch.Input((1,),
-                                                            dtype=mindietorch.dtype.INT64),
-                                            mindietorch.Input((batch_size,
-                                                            max_position_embeddings,
-                                                            encoder_hidden_size),
-                                                            dtype=mindietorch.dtype.FLOAT),
-                                            mindietorch.Input((1,),
-                                                            dtype=mindietorch.dtype.INT64)],
-                                    allow_tensor_replace_int=True,
-                                    require_full_compilation=False,
-                                    truncate_long_and_double=True,
-                                    soc_version=soc_version,
-                                    precision_policy=_enums.PrecisionPolicy.FP16,
-                                    optimization_level=0
-                                    ))
+                                        inputs=[mindietorch.Input((batch_size,
+                                                                   in_channels, sample_size,
+                                                                   sample_size),
+                                                                  dtype=mindietorch.dtype.FLOAT),
+                                                mindietorch.Input((1,),
+                                                                  dtype=mindietorch.dtype.INT64),
+                                                mindietorch.Input((batch_size,
+                                                                   max_position_embeddings,
+                                                                   encoder_hidden_size),
+                                                                  dtype=mindietorch.dtype.FLOAT),
+                                                mindietorch.Input((1,),
+                                                                  dtype=mindietorch.dtype.INT64)],
+                                        allow_tensor_replace_int=True,
+                                        require_full_compilation=False,
+                                        truncate_long_and_double=True,
+                                        soc_version=soc_version,
+                                        precision_policy=_enums.PrecisionPolicy.FP16,
+                                        optimization_level=0
+                                        ))
                 torch.jit.save(self.compiled_unet_cache, unet_cache_compiled_path)
 
             unet_skip_compiled_path = os.path.join(self.args.output_dir, f"unet/unet_bs{batch_size}_aie_compile_1.ts")
@@ -298,30 +271,130 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
 
                 self.compiled_unet_skip = (
                     mindietorch.compile(unet_skip,
-                                    inputs=[mindietorch.Input((batch_size,
-                                                            in_channels, sample_size,
-                                                            sample_size),
-                                                            dtype=mindietorch.dtype.FLOAT),
-                                            mindietorch.Input((1,),
-                                                            dtype=mindietorch.dtype.INT64),
-                                            mindietorch.Input((batch_size,
-                                                            max_position_embeddings,
-                                                            encoder_hidden_size),
-                                                            dtype=mindietorch.dtype.FLOAT),
-                                            mindietorch.Input((1,),
-                                                            dtype=mindietorch.dtype.INT64),
-                                            mindietorch.Input((batch_size,
-                                                            640, sample_size,
-                                                            sample_size),
-                                                            dtype=mindietorch.dtype.FLOAT)],
-                                    allow_tensor_replace_int=True,
-                                    require_full_compilation=True,
-                                    truncate_long_and_double=True,
-                                    soc_version=soc_version,
-                                    precision_policy=_enums.PrecisionPolicy.FP16,
-                                    optimization_level=0
-                                    ))
+                                        inputs=[mindietorch.Input((batch_size,
+                                                                   in_channels, sample_size,
+                                                                   sample_size),
+                                                                  dtype=mindietorch.dtype.FLOAT),
+                                                mindietorch.Input((1,),
+                                                                  dtype=mindietorch.dtype.INT64),
+                                                mindietorch.Input((batch_size,
+                                                                   max_position_embeddings,
+                                                                   encoder_hidden_size),
+                                                                  dtype=mindietorch.dtype.FLOAT),
+                                                mindietorch.Input((1,),
+                                                                  dtype=mindietorch.dtype.INT64),
+                                                mindietorch.Input((batch_size,
+                                                                   320, sample_size,
+                                                                   sample_size),
+                                                                  dtype=mindietorch.dtype.FLOAT)],
+                                        allow_tensor_replace_int=True,
+                                        require_full_compilation=True,
+                                        truncate_long_and_double=True,
+                                        soc_version=soc_version,
+                                        precision_policy=_enums.PrecisionPolicy.FP16,
+                                        optimization_level=0
+                                        ))
                 torch.jit.save(self.compiled_unet_skip, unet_skip_compiled_path)
+        elif args.use_cache_faster:
+            unet_cache_faster_compiled_path = os.path.join(self.args.output_dir,
+                                                           f"unet/unet_bs{batch_size}_aie_compile_0_1.ts")
+            if os.path.exists(unet_cache_faster_compiled_path):
+                self.compiled_unet_cache_faster = torch.jit.load(unet_cache_faster_compiled_path).eval()
+            else:
+                unet_cache_faster = torch.jit.load(
+                    os.path.join(self.args.output_dir, f"unet/unet_bs{batch_size}_0_1.pt")).eval()
+
+                self.compiled_unet_cache_faster = (
+                    mindietorch.compile(unet_cache_faster,
+                                        inputs=[mindietorch.Input((batch_size,
+                                                                   in_channels, sample_size,
+                                                                   sample_size),
+                                                                  dtype=mindietorch.dtype.FLOAT),
+                                                mindietorch.Input((1,),
+                                                                  dtype=mindietorch.dtype.INT64),
+                                                mindietorch.Input((batch_size,
+                                                                   max_position_embeddings,
+                                                                   encoder_hidden_size),
+                                                                  dtype=mindietorch.dtype.FLOAT),
+                                                mindietorch.Input((1,),
+                                                                  dtype=mindietorch.dtype.INT64),
+                                                mindietorch.Input((1,),
+                                                                  dtype=mindietorch.dtype.INT64)],
+                                        allow_tensor_replace_int=True,
+                                        require_full_compilation=False,
+                                        truncate_long_and_double=True,
+                                        soc_version=soc_version,
+                                        precision_policy=_enums.PrecisionPolicy.FP16,
+                                        optimization_level=0
+                                        ))
+                torch.jit.save(self.compiled_unet_cache_faster, unet_cache_faster_compiled_path)
+
+            unet_skip_compiled_path = os.path.join(self.args.output_dir, f"unet/unet_bs{batch_size}_aie_compile_1_1.ts")
+            if os.path.exists(unet_skip_compiled_path):
+                self.compiled_unet_skip = torch.jit.load(unet_skip_compiled_path).eval()
+            else:
+                unet_skip = torch.jit.load(
+                    os.path.join(self.args.output_dir, f"unet/unet_bs{batch_size}_1_1.pt")).eval()
+
+                self.compiled_unet_skip = (
+                    mindietorch.compile(unet_skip,
+                                        inputs=[mindietorch.Input((batch_size,
+                                                                   in_channels, sample_size,
+                                                                   sample_size),
+                                                                  dtype=mindietorch.dtype.FLOAT),
+                                                mindietorch.Input((1,),
+                                                                  dtype=mindietorch.dtype.INT64),
+                                                mindietorch.Input((batch_size,
+                                                                   max_position_embeddings,
+                                                                   encoder_hidden_size),
+                                                                  dtype=mindietorch.dtype.FLOAT),
+                                                mindietorch.Input((1,),
+                                                                  dtype=mindietorch.dtype.INT64),
+                                                mindietorch.Input((1,),
+                                                                  dtype=mindietorch.dtype.INT64),
+                                                mindietorch.Input((batch_size,
+                                                                   320, sample_size,
+                                                                   sample_size),
+                                                                  dtype=mindietorch.dtype.FLOAT),
+                                                mindietorch.Input((batch_size,
+                                                                   2 * 320, sample_size,
+                                                                   sample_size),
+                                                                  dtype=mindietorch.dtype.FLOAT)],
+                                        allow_tensor_replace_int=True,
+                                        require_full_compilation=True,
+                                        truncate_long_and_double=True,
+                                        soc_version=soc_version,
+                                        precision_policy=_enums.PrecisionPolicy.FP16,
+                                        optimization_level=0
+                                        ))
+                torch.jit.save(self.compiled_unet_skip, unet_skip_compiled_path)
+        else:
+            unet_compiled_path = os.path.join(self.args.output_dir, f"unet/unet_bs{batch_size}_aie_compile.ts")
+            if os.path.exists(unet_compiled_path):
+                self.compiled_unet = torch.jit.load(unet_compiled_path).eval()
+            else:
+                model = torch.jit.load(os.path.join(self.args.output_dir, f"unet/unet_bs{batch_size}.pt")).eval()
+
+                self.compiled_unet = (
+                    mindietorch.compile(model,
+                                        inputs=[mindietorch.Input((batch_size,
+                                                                   in_channels, sample_size,
+                                                                   sample_size),
+                                                                  dtype=mindietorch.dtype.FLOAT),
+                                                mindietorch.Input((1,),
+                                                                  dtype=mindietorch.dtype.INT64),
+                                                mindietorch.Input((batch_size,
+                                                                   max_position_embeddings,
+                                                                   encoder_hidden_size),
+                                                                  dtype=mindietorch.dtype.FLOAT)],
+                                        allow_tensor_replace_int=True,
+                                        require_full_compilation=True,
+                                        truncate_long_and_double=True,
+                                        soc_version=soc_version,
+                                        precision_policy=_enums.PrecisionPolicy.FP16,
+                                        optimization_level=0
+                                        ))
+                torch.jit.save(self.compiled_unet, unet_compiled_path)
 
         self.is_init = True
 
@@ -342,8 +415,9 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
             callback: Optional[Callable[[int, int, torch.FloatTensor],
             None]] = None,
             callback_steps: Optional[int] = 1,
-            skip_steps = None,
+            skip_steps=None,
             flag_cache: int = None,
+            flag_cache_faster: int = None,
             **kwargs,
     ):
         r"""
@@ -448,8 +522,10 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
         global vae_time
 
         cache = None
+        cache_faster = None
         skip_flag = torch.ones([1], dtype=torch.long).to(f'npu:{self.device_0}')
         cache_flag = torch.zeros([1], dtype=torch.long).to(f'npu:{self.device_0}')
+        cache_faster_flag = torch.ones([1], dtype=torch.long).to(f'npu:{self.device_0}')
 
         stream = mindietorch.npu.Stream(f'npu:{self.device_0}')
         for i, t in enumerate(self.progress_bar(timesteps)):
@@ -469,19 +545,38 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
                 if skip_steps[i]:
                     with mindietorch.npu.stream(stream):
                         noise_pred = self.compiled_unet_skip(latent_model_input,
-                                                            t_npu,
-                                                            text_embeddings_npu,
-                                                            skip_flag,
-                                                            cache)
+                                                             t_npu,
+                                                             text_embeddings_npu,
+                                                             skip_flag,
+                                                             cache)
                 else:
                     with mindietorch.npu.stream(stream):
                         outputs = self.compiled_unet_cache(latent_model_input,
-                                                        t_npu,
-                                                        text_embeddings_npu,
-                                                        cache_flag,
-                                                        )
+                                                           t_npu,
+                                                           text_embeddings_npu,
+                                                           cache_flag)
                     noise_pred = outputs[0]
                     cache = outputs[1]
+            elif flag_cache_faster:
+                if skip_steps[i]:
+                    with mindietorch.npu.stream(stream):
+                        noise_pred = self.compiled_unet_skip(latent_model_input,
+                                                             t_npu,
+                                                             text_embeddings_npu,
+                                                             skip_flag,
+                                                             cache_faster_flag,
+                                                             cache,
+                                                             cache_faster)
+                else:
+                    with mindietorch.npu.stream(stream):
+                        outputs = self.compiled_unet_cache_faster(latent_model_input,
+                                                                  t_npu,
+                                                                  text_embeddings_npu,
+                                                                  cache_flag,
+                                                                  cache_faster_flag)
+                    noise_pred = outputs[0]
+                    cache = outputs[1]
+                    cache_faster = outputs[2]
             else:
                 with mindietorch.npu.stream(stream):
                     noise_pred = self.compiled_unet(latent_model_input, t_npu, text_embeddings_npu)
@@ -496,10 +591,10 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
 
                 with mindietorch.npu.stream(stream):
                     latents = self.compiled_scheduler(
-                                noise_pred,
-                                t_npu,
-                                latents,
-                                y[None].to(f'npu:{self.device_0}'))
+                        noise_pred,
+                        t_npu,
+                        latents,
+                        y[None].to(f'npu:{self.device_0}'))
 
             # call the callback, if provided
             if callback is not None and i % callback_steps == 0:
@@ -529,7 +624,6 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
         p3_time += time.time() - start3
         return (image, has_nsfw_concept)
 
-
     def ascendie_infer(
             self,
             prompt: Union[str, List[str]],
@@ -546,8 +640,9 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
             callback: Optional[Callable[[int, int, torch.FloatTensor],
             None]] = None,
             callback_steps: Optional[int] = 1,
-            skip_steps = None,
+            skip_steps=None,
             flag_cache: int = None,
+            flag_cache_faster: int = None,
             **kwargs,
     ):
         # 0. Default height and width to unet
@@ -598,9 +693,12 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
         global vae_time
 
         cache = None
+        cache_faster = None
         skip_flag = torch.ones([1], dtype=torch.long).to(f'npu:{self.device_0}')
         cache_flag = torch.zeros([1], dtype=torch.long).to(f'npu:{self.device_0}')
+        cache_faster_flag = torch.ones([1], dtype=torch.long).to(f'npu:{self.device_0}')
 
+        stream = mindietorch.npu.Stream(f'npu:{self.device_0}')
         for i, t in enumerate(self.progress_bar(timesteps)):
             if i == 50:
                 break
@@ -621,18 +719,36 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
             if flag_cache:
                 if skip_steps[i]:
                     noise_pred = self.compiled_unet_skip(latent_model_input_npu,
-                                                        t_npu,
-                                                        text_embeddings_npu,
-                                                        skip_flag,
-                                                        cache).to('cpu')
+                                                         t_npu,
+                                                         text_embeddings_npu,
+                                                         skip_flag,
+                                                         cache).to('cpu')
                 else:
                     outputs = self.compiled_unet_cache(latent_model_input_npu,
-                                                    t_npu,
-                                                    text_embeddings_npu,
-                                                    cache_flag,
-                                                    )
+                                                       t_npu,
+                                                       text_embeddings_npu,
+                                                       cache_flag,
+                                                       )
                     noise_pred = outputs[0].to('cpu')
                     cache = outputs[1]
+            elif flag_cache_faster:
+                if skip_steps[i]:
+                    noise_pred = self.compiled_unet_skip(latent_model_input_npu,
+                                                         t_npu,
+                                                         text_embeddings_npu,
+                                                         skip_flag,
+                                                         cache_faster_flag,
+                                                         cache,
+                                                         cache_faster).to('cpu')
+                else:
+                    outputs = self.compiled_unet_cache_faster(latent_model_input_npu,
+                                                              t_npu,
+                                                              text_embeddings_npu,
+                                                              cache_flag,
+                                                              cache_faster_flag)
+                    noise_pred = outputs[0].to('cpu')
+                    cache = outputs[1]
+                    cache_faster = outputs[2]
             else:
                 with mindietorch.npu.stream(stream):
                     noise_pred = self.compiled_unet(latent_model_input_npu,
@@ -650,7 +766,7 @@ class AIEStableDiffusionPipeline(StableDiffusionPipeline):
 
             # compute the previous noisy sample x_t -> x_t-1
             latents = self.scheduler.step(noise_pred, t, latents,
-                                          **extra_step_kwargs).prev_sample
+                                          **extra_step_kwargs)[0]
 
             # call the callback, if provided
             if callback is not None and i % callback_steps == 0:
@@ -883,13 +999,17 @@ def parse_arguments():
         help="Use cache during inference."
     )
     parser.add_argument(
-        "--cache_steps", 
-        type=str, 
+        "--use_cache_faster",
+        action="store_true",
+        help="Use cache with faster during inference."
+    )
+    parser.add_argument(
+        "--cache_steps",
+        type=str,
         default="1,2,3,4,5,7,9,10,12,13,14,16,18,19,21,23,24,26,27,29,\
-                30,31,33,34,36,37,39,40,41,43,44,45,47,48,49", 
+                30,31,33,34,36,37,39,40,41,43,44,45,47,48,49",
         help="Steps to use cache data."
     )
-
     return parser.parse_args()
 
 
@@ -917,6 +1037,14 @@ def main():
     flag_cache = 0
     if args.use_cache:
         flag_cache = 1
+        for i in args.cache_steps.split(','):
+            if int(i) >= args.steps:
+                continue
+            skip_steps[int(i)] = 1
+
+    flag_cache_faster = 0
+    if args.use_cache_faster:
+        flag_cache_faster = 1
         for i in args.cache_steps.split(','):
             if int(i) >= args.steps:
                 continue
@@ -953,6 +1081,7 @@ def main():
                     num_inference_steps=args.steps,
                     skip_steps=skip_steps,
                     flag_cache=flag_cache,
+                    flag_cache_faster=flag_cache_faster,
                 )
         else:
             images = pipe.ascendie_infer(
@@ -960,6 +1089,7 @@ def main():
                 num_inference_steps=args.steps,
                 skip_steps=skip_steps,
                 flag_cache=flag_cache,
+                flag_cache_faster=flag_cache_faster,
             )
 
         if i > 4: # do not count the time spent inferring the first 0 to 4 images
