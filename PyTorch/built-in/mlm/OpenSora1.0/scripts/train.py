@@ -226,7 +226,18 @@ def main():
     dataloader.sampler.set_start_index(sampler_start_idx)
     model_sharding(ema)
 
+    if "global_batch_size" in cfg:
+        if cfg.global_batch_size % total_batch_size == 0:
+            grad_acum_step = cfg.global_batch_size / total_batch_size
+        else:
+            raise ValueError("total_batch_size needs to be divisible by global_batch_size.")
+    else:
+        cfg.global_batch_size = total_batch_size
+        grad_acum_step = 1
+
     early_stopping_flag = False
+    grad_acum_time = 0
+
     # 6.2. training loop
     for epoch in range(start_epoch, cfg.epochs):
         dataloader.sampler.set_epoch(epoch)
@@ -244,6 +255,7 @@ def main():
             initial=start_step,
         ) as pbar:
             for step in pbar:
+                global_step = epoch * num_steps_per_epoch + step
                 start_step_time = time.time()
                 batch = next(dataloader_iter)
                 data_step_time = time.time()
@@ -263,8 +275,10 @@ def main():
                 # Backward & update
                 loss = loss_dict["loss"].mean()
                 booster.backward(loss=loss, optimizer=optimizer)
-                optimizer.step()
-                optimizer.zero_grad()
+
+                if global_step % grad_acum_step == 0:
+                    optimizer.step()
+                    optimizer.zero_grad()
 
                 # Update EMA
                 update_ema(ema, model.module, optimizer=optimizer)
@@ -272,13 +286,21 @@ def main():
                 # Log loss values:
                 all_reduce_mean(loss)
                 running_loss += loss.item()
-                global_step = epoch * num_steps_per_epoch + step
+
                 log_step += 1
                 train_step_time = time.time()
+
                 # Log to tensorboard
                 if coordinator.is_master() and (global_step + 1) % cfg.log_every == 0:
                     print(f"data time {data_step_time - start_step_time} | E2E train time {train_step_time - start_step_time} | "
                           f"FPS {total_batch_size / (train_step_time - start_step_time)}", flush=True)
+
+                    if grad_acum_step != 1:
+                        grad_acum_time += (train_step_time - start_step_time)
+                        if global_step % grad_acum_step == 0:
+                            print(f"gradient accumulation step time {grad_acum_time}")
+                            grad_acum_time = 0
+
                     avg_loss = running_loss / log_step
                     pbar.set_postfix({"loss": avg_loss, "step": step, "global_step": global_step})
                     running_loss = 0

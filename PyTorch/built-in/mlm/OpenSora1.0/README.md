@@ -203,7 +203,6 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
      --max_train_steps                    //最大训练步数，默认是0，不会提前停止。 
      ```
      
-   
    - 序列并行(以120x256x256的训练任务为示例)
      
      若要使能序列并行，需要修改配置文件：configs/opensora/train/120x256x256-sp.py
@@ -251,12 +250,12 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
      ```
      
      即可，之后按照前面提及的单机八卡训练任务开展训练。
-
+     
 
    - VAE序列并行(以120x256x256的训练任务为示例)
    
       若要使能VAE序列并行，需要修改配置文件：configs/opensora/train/120x256x256-dsp.py
-     
+          
      - 添加enable_sequence_parallelism
      
       ```python
@@ -265,7 +264,7 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
          type="VideoAutoencoderKL",
          from_pretrained="stabilityai/sd-vae-ft-ema",
       )
-
+     
       # 修改后，增加enable_sequence_parallelism=True：
       vae = dict(
          type="VideoAutoencoderKL",
@@ -273,6 +272,10 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
          enable_sequence_parallelism=True,
       )
       ```
+
+- 梯度累积：在配置文件中指定global_batch_size变量即可
+
+
 
 #### 训练结果
 
