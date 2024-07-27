@@ -1,19 +1,37 @@
---- unet_2d_condition.py	2024-03-09 11:58:33.000000000 +0000
-+++ unet_2d_condition_cache.py	2024-03-09 11:58:35.000000000 +0000
-@@ -855,6 +855,8 @@
+--- ./unet_2d_condition.py	2024-06-24 09:06:04.594004325 +0800
++++ ./unet_2d_condition_wz.py	2024-06-24 09:33:25.980027072 +0800
+@@ -855,6 +855,10 @@ class UNet2DConditionModel(ModelMixin, C
          down_intrablock_additional_residuals: Optional[Tuple[torch.Tensor]] = None,
          encoder_attention_mask: Optional[torch.Tensor] = None,
          return_dict: bool = True,
 +        if_skip: int = 0,
-+        inputCache: torch.FloatTensor = None,
++        if_faster: int = 0,
++        inputCache: Optional[torch.FloatTensor] = None,
++        inputFasterCache: Optional[torch.FloatTensor] = None,
      ) -> Union[UNet2DConditionOutput, Tuple]:
          r"""
          The [`UNet2DConditionModel`] forward method.
-@@ -1109,30 +1111,57 @@
-             )
+@@ -1110,29 +1114,60 @@ class UNet2DConditionModel(ModelMixin, C
              down_intrablock_additional_residuals = down_block_additional_residuals
              is_adapter = True
-+
+
+-        down_block_res_samples = (sample,)
+-        for downsample_block in self.down_blocks:
+-            if hasattr(downsample_block, "has_cross_attention") and downsample_block.has_cross_attention:
+-                # For t2i-adapter CrossAttnDownBlock2D
+-                additional_residuals = {}
+-                if is_adapter and len(down_intrablock_additional_residuals) > 0:
+-                    additional_residuals["additional_residuals"] = down_intrablock_additional_residuals.pop(0)
+-
+-                sample, res_samples = downsample_block(
+-                    hidden_states=sample,
+-                    temb=emb,
+-                    encoder_hidden_states=encoder_hidden_states,
+-                    attention_mask=attention_mask,
+-                    cross_attention_kwargs=cross_attention_kwargs,
+-                    encoder_attention_mask=encoder_attention_mask,
+-                    **additional_residuals,
+-                )
 +        if not if_skip:
 +            down_block_res_samples = (sample,)
 +            for downsample_block in self.down_blocks:
@@ -39,57 +57,43 @@
 +
 +                down_block_res_samples += res_samples
 +        else:
-+            down_block_res_samples = (sample,)
-+            for downsample_block in self.down_blocks:
-+                if hasattr(downsample_block, "has_cross_attention") and downsample_block.has_cross_attention:
-+                    # For t2i-adapter CrossAttnDownBlock2D
-+                    additional_residuals = {}
-+                    if is_adapter and len(down_intrablock_additional_residuals) > 0:
-+                        additional_residuals["additional_residuals"] = down_intrablock_additional_residuals.pop(0)
-+
-+                    sample, res_samples = downsample_block(
-+                        hidden_states=sample,
-+                        temb=emb,
-+                        encoder_hidden_states=encoder_hidden_states,
-+                        attention_mask=attention_mask,
-+                        cross_attention_kwargs=cross_attention_kwargs,
-+                        encoder_attention_mask=encoder_attention_mask,
-+                        **additional_residuals,
-+                    )
-+                else:
-+                    sample, res_samples = downsample_block(hidden_states=sample, temb=emb, scale=lora_scale)
-+                    if is_adapter and len(down_intrablock_additional_residuals) > 0:
-+                        sample += down_intrablock_additional_residuals.pop(0)
-
--        down_block_res_samples = (sample,)
--        for downsample_block in self.down_blocks:
--            if hasattr(downsample_block, "has_cross_attention") and downsample_block.has_cross_attention:
--                # For t2i-adapter CrossAttnDownBlock2D
--                additional_residuals = {}
--                if is_adapter and len(down_intrablock_additional_residuals) > 0:
--                    additional_residuals["additional_residuals"] = down_intrablock_additional_residuals.pop(0)
--
--                sample, res_samples = downsample_block(
--                    hidden_states=sample,
--                    temb=emb,
--                    encoder_hidden_states=encoder_hidden_states,
--                    attention_mask=attention_mask,
--                    cross_attention_kwargs=cross_attention_kwargs,
--                    encoder_attention_mask=encoder_attention_mask,
--                    **additional_residuals,
--                )
--            else:
++            if if_faster:
++                down_block_res_samples = inputFasterCache.chunk(2, dim=1)
+             else:
 -                sample, res_samples = downsample_block(hidden_states=sample, temb=emb, scale=lora_scale)
 -                if is_adapter and len(down_intrablock_additional_residuals) > 0:
 -                    sample += down_intrablock_additional_residuals.pop(0)
-+                down_block_res_samples += res_samples
-+                break
++                down_block_res_samples = (sample,)
++                for downsample_block in self.down_blocks:
 
 -            down_block_res_samples += res_samples
++                    if hasattr(downsample_block, "has_cross_attention") and downsample_block.has_cross_attention:
++                        # For t2i-adapter CrossAttnDownBlock2D
++                        additional_residuals = {}
++                        if is_adapter and len(down_intrablock_additional_residuals) > 0:
++                            additional_residuals["additional_residuals"] = down_intrablock_additional_residuals.pop(0)
++
++                        sample, res_samples = downsample_block(
++                            hidden_states=sample,
++                            temb=emb,
++                            encoder_hidden_states=encoder_hidden_states,
++                            attention_mask=attention_mask,
++                            cross_attention_kwargs=cross_attention_kwargs,
++                            encoder_attention_mask=encoder_attention_mask,
++                            block_number=0,
++                            **additional_residuals,
++                        )
++                    else:
++                        sample, res_samples = downsample_block(hidden_states=sample, temb=emb, scale=lora_scale)
++                        if is_adapter and len(down_intrablock_additional_residuals) > 0:
++                            sample += down_intrablock_additional_residuals.pop(0)
++
++                    down_block_res_samples += res_samples
++                    break
 
          if is_controlnet:
              new_down_block_res_samples = ()
-@@ -1146,61 +1175,85 @@
+@@ -1146,61 +1181,87 @@ class UNet2DConditionModel(ModelMixin, C
              down_block_res_samples = new_down_block_res_samples
 
          # 4. mid
@@ -172,6 +176,10 @@
 -                    scale=lora_scale,
 -                )
 +        if not if_skip:
++            if if_faster:
++                inputFasterCache = [tmp.clone() for tmp in down_block_res_samples]
++                inputFasterCache = torch.cat(inputFasterCache[0:2], dim=1)
++
 +            for i, upsample_block in enumerate(self.up_blocks):
 +                is_final_block = i == len(self.up_blocks) - 1
 +
@@ -184,7 +192,7 @@
 +                    upsample_size = down_block_res_samples[-1].shape[2:]
 +
 +                if hasattr(upsample_block, "has_cross_attention") and upsample_block.has_cross_attention:
-+                    sample = upsample_block(
++                    sample, record_feature = upsample_block(
 +                        hidden_states=sample,
 +                        temb=emb,
 +                        res_hidden_states_tuple=res_samples,
@@ -203,16 +211,13 @@
 +                        scale=lora_scale,
 +                    )
 +
-+                if (not if_skip) and (i == 2):
-+                    inputCache = sample
-+
++                if (not if_skip) and (i == 3):
++                    inputCache = record_feature[-2]
 +        else:
 +            for i, upsample_block in enumerate(self.up_blocks):
 +                if i==3:
-+
-+                    res_samples = down_block_res_samples[-4:-1]
-+
-+                    sample = upsample_block(
++                    res_samples = down_block_res_samples[-2:]
++                    sample, _ = upsample_block(
 +                        hidden_states=sample,
 +                        temb=emb,
 +                        res_hidden_states_tuple=res_samples,
@@ -221,16 +226,17 @@
 +                        upsample_size=upsample_size,
 +                        attention_mask=attention_mask,
 +                        encoder_attention_mask=encoder_attention_mask,
++                        block_number=1,
 +                    )
 
          # 6. post-process
          if self.conv_norm_out:
-@@ -1215,4 +1268,7 @@
+@@ -1215,4 +1276,7 @@ class UNet2DConditionModel(ModelMixin, C
          if not return_dict:
              return (sample,)
 
 -        return UNet2DConditionOutput(sample=sample)
-+        if (not if_skip):
-+            return (sample, inputCache)
++        if not if_skip:
++            return (sample, inputCache, inputFasterCache) if if_faster else (sample, inputCache)
 +        else:
 +            return UNet2DConditionOutput(sample=sample)

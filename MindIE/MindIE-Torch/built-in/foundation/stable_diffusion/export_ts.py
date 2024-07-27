@@ -60,9 +60,14 @@ def parse_arguments() -> Namespace:
         help="guidance_scale"
     )
     parser.add_argument(
-        "--use_cache", 
+        "--use_cache",
         action="store_true",
         help="Use cache during inference."
+    )
+    parser.add_argument(
+        "--use_cache_faster",
+        action="store_true",
+        help="Use cache with faster during inference."
     )
     parser.add_argument(
         "-p",
@@ -180,7 +185,7 @@ def export_unet(sd_pipeline: StableDiffusionPipeline, save_dir: str, batch_size:
             torch.ones([1], dtype=torch.int64),
             torch.ones([batch_size, max_position_embeddings, encoder_hidden_size], dtype=torch.float32),
             torch.ones([1], dtype=torch.int64),
-            torch.ones([batch_size, 640, sample_size, sample_size], dtype=torch.float32),
+            torch.ones([batch_size, 320, sample_size, sample_size], dtype=torch.float32),
         )
     else:
         dummy_input = (
@@ -191,6 +196,61 @@ def export_unet(sd_pipeline: StableDiffusionPipeline, save_dir: str, batch_size:
         )
 
     unet = UnetExport(unet_model)
+    unet.eval()
+
+    torch.jit.trace(unet, dummy_input).save(unet_pt_path)
+
+
+class UnetExportFaster(torch.nn.Module):
+    def __init__(self, unet_model):
+        super().__init__()
+        self.unet_model = unet_model
+
+    def forward(self, sample, timestep, encoder_hidden_states, if_skip, if_faster, inputCache=None, inputFasterCache=None):
+        if if_skip:
+            return self.unet_model(sample, timestep, encoder_hidden_states, if_skip=if_skip, if_faster=if_faster, inputCache=inputCache, inputFasterCache=inputFasterCache)[0]
+        else:
+            return self.unet_model(sample, timestep, encoder_hidden_states, if_skip=if_skip, if_faster=if_faster)
+
+
+def export_unet_faster(sd_pipeline: StableDiffusionPipeline, save_dir: str, batch_size: int, if_skip: int, if_faster: int) -> None:
+    print("Exporting the image information creater...")
+    unet_path = os.path.join(save_dir, "unet")
+    if not os.path.exists(unet_path):
+        os.makedirs(unet_path, mode=0o640)
+
+    unet_pt_path = os.path.join(unet_path, f"unet_bs{batch_size}_{if_skip}_{if_faster}.pt")
+    if os.path.exists(unet_pt_path):
+        return
+
+    unet_model = sd_pipeline.unet
+    clip_model = sd_pipeline.text_encoder
+
+    sample_size = unet_model.config.sample_size
+    in_channels = unet_model.config.in_channels
+    encoder_hidden_size = clip_model.config.hidden_size
+    max_position_embeddings = clip_model.config.max_position_embeddings
+
+    if if_skip:
+        dummy_input = (
+            torch.ones([batch_size, in_channels, sample_size, sample_size], dtype=torch.float32),
+            torch.ones([1], dtype=torch.int64),
+            torch.ones([batch_size, max_position_embeddings, encoder_hidden_size], dtype=torch.float32),
+            torch.ones([1], dtype=torch.int64),
+            torch.ones([1], dtype=torch.int64),
+            torch.ones([batch_size, 320, sample_size, sample_size], dtype=torch.float32),
+            torch.ones([batch_size, 2*320, sample_size, sample_size], dtype=torch.float32),
+        )
+    else:
+        dummy_input = (
+            torch.ones([batch_size, in_channels, sample_size, sample_size], dtype=torch.float32),
+            torch.ones([1], dtype=torch.int64),
+            torch.ones([batch_size, max_position_embeddings, encoder_hidden_size], dtype=torch.float32),
+            torch.zeros([1], dtype=torch.int64),
+            torch.ones([1], dtype=torch.int64),
+        )
+
+    unet = UnetExportFaster(unet_model)
     unet.eval()
 
     torch.jit.trace(unet, dummy_input).save(unet_pt_path)
@@ -397,7 +457,7 @@ def export_vae(sd_pipeline: StableDiffusionPipeline, save_dir: str, batch_size: 
     torch.jit.trace(vae_export, dummy_input).save(vae_pt_path)
 
 
-def export(model_path: str, save_dir: str, batch_size: int, steps: int, guidance_scale: float, use_cache: bool, parallel: bool) -> None:
+def export(model_path: str, save_dir: str, batch_size: int, steps: int, guidance_scale: float, use_cache: bool, use_cache_faster: bool, parallel: bool) -> None:
     pipeline = StableDiffusionPipeline.from_pretrained(model_path).to("cpu")
 
     export_clip(pipeline, save_dir, batch_size)
@@ -414,6 +474,17 @@ def export(model_path: str, save_dir: str, batch_size: int, steps: int, guidance
             export_unet(pipeline, save_dir, batch_size * 2, 0)
             # 单卡, unet_skip
             export_unet(pipeline, save_dir, batch_size * 2, 1)
+    if use_cache_faster:
+        if parallel:
+            # 双卡, unet_cache带faster
+            export_unet_faster(pipeline, save_dir, batch_size, 0, 1)
+            # 双卡, unet_skip带faster
+            export_unet_faster(pipeline, save_dir, batch_size, 1, 1)
+        else:
+            # 单卡, unet_cache带faster
+            export_unet_faster(pipeline, save_dir, batch_size * 2, 0, 1)
+            # 单卡, unet_skip带faster
+            export_unet_faster(pipeline, save_dir, batch_size * 2, 1, 1)
     else:
         if parallel:
             # 双卡不带unetcache
@@ -434,7 +505,7 @@ def export(model_path: str, save_dir: str, batch_size: int, steps: int, guidance
 
 def main():
     args = parse_arguments()
-    export(args.model, args.output_dir, args.batch_size, args.steps, args.guidance_scale, args.use_cache, args.parallel)
+    export(args.model, args.output_dir, args.batch_size, args.steps, args.guidance_scale, args.use_cache, args.use_cache_faster, args.parallel)
     print("Done.")
 
 

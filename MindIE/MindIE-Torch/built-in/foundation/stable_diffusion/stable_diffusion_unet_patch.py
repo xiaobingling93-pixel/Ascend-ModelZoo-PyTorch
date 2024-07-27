@@ -22,6 +22,7 @@ def main():
 
     assert diffusers_version is not '0.26.3', "expectation diffusers==0.26.3"
     os.system(f'patch -p0 {diffusers_path[0]}/models/unets/unet_2d_condition.py unet_2d_condition.patch')
+    os.system(f'patch -p0 {diffusers_path[0]}/models/unets/unet_2d_blocks.py unet_2d_blocks.patch')
 
 
 if __name__ == '__main__':

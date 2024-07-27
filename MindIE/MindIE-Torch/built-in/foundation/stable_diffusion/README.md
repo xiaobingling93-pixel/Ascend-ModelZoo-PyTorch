@@ -148,6 +148,7 @@
       - --output_dir: pt模型输出目录
       - --parallel：【可选】模型使用双芯/双卡并行推理
       - --use_cache: 【可选】模型使用UnetCache优化
+      - --use_cache_faster: 【可选】模型使用deepcache+faster融合方案
 
       若不选择【--parallel】，即单卡/单芯，执行成功后会生成pt模型:
          - ./models/clip/clip_bs1.pt
@@ -281,6 +282,7 @@
       - --soc: 硬件配置，根据硬件配置选择Duo或者A2。A2特指910B4。
       - --output_dir: 编译好的模型路径。
       - --use_cache: 【可选】推荐使用UnetCache策略。
+      - --use_cache_faster: 【可选】模型使用deepcache+faster融合方案。
       
       执行完成后在`./results`目录下生成推理图片。并在终端显示推理时间。
 
