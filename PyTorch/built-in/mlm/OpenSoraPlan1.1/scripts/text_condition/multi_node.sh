@@ -21,7 +21,8 @@ log_file=$test_path_dir/train_$(date +%y%m%d%H%M).log
 start_time=$(date +%s)
 
 accelerate launch \
-    --config_file scripts/accelerate_configs/deepspeed_zero2_config.yaml \
+    --config_file scripts/accelerate_configs/multi_node.yaml \
+    --machine_rank 0 \
     opensora/train/train_t2v.py \
     --model LatteT2V-XL/122 \
     --text_encoder_name DeepFloyd/t5-v1_1-xxl \

@@ -340,15 +340,16 @@ class LatteT2V(ModelMixin, ConfigMixin):
         # this helps to broadcast it as a bias over attention scores, which will be in one of the following shapes:
         #   [batch,  heads, query_tokens, key_tokens] (e.g. torch sdp attn)
         #   [batch * heads, query_tokens, key_tokens] (e.g. xformers or classic attn)
-        if attention_mask is None:
-            attention_mask = torch.ones((input_batch_size, frame+use_image_num, h, w), device=hidden_states.device, dtype=hidden_states.dtype)
-        attention_mask = self.vae_to_diff_mask(attention_mask, use_image_num)
-        dtype = attention_mask.dtype
-        attention_mask_compress = F.max_pool2d(attention_mask.float(), kernel_size=self.compress_kv_factor, stride=self.compress_kv_factor)
-        attention_mask_compress = attention_mask_compress.to(dtype)
+        if attention_mask is not None:
+            attention_mask = self.vae_to_diff_mask(attention_mask, use_image_num)
+            dtype = attention_mask.dtype
+            attention_mask_compress = F.max_pool2d(attention_mask.float(), kernel_size=self.compress_kv_factor, stride=self.compress_kv_factor)
+            attention_mask_compress = attention_mask_compress.to(dtype)
 
-        attention_mask = self.make_attn_mask(attention_mask, frame, hidden_states.dtype)
-        attention_mask_compress = self.make_attn_mask(attention_mask_compress, frame, hidden_states.dtype)
+            attention_mask = self.make_attn_mask(attention_mask, frame, hidden_states.dtype)
+            attention_mask_compress = self.make_attn_mask(attention_mask_compress, frame, hidden_states.dtype)
+        else:
+            attention_mask_compress = None
 
         # 1 + 4, 1 -> video condition, 4 -> image condition
         # convert encoder_attention_mask to a bias the same way we do for attention_mask

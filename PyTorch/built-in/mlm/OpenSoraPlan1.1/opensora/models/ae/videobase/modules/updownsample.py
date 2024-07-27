@@ -173,11 +173,10 @@ class TimeDownsampleRes2x(nn.Module):
         x = torch.concatenate((first_frame_pad, x), dim=2)
         n, c, d, h, w = x.shape
         if is_npu_available():
-            pool_res = self.avg_pool(x.float().permute(0, 1, 3, 4, 2).reshape(n, c*h*w, d)).reshape(n, c, h, w, -1).permute(0, 1, 4, 2, 3)
-            return alpha * pool_res.to(x.dtype) + (1 - alpha) * self.conv(x)
+            pool_res = self.avg_pool(torch_npu.npu_confusion_transpose(x, (0, 1, 3, 4, 2), (n, c * h * w, d), True)).reshape(n, c, h, w, -1).permute(0, 1, 4, 2, 3)
         else:
-            pool_res = self.avg_pool(x.permute(0, 1, 3, 4, 2).reshape(n, c*h*w, d)).reshape(n, c, h, w, -1).permute(0, 1, 4, 2, 3)
-            return alpha * pool_res + (1 - alpha) * self.conv(x)
+            pool_res = self.avg_pool(x)
+        return alpha * pool_res + (1 - alpha) * self.conv(x)
 
 class TimeUpsampleRes2x(nn.Module):
     def __init__(
@@ -197,7 +196,7 @@ class TimeUpsampleRes2x(nn.Module):
         alpha = torch.sigmoid(self.mix_factor)
         if x.size(2) > 1:
             x,x_= x[:,:,:1],x[:,:,1:]
-            x_= F.interpolate(x_, scale_factor=(2,1,1), mode='trilinear')
+            x_= F.interpolate(x_.float(), scale_factor=(2,1,1), mode='trilinear').to(dtype=x.dtype)
             x = torch.concat([x, x_], dim=2)
         return alpha * x + (1-alpha) * self.conv(x)
 

@@ -743,8 +743,10 @@ class GaussianDiffusion_T:
         if model_kwargs is None:
             model_kwargs = {}
             mask = 1.0
-        else:
+        elif model_kwargs['attention_mask'] is not None:
             mask = model_kwargs['attention_mask'].unsqueeze(1)  # b t h w -> b 1 t h w
+        else:
+            mask = 1.0
 
         if noise is None:
             noise = th.randn_like(x_start)

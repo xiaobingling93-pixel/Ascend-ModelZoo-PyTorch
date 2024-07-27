@@ -1,13 +1,14 @@
 # Copyright 2024 Huawei Technologies Co., Ltd
+import types
 import torch
 from torch import nn
 from transformers import T5EncoderModel, CLIPModel, CLIPProcessor
-from transformers.models.t5.modeling_t5 import T5LayerNorm
+from transformers.models.t5.modeling_t5 import T5LayerNorm, T5Attention
 from transformers.activations import NewGELUActivation
 
 
 from opensora.utils.utils import get_precision
-from opensora.utils.npu_utils import is_npu_available, NpuRMSNorm, replace_module
+from opensora.utils.npu_utils import is_npu_available, NpuRMSNorm, replace_module, t5_forward
 
 class T5Wrapper(nn.Module):
     def __init__(self, args, **kwargs):
@@ -17,6 +18,8 @@ class T5Wrapper(nn.Module):
         if is_npu_available():
             # Monekey Patch NpuRMSNorm, GELU
             for name, module in self.text_enc.named_modules():
+                if isinstance(module, T5Attention):
+                    module.forward = types.MethodType(t5_forward, module)
                 if isinstance(module, T5LayerNorm):
                     hidden_size = module.weight.shape[0]
                     eps = module.variance_epsilon

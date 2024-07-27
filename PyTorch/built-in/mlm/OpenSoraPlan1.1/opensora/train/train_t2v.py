@@ -13,6 +13,7 @@ import logging
 import math
 import os
 import shutil
+import time
 from pathlib import Path
 from typing import Optional
 import gc
@@ -425,16 +426,22 @@ def main(args):
         disable=not accelerator.is_local_main_process,
     )
 
+    last_step_end_time = time.time()
     for epoch in range(first_epoch, args.num_train_epochs):
         train_loss = 0.0
+        dataloader_start_time = time.time()
         for step, (x, attn_mask, input_ids, cond_mask) in enumerate(train_dataloader):
+            step_start_time = time.time()
             with accelerator.accumulate(model):
                 # Sample noise that we'll add to the latents
                 if not args.multi_scale:
                     assert torch.all(attn_mask)
+                    if is_npu_available():
+                        attn_mask = None
                 
                 x = x.to(accelerator.device, dtype=weight_dtype)  # B C T+num_images H W, 16 + 4
-                attn_mask = attn_mask.to(accelerator.device)  # B L or B 1+num_images L
+                if attn_mask is not None:
+                    attn_mask = attn_mask.to(accelerator.device)  # B L or B 1+num_images L
                 # assert torch.all(attn_mask != 0), 'attn_mask must all 1'
                 input_ids = input_ids.to(accelerator.device)  # B L or B 1+num_images L
                 cond_mask = cond_mask.to(accelerator.device)  # B L or B 1+num_images L
@@ -518,6 +525,15 @@ def main(args):
                 optimizer.step()
                 lr_scheduler.step()
                 optimizer.zero_grad()
+
+                step_end_time = time.time()
+                if accelerator.is_main_process:
+                    print(f"step: {global_step}, "
+                          f"dataloader time:{step_start_time - dataloader_start_time}, "
+                          f"train time: {step_end_time - step_start_time}, "
+                          f"total time: {step_end_time - last_step_end_time}, "
+                          f"train loss: {train_loss}")
+                    last_step_end_time = step_end_time
             # Checks if the accelerator has performed an optimization step behind the scenes
             if accelerator.sync_gradients:
                 progress_bar.update(1)
@@ -566,6 +582,7 @@ def main(args):
 
                     if args.enable_tracker:
                         log_validation(args, model, ae, text_enc.text_enc, train_dataset.tokenizer, accelerator, weight_dtype, global_step)
+            dataloader_start_time = time.time()
 
     accelerator.wait_for_everyone()
     accelerator.end_training()
