@@ -15,6 +15,7 @@ NODE_RANK=${NODE_RANK:-0}
 export WORLD_SIZE=8
 export MASTER_PORT=29500
 export MASTER_ADDR=127.0.0.1
+export PYTORCH_NPU_ALLOC_CONF=expandable_segments:True
 
 for para in $*
 do

@@ -1,5 +1,6 @@
 #!/bin/bash
 ################基础配置参数，需要模型审视修改##################
+export PYTORCH_NPU_ALLOC_CONF=expandable_segments:True
 # 网络名称，同目录名称
 Network="GLIP_for_PyTorch"
 BATCH_SIZE=1
