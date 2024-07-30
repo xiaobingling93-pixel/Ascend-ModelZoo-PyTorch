@@ -231,7 +231,6 @@ class KnowledgeOptimizerFlashAttentionSoftmaxFp32(KnowledgeOptimizerFlashAttenti
         nodes = match_result.node_dicts[0]
         self._mul_or_div = graph[nodes[self.__class__._knowledge_class._PATTERN_MUL_OR_DIV][0].name]
         self._add = graph[nodes[self.__class__._knowledge_class._PATTERN_ADD][0].name]
-        self.__name_prefix = '/'.join(self._softmax.name.split('/')[:-1]) + '/'
 
     def apply(self) -> None:
         op_type = self._mul_or_div.op_type
@@ -261,7 +260,7 @@ class KnowledgeOptimizerFlashAttentionSoftmaxFp32(KnowledgeOptimizerFlashAttenti
     def __add_seq_len_initializer(self, data_name: str, initializer_name: str) -> onnx_node.OnnxInitializer:
         seq_len = self._graph.get_value_info(data_name).shape[-2]
         return self._graph.add_initializer(
-            self.__name_prefix + initializer_name,
+            self.__generate_name(initializer_name),
             np.array([seq_len], dtype=np.int32),
         )
 
@@ -276,12 +275,13 @@ class KnowledgeOptimizerFlashAttentionSoftmaxFp32(KnowledgeOptimizerFlashAttenti
         unsqueeze_mask = self._graph.get_prev_node(mask)
         self.__add_reshape('combine_dims', 'Reshape_mask', unsqueeze_mask.inputs[0])
 
-        self._graph.get_value_info(self._fa.outputs[0]).shape \
-            = self._graph[self.__name_prefix + 'Reshape_q_shape'].value.tolist()
+        reshape_q_node = self._graph[self.__generate_name('Reshape_q')]
+        reshape_q_node_shape = self._graph[reshape_q_node.inputs[1]].value
+        self._graph.get_value_info(self._fa.outputs[0]).shape = reshape_q_node_shape.tolist()
         self.__add_reshape('split_dims', 'Reshape_fa_output', self._fa.outputs[0], first_dim)
 
     def __add_reshape(self, type_: str, node_name: str, input_name: str, first_dim: int = None) -> base_node.BaseNode:
-        node_name = self.__name_prefix + node_name
+        node_name = self.__generate_name(node_name)
 
         shape = list(self._graph.get_value_info(input_name).shape)
         if type_ == 'combine_dims':
@@ -308,8 +308,8 @@ class KnowledgeOptimizerFlashAttentionSoftmaxFp32(KnowledgeOptimizerFlashAttenti
 
         if origin_shape != target_shape:
             repeats_value = [target_shape[i] // origin_shape[i] for i in range(len(target_shape))]
-            repeats = self._graph.add_initializer(self.__name_prefix + 'mask_repeats', np.array(repeats_value))
-            tile_name = self.__name_prefix + 'Tile_mask'
+            repeats = self._graph.add_initializer(self.__generate_name('mask_repeats'), np.array(repeats_value))
+            tile_name = self.__generate_name('Tile_mask')
             tile = self._graph.add_node(
                 tile_name,
                 'Tile',
@@ -321,18 +321,29 @@ class KnowledgeOptimizerFlashAttentionSoftmaxFp32(KnowledgeOptimizerFlashAttenti
             self._graph.update_map()
             prev_node = tile
 
-        unsqueeze_name = self.__name_prefix + 'Unsqueeze_mask'
-        unsqueeze = self._graph.add_node(
-            unsqueeze_name,
-            'Unsqueeze',
-            inputs=[prev_node.outputs[0]],
-            outputs=[unsqueeze_name + '_output'],
-            attrs={'axes': [1]},
-        )
+        unsqueeze_name = self.__generate_name('Unsqueeze_mask')
+        if self._graph.opset_imports[0].version >= 13:
+            axes_initializer = self._graph.add_initializer(unsqueeze_name + '_axes', np.array([1]))
+            unsqueeze = self._graph.add_node(
+                unsqueeze_name,
+                'Unsqueeze',
+                inputs=[prev_node.outputs[0], axes_initializer.name],
+                outputs=[unsqueeze_name + '_output'],
+            )
+        else:
+            unsqueeze = self._graph.add_node(
+                unsqueeze_name,
+                'Unsqueeze',
+                inputs=[prev_node.outputs[0]],
+                outputs=[unsqueeze_name + '_output'],
+                attrs={'axes': [1]},
+            )
         self._add.inputs[1] = unsqueeze.outputs[0]
 
         return unsqueeze
 
+    def __generate_name(self, name: str) -> str:
+        return self._softmax.name.replace('Softmax', name)
 
 @knowledge_factory.KnowledgeFactory.register()
 class KnowledgeMultiTile(KnowledgeBaseWithPostProcess):
