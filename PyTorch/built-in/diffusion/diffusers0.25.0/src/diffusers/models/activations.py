@@ -101,7 +101,11 @@ class GEGLU(nn.Module):
     def forward(self, hidden_states, scale: float = 1.0):
         args = () if USE_PEFT_BACKEND else (scale,)
         hidden_states = self.proj(hidden_states, *args)
-        return torch_npu.npu_geglu(hidden_states, dim=-1, approximate=1)[0]
+        try:
+            return torch_npu.npu_geglu(hidden_states, dim=-1, approximate=1)[0]
+        except:
+            hidden_states, gate = hidden_states.chunk(2, dim=-1)
+            return hidden_states * self.gelu(gate)
 
 
 class ApproximateGELU(nn.Module):
