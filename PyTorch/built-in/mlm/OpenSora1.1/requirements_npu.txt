@@ -1,6 +1,6 @@
 torch==2.1.0
 torchvision==0.16.0
-colossalai
+colossalai==0.3.7
 accelerate
 diffusers
 ftfy

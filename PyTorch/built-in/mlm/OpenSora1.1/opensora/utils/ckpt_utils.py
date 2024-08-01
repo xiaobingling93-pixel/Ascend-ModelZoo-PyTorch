@@ -36,6 +36,7 @@ pretrained_models = {
 
 
 def reparameter(ckpt, name=None, model=None):
+    name = os.path.basename(name)
     if name in ["DiT-XL-2-512x512.pt", "DiT-XL-2-256x256.pt"]:
         ckpt["x_embedder.proj.weight"] = ckpt["x_embedder.proj.weight"].unsqueeze(2)
         del ckpt["pos_embed"]
