@@ -8,6 +8,7 @@ from torch import nn
 from torch.nn import CrossEntropyLoss
 from torchvision import transforms
 from einops import rearrange
+from torch.utils.checkpoint import checkpoint
 
 from transformers import PreTrainedModel, PreTrainedTokenizer
 from transformers.utils.logging import get_logger
@@ -483,14 +484,42 @@ class CogVLMModel(CogVLMPreTrainedModel):
                 all_hidden_states += (hidden_states,)
 
             past_key_value = past_key_values[idx] if past_key_values is not None else None
-            layer_outputs = decoder_layer(
+            
+            def custom(index):
+                def custom_forward(
+                    hidden_states,
+                    token_type_ids=token_type_ids,
+                    attention_mask=attention_mask,
+                    position_ids=position_ids,
+                    past_key_value=past_key_value,
+                    output_attentions=output_attentions,
+                    use_cache=use_cache,
+                ):
+                    layer = self.layers[index]
+                    outputs = layer(
+                        hidden_states,
+                        token_type_ids=token_type_ids,
+                        attention_mask=attention_mask,
+                        position_ids=position_ids,
+                        past_key_value=past_key_value,
+                        output_attentions=output_attentions,
+                        use_cache=use_cache,
+                    )
+                    return outputs
+
+                return custom_forward
+            # layer_outputs = decoder_layer(
+            #     hidden_states,
+            #     token_type_ids=token_type_ids,
+            #     attention_mask=attention_mask,
+            #     position_ids=position_ids,
+            #     past_key_value=past_key_value,
+            #     output_attentions=output_attentions,
+            #     use_cache=use_cache,
+            # )
+            layer_outputs = checkpoint(custom(idx),
                 hidden_states,
-                token_type_ids=token_type_ids,
-                attention_mask=attention_mask,
-                position_ids=position_ids,
-                past_key_value=past_key_value,
-                output_attentions=output_attentions,
-                use_cache=use_cache,
+                use_reentrant=False
             )
             hidden_states = layer_outputs[0]
 
