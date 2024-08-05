@@ -266,6 +266,7 @@
 - [YOLACT_plus](https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/contrib/cv/detection/YOLACT_plus)
 - [YoloV3_ID1790_for_PyTorch](https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/built-in/cv/detection/YoloV3_ID1790_for_PyTorch)
 - [Yolov5_for_PyTorch_v4.0](https://gitee.com/ascend/modelzoo-GPL/tree/master/built-in/PyTorch/Official/cv/object_detection/Yolov5_for_PyTorch_v4.0)
+- [YOLOV9_for_PyTorch](https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/built-in/cv/detection/YOLOV9_for_PyTorch)
 
 
 ## 安全声明
