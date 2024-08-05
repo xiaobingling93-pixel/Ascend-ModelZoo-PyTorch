@@ -226,7 +226,6 @@ ResNet50是针对移动端专门定制的轻量级卷积神经网络，该网络
             - --input_shape：输入数据的shape。
             - --log：日志级别。
             - --soc_version：处理器型号。
-            - --input_format：输入数据的格式。
             - --enable_small_channel:是否使能small_channel优化。
             - --op_select_implmode:高性能模式。
             - --insert_op_conf：使能AIPP，使用该参数后，则输入数据类型为uint8。

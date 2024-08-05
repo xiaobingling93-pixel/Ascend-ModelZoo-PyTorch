@@ -192,7 +192,10 @@ EfficientNetV2是一系列图像分类模型，与现有技术相比，其实现
            -   --input\_shape：输入数据的shape。
            -   --log：日志级别。
            -   --soc\_version：处理器型号。
+           -   --optypelist\_for\_implmode：设置optype列表中算子的实现方式。
+           -   --op\_select\_implmode：选择算子是高精度实现还是高性能实现。
            -   --insert\_op\_conf:  AIPP插入节点，通过config文件配置算子信息，功能包括图片色域转换、裁剪、归一化，主要用于处理原图输入数据，常与DVPP配合使用，详见下文数据预处理。
+           -   --enable\_small\_channel：是否使能small channel的优化，使能后在channel<=4的卷积层会有性能收益。
 
            运行成功后生成<u>***efficientnetv2_bs24.om***</u>模型文件。
 

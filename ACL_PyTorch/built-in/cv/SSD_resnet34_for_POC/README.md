@@ -194,7 +194,9 @@ SSD模型是用于图像检测的模型，通过基于Resnet34残差卷积网络
            -   --input\_shape：输入数据的shape。
            -   --log：日志级别。
            -   --soc\_version：处理器型号。
-           -   --insert_op_conf:插入aipp
+           -   --enable\_small\_channel：是否使能small channel的优化，使能后在channel<=4的卷积层会有性能收益。
+           -   --insert\_op\_conf: AIPP插入节点，通过config文件配置算子信息，功能包括图片色域转换、裁剪、归一化，主要用于处理原图输入数据。
+           
         运行成功后生成ssd_bs1.om模型文件。
 
 2. 开始推理验证。

@@ -106,7 +106,7 @@ SOLOV2模型是一个box-free的实例分割模型。SOLOV2相对SOLOV1的主要
    ```
 
 3. 安装auto-optimizer改图工具。
-   请访问[auto-optimizer](https://gitee.com/ascend/tools/msadvsior/auto-optimizer)改图工具代码仓，根据readme文档进行工具安装。
+   请访问[auto-optimizer](https://gitee.com/ascend/msit/tree/master/msit/components/debug/surgeon)改图工具代码仓，根据readme文档进行工具安装。
 
 ## 准备数据集<a name="section183221994411"></a>
 

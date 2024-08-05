@@ -230,7 +230,8 @@ BERT，即Bidirectional Encoder Representations from Transformers，是一种基
            -   --input\_shape：输入数据的shape。
            -   --log：日志级别。
            -   --soc\_version：处理器型号。
-           -   --insert\_op\_conf=aipp\_resnet34.config:  AIPP插入节点，通过config文件配置算子信息，功能包括图片色域转换、裁剪、归一化，主要用于处理原图输入数据，常与DVPP配合使用，详见下文数据预处理。
+           -   --optypelist\_for\_implmode：设置optype列表中算子的实现方式。
+           -   --op\_select\_implmode：选择算子是高精度实现还是高性能实现。
 
            运行成功后得到用于二进制输入推理的模型文件```bert_base_batch_8_auto.om```。
 

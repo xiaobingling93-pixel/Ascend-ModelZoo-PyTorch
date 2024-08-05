@@ -196,6 +196,8 @@
     - --input：预处理完的数据集文件夹 
     - --output：推理结果保存路径
     - --output_dirname: 推理结果存储位置
+    - --batchsize：模型batchsize。
+    - --output_batchsize_axis：输出结果的batchsize轴，根据该轴做数据切割。
 
     运行成功后会在 ./result 下生成推理输出的bin文件
 

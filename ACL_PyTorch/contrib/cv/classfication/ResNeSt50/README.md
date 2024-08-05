@@ -182,7 +182,8 @@ ResNeSt 的全称是：Split-Attention Networks，引入了Split-Attention模块
              --output=resnest50_bs${bs} \
              --input_format=NCHW \
              --input_shape="actual_input_1:${bs},3,224,224" \
-             --soc_version=Ascend${chip_name} 
+             --soc_version=Ascend${chip_name} \
+             --log=error
          ```
 
          - 参数说明：

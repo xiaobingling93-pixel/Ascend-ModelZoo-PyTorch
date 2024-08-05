@@ -188,7 +188,7 @@ Retinaface模型是2019年提出的人脸检测模型，使用deformable convolu
            -   --soc\_version：处理器型号。
            -   --out\_nodes：onnx模型的输出节点，不同版本的torch和torchvision包可能会影响pth转换得到的onnx模型结构。如使用不同版本的包需要查看模型最后的output2，output1，output0对应的上一层节点名称。
            -   --enable\_small\_channel：是否使用small channel优化。
-           -   --insert\_op\_conf=aipp.cfg:  AIPP插入节点，通过config文件配置算子信息，功能包括图片色域转换、裁剪、归一化，主要用于处理原图输入数据，常与DVPP配合使用，详见下文数据预处理。
+           -   --insert\_op\_conf=aipp.cfg:  AIPP插入节点，通过config文件配置算子信息，功能包括图片色域转换、裁剪、归一化，主要用于处理原图输入数据，常与配合使用，详见下文数据预处理。
 
            运行成功后生成retinaface_bs16.om模型文件。
 

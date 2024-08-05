@@ -157,7 +157,7 @@ EfficientNetV2是一系列图像分类模型，与现有技术相比，其实现
       3. 执行ATC命令。
 
          ```
-         atc --model=efficientnetv2.onnx --framework=5 --input_format=NCHW --input_shape="image:24,3,288,288" --output=efficientnetv2_bs24 --soc_version=Ascend${chip_name} --log=debug --optypelist_for_implmode="Sigmoid" --op_select_implmode=high_performance
+         atc --model=efficientnetv2.onnx --framework=5 --input_format=NCHW --input_shape="image:24,3,288,288" --output=efficientnetv2_bs24 --soc_version=Ascend${chip_name} --log=error --optypelist_for_implmode="Sigmoid" --op_select_implmode=high_performance
          ```
 
          - 参数说明：
@@ -169,6 +169,8 @@ EfficientNetV2是一系列图像分类模型，与现有技术相比，其实现
            -   --input\_shape：输入数据的shape。
            -   --log：日志级别。
            -   --soc\_version：处理器型号。
+           -   --optypelist\_for\_implmode：设置optype列表中算子的实现方式。
+           -   --op\_select\_implmode：选择算子是高精度实现还是高性能实现。
 
            运行成功后生成<u>***efficientnetv2_bs24.om***</u>模型文件。
 

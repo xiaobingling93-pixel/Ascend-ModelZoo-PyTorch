@@ -154,7 +154,8 @@ commit_id=e29cf54486427d1423277d4c793e39ac0eeff87c
       - --log：日志级别。
       - --soc_version：处理器型号，支持Ascend310系列。
       - --enable_small_channel：是否使能small channel的优化，使能后在channel<=4的卷积层会有性能收益。
-      - --insert_op_conf=aipp.config: AIPP插入节点，通过config文件配置算子信息，功能包括图片色域转换、裁剪、归一化，主要用于处理原图输入数据，常与DVPP配合使用，详见下文数据预处理。
+      - --insert_op_conf=aipp.config: AIPP插入节点，通过config文件配置算子信息，功能包括图片色域转换、裁剪、归一化，主要用于处理原图输入数据。
+      
       注：不同的batch_size需要用不同的onnx文件
    
 2. 开始推理验证。
