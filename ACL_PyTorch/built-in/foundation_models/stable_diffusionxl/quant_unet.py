@@ -296,9 +296,15 @@ def modify_quant_fuse(unet, quant, param):
             x = pre_node.inputs[1]
             w = quant_graph[x].value
             quant_graph[x].value = w.transpose(1,0)
-            quant_graph.add_node('_'.join([pre_node.name, 'quant']), "QuantBatchMatMul", inputs=[pre_node.inputs[0], x, '_'.join([pre_node.name, 'scale']), \
-                                 '_'.join([pre_node.name, 'offset'])], outputs=[node.outputs[0]], attrs={"dtype":0, "transpose_x2":True})
+            node_name = pre_node.name
+            pre_input = pre_node.inputs[0]
             quant_graph.remove(pre_node.name, mapping={})
+            quant_graph.add_node(node_name, 
+                                 "QuantBatchMatMul", 
+                                 inputs=[pre_input, x, '_'.join([node_name, 'scale']), 
+                                 '_'.join([node_name, 'offset'])], 
+                                 outputs=[node.outputs[0]], 
+                                 attrs={"dtype":0, "transpose_x2":True})
             quant_graph.remove(node.name, mapping={})
             quant_graph.update_map()
         elif pre_node.op_type == "Add":
@@ -309,10 +315,18 @@ def modify_quant_fuse(unet, quant, param):
             quant_graph[x].value = w.transpose(1,0)
             ori_bias = np.round(unet_graph[unet_graph[pre_node.name].inputs[0]].value / scale - correction).astype(np.int32)
             quant_graph.add_initializer('_'.join([matmul_node.name, 'bias']), ori_bias)
-            quant_graph.add_node('_'.join([matmul_node.name, 'quant']), "QuantBatchMatMul", inputs=[matmul_node.inputs[0], x, '_'.join([matmul_node.name, 'scale']), \
-                                 '_'.join([matmul_node.name, 'offset']), '_'.join([matmul_node.name, 'bias'])], outputs=[node.outputs[0]], attrs={"dtype":0, "transpose_x2":True})
-            quant_graph.remove(pre_node.name, mapping={})
+            node_name = matmul_node.name
+            matmul_input = matmul_node.inputs[0]
             quant_graph.remove(matmul_node.name, mapping={})
+            quant_graph.add_node(node_name, 
+                                 "QuantBatchMatMul", 
+                                 inputs=[matmul_input, x, 
+                                 '_'.join([node_name, 'scale']), 
+                                 '_'.join([node_name, 'offset']), 
+                                 '_'.join([node_name, 'bias'])], 
+                                 outputs=[node.outputs[0]], 
+                                 attrs={"dtype":0, "transpose_x2":True})
+            quant_graph.remove(pre_node.name, mapping={})
             quant_graph.remove(node.name, mapping={})
             quant_graph.update_map()
 
