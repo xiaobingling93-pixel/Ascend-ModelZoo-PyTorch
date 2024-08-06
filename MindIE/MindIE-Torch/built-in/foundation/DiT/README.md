@@ -150,8 +150,7 @@ latent_size = image_size // 8
       --device 0 \
       --class_label 0 \
       --output_dir ./models \
-      --parallel \
-      --warmup
+      --parallel
       
       # A2
       python3 sample_npu.py \
@@ -173,7 +172,7 @@ latent_size = image_size // 8
       - --class_label：可在0~999中任意指定一个整数，代表image_net的种类
       - --output_dir：上一步骤指定的pt模型输出目录
       - --parallel：【可选】模型使用并行进行推理
-      - --warmup:【可选】，使用warmup可以使模型的推理时间更准确
+      - --warmup:【可选】使用warmup可使得时间更准确。并行场景使用该选项会有问题，不建议使用
 
 4. 精度验证
 

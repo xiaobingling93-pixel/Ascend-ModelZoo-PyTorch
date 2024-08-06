@@ -1,0 +1,18 @@
+--- attention_processor.py	2024-07-02 07:42:32.312000000 +0000
++++ attention_processor.py	2024-07-02 07:44:55.100000000 +0000
+@@ -205,10 +205,11 @@
+         # We use the AttnProcessor2_0 by default when torch 2.x is used which uses
+         # torch.nn.functional.scaled_dot_product_attention for native Flash/memory_efficient_attention
+         # but only if it has the default `scale` argument. TODO remove scale_qk check when we move to torch 2.1
+-        if processor is None:
+-            processor = (
+-                AttnProcessor2_0() if hasattr(F, "scaled_dot_product_attention") and self.scale_qk else AttnProcessor()
+-            )
++        # if processor is None:
++        #     processor = (
++        #         AttnProcessor2_0() if hasattr(F, "scaled_dot_product_attention") and self.scale_qk else AttnProcessor()
++        #     )
++        processor = AttnProcessor()
+         self.set_processor(processor)
+ 
+     def set_use_memory_efficient_attention_xformers(
