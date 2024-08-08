@@ -1,3 +1,6 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
+import torch_npu
+from torch_npu.contrib import transfer_to_npu
 import datetime
 import gc
 import time
@@ -27,6 +30,8 @@ from tasks.shared_utils import get_media_types
 from utils.basic_utils import (MetricLogger, SmoothedValue, setup_seed)
 from utils.config_utils import setup_main
 from transformers.utils import TensorType
+
+from tasks.train.llama_npu_monkey_patch import replace_with_torch_npu_flash_attention, replace_with_adaptive_avg_pool3d
 
 from tasks.shared_utils import create_optimizer, create_scheduler
 import copy
@@ -361,6 +366,7 @@ def main(config):
     start_epoch = 0
     num_batches = sum(len(loader) for loader in train_loaders)
     global_step = start_epoch * num_batches  # the steps before divided by accumulation
+    resume_cur_epoch_step = 0
     if osp.exists(config.output_dir):
         subfolders = os.listdir(config.output_dir)
         sample_saving = False
@@ -374,8 +380,6 @@ def main(config):
             ckpt_paths = [subfolder for subfolder in subfolders if re.match("ckpt_[^\d]+", subfolder) is not None]
             ckpt_iters = [int(s.split(re.match("ckpt_[^\d]+", s).group())[-1]) for s in ckpt_paths]
 
-    
-        resume_cur_epoch_step=0
         if len(ckpt_iters) > 0:
             resume_iter = max(ckpt_iters)
             ckpt_path = osp.join(config.output_dir, ckpt_paths[ckpt_iters.index(resume_iter)])
@@ -540,6 +544,8 @@ def main(config):
 
 
 if __name__ == "__main__":
+    replace_with_torch_npu_flash_attention()
+    replace_with_adaptive_avg_pool3d()
     cfg = setup_main()
     print(cfg)
     main(cfg)

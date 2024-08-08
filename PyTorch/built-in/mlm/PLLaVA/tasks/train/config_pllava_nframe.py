@@ -1,3 +1,4 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 from tasks.train.instruction_data import *
 
 # ========================= data ==========================
@@ -126,7 +127,7 @@ mode = "it"
 output_dir = None  # output dir
 resume = False  # if True, load optimizer and scheduler states as well
 debug = False
-log_freq = 5
+log_freq = 1
 metric_window_size=10 # window size for metric
 seed = 42
 report_to='tensorboard'

@@ -1,3 +1,4 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 import numpy as np
 import io
 import os
@@ -42,13 +43,13 @@ class SmoothedValue(object):
         """
         if not is_dist_avail_and_initialized():
             return
-        t = torch.tensor([self.count, self.total],
+        tensor_ret = torch.tensor([self.count, self.total],
                          dtype=torch.float64, device='cuda')
         dist.barrier()
-        dist.all_reduce(t)
-        t = t.tolist()
-        self.count = int(t[0])
-        self.total = t[1]
+        dist.all_reduce(tensor_ret.float())
+        tensor_ret = tensor_ret.tolist()
+        self.count = int(tensor_ret[0])
+        self.total = tensor_ret[1]
 
     @property
     def median(self):

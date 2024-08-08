@@ -1,20 +1,7 @@
-# coding=utf-8
-# Copyright 2023 the HuggingFace Inc. team. All rights reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Copyright 2024 Huawei Technologies Co., Ltd
 """ PyTorch Llava model."""
 from dataclasses import dataclass
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union, Dict
 import math
 
 import torch
@@ -291,7 +278,7 @@ class PllavaForConditionalGeneration(PllavaPreTrainedModel):
         self.vision_tower = AutoModel.from_config(config.vision_config)
         self.multi_modal_projector = PllavaMultiModalProjector(config)
         self.vocab_size = config.vocab_size
-        self.language_model = AutoModelForCausalLM.from_config(config.text_config, torch_dtype=config.torch_dtype, attn_implementation="flash_attention_2")
+        self.language_model = AutoModelForCausalLM.from_config(config.text_config, torch_dtype=config.torch_dtype)
         self.pad_token_id = self.config.pad_token_id if self.config.pad_token_id is not None else self.config.text_config.pad_token_id
         assert self.pad_token_id is not None, 'provide the model with pad_token_id, this would be used to arranging new embedings'
         self.post_init()
@@ -389,8 +376,9 @@ class PllavaForConditionalGeneration(PllavaPreTrainedModel):
                 f"The input provided to the model are wrong. The number of image tokens is {torch.sum(special_image_token_mask)} while"
                 f" the number of image given to the model is {num_images}. This prevents correct indexing and breaks batch generation."
             )
-
-        final_embedding[image_to_overwrite] = image_features.contiguous().reshape(-1, embed_dim).to(target_device)
+        final_embedding = final_embedding.to(dtype=torch.bfloat16)
+        final_embedding[image_to_overwrite] = image_features.contiguous().reshape(-1, embed_dim).to(target_device, dtype=torch.bfloat16)
+        final_embedding = final_embedding.to(dtype=torch.float16)
         final_attention_mask |= image_to_overwrite
         position_ids = (final_attention_mask.cumsum(-1) - 1).masked_fill_((final_attention_mask == 0), 1)
 
@@ -398,6 +386,10 @@ class PllavaForConditionalGeneration(PllavaPreTrainedModel):
             final_labels = None
 
         return final_embedding, final_attention_mask, final_labels, position_ids
+
+    @property
+    def dummy_inputs(self) -> Dict[str, torch.Tensor]:
+        return super().dummy_inputs
 
     @add_start_docstrings_to_model_forward(PLLAVA_INPUTS_DOCSTRING)
     @replace_return_docstrings(output_type=PllavaCausalLMOutputWithPast, config_class=_CONFIG_FOR_DOC)
