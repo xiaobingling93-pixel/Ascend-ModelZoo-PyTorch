@@ -27,20 +27,6 @@ def get_config(graph):
 
 
 def fix_attention_lnqkv(graph, qkv_start_node):
-    # insert reshape before qkv_start_node
-    reshape_before_add = graph.add_node(
-        f"Reshape_before_{qkv_start_node.name}",
-        "Reshape"
-    )
-    reshape_init = graph.add_initializer(
-        f"{reshape_before_add.name}_value",
-        np.array([-1, HIDDEN_NUM], dtype="int64")
-    )
-    if graph.get_node(qkv_start_node.inputs[0], node_type=Initializer):
-        graph.insert_node(qkv_start_node.name, reshape_before_add, refer_index=1, mode="before")
-    else:
-        graph.insert_node(qkv_start_node.name, reshape_before_add, refer_index=0, mode="before")
-    reshape_before_add.inputs.append(reshape_init.name)
 
     # change transpose node
     seen: List[List[int]] = []
@@ -96,7 +82,7 @@ def fix_attention_score(graph, softmax_node, bs, seq_len):
         f"bert_Mul_before_{add_node.name}",
         "Mul",
     )
-    mul_init_value = np.array(1/div_init.value, dtype="float16")
+    mul_init_value = np.array(1/div_init.value, dtype="float32")
     mul_init = graph.add_initializer(
         f"{mul_node.name}_value",
         mul_init_value
@@ -105,17 +91,6 @@ def fix_attention_score(graph, softmax_node, bs, seq_len):
     mul_node.inputs.append(mul_init.name)
     graph.remove(div_node.name)
 
-    expand_node = graph.add_node(
-        f"Expand_before_{add_node.name}",
-        "Expand"
-    )
-    expand_init = graph.add_initializer(
-        f"{expand_node.name}_value",
-        np.array([bs, 1, seq_len, seq_len], dtype="int64")
-    )
-    graph.insert_node(add_node.name, expand_node, refer_index=~refer_index, mode="before")
-    expand_node.inputs.append(expand_init.name)
-    
 
 def main(graph):
     # get config
@@ -123,6 +98,24 @@ def main(graph):
     
     # fix_lnqkv
     add_nodes = graph.get_nodes("Add")
+    gather_node = graph.get_nodes("Gather")[0]
+
+    # insert reshape before qkv_start_node
+    reshape_before_add = graph.add_node(
+        f"Reshape_2dims",
+        "Reshape"
+    )
+    reshape_init = graph.add_initializer(
+        "Reshape_2dims_value",
+        np.array([-1, HIDDEN_NUM], dtype="int64")
+    )
+    graph.insert_node(gather_node.name, reshape_before_add, mode="after")
+    
+    reshape_before_add.inputs.append(reshape_init.name)
+
+    for add_node in add_nodes[:2]:
+        graph[add_node.inputs[1]].value = graph[add_node.inputs[1]].value.reshape(-1, HIDDEN_NUM)
+
     for add_node in add_nodes:
         if len(graph.get_next_nodes(add_node.outputs[0])) == 4:
             fix_attention_lnqkv(graph, add_node)
@@ -131,6 +124,22 @@ def main(graph):
     softmax_nodes = graph.get_nodes("Softmax")
     for softmax_node in softmax_nodes:
         fix_attention_score(graph, softmax_node, bs, seq_len)
+
+    # add expand node
+    expand_node = graph.add_node(
+        f"Expand_Mask",
+        "Expand"
+    )
+    expand_init = graph.add_initializer(
+        f"expand_value",
+        np.array([bs, 1, seq_len, seq_len], dtype="int64")
+    )
+    s_node = softmax_nodes[0]
+    a_node = graph.get_prev_node(s_node.inputs[0])
+    m_node = graph.get_prev_node(a_node.inputs[1])
+    expand_node.inputs=["mul_out", "expand_value"]
+    expand_node.outputs=[m_node.outputs[0]]
+    m_node.outputs=["mul_out"]
 
     # insert last reshape to recover shape
     last_add = graph.get_nodes(op_type="Add")[-1]
@@ -142,10 +151,7 @@ def main(graph):
         f"{last_reshape.name}_value",
         np.array([bs, seq_len, HIDDEN_NUM], dtype="int64")
     )
-    if graph.get_node(last_add.inputs[0], node_type=Initializer):
-        graph.insert_node(last_add.name, last_reshape, refer_index=1, mode="before")
-    else:
-        graph.insert_node(last_add.name, last_reshape,  refer_index=0, mode="before")
+    graph.insert_node(last_add.name, last_reshape, mode="after")
     last_reshape.inputs.append(reshape_init.name)
 
                                                      

@@ -205,7 +205,7 @@ def pad_nz_block(
     padding_shape, original_shape = cal_padding_shape(graph, merged)
     axis = 0 if merged else 1
  
-    new_concat_init = graph.add_initializer(f"padding_concat_init", np.zeros(padding_shape, dtype=np.float16))
+    new_concat_init = graph.add_initializer(f"padding_concat_init", np.zeros(padding_shape, dtype=np.float32))
     add_node = anchor_adds_2[0]
     new_concat_name = f"Concat_before_{add_node.name}"
     new_concat_node = graph.add_node(new_concat_name, "Concat", attrs={"axis": axis})
@@ -459,7 +459,7 @@ def adapt_for_attentionscore(graph: OnnxGraph, anchor_softmaxes: List[OnnxNode])
         div_value = graph[div_before_matmul.inputs[1]].value
         new_mul_init = graph.add_initializer(
             f"{new_mul_name}_init",
-            np.array(1/div_value, dtype="float16")
+            np.array(1/div_value, dtype="float32")
         )
         graph.insert_node(softmax_node.name, new_mul_node, mode="before")
         new_mul_node.inputs.append(new_mul_init.name)

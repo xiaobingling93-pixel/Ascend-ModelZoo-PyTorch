@@ -1,6 +1,6 @@
-diff -urN cn_clip/deploy/pytorch_to_onnx.py cn_clip_fix/deploy/pytorch_to_onnx.py
---- cn_clip/deploy/pytorch_to_onnx.py	2024-02-20 14:49:36.955252200 +0800
-+++ cn_clip_fix/deploy/pytorch_to_onnx.py	2024-03-17 14:48:30.339636500 +0800
+diff -Nur b/Chinese-CLIP/cn_clip/deploy/pytorch_to_onnx.py a/Chinese-CLIP/cn_clip/deploy/pytorch_to_onnx.py
+--- b/Chinese-CLIP/cn_clip/deploy/pytorch_to_onnx.py	2024-08-07 10:13:21.636000000 +0000
++++ a/Chinese-CLIP/cn_clip/deploy/pytorch_to_onnx.py	2024-08-07 01:17:34.820000000 +0000
 @@ -117,8 +117,9 @@
                      text_fp32_onnx_path,
                      input_names=['text'],
@@ -24,3 +24,250 @@ diff -urN cn_clip/deploy/pytorch_to_onnx.py cn_clip_fix/deploy/pytorch_to_onnx.p
                      verbose=True)
          # for ViT-H-14 FP32 model, make another conversion to deal with the generated small files
          if args.model_arch == "ViT-H-14":
+diff -Nur b/Chinese-CLIP/cn_clip/eval/zeroshot_evaluation.py a/Chinese-CLIP/cn_clip/eval/zeroshot_evaluation.py
+--- b/Chinese-CLIP/cn_clip/eval/zeroshot_evaluation.py	2024-08-07 10:13:21.636000000 +0000
++++ a/Chinese-CLIP/cn_clip/eval/zeroshot_evaluation.py	2024-08-07 10:07:28.980000000 +0000
+@@ -10,7 +10,7 @@
+ from tqdm import tqdm
+ 
+ import torch
+-
++from ais_bench.infer.interface import InferSession
+ from cn_clip.clip.model import convert_weights, CLIP
+ from cn_clip.clip import tokenize
+ from cn_clip.training.main import convert_models_to_fp32
+@@ -29,6 +29,16 @@
+ def parse_args():
+     parser = argparse.ArgumentParser()
+     parser.add_argument(
++        "--text-om",
++        default="vit-b-text.om",
++        help="Name of the text om model to use.",
++    )
++    parser.add_argument(
++        "--vision-om",
++        default="vit-b-image.om",
++        help="Name of the vision om model to use.",
++    )
++    parser.add_argument(
+         "--vision-model",
+         choices=["ViT-B-32", "ViT-B-16", "ViT-L-14", "ViT-L-14-336", "ViT-H-14", "RN50"],
+         default="ViT-B-16",
+@@ -82,12 +92,12 @@
+     #     help="Path to imagenet val set for conducting zero shot evaluation.",
+     # )
+     parser.add_argument(
+-        "--img-batch-size", type=int, default=64, help="Image batch size."
++        "--img-batch-size", type=int, default=24, help="Image batch size."
+     )    
+     parser.add_argument(
+         "--context-length", 
+         type=int, 
+-        default=52,
++        default=512,
+         help="The maximum length of input text (include [CLS] & [SEP] tokens)."
+     )
+     parser.add_argument(
+@@ -106,16 +116,24 @@
+ 
+ def zero_shot_classifier(model, classnames, templates, args):
+     with torch.no_grad():
++        session_code = InferSession(0, model)
+         zeroshot_weights = []
+         for classname in tqdm(classnames):
+             texts = [_preprocess_text(template(classname)) for template in templates]  # format with class
+-            texts = tokenize(texts, context_length=args.context_length).to(args.gpu)  # tokenize
+-            class_embeddings = model(None, texts)
++            texts = tokenize(texts, context_length=args.context_length)
++            x = torch.zeros(9,512)
++            texts = torch.concat((texts,x),dim=0)
++            res_class = []
++            for i in range(8):
++                feed = [texts[i*24:(i+1)*24,].to(torch.int64)]
++                class_embeddings = session_code.infer(feed)
++                res_class.append(torch.from_numpy(class_embeddings[0]))
++            class_embeddings = torch.concat(res_class, dim=0)[:183,]
+             class_embeddings /= class_embeddings.norm(dim=-1, keepdim=True)
+             class_embedding = class_embeddings.mean(dim=0)
+             class_embedding /= class_embedding.norm()
+             zeroshot_weights.append(class_embedding)
+-        zeroshot_weights = torch.stack(zeroshot_weights, dim=1).to(args.gpu)
++        zeroshot_weights = torch.stack(zeroshot_weights, dim=1)
+     return zeroshot_weights
+ 
+ 
+@@ -128,27 +146,31 @@
+ def run(model, classifier, dataloader, args):
+     total_logits = []
+     total_targets = []
+-    with torch.no_grad():
+-        top1, top5, n = 0.0, 0.0, 0.0
+-        for images, target in tqdm(dataloader):
+-            images = images.to(args.gpu)
+-            target = target.to(args.gpu)
+-            total_targets.append(target)
+-
+-            # predict
+-            image_features = model(images, None)
+-            image_features /= image_features.norm(dim=-1, keepdim=True)
+-            logits = (100.0 * image_features @ classifier).softmax(dim=-1)
+-            total_logits.append(logits)
+-
+-            # measure accuracy
+-            acc1, acc5 = accuracy(logits, target, topk=(1, 1))
+-            top1 += acc1
+-            n += images.size(0)
++    session_code = InferSession(0, model)
++    # with torch.no_grad():
++    top1, top5, n = 0.0, 0.0, 0.0
++    for images, target in tqdm(dataloader):
++        images = images
++        target = target
++        total_targets.append(target)
++        batch = images.size(0)
++        if batch != 24:
++            pad = torch.zeros_like(images[:(24-batch)])
++            images = torch.concat((images,pad), dim=0)
++        feed = [images.to(torch.float32)]
++        image_features = session_code.infer(feed)
++        image_features = torch.from_numpy(image_features[0][:batch,])
++        image_features /= image_features.norm(dim=-1, keepdim=True)
++        logits = (100.0 * image_features @ classifier).softmax(dim=-1)
++        total_logits.append(logits)
++
++        # measure accuracy
++        acc1, acc5 = accuracy(logits, target, topk=(1, 1))
++        top1 += acc1
++        n += batch
+ 
+     outputs = torch.cat(total_logits, dim=0)
+     targets = torch.cat(total_targets, dim=0)
+-
+     if getattr(args, "index", ""):
+         print("Use index to rearrange the logits...")
+         with open(args.index, "r", encoding="utf-8") as f:
+@@ -166,16 +188,14 @@
+ if __name__ == "__main__":
+     args = parse_args()
+ 
++    text_model = args.text_om
++    vision_model = args.vision_om
+     # Log params.
+     print("Params:")
+     for name in sorted(vars(args)):
+         val = getattr(args, name)
+         print(f"  {name}: {val}")
+ 
+-    args.gpu = 0
+-    torch.cuda.set_device(args.gpu)
+-
+-    # Initialize the model.
+     vision_model_config_file = Path(__file__).parent.parent / f"clip/model_configs/{args.vision_model.replace('/', '-')}.json"
+     print('Loading vision model config from', vision_model_config_file)
+     assert os.path.exists(vision_model_config_file)
+@@ -191,17 +211,6 @@
+         for k, v in json.load(ft).items():
+             model_info[k] = v
+ 
+-    model = CLIP(**model_info)
+-    convert_weights(model)
+-
+-    # See https://discuss.pytorch.org/t/valueerror-attemting-to-unscale-fp16-gradients/81372
+-    if args.precision == "amp" or args.precision == "fp32":
+-        convert_models_to_fp32(model)
+-    model.cuda(args.gpu)
+-    if args.precision == "fp16":
+-        convert_weights(model)
+-
+-    # Get eval data.
+     print("Preparing zeroshot dataset.")
+     data = {}
+     print(f"{model_info['image_resolution']}")
+@@ -209,26 +218,8 @@
+         args, image_transform(model_info["image_resolution"])
+     )
+ 
+-    # Resume from a checkpoint.
+-    print("Begin to load model checkpoint from {}.".format(args.resume))
+-    assert os.path.exists(args.resume), "The checkpoint file {} not exists!".format(args.resume)
+-    # Map model to be loaded to specified single gpu.
+-    loc = "cuda:{}".format(args.gpu)
+-    checkpoint = torch.load(args.resume, map_location='cpu')
+-    start_epoch = checkpoint["epoch"]
+-    sd = checkpoint["state_dict"]
+-    if next(iter(sd.items()))[0].startswith('module'):
+-        sd = {k[len('module.'):]: v for k, v in sd.items() if "bert.pooler" not in k}
+-    model.load_state_dict(sd)
+-    print(
+-        f"=> loaded checkpoint '{args.resume}' (epoch {checkpoint['epoch']} @ {checkpoint['step']} steps)"
+-    )
+-
+-    # Compute ensembled class embeddings
+     print('Building zero-shot classifier')
+ 
+-    model.eval()
+-
+     f = open(args.label_file, "r", encoding="utf8")
+     classnames = [line.strip() for line in f.readlines()]
+ 
+@@ -246,32 +237,10 @@
+     else:
+         templates = template_dict['openai']
+ 
+-    # Make inference and evaluation
+     print('Using classifier')
+-    classifier = zero_shot_classifier(model, classnames, templates, args)
++    classifier = zero_shot_classifier(text_model, classnames, templates, args)
+     results = {}
+-    top1, logits = run(model, classifier, data[args.dataset].dataloader, args)
+-
+-    def json_prec_dump(data, prec=6):
+-        return json.dumps(
+-            json.loads(json.dumps(data), parse_float=lambda x: round(float(x), prec))
+-        )
+-
+-    print(logits.size())
+-    output_dict = {
+-        "model_name": "CN-CLIP-" + args.vision_model,
+-        "dataset_name": args.dataset,
+-        "num_trainable_params": 0,
+-        "num_params": sum(x.numel() for x in model.parameters()),
+-        "num_visual_params": sum(x.numel() for x in model.visual.parameters()),
+-        "num_backbone_params": sum(x.numel() for x in model.parameters()),
+-        "n_shot": 0,
+-        "rnd_seeds": [123],
+-        "predictions": [logits.cpu().data.numpy().tolist()],
+-    }
+-    json_string = json_prec_dump(output_dict)
+-    with open(os.path.join(args.save_dir, f"{args.dataset}.json"), "w", encoding="utf-8") as w:
+-        w.write(json_string)
++    top1, logits = run(vision_model, classifier, data[args.dataset].dataloader, args)
+ 
+     results["zeroshot-top1"] = top1
+ 
+diff -Nur b/Chinese-CLIP/run_scripts/zeroshot_eval.sh a/Chinese-CLIP/run_scripts/zeroshot_eval.sh
+--- b/Chinese-CLIP/run_scripts/zeroshot_eval.sh	2024-08-07 10:13:21.656000000 +0000
++++ a/Chinese-CLIP/run_scripts/zeroshot_eval.sh	2024-08-07 10:07:22.108000000 +0000
+@@ -18,7 +18,9 @@
+ text_model=${5}
+ resume=${6}
+ label_file=${path}/datasets/${dataset}/label_cn.txt
+-index=${7:-}
++text_om=${7}
++vision_om=${8}
++index=${9:-}
+ 
+ mkdir -p ${savedir}
+ 
+@@ -28,7 +30,9 @@
+     --save-dir=${savedir} \
+     --dataset=${dataset} \
+     --index=${index} \
+-    --img-batch-size=64 \
++    --img-batch-size=24 \
+     --resume=${resume} \
+     --vision-model=${vision_model} \
+-    --text-model=${text_model}
++    --text-model=${text_model} \
++    --text-om=${text_om} \
++    --vision-om=${vision_om}
