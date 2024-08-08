@@ -1,3 +1,17 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import argparse
 import gc
 import json
@@ -9,6 +23,8 @@ import yaml
 from PIL import Image
 import psutil
 import torch
+import torch_npu
+from torch_npu.contrib import transfer_to_npu
 from accelerate import Accelerator, DeepSpeedPlugin
 from accelerate.utils import HfDeepSpeedConfig
 from torch.utils.data import Dataset, DataLoader, random_split
@@ -44,7 +60,7 @@ class ConversationDataset(Dataset):
         self.image_dir = os.path.join(root_dir, 'images')
         self.label_dir = os.path.join(root_dir,
                                       'labels_en')  # can be change to labels_en or labels_zh in SFT-311K dataset
-        self.filenames = os.listdir(self.image_dir)
+        self.filenames = sorted(os.listdir(self.image_dir))
         self.input_length = input_length
         self.output_length = output_length
         self.device = device
@@ -209,6 +225,7 @@ def main():
                         help="Path to save the finetuned model, must be a exit directory")
     parser.add_argument("--ds_config", type=str, default="ds_config.yaml",
                         help="DeepSpeed configuration file path")
+    parser.add_argument("--random_seed", type=int, default=1234, help="seed for data split")
     args = parser.parse_args()
     args.torch_type = eval(args.torch_type)
 
@@ -234,7 +251,8 @@ def main():
     )
     train_size = int(args.train_dataset_rate * len(dataset))
     val_size = len(dataset) - train_size
-    train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
+    train_dataset, val_dataset = random_split(dataset, [train_size, val_size],
+                                              generator=torch.Generator().manual_seed(args.random_seed))
 
     train_dataloader = DataLoader(
         train_dataset,
@@ -295,6 +313,9 @@ def main():
                     safe_serialization=True
                 )
                 writer.add_scalar('Train/Loss', loss.item(), epoch * len(train_dataloader) + step)
+            total_loss_step = torch.mean(accelerator.gather(loss))
+            if torch.distributed.get_rank() == 0:
+                print(f"Epoch:{epoch}, step:{step}, step_loss:{total_loss_step}")
 
         total_loss = accelerator.gather(total_loss)
         avg_loss = total_loss.mean().item() / len(train_dataloader)
@@ -337,6 +358,26 @@ def main():
             save_directory=checkpoint_path,
             safe_serialization=True
         )
+
+
+def seed_all(seed=1234, mode=False):
+    import numpy as np
+    is_gpu = False
+    random.seed(seed)
+    os.environ["PYTHONHASHSEED"] = str(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.use_deterministic_algorithms(mode)
+    if is_gpu:
+        os.environ["CUBLAS_WORKSPACE_CONFIG"] = ':16:8'
+        torch.cuda.manual_seed_all(seed)
+        torch.cuda.manual_seed(seed)
+        torch.backends.cudnn.deterministic=True
+        torch.backends.cudnn.enable=False
+        torch.backends.cudnn.benchmark=False
+    else:
+        torch_npu.npu.manual_seed_all(seed)
+        torch_npu.npu.manual_seed(seed)
 
 
 if __name__ == "__main__":
