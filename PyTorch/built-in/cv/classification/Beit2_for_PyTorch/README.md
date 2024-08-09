@@ -59,6 +59,7 @@ BEiT v2是基于矢量量化视觉标记的掩码图像模型
 | PyTorch 2.1 | torchvision==0.16.0 |
 | PyTorch 2.2 | torchvision==0.17.0 |
 | PyTorch 2.3 | torchvision==0.18.1 |
+| PyTorch 2.4 | torchvision==0.19.0 |
 
 - 环境准备指导。
 
@@ -75,6 +76,7 @@ BEiT v2是基于矢量量化视觉标记的掩码图像模型
     pip install -r 2.1_requirements.txt  # PyTorch2.1版本
     pip install -r 2.2_requirements.txt  # PyTorch2.2版本
     pip install -r 2.3_requirements.txt  # PyTorch2.3版本
+    pip install -r 2.4_requirements.txt  # PyTorch2.4版本
 ```
 
 ## 准备数据集

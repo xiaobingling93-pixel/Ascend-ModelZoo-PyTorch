@@ -40,6 +40,7 @@ MobileNetV3结合了MobileNetV1的深度可分离卷积、MobileNetV2的Inverted
   | PyTorch 2.1 | torchvision==0.16.0 |
   | PyTorch 2.2 | torchvision==0.17.0 |
   | PyTorch 2.3 | torchvision==0.18.1 |
+  | PyTorch 2.4 | torchvision==0.19.0 |
 
 - 环境准备指导。
 
@@ -56,6 +57,8 @@ MobileNetV3结合了MobileNetV1的深度可分离卷积、MobileNetV2的Inverted
   pip install -r 2.2_requirements.txt  # PyTorch2.2版本
 
   pip install -r 2.3_requirements.txt  # PyTorch2.3版本
+
+  pip install -r 2.4_requirements.txt  # PyTorch2.4版本
   ```
   > **说明：** 
   >只需执行一条对应的PyTorch版本依赖安装命令。

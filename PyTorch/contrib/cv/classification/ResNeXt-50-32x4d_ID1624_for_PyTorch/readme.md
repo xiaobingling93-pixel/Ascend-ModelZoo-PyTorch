@@ -40,6 +40,7 @@ ResNeXt-50-32x4d是一个经典的图像分类网络，对于一个L层的网络
   | PyTorch 2.1 | torchvision==0.16.0；pillow==9.1.0 |
   | PyTorch 2.2 | torchvision==0.17.0；pillow==10.2.0 |
   | PyTorch 2.3 | torchvision==0.18.1；pillow==10.2.0 |
+  | PyTorch 2.4 | torchvision==0.19.0；pillow==10.2.0 |
   
 - 环境准备指导。
 
@@ -56,6 +57,8 @@ ResNeXt-50-32x4d是一个经典的图像分类网络，对于一个L层的网络
   pip install -r 2.2_requirements.txt  # PyTorch2.2版本
 
   pip install -r 2.3_requirements.txt  # PyTorch2.3版本
+
+  pip install -r 2.4_requirements.txt  # PyTorch2.4版本
   ```
   > **说明：** 
   >只需执行一条对应的PyTorch版本依赖安装命令。

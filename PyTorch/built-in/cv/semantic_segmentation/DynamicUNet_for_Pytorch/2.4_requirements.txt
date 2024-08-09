@@ -1,0 +1,5 @@
+fastai
+ninja
+tqdm
+torchvision==0.19.0
+Pillow==10.2.0

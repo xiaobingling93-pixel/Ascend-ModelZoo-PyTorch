@@ -41,6 +41,7 @@ MMOCR是基于PyTorch和MMDetection的开源工具包，支持众多OCR相关模
   | PyTorch 2.1 | torchvision==0.16.0 |
   | PyTorch 2.2 | torchvision==0.17.0 |
   | PyTorch 2.3 | torchvision==0.18.1 |
+  | PyTorch 2.4 | torchvision==0.19.0 |
   
 - 环境准备指导。
 
@@ -54,6 +55,7 @@ MMOCR是基于PyTorch和MMDetection的开源工具包，支持众多OCR相关模
   pip install -r 2.1_requirements.txt  # PyTorch2.1版本
   pip install -r 2.2_requirements.txt  # PyTorch2.2版本
   pip install -r 2.3_requirements.txt  # PyTorch2.3版本
+  pip install -r 2.4_requirements.txt  # PyTorch2.4版本
   ```
  
   如果pytorch版本大于等于2.0，请参考[链接](http://download.openmmlab.com/mmcv/dist/npu/torch1.8.0/index.html)下载相应架构mmcv的wheel包

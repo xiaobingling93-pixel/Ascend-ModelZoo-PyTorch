@@ -31,6 +31,7 @@ code_path=PyTorch/built-in/autonoumous_driving
 | - |--------------------|
 | PyTorch 2.1.0 | torchvision 0.16.2 |
 | PyTorch 2.3.1 | torchvision 0.18.1 |
+| PyTorch 2.4.0 | torchvision 0.19.0 |
 
 - 环境准备指导。 
 
@@ -43,6 +44,7 @@ code_path=PyTorch/built-in/autonoumous_driving
 cd ./OpenPCDet
 pip install -r requirements.txt && cd ../   # PyTorch 2.1版本
 pip install -r 2.3_requirements.txt && cd ../   # PyTorch 2.3版本
+pip install -r 2.4_requirements.txt && cd ../   # PyTorch 2.4版本
 ```
 
 #### 2. 手动编译安装cumm和spconv
