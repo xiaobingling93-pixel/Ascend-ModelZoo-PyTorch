@@ -130,7 +130,7 @@ e2e_time=$(( $end_time - $start_time ))
 # 结果打印，不需要修改
 echo "------------------ Final result ------------------"
 # 输出性能FPS，需要模型审视修改
-step_time=`grep "Epoch" ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log | awk -F "Time " '{print $2}' | awk -F " " '{print $1}' | tail -n 20 | awk '{a+=$1} END {if (NR != 0) printf("%.3f",a/NR)}'`
+step_time=`grep "Epoch" ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log | awk -F "Time " '{print $2}' | awk -F " " '{print $3}' | awk -F ")" '{print $1}' | tail -n 1`
 FPS=`echo "${batch_size} / ${step_time}"|bc`
 # 打印，不需要修改
 echo "Final Performance images/sec : $FPS"
