@@ -1,3 +1,4 @@
+numpy==1.23.0
 torch==2.1.2
 torchvision==0.16.2
 timm==0.4.12
@@ -7,3 +8,12 @@ opencv-python==4.8.1.78
 onnx==1.15.0
 pycocoevalcap==1.2
 onnxsim==0.4.36
+onnxruntime==1.15.1
+scipy==1.13
+absl-py==2.1.0
+attrs==24.1.0
+cloudpickle==3.0.0
+decorator==5.1.1
+ml-dtypes==0.4.0
+psutil==6.0.0
+tornado==6.4.1

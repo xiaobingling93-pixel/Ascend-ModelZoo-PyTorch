@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # Copyright 2024 Huawei Technologies Co., Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -345,6 +346,7 @@ class KnowledgeOptimizerFlashAttentionSoftmaxFp32(KnowledgeOptimizerFlashAttenti
     def __generate_name(self, name: str) -> str:
         return self._softmax.name.replace('Softmax', name)
 
+
 @knowledge_factory.KnowledgeFactory.register()
 class KnowledgeMultiTile(KnowledgeBaseWithPostProcess):
     """
@@ -397,46 +399,48 @@ class KnowledgeMultiTile(KnowledgeBaseWithPostProcess):
         return True
 
 
-def _modify_visual_encoder(model_path, new_model_path):
+def _modify_visual_encoder(model_path: str, new_model_path: str) -> None:
     graph = auto_optimizer.OnnxGraph.parse(model_path)
 
     optimizer.GraphOptimizer.optimize(graph, KnowledgeMoveMulOrDivBeforeMatmul())
     optimizer.GraphOptimizer.optimize(graph, KnowledgeFlashAttentionTik())
     optimizer.GraphOptimizer.optimize(graph, knowledges.KnowledgeGatherToSplit())
 
-    # Reshape data to 2-dim to accelerate the MatMul nodes and reduce the TransData nodes.
-    # 1. A MatMul node will be faster if its first input is 2-dim.
-    # 2. A LayerNorm node can process its input in NZ format only when the last two dims are 16-aligned. Otherwise,
-    #    TransData nodes need to be inserted to convert the input to ND format.
-    concat = graph.get_nodes('Concat')[0]
-    add = graph.get_next_nodes(concat.outputs[0])[0]
-    batch_size, seq_len, head_dim = graph.get_value_info(add.inputs[0]).shape
-    two_dim_shape = graph.add_initializer('two_dim_shape', np.array([batch_size * seq_len, head_dim]))
-    three_dim_shape = graph.add_initializer('three_dim_shape', np.array([batch_size, seq_len, head_dim]))
-    # Add a Reshape node after the last LayerNorm node.
-    reshape_before = graph.add_node(
-        'Reshape_before',
-        'Reshape',
-        inputs=[add.outputs[0], two_dim_shape.name],
-        outputs=['Reshape_before_output'],
-    )
-    for next_node in graph.get_next_nodes(add.outputs[0]):
-        _replace_input(next_node, add.outputs[0], reshape_before.outputs[0])
-    # Change the shape of the Reshape node after every Attention structure.
-    graph.update_map()  # Make sure the newly added Reshape nodes has correct outputs.
-    for reshape in graph.get_nodes('Reshape'):
-        if graph.get_next_nodes(reshape.outputs[0])[0].op_type == 'MatMul':
+    batch_size = graph.inputs[0].shape[0]
+    if batch_size % 16 == 0:
+        # Reshape data to 2-dim to accelerate the MatMul nodes and reduce the TransData nodes.
+        # 1. A MatMul node will be faster if its first input is 2-dim.
+        # 2. A LayerNorm node can process its input in NZ format only when the last two dims are 16-aligned. Otherwise,
+        #    TransData nodes need to be inserted to convert the input to ND format.
+        concat = graph.get_nodes('Concat')[0]
+        add = graph.get_next_nodes(concat.outputs[0])[0]
+        batch_size, seq_len, head_dim = graph.get_value_info(add.inputs[0]).shape
+        two_dim_shape = graph.add_initializer('two_dim_shape', np.array([batch_size * seq_len, head_dim]))
+        three_dim_shape = graph.add_initializer('three_dim_shape', np.array([batch_size, seq_len, head_dim]))
+        # Add a Reshape node before the first LayerNorm node.
+        reshape_before = graph.add_node(
+            'Reshape_before',
+            'Reshape',
+            inputs=[add.outputs[0], two_dim_shape.name],
+            outputs=['Reshape_before_output'],
+        )
+        for next_node in graph.get_next_nodes(add.outputs[0]):
+            _replace_input(next_node, add.outputs[0], reshape_before.outputs[0])
+        # Change the shape of the Reshape node after every Attention structure.
+        for fa in graph.get_nodes('FlashAttentionTik'):
+            transpose = graph.get_next_nodes(fa.outputs[0])[0]
+            reshape = graph.get_next_nodes(transpose.outputs[0])[0]
             reshape.inputs[1] = two_dim_shape.name
-    # Add a Reshape node after the last LayerNorm node.
-    output = graph.outputs[0]
-    add = graph.get_prev_node(output.name)
-    add.outputs[0] = 'Add_output'
-    graph.add_node(
-        'Reshape_after',
-        'Reshape',
-        inputs=[add.outputs[0], three_dim_shape.name],
-        outputs=[output.name],
-    )
+        # Add a Reshape node after the last LayerNorm node.
+        output = graph.outputs[0]
+        add = graph.get_prev_node(output.name)
+        add.outputs[0] = 'Add_output'
+        graph.add_node(
+            'Reshape_after',
+            'Reshape',
+            inputs=[add.outputs[0], three_dim_shape.name],
+            outputs=[output.name],
+        )
 
     # A Conv node's output is in NC1HWC0 format, and it will be faster if the W-dim of its output is 16-aligned. So pad
     # data to make it 16-aligned.
@@ -451,7 +455,7 @@ def _modify_visual_encoder(model_path, new_model_path):
     # From $W_{out} = \frac{W + p_w - k_w}{s_w} + 1$, we get $W = (W_{out} - 1)s_w + k_w - p_w$.
     new_input_w = (new_output_w - 1) * stride_w + kernel_w - pad_w
     reshape = graph.get_next_nodes(conv.outputs[0])[0]
-    input_ = conv.inputs[0]
+    # Add a Pad node before the Conv node.
     pad_before_initializer = graph.add_initializer(
         'pad_before_initializer',
         np.array([0, 0, 0, 0, 0, 0, 0, new_input_w - old_input_w]),
@@ -459,23 +463,36 @@ def _modify_visual_encoder(model_path, new_model_path):
     pad_before = graph.add_node(
         'Pad_before',
         'Pad',
-        inputs=[input_, pad_before_initializer.name],
+        inputs=[conv.inputs[0], pad_before_initializer.name],
         outputs=['Pad_before_output'],
     )
     conv.inputs[0] = pad_before.outputs[0]
-    split_after = graph.add_node(
-        'Split_after',
-        'Split',
-        inputs=[conv.outputs[0]],
-        outputs=['Split_after_output_0', 'Split_after_output_1'],
-        attrs={'axis': 3, 'split': [old_input_w // block_size, (new_input_w - old_input_w) // block_size]},
-    )
+    # Add a Split node after the Conv node.
+    split_name = 'Split_after'
+    split_value = [old_input_w // block_size, (new_input_w - old_input_w) // block_size]
+    if graph.opset_imports[0].version >= 13:
+        split_initializer = graph.add_initializer(split_name + '_split', np.array(split_value))
+        split_after = graph.add_node(
+            split_name,
+            'Split',
+            inputs=[conv.outputs[0], split_initializer.name],
+            outputs=[split_name + '_output_0', split_name + '_output_1'],
+            attrs={'axis': 3},
+        )
+    else:
+        split_after = graph.add_node(
+            split_name,
+            'Split',
+            inputs=[conv.outputs[0]],
+            outputs=[split_name + '_output_0', split_name + '_output_1'],
+            attrs={'axis': 3, 'split': split_value},
+        )
     reshape.inputs[0] = split_after.outputs[0]
 
     graph.save(new_model_path)
 
 
-def _modify_text_encoder(model_path, new_model_path):
+def _modify_text_encoder(model_path: str, new_model_path: str) -> None:
     graph = auto_optimizer.OnnxGraph.parse(model_path)
 
     # Remove the unused inputs.
@@ -492,46 +509,48 @@ def _modify_text_encoder(model_path, new_model_path):
     optimizer.GraphOptimizer.optimize(graph, KnowledgeFlashAttentionSoftmaxFp32())
     optimizer.GraphOptimizer.optimize(graph, KnowledgeMultiTile())
 
-    # Reshape data to 2-dim to accelerate the MatMul nodes and reduce the TransData nodes.
-    # 1. A MatMul node will be faster if its first input is 2-dim.
-    # 2. A LayerNorm node can process its input in NZ format only when the last two dims are 16-aligned. Otherwise,
-    #    TransData nodes need to be inserted to convert the input to ND format.
-    node = graph.get_next_nodes('input_ids')[0]
-    while node.op_type != 'Add':
-        node = graph.get_next_nodes(node.outputs[0])[0]
-    add = node
-    batch_size, seq_len, head_dim = graph.get_value_info(add.inputs[0]).shape
-    two_dim_shape = graph.add_initializer('two_dim_shape', np.array([batch_size * seq_len, head_dim]))
-    three_dim_shape = graph.add_initializer('three_dim_shape', np.array([batch_size, seq_len, head_dim]))
-    # Add a Reshape node before the first LayerNorm node.
-    reshape_before = graph.add_node(
-        'Reshape_before',
-        'Reshape',
-        inputs=[add.outputs[0], two_dim_shape.name],
-        outputs=['Reshape_before_output'],
-    )
-    for next_node in graph.get_next_nodes(add.outputs[0]):
-        _replace_input(next_node, add.outputs[0], reshape_before.outputs[0])
-    # Change the shape of the Reshape node after every Attention structure.
-    for fa in graph.get_nodes('FlashAttentionTik'):
-        transpose = graph.get_next_nodes(fa.outputs[0])[0]
-        reshape = graph.get_next_nodes(transpose.outputs[0])[0]
-        reshape.inputs[1] = two_dim_shape.name
-    for fa in graph.get_nodes('FlashAttentionSoftmaxFp32'):
-        reshape_fa_output = graph.get_next_nodes(fa.outputs[0])[0]
-        transpose = graph.get_next_nodes(reshape_fa_output.outputs[0])[0]
-        reshape = graph.get_next_nodes(transpose.outputs[0])[0]
-        reshape.inputs[1] = two_dim_shape.name
-    # Add a Reshape node after the last LayerNorm node.
-    output = graph.outputs[0]
-    node = graph.get_prev_node(output.name)
-    node.outputs[0] = 'Add_output'
-    reshape_after = graph.add_node(
-        'Reshape_after',
-        'Reshape',
-        inputs=[node.outputs[0], three_dim_shape.name],
-        outputs=[output.name],
-    )
+    batch_size = graph.inputs[0].shape[0]
+    if batch_size % 16 == 0:
+        # Reshape data to 2-dim to accelerate the MatMul nodes and reduce the TransData nodes.
+        # 1. A MatMul node will be faster if its first input is 2-dim.
+        # 2. A LayerNorm node can process its input in NZ format only when the last two dims are 16-aligned. Otherwise,
+        #    TransData nodes need to be inserted to convert the input to ND format.
+        node = graph.get_next_nodes('input_ids')[0]
+        while node.op_type != 'Add':
+            node = graph.get_next_nodes(node.outputs[0])[0]
+        add = node
+        batch_size, seq_len, head_dim = graph.get_value_info(add.inputs[0]).shape
+        two_dim_shape = graph.add_initializer('two_dim_shape', np.array([batch_size * seq_len, head_dim]))
+        three_dim_shape = graph.add_initializer('three_dim_shape', np.array([batch_size, seq_len, head_dim]))
+        # Add a Reshape node before the first LayerNorm node.
+        reshape_before = graph.add_node(
+            'Reshape_before',
+            'Reshape',
+            inputs=[add.outputs[0], two_dim_shape.name],
+            outputs=['Reshape_before_output'],
+        )
+        for next_node in graph.get_next_nodes(add.outputs[0]):
+            _replace_input(next_node, add.outputs[0], reshape_before.outputs[0])
+        # Change the shape of the Reshape node after every Attention structure.
+        for fa in graph.get_nodes('FlashAttentionTik'):
+            transpose = graph.get_next_nodes(fa.outputs[0])[0]
+            reshape = graph.get_next_nodes(transpose.outputs[0])[0]
+            reshape.inputs[1] = two_dim_shape.name
+        for fa in graph.get_nodes('FlashAttentionSoftmaxFp32'):
+            reshape_fa_output = graph.get_next_nodes(fa.outputs[0])[0]
+            transpose = graph.get_next_nodes(reshape_fa_output.outputs[0])[0]
+            reshape = graph.get_next_nodes(transpose.outputs[0])[0]
+            reshape.inputs[1] = two_dim_shape.name
+        # Add a Reshape node after the last LayerNorm node.
+        output = graph.outputs[0]
+        node = graph.get_prev_node(output.name)
+        node.outputs[0] = 'Add_output'
+        graph.add_node(
+            'Reshape_after',
+            'Reshape',
+            inputs=[node.outputs[0], three_dim_shape.name],
+            outputs=[output.name],
+        )
 
     # Why don't reshape data to 2-dim to accelerate the MatMul nodes after the input image_embeds?
     # If you do this, it will cause the MTE2 time of the Transpose nodes after the MatMul nodes to taker longer, and the
@@ -540,7 +559,7 @@ def _modify_text_encoder(model_path, new_model_path):
     graph.save(new_model_path)
 
 
-def _modify_text_decoder_1(model_path, new_model_path):
+def _modify_text_decoder_rank_1(model_path: str, new_model_path: str) -> None:
     graph = auto_optimizer.OnnxGraph.parse(model_path)
 
     # Why don't apply KnowledgeFlashAttentionTik and KnowledgeFlashAttentionSoftmaxFp32?
@@ -562,7 +581,7 @@ def _modify_text_decoder_1(model_path, new_model_path):
     graph.save(new_model_path)
 
 
-def _modify_text_decoder_2(model_path, new_model_path):
+def _modify_text_decoder_rank_2(model_path: str, new_model_path: str) -> None:
     graph = auto_optimizer.OnnxGraph.parse(model_path)
 
     optimizer.GraphOptimizer.optimize(graph, KnowledgeMoveMulOrDivBeforeMatmul())
@@ -597,31 +616,38 @@ def _modify_text_decoder_2(model_path, new_model_path):
     graph.save(new_model_path)
 
 
-def main(model_dir):
-    visual_encoder_sim = os.path.join(model_dir, 'visual_encoder_sim.onnx')
-    visual_encoder_md = os.path.join(model_dir, 'visual_encoder_md.onnx')
+def main(args: argparse.Namespace) -> None:
+    visual_encoder_sim = os.path.join(args.model_dir, 'visual_encoder_sim.onnx')
+    visual_encoder_md = os.path.join(args.model_dir, 'visual_encoder_md.onnx')
     _modify_visual_encoder(visual_encoder_sim, visual_encoder_md)
 
-    text_encoder_sim = os.path.join(model_dir, 'text_encoder_sim.onnx')
-    text_encoder_md = os.path.join(model_dir, 'text_encoder_md.onnx')
+    text_encoder_sim = os.path.join(args.model_dir, 'text_encoder_sim.onnx')
+    text_encoder_md = os.path.join(args.model_dir, 'text_encoder_md.onnx')
     _modify_text_encoder(text_encoder_sim, text_encoder_md)
 
-    text_decoder_1_sim = os.path.join(model_dir, 'text_decoder_1_sim.onnx')
-    text_decoder_1_md = os.path.join(model_dir, 'text_decoder_1_md.onnx')
-    _modify_text_decoder_1(text_decoder_1_sim, text_decoder_1_md)
+    if args.infer_mode == 'rank':
+        text_decoder_rank_1_sim = os.path.join(args.model_dir, 'text_decoder_rank_1_sim.onnx')
+        text_decoder_rank_1_md = os.path.join(args.model_dir, 'text_decoder_rank_1_md.onnx')
+        _modify_text_decoder_rank_1(text_decoder_rank_1_sim, text_decoder_rank_1_md)
 
-    text_decoder_2_sim = os.path.join(model_dir, 'text_decoder_2_sim.onnx')
-    text_decoder_2_md = os.path.join(model_dir, 'text_decoder_2_md.onnx')
-    _modify_text_decoder_2(text_decoder_2_sim, text_decoder_2_md)
+        text_decoder_rank_2_sim = os.path.join(args.model_dir, 'text_decoder_rank_2_sim.onnx')
+        text_decoder_rank_2_md = os.path.join(args.model_dir, 'text_decoder_rank_2_md.onnx')
+        _modify_text_decoder_rank_2(text_decoder_rank_2_sim, text_decoder_rank_2_md)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument(
+        '--infer_mode',
+        choices=['rank', 'generate'],
+        default='rank',
+        help='Mode of inference.',
+    )
+    parser.add_argument(
         '--model_dir',
         type=str,
-        default='blip_models',
+        default='ascend_models',
         help='Path of ONNX models.',
     )
     args = parser.parse_args()
-    main(args.model_dir)
+    main(args)
