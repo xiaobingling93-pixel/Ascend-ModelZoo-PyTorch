@@ -48,7 +48,7 @@ class PromptLoader:
             self.load_prompts_parti(prompt_file, max_num_prompts)
 
         elif prompt_file_type == 'hpsv2':
-            self.load_prompts_hpsv2(max_num_prompts, max_num_prompts)
+            self.load_prompts_hpsv2(prompt_file, max_num_prompts)
 
         self.current_id = 0
         self.inner_id = 0
@@ -115,10 +115,14 @@ class PromptLoader:
                 catagory_id = self.catagories.index(catagory)
                 self.prompts.append((prompt, catagory_id))
 
-    def load_prompts_hpsv2(self, file_path: str, max_num_prompts: int):
-        all_prompts = hpsv2.benchmark_prompts('all')
+    def load_prompts_hpsv2(self, root_path: str, max_num_prompts: int):
+        hpsv2_style = ['anime', 'concept-art', 'paintings', 'photo']
         count = 0
-        for style, prompts in all_prompts.items():
+        for style in hpsv2_style:
+            file_path = os.path.join(root_path, f'{style}.json')
+            with os.fdopen(os.open(file_path, os.O_RDONLY), "r") as f:
+                prompts = json.load(f)
+                
             for prompt in prompts:
                 count += 1
                 if max_num_prompts and count >= max_num_prompts:

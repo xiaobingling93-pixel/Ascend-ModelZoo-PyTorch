@@ -403,11 +403,27 @@
 
    注意，由于要生成的图片数量较多，进行完整的精度验证需要耗费很长的时间。
 
-   1. 下载Parti数据集
+   1. 下载数据集
 
-      ```bash
-      wget https://raw.githubusercontent.com/google-research/parti/main/PartiPrompts.tsv --no-check-certificate
-      ```
+      1. 下载Parti数据集
+
+         ```bash
+         wget https://raw.githubusercontent.com/google-research/parti/main/PartiPrompts.tsv --no-check-certificate
+         ```
+      2. 下载HPSv2数据集
+         
+         下载[HPSv2数据集](https://huggingface.co/datasets/zhwang/HPDv2/tree/main/benchmark)中的anime.json, concept-art.json, paintings.json, photo.json文件，并放在数据集路径`dataset`下
+         ```bash
+         mkdir dataset
+         ```
+         得到的hpsv2数据集目录（文件名称需与以下目录结构中文件名称保持一致）
+         ```
+         |—— dataset
+            |—— anime.json
+            |—— concept-art.json
+            |—— paintings.json
+            |—— photo.json
+         ```
 
    2. 下载模型权重
 
@@ -461,6 +477,7 @@
               --model ${model_base} \
               --model_dir ./models \
               --prompt_file_type hpsv2 \
+              --prompt_file ./dataset \
               --max_num_prompts 0 \
               --device 0 \
               --save_dir ./results \
@@ -473,6 +490,7 @@
               --model ${model_base} \
               --model_dir ./models \
               --prompt_file_type hpsv2 \
+              --prompt_file ./dataset \
               --max_num_prompts 0 \
               --device 0,1 \
               --save_dir ./results \
@@ -484,7 +502,7 @@
       参数说明：
       - --model：模型名称或本地模型目录的路径。
       - --model_dir：存放导出模型的目录。
-      - --prompt_file：提示词文件。
+      - --prompt_file：提示词文件路径。如果是hpsv2数据集，提供提示词文件所在目录路径。
       - --prompt_file_type: prompt文件类型，用于指定读取方式，可选plain，parti，hpsv2。
       - --num_images_per_prompt: 每个prompt生成的图片数量。
       - --max_num_prompts：限制prompt数量为前X个，0表示不限制。
