@@ -77,7 +77,7 @@ def export_torchscript(model, im, file, optimize, prefix=colorstr('TorchScript:'
     ts = torch.jit.trace(model, im, strict=False)
     d = {"shape": im.shape, "stride": int(max(model.stride)), "names": model.names}
     extra_files = {'config.txt': json.dumps(d)}  # torch._C.ExtraFilesMap()
-    if optimize:  # https://pytorch.org/tutorials/recipes/mobile_interpreter.html
+    if optimize:
         optimize_for_mobile(ts)._save_for_lite_interpreter(str(f), _extra_files=extra_files)
     else:
         ts.save(str(f), _extra_files=extra_files)
@@ -201,7 +201,7 @@ def export_onnx_end2end(model, im, file, simplify, topk_all, iou_thres, conf_thr
 @try_export
 def export_openvino(file, metadata, half, prefix=colorstr('OpenVINO:')):
     # YOLO OpenVINO export
-    check_requirements('openvino-dev')  # requires openvino-dev: https://pypi.org/project/openvino-dev/
+    check_requirements('openvino-dev')  # requires openvino-dev
     import openvino.inference_engine as ie
 
     LOGGER.info(f'\n{prefix} starting export with openvino {ie.__version__}...')
@@ -256,7 +256,7 @@ def export_coreml(model, im, file, int8, half, prefix=colorstr('CoreML:')):
 
 @try_export
 def export_engine(model, im, file, half, dynamic, simplify, workspace=4, verbose=False, prefix=colorstr('TensorRT:')):
-    # YOLO TensorRT export https://developer.nvidia.com/tensorrt
+    # YOLO TensorRT
     assert im.device.type != 'cpu', 'export running on CPU but must be on GPU, i.e. `python export.py --device 0`'
     try:
         import tensorrt as trt
@@ -265,7 +265,7 @@ def export_engine(model, im, file, half, dynamic, simplify, workspace=4, verbose
             check_requirements('nvidia-tensorrt', cmds='-U --index-url https://pypi.ngc.nvidia.com')
         import tensorrt as trt
 
-    if trt.__version__[0] == '7':  # TensorRT 7 handling https://github.com/ultralytics/yolov5/issues/6012
+    if trt.__version__[0] == '7':  # TensorRT 7
         grid = model.model[-1].anchor_grid
         model.model[-1].anchor_grid = [a[..., :1, :1, :] for a in grid]
         export_onnx(model, im, file, 12, dynamic, simplify)  # opset 12
@@ -370,7 +370,7 @@ def export_saved_model(model,
 
 @try_export
 def export_pb(keras_model, file, prefix=colorstr('TensorFlow GraphDef:')):
-    # YOLO TensorFlow GraphDef *.pb export https://github.com/leimao/Frozen_Graph_TensorFlow
+    # YOLO TensorFlow GraphDef *.pb
     import tensorflow as tf
     from tensorflow.python.framework.convert_to_constants import convert_variables_to_constants_v2
 
@@ -418,7 +418,7 @@ def export_tflite(keras_model, im, file, int8, data, nms, agnostic_nms, prefix=c
 
 @try_export
 def export_edgetpu(file, prefix=colorstr('Edge TPU:')):
-    # YOLO Edge TPU export https://coral.ai/docs/edgetpu/models-intro/
+    # YOLO Edge TPU
     cmd = 'edgetpu_compiler --version'
     help_url = 'https://coral.ai/docs/edgetpu/compiler/'
     assert platform.system() == 'Linux', f'export only supported on Linux. See {help_url}'
@@ -471,7 +471,7 @@ def export_tfjs(file, prefix=colorstr('TensorFlow.js:')):
 
 
 def add_tflite_metadata(file, metadata, num_outputs):
-    # Add metadata to *.tflite models per https://www.tensorflow.org/lite/models/convert/metadata
+    # Add metadata to *.tflite models
     with contextlib.suppress(ImportError):
         # check_requirements('tflite_support')
         from tflite_support import flatbuffers

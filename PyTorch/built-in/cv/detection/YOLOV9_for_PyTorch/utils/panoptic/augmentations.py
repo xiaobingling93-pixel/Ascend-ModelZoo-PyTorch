@@ -10,7 +10,7 @@ from ..metrics import bbox_ioa
 
 
 def mixup(im, labels, segments, seg_cls, semantic_masks, im2, labels2, segments2, seg_cls2, semantic_masks2):
-    # Applies MixUp augmentation https://arxiv.org/pdf/1710.09412.pdf
+    # Applies MixUp augmentation
     r = np.random.beta(32.0, 32.0)  # mixup ratio, alpha=beta=32.0
     im = (im * r + im2 * (1 - r)).astype(np.uint8)
     labels = np.concatenate((labels, labels2), 0)
@@ -157,7 +157,7 @@ def letterbox(im, new_shape=(640, 640), color=(114, 114, 114), auto=True, scaleF
 
 
 def copy_paste(im, labels, segments, seg_cls, semantic_masks, p=0.5):
-    # Implement Copy-Paste augmentation https://arxiv.org/abs/2012.07177, labels as nx5 np.array(cls, xyxy)
+    # Implement Copy-Paste augmentation, labels as nx5 np.array(cls, xyxy)
     n = len(segments)
     if p and n:
         h, w, _ = im.shape  # height, width, channels

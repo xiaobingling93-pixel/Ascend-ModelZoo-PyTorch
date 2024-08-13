@@ -1,3 +1,4 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 import os
 
 import torch
@@ -11,13 +12,12 @@ from utils.tal.assigner import TaskAlignedAssigner
 from utils.torch_utils import de_parallel
 
 
-def smooth_BCE(eps=0.1):  # https://github.com/ultralytics/yolov3/issues/238#issuecomment-598028441
+def smooth_BCE(eps=0.1):
     # return positive, negative label smoothing BCE targets
     return 1.0 - 0.5 * eps, 0.5 * eps
 
 
 class VarifocalLoss(nn.Module):
-    # Varifocal loss by Zhang et al. https://arxiv.org/abs/2008.13367
     def __init__(self):
         super().__init__()
 
@@ -44,7 +44,6 @@ class FocalLoss(nn.Module):
         # p_t = torch.exp(-loss)
         # loss *= self.alpha * (1.000001 - p_t) ** self.gamma  # non-zero power for gradient stability
 
-        # TF implementation https://github.com/tensorflow/addons/blob/v0.7.1/tensorflow_addons/losses/focal_loss.py
         pred_prob = torch.sigmoid(pred)  # prob from logits
         p_t = true * pred_prob + (1 - true) * (1 - pred_prob)
         alpha_factor = true * self.alpha + (1 - true) * (1 - self.alpha)
@@ -68,9 +67,9 @@ class BboxLoss(nn.Module):
     def forward(self, pred_dist, pred_bboxes, anchor_points, target_bboxes, target_scores, target_scores_sum, fg_mask):
         # iou loss
         bbox_mask = fg_mask.unsqueeze(-1).repeat([1, 1, 4])  # (b, h*w, 4)
-        pred_bboxes_pos = torch.masked_select(pred_bboxes, bbox_mask).view(-1, 4)
-        target_bboxes_pos = torch.masked_select(target_bboxes, bbox_mask).view(-1, 4)
-        bbox_weight = torch.masked_select(target_scores.sum(-1), fg_mask).unsqueeze(-1)
+        pred_bboxes_pos = pred_bboxes.view(-1).index_select(0, bbox_mask.view(-1).nonzero().squeeze()).view(-1, 4)
+        target_bboxes_pos = target_bboxes.view(-1).index_select(0, bbox_mask.view(-1).nonzero().squeeze()).view(-1, 4)
+        bbox_weight = target_scores.sum(-1).view(-1).index_select(0, fg_mask.view(-1).nonzero().squeeze()).unsqueeze(-1)
         
         iou = bbox_iou(pred_bboxes_pos, target_bboxes_pos, xywh=False, CIoU=True)
         loss_iou = 1.0 - iou
@@ -81,9 +80,9 @@ class BboxLoss(nn.Module):
         # dfl loss
         if self.use_dfl:
             dist_mask = fg_mask.unsqueeze(-1).repeat([1, 1, (self.reg_max + 1) * 4])
-            pred_dist_pos = torch.masked_select(pred_dist, dist_mask).view(-1, 4, self.reg_max + 1)
+            pred_dist_pos = pred_dist.view(-1).index_select(0, dist_mask.view(-1).nonzero().squeeze()).view(-1, 4, self.reg_max + 1)
             target_ltrb = bbox2dist(anchor_points, target_bboxes, self.reg_max)
-            target_ltrb_pos = torch.masked_select(target_ltrb, bbox_mask).view(-1, 4)
+            target_ltrb_pos = target_ltrb.view(-1).index_select(0, bbox_mask.view(-1).nonzero().squeeze()).view(-1, 4)
             loss_dfl = self._df_loss(pred_dist_pos, target_ltrb_pos) * bbox_weight
             loss_dfl = loss_dfl.sum() / target_scores_sum
         else:
@@ -112,7 +111,7 @@ class ComputeLoss:
         # Define criteria
         BCEcls = nn.BCEWithLogitsLoss(pos_weight=torch.tensor([h["cls_pw"]], device=device), reduction='none')
 
-        # Class label smoothing https://arxiv.org/pdf/1902.04103.pdf eqn 3
+        # Class label smoothing
         self.cp, self.cn = smooth_BCE(eps=h.get("label_smoothing", 0.0))  # positive, negative BCE targets
 
         # Focal loss
@@ -260,7 +259,7 @@ class ComputeLossLH:
         # Define criteria
         BCEcls = nn.BCEWithLogitsLoss(pos_weight=torch.tensor([h["cls_pw"]], device=device), reduction='none')
 
-        # Class label smoothing https://arxiv.org/pdf/1902.04103.pdf eqn 3
+        # Class label smoothing
         self.cp, self.cn = smooth_BCE(eps=h.get("label_smoothing", 0.0))  # positive, negative BCE targets
 
         # Focal loss

@@ -115,9 +115,6 @@ class WandbLogger():
 
     By providing additional command line arguments to train.py, datasets,
     models and predictions can also be logged.
-
-    For more on how this logger is used, see the Weights & Biases documentation:
-    https://docs.wandb.com/guides/integrations/yolov5
     """
 
     def __init__(self, opt, run_id=None, job_type='Training'):
@@ -576,7 +573,7 @@ class WandbLogger():
 
 @contextmanager
 def all_logging_disabled(highest_level=logging.CRITICAL):
-    """ source - https://gist.github.com/simon-weber/7853144
+    """
     A context manager that will prevent any logging messages triggered during the body from being processed.
     :param highest_level: the maximum logging level in use.
       This would only need to be changed if a custom level greater than CRITICAL is defined.

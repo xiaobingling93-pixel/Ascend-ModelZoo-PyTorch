@@ -233,7 +233,7 @@ def random_perspective(im,
 
 
 def copy_paste(im, labels, segments, p=0.5):
-    # Implement Copy-Paste augmentation https://arxiv.org/abs/2012.07177, labels as nx5 np.array(cls, xyxy)
+    # Implement Copy-Paste augmentation, labels as nx5 np.array(cls, xyxy)
     n = len(segments)
     if p and n:
         h, w, c = im.shape  # height, width, channels
@@ -258,7 +258,7 @@ def copy_paste(im, labels, segments, p=0.5):
 
 
 def cutout(im, labels, p=0.5):
-    # Applies image cutout augmentation https://arxiv.org/abs/1708.04552
+    # Applies image cutout augmentation
     if random.random() < p:
         h, w = im.shape[:2]
         scales = [0.5] * 1 + [0.25] * 2 + [0.125] * 4 + [0.0625] * 8 + [0.03125] * 16  # image size fraction
@@ -285,7 +285,7 @@ def cutout(im, labels, p=0.5):
 
 
 def mixup(im, labels, im2, labels2):
-    # Applies MixUp augmentation https://arxiv.org/pdf/1710.09412.pdf
+    # Applies MixUp augmentation
     r = np.random.beta(32.0, 32.0)  # mixup ratio, alpha=beta=32.0
     im = (im * r + im2 * (1 - r)).astype(np.uint8)
     labels = np.concatenate((labels, labels2), 0)

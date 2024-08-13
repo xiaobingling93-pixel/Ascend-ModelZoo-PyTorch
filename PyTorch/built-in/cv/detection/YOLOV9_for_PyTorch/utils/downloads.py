@@ -20,12 +20,12 @@ def is_url(url, check=True):
 
 
 def gsutil_getsize(url=''):
-    # gs://bucket/file size https://cloud.google.com/storage/docs/gsutil/commands/du
+    # gs://bucket/file size
     s = subprocess.check_output(f'gsutil du {url}', shell=True).decode('utf-8')
     return eval(s.split(' ')[0]) if len(s) else 0  # bytes
 
 
-def url_getsize(url='https://ultralytics.com/images/bus.jpg'):
+def url_getsize(url):
     # Return downloadable file size in bytes
     response = requests.head(url, allow_redirects=True)
     return int(response.headers.get('content-length', -1))
@@ -93,11 +93,10 @@ def attempt_download(file, repo='ultralytics/yolov5', release='v7.0'):
 
         file.parent.mkdir(parents=True, exist_ok=True)  # make parent dir (if required)
         if name in assets:
-            url3 = 'https://drive.google.com/drive/folders/1EFQTEUeXWSFww0luse2jB9M1QNZQGwNl'  # backup gdrive mirror
             safe_download(
                 file,
                 url=f'https://github.com/{repo}/releases/download/{tag}/{name}',
                 min_bytes=1E5,
-                error_msg=f'{file} missing, try downloading from https://github.com/{repo}/releases/{tag} or {url3}')
+                error_msg=f'{file} missing, try downloading from https://github.com/{repo}/releases/download/{tag}/{name}')
 
     return str(file)

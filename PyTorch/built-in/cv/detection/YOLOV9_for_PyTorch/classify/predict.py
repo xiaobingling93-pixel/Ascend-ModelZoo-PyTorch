@@ -9,7 +9,7 @@ Usage - sources:
                                                                    screen                          # screenshot
                                                                    path/                           # directory
                                                                    'path/*.jpg'                    # glob
-                                                                   'https://youtu.be/Zgi9g1ksQHc'  # YouTube
+                                                                   'https://www.123456.com'        # 123456
                                                                    'rtsp://example.com/media.mp4'  # RTSP, RTMP, HTTP stream
 
 Usage - formats:

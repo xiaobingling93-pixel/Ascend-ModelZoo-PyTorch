@@ -58,7 +58,6 @@ class TFConv(keras.layers.Layer):
         super().__init__()
         assert g == 1, "TF v2.2 Conv2D does not support 'groups' argument"
         # TensorFlow convolution padding is inconsistent with PyTorch (e.g. k=3 s=2 'SAME' padding)
-        # see https://stackoverflow.com/questions/52975843/comparing-conv2d-with-padding-between-tensorflow-and-pytorch
         conv = keras.layers.Conv2D(
             filters=c2,
             kernel_size=k,
@@ -178,7 +177,6 @@ class TFConv2d(keras.layers.Layer):
 
 
 class TFBottleneckCSP(keras.layers.Layer):
-    # CSP Bottleneck https://github.com/WongKinYiu/CrossStagePartialNetworks
     def __init__(self, c1, c2, n=1, shortcut=True, g=1, e=0.5, w=None):
         # ch_in, ch_out, number, shortcut, groups, expansion
         super().__init__()
@@ -492,7 +490,7 @@ class TFModel:
 class AgnosticNMS(keras.layers.Layer):
     # TF Agnostic NMS
     def call(self, input, topk_all, iou_thres, conf_thres):
-        # wrap map_fn to avoid TypeSpec related error https://stackoverflow.com/a/65809989/3036450
+        # wrap map_fn to avoid TypeSpec related error
         return tf.map_fn(lambda x: self._nms(x, topk_all, iou_thres, conf_thres),
                          input,
                          fn_output_signature=(tf.float32, tf.float32, tf.float32, tf.int32),

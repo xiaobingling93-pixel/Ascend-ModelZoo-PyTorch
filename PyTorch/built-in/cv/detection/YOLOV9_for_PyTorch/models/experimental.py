@@ -8,7 +8,7 @@ from utils.downloads import attempt_download
 
 
 class Sum(nn.Module):
-    # Weighted sum of 2 or more layers https://arxiv.org/abs/1911.09070
+    # Weighted sum of 2 or more layers
     def __init__(self, n, weight=False):  # n: number of inputs
         super().__init__()
         self.weight = weight  # apply weights boolean
@@ -29,7 +29,7 @@ class Sum(nn.Module):
 
 
 class MixConv2d(nn.Module):
-    # Mixed Depth-wise Conv https://arxiv.org/abs/1907.09595
+    # Mixed Depth-wise Conv
     def __init__(self, c1, c2, k=(1, 3), s=1, equal_ch=True):  # ch_in, ch_out, kernel, stride, ch_strategy
         super().__init__()
         n = len(k)  # number of convolutions
@@ -154,8 +154,6 @@ class ONNX_ORT(nn.Module):
         self.n_classes=n_classes
 
     def forward(self, x):
-        ## https://github.com/thaitc-hust/yolov9-tensorrt/blob/main/torch2onnx.py
-        ## thanks https://github.com/thaitc-hust
         if isinstance(x, list):  ## yolov9-c.pt and yolov9-e.pt return list
             x = x[1]
         x = x.permute(0, 2, 1)
@@ -197,8 +195,6 @@ class ONNX_TRT(nn.Module):
         self.n_classes=n_classes
 
     def forward(self, x):
-        ## https://github.com/thaitc-hust/yolov9-tensorrt/blob/main/torch2onnx.py
-        ## thanks https://github.com/thaitc-hust
         if isinstance(x, list):  ## yolov9-c.pt and yolov9-e.pt return list
             x = x[1]
         x = x.permute(0, 2, 1)

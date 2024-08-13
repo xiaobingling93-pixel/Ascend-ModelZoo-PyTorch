@@ -1,3 +1,4 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 import contextlib
 import glob
 import inspect
@@ -29,6 +30,7 @@ import pandas as pd
 import pkg_resources as pkg
 import torch
 import torchvision
+import torchvision_npu
 import yaml
 
 from utils import TryExcept, emojis
@@ -45,7 +47,7 @@ DATASETS_DIR = Path(os.getenv('YOLOv5_DATASETS_DIR', ROOT.parent / 'datasets')) 
 AUTOINSTALL = str(os.getenv('YOLOv5_AUTOINSTALL', True)).lower() == 'true'  # global auto-install mode
 VERBOSE = str(os.getenv('YOLOv5_VERBOSE', True)).lower() == 'true'  # global verbose mode
 TQDM_BAR_FORMAT = '{l_bar}{bar:10}| {n_fmt}/{total_fmt} {elapsed}'  # tqdm bar format
-FONT = 'Arial.ttf'  # https://ultralytics.com/assets/Arial.ttf
+FONT = 'Arial.ttf'
 
 torch.set_printoptions(linewidth=320, precision=5, profile='long')
 np.set_printoptions(linewidth=320, formatter={'float_kind': '{:11.5g}'.format})  # format short g, %precision=5
@@ -66,20 +68,10 @@ def is_chinese(s='人工智能'):
     return bool(re.search('[\u4e00-\u9fff]', str(s)))
 
 
-def is_colab():
-    # Is environment a Google Colab instance?
-    return 'google.colab' in sys.modules
-
-
 def is_notebook():
     # Is environment a Jupyter notebook? Verified on Colab, Jupyterlab, Kaggle, Paperspace
     ipython_type = str(type(IPython.get_ipython()))
     return 'colab' in ipython_type or 'zmqshell' in ipython_type
-
-
-def is_kaggle():
-    # Is environment a Kaggle Notebook?
-    return os.environ.get('PWD') == '/kaggle/working' and os.environ.get('KAGGLE_URL_BASE') == 'https://www.kaggle.com'
 
 
 def is_docker() -> bool:
@@ -231,14 +223,14 @@ def print_args(args: Optional[dict] = None, show_file=True, show_func=False):
 
 
 def init_seeds(seed=0, deterministic=False):
-    # Initialize random number generator (RNG) seeds https://pytorch.org/docs/stable/notes/randomness.html
+    # Initialize random number generator (RNG)
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)  # for Multi-GPU, exception safe
-    # torch.backends.cudnn.benchmark = True  # AutoBatch problem https://github.com/ultralytics/yolov5/issues/9287
-    if deterministic and check_version(torch.__version__, '1.12.0'):  # https://github.com/ultralytics/yolov5/pull/8213
+    # torch.backends.cudnn.benchmark = True  # AutoBatch problem
+    if deterministic and check_version(torch.__version__, '1.12.0'):
         torch.use_deterministic_algorithms(True)
         torch.backends.cudnn.deterministic = True
         os.environ['CUBLAS_WORKSPACE_CONFIG'] = ':4096:8'
@@ -302,7 +294,7 @@ def check_online():
 
 
 def git_describe(path=ROOT):  # path must be a directory
-    # Return human-readable git description, i.e. v5.0-5-g3e25f1e https://git-scm.com/docs/git-describe
+    # Return human-readable git description
     try:
         assert (Path(path) / '.git').is_dir()
         return check_output(f'git -C {path} describe --tags --long --always', shell=True).decode()[:-1]
@@ -674,18 +666,18 @@ def clean_str(s):
 
 
 def one_cycle(y1=0.0, y2=1.0, steps=100):
-    # lambda function for sinusoidal ramp from y1 to y2 https://arxiv.org/pdf/1812.01187.pdf
+    # lambda function for sinusoidal ramp from y1 to y2
     return lambda x: ((1 - math.cos(x * math.pi / steps)) / 2) * (y2 - y1) + y1
 
 
 def one_flat_cycle(y1=0.0, y2=1.0, steps=100):
-    # lambda function for sinusoidal ramp from y1 to y2 https://arxiv.org/pdf/1812.01187.pdf
+    # lambda function for sinusoidal ramp from y1 to y2
     #return lambda x: ((1 - math.cos(x * math.pi / steps)) / 2) * (y2 - y1) + y1
     return lambda x: ((1 - math.cos((x - (steps // 2)) * math.pi / (steps // 2))) / 2) * (y2 - y1) + y1 if (x > (steps // 2)) else y1
 
 
 def colorstr(*input):
-    # Colors a string https://en.wikipedia.org/wiki/ANSI_escape_code, i.e.  colorstr('blue', 'hello world')
+    # Colors a string, i.e.  colorstr('blue', 'hello world')
     *args, string = input if len(input) > 1 else ('blue', 'bold', input[0])  # color arguments, string
     colors = {
         'black': '\033[30m',  # basic colors
@@ -737,7 +729,6 @@ def labels_to_image_weights(labels, nc=80, class_weights=np.ones(80)):
 
 
 def coco80_to_coco91_class():  # converts 80-index (val2014) to 91-index (paper)
-    # https://tech.amikelive.com/node-718/what-object-categories-labels-are-in-coco-dataset/
     # a = np.loadtxt('data/coco.names', dtype='str', delimiter='\n')
     # b = np.loadtxt('data/coco_paper.names', dtype='str', delimiter='\n')
     # x1 = [list(a[i] == b).index(True) + 1 for i in range(80)]  # darknet to coco

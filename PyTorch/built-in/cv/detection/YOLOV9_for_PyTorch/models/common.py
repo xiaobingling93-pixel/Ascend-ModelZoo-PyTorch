@@ -85,7 +85,6 @@ class ADown(nn.Module):
 
 class RepConvN(nn.Module):
     """RepConv is a basic rep-style block, including training and deploy status
-    This code is based on https://github.com/DingXiaoH/RepVGG/blob/main/repvgg.py
     """
     default_act = nn.SiLU()  # default activation
 
@@ -338,7 +337,6 @@ class RepNRes(nn.Module):
 
 
 class BottleneckCSP(nn.Module):
-    # CSP Bottleneck https://github.com/WongKinYiu/CrossStagePartialNetworks
     def __init__(self, c1, c2, n=1, shortcut=True, g=1, e=0.5):  # ch_in, ch_out, number, shortcut, groups, expansion
         super().__init__()
         c_ = int(c2 * e)  # hidden channels
@@ -399,7 +397,7 @@ class CSPBase(nn.Module):
 
 
 class SPP(nn.Module):
-    # Spatial Pyramid Pooling (SPP) layer https://arxiv.org/abs/1406.4729
+    # Spatial Pyramid Pooling (SPP) layer
     def __init__(self, c1, c2, k=(5, 9, 13)):
         super().__init__()
         c_ = c1 // 2  # hidden channels
@@ -452,7 +450,6 @@ class ASPP(torch.nn.Module):
 
 
 class SPPCSPC(nn.Module):
-    # CSP SPP https://github.com/WongKinYiu/CrossStagePartialNetworks
     def __init__(self, c1, c2, n=1, shortcut=False, g=1, e=0.5, k=(5, 9, 13)):
         super(SPPCSPC, self).__init__()
         c_ = int(2 * c2 * e)  # hidden channels
@@ -733,7 +730,7 @@ class DetectMultiBackend(nn.Module):
                 stride, names = int(meta['stride']), eval(meta['names'])
         elif xml:  # OpenVINO
             LOGGER.info(f'Loading {w} for OpenVINO inference...')
-            check_requirements('openvino')  # requires openvino-dev: https://pypi.org/project/openvino-dev/
+            check_requirements('openvino')  # requires openvino-dev
             from openvino.runtime import Core, Layout, get_batch
             ie = Core()
             if not Path(w).is_file():  # if not *.xml
@@ -748,7 +745,7 @@ class DetectMultiBackend(nn.Module):
             stride, names = self._load_metadata(Path(w).with_suffix('.yaml'))  # load metadata
         elif engine:  # TensorRT
             LOGGER.info(f'Loading {w} for TensorRT inference...')
-            import tensorrt as trt  # https://developer.nvidia.com/nvidia-tensorrt-download
+            import tensorrt as trt
             check_version(trt.__version__, '7.0.0', hard=True)  # require tensorrt>=7.0.0
             if device.type == 'cpu':
                 device = torch.device('cuda:0')
@@ -786,7 +783,7 @@ class DetectMultiBackend(nn.Module):
             import tensorflow as tf
             keras = False  # assume TF1 saved_model
             model = tf.keras.models.load_model(w) if keras else tf.saved_model.load(w)
-        elif pb:  # GraphDef https://www.tensorflow.org/guide/migrate#a_graphpb_or_graphpbtxt
+        elif pb:  # GraphDef
             LOGGER.info(f'Loading {w} for TensorFlow GraphDef inference...')
             import tensorflow as tf
 
@@ -806,13 +803,13 @@ class DetectMultiBackend(nn.Module):
             with open(w, 'rb') as f:
                 gd.ParseFromString(f.read())
             frozen_func = wrap_frozen_graph(gd, inputs="x:0", outputs=gd_outputs(gd))
-        elif tflite or edgetpu:  # https://www.tensorflow.org/lite/guide/python#install_tensorflow_lite_for_python
-            try:  # https://coral.ai/docs/edgetpu/tflite-python/#update-existing-tf-lite-code-for-the-edge-tpu
+        elif tflite or edgetpu:
+            try:
                 from tflite_runtime.interpreter import Interpreter, load_delegate
             except ImportError:
                 import tensorflow as tf
                 Interpreter, load_delegate = tf.lite.Interpreter, tf.lite.experimental.load_delegate,
-            if edgetpu:  # TF Edge TPU https://coral.ai/software/#edgetpu-runtime
+            if edgetpu:  # TF Edge TPU
                 LOGGER.info(f'Loading {w} for TensorFlow Lite Edge TPU inference...')
                 delegate = {
                     'Linux': 'libedgetpu.so.1',
@@ -1019,7 +1016,6 @@ class AutoShape(nn.Module):
     def forward(self, ims, size=640, augment=False, profile=False):
         # Inference from various sources. For size(height=640, width=1280), RGB images example inputs are:
         #   file:        ims = 'data/images/zidane.jpg'  # str or PosixPath
-        #   URI:             = 'https://ultralytics.com/images/zidane.jpg'
         #   OpenCV:          = cv2.imread('image.jpg')[:,:,::-1]  # HWC BGR to RGB x(640,1280,3)
         #   PIL:             = Image.open('image.jpg') or ImageGrab.grab()  # HWC x(640,1280,3)
         #   numpy:           = np.zeros((640,1280,3))  # HWC

@@ -27,7 +27,7 @@ matplotlib.use('Agg')  # for writing to files only
 
 
 class Colors:
-    # Ultralytics color palette https://ultralytics.com/
+    # Ultralytics color palette
     def __init__(self):
         # hex = matplotlib.colors.TABLEAU_COLORS.values()
         hexs = ('FF3838', 'FF9D97', 'FF701F', 'FFB21D', 'CFD231', '48F90A', '92CC17', '3DDB86', '1A9334', '00D4BB',
@@ -58,7 +58,7 @@ def check_pil_font(font=FONT, size=10):
             check_font(font)
             return ImageFont.truetype(str(font), size)
         except TypeError:
-            check_requirements('Pillow>=8.4.0')  # known issue https://github.com/ultralytics/yolov5/issues/5374
+            check_requirements('Pillow>=8.4.0')
         except URLError:  # not online
             return ImageFont.load_default()
 
@@ -216,7 +216,6 @@ def hist2d(x, y, n=100):
 def butter_lowpass_filtfilt(data, cutoff=1500, fs=50000, order=5):
     from scipy.signal import butter, filtfilt
 
-    # https://stackoverflow.com/questions/28536191/how-to-filter-smooth-with-scipy-numpy
     def butter_lowpass(cutoff, fs, order):
         nyq = 0.5 * fs
         normal_cutoff = cutoff / nyq
@@ -393,7 +392,7 @@ def plot_val_study(file='', dir='', x=None):  # from utils.plots import *; plot_
     plt.savefig(f, dpi=300)
 
 
-@TryExcept()  # known issue https://github.com/ultralytics/yolov5/issues/5395
+@TryExcept()
 def plot_labels(labels, names=(), save_dir=Path('')):
     # plot dataset labels
     LOGGER.info(f"Plotting labels to {save_dir / 'labels.jpg'}... ")
@@ -565,6 +564,6 @@ def save_one_box(xyxy, im, file=Path('im.jpg'), gain=1.02, pad=10, square=False,
     if save:
         file.parent.mkdir(parents=True, exist_ok=True)  # make directory
         f = str(increment_path(file).with_suffix('.jpg'))
-        # cv2.imwrite(f, crop)  # save BGR, https://github.com/ultralytics/yolov5/issues/7007 chroma subsampling issue
+        # cv2.imwrite(f, crop)  # save BGR
         Image.fromarray(crop[..., ::-1]).save(f, quality=95, subsampling=0)  # save RGB
     return crop

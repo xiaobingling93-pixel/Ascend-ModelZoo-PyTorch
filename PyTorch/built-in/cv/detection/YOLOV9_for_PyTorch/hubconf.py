@@ -61,8 +61,7 @@ def _create(name, pretrained=True, channels=3, classes=80, autoshape=True, verbo
         return model.to(device)
 
     except Exception as e:
-        help_url = 'https://github.com/ultralytics/yolov5/issues/36'
-        s = f'{e}. Cache may be out of date, try `force_reload=True` or see {help_url} for help.'
+        s = f'{e}. Cache may be out of date, try `force_reload=True`.'
         raise Exception(s) from e
 
 

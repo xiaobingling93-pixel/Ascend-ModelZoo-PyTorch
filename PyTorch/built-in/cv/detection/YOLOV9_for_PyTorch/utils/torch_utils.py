@@ -1,3 +1,4 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 import math
 import os
 import platform
@@ -13,11 +14,12 @@ import torch.distributed as dist
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.parallel import DistributedDataParallel as DDP
+import torch_npu
 
 from utils.general import LOGGER, check_version, colorstr, file_date, git_describe
 from utils.lion import Lion
 
-LOCAL_RANK = int(os.getenv('LOCAL_RANK', -1))  # https://pytorch.org/docs/stable/elastic/run.html
+LOCAL_RANK = int(os.getenv('LOCAL_RANK', -1))
 RANK = int(os.getenv('RANK', -1))
 WORLD_SIZE = int(os.getenv('WORLD_SIZE', 1))
 
@@ -52,7 +54,7 @@ def smart_DDP(model):
     # Model DDP creation with checks
     assert not check_version(torch.__version__, '1.12.0', pinned=True), \
         'torch==1.12.0 torchvision==0.13.0 DDP training is not supported due to a known issue. ' \
-        'Please upgrade or downgrade torch to use DDP. See https://github.com/ultralytics/yolov5/issues/8395'
+        'Please upgrade or downgrade torch to use DDP.
     if check_version(torch.__version__, '1.11.0'):
         return DDP(model, device_ids=[LOCAL_RANK], output_device=LOCAL_RANK, static_graph=True)
     else:
@@ -242,7 +244,7 @@ def prune(model, amount=0.3):
 
 
 def fuse_conv_and_bn(conv, bn):
-    # Fuse Conv2d() and BatchNorm2d() layers https://tehnokv.com/posts/fusing-batchnorm-and-conv/
+    # Fuse Conv2d() and BatchNorm2d() layers
     fusedconv = nn.Conv2d(conv.in_channels,
                           conv.out_channels,
                           kernel_size=conv.kernel_size,
@@ -430,7 +432,7 @@ def smart_optimizer(model, name='Adam', lr=0.001, momentum=0.9, decay=1e-5):
     elif name == 'RMSProp':
         optimizer = torch.optim.RMSprop(g[2], lr=lr, momentum=momentum)
     elif name == 'SGD':
-        optimizer = torch.optim.SGD(g[2], lr=lr, momentum=momentum, nesterov=True)
+        optimizer = torch_npu.optim.NpuFusedSGD(g[2], lr=lr, momentum=momentum, nesterov=True)
     elif name == 'LION':
         optimizer = Lion(g[2], lr=lr, betas=(momentum, 0.99), weight_decay=0.0)
     else:
@@ -499,9 +501,8 @@ class EarlyStopping:
 
 
 class ModelEMA:
-    """ Updated Exponential Moving Average (EMA) from https://github.com/rwightman/pytorch-image-models
+    """ Updated Exponential Moving Average (EMA)
     Keeps a moving average of everything in the model state_dict (parameters and buffers)
-    For EMA details see https://www.tensorflow.org/api_docs/python/tf/train/ExponentialMovingAverage
     """
 
     def __init__(self, model, decay=0.9999, tau=2000, updates=0):

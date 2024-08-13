@@ -11,13 +11,12 @@ from utils.tal.assigner import TaskAlignedAssigner
 from utils.torch_utils import de_parallel
 
 
-def smooth_BCE(eps=0.1):  # https://github.com/ultralytics/yolov3/issues/238#issuecomment-598028441
+def smooth_BCE(eps=0.1):
     # return positive, negative label smoothing BCE targets
     return 1.0 - 0.5 * eps, 0.5 * eps
 
 
 class VarifocalLoss(nn.Module):
-    # Varifocal loss by Zhang et al. https://arxiv.org/abs/2008.13367
     def __init__(self):
         super().__init__()
 
@@ -44,7 +43,6 @@ class FocalLoss(nn.Module):
         # p_t = torch.exp(-loss)
         # loss *= self.alpha * (1.000001 - p_t) ** self.gamma  # non-zero power for gradient stability
 
-        # TF implementation https://github.com/tensorflow/addons/blob/v0.7.1/tensorflow_addons/losses/focal_loss.py
         pred_prob = torch.sigmoid(pred)  # prob from logits
         p_t = true * pred_prob + (1 - true) * (1 - pred_prob)
         alpha_factor = true * self.alpha + (1 - true) * (1 - self.alpha)
@@ -112,7 +110,7 @@ class ComputeLoss:
         # Define criteria
         BCEcls = nn.BCEWithLogitsLoss(pos_weight=torch.tensor([h["cls_pw"]], device=device), reduction='none')
 
-        # Class label smoothing https://arxiv.org/pdf/1902.04103.pdf eqn 3
+        # Class label smoothing
         self.cp, self.cn = smooth_BCE(eps=h.get("label_smoothing", 0.0))  # positive, negative BCE targets
 
         # Focal loss
