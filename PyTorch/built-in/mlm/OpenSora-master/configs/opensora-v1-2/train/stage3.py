@@ -2,6 +2,7 @@
 dataset = dict(
     type="VariableVideoTextDataset",
     transform_name="resize_crop",
+    data_path=None,
 )
 
 # webvid

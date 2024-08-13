@@ -1,9 +1,9 @@
 # 生成视频的帧数、分辨率
 Network="OpenSora"
 BATCH_SIZE=1
-NUM_FRAMES=32
-IMAGE_SIZE_H=480
-IMAGE_SIZE_W=854
+NUM_FRAMES=102
+IMAGE_SIZE_H=720
+IMAGE_SIZE_W=1280
 
 for para in $*
 do
@@ -42,9 +42,9 @@ start_time=$(date +%s)
 echo "start_time: ${start_time}"
 
 python scripts/inference.py \
- configs/opensora-v1-1/inference/sample.py \
+ configs/opensora-v1-2/inference/sample.py \
  --batch-size ${BATCH_SIZE} \
- --prompt "A beautiful sunset over the city" \
+ --prompt "A beautiful waterfall" \
  --num-frames ${NUM_FRAMES} \
  --image-size ${IMAGE_SIZE_H} ${IMAGE_SIZE_W} \
  > ${test_path_dir}/output/$ASCEND_DEVICE_ID/infer_${ASCEND_DEVICE_ID}.log 2>&1 &

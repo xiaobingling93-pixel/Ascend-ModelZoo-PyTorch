@@ -1,3 +1,4 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 import os
 
 import torch
@@ -277,7 +278,7 @@ def OpenSoraVAE_V1_2(
         scale=scale,
     )
 
-    if from_pretrained is not None and not os.path.isdir(from_pretrained):
+    if from_pretrained is not None and not os.path.exists(from_pretrained):
         model = VideoAutoencoderPipeline.from_pretrained(from_pretrained, **kwargs)
     else:
         config = VideoAutoencoderPipelineConfig(**kwargs)
