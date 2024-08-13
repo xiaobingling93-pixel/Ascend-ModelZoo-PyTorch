@@ -31,7 +31,7 @@ mask_ratios = {
 num_workers = 8
 num_bucket_build_workers = 16
 dtype = "bf16"
-grad_checkpoint = False
+grad_checkpoint = True
 plugin = "zero2"
 sp_size = 1
 

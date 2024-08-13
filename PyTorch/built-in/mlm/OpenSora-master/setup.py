@@ -67,7 +67,7 @@ setup(
         "Documentation": "https://github.com/hpcaitech/Open-Sora?tab=readme-ov-file",
         "Github": "https://github.com/hpcaitech/Open-Sora",
     },
-    install_requires=fetch_requirements("requirements/requirements.txt"),
+    install_requires=fetch_requirements("requirements/requirements_npu.txt"),
     python_requires=">=3.6",
     classifiers=[
         "Programming Language :: Python :: 3",
@@ -75,16 +75,5 @@ setup(
         "Environment :: GPU :: NVIDIA CUDA",
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
         "Topic :: System :: Distributed Computing",
-    ],
-    extras_require={
-        "data": fetch_requirements("requirements/requirements-data.txt"),
-        "eval": fetch_requirements("requirements/requirements-eval.txt"),
-        "vae": fetch_requirements("requirements/requirements-vae.txt"),
-        "full": fetch_requirements(
-            [
-                "requirements/requirements-data.txt",
-                "requirements/requirements-eval.txt",
-            ]
-        ),
-    },
+    ]
 )

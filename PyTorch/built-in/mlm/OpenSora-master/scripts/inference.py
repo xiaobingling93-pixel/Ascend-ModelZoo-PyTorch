@@ -1,3 +1,4 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 import os
 import time
 from pprint import pformat
@@ -32,7 +33,10 @@ from opensora.utils.inference_utils import (
     split_prompt,
 )
 from opensora.utils.misc import all_exists, create_logger, is_distributed, is_main_process, to_torch_dtype
-
+from opensora.utils.device_utils import is_npu_available
+if is_npu_available():
+    from torch_npu.contrib import transfer_to_npu
+    torch.npu.config.allow_internal_format = False
 
 def main():
     torch.set_grad_enabled(False)

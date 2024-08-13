@@ -1,7 +1,9 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 import os
 from copy import deepcopy
 from datetime import timedelta
 from pprint import pformat
+import time
 
 import torch
 import torch.distributed as dist
@@ -30,6 +32,10 @@ from opensora.utils.misc import (
     to_torch_dtype,
 )
 from opensora.utils.train_utils import MaskGenerator, create_colossalai_plugin, update_ema
+from opensora.utils.device_utils import is_npu_available
+if is_npu_available():
+    from torch_npu.contrib import transfer_to_npu
+    torch.npu.config.allow_internal_format = False
 
 
 def main():
@@ -162,14 +168,21 @@ def main():
     # == setup loss function, build scheduler ==
     scheduler = build_module(cfg.scheduler, SCHEDULERS)
 
-    # == setup optimizer ==
-    optimizer = HybridAdam(
-        filter(lambda p: p.requires_grad, model.parameters()),
-        adamw_mode=True,
-        lr=cfg.get("lr", 1e-4),
-        weight_decay=cfg.get("weight_decay", 0),
-        eps=cfg.get("adam_eps", 1e-8),
-    )
+    # 4.5. setup optimizer
+    if is_npu_available():
+        from mindspeed.optimizer.adamw import AdamW
+        optimizer = AdamW(
+            filter(lambda p: p.requires_grad, model.parameters()),
+            lr=cfg.lr,
+            weight_decay=0
+        )
+    else:
+        optimizer = HybridAdam(
+            filter(lambda p: p.requires_grad, model.parameters()),
+            lr=cfg.lr,
+            weight_decay=0,
+            adamw_mode=True,
+        )
 
     warmup_steps = cfg.get("warmup_steps", None)
 
@@ -243,6 +256,7 @@ def main():
             total=num_steps_per_epoch,
         ) as pbar:
             for step, batch in pbar:
+                start_step_time = time.time()
                 timer_list = []
                 with Timer("move data") as move_data_t:
                     x = batch.pop("video").to(device, dtype)  # [B, C, T, H, W]
@@ -318,8 +332,13 @@ def main():
                     coordinator.block_all()
                 timer_list.append(reduce_loss_t)
 
+                train_step_time = time.time()
+
                 # == logging ==
                 if coordinator.is_master() and (global_step + 1) % cfg.get("log_every", 1) == 0:
+                    logger.info(
+                        f"E2E train time {train_step_time - start_step_time} | loss {loss.item()}")
+
                     avg_loss = running_loss / log_step
                     # progress bar
                     pbar.set_postfix({"loss": avg_loss, "step": step, "global_step": global_step})
@@ -379,7 +398,7 @@ def main():
                 log_str = f"Rank {dist.get_rank()} | Epoch {epoch} | Step {step} | "
                 for timer in timer_list:
                     log_str += f"{timer.name}: {timer.elapsed_time:.3f}s | "
-                print(log_str)
+                # print(log_str)
                 coordinator.block_all()
 
         sampler.reset()
