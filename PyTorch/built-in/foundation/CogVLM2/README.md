@@ -82,7 +82,7 @@ pip install -r requirements.txt
 
 ### 获取预训练权重
 
-1) 官方提供微调权重cogvlm2-llama3-chinese-chat-19B[下载](https://modelscope.cn/models/ZhipuAI/cogvlm2-llama3-chinese-chat-19B/)。
+1) 官方提供微调权重cogvlm2-llama3-chinese-chat-19B[下载](https://huggingface.co/THUDM/cogvlm2-llama3-chinese-chat-19B)。
 
 
 ## 快速开始
