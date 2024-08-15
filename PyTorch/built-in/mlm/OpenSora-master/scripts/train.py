@@ -241,11 +241,17 @@ def main():
     # 5. training loop
     # =======================================================
     dist.barrier()
+
+    early_stop_flag = False
+
     for epoch in range(start_epoch, cfg_epochs):
         # == set dataloader to new epoch ==
         sampler.set_epoch(epoch)
         dataloader_iter = iter(dataloader)
         logger.info("Beginning epoch %s...", epoch)
+
+        if early_stop_flag:
+            break
 
         # == training loop in an epoch ==
         with tqdm(
@@ -280,7 +286,6 @@ def main():
                             model_args["mask"] = mask
                         else:
                             model_args = text_encoder.encode(y)
-                    coordinator.block_all()
                 timer_list.append(encode_t)
 
                 # == mask ==
@@ -289,7 +294,6 @@ def main():
                     if cfg.get("mask_ratios", None) is not None:
                         mask = mask_generator.get_masks(x)
                         model_args["x_mask"] = mask
-                    coordinator.block_all()
                 timer_list.append(mask_t)
 
                 # == video meta info ==
@@ -300,26 +304,25 @@ def main():
                 # == diffusion loss computation ==
                 with Timer("diffusion") as loss_t:
                     loss_dict = scheduler.training_losses(model, x, model_args, mask=mask)
-                    coordinator.block_all()
                 timer_list.append(loss_t)
 
                 # == backward & update ==
                 with Timer("backward") as backward_t:
                     loss = loss_dict["loss"].mean()
-                    booster.backward(loss=loss, optimizer=optimizer)
+                    booster.backward(loss=loss, optimizer=optimizer)   
+                timer_list.append(backward_t)                 
+
+                with Timer("optimizer") as optimizer_t:
                     optimizer.step()
                     optimizer.zero_grad()
-
                     # update learning rate
                     if lr_scheduler is not None:
                         lr_scheduler.step()
-                    coordinator.block_all()
-                timer_list.append(backward_t)
+                timer_list.append(optimizer_t)
 
                 # == update EMA ==
                 with Timer("update_ema") as ema_t:
                     update_ema(ema, model.module, optimizer=optimizer, decay=cfg.get("ema_decay", 0.9999))
-                    coordinator.block_all()
                 timer_list.append(ema_t)
 
                 # == update log info ==
@@ -329,7 +332,6 @@ def main():
                     global_step = epoch * num_steps_per_epoch + step
                     log_step += 1
                     acc_step += 1
-                    coordinator.block_all()
                 timer_list.append(reduce_loss_t)
 
                 train_step_time = time.time()
@@ -398,8 +400,13 @@ def main():
                 log_str = f"Rank {dist.get_rank()} | Epoch {epoch} | Step {step} | "
                 for timer in timer_list:
                     log_str += f"{timer.name}: {timer.elapsed_time:.3f}s | "
-                # print(log_str)
-                coordinator.block_all()
+                if cfg.get("print_details", False):
+                    print(log_str)
+
+
+                if cfg.get("max_train_steps", 0) > 0 and global_step == cfg.get("max_train_steps", 0):
+                    early_stop_flag = True
+                    break
 
         sampler.reset()
         start_step = 0

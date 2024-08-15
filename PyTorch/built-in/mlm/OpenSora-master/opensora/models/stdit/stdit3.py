@@ -31,7 +31,8 @@ from opensora.models.layers.blocks import (
 )
 from opensora.registry import MODELS
 from opensora.utils.ckpt_utils import load_checkpoint
-
+from opensora.utils.device_utils import is_npu_available
+from opensora.utils.train_utils import NpuRotaryEmbedding
 
 class STDiT3Block(nn.Module):
     def __init__(
@@ -86,6 +87,14 @@ class STDiT3Block(nn.Module):
         x = torch.where(x_mask[:, :, None, None], x, masked_x)
         x = rearrange(x, "B T S C -> B (T S) C")
         return x
+    
+    def modulate(self, x, norm, shift_msa, scale_msa, shift_msa_zero, scale_msa_zero, x_mask, T, S):
+        x_norm = norm(x)
+        x_m = t2i_modulate(x_norm, shift_msa, scale_msa)
+        if x_mask is not None:
+            x_m_zero = t2i_modulate(x_norm, shift_msa_zero, scale_msa_zero)
+            x_m = self.t_mask_select(x_mask, x_m, x_m_zero, T, S)
+        return x_m
 
     def forward(
         self,
@@ -109,10 +118,7 @@ class STDiT3Block(nn.Module):
             ).chunk(6, dim=1)
 
         # modulate (attention)
-        x_m = t2i_modulate(self.norm1(x), shift_msa, scale_msa)
-        if x_mask is not None:
-            x_m_zero = t2i_modulate(self.norm1(x), shift_msa_zero, scale_msa_zero)
-            x_m = self.t_mask_select(x_mask, x_m, x_m_zero, T, S)
+        x_m = self.modulate(x, self.norm1, shift_msa, scale_msa, shift_msa_zero, scale_msa_zero, x_mask, T, S)
 
         # attention
         if self.temporal:
@@ -137,10 +143,7 @@ class STDiT3Block(nn.Module):
         x = x + self.cross_attn(x, y, mask)
 
         # modulate (MLP)
-        x_m = t2i_modulate(self.norm2(x), shift_mlp, scale_mlp)
-        if x_mask is not None:
-            x_m_zero = t2i_modulate(self.norm2(x), shift_mlp_zero, scale_mlp_zero)
-            x_m = self.t_mask_select(x_mask, x_m, x_m_zero, T, S)
+        x_m = self.modulate(x, self.norm2, shift_msa, scale_msa, shift_msa_zero, scale_msa_zero, x_mask, T, S)
 
         # MLP
         x_m = self.mlp(x_m)
@@ -232,7 +235,11 @@ class STDiT3(PreTrainedModel):
         self.patch_size = config.patch_size
         self.input_sq_size = config.input_sq_size
         self.pos_embed = PositionEmbedding2D(config.hidden_size)
-        self.rope = RotaryEmbedding(dim=self.hidden_size // self.num_heads)
+
+        if is_npu_available():
+            self.rope = NpuRotaryEmbedding(dim=self.hidden_size // self.num_heads)
+        else:
+            self.rope = RotaryEmbedding(dim=self.hidden_size // self.num_heads) 
 
         # embedding
         self.x_embedder = PatchEmbed3D(config.patch_size, config.in_channels, config.hidden_size)

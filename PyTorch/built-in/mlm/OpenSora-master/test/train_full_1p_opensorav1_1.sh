@@ -1,5 +1,6 @@
 # 网络名称,同目录名称,需要模型审视修改
 Network="OpenSora"
+max_train_steps=0
 
 for para in $*; do
   if [[ $para == --data_path* ]]; then
@@ -34,7 +35,7 @@ start_time=$(date +%s)
 echo "start_time: ${start_time}"
 
 torchrun --nnodes=1 --nproc_per_node=1 --master-port 61888 scripts/train.py \
-configs/opensora-v1-1/train/stage1.py > ${test_path_dir}/output/$ASCEND_DEVICE_ID/train_${ASCEND_DEVICE_ID}.log 2>&1 &
+configs/opensora-v1-1/train/stage1.py --max-train-steps ${max_train_steps} > ${test_path_dir}/output/$ASCEND_DEVICE_ID/train_${ASCEND_DEVICE_ID}.log 2>&1 &
 wait
 
 #训练结束时间，不需要修改

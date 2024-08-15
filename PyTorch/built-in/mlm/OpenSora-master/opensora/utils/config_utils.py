@@ -1,3 +1,4 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 import argparse
 import json
 import os
@@ -79,6 +80,8 @@ def parse_args(training=False):
         parser.add_argument("--load", default=None, type=str, help="path to continue training")
         parser.add_argument("--start-from-scratch", action="store_true", help="start training from scratch")
         parser.add_argument("--warmup-steps", default=None, type=int, help="warmup steps")
+        parser.add_argument("--max-train-steps", default=0, type=int, help="max train steps")
+        parser.add_argument("--print-details", default=False, type=bool, help="print details")
 
     return parser.parse_args()
 

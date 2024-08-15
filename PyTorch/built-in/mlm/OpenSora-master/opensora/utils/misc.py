@@ -1,3 +1,4 @@
+# Copyright 2024 Huawei Technologies Co., Ltd
 import collections
 import importlib
 import logging
@@ -358,23 +359,26 @@ def all_exists(paths):
 
 
 class Timer:
-    def __init__(self, name, log=False):
+    def __init__(self, name, log=False, sync=False):
         self.name = name
         self.start_time = None
         self.end_time = None
         self.log = log
+        self.sync = sync
 
     @property
     def elapsed_time(self):
         return self.end_time - self.start_time
 
     def __enter__(self):
-        torch.cuda.synchronize()
+        if self.sync:
+            torch.cuda.synchronize()
         self.start_time = time.time()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        torch.cuda.synchronize()
+        if self.sync:
+            torch.cuda.synchronize()
         self.end_time = time.time()
         if self.log:
             print(f"Elapsed time for {self.name}: {self.elapsed_time:.2f} s")
