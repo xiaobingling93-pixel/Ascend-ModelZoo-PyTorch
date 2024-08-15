@@ -21,6 +21,8 @@ from decord import VideoReader, cpu
 from tasks.eval.model_utils import load_pllava, pllava_answer
 from tasks.eval.eval_utils import conv_templates
 
+from torch import nn, Tensor
+
 logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -165,6 +167,21 @@ def single_test(model, processor, vid_path, num_frames=4, conv_mode="plain", eva
         conv.user_query("Describe the video in details.", is_mm=True)
     llm_response, conv = pllava_answer(conv=conv, model=model, processor=processor, do_sample=False, img_list=img_list, max_new_tokens=256, print_res=True)
 
+def adaptive_avg_pool3d(input: Tensor, output_size) -> Tensor:
+    input_dtype = input.dtype
+    input_shape = input.shape
+    input = input.to(dtype=torch.float32)
+    pool = nn.AvgPool2d(kernel_size=(2, 2), stride=(2, 2), padding=0, ceil_mode=False)
+    output = pool(
+        input.reshape(input_shape[0] * input_shape[1], input_shape[2], input_shape[3], input_shape[4])).reshape(
+        input_shape[0], input_shape[1], output_size[0], output_size[1], output_size[2])
+    output = output.to(dtype=input_dtype)
+    return output
+
+def replace_with_adaptive_avg_pool3d():
+    torch.nn.functional.adaptive_avg_pool3d = adaptive_avg_pool3d
+
+
 def main():
     multiprocess=True
     mp.set_start_method('spawn',force=True)
@@ -189,4 +206,5 @@ def main():
     logger.info('single test done...')
 
 if __name__ == "__main__":
+    replace_with_adaptive_avg_pool3d()
     main()

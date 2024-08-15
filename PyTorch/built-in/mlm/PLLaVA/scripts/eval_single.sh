@@ -12,7 +12,7 @@ lora_alpha=4
 video_path=/path_to_PLLaVA/example/cooking.mp4
 
 conv_mode=eval_videoqabench
-python -m tasks.eval.videoqabench.pllava_eval_videoqabench \
+python -m tasks.eval.videoqabench.pllava_eval_single \
     --pretrained_model_name_or_path ${model_dir} \
     --save_path ${SAVE_DIR}/videoqabench \
     --num_frames ${num_frames} \
