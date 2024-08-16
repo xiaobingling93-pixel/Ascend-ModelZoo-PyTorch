@@ -172,8 +172,7 @@ Tacotron2是由Google Brain在2017年提出来的一个End-to-End语音合成框
    请访问[ais_bench推理工具](https://gitee.com/ascend/tools/tree/master/ais-bench_workload/tool/ais_bench)代码仓，根据readme文档进行工具安装。
 
 2. 使能缓存功能（可选）  
-   Tacotron2模型的decoder部分有自回归机制，前一步的输出会作为后一步的输入使用。如果使能缓存功能，将中间数据保存到device，可以减少循环推理中间过程中H2D和D2H的数据搬运次数，从而提升端到端的推理性能。  
-   这里的缓存功能基于pyACL实现，可参考[pyACL demo](https://gitee.com/peng-ao/pyacl?_from=gitee_search)。  
+   Tacotron2模型的decoder部分有自回归机制，前一步的输出会作为后一步的输入使用。如果使能缓存功能，将中间数据保存到device，可以减少循环推理中间过程中H2D和D2H的数据搬运次数，从而提升端到端的推理性能。
 
    2.1 使能CANN的ACL组件  
    参考[CANN V100R020C10 应用软件开发指南](https://support.huawei.com/enterprise/zh/doc/EDOC1100164876/7af18685)，修改环境变量。  

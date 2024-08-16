@@ -89,7 +89,7 @@ ResNet50是针对移动端专门定制的轻量级卷积神经网络，该网络
 
     2. 安装量化工具
 
-        参考[AMCT(ONNX)](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/70RC1alpha001/developmenttools/devtool/atlasamctonnx_16_0004.html)主页安装量化工具。
+        参考[AMCT(ONNX)](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/80RC3alpha001/devaids/auxiliarydevtool/atlasamctonnx_16_0001.html)主页安装量化工具。
 
 ## 准备数据集<a name="section183221994411"></a>
 

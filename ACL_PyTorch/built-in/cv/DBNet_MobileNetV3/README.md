@@ -119,7 +119,7 @@ DBNet([Real-Time Scene Text Detection with Differentiable Binarization and Adapt
 
    1. 获取权重文件。
 
-       训练权重链接为：https://paddleocr.bj.bcebos.com/dygraph_v2.0/en/det_mv3_db_v2.0_train.tar。
+       [训练权重链接](https://paddleocr.bj.bcebos.com/dygraph_v2.0/en/det_mv3_db_v2.0_train.tar)。
        在`DBNet_MobileNetV3`工作目录下可通过以下命令获取训练权重并转为推理模型。
        ```
        wget -nc -P ./checkpoint https://paddleocr.bj.bcebos.com/dygraph_v2.0/en/det_mv3_db_v2.0_train.tar

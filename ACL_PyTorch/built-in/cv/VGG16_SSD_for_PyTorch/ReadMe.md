@@ -184,9 +184,9 @@ SSD网络是继YOLO之后的one-stage目标检测网络，是为了改善YOLO网
    
 2. 开始推理验证
 
-   1. 使用ais-infer工具进行推理。
+   1. 使用ais-bench工具进行推理。
 
-      ais-infer工具获取及使用方式请点击查看[[ais_infer 推理工具使用文档](https://gitee.com/ascend/tools/tree/master/ais-bench_workload/tool/ais_infer)]
+      ais-bench工具获取及使用方式请点击查看[[ais_bench 推理工具使用文档](https://gitee.com/ascend/tools/tree/master/ais-bench_workload/tool/ais_bench)]
 
    2. 执行推理。
 

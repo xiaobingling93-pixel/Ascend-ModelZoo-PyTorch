@@ -90,7 +90,7 @@ GPT-2 模型只使用了多个Masked Self-Attention和Feed Forward Neural Networ
 
 3. 获取配置文件
    
-   从[这里](https://pan.baidu.com/s/16x0hfBCekWju75xPeyyRfA#list/path=%2F)下载配置文件,提取码`n3s8`，并把`pytorch_model.bin`放到`model`下面
+   从[模型仓](https://github.com/Morizeyao/GPT2-Chinese)下载通用中文模型的配置文件，并把`pytorch_model.bin`放到`model`下面
 
 ## 准备数据集<a name="section183221994411"></a>
 

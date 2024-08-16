@@ -73,8 +73,8 @@ commit_id=a565687c4076b729d4059593b7570dd388055af4
 
    | 环境 | 版本 | 安装指导 |
    | ---- | ---- | ---- |
-   | NPU 驱动和固件 | 23.0.rc1 | [安装指导](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/63RC2alpha002/softwareinstall/instg/instg_000018.html) |
-   | CANN | 6.2.T200 | [安装指导](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/63RC2alpha002/softwareinstall/instg/instg_000036.html) |
+   | NPU 驱动和固件 | 23.0.rc1 | [安装指导](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies) |
+   | CANN | 6.2.T200 | - |
    | Python | 3.7.5 | |
    | PyTorch | 1.13.1 | |
 
@@ -144,7 +144,6 @@ commit_id=a565687c4076b729d4059593b7570dd388055af4
    - --input_format：输入数据格式。
    - --input_shape：模型输入数据的shape。
    - --soc_version：模型转换时指定芯片版本。
-   - 更多参数请参考 [atc 参数概览](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/63RC2alpha002/infacldevg/atctool/atlasatc_16_0041.html)。
 
 ### 精度验证
 
@@ -175,7 +174,7 @@ commit_id=a565687c4076b729d4059593b7570dd388055af4
    - --output_dirname：推理结果保存子目录
    - --output_batchsize_axis：输出tensor的batchsize轴
    - --outfmt：输出数据的格式
-   - 更多参数请参考 [ ais_bench 推理工具使用指南](https://gitee.com/ascend/tools/tree/master/ais-bench_workload/tool/ais_bench)。
+   - 更多参数请参考 [ais_bench 推理工具使用指南](https://gitee.com/ascend/tools/tree/master/ais-bench_workload/tool/ais_bench)。
 
 3. 后处理。运行后在控制台输出精度。
 

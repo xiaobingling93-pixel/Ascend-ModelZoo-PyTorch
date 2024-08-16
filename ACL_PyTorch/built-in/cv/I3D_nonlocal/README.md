@@ -50,7 +50,7 @@ url=https://github.com/open-mmlab/mmaction2
   | 配套                                                         | 版本    | 环境准备指导                                                 |
   | ------------------------------------------------------------ | ------- | ------------------------------------------------------------ |
   | 固件与驱动                                                   | 22.0.2  | [Pytorch框架推理环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies) |
-  | CANN                                                         | 6.0.RC1 | [CANN推理架构准备](https://www/hiascend.com/software/cann/commercial) |
+  | CANN                                                         | 6.0.RC1 | - |
   | Python                                                       | 3.7.5   | 创建anaconda环境时指定python版本即可，conda create -n ${your_env_name} python==3.7.5 |
   | PyTorch                                                      | 1.8.0   | -                                                            |
   | 说明：Atlas 300I Duo 推理卡请以CANN版本选择实际固件与驱动版本。 | \       | \                                                            |
@@ -101,14 +101,8 @@ url=https://github.com/open-mmlab/mmaction2
     | :---------: | :--------: |
     | kinetics400 |   19796    |
 
-    我们使用的 Kinetics400 验证集包含 19796 个视频，用户可以从 [验证集视频](https://mycuhk-my.sharepoint.com/:u:/g/personal/1155136485_link_cuhk_edu_hk/EbXw2WX94J1Hunyt3MWNDJUBz-nHvQYhO9pvKqm6g39PMA?e=a9QldB) 下载这些视频。
-    下载并解压好后，将数据集重命名为videos_val并放置于data/kinetics400目录下。
-
-    数据集准备完成。
 
 2. 数据预处理
-
-    若有另外需求，请参考[数据处理](docs_zh_CN/data_preparation.md)。
 
     运行预处理脚本。将对videos_val中的所有视频进行抽帧处理，并将结果放置在data/kinetics400/rawframes_val目录下。本脚本采用Opencv对mp4格式的视频，采用4线程抽取256*256大小的RGB帧，输出格式为jpg。
 

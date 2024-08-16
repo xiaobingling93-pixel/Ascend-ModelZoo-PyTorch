@@ -97,7 +97,7 @@ HiFiGAN是一种基于GAN的声码器，HiFiGAN同时拥有多尺度判别器（
 将模型权重文件`.pth`转换为`.onnx`文件，再使用`ATC`工具将`.onnx`文件转为离线推理模型`.om`文件。
 
 1. 获取权重文件  
-   下载[权重文件及相应的配置文件](https://drive.google.com/drive/folders/1-eEYTB5Av9jNql0WGBlRoi-WH2J7bp5Y?usp=sharing)，以`LJ_FT_T2_V2`为例，
+   在[开源仓](https://github.com/jik876/hifi-gan?tab=readme-ov-file#pretrained-model)提供的权重链接中下载权重，以`LJ_FT_T2_V2`为例，
    将下载的模型文件`generator_v2`和配置文件`config.json`放在`hifi-gan`目录下。
 
 2. 导出`ONNX`模型  

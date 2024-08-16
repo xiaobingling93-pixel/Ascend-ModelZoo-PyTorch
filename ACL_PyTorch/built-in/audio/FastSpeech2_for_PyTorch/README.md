@@ -99,7 +99,7 @@ FastSpeech2是一种非自回归的语音合成网络。所谓自回归是指模
 将模型权重文件`.pth`转换为`.onnx`文件，再使用`ATC`工具将`.onnx`文件转为离线推理模型`.om`文件。
 
 1. 获取权重文件  
-   下载FastSpeech2[权重文件](https://drive.google.com/drive/folders/1DOhZGlTLMbbAAFZmZGDdc77kz1PloS7F?usp=sharing)，
+   在[FastSpeech2模型仓](https://github.com/ming024/FastSpeech2?tab=readme-ov-file#inference)下载模型权重，
    将下载的模型文件`900000.pth.tar`放在新建的`output/ckpt/LJSpeech`文件夹下。
 
 2. 导出`ONNX`模型  

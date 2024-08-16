@@ -80,9 +80,9 @@ m2m100是Meta公司开发的最新seq2seq模型，支持100中语言间的互相
    python3 setup.py install
    ```
 
-3. 安装ais-infer推理工具。
+3. 安装ais-bench推理工具。
 
-   ais-infer工具获取及使用方式请点击查看[[ais_infer 推理工具使用文档](https://gitee.com/ascend/tools/tree/master/ais-bench_workload/tool/ais_infer)]
+   ais-bench工具获取及使用方式请点击查看[[ais_bench 推理工具使用文档](https://gitee.com/ascend/tools/tree/master/ais-bench_workload/tool/ais_bench)]
 
 ## 准备数据集<a name="section183221994411"></a>
 

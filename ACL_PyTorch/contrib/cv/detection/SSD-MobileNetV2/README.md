@@ -115,9 +115,8 @@ SSD-MobileNetV2 采用 SSD 的思想，在MobileNetV2基础上，中间层提取
 ## 模型转换
 
 1. 获取权重文件
-    ```bash
-    wget https://storage.googleapis.com/models-hao/mb2-ssd-lite-mp-0_686.pth
-    ```
+
+    根据[开源仓](https://github.com/qfgaohao/pytorch-ssd)指导下载MobileNetV2模型权重(mb2-ssd-lite-mp-0_686.pth)
 
 2. 导出onnx文件
     ```bash
