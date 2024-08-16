@@ -116,13 +116,20 @@ model_name=model_base_vqa_capfilt_large
 
    请参考 [ais_bench 安装指导](https://gitee.com/ascend/tools/tree/master/ais-bench_workload/tool/ais_bench#%E5%B7%A5%E5%85%B7%E5%AE%89%E8%A3%85)。
 
-4. 安装第三方包
+4. 获取 ModelZoo 源码
+
+   ```bash
+   https://gitee.com/ascend/ModelZoo-PyTorch.git
+   cd ModelZoo-PyTorch/ACL_PyTorch/built-in/foundation_models/blip_vqa
+   ```
+
+5. 安装第三方包
 
    ```bash
    pip3 install -r requirements.txt
    ```
 
-5. 获取源码
+6. 获取 BLIP 源码
 
    ```bash
    git clone https://github.com/salesforce/BLIP.git
@@ -130,7 +137,7 @@ model_name=model_base_vqa_capfilt_large
    git reset --hard 3a29b7410476bf5f2ba0955827390eb6ea1f4f9d
    ```
 
-6. 应用 patch
+7. 应用 patch
 
    ```bash
    git apply ../blip.patch
