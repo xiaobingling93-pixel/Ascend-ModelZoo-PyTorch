@@ -158,6 +158,7 @@ model_name=model_base_vqa_capfilt_large
    mkdir bert-base-uncased
    cd bert-base-uncased
    wget https://huggingface.co/google-bert/bert-base-uncased/resolve/main/vocab.txt?download=true
+   cd ..
    ```
 
 3. 准备数据集
