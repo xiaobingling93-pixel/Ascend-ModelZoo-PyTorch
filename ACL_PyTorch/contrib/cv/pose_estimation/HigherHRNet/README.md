@@ -209,6 +209,7 @@
            -   --input\_format：输入数据的格式。
            -   --input\_shape：输入数据的shape。
            -   --dynamic_dims：图片的动态分辨率参数。
+           -   --out_nodes：输出节点名。
            -   --soc\_version：处理器型号。
 
          运行成功后生成pose_higher_hrnet_dynamic.om模型文件。

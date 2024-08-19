@@ -209,6 +209,8 @@ EfficientDet是在EfficientNet基础上提出来的目标检测模型，它将Ef
            -   --input\_shape：输入数据的shape。
            -   --log：日志级别。
            -   --soc\_version：处理器型号。
+           -   --precision\_mode：精度模式。
+           -   --modify\_mixlist：指定精度的算子配置。
 
            运行成功后生成<u>***d0_bs${bs}***</u>模型文件。
 

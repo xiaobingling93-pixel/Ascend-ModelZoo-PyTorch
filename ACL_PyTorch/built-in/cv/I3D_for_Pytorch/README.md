@@ -94,6 +94,17 @@ url=https://github.com/open-mmlab/mmaction2
     ```sh
     python3 tools/data/build_rawframes.py data/kinetics400/videos_val data/kinetics400/rawframes_val --task rgb --level 1 --num-worker 4 --out-format jpg --ext mp4 --new-width 256 --new-height 256 --use-opencv
     ```
+    - 参数说明：
+        - 第一个参数：视频文件目录
+        - 第二个参数：结果文件目录
+        - --task：抽帧类型
+        - --level：数据目录层级
+        - --num-worker：线程数
+        - --out-format：输出格式
+        - --ext：视频格式
+        - --new-width：输出图片宽度
+        - --new-height：输出图片高度
+        - --use-opencv：使用opencv抽帧
 
     运行该脚本获取验证所需要的验证文件。将生成kinetics400_label.txt和kinetics400_val_list_rawframes.txt。kinetics400_val_list_rawframes.txt即为验证时需要的文件。
 

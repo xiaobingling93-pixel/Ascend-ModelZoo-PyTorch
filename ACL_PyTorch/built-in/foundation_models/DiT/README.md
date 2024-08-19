@@ -150,7 +150,7 @@ latent_size = image_size // 8
       1. 移动DiT_pt2onnx.py至DiT目录，使用DiT_pt2onnx.py导出onnx文件。
 
          ```
-         python3 ./DiT/DiT_pt2onnx.py --image_size 512 --model_path ./DiT-XL-2-512x512.pt
+         python3 ./DiT/DiT_pt2onnx.py --image_size 512 --model_path ./DiT-XL-2-512x512.pt --save_dir models --model_name DiT-XL/2 --num_classes 1000 --vae mse
          ```
 
          运行成功后生成<u>***dit_dynamic_512.onnx***</u>和<u>***vae_dynamic_512_mse.onnx***</u>模型文件。
@@ -162,7 +162,7 @@ latent_size = image_size // 8
            -   --image\_size: 分辨率，支持256和512。默认为256。
            -   --model\_name: 模型名称。
            -   --num\_classes: 类别数量。
-           -   --vae: 图片解码模式。
+           -   --vae: 图片解码模式，可选ema, mse。
 
       2. 使用onnxsim精简onnx文件
 

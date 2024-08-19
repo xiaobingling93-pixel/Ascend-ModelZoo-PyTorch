@@ -192,9 +192,9 @@ HRNet（High-Resolution Net）是针对2D人体姿态估计（Human Pose Estimat
    2. 执行推理。
 
         ```
-        python3 -m ais_bench --model ./hrnet_bs{batch size}.om --input ./prep_dataset/ --output ./output --output_dirname subdir --outfmt 'TXT' --batchsize {batch size}
+        python3 -m ais_bench --model ./hrnet_bs{batch size}.om --input ./prep_dataset/ --output ./output --output_dirname subdir --outfmt 'TXT'
         示例
-        python3 -m ais_bench --model ./hrnet_bs16.om --input ./prep_dataset/ --output ./output --output_dirname subdir --outfmt 'TXT' --batchsize 16
+        python3 -m ais_bench --model ./hrnet_bs16.om --input ./prep_dataset/ --output ./output --output_dirname subdir --outfmt 'TXT'
         ```
 
         -   参数说明：

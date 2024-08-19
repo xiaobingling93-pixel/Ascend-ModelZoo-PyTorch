@@ -175,6 +175,7 @@ commit_id=7d955df73fe0e9b47f7d6c77c699324b256fc41f
       - --model：模型地址
       - --input：预处理完的数据集文件夹
       - --output：推理结果保存地址
+      - --output_dirname：推理结果保存子目录
       - --outfmt：推理结果保存格式
 
    运行成功后会在```./result/```下生成推理输出的txt文件。

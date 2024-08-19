@@ -71,9 +71,12 @@ PSENet(渐进式的尺度扩张网络)是一种文本检测器，能够很好地
 # 快速上手<a name="ZH-CN_TOPIC_0000001126281700"></a>
 
 ## 获取源码<a name="section4622531142816"></a>
-
-
-1. 安装依赖。
+1. 获取源码
+   ```
+   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+   cd ModelZoo-PyTorch/ACL_PyTorch/built-in/cv/PSENet_for_Pytorch
+   ```
+2. 安装依赖。
 
    ```
    pip3 install -r requirements.txt
@@ -82,7 +85,6 @@ PSENet(渐进式的尺度扩张网络)是一种文本检测器，能够很好地
 ## 准备数据集<a name="section183221994411"></a>
 
 1. 获取原始数据集。（解压命令参考tar –xvf  \*.tar与 unzip \*.zip）
-
 
 
    本模型支持ICDAR2015数据集。用户需自行获取数据集，其目录结构如下：

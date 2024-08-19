@@ -254,12 +254,11 @@ CTPN是一种文字检测算法，它结合了CNN与LSTM深度网络，能有效
       ```
       - 参数说明：
          - --interpreter:推理工具。
-         - --model：om文件路径。
-         - --input：输入的bin文件路径。
-         - --output：推理结果文件路径。
-         - --outfmt：输出结果格式。
-         - --device：NPU设备编号。
+         - --om_path：om文件路径。
+         - --src_dir：输入的bin文件路径。
          - --res_dir：得到的结果文件夹。
+         - --batch_size：模型batch。
+         - --device：NPU设备编号。
 
       推理后的输出在推理结果文件路径下result文件夹。
 
@@ -275,19 +274,18 @@ CTPN是一种文字检测算法，它结合了CNN与LSTM深度网络，能有效
 
       调用脚本与原图片处理后文件比对，可以获得Accuracy数据，结果保存在result.json中。
     
-      ```python
+      ```bash
       python3 ctpn_postprocess.py --imgs_dir=./datasets/Challenge2_Test_Task12_Images --bin_dir=./result --predict_txt=./result/predict_txt
       zip -j ./script/predict_txt.zip ./result/predict_txt/*
       python3 script/script.py -g=./script/gt.zip –s=./script/predict_txt.zip > result.json
       ```
 
       -  参数说明：     
-         - --model：om文件路径。
-         - --input：输入的bin文件路径。
-         - --output：推理结果文件路径。
-         - --outfmt：输出结果格式。
-         - --device：NPU设备编号。
-         - --batchsize：批大小。
+         - --imgs_dir：图片文件路径
+         - --bin_dir：输出结果bin文件路径。
+         - --predict_txt：模型后处理结果文件路径。
+         - -g：标杆文件。
+         - –s：推理结果文件。
 
 
 # 模型推理性能&精度<a name="ZH-CN_TOPIC_0000001172201573"></a>
