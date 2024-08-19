@@ -1,20 +1,17 @@
 
 ################基础配置参数，需要模型审视修改##################
-# 必选字段(必须在此处定义的参数): Network batch_size resume RANK_SIZE
+# 必选字段(必须在此处定义的参数): Network batch_size resume
 # 网络名称，同目录名称
 Network="SSD-MobileNetV1"
 # 测试batch_size
 batch_size=32
-# 测试使用的npu卡数
-export RANK_SIZE=1
 # 数据集路径,保持为空,不需要修改
 data_path=""
 # checkpoint文件路径,以实际路径为准
 pth_path=""
 
-
 # 加载数据进程数
-workers=4
+workers=32
 
 
 # 参数校验，data_path为必传参数，其他参数的增删由模型自身决定；此处新增参数需在上面有定义并赋值
@@ -57,8 +54,7 @@ fi
 #################创建日志输出目录，不需要修改#################
 ASCEND_DEVICE_ID=0
 if [ -d ${test_path_dir}/output/${ASCEND_DEVICE_ID} ];then
-    rm -rf ${test_path_dir}/output/${ASCEND_DEVICE_ID}
-    mkdir -p ${test_path_dir}/output/$ASCEND_DEVICE_ID
+    echo "The output directory already exists."
 else
     mkdir -p ${test_path_dir}/output/$ASCEND_DEVICE_ID
 fi
@@ -86,7 +82,7 @@ wait
 end_time=$(date +%s)
 e2e_time=$(( $end_time - $start_time ))
 
-ActualLoss=`awk 'END {print}'  ${test_path_dir}/output/${ASCEND_DEVICE_ID}/test_${ASCEND_DEVICE_ID}.log`
+mAP=`awk 'END {print}'  ${test_path_dir}/output/${ASCEND_DEVICE_ID}/test_${ASCEND_DEVICE_ID}.log`
 
 echo "E2E Eval Duration sec : ${e2e_time}"
-echo ${ActualLoss}
+echo ${mAP}

@@ -115,7 +115,7 @@ FPS=`grep -a 'FPS'  ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_D
 echo "Final Performance images/sec : $FPS"
 
 #输出验证损失,需要模型审视修改
-validation_loss=`grep -a 'Validation'  ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log|awk 'END {print}'|awk -F "Validation" '{print $2}'|awk -F " " '{print $2}'`
+validation_loss=`grep -a 'Validation'  ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log|awk 'END {print}'|awk -F "Validation" '{print $2}'|awk -F " " '{print $2}' | awk -F ',' '{print $1}'`
 #打印，不需要修改
 echo "Final Validation L-oss : ${validation_loss}"
 echo "E2E Training Duration sec : $e2e_time"

@@ -18,7 +18,8 @@ train_epochs=240
 device_id=0
 # 加载数据进程数
 workers=32
-
+# 设置是否执行评测的变量，1为执行，0则不执行
+EXEC_EVAL=1
 
 
 # 参数校验，data_path为必传参数，其他参数的增删由模型自身决定；此处新增参数需在上面有定义并赋值
@@ -115,7 +116,7 @@ FPS=`grep -a 'FPS'  ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_D
 echo "Final Performance images/sec : $FPS"
 
 #输出验证损失,需要模型审视修改
-validation_loss=`grep -a 'Validation'  ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log|awk 'END {print}'|awk -F "Validation" '{print $2}'|awk -F " " '{print $2}'`
+validation_loss=`grep -a 'Validation'  ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log|awk 'END {print}'|awk -F "Validation" '{print $2}'|awk -F " " '{print $2}' | awk -F ',' '{print $1}'`
 #打印，不需要修改
 echo "Final Validation Loss : ${validation_loss}"
 echo "E2E Training Duration sec : $e2e_time"
@@ -145,3 +146,33 @@ echo "ActualFPS = ${ActualFPS}" >>  ${test_path_dir}/output/$ASCEND_DEVICE_ID/${
 echo "TrainingTime = ${TrainingTime}" >>  ${test_path_dir}/output/$ASCEND_DEVICE_ID/${CaseName}.log
 echo "ValidationLoss = ${validation_loss}" >> ${test_path_dir}/output/$ASCEND_DEVICE_ID/${CaseName}.log
 echo "E2ETrainingTime = ${e2e_time}" >>  ${test_path_dir}/output/$ASCEND_DEVICE_ID/${CaseName}.log
+
+#################启动评测脚本#################
+# 如果 EXEC_EVAL 为 1，则执行评测
+if [ "$EXEC_EVAL" -eq 1 ]; then
+    # 计算 epoch - 1
+    eva_epoch_index=$((train_epochs - 1))
+
+    # 查找 models 目录下包含 "$eva_epoch_index" 且以 .pth 结尾的文件，并按生成时间排序，取最新的文件
+    model_file=$(find models -type f -name "*Epoch-${eva_epoch_index}*.pth" -printf "%T@ %p\n" | sort -n -r | head -n 1 | awk '{print $2}')
+
+    # 判断是否找到匹配的文件
+    if [ -z "$model_file" ]; then
+        echo "No matching model file is found."
+        exit 1
+    fi
+
+    # 打印找到的模型文件
+    echo "Model File Found: $model_file"
+
+    # 传入评测命令
+    eval_command="bash ./test/train_eval.sh --data_path=VOCdevkit/test/VOC2007/ --pth_path=$model_file"
+    echo "Executing eva command: $eval_command"
+    $eval_command
+else
+    echo "Eval did not execute because the EXEC_EVAL variable is set to $EXEC_EVAL."
+fi
+mAP=`awk 'END {print}' ${test_path_dir}/output/${ASCEND_DEVICE_ID}/test_${ASCEND_DEVICE_ID}.log`
+
+# 补充关键信息打印到${CaseName}.log中
+echo ${mAP} >>  ${test_path_dir}/output/$ASCEND_DEVICE_ID/${CaseName}.log

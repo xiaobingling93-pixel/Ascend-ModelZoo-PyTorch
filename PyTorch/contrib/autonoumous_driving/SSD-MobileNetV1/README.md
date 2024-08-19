@@ -155,9 +155,9 @@ SSD是一种one-stage的目标检测框架。SSD_MobileNetV1使用MobileNetV1提
 
 
      ```
-     bash ./test/train_full_1p.sh --data_path=VOCdevkit/VOC2007/ --validation_data_path==VOCdevkit/test/VOC2007/  # 单卡精度
+     bash ./test/train_full_1p.sh --data_path=VOCdevkit/VOC2007/ --validation_data_path=VOCdevkit/test/VOC2007/  # 单卡精度
 
-     bash ./test/train_full_1p.sh --data_path=VOCdevkit/VOC2007/,VOCdevkit/VOC2012/xxx/ --validation_data_path=VOCdevkit/test/VOC2007/  # 单卡多数据集精度
+     bash ./test/train_full_1p.sh --data_path=VOCdevkit/VOC2007/,VOCdevkit/VOC2012/ --validation_data_path=VOCdevkit/test/VOC2007/  # 单卡多数据集精度
      
      bash ./test/train_performance_1p.sh --data_path=VOCdevkit/VOC2007/ --validation_data_path=VOCdevkit/test/VOC2007/  # 单卡性能
 

@@ -5,7 +5,7 @@
 # 网络名称，同目录名称
 Network="SSD-MobileNetV1"
 # 训练batch_size
-batch_size=64
+batch_size=32
 # 训练使用的npu卡数
 export RANK_SIZE=8
 export MASTER_ADDR=localhost
@@ -101,7 +101,7 @@ do
     --amp=True \
     --debug_steps=1 \
     --distributed=True \
-    --world_size=8 \
+    --world_size=$WORLD_SIZE \
     --local_rank=$RANK_ID\
     --opt_level='O2' \
     --loss_scale_value=128.0 \
@@ -127,7 +127,7 @@ FPS=`grep -a 'FPS'  ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_D
 echo "Final Performance images/sec : $FPS"
 
 #输出验证损失,需要模型审视修改
-validation_loss=`grep -a 'Validation'  ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log|awk 'END {print}'|awk -F "Validation" '{print $2}'|awk -F " " '{print $2}'`
+validation_loss=`grep -a 'Validation'  ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log|awk 'END {print}'|awk -F "Validation" '{print $2}'|awk -F " " '{print $2}' | awk -F ',' '{print $1}'`
 #打印，不需要修改
 echo "Final Validation Loss : ${validation_loss}"
 echo "E2E Training Duration sec : $e2e_time"
