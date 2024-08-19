@@ -39,7 +39,7 @@ class PFNLayer(nn.Module):
         x = self.norm(x.permute(0, 2, 1)).permute(0, 2, 1) if self.use_norm else x
         torch.backends.cudnn.enabled = True
         x = F.relu(x)
-        x_max = torch.max(x, dim=1, keepdim=True)[0]
+        x_max = torch.max(x.transpose(0,1), dim=0)[0].unsqueeze(0).transpose(0,1)
 
         if self.last_vfe:
             return x_max
@@ -94,13 +94,18 @@ class PillarVFE(VFETemplate):
     def forward(self, batch_dict, **kwargs):
   
         voxel_features, voxel_num_points, coords = batch_dict['voxels'], batch_dict['voxel_num_points'], batch_dict['voxel_coords']
-        points_mean = voxel_features[:, :, :3].sum(dim=1, keepdim=True) / voxel_num_points.type_as(voxel_features).view(-1, 1, 1)
-        f_cluster = voxel_features[:, :, :3] - points_mean
+        voxel_features_3 = voxel_features[:, :, :3]
+        voxel_features_dim2_length = voxel_features.shape[2]
+        voxel_features_0, voxel_features_1, voxel_features_2, _ = torch.split(voxel_features, [1, 1, 1, voxel_features_dim2_length-3], dim=2)
+        coords_dim1_length = coords.shape[1]
+        coords_0, coords_1, coords_2, coords_3, _ = torch.split(coords, [1, 1, 1, 1, coords_dim1_length-4], dim=1)
+        points_mean = voxel_features_3.sum(dim=1, keepdim=True) / voxel_num_points.type_as(voxel_features).view(-1, 1, 1)
+        f_cluster = voxel_features_3 - points_mean
 
-        f_center = torch.zeros_like(voxel_features[:, :, :3])
-        f_center[:, :, 0] = voxel_features[:, :, 0] - (coords[:, 3].to(voxel_features.dtype).unsqueeze(1) * self.voxel_x + self.x_offset)
-        f_center[:, :, 1] = voxel_features[:, :, 1] - (coords[:, 2].to(voxel_features.dtype).unsqueeze(1) * self.voxel_y + self.y_offset)
-        f_center[:, :, 2] = voxel_features[:, :, 2] - (coords[:, 1].to(voxel_features.dtype).unsqueeze(1) * self.voxel_z + self.z_offset)
+        f_center = torch.zeros_like(voxel_features_3)
+        f_center[:, :, 0] = voxel_features_0.squeeze(2) - (coords_3.to(voxel_features.dtype) * self.voxel_x + self.x_offset)
+        f_center[:, :, 1] = voxel_features_1.squeeze(2) - (coords_2.to(voxel_features.dtype) * self.voxel_y + self.y_offset)
+        f_center[:, :, 2] = voxel_features_2.squeeze(2) - (coords_1.to(voxel_features.dtype) * self.voxel_z + self.z_offset)
 
         if self.use_absolute_xyz:
             features = [voxel_features, f_cluster, f_center]
@@ -108,7 +113,7 @@ class PillarVFE(VFETemplate):
             features = [voxel_features[..., 3:], f_cluster, f_center]
 
         if self.with_distance:
-            points_dist = torch.norm(voxel_features[:, :, :3], 2, 2, keepdim=True)
+            points_dist = torch.norm(voxel_features_3, 2, 2, keepdim=True)
             features.append(points_dist)
         features = torch.cat(features, dim=-1)
 

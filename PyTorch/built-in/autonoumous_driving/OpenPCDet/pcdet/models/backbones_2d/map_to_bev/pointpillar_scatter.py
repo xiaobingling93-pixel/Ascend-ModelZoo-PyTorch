@@ -9,22 +9,28 @@ class PointPillarScatter(nn.Module):
         self.model_cfg = model_cfg
         self.num_bev_features = self.model_cfg.NUM_BEV_FEATURES
         self.nx, self.ny, self.nz = grid_size
+        self.nums = self.nz * self.nx * self.ny
         assert self.nz == 1
 
     def forward(self, batch_dict, **kwargs):
         pillar_features, coords = batch_dict['pillar_features'], batch_dict['voxel_coords']
+        coords_dim1_length = coords.shape[1]
+        coords_0, coords_1, coords_2, coords_3, _ = torch.split(coords, [1, 1, 1, 1, coords_dim1_length-4], dim=1)
+        coords_0 = coords_0.squeeze(1)
+        coords_1 = coords_1.squeeze(1)
+        coords_2 = coords_2.squeeze(1)
+        coords_3 = coords_3.squeeze(1)
         batch_spatial_features = []
-        batch_size = coords[:, 0].max().int().item() + 1
+        batch_size = coords_0.max().int().item() + 1
         for batch_idx in range(batch_size):
             spatial_feature = torch.zeros(
                 self.num_bev_features,
-                self.nz * self.nx * self.ny,
+                self.nums,
                 dtype=pillar_features.dtype,
                 device=pillar_features.device)
 
-            batch_mask = coords[:, 0] == batch_idx
-            this_coords = coords[batch_mask, :]
-            indices = this_coords[:, 1] + this_coords[:, 2] * self.nx + this_coords[:, 3]
+            batch_mask = coords_0 == batch_idx
+            indices = coords_1[batch_mask] + coords_2[batch_mask] * self.nx + coords_3[batch_mask]
             indices = indices.type(torch.long)
             pillars = pillar_features[batch_mask, :]
             pillars = pillars.t()

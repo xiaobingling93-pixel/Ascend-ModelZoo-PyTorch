@@ -17,6 +17,9 @@ fi
 export RANK_SIZE=8
 RANK_ID_START=0
 
+#绑核
+export CPU_AFFINITY_CONF=1
+
 #基础参数，需要模型审视修改
 #网络名称，同目录名称
 Network="CenterPoint"
