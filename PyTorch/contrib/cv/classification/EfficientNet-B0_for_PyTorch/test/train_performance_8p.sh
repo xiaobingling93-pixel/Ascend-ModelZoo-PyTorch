@@ -27,10 +27,6 @@ batch_size=4096
 #train_steps=`expr 1281167 / ${batch_size}`
 #学习率
 learning_rate=1.6
-#训练步数
-train_steps=20
-#test步数
-test_steps=20
 
 #TF2.X独有，需要模型审视修改
 #export NPU_LOOP_SIZE=${train_steps}
@@ -105,7 +101,7 @@ fi
 export MASTER_ADDR="127.0.0.1"
 export MASTER_PORT="29688"
 
-python3 ${cur_path}/examples/imagenet/main.py \
+nohup python3 ${cur_path}/examples/imagenet/main.py \
     --data=${data_path} \
     --workers=56 \
     --arch=efficientnet-b0 \
@@ -114,12 +110,11 @@ python3 ${cur_path}/examples/imagenet/main.py \
     --momentum=0.9 \
     --epochs=${train_epochs}  \
     --autoaug \
-    --log_file=${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log \
     --multiprocessing-distributed \
     --world-size 1 \
     --rank 0 \
-    --device_list '0,1,2,3,4,5,6,7' \
-    --prof
+    --device_list '0,1,2,3,4,5,6,7' > $test_path_dir/output/$ASCEND_DEVICE_ID/train_$ASCEND_DEVICE_ID.log 2>&1 &
+wait
 
 #训练结束时间，不需要修改
 end_time=$(date +%s)

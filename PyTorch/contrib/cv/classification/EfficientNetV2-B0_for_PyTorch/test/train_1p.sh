@@ -87,7 +87,7 @@ else
     mkdir -p ${test_path_dir}/output/$ASCEND_DEVICE_ID
 fi
 
-bash distributed_train.sh 1 \
+nohup bash distributed_train.sh 1 \
     $data_path \
     --model tf_efficientnetv2_b0 \
     -b $batch_size \
@@ -110,8 +110,7 @@ bash distributed_train.sh 1 \
     --model-ema-decay 0.9999 \
     --perf-steps ${perf_steps} \
     --mixup 0.2 \
-    --log-file ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log \
-    --input-size 3 224 224
+    --input-size 3 224 224 > $test_path_dir/output/$ASCEND_DEVICE_ID/train_$ASCEND_DEVICE_ID.log 2>&1 &
 wait
 
 #8p情况下仅0卡(主节点)有完整日志,因此后续日志提取仅涉及0卡

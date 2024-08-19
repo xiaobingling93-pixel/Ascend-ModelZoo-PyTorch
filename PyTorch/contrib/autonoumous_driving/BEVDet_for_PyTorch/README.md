@@ -121,7 +121,7 @@ BEVDet_for_PyTorch/data
 ```
 ## 获取预训练权重
 1. 联网情况下，预训练权重会自动下载。
-2. 无网络情况下，用户可以访问pytorch官网自行下载*resnet50*预训练[*resnet18-f37072fd.pth*](https://download.pytorch.org/models/resnet50-0676ba61.pth)。获取对应的预训练模型后，将预训练文件拷贝至对应目录。
+2. 无网络情况下，用户可以访问pytorch官网自行下载*resnet50*预训练[*resnet50-0676ba61.pth*](https://download.pytorch.org/models/resnet50-0676ba61.pth)。获取对应的预训练模型后，将预训练文件拷贝至对应目录。
 ```
 ${torch_hub}/checkpoints/resnet50-0676ba61.pth
 ```

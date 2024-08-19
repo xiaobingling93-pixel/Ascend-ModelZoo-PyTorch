@@ -114,7 +114,7 @@ do
 
     #执行训练脚本，以下传参不需要修改，其他需要模型审视修改
     #--data_dir, --model_dir, --precision_mode, --over_dump, --over_dump_path，--data_dump_flag，--data_dump_step，--data_dump_path，--profiling，--profiling_dump_path
-    python3 ${cur_path}/examples/imagenet/main.py \
+    nohup python3 ${cur_path}/examples/imagenet/main.py \
         --data=${data_path} \
         --workers=8 \
         --arch=efficientnet-b0 \
@@ -123,9 +123,8 @@ do
         --momentum=0.9 \
         --epochs=${train_epochs}  \
         --autoaug \
-        --prof \
-        --log_file=${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log \
-        --npu=$ASCEND_DEVICE_ID
+        --npu=$ASCEND_DEVICE_ID > $test_path_dir/output/$ASCEND_DEVICE_ID/train_$ASCEND_DEVICE_ID.log 2>&1 &
+    wait
 done
 
 #训练结束时间，不需要修改
