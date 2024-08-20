@@ -213,8 +213,8 @@ def main():
     parser.add_argument("--lora_dropout", type=float, default=0.1, help="Dropout rate for LoRA")
     parser.add_argument("--warmup_steps", type=int, default=0,
                         help="Number of warmup steps for learning rate scheduler")
-    parser.add_argument("--max_input_len", type=int, default=128, help="Maximum input length")
-    parser.add_argument("--max_output_len", type=int, default=128, help="Maximum output length")
+    parser.add_argument("--max_input_len", type=int, default=512, help="Maximum input length")
+    parser.add_argument("--max_output_len", type=int, default=512, help="Maximum output length")
     parser.add_argument("--model_path", type=str,
                         default="THUDM/cogvlm2-llama3-chat-19B",
                         help="Path to the pretrained model")

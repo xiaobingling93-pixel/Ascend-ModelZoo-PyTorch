@@ -34,7 +34,7 @@
 ## 代码实现
 - 参考实现
   ```
-  CogVLM仓: https://github.com/THUDM/CogVLM
+  CogVLM仓: https://github.com/THUDM/CogVLM2
   commit id: 3adb5ce3243a9c81c1df5336d3297c94d0f9e1cc
   参考链接：https://github.com/THUDM/CogVLM2/tree/3adb5ce3243a9c81c1df5336d3297c94d0f9e1cc
   ```
@@ -105,10 +105,10 @@ bash cogvlm2_lora_finetune.sh
 
 ##### 性能
 
-|    芯片    | 卡数 | s/it | micro_batch_size | AMP_Type | Torch_Version |
-|:--------:| :----: |:----:|:----------------:|:--------:| :-----------: |
-|   GPU    |   8p   | 3.3  |        1         |   bf16   |      2.1      |
-| Atlas A2 |   8p   |  4   |        1         |   bf16   |      2.1      |
+|        芯片         | 卡数 | s/it | micro_batch_size | AMP_Type | Torch_Version |
+|:-----------------:| :----: |:----:|:----------------:|:--------:| :-----------: |
+|        竞品A        |   8p   | 3.3  |        1         |   bf16   |      2.1      |
+| Atlas 900 A2 PODc |   8p   | 3.6  |        1         |   bf16   |      2.1      |
 
 #### 执行双机16卡微调
 1) 替换authority_repository/finetune_demo/cogvlm2_lora_finetune_2nodes.sh文件中的"训练数据路径"，"预训练权重路径"和"模型保存路径"为实际路径
@@ -205,9 +205,13 @@ ssh server2
 import torch_npu
 from torch_npu.contrib import transfer_to_npu
 ```
-2) 替换peft_infer.py中MODEL_PATH和PEFT_MODEL_PATH为实际路径，执行推理
+2) 需要指定推理卡号，如下所示，指定1卡：
 ```shell
-sh peft_infer.py
+export ASCEND_RT_VISIBLE_DEVICES=1
+```
+3) 替换peft_infer.py中MODEL_PATH和PEFT_MODEL_PATH为实际路径，执行推理
+```shell
+python peft_infer.py
 ```
 
 # 公网地址变更说明

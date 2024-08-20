@@ -463,6 +463,7 @@ class CogVLMModel(CogVLMPreTrainedModel):
         past_key_values_length = 0
 
         if past_key_values is not None:
+            past_key_values = past_key_values[1] if isinstance(past_key_values, tuple) else past_key_values
             past_key_values_length = past_key_values[0][0].shape[2]
             seq_length_with_past = seq_length_with_past + past_key_values_length
 
