@@ -17,7 +17,7 @@
 2）重新组织了具有更多模块的块结构，其中我们重新使用注意力权重以提高效率；3）LayerNorm的一种修改形式称为BiasNorm，允许我们保留一些长度信息；4）新的激活函数SwooshR和SwooshL比Swish效果更好。
 我们还提出了一个新的优化器，称为 ScaledAdam，它通过每个张量的当前尺度来缩放更新以保持相对变化大致相同，并且还显式地学习参数尺度。它比 Adam 实现了更快的收敛和更好的性能。
 在 LibriSpeech、Aishell-1 和 WenetSpeech 数据集上进行的大量实验证明了我们提出的 Zipformer 相对于其他最先进的 ASR 模型的有效性。
-  
+
 
 # 推理环境准备\[所有版本\]<a name="ZH-CN_TOPIC_0000001126281702"></a>
 
@@ -25,25 +25,23 @@
 
   **表 1**  版本配套表
 
-| 配套                          | 版本          | 
-|-----------------------------|-------------| 
-| CANN                        | 8.0.RC2     | -                                                       |
-| Python                      | 3.10.13     |                                                           
+| 配套                          | 版本          |
+|-----------------------------|-------------|
+| CANN                        | 8.0.RC2     |
+| Python                      | 3.10.13     |
 | torch                       | 2.1.0       |
-| MindIE                      | 1.0.RC2.B071 |           
-| NPU version                     | Ascend310P3 | -                                                         |
+| MindIE                      | 1.0.RC2.B071 |
+| NPU version                     | Ascend310P3 |
+| 处理器架构 | arm64 |
 
 # 快速上手<a name="ZH-CN_TOPIC_0000001126281700"></a>
 
 ## 环境安装
 
 1. 安装k2
-   1. （NPU）x86环境  
-    ```shell
-    wget https://huggingface.co/csukuangfj/k2/resolve/main/cpu/k2-1.24.4.dev20231220+cpu.torch2.0.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
-    pip install k2-1.24.4.dev20231220+cpu.torch2.0.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
-    ```
-    2. （NPU/GPU）arm环境，需要从源码编译。
+   
+   源码编译。
+   
     ```shell
     git clone https://github.com/k2-fsa/k2.git
     cd k2
@@ -52,8 +50,9 @@
     ```
     * **若编译失败，尝试再次编译前，需要先删除build文件夹。**
     * 若执行以上命令遇到错误，请参考[此链接](https://k2-fsa.github.io/k2/installation/from_source.html)。    
-    3. （GPU）x86环境。从[此链接](https://k2-fsa.github.io/k2/cuda.html)下载对应CUDA版本的whl文件，然后使用pip进行安装。
-    4. 验证k2是否安装成功  
+   
+   验证k2是否安装成功  
+   
     ```shell
     python3 -m k2.version
     ```
@@ -73,7 +72,7 @@
 3. 安装icefall
     ```shell
     git clone https://github.com/k2-fsa/icefall.git
-   
+      
     cd icefall
     git reset --hard e2fcb42f5f176d9e39eb38506ab99d0a3adaf202
     pip install -r requirements.txt
@@ -107,7 +106,7 @@ icefall-asr-zipformer-streaming-wenetspeech-20230615
     
     cp egs/librispeech/ASR/zipformer/export-onnx-streaming.py egs/librispeech/ASR/zipformer/export-aie-streaming.py
     cp egs/librispeech/ASR/zipformer/onnx_pretrained-streaming.py egs/librispeech/ASR/zipformer/aie_pretrained-streaming.py
-   
+      
     patch -p1 < ../export_onnx.patch
     patch -p1 < ../export_aie.patch
     patch -p1 < ../aie_streaming_infer.diff
@@ -146,7 +145,7 @@ icefall-asr-zipformer-streaming-wenetspeech-20230615
      --causal True \
      --chunk-size 16 \
      --left-context-frames 128
-    ```
+   ```
    执行结束后，会在“icefall-asr-zipformer-streaming-wenetspeech-20230615/exp”目录下生成三个onnx文件：
     - encoder-epoch-12-avg-1-chunk-16-left-128.onnx
     - decoder-epoch-12-avg-1-chunk-16-left-128.onnx
@@ -183,7 +182,7 @@ icefall-asr-zipformer-streaming-wenetspeech-20230615
      --causal True \
      --chunk-size 16 \
      --left-context-frames 128
-    ```
+   ```
     执行结束后，会在“icefall-asr-zipformer-streaming-wenetspeech-20230615/exp”目录下生成三个编译好的torchscript文件：
     - encoder-epoch-12-avg-1-chunk-16-left-128_aie.pt
     - decoder-epoch-12-avg-1-chunk-16-left-128_aie.pt
@@ -213,7 +212,7 @@ icefall-asr-zipformer-streaming-wenetspeech-20230615
       ```shell
       INFO [aie_pretrained-streaming.py:554] 我认为跑步最重要的就是给我带来了身体健康
       ```
-      
+   
 6. 精度测试
    ```shell
    cd icefall/egs/librispeech/ASR/zipformer
@@ -273,7 +272,7 @@ icefall-asr-zipformer-streaming-wenetspeech-20230615
       ```python
       import onnxruntime
       print(onnxruntime.get_device())  # 若输出为GPU，则说明安装成功
-      ``` 
+      ```
       2. 执行性能测试。  
       ```shell
       cd icefall/egs/librispeech/ASR/zipformer

@@ -23,24 +23,22 @@
 
   **表 1**  版本配套表
 
-| 配套                          | 版本          | 
-|-----------------------------|-------------| 
-| CANN                        | 8.0.T5      | -                                                       |
-| Python                      | 3.10.13     |                                                           
-| torch                       | 2.1.0       |
-| 芯片类型                        | Ascend310P3 | -                                                         |
+| 配套        | 版本        |
+| ----------- | ----------- |
+| CANN        | 8.0.T5      |
+| Python      | 3.10.13     |
+| torch       | 2.1.0       |
+| NPU芯片类型 | Ascend310P3 |
+| 处理器架构  | arm64       |
 
 # 快速上手<a name="ZH-CN_TOPIC_0000001126281700"></a>
 
 ## 环境安装
 
 1. 安装k2
-   1. （NPU）x86环境  
-    ```shell
-    wget https://huggingface.co/csukuangfj/k2/resolve/main/cpu/k2-1.24.4.dev20231220+cpu.torch2.0.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
-    pip install k2-1.24.4.dev20231220+cpu.torch2.0.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
-    ```
-    2. （NPU/GPU）arm环境，需要从源码编译。
+   
+   源码编译。
+   
     ```shell
     git clone https://github.com/k2-fsa/k2.git
     cd k2
@@ -49,8 +47,9 @@
     ```
     * **若编译失败，尝试再次编译前，需要先删除build文件夹。**
     * 若执行以上命令遇到错误，请参考[此链接](https://k2-fsa.github.io/k2/installation/from_source.html)。    
-    3. （GPU）x86环境。从[此链接](https://k2-fsa.github.io/k2/cuda.html)下载对应CUDA版本的whl文件，然后使用pip进行安装。
-    4. 验证k2是否安装成功  
+   
+   验证k2是否安装成功  
+   
     ```shell
     python3 -m k2.version
     ```
@@ -70,7 +69,7 @@
 3. 安装icefall
     ```shell
     git clone https://github.com/k2-fsa/icefall.git
-   
+      
     cd icefall
     git reset --hard e2fcb42f5f176d9e39eb38506ab99d0a3adaf202
     pip install -r requirements.txt
@@ -128,7 +127,7 @@ icefall-asr-zipformer-wenetspeech-20230615
      --causal False \
      --chunk-size "16, 32, 64, -1" \
      --left-context-frames "64, 128, 256, -1"
-    ```
+   ```
    执行结束后，会在“icefall-asr-zipformer-wenetspeech-20230615/exp”目录下生成6个模型文件：
     - encoder-epoch-12-avg-1.onnx
     - decoder-epoch-12-avg-1.onnx
@@ -140,7 +139,7 @@ icefall-asr-zipformer-wenetspeech-20230615
    ```shell
    cd icefall/icefall_pt
    python export_torch_aie_model.py
-    ```
+   ```
     参数说明：
    ```shell
    --torch_script_path：torhscript模型路径
@@ -148,7 +147,7 @@ icefall-asr-zipformer-wenetspeech-20230615
    --soc_version：硬件版本
    --batch_size
    --save_path：编译后的模型保存路径
-    ```
+   ```
     执行结束后，会在save_path对应目录下生成三个编译好的torchscript文件：
     - encoder-epoch-12-avg-1_mindietorch_bs1.pt
     - decoder-epoch-12-avg-1_mindietorch_bs1.pt
@@ -170,7 +169,7 @@ icefall-asr-zipformer-wenetspeech-20230615
    --result_path：模型运行结果保存路径
    --device_id：硬件编号
    --multi：数据加倍的倍数（注意，若multi与batch_size不同时为1，则不生成result文件；测性能部分，脚本默认的warm_up为20loop，若multi不超过20，则不会输出性能）
-    ```
+   ```
 6. 精度测试（将onnx_test下的四个测试脚本拷贝到icefall/egs/librispeech/ASR/zipformer）
    ```shell
    cd icefall/egs/librispeech/ASR
