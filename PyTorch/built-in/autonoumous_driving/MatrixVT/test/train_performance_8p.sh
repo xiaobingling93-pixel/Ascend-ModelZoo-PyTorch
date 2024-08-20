@@ -1,5 +1,27 @@
 #!/bin/bash
-
+#基础参数，需要模型审视修改
+#网络名称，同目录名称
+Network="MatrixVT_ID4381_for_PyTorch"
+#训练epoch
+train_epochs=1
+#训练batch_size
+batch_size=8
+#学习率
+learning_rate=0.000003125
+data_path=""
+# 参数校验，data_path为必传参数，其他参数的增删由模型自身决定；此处新增参数需在上面有定义并赋值
+for para in $*
+do
+    if [[ $para == --data_path* ]];then
+        data_path=`echo ${para#*=}`
+    elif [[ $para == --batch_size* ]];then
+        batch_size=`echo ${para#*=}`
+    elif [[ $para == --conda_name* ]];then
+        conda_name=`echo ${para#*=}`
+        export PATH=/home/anaconda3/bin:$PATH
+        source activate $conda_name
+    fi
+done
 ###############指定训练脚本执行路径###############
 # cd到与test文件夹同层级目录下执行脚本，提高兼容性；test_path_dir为包含test文件夹的路径
 cur_path=`pwd`
@@ -27,16 +49,6 @@ if [ -d ${cur_path}/outputs/ ];then
 fi
 ckpt_path="./outputs/matrixvt_bev_depth_lss_r50_256x704_128x128_24e_ema_cbgs/lightning_logs/version_0/23.pth"
 
-#基础参数，需要模型审视修改
-#网络名称，同目录名称
-Network="MatrixVT_for_PyTorch"
-#训练epoch
-train_epochs=1
-#训练batch_size
-batch_size=8
-#学习率
-learning_rate=0.000003125
-
 
 #设置环境变量，不需要修改
 ASCEND_DEVICE_ID=0
@@ -50,7 +62,8 @@ if [ -d ${test_path_dir}/output/${ASCEND_DEVICE_ID} ];then
 else
     mkdir -p ${test_path_dir}/output/$ASCEND_DEVICE_ID
 fi
-
+mkdir data
+ln -s /npu/traindata/nuScenes data/
 #非平台场景时source 环境变量
 check_etp_flag=`env | grep etp_running_flag`
 etp_flag=`echo ${check_etp_flag#*=}`
