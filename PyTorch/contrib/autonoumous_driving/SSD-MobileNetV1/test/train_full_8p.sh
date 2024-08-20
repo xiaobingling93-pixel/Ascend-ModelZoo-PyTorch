@@ -178,7 +178,7 @@ if [ "$EXEC_EVAL" -eq 1 ]; then
     echo "Model File Found: $model_file"
 
     # 传入评测命令
-    eval_command="bash ./test/train_eval.sh --data_path=VOCdevkit/test/VOC2007/ --pth_path=$model_file"
+    eval_command="bash ./test/train_eval.sh --data_path=${validation_data_path} --pth_path=$model_file"
     echo "Executing eva command: $eval_command"
     $eval_command
 else
