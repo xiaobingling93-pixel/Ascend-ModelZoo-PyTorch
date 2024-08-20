@@ -10,6 +10,9 @@ do
         data_path=`echo ${para#*=}`
     elif [[ $para == --batch_size* ]];then
         batch_size=`echo ${para#*=}`
+    elif [[ $para == --ep* ]];then
+        ep=`echo ${para#*=}`
+        sed -i "s|/export/home/.cache/lavis|/npu/traindata/blip2_dataset|g" ../lavis/configs/default.yaml
     elif [[ $para == --conda_name* ]];then
         conda_name=`echo ${para#*=}`
         export PATH=/home/anaconda3/bin:$PATH
@@ -71,7 +74,7 @@ e2e_time=$(($end_time - $start_time))
 echo "------------------ Final result ------------------"
 
 #输出性能FPS，需要模型审视修改
-FPS=$(grep -o "fps: [0-9.]*" ${test_path_dir}/output/train_performance_8p_blip2_caption_coco_opt2.7b_ft.log | awk 'END {print $NF}')
+FPS=$(grep -o "fps: [0-9.]*" ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_0.log | awk 'END {print $NF}')
 
 #获取性能数据，不需要修改
 #吞吐量
@@ -81,7 +84,7 @@ ActualFPS=$(awk 'BEGIN{printf "%.2f\n", '${FPS}'}')
 echo "Final Performance images/sec : $ActualFPS"
 
 #loss值，不需要修改
-ActualLoss=$(grep -o "loss: [0-9.]*" ${test_path_dir}/output/train_performance_8p_blip2_caption_coco_opt2.7b_ft.log | awk 'END {print $NF}')
+ActualLoss=$(grep -o "loss: [0-9.]*" ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_0.log | awk 'END {print $NF}')
 
 #打印，不需要修改
 echo "Final Train Loss : ${ActualLoss}"
