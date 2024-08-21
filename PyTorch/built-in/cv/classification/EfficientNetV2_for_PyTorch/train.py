@@ -68,6 +68,9 @@ from timm.scheduler import create_scheduler
 from timm.utils import ApexScaler, NativeScaler
 from timm.optim.optim_factory import add_weight_decay
 from fused_ema import ModelEmaV2Npu
+import warnings
+warnings.filterwarnings('ignore', category=ResourceWarning)
+warnings.filterwarnings('ignore', category=DeprecationWarning)
 
 try:
     import apex
