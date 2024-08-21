@@ -33,9 +33,12 @@ import torch.nn.functional as F
 import random
 from datetime import datetime
 from typing import List, Tuple, Dict, Union, Optional
+from invoke import task
 import warnings
 import os
 
+if not hasattr(inspect, 'getargspec'):
+    inspect.getargspec = inspect.getfullargspec
 
 is_py2 = six.PY2
 
