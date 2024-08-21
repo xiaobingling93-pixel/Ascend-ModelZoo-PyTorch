@@ -49,6 +49,7 @@ from mmdet.models import build_detector
 from mmdet.utils import (collect_env, get_device, get_root_logger,
                          replace_cfg_vals, setup_multi_processes,
                          update_data_root)
+torch.npu.config.allow_internal_format=True
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train a detector')
@@ -113,7 +114,7 @@ def parse_args():
         choices=['none', 'pytorch', 'slurm', 'mpi'],
         default='none',
         help='job launcher')
-    parser.add_argument('--local_rank', type=int, default=0)
+    parser.add_argument('--local_rank', '--local-rank', type=int, default=0)
     parser.add_argument(
         '--auto-scale-lr',
         action='store_true',

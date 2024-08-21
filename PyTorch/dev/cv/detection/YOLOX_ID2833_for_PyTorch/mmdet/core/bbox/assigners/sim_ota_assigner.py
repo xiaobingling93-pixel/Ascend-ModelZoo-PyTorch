@@ -19,6 +19,7 @@ import warnings
 
 import torch
 import torch.nn.functional as F
+import mmcv.ops
 
 from ..builder import BBOX_ASSIGNERS
 from ..iou_calculators import bbox_overlaps
@@ -164,7 +165,7 @@ class SimOTAAssigner(BaseAssigner):
             return AssignResult(
                 num_gt, assigned_gt_inds, max_overlaps, labels=assigned_labels)
 
-        pairwise_ious = bbox_overlaps(valid_decoded_bbox, gt_bboxes)
+        pairwise_ious = mmcv.ops.bbox_overlaps(valid_decoded_bbox, gt_bboxes)
         iou_cost = -torch.log(pairwise_ious + eps)
 
         gt_onehot_label = (
