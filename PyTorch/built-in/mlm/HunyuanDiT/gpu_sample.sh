@@ -1,0 +1,1 @@
+python sample_t2i.py --infer-mode fa --prompt "渔舟唱晚" --image-size 1280 768 --no-enhance
