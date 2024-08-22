@@ -227,7 +227,7 @@ python setup.py develop
 
   | Torch_Version      | 三方库依赖版本                                 |
   | :--------: | :----------------------------------------------------------: |
-  | PyTorch 2.10 | torchvision 0.16.0 |
+  | PyTorch 2.1.0 | torchvision 0.16.0 |
   | PyTorch 2.2 | torchvision 0.17.0 |
 
 - 环境准备指导。
