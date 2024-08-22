@@ -78,23 +78,12 @@ class STDiT3Block(nn.Module):
         self.drop_path = DropPath(drop_path) if drop_path > 0.0 else nn.Identity()
         self.scale_shift_table = nn.Parameter(torch.randn(6, hidden_size) / hidden_size**0.5)
 
-    def t_mask_select(self, x_mask, x, masked_x, T, S):
+    def t_mask_select(self, x_mask, x, masked_x):
         # x: [B, (T, S), C]
         # mased_x: [B, (T, S), C]
-        # x_mask: [B, T]
-        x = rearrange(x, "B (T S) C -> B T S C", T=T, S=S)
-        masked_x = rearrange(masked_x, "B (T S) C -> B T S C", T=T, S=S)
-        x = torch.where(x_mask[:, :, None, None], x, masked_x)
-        x = rearrange(x, "B T S C -> B (T S) C")
+        # x_mask: [B, (T, S), C]
+        x = torch.lerp(masked_x, x, x_mask)
         return x
-    
-    def modulate(self, x, norm, shift_msa, scale_msa, shift_msa_zero, scale_msa_zero, x_mask, T, S):
-        x_norm = norm(x)
-        x_m = t2i_modulate(x_norm, shift_msa, scale_msa)
-        if x_mask is not None:
-            x_m_zero = t2i_modulate(x_norm, shift_msa_zero, scale_msa_zero)
-            x_m = self.t_mask_select(x_mask, x_m, x_m_zero, T, S)
-        return x_m
 
     def forward(
         self,
@@ -118,7 +107,11 @@ class STDiT3Block(nn.Module):
             ).chunk(6, dim=1)
 
         # modulate (attention)
-        x_m = self.modulate(x, self.norm1, shift_msa, scale_msa, shift_msa_zero, scale_msa_zero, x_mask, T, S)
+        x_norm1 = self.norm1(x)
+        x_m = t2i_modulate(x_norm1, shift_msa, scale_msa)
+        if x_mask is not None:
+            x_m_zero = t2i_modulate(x_norm1, shift_msa_zero, scale_msa_zero)
+            x_m = self.t_mask_select(x_mask, x_m, x_m_zero)
 
         # attention
         if self.temporal:
@@ -131,10 +124,10 @@ class STDiT3Block(nn.Module):
             x_m = rearrange(x_m, "(B T) S C -> B (T S) C", T=T, S=S)
 
         # modulate (attention)
-        x_m_s = gate_msa * x_m
         if x_mask is not None:
-            x_m_s_zero = gate_msa_zero * x_m
-            x_m_s = self.t_mask_select(x_mask, x_m_s, x_m_s_zero, T, S)
+            x_m_s = self.t_mask_select(x_mask, gate_msa, gate_msa_zero) * x_m
+        else:
+            x_m_s = gate_msa * x_m        
 
         # residual
         x = x + self.drop_path(x_m_s)
@@ -143,16 +136,20 @@ class STDiT3Block(nn.Module):
         x = x + self.cross_attn(x, y, mask)
 
         # modulate (MLP)
-        x_m = self.modulate(x, self.norm2, shift_msa, scale_msa, shift_msa_zero, scale_msa_zero, x_mask, T, S)
+        x_norm2 = self.norm2(x)
+        x_m = t2i_modulate(x_norm2, shift_mlp, scale_mlp)
+        if x_mask is not None:
+            x_m_zero = t2i_modulate(x_norm2, shift_mlp_zero, scale_mlp_zero)
+            x_m = self.t_mask_select(x_mask, x_m, x_m_zero)
 
         # MLP
         x_m = self.mlp(x_m)
 
         # modulate (MLP)
-        x_m_s = gate_mlp * x_m
         if x_mask is not None:
-            x_m_s_zero = gate_mlp_zero * x_m
-            x_m_s = self.t_mask_select(x_mask, x_m_s, x_m_s_zero, T, S)
+            x_m_s = self.t_mask_select(x_mask, gate_mlp, gate_mlp_zero) * x_m 
+        else:
+            x_m_s = gate_mlp * x_m
 
         # residual
         x = x + self.drop_path(x_m_s)
@@ -406,6 +403,8 @@ class STDiT3(PreTrainedModel):
             S = S // dist.get_world_size(get_sequence_parallel_group())
 
         x = rearrange(x, "B T S C -> B (T S) C", T=T, S=S)
+        x_mask = x_mask[:,:,None,None].expand(B, T, S, x.shape[-1]).contiguous()
+        x_mask = x_mask.view(B, T*S, x.shape[-1]).to(x.dtype)
 
         # === blocks ===
         for spatial_block, temporal_block in zip(self.spatial_blocks, self.temporal_blocks):
@@ -419,7 +418,7 @@ class STDiT3(PreTrainedModel):
             x = rearrange(x, "B T S C -> B (T S) C", T=T, S=S)
 
         # === final layer ===
-        x = self.final_layer(x, t, x_mask, t0, T, S)
+        x = self.final_layer(x, t, x_mask, t0)
         x = self.unpatchify(x, T, H, W, Tx, Hx, Wx)
 
         # cast to float32 for better accuracy

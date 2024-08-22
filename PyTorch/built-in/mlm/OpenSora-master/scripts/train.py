@@ -4,6 +4,7 @@ from copy import deepcopy
 from datetime import timedelta
 from pprint import pformat
 import time
+import gc
 
 import torch
 import torch.distributed as dist
@@ -44,6 +45,8 @@ def main():
     # ======================================================
     # == parse configs ==
     cfg = parse_configs(training=True)
+
+    gc.set_threshold(700, 10, 1000)
 
     # == device and dtype ==
     assert torch.cuda.is_available(), "Training currently requires at least one GPU."

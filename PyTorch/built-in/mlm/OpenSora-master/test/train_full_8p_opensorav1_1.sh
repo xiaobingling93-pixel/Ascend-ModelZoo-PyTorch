@@ -21,6 +21,9 @@ fi
 
 source ${test_path_dir}/env_npu.sh
 
+# 一级流水优化迁移负载
+export TASK_QUEUE_ENABLE=2
+
 #创建DeviceID输出目录，不需要修改
 output_path=${cur_path}/test/output/${ASCEND_DEVICE_ID}
 

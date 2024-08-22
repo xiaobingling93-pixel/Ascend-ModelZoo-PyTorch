@@ -84,23 +84,13 @@ class STDiT2Block(nn.Module):
         )
         self.scale_shift_table_temporal = nn.Parameter(torch.randn(3, hidden_size) / hidden_size**0.5)  # new
 
-    def t_mask_select(self, x_mask, x, masked_x, T, S):
+    def t_mask_select(self, x_mask, x, masked_x):
         # x: [B, (T, S), C]
         # mased_x: [B, (T, S), C]
-        # x_mask: [B, T]
-        x = rearrange(x, "B (T S) C -> B T S C", T=T, S=S)
-        masked_x = rearrange(masked_x, "B (T S) C -> B T S C", T=T, S=S)
-        x = torch.where(x_mask[:, :, None, None], x, masked_x)
-        x = rearrange(x, "B T S C -> B (T S) C")
+        # x_mask: [B, (T, S), C]
+        x = torch.lerp(masked_x, x, x_mask)
         return x
 
-    def modulate(self, x, norm, shift_msa, scale_msa, shift_msa_zero, scale_msa_zero, x_mask, T, S):
-        x_norm = norm(x)
-        x_m = t2i_modulate(x_norm, shift_msa, scale_msa)
-        if x_mask is not None:
-            x_m_zero = t2i_modulate(x_norm, shift_msa_zero, scale_msa_zero)
-            x_m = self.t_mask_select(x_mask, x_m, x_m_zero, T, S)
-        return x_m
 
     def forward(self, x, y, t, t_tmp, mask=None, x_mask=None, t0=None, t0_tmp=None, T=None, S=None):
         B, N, C = x.shape
@@ -120,31 +110,35 @@ class STDiT2Block(nn.Module):
             ).chunk(3, dim=1)
 
         # modulate
-        x_m = self.modulate(x, self.norm1, shift_msa, scale_msa, shift_msa_zero, scale_msa_zero, x_mask, T, S)
+        x_norm1 = self.norm1(x)
+        x_m = t2i_modulate(x_norm1, shift_msa, scale_msa)
+        if x_mask is not None:
+            x_m_zero = t2i_modulate(x_norm1, shift_msa_zero, scale_msa_zero)
+            x_m = self.t_mask_select(x_mask, x_m, x_m_zero)
 
         # spatial branch
         x_s = rearrange(x_m, "B (T S) C -> (B T) S C", T=T, S=S)
         x_s = self.attn(x_s)
         x_s = rearrange(x_s, "(B T) S C -> B (T S) C", T=T, S=S)
         if x_mask is not None:
-            x_s_zero = gate_msa_zero * x_s
-            x_s = gate_msa * x_s
-            x_s = self.t_mask_select(x_mask, x_s, x_s_zero, T, S)
+            x_s = self.t_mask_select(x_mask, gate_msa, gate_msa_zero) * x_s
         else:
             x_s = gate_msa * x_s
         x = x + self.drop_path(x_s)
 
         # modulate
-        x_m = self.modulate(x, self.norm_temp, shift_msa, scale_msa, shift_msa_zero, scale_msa_zero, x_mask, T, S)
+        x_norm_temp = self.norm_temp(x)
+        x_m = t2i_modulate(x_norm_temp, shift_tmp, scale_tmp)
+        if x_mask is not None:
+            x_m_zero = t2i_modulate(x_norm_temp, shift_tmp_zero, scale_tmp_zero)
+            x_m = self.t_mask_select(x_mask, x_m, x_m_zero)
 
         # temporal branch
         x_t = rearrange(x_m, "B (T S) C -> (B S) T C", T=T, S=S)
         x_t = self.attn_temp(x_t)
         x_t = rearrange(x_t, "(B S) T C -> B (T S) C", T=T, S=S)
         if x_mask is not None:
-            x_t_zero = gate_tmp_zero * x_t
-            x_t = gate_tmp * x_t
-            x_t = self.t_mask_select(x_mask, x_t, x_t_zero, T, S)
+            x_t = self.t_mask_select(x_mask, gate_tmp, gate_tmp_zero) * x_t
         else:
             x_t = gate_tmp * x_t
         x = x + self.drop_path(x_t)
@@ -153,14 +147,16 @@ class STDiT2Block(nn.Module):
         x = x + self.cross_attn(x, y, mask)
 
         # modulate
-        x_m = self.modulate(x, self.norm2, shift_msa, scale_msa, shift_msa_zero, scale_msa_zero, x_mask, T, S)
+        x_norm2 = self.norm2(x)
+        x_m = t2i_modulate(x_norm2, shift_mlp, scale_mlp)
+        if x_mask is not None:
+            x_m_zero = t2i_modulate(x_norm2, shift_mlp_zero, scale_mlp_zero)
+            x_m = self.t_mask_select(x_mask, x_m, x_m_zero)
 
         # mlp
         x_mlp = self.mlp(x_m)
         if x_mask is not None:
-            x_mlp_zero = gate_mlp_zero * x_mlp
-            x_mlp = gate_mlp * x_mlp
-            x_mlp = self.t_mask_select(x_mask, x_mlp, x_mlp_zero, T, S)
+            x_mlp = self.t_mask_select(x_mask, gate_mlp, gate_mlp_zero) * x_mlp
         else:
             x_mlp = gate_mlp * x_mlp
         x = x + self.drop_path(x_mlp)
@@ -390,6 +386,9 @@ class STDiT2(PreTrainedModel):
         else:
             y_lens = [y.shape[2]] * y.shape[0]
             y = y.squeeze(1).view(1, -1, x.shape[-1])
+
+        x_mask = x_mask[:, :, None, None].expand(B, T, S, x.shape[-1]).contiguous()
+        x_mask = x_mask.view(B, T*S, x.shape[-1]).to(x.dtype)
 
         # blocks
         for _, block in enumerate(self.blocks):

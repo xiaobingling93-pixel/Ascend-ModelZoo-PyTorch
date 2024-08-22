@@ -21,6 +21,9 @@ fi
 
 source ${test_path_dir}/env_npu.sh
 
+# 一级流水优化迁移负载
+export TASK_QUEUE_ENABLE=2
+
 ASCEND_DEVICE_ID=0
 #创建DeviceID输出目录，不需要修改
 if [ -d ${test_path_dir}/output/${ASCEND_DEVICE_ID} ];then

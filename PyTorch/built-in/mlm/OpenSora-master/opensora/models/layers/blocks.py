@@ -172,11 +172,75 @@ class Attention(nn.Module):
             self.rope = True
             self.rotary_emb = rope
 
+    def npu_spatial_attention(self, qkv: torch.Tensor) -> torch.Tensor:
+        B, N, _ = qkv.shape
+        qkv_shape = (B, N, 3, self.num_heads, self.head_dim)
+        qkv = qkv.view(qkv_shape)
+        q, k, v = qkv.unbind(2)
+        q, k = self.q_norm(q), self.k_norm(k)
+
+        x = torch_npu.npu_fusion_attention(
+            q, k, v, self.num_heads, input_layout="BSND",
+            pse=None,
+            scale=self.scale,
+            pre_tockens=65536,
+            next_tockens=65536,
+            keep_prob=1. - self.attn_drop.p if self.training else 1., 
+            sync=False,
+            inner_precise=0
+        )[0]
+
+        x = x.view(B, N, -1)
+        x = self.proj(x)
+        x = self.proj_drop(x)
+        return x
+
+    def npu_temporal_attention(self, qkv: torch.Tensor) -> torch.Tensor:
+        B, N, _ = qkv.shape
+        qkv_shape = (B, N, 3, self.num_heads, self.head_dim)
+        qkv = qkv.view(qkv_shape).permute(2, 0, 3, 1, 4)
+        q, k, v = qkv.unbind(0)
+
+        if self.qk_norm_legacy:
+            q, k = self.rotary_emb(q), self.rotary_emb(k)
+            q, k = self.q_norm(q), self.k_norm(k)
+        else:
+            q, k = self.q_norm(q), self.k_norm(k)
+            q, k = self.rotary_emb(q), self.rotary_emb(k)
+
+        x = torch_npu.npu_fusion_attention(
+            q, k, v, self.num_heads, input_layout="BNSD",
+            pse=None,
+            scale=self.scale,
+            pre_tockens=65536,
+            next_tockens=65536,
+            keep_prob=1. - self.attn_drop.p if self.training else 1.,
+            sync=False,
+            inner_precise=0,
+        )[0]
+
+        x = x.transpose(1, 2)
+        x = x.view(B, N, -1)
+        x = self.proj(x)
+        x = self.proj_drop(x)
+        return x
+
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         B, N, C = x.shape
         # flash attn is not memory efficient for small sequences, this is empirical
         enable_flash_attn = self.enable_flash_attn and (N > B)
         qkv = self.qkv(x)
+
+        if is_npu_available() and enable_flash_attn:
+            if qkv.dtype in [torch.float16, torch.bfloat16]:
+                if self.rope:
+                    return self.npu_temporal_attention(qkv)
+                else:
+                    return self.npu_spatial_attention(qkv)
+            else:
+                raise ValueError("The dtype of x must be torch.float16 or torch.bfloat16, got torch.float32 instead.")
+
         qkv_shape = (B, N, 3, self.num_heads, self.head_dim)
 
         qkv = qkv.view(qkv_shape).permute(2, 0, 3, 1, 4)
@@ -193,37 +257,20 @@ class Attention(nn.Module):
                 q = self.rotary_emb(q)
                 k = self.rotary_emb(k)
 
-        if enable_flash_attn:
-            if is_npu_available() and q.dtype in [torch.float16, torch.bfloat16]:
-                x = torch_npu.npu_fusion_attention(
-                    q, k, v, self.num_heads, input_layout="BNSD",
-                    pse=None,
-                    scale=self.scale,
-                    pre_tockens=65536,
-                    next_tockens=65536,
-                    keep_prob=1. - self.attn_drop.p if self.training else 1.,
-                    sync=False,
-                    inner_precise=0,
-                )[0]
-                x = x.transpose(1, 2)
+        if enable_flash_attn:                        
+            from flash_attn import flash_attn_func
 
-            elif is_npu_available() and q.dtype == torch.float32:
-                raise ValueError("The dtype of x must be torch.float16 or torch.bfloat16, got torch.float32 instead.")
-
-            else:
-                from flash_attn import flash_attn_func
-
-                # (B, #heads, N, #dim) -> (B, N, #heads, #dim)
-                q = q.permute(0, 2, 1, 3)
-                k = k.permute(0, 2, 1, 3)
-                v = v.permute(0, 2, 1, 3)
-                x = flash_attn_func(
-                    q,
-                    k,
-                    v,
-                    dropout_p=self.attn_drop.p if self.training else 0.0,
-                    softmax_scale=self.scale,
-                )
+            # (B, #heads, N, #dim) -> (B, N, #heads, #dim)
+            q = q.permute(0, 2, 1, 3)
+            k = k.permute(0, 2, 1, 3)
+            v = v.permute(0, 2, 1, 3)
+            x = flash_attn_func(
+                q,
+                k,
+                v,
+                dropout_p=self.attn_drop.p if self.training else 0.0,
+                softmax_scale=self.scale,
+            )
         else:
             dtype = q.dtype
             q = q * self.scale
@@ -617,14 +664,11 @@ class T2IFinalLayer(nn.Module):
         self.d_t = d_t
         self.d_s = d_s
 
-    def t_mask_select(self, x_mask, x, masked_x, T, S):
+    def t_mask_select(self, x_mask, x, masked_x):
         # x: [B, (T, S), C]
         # mased_x: [B, (T, S), C]
-        # x_mask: [B, T]
-        x = rearrange(x, "B (T S) C -> B T S C", T=T, S=S)
-        masked_x = rearrange(masked_x, "B (T S) C -> B T S C", T=T, S=S)
-        x = torch.where(x_mask[:, :, None, None], x, masked_x)
-        x = rearrange(x, "B T S C -> B (T S) C")
+        # x_mask: [B, (T, S), C]
+        x = torch.lerp(masked_x, x, x_mask)
         return x
 
     def forward(self, x, t, x_mask=None, t0=None, T=None, S=None):
@@ -637,7 +681,7 @@ class T2IFinalLayer(nn.Module):
         if x_mask is not None:
             shift_zero, scale_zero = (self.scale_shift_table[None] + t0[:, None]).chunk(2, dim=1)
             x_zero = t2i_modulate(self.norm_final(x), shift_zero, scale_zero)
-            x = self.t_mask_select(x_mask, x, x_zero, T, S)
+            x = self.t_mask_select(x_mask, x, x_zero)
         x = self.linear(x)
         return x
 

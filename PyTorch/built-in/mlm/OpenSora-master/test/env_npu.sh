@@ -26,7 +26,7 @@ export ASCEND_SLOG_PRINT_TO_STDOUT=0
 export ASCEND_GLOBAL_LOG_LEVEL=3
 #设置Event日志开启标志,0-关闭/1-开启
 export ASCEND_GLOBAL_EVENT_ENABLE=0
-#设置是否开启taskque,0-关闭/1-开启
+#设置是否开启taskque,0-关闭/1-开启/
 export TASK_QUEUE_ENABLE=1
 #设置是否开启combined标志,0-关闭/1-开启
 export COMBINED_ENABLE=1
@@ -35,6 +35,8 @@ export HCCL_WHITELIST_DISABLE=1
 export HCCL_IF_IP=$(hostname -I |awk '{print $1}')
 export HCCL_CONNECT_TIMEOUT=1200
 
+# 绑核
+export CPU_AFFINITY_CONF=1
 
 path_lib=$(python3 -c """
 import sys
