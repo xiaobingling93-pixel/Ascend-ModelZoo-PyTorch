@@ -145,7 +145,7 @@
       - --output_dir: 存放导出模型的路径
       - --use_cache: 【可选】推荐在推理过程中使用unetCache策略
       - --parallel: 【可选】导出适用于并行方案的模型, 当前仅带unetCache优化时，支持并行
-      - --batch_size: 设置batch_size, 默认值为1, 当前仅支持batch_size=1的场景
+      - --batch_size: 设置batch_size, 默认值为1, 当前最大支持batch_size=2
       - --flag：默认为0。0代表静态，只支持分辨率为1024x1024；1代表动态分档，支持的分辨率为1024x1024和512x512；2代表动态shape，height的范围为[512, 1024]，width的范围是[512, 1664]。
       - --soc：只支持Duo和A2。默认为A2。A2特指910B4。
       - --device：推理设备ID
