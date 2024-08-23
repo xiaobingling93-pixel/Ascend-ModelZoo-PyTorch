@@ -1,3 +1,7 @@
+# Copyright (c) 2024 Huawei Technologies Co., Ltd.
+# copyright owner or entity authorized by
+# Copyright (c) 2022 pharmapsychotic
+
 import random
 import time
 from pathlib import Path
@@ -22,6 +26,12 @@ from .modules.posemb_layers import get_2d_rotary_pos_embed, get_fill_resize_and_
 from .modules.text_encoder import MT5Embedder
 from .utils.tools import set_seeds
 from peft import LoraConfig
+
+from utils.npu_utils import is_npu_available
+
+if is_npu_available():
+    import torch_npu
+    from torch_npu.contrib import transfer_to_npu
 
 
 class Resolution:

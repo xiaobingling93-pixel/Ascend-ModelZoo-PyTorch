@@ -1,6 +1,7 @@
 #!/bin/bash
 CANN_INSTALL_PATH_CONF='/etc/Ascend/ascend_cann_install.info'
 
+#CANN_INSTALL_PATH: CANN的安装路径
 if [ -f $CANN_INSTALL_PATH_CONF ]; then
     CANN_INSTALL_PATH=$(cat $CANN_INSTALL_PATH_CONF | grep Install_Path | cut -d "=" -f 2)
 else

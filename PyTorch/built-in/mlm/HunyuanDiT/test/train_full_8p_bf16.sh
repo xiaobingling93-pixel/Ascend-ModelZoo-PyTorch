@@ -1,4 +1,4 @@
-# 微调生成的ckpt路径
+# 网络名称，权重路径以及相关参数，需要模型审视修改
 Network="HunyuanDiT"
 BATCH_SIZE=1
 max_train_steps=5000
@@ -85,6 +85,8 @@ deepspeed --num_gpus ${WORLD_SIZE} --num_nodes 1 --master_port=${MASTER_PORT} hy
     --multireso \
     --reso-step 64 \
     --max-training-steps ${max_train_steps} \
+    --norm "layer"  \
+    --autocast-dtype  "bf16" \
  > ${test_path_dir}/output/$ASCEND_DEVICE_ID/train_${ASCEND_DEVICE_ID}.log 2>&1 &
 
 wait
@@ -102,7 +104,9 @@ CaseName=${Network}_bs${BatchSize}_${WORLD_SIZE}'p'_'acc'
 # 结果打印，不需要修改
 echo "------------------ Final result ------------------"
 # 输出性能FPS，需要模型审视修改
-FPS=`grep -a 'FPS' ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log|awk -F "FPS " '{print $2}' | tail -100 | awk '{a+=$1} END {if (NR != 0) printf("%.3f",a/NR)}'`
+avg_time =`grep -a 'Steps/Sec:'  ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log|awk -F "Steps/Sec: " '{print $2}' | awk '{a+=$1} END {if (NR != 0) printf("%.3f",a/NR)}'`
+FPS=`echo "$avg_time * $BatchSize" |bc`
+
 # 打印，不需要修改
 echo "Final Performance images/sec : $FPS"
 echo "E2E Training Duration sec : $e2e_time"
@@ -122,5 +126,6 @@ echo "RankSize = ${WORLD_SIZE}" >>${test_path_dir}/output/$ASCEND_DEVICE_ID/${Ca
 echo "BatchSize = ${BatchSize}" >>${test_path_dir}/output/$ASCEND_DEVICE_ID/${CaseName}.log
 echo "DeviceType = ${DeviceType}" >>${test_path_dir}/output/$ASCEND_DEVICE_ID/${CaseName}.log
 echo "CaseName = ${CaseName}" >>${test_path_dir}/output/$ASCEND_DEVICE_ID/${CaseName}.log
+echo "ActualFPS = ${ActualFPS}" >>${test_path_dir}/output/$ASCEND_DEVICE_ID/${CaseName}_perf_report.log
 echo "TrainingTime = ${TrainingTime}" >>${test_path_dir}/output/$ASCEND_DEVICE_ID/${CaseName}_perf_report.log
 echo "E2ETrainingTime = ${e2e_time}" >>${test_path_dir}/output/$ASCEND_DEVICE_ID/${CaseName}_perf_report.log

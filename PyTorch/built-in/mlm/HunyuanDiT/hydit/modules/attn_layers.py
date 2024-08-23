@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 from typing import Tuple, Union, Optional
 
+import math
 from utils.npu_utils import is_npu_available
 if is_npu_available():
     import torch_npu
@@ -148,7 +149,7 @@ class FlashSelfMHAModified(nn.Module):
                  device=None,
                  dtype=None,
                  norm_layer=nn.LayerNorm,
-                 FAG_deterministic=False,
+                 fa_deterministic=False,
                  ):
         factory_kwargs = {'device': device, 'dtype': dtype}
         super().__init__()
@@ -167,7 +168,7 @@ class FlashSelfMHAModified(nn.Module):
         if is_npu_available():
             self.inner_attn = NpuFlashAttention(attention_dropout=attn_drop)
         else:
-            self.inner_attn = FlashSelfAttention(attention_dropout=attn_drop, deterministic=FAG_deterministic)
+            self.inner_attn = FlashSelfAttention(attention_dropout=attn_drop, deterministic=fa_deterministic)
         self.out_proj = nn.Linear(dim, dim, bias=qkv_bias, **factory_kwargs)
         self.proj_drop = nn.Dropout(proj_drop)
 
@@ -230,7 +231,7 @@ class FlashCrossMHAModified(nn.Module):
                  device=None,
                  dtype=None,
                  norm_layer=nn.LayerNorm,
-                 FAG_deterministic=False,
+                 fa_deterministic=False,
                  ):
         factory_kwargs = {'device': device, 'dtype': dtype}
         super().__init__()
@@ -255,7 +256,7 @@ class FlashCrossMHAModified(nn.Module):
         if is_npu_available():
             self.inner_attn = NpuFlashAttention(attention_dropout=attn_drop)
         else:
-            self.inner_attn = FlashCrossAttention(attention_dropout=attn_drop, deterministic=FAG_deterministic)
+            self.inner_attn = FlashCrossAttention(attention_dropout=attn_drop, deterministic=fa_deterministic)
 
         self.out_proj = nn.Linear(qdim, qdim, bias=qkv_bias, **factory_kwargs)
         self.proj_drop = nn.Dropout(proj_drop)

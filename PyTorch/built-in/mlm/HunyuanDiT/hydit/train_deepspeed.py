@@ -1,3 +1,5 @@
+# Copyright (c) 2024 Huawei Technologies Co., Ltd.
+
 import gc
 import json
 import os
@@ -539,7 +541,5 @@ def main(args):
 
 if __name__ == "__main__":
     args = get_args()
-    if args.seed_all:
-        seed_all(is_gpu=not is_npu_available(), mode=True)
     # Start
     main(args)
