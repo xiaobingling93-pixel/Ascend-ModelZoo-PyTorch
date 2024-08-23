@@ -54,7 +54,7 @@ def smart_DDP(model):
     # Model DDP creation with checks
     assert not check_version(torch.__version__, '1.12.0', pinned=True), \
         'torch==1.12.0 torchvision==0.13.0 DDP training is not supported due to a known issue. ' \
-        'Please upgrade or downgrade torch to use DDP.
+        'Please upgrade or downgrade torch to use DDP.'
     if check_version(torch.__version__, '1.11.0'):
         return DDP(model, device_ids=[LOCAL_RANK], output_device=LOCAL_RANK, static_graph=True)
     else:
@@ -426,11 +426,11 @@ def smart_optimizer(model, name='Adam', lr=0.001, momentum=0.9, decay=1e-5):
                     g[1].append(iv.implicit)
 
     if name == 'Adam':
-        optimizer = torch.optim.Adam(g[2], lr=lr, betas=(momentum, 0.999))  # adjust beta1 to momentum
+        optimizer = torch_npu.optim.NpuFusedAdam(g[2], lr=lr, betas=(momentum, 0.999))  # adjust beta1 to momentum
     elif name == 'AdamW':
-        optimizer = torch.optim.AdamW(g[2], lr=lr, betas=(momentum, 0.999), weight_decay=0.0, amsgrad=True)
+        optimizer = torch_npu.optim.NpuFusedAdamW(g[2], lr=lr, betas=(momentum, 0.999), weight_decay=0.0, amsgrad=True)
     elif name == 'RMSProp':
-        optimizer = torch.optim.RMSprop(g[2], lr=lr, momentum=momentum)
+        optimizer = torch_npu.optim.NpuFusedRMSprop(g[2], lr=lr, momentum=momentum)
     elif name == 'SGD':
         optimizer = torch_npu.optim.NpuFusedSGD(g[2], lr=lr, momentum=momentum, nesterov=True)
     elif name == 'LION':
