@@ -170,12 +170,17 @@ BERT-Large模型是一个24层，1024维，24个自注意头（self attention he
 
 **表 2**  训练结果展示表
 
-| NAME     | F1 |  FPS | Epochs | AMP_Type | Torch_Version |
-| :-----:  | :--: | :--: | :--: | :--: | :--: |
-| 1p-bert-large | - | 121 | 1 | O2 | 1.8 |
-| 1p-bert-base | - | 333 | 1 | O2 | 1.8 |
-| 8p-bert-large | 90.87 | 833 | 2 | O2 | 1.8 |
-| 8p-bert-base | 87.011 | 2602 | 2 | O2 | 1.8 |
+| NAME     | F1 | FPS  | Epochs | AMP_Type | Torch_Version |
+| :-----:  | :--: |:----:| :--: | :--: | :--: |
+| 1p-bert-base | - | 311  |   1     |     O2      |     1.11      |
+| 8p-bert-base | 87.011 | 2447 |   2602   |     O2      |     1.11      |
+| 1p-bert-base | - | 312  |   1     |    O2     |      2.1      |
+| 8p-bert-base | 87.011 | 2463 |  2602    |     O2      |      2.1      |
+| 1p-bert-large | - | 106  |   1     |     O2      |     1.11      |
+| 8p-bert-large |  90.87 | 824  |    833   |     O2      |     1.11      |
+| 1p-bert-large | - | 106  |   1     |    O2     |      2.1      |
+| 8p-bert-large |  90.87 | 829  |   833    |     O2      |      2.1      |
+
 
 # 公网地址说明
 

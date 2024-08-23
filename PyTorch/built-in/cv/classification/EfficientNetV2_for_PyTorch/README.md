@@ -38,10 +38,10 @@ EfficientNetV2是Efficient的改进版，accuracy达到了发布时的SOTA水平
 
   **表 1**  版本支持表
 
-  | Torch_Version      | 三方库依赖版本                                 |
-  | :--------: | :----------------------------------------------------------: |
-  | PyTorch 1.5 | pillow==8.4.0 |
-  | PyTorch 1.8 | pillow==9.1.0 |
+  | Torch_Version |    三方库依赖版本    |
+  |:-------------:|:-------------:|
+  | PyTorch 1.11  | pillow==9.1.0 |
+  |  PyTorch 2.1  | pillow==9.1.0 |
   
 - 环境准备指导。
 
@@ -51,9 +51,6 @@ EfficientNetV2是Efficient的改进版，accuracy达到了发布时的SOTA水平
 
   在模型源码包根目录下执行命令，安装模型对应PyTorch版本需要的依赖。
   ```
-  pip install -r 1.5_requirements.txt  # PyTorch1.5版本
-  
-  pip install -r 1.8_requirements.txt  # PyTorch1.8版本
   ```
   > **说明：** 
   >只需执行一条对应的PyTorch版本依赖安装命令。
@@ -152,15 +149,14 @@ EfficientNetV2是Efficient的改进版，accuracy达到了发布时的SOTA水平
 
 **表 2**  训练结果展示表
 
-|   NAME   | Acc@1 | FPS  | Epochs | AMP_Type | Torch_Version |
-| :------: | :---: | :--: | :----: | :------: | :-----------: |
+|   NAME   | Acc@1 |   FPS   | Epochs | AMP_Type | Torch_Version |
+| :------: |:-----:|:-------:|:------:| :------: | :-----------: |
 | 1p-竞品V |   -   | 533  |   1    |    O1    |      1.8      |
 | 8p-竞品V | 82.34 | 4100 |  350   |    O1    |      1.8      |
-|  1p-NPU-ARM  |   -   | 602  |   1    |    O1    |      1.8      |
-|  8p-NPU-ARM  | 82.19 | 4100 |  350   |    O1    |      1.8      |
-|  1p-NPU-非ARM  |   -   | 602  |   1    |    O1    |      1.8      |
-|  8p-NPU-非ARM  | 82.19 | 4500 |  350   |    O1    |      1.8      |
-
+| 1p-NPU |   -   | 1110.2  |   1    |    O1     |     1.11      |
+| 8p-NPU | 82.19 | 6879.25 |  350   |    O1    |     1.11      |
+| 1p-NPU |   -   | 1100.73 |   1    |    O1     |      2.1      |
+| 8p-NPU | 82.19 | 6914.44 |  350   |    O1     |      2.1      |
 
 # 版本说明
 

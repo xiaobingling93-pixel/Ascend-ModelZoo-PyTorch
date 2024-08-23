@@ -38,8 +38,6 @@ BERT的全称是Bidirectional Encoder Representation from Transformers，即双�
 
   | Torch_Version      | 三方库依赖版本                      |
   | :--------: | :----------------------------------------: |
-  | PyTorch 1.5 | - |
-  | PyTorch 1.8 | - |
   | PyTorch 1.11   | - |
   | PyTorch 2.1   | - |
 
@@ -241,13 +239,14 @@ BERT的全称是Bidirectional Encoder Representation from Transformers，即双�
 
 **表2**  训练结果展示表
 
-|   NAME   | Acc@1 | FPS  | Epochs | AMP_Type | Torch_Version |
-| :------: | :---: | :--: | :----: | :------: | :-----------: |
+|   NAME   | Acc@1 |   FPS    | Epochs | AMP_Type | Torch_Version |
+| :------: | :---: |:--------:| :----: | :------: | :-----------: |
 | 1p-竞品V |  - | - |  3   |    O2     |      1.5      |
 | 8p-竞品V |  0.59 | 898 |  3   |    O2     |      1.5      |
-| 1p-NPU  |  - | 128.603  |  3   |    O2    |      1.8      |
-| 8p-NPU  |  0.59 | 936.505  |  3   |    O2    |      1.8      |
-
+| 1p-NPU | - | 171.644  |   3    |     O2     |     1.11      |
+| 8p-NPU | 0.59 | 1352.878 |   3    |     O2     |     1.11      |
+| 1p-NPU | - | 171.687  |   3    |     O2     |      2.1      |
+| 8p-NPU | 0.59 | 1357.106 |   3    |     O2     |      2.1      |
 # 版本说明
 
 ## 变更

@@ -133,13 +133,11 @@ Longformer改进了Transformer传统的self-attention机制，是一种可高效
 
 **表 2**  训练结果展示表
 
-| NAME | Perplexity | FPS  | Epochs  | Torch_Version |
-|:-:|:-:|:-:|:-:|:-:|
+| NAME | Perplexity |  FPS   | Epochs  | Torch_Version |
+|:-:|:-:|:------:|:-:|:-:|
 | 1p-竞品V | - | - | 3 | 1.11  |
 | 8p-竞品V  | 3.0527 | 213.03 | 3  | 1.11  |
-| 1p-NPU  | - | - | 3 | 1.11  |
-| 8p-NPU   | 3.0603 | 130.68 | 3  | 1.11  |
-
+| 8p-NPU |  3.0603 | 157.22 |   130.68    |    3     |     1.11      |
 # 公网地址说明
 
 代码涉及公网地址参考 public_address_statement.md

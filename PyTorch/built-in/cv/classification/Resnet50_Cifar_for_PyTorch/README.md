@@ -40,8 +40,6 @@ MMClassification 是一款基于 PyTorch 的开源图像分类工具箱，是 Op
 
   | Torch_Version      | 三方库依赖版本                                 |
   | :--------: | :----------------------------------------------------------: |
-  | PyTorch 1.5 | - |
-  | PyTorch 1.8 | - |
   | PyTorch 1.11   | - |
   | PyTorch 2.1   | - |
   
@@ -116,11 +114,9 @@ MMClassification 是一款基于 PyTorch 的开源图像分类工具箱，是 Op
      ```
      bash ./test/train_performance_1p.sh         # batchsize=16  单卡性能
      bash ./test/train_performance_1p_bs32.sh    # batchsize=32  单卡性能
-     bash ./test/train_performance_1p_bs256.sh   # batchsize=256 单卡性能
      
      bash ./test/train_full_1p.sh                # batchsize=16  单卡精度
      bash ./test/train_full_1p_bs32.sh           # batchsize=32  单卡精度
-     bash ./test/train_full_1p_bs256.sh          # batchsize=256 单卡精度
      ```
 
    - 单机8卡训练
@@ -129,11 +125,9 @@ MMClassification 是一款基于 PyTorch 的开源图像分类工具箱，是 Op
      ```
      bash ./test/train_performance_8p.sh         # batchsize=16  8卡性能
      bash ./test/train_performance_8p_bs32.sh    # batchsize=32  8卡性能
-     bash ./test/train_performance_8p_bs256.sh   # batchsize=256 8卡性能
      
      bash ./test/train_full_8p.sh                # batchsize=16  8卡精度
-     bash ./test/train_full_8p_bs32.sh           # batchsize=32  8卡精度 
-     bash ./test/train_full_8p_bs256.sh          # batchsize=256 8卡精度 
+     bash ./test/train_full_8p_bs32.sh           # batchsize=32  8卡精度
      ```
 
      注意：模型训练所需要的数据集（cifar100）脚本会自动下载，请保持网络畅通。如果已有数据集，也可用传参的方式传入，如以下命令：
@@ -208,25 +202,21 @@ MMClassification 是一款基于 PyTorch 的开源图像分类工具箱，是 Op
 
 |  NAME  | Acc@1 |  FPS  | Epochs | AMP_Type | Torch_Version | batch_size | Device |
 |:------:|:-----:|:-----:|:------:|:--------:|:-------------:|:----------:|:------:|
-| 1p-NPU |   -   | 4196  |   2    |    O2    |      1.8      |    512     |  910   |
-| 8p-NPU | 61.65 | 32507 |  200   |    O2    |      1.8      |    4096    |  910   |
-| 1p-NPU |   -   |  390  |   2    |    O2    |      1.8      |     16     |  910   |
-| 1p-NPU |   -   |  233  |   3    |    O2    |      1.8      |     32     |  910   |
-| 8p-NPU | 80.0  | 1523  |   2    |    O2    |      1.8      |    128     |  910   |
-| 8p-NPU | 80.0  | 1706  |  200   |    O2    |      1.8      |    256     |  910   |
-| 1p-NPU | -  | 2844  |   2    |    O2    |      1.11      |    256     |  910   |
-| 8p-NPU | -  | 16925  |   2    |    O2    |      1.11      |    2048     |  910   |
+| 1p-NPU | -  | 4266  |   2    |    O2    |     1.11      |    256     | Atlas 800T A2  |
+| 8p-NPU | 80.0  | 33032 |   2    |    O2    |     1.11      |    2048    | Atlas 800T A2  |
+| 1p-NPU | -  | 4571  |   2    |    O2    |      2.1      |    256     | Atlas 800T A2  |
+| 8p-NPU | 80.0  | 33032 |   2    |    O2    |      2.1      |    2048    | Atlas 800T A2  |
 
   > **说明：** 该模型默认在二进制场景下进行训练。
 
 **表 3**  vNPU训练结果展示表
 
-|  NAME      | Acc@1 |  FPS  | Epochs |   | Torch_Version | batch_size | Device  |
-|:------:    |:-----:|:-----:|:------:|:-:|:-------------:|:----------:|:-------:|
-| 1p-NPU-ARM | 88.517| 2007  |   90   |   |      2.1      |     16     |  910B   |
-| 1p-vNPU-ARM| 88.638 | 1372 |  90    |   |      2.1      |     16     |  910B   |
-| 1p-NPU-A+X |   88.322   |  1984  |   90   |   |      2.1      |     16     |  910B   |
-| 1p-vNPU-A+X|   88.450   |  969  |   90   |   |      2.1      |     16     |  910B   |
+|    NAME     | Acc@1 |  FPS  | Epochs |   | Torch_Version | batch_size | Device  |
+|:-----------:|:-----:|:-----:|:------:|:-:|:-------------:|:----------:|:-------:|
+| 1p-NPU-ARM  | 88.517| 2007  |   90   |   |      2.1      |     16     |   Atlas 800T A2    |
+| 1p-vNPU-ARM | 88.638 | 1372 |  90    |   |      2.1      |     16     |   Atlas 800T A2    |
+| 1p-NPU-X86  |   88.322   |  1984  |   90   |   |      2.1      |     16     |   Atlas 200T A2 Box16      |
+| 1p-vNPU-X86 |   88.450   |  969  |   90   |   |      2.1      |     16     |   Atlas 200T A2 Box16      |
 同等超参下，vNPU能满足精度要求
 
 
