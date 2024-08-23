@@ -123,7 +123,10 @@ CaseName=${Network}_bs${BatchSize}_${RANK_SIZE}'p'_'acc'
 ActualFPS=${FPS}
 #单迭代训练时长
 TrainingTime=`awk 'BEGIN{printf "%df\n",''3600*'${EpochTime}'}'`
-
+#从train_$ASCEND_DEVICE_ID.log提取Loss到train_${CaseName}_loss.txt中，需要模型审视修改
+grep  "loss=" $test_path_dir/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log | awk -F "loss=" '{print $4}' | awk -F "," '{print $1}' | sed  '/^$/d' > $test_path_dir/output/$ASCEND_DEVICE_ID/train_${CaseName}_loss.txt
+#最后一个迭代loss值，不需要修改
+ActualLoss=`awk 'END {print}' $test_path_dir/output/$ASCEND_DEVICE_ID/train_${CaseName}_loss.txt`
 
 
 #关键信息打印到${CaseName}.log中，不需要修改
@@ -133,5 +136,6 @@ echo "BatchSize = ${BatchSize}" >> $test_path_dir/output/$ASCEND_DEVICE_ID/${Cas
 echo "DeviceType = ${DeviceType}" >> $test_path_dir/output/$ASCEND_DEVICE_ID/${CaseName}.log
 echo "CaseName = ${CaseName}" >> $test_path_dir/output/$ASCEND_DEVICE_ID/${CaseName}.log
 echo "ActualFPS = ${ActualFPS}" >> $test_path_dir/output/$ASCEND_DEVICE_ID/${CaseName}.log
+echo "ActualLoss = ${ActualLoss}" >> $test_path_dir/output/$ASCEND_DEVICE_ID/${CaseName}.log
 echo "TrainingTime = ${TrainingTime}" >> $test_path_dir/output/$ASCEND_DEVICE_ID/${CaseName}.log
 echo "E2ETrainingTime = ${e2e_time}" >> $test_path_dir/output/$ASCEND_DEVICE_ID/${CaseName}.log
