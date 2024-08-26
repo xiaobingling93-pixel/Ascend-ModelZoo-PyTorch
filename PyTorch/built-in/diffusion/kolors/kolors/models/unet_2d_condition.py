@@ -845,7 +845,7 @@ class UNet2DConditionModel(
             module.gradient_checkpointing = value
 
     def enable_freeu(self, s1: float, s2: float, b1: float, b2: float):
-        r"""Enables the FreeU mechanism from https://arxiv.org/abs/2309.11497.
+        r"""Enables the FreeU mechanism.
 
         The suffixes after the scaling factors represent the stage blocks where they are being applied.
 
