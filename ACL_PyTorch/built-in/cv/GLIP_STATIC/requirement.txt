@@ -9,3 +9,5 @@ yacs==0.1.8
 transformers==4.30.2
 einops
 prettytable
+opencv-python
+ftfy
