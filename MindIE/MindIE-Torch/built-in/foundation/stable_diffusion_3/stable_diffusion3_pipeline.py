@@ -36,7 +36,171 @@ p2_time = 0
 p3_time = 0
 
 
+class PromptLoader:
+    def __init__(
+            self,
+            prompt_file: str,
+            prompt_file_type: str,
+            batch_size: int,
+            num_images_per_prompt: int = 1,
+            max_num_prompts: int = 0
+    ):
+        self.prompts = []
+        self.catagories = ['Not_specified']
+        self.batch_size = batch_size
+        self.num_images_per_prompt = num_images_per_prompt
+
+        if prompt_file_type == 'plain':
+            self.load_prompts_plain(prompt_file, max_num_prompts)
+        elif prompt_file_type == 'parti':
+            self.load_prompts_parti(prompt_file, max_num_prompts)
+        elif prompt_file_type == 'hpsv2':
+            self.load_prompts_hpsv2(max_num_prompts)
+        else:
+            print("This operation is not supported!")
+
+        self.current_id = 0
+        self.inner_id = 0
+
+    def __len__(self):
+        return len(self.prompts) * self.num_images_per_prompt
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.current_id == len(self.prompts):
+            raise StopIteration
+
+        ret = {
+            'prompts': [],
+            'catagories': [],
+            'save_names': [],
+            'n_prompts': self.batch_size,
+        }
+        for _ in range(self.batch_size):
+            if self.current_id == len(self.prompts):
+                ret['prompts'].append('')
+                ret['save_names'].append('')
+                ret['catagories'].append('')
+                ret['n_prompts'] -= 1
+
+            else:
+                prompt, catagory_id = self.prompts[self.current_id]
+                ret['prompts'].append(prompt)
+                ret['catagories'].append(self.catagories[catagory_id])
+                ret['save_names'].append(f'{self.current_id}_{self.inner_id}')
+
+                self.inner_id += 1
+                if self.inner_id == self.num_images_per_prompt:
+                    self.inner_id = 0
+                    self.current_id += 1
+
+        return ret
+
+    def load_prompts_plain(self, file_path: str, max_num_prompts: int):
+        with os.fdopen(os.open(file_path, os.O_RDONLY), "r") as f:
+            for i, line in enumerate(f):
+                if max_num_prompts and i == max_num_prompts:
+                    break
+
+                prompt = line.strip()
+                self.prompts.append((prompt, 0))
+
+    def load_prompts_parti(self, file_path: str, max_num_prompts: int):
+        with os.fdopen(os.open(file_path, os.O_RDONLY), "r") as f:
+            # Skip the first line
+            next(f)
+            tsv_file = csv.reader(f, delimiter="\t")
+            for i, line in enumerate(tsv_file):
+                if max_num_prompts and i == max_num_prompts:
+                    break
+
+                prompt = line[0]
+                catagory = line[1]
+                if catagory not in self.catagories:
+                    self.catagories.append(catagory)
+
+                catagory_id = self.catagories.index(catagory)
+                self.prompts.append((prompt, catagory_id))
+
+    def load_prompts_hpsv2(self, max_num_prompts: int):
+        with open('hpsv2_benchmark_prompts.json', 'r') as file:
+            all_prompts = json.load(file)
+        count = 0
+        for style, prompts in all_prompts.items():
+            for prompt in prompts:
+                count += 1
+                if max_num_prompts and count >= max_num_prompts:
+                    break
+
+                if style not in self.catagories:
+                    self.catagories.append(style)
+
+                catagory_id = self.catagories.index(style)
+                self.prompts.append((prompt, catagory_id))
+
+
 class AIEStableDiffusion3Pipeline(StableDiffusion3Pipeline):
+    def parser_args(self, args):
+        self.args = args
+        self.is_init = False
+        if isinstance(self.args.device, list):
+            self.device_0, self.device_1 = args.device
+        else:
+            self.device_0 = args.device
+        self.data = None
+
+    def compile_aie_model(self):
+        if self.is_init:
+            return
+        size = self.args.batch_size
+        if hasattr(self, 'device_1'):
+            batch_size = self.args.batch_size
+        else:
+            batch_size = self.args.batch_size * 2
+
+        tail = f"_{self.args.height}x{self.args.width}"
+        vae_compiled_path = os.path.join(self.args.output_dir, f"vae/vae_bs{size}_compile{tail}.ts")
+        self.compiled_vae_model = torch.jit.load(vae_compiled_path).eval()
+
+        clip1_compiled_path = os.path.join(self.args.output_dir, f"clip/clip_bs{size}_compile{tail}.ts")
+        self.compiled_clip_model = torch.jit.load(clip1_compiled_path).eval()
+
+        clip2_compiled_path = os.path.join(self.args.output_dir, f"clip/clip2_bs{size}_compile{tail}.ts")
+        self.compiled_clip_model_2 = torch.jit.load(clip2_compiled_path).eval()
+
+        t5_compiled_path = os.path.join(self.args.output_dir, f"clip/t5_bs{size}_compile{tail}.ts")
+        self.compiled_t5_model = torch.jit.load(t5_compiled_path).eval()
+
+        dit_compiled_path = os.path.join(self.args.output_dir, f"dit/dit_bs{batch_size}_compile{tail}.ts")
+        self.compiled_dit_model = torch.jit.load(dit_compiled_path).eval()
+
+        self.use_parallel_inferencing = False
+
+        if hasattr(self, 'device_1'):
+            sample_size = self.transformer.config.sample_size
+            in_channels = self.transformer.config.in_channels
+            encoder_hidden_size_2 = self.text_encoder_2.config.hidden_size
+            encoder_hidden_size = self.text_encoder.config.hidden_size + encoder_hidden_size_2
+            max_position_embeddings = self.text_encoder.config.max_position_embeddings * 2
+
+            runtime_info = RuntimeIOInfo(
+                input_shapes=[
+                    (batch_size, in_channels, sample_size, sample_size),
+                    (batch_size, max_position_embeddings, encoder_hidden_size * 2),
+                    (batch_size, encoder_hidden_size),
+                    (batch_size,),
+                ],
+                input_dtypes=[np.float32, np.float32, np.float32, np.int64],
+                output_shapes=[(batch_size, in_channels, sample_size, sample_size)],
+                output_dtypes=[np.float32]
+            )
+            self.dit_bg = BackgroundRuntime.clone(self.device_1, dit_compiled_path, runtime_info)
+            self.use_parallel_inferencing = True
+
+        self.is_init = True
+
     def _get_t5_prompt_embeds(
         self,
         prompt: Union[str, List[str]] = None,
@@ -449,3 +613,193 @@ class AIEStableDiffusion3Pipeline(StableDiffusion3Pipeline):
             return (image,)
 
         return StableDiffusion3PipelineOutput(images=image)
+
+
+def check_device_range_valid(value):
+    # if contain , split to int list
+    min_value = 0
+    max_value = 255
+    if ',' in value:
+        ilist = [int(v) for v in value.split(',')]
+        for ivalue in ilist[:2]:
+            if ivalue < min_value or ivalue > max_value:
+                raise argparse.ArgumentTypeError(
+                    "{} of device:{} is invalid. valid value range is [{}, {}]"
+                    .format(ivalue, value, min_value, max_value))
+        return ilist[:2]
+    else:
+        # default as single int value
+        ivalue = int(value)
+        if ivalue < min_value or ivalue > max_value:
+            raise argparse.ArgumentTypeError(
+                "device:{} is invalid. valid value range is [{}, {}]".format(
+                    ivalue, min_value, max_value))
+        return ivalue
+
+
+def parse_arguments():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-m",
+        "--model",
+        type=str,
+        default="./stable-diffusion-3-medium-diffusers",
+        help="Path or name of the pre-trained model.",
+    )
+    parser.add_argument(
+        "--prompt_file",
+        type=str,
+        default="./prompts.txt",
+        help="A text file of prompts for generating images.",
+    )
+    parser.add_argument(
+        "--prompt_file_type",
+        choices=["plain", "parti", "hpsv2"],
+        default="plain",
+        help="Type of prompt file.",
+    )
+    parser.add_argument(
+        "--save_dir",
+        type=str,
+        default="./results",
+        help="Path to save result images.",
+    )
+    parser.add_argument(
+        "--info_file_save_path",
+        type=str,
+        default="./image_info.json",
+        help="Path to save image information file.",
+    )
+    parser.add_argument(
+        "--steps",
+        type=int,
+        default=28,
+        help="Number of inference steps.",
+    )
+    parser.add_argument(
+        "--device",
+        type=check_device_range_valid,
+        default=0,
+        help="NPU device id. Give 2 ids to enable parallel inferencing.",
+    )
+    parser.add_argument(
+        "--num_images_per_prompt",
+        default=1,
+        type=int,
+        help="Number of images generated for each prompt.",
+    )
+    parser.add_argument(
+        "--max_num_prompts",
+        default=0,
+        type=int,
+        help="Limit the number of prompts (0: no limit).",
+    )
+    parser.add_argument(
+        "-bs",
+        "--batch_size",
+        type=int,
+        default=1,
+        help="Batch size."
+    )
+    parser.add_argument(
+        "-o",
+        "--output_dir",
+        type=str,
+        default="./models",
+        help="Path of directory to save compiled models.",
+    )
+    parser.add_argument(
+        "--scheduler",
+        choices=["FlowMatchEuler"],
+        default="FlowMatchEuler",
+        help="Type of Sampling methods. Default FlowMatchEuler",
+    )
+    parser.add_argument(
+        "--height",
+        default=1024,
+        type=int,
+        help="image height",
+    )
+    parser.add_argument(
+        "--width",
+        default=1024,
+        type=int,
+        help="image width"
+    )
+
+    return parser.parse_args()
+
+
+def main():
+    args = parse_arguments()
+    save_dir = args.save_dir
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+
+    pipe = AIEStableDiffusion3Pipeline.from_pretrained(args.model).to("cpu")
+    pipe.parser_args(args)
+    pipe.compile_aie_model()
+    if isinstance(args.device, list):
+        mindietorch.set_device(args.device[0])
+    else:
+        mindietorch.set_device(args.device)
+
+    use_time = 0
+    prompt_loader = PromptLoader(args.prompt_file,
+                                 args.prompt_file_type,
+                                 args.batch_size,
+                                 args.num_images_per_prompt,
+                                 args.max_num_prompts)
+
+    infer_num = 0
+    image_info = []
+    current_prompt = None
+    for i, input_info in enumerate(prompt_loader):
+        prompts = input_info['prompts']
+        catagories = input_info['catagories']
+        save_names = input_info['save_names']
+        n_prompts = input_info['n_prompts']
+
+        print(f"[{infer_num + n_prompts}/{len(prompt_loader)}]: {prompts}")
+        infer_num += args.batch_size
+
+        start_time = time.time()
+        images = pipe.forward(
+            prompts,
+            negative_prompt="",
+            num_inference_steps=args.steps,
+            guidance_scale=7.5,
+        )
+        if i > 4: # do not count the time spent inferring the first 0 to 4 images
+            use_time += time.time() - start_time
+
+        for j in range(n_prompts):
+            image_save_path = os.path.join(save_dir, f"{save_names[j]}.png")
+            image = images[0][j]
+            image.save(image_save_path)
+
+            if current_prompt != prompts[j]:
+                current_prompt = prompts[j]
+                image_info.append({'images': [], 'prompt': current_prompt, 'category': catagories[j]})
+
+            image_info[-1]['images'].append(image_save_path)
+
+    infer_num = infer_num - 5 # do not count the time spent inferring the first 5 images
+    print(f"[info] infer number: {infer_num}; use time: {use_time:.3f}s\n"
+          f"average time: {use_time / infer_num:.3f}s\n")
+
+    if hasattr(pipe, 'device_1'):
+        if (pipe.dit_bg):
+            pipe.dit_bg.stop()
+
+    # Save image information to a json file
+    if os.path.exists(args.info_file_save_path):
+        os.remove(args.info_file_save_path)
+
+    with os.fdopen(os.open(args.info_file_save_path, os.O_RDWR | os.O_CREAT, 0o640), "w") as f:
+        json.dump(image_info, f)
+    mindietorch.finalize()
+
+
+if __name__ == "__main__":
+    main()
