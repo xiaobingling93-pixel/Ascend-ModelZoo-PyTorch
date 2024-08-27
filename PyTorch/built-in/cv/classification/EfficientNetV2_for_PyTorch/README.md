@@ -51,6 +51,7 @@ EfficientNetV2是Efficient的改进版，accuracy达到了发布时的SOTA水平
 
   在模型源码包根目录下执行命令，安装模型对应PyTorch版本需要的依赖。
   ```
+  pip install -r requirements.txt
   ```
   > **说明：** 
   >只需执行一条对应的PyTorch版本依赖安装命令。
