@@ -170,6 +170,10 @@
          - 参数说明：
             -  --config-file : 配置文件
             -  --output: 输出onnx模型
+            -  --export-method：导出方法。
+            -  --format：导出模型格式。
+            -  MODEL.WEIGHTS：模型权重
+            -  MODEL.DEVICE：模型加载设备类型。
           
          获得model.onnx文件,模型只支持bs1。
 
