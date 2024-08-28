@@ -70,7 +70,7 @@ def parse_arguments() -> Namespace:
     parser.add_argument("--use_cache", action="store_true", help="Use cache during inference.")
     parser.add_argument("-p", "--parallel", action="store_true",
                         help="Export the unet of bs=1 for parallel inferencing.")
-    parser.add_argument("--soc", choices=["Duo", "A2"], default="A2", help="soc_version.")
+    parser.add_argument("--soc", help="soc_version.")
     parser.add_argument(
         "--device",
         default=0,
