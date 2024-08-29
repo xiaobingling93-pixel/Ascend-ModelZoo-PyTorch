@@ -27,7 +27,6 @@ def get_config(graph):
 
 
 def fix_attention_lnqkv(graph, qkv_start_node):
-
     # change transpose node
     seen: List[List[int]] = []
     next_nodes = graph.get_next_nodes(qkv_start_node.outputs[0])
@@ -61,12 +60,6 @@ def fix_attention_score(graph, softmax_node, bs, seq_len):
     # fix reshape node 
     matmul_node = graph.get_next_nodes(softmax_node.outputs[0])[0]
     transpose_node = graph.get_next_nodes(matmul_node.outputs[0])[0]
-    reshape_node = graph.get_next_nodes(transpose_node.outputs[0])[0]
-    reshape_init = graph[reshape_node.inputs[1]]
-    reshape_init.value = np.array([-1, HIDDEN_NUM], dtype="int64")
-
-    # replace div node with mul node
-    # insert expand node
     add_node = graph.get_prev_node(softmax_node.inputs[0])
     prev_node = graph.get_prev_node(add_node.inputs[0])
     if prev_node.op_type == "Div":
@@ -75,7 +68,6 @@ def fix_attention_score(graph, softmax_node, bs, seq_len):
     else:
         div_node = graph.get_prev_node(add_node.inputs[1])
         refer_index = 1
-    
     div_init = graph.get_node(div_node.inputs[0], node_type=Initializer) or \
             graph.get_node(div_node.inputs[1], node_type=Initializer)
     mul_node = graph.add_node(
@@ -95,36 +87,16 @@ def fix_attention_score(graph, softmax_node, bs, seq_len):
 def main(graph):
     # get config
     bs, seq_len = get_config(graph)
-    
     # fix_lnqkv
     add_nodes = graph.get_nodes("Add")
     gather_node = graph.get_nodes("Gather")[0]
-
-    # insert reshape before qkv_start_node
-    reshape_before_add = graph.add_node(
-        f"Reshape_2dims",
-        "Reshape"
-    )
-    reshape_init = graph.add_initializer(
-        "Reshape_2dims_value",
-        np.array([-1, HIDDEN_NUM], dtype="int64")
-    )
-    graph.insert_node(gather_node.name, reshape_before_add, mode="after")
-    
-    reshape_before_add.inputs.append(reshape_init.name)
-
-    for add_node in add_nodes[:2]:
-        graph[add_node.inputs[1]].value = graph[add_node.inputs[1]].value.reshape(-1, HIDDEN_NUM)
-
     for add_node in add_nodes:
         if len(graph.get_next_nodes(add_node.outputs[0])) == 4:
             fix_attention_lnqkv(graph, add_node)
-    
     # fix_attentionscore
     softmax_nodes = graph.get_nodes("Softmax")
     for softmax_node in softmax_nodes:
         fix_attention_score(graph, softmax_node, bs, seq_len)
-
     # add expand node
     expand_node = graph.add_node(
         f"Expand_Mask",
@@ -140,7 +112,6 @@ def main(graph):
     expand_node.inputs=["mul_out", "expand_value"]
     expand_node.outputs=[m_node.outputs[0]]
     m_node.outputs=["mul_out"]
-
     # insert last reshape to recover shape
     last_add = graph.get_nodes(op_type="Add")[-1]
     last_reshape = graph.add_node(
@@ -154,12 +125,11 @@ def main(graph):
     graph.insert_node(last_add.name, last_reshape, mode="after")
     last_reshape.inputs.append(reshape_init.name)
 
-                                                     
+
 if __name__=="__main__":
     HIDDEN_NUM=768
     input_model = sys.argv[1]
     output_model = sys.argv[2]
-
     onnx_graph = OnnxGraph.parse(input_model)
     main(onnx_graph)
     onnx_graph.infer_shape()
