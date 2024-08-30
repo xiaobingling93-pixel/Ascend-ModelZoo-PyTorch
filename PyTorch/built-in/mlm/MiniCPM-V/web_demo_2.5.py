@@ -7,6 +7,13 @@ import re
 import torch
 import argparse
 from transformers import AutoModel, AutoTokenizer
+from npu_patch.utils import is_npu_available
+
+if is_npu_available():
+    import torch_npu
+    from torch_npu.contrib import transfer_to_npu
+    import npu_patch
+    torch.npu.config.allow_internal_format = False
 
 # README, How to run demo on different devices
 
@@ -18,10 +25,10 @@ from transformers import AutoModel, AutoTokenizer
 
 # Argparser
 parser = argparse.ArgumentParser(description='demo')
-parser.add_argument('--device', type=str, default='cuda', help='cuda or mps')
+parser.add_argument('--device', type=str, default='cuda', help='cuda or mps or npu')
 args = parser.parse_args()
 device = args.device
-assert device in ['cuda', 'mps']
+assert device in ['cuda', 'mps', 'npu']
 
 # Load model
 model_path = 'openbmb/MiniCPM-Llama3-V-2_5'

@@ -1,6 +1,7 @@
 import torch
 import torch.nn.functional as F
 from einops import rearrange, repeat
+import importlib
 
 
 class IndexFirstAxis(torch.autograd.Function):
@@ -211,3 +212,18 @@ def pad_input(hidden_states, indices, batch, seqlen):
     # output[indices] = hidden_states
     output = index_put_first_axis(hidden_states, indices, batch * seqlen)
     return rearrange(output, "(b s) ... -> b s ...", b=batch)
+
+
+def is_npu_available():
+    "Checks if `torch_npu` is installed and potentially if a NPU is in the environment"
+    if importlib.util.find_spec("torch") is None or importlib.util.find_spec("torch_npu") is None:
+        return False
+
+    import torch_npu
+
+    try:
+        # Will raise a RuntimeError if no NPU is found
+        _ = torch.npu.device_count()
+        return torch.npu.is_available()
+    except RuntimeError:
+        return False

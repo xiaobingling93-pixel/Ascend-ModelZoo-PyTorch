@@ -125,14 +125,16 @@ def conversation_to_ids(conversation, tokenizer, llm_type=None):
 
     # build target
     target = torch.full_like(ids, -100, dtype=torch.int32)
-    for i in range(1, len(ids)):
-        if context[i] == 0:
-            target[i - 1] = ids[i]
-        if context[i] == 1 and context[i - 1] == 0:
-            if hasattr(tokenizer, "eot_id"):
-                target[i - 1] = tokenizer.eot_id
-            else:
-                target[i - 1] = tokenizer.eos_id
+    mask_zero = context == 0
+    target[:-1][mask_zero[1:]] = ids[1:][mask_zero[1:]]
+
+    mask_one_zero = (context == 1) & (torch.roll(context, 1, 0) == 0)
+    mask_one_zero = mask_one_zero[1:]
+
+    if hasattr(tokenizer, "eot_id"):
+        eot_or_eos_id = tokenizer.eot_id
+    else:
+        eot_or_eos_id = tokenizer.eos_id
 
     # build image bound
     image_start_tokens = torch.where(ids == tokenizer.im_start_id)[0]

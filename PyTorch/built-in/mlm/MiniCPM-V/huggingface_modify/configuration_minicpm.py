@@ -108,6 +108,8 @@ class MiniCPMVConfig(LlamaConfig):
         elif isinstance(vision_config, Idefics2VisionConfig):
             self.vision_config = vision_config
 
+        if os.getenv('use_flash_attention_2') == 'true':
+            self.vision_config._attn_implementation = 'flash_attention_2'
         self.patch_size = self.vision_config.patch_size
 
         super().__init__(**kwargs)

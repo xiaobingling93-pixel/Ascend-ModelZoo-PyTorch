@@ -2,6 +2,13 @@ import streamlit as st
 from PIL import Image
 import torch
 from transformers import AutoModel, AutoTokenizer
+from npu_patch.utils import is_npu_available
+
+if is_npu_available():
+    import torch_npu
+    from torch_npu.contrib import transfer_to_npu
+    import npu_patch
+    torch.npu.config.allow_internal_format = False
 
 # Model path
 model_path = "openbmb/MiniCPM-V-2"

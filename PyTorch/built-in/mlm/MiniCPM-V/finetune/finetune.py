@@ -20,6 +20,17 @@ from dataset import SupervisedDataset, data_collator
 from trainer import CPMTrainer
 
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
+from PIL import ImageFile
+from npu_patch.utils import is_npu_available
+
+if is_npu_available():
+    import torch_npu
+    from torch_npu.contrib import transfer_to_npu
+    import npu_patch
+    torch.npu.config.allow_internal_format = False
+
+ImageFile.LOAD_TRUNCATED_IMAGES = True
+
 
 @dataclass
 class ModelArguments:
@@ -150,7 +161,6 @@ local_rank = 0
 
 
 def train():
-    seed_all(is_gpu=False, mode=False)
     global local_rank
     parser = transformers.HfArgumentParser(
         (ModelArguments, DataArguments, TrainingArguments, LoraArguments)
@@ -183,11 +193,13 @@ def train():
                 "FSDP or ZeRO3 are not incompatible with QLoRA."
             )
 
+    use_flash_attention_2 = os.getenv("use_flash_attention_2") == 'true'
     model = AutoModel.from_pretrained(
         model_args.model_name_or_path,
         trust_remote_code=True,
         torch_dtype=compute_dtype,
         device_map=device_map,
+        use_flash_attention_2=use_flash_attention_2
     )
 
     tokenizer = AutoTokenizer.from_pretrained(

@@ -14,21 +14,13 @@ class CPMTrainer(Trainer):
             labels = inputs.pop("labels")
         else:
             labels = None
-        self.model.resampler.pos_embed = self.model.resampler.pos_embed.to(self.model.device)
-        if is_deepspeed_zero3_enabled():
-            with deepspeed.zero.GatheredParameters(self.model.resampler.attn.parameters(), modifier_rank=0):
-                if not self.args.use_lora:
-                    outputs = self.model(data = inputs, use_cache=False)
-                else:
-                    with self.model._enable_peft_forward_hooks(**inputs):
-                        outputs = self.model.base_model(data = inputs, use_cache=False)
+
+        if not self.args.use_lora:
+            outputs = self.model(data=inputs, use_cache=False)
         else:
-            if not self.args.use_lora:
-                outputs = self.model(data = inputs, use_cache=False)
-            else:
-                with self.model._enable_peft_forward_hooks(**inputs):
-                    outputs = self.model.base_model(data = inputs, use_cache=False)
-                
+            with self.model._enable_peft_forward_hooks(**inputs):
+                outputs = self.model.base_model(data=inputs, use_cache=False)
+
         if labels is not None:
             # Flatten the tokens
             loss_fct = nn.CrossEntropyLoss()
@@ -176,7 +168,7 @@ class CPMTrainer(Trainer):
             logits = logits[0]
 
         return (loss, logits, labels)
-        
+
     def training_step(self, model: nn.Module, inputs: Dict[str, Union[torch.Tensor, Any]]) -> torch.Tensor:
         """
         Perform a training step on a batch of inputs.
@@ -205,9 +197,6 @@ class CPMTrainer(Trainer):
         with self.compute_loss_context_manager():
             loss = self.compute_loss(model, inputs)
 
-        del inputs
-        torch.cuda.empty_cache()
-
         if self.args.n_gpu > 1:
             loss = loss.mean()  # mean() to average on multi-gpu parallel training
 
@@ -215,14 +204,10 @@ class CPMTrainer(Trainer):
             with amp.scale_loss(loss, self.optimizer) as scaled_loss:
                 scaled_loss.backward()
         else:
-            if is_deepspeed_zero3_enabled():
-                with deepspeed.zero.GatheredParameters(self.model.resampler.attn.parameters(), modifier_rank=0):
-                    self.accelerator.backward(loss)
-            else:
-                self.accelerator.backward(loss)
+            self.accelerator.backward(loss)
 
         return loss.detach() / self.args.gradient_accumulation_steps
-    
+
     def _save(self, output_dir: Optional[str] = None, state_dict=None):
         # If we are executing this function, we are the process zero, so we don't check for that.
         output_dir = output_dir if output_dir is not None else self.args.output_dir
@@ -249,20 +234,10 @@ class CPMTrainer(Trainer):
                 else:
                     torch.save(state_dict, os.path.join(output_dir, WEIGHTS_NAME))
         else:
-            if self.args.use_lora:
-                from collections import OrderedDict
-                state_dict_vision = OrderedDict()
-                for key, values in state_dict.items():
-                    if 'vpm' in key or 'resampler' in key or 'embed_tokens' in key:
-                        state_dict_vision[key] = values
-                self.model.save_pretrained(
-                    output_dir, state_dict=state_dict, safe_serialization=self.args.save_safetensors
-                )
-                torch.save(state_dict_vision, f"{output_dir}/vpm_resampler_embedtokens.pt", )
-            else:
-                self.model.save_pretrained(
-                    output_dir, state_dict=state_dict, safe_serialization=self.args.save_safetensors
-                )
+
+            self.model.save_pretrained(
+                output_dir, state_dict=state_dict, safe_serialization=self.args.save_safetensors
+            )
 
         if self.tokenizer is not None:
             self.tokenizer.save_pretrained(output_dir)

@@ -129,24 +129,21 @@ class Resampler(nn.Module):
             nn.init.constant_(m.weight, 1.0)
 
     def forward(self, x, tgt_sizes=None):
+        tgt_sizes, mask = tgt_sizes
+        key_padding_mask = ~mask.squeeze(1)
+
         assert x.shape[0] == tgt_sizes.shape[0]
         bs = x.shape[0]
 
         device = x.device
         dtype = x.dtype
 
-        patch_len = tgt_sizes[:, 0] * tgt_sizes[:, 1]
-
         self._adjust_pos_cache(tgt_sizes, device=device)
-
-        max_patch_len = torch.max(patch_len)
-        key_padding_mask = torch.zeros((bs, max_patch_len), dtype=torch.bool, device=device)
 
         pos_embed = []
         for i in range(bs):
             tgt_h, tgt_w = tgt_sizes[i]
             pos_embed.append(self.pos_embed[:tgt_h, :tgt_w, :].reshape((tgt_h * tgt_w, -1)).to(dtype))  # patches * D
-            key_padding_mask[i, patch_len[i]:] = True
 
         pos_embed = torch.nn.utils.rnn.pad_sequence(
             pos_embed, batch_first=True, padding_value=0.0).permute(1, 0, 2)  # BLD => L * B * D

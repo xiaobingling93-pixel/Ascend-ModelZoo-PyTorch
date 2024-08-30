@@ -1,26 +1,25 @@
 from typing import Optional, Tuple
-import warnings
 import torch
-import torch.nn as nn
 import torch.utils.checkpoint
+import torch_npu
+from npu_patch.utils import index_first_axis, pad_input, unpad_input
 import transformers
 from transformers.cache_utils import Cache
-from .utils import index_first_axis, pad_input, unpad_input
-from transformers.models.llama.modeling_llama import LlamaAttention, apply_rotary_pos_emb, _get_unpad_data
-from transformers.utils import is_flash_attn_greater_or_equal_2_10, logging, is_flash_attn_2_available
-if is_flash_attn_2_available():
-    from flash_attn import flash_attn_func, flash_attn_varlen_func
+from transformers.utils import is_flash_attn_greater_or_equal_2_10, logging
+from transformers.models.idefics2.modeling_idefics2 import Idefics2VisionAttention, _get_unpad_data, \
+    IDEFICS_VISION_ATTENTION_CLASSES
 
 logger = logging.get_logger(__name__)
 
 
-class LlamaFlashAttention2(LlamaAttention):
+class NpuIdefics2VisionFlashAttention2(Idefics2VisionAttention):
     """
-    Llama flash attention module. This module inherits from `LlamaAttention` as the weights of the module stays
+    Idefics2Vision flash attention module. This module inherits from `Idefics2VisionAttention` as the weights of the module stays
     untouched. The only required change would be on the forward pass where it needs to correctly call the public API of
     flash attention and deal with padding tokens in case the input contains any of them.
     """
 
+    # Copied from transformers.models.llama.modeling_llama.LlamaFlashAttention2.__init__
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -30,15 +29,14 @@ class LlamaFlashAttention2(LlamaAttention):
         self._flash_attn_uses_top_left_mask = not is_flash_attn_greater_or_equal_2_10()
 
     def forward(
-        self,
-        hidden_states: torch.Tensor,
-        attention_mask: Optional[torch.LongTensor] = None,
-        position_ids: Optional[torch.LongTensor] = None,
-        past_key_value: Optional[Cache] = None,
-        output_attentions: bool = False,
-        use_cache: bool = False,
-        cache_position: Optional[torch.LongTensor] = None,
-        **kwargs,
+            self,
+            hidden_states: torch.Tensor,
+            attention_mask: Optional[torch.LongTensor] = None,
+            position_ids: Optional[torch.LongTensor] = None,
+            past_key_value: Optional[Cache] = None,
+            output_attentions: bool = False,
+            use_cache: bool = False,
+            **kwargs,
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor], Optional[Tuple[torch.Tensor]]]:
         output_attentions = False
 
@@ -48,37 +46,21 @@ class LlamaFlashAttention2(LlamaAttention):
         key_states = self.k_proj(hidden_states)
         value_states = self.v_proj(hidden_states)
 
-        # Flash attention requires the input to have the shape
-        # batch_size x seq_length x head_dim x hidden_dim
-        # therefore we just need to keep the original shape
-        query_states = query_states.view(bsz, q_len, self.num_heads, self.head_dim).transpose(1, 2)
-        key_states = key_states.view(bsz, q_len, self.num_key_value_heads, self.head_dim).transpose(1, 2)
-        value_states = value_states.view(bsz, q_len, self.num_key_value_heads, self.head_dim).transpose(1, 2)
+        query_states = query_states.view(bsz, q_len, self.num_heads, self.head_dim)
+        key_states = key_states.view(bsz, q_len, self.num_heads, self.head_dim)
+        value_states = value_states.view(bsz, q_len, self.num_heads, self.head_dim)
 
-        cos, sin = self.rotary_emb(value_states, position_ids)
-
-        query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos, sin)
-
-        past_key_value = getattr(self, "past_key_value", past_key_value)
-
+        kv_seq_len = key_states.shape[1]
         if past_key_value is not None:
-            # sin and cos are specific to RoPE models; cache_position needed for the static cache
-            cache_kwargs = {"sin": sin, "cos": cos, "cache_position": cache_position}
-            key_states, value_states = past_key_value.update(key_states, value_states, self.layer_idx, cache_kwargs)
+            kv_seq_len += past_key_value.get_usable_length(kv_seq_len, self.layer_idx)
 
-        # TODO: These transpose are quite inefficient but Flash Attention requires the layout [batch_size, sequence_length, num_heads, head_dim]. We would need to refactor the KV cache
-        # to be able to avoid many of these transpose/reshape/view.
-        query_states = query_states.transpose(1, 2)
-        key_states = key_states.transpose(1, 2)
-        value_states = value_states.transpose(1, 2)
-
-        dropout_rate = self.attention_dropout if self.training else 0.0
+        dropout_rate = self.dropout if self.training else 0.0
 
         # In PEFT, usually we cast the layer norms in float32 for training stability reasons
         # therefore the input hidden states gets silently casted in float32. Hence, we need
         # cast them back in the correct dtype just to be sure everything works as expected.
         # This might slowdown training & inference so it is recommended to not cast the LayerNorms
-        # in fp32. (LlamaRMSNorm handles it correctly)
+        # in fp32. (Idefics2VisionRMSNorm handles it correctly)
 
         input_dtype = query_states.dtype
         if input_dtype == torch.float32:
@@ -104,16 +86,17 @@ class LlamaFlashAttention2(LlamaAttention):
             query_states, key_states, value_states, attention_mask, q_len, dropout=dropout_rate
         )
 
-        attn_output = attn_output.reshape(bsz, q_len, self.hidden_size).contiguous()
-        attn_output = self.o_proj(attn_output)
+        attn_output = attn_output.reshape(bsz, q_len, self.embed_dim).contiguous()
+        attn_output = self.out_proj(attn_output)
 
         if not output_attentions:
             attn_weights = None
 
-        return attn_output, attn_weights, past_key_value
+        return attn_output, attn_weights
 
+    # Copied from transformers.models.llama.modeling_llama.LlamaFlashAttention2._flash_attention_forward
     def _flash_attention_forward(
-        self, query_states, key_states, value_states, attention_mask, query_length, dropout=0.0, softmax_scale=None
+            self, query_states, key_states, value_states, attention_mask, query_length, dropout=0.0, softmax_scale=None
     ):
         """
         Calls the forward method of Flash Attention - if the input hidden states contain at least one padding token
@@ -148,29 +131,39 @@ class LlamaFlashAttention2(LlamaAttention):
             )
 
             cu_seqlens_q, cu_seqlens_k = cu_seq_lens
-            max_seqlen_in_batch_q, max_seqlen_in_batch_k = max_seq_lens
-
-            attn_output_unpad = flash_attn_varlen_func(
-                query_states,
-                key_states,
-                value_states,
-                cu_seqlens_q=cu_seqlens_q,
-                cu_seqlens_k=cu_seqlens_k,
-                max_seqlen_q=max_seqlen_in_batch_q,
-                max_seqlen_k=max_seqlen_in_batch_k,
-                dropout_p=dropout,
-                softmax_scale=softmax_scale,
-                causal=causal,
-            )
+            attn_output_unpad = torch_npu.npu_fusion_attention(
+                query_states, key_states, value_states, self.num_heads,
+                pse=None,
+                padding_mask=None,
+                atten_mask=None,
+                scale=self.scale,
+                keep_prob=1,
+                input_layout="TND",
+                actual_seq_qlen=tuple(cu_seqlens_q[1:].cpu().numpy().tolist()),
+                actual_seq_kvlen=tuple(cu_seqlens_k[1:].cpu().numpy().tolist()),
+                pre_tockens=2147483647,
+                next_tockens=2147483647,
+                sparse_mode=0)[0]
 
             attn_output = pad_input(attn_output_unpad, indices_q, batch_size, query_length)
         else:
-            attn_output = flash_attn_func(
-                query_states, key_states, value_states, dropout, softmax_scale=softmax_scale, causal=causal
-            )
+            attn_output = torch_npu.npu_fusion_attention(query_states,
+                                                         key_states,
+                                                         value_states,
+                                                         self.num_heads,
+                                                         "BSND",
+                                                         pse=None,
+                                                         keep_prob=1. - dropout,
+                                                         scale=self.scale,
+                                                         pre_tockens=65536,
+                                                         next_tockens=65536,
+                                                         sync=False,
+                                                         inner_precise=0,
+                                                         )[0]
 
         return attn_output
 
+    # Copied from transformers.models.llama.modeling_llama.LlamaFlashAttention2._upad_input
     def _upad_input(self, query_layer, key_layer, value_layer, attention_mask, query_length):
         indices_k, cu_seqlens_k, max_seqlen_in_batch_k = _get_unpad_data(attention_mask)
         batch_size, kv_seq_len, num_key_value_heads, head_dim = key_layer.shape
@@ -208,3 +201,7 @@ class LlamaFlashAttention2(LlamaAttention):
             (cu_seqlens_q, cu_seqlens_k),
             (max_seqlen_in_batch_q, max_seqlen_in_batch_k),
         )
+
+
+def replace_with_torch_npu_idefics2_flash_attention():
+    IDEFICS_VISION_ATTENTION_CLASSES['flash_attention_2'] = NpuIdefics2VisionFlashAttention2
