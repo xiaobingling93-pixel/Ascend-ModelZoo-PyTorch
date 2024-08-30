@@ -108,12 +108,13 @@ bash cogvlm2_lora_finetune.sh
 |        芯片         | 卡数 | s/it | micro_batch_size | AMP_Type | Torch_Version |
 |:-----------------:| :----: |:----:|:----------------:|:--------:| :-----------: |
 |        竞品A        |   8p   | 3.3  |        1         |   bf16   |      2.1      |
-| Atlas 900 A2 PODc |   8p   | 3.6  |        1         |   bf16   |      2.1      |
+| Atlas 900 A2 PODc |   8p   | 3.9  |        1         |   bf16   |      2.1      |
 
 #### 执行双机16卡微调
 1) 替换authority_repository/finetune_demo/cogvlm2_lora_finetune_2nodes.sh文件中的"训练数据路径"，"预训练权重路径"和"模型保存路径"为实际路径
 2) authority_repository/finetune_demo/hostfile中的内容为服务器名(server1和server2)和每台服务器的卡数
-3) 双机配置可参考"配置双机通信环境"
+3) 由于torch.util.data中的DataLoader在shuffle为False的情况下广播容易超时，所以多机情况下peft_lora.py中DataLoader的shuffle参数建议不要设置为False，不影响模型收敛
+4) 双机配置可参考"配置双机通信环境"
 
 2) CogVLM2官方仓下执行训练，如下命令：
 ```
@@ -191,7 +192,7 @@ ssh server2
 ```
 
 #### 随机性说明
-模型中包含多种随机问题，会影响loss曲线和下游任务，用户可根据需要自行修改，部分确定性问题本代码不做更换：
+模型中包含多种随机问题，会影响loss曲线和竞品的对齐，用户可根据需要自行修改，部分确定性问题本代码不做更换：
 1) Cogvlm2项目路径的finetune_demo/peft_lora.py 中DataLoader是开启了shuffle，根据需要进行关闭：
 2) 模型本身有确定性问题，需要固定随机种子
 3) triton中的FastRotaryEmbedding和RotaryEmbedding精度上也略有差异
@@ -210,6 +211,17 @@ from torch_npu.contrib import transfer_to_npu
 export ASCEND_RT_VISIBLE_DEVICES=1
 ```
 3) 替换peft_infer.py中MODEL_PATH和PEFT_MODEL_PATH为实际路径，执行推理
+4) 由于npu暂时不支持get_device_capability算子，因此需要在peft_infer.py中做如下替换
+
+原内容:
+```python
+TORCH_TYPE = torch.bfloat16 if torch.cuda.is_available() and torch.cuda.get_device_capability()[0] >= 8 else torch.float16
+```
+修改为:
+```python
+TORCH_TYPE = torch.bfloat16 if torch.cuda.is_available()  else torch.float16
+```
+5) 执行推理
 ```shell
 python peft_infer.py
 ```
