@@ -184,7 +184,7 @@ cd /${模型文件夹名称}
 | 芯片 | ss | ssc | msf | msfc |
 | :---: | :---: | :---: | :---: | :---: |
 | 竞品A | 0.725 | 0.737 | 0.745 | 0.757 |
-| Atlas 800T A2 | 0.724 | 0.734 | 0.746 | 0.755 |
+| Atlas 900 A2 PODc | 0.724 | 0.734 | 0.746 | 0.755 |
 
 # 公网地址说明
 代码涉及公网地址参考 [public_address_statement.md](public_address_statement.md)
