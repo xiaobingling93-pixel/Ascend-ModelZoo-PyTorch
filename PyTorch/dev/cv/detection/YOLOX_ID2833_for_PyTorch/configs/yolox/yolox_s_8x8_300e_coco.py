@@ -125,6 +125,7 @@ optimizer = dict(
     momentum=0.9,
     weight_decay=5e-4,
     nesterov=True,
+    foreach=False,
     paramwise_cfg=dict(norm_decay_mult=0., bias_decay_mult=0.))
 optimizer_config = dict(grad_clip=None)
 
