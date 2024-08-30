@@ -17,6 +17,10 @@ from tqdm import tqdm
 import numpy as np
 import data as deepfashion_data
 from model import UNet
+import torch_npu
+from torch_npu.contrib import transfer_to_npu
+from torch.cuda.amp import autocast
+torch.npu.config.allow_internal_format = FALSE
 
 def init_distributed():
 
@@ -122,7 +126,11 @@ def train(conf, loader, val_loader, model, ema, diffusion, betas, optimizer, sch
                 device=device,
             )
 
-            loss_dict = diffusion.training_losses(model, x_start = target_img, t = time_t, cond_input = [img, target_pose], prob = 1 - guidance_prob)
+            if not args.use_bf16:
+                loss_dict = diffusion.training_losses(model, x_start = target_img, t = time_t, cond_input = [img, target_pose], prob = 1 - guidance_prob)
+            else:
+                with autocast(dtype=torch.bfloat16):
+                    loss_dict = diffusion.training_losses(model, x_start = target_img, t = time_t, cond_input = [img, target_pose], prob = 1 - guidance_prob)
             
             loss = loss_dict['loss'].mean()
             loss_mse = loss_dict['mse'].mean()
@@ -267,7 +275,8 @@ def main(settings, EXP_NAME):
             find_unused_parameters=True
         )
 
-    optimizer = DiffConf.training.optimizer.make(model.parameters())
+    optimizer = torch_npu.optim.NpuFusedAdam(model.parameters(), lr=2e-5)
+
     scheduler = DiffConf.training.scheduler.make(optimizer)
 
     if DiffConf.ckpt is not None:
@@ -315,6 +324,8 @@ if __name__ == "__main__":
     parser.add_argument('--n_machine', type=int, default=1)
     parser.add_argument('--local_rank', type=int, default=0)
     parser.add_argument("opts", default=None, nargs=argparse.REMAINDER)
+    parser.add_argument("--use_bf16", action='store_true')
+
 
     args = parser.parse_args()
 

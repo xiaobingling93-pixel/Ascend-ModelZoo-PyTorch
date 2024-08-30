@@ -5,6 +5,7 @@ import warnings
 warnings.filterwarnings('ignore')
 import torch
 import torch.nn as nn
+from torch.cuda.amp import autocast
 from tqdm import tqdm
 from torchvision.utils import save_image
 from PIL import Image
@@ -17,6 +18,8 @@ from models.unet_autoenc import BeatGANsAutoencConfig
 from diffusion import create_gaussian_diffusion, make_beta_schedule, ddim_steps
 import torchvision.transforms as transforms
 import torchvision
+import troch_npu
+from torch_npu.contrib import transfer_to_npu
 
 class Predictor():
     def __init__(self):
@@ -43,7 +46,7 @@ class Predictor():
         num_poses=1,
         sample_algorithm='ddim',
         nsteps=100,
-
+        use_fp16=False
         ):
         """Run a single prediction on the model"""
 
@@ -52,14 +55,24 @@ class Predictor():
         tgt_pose = torch.stack([transforms.ToTensor()(np.load(ps)).cuda() for ps in np.random.choice(self.pose_list, num_poses)], 0)
 
         src = src.repeat(num_poses,1,1,1)
-
-        if sample_algorithm == 'ddpm':
-            samples = self.diffusion.p_sample_loop(self.model, x_cond = [src, tgt_pose], progress = True, cond_scale = 2)
-        elif sample_algorithm == 'ddim':
-            noise = torch.randn(src.shape).cuda()
-            seq = range(0, 1000, 1000//nsteps)
-            xs, x0_preds = ddim_steps(noise, seq, self.model, self.betas.cuda(), [src, tgt_pose])
-            samples = xs[-1].cuda()
+        if use_fp16:
+            with autocast():
+                if sample_algorithm == 'ddpm':
+                    samples = self.diffusion.p_sample_loop(self.model, x_cond=[src, tgt_pose], progress=True,
+                                                           cond_scale=2)
+                elif sample_algorithm == 'ddim':
+                    noise = torch.randn(src.shape).cuda()
+                    seq = range(0, 1000, 1000 // nsteps)
+                    xs, x0_preds = ddim_steps(noise, seq, self.model, self.betas.cuda(), [src, tgt_pose])
+                    samples = xs[-1].cuda()
+        else:
+            if sample_algorithm == 'ddpm':
+                samples = self.diffusion.p_sample_loop(self.model, x_cond = [src, tgt_pose], progress = True, cond_scale = 2)
+            elif sample_algorithm == 'ddim':
+                noise = torch.randn(src.shape).cuda()
+                seq = range(0, 1000, 1000//nsteps)
+                xs, x0_preds = ddim_steps(noise, seq, self.model, self.betas.cuda(), [src, tgt_pose])
+                samples = xs[-1].cuda()
 
 
         samples_grid = torch.cat([src[0],torch.cat([samps for samps in samples], -1)], -1)
@@ -81,7 +94,7 @@ class Predictor():
         ref_pose,
         sample_algorithm='ddim',
         nsteps=100,
-
+        use_fp16=False
         ):
         """Run a single prediction on the model"""
 
@@ -94,15 +107,25 @@ class Predictor():
         mask = transforms.ToTensor()(Image.open(ref_mask)).unsqueeze(0).cuda()
         pose =  transforms.ToTensor()(np.load(ref_pose)).unsqueeze(0).cuda()
 
-
-        if sample_algorithm == 'ddpm':
-            samples = self.diffusion.p_sample_loop(self.model, x_cond = [src, pose, ref, mask], progress = True, cond_scale = 2)
-        elif sample_algorithm == 'ddim':
-            noise = torch.randn(src.shape).cuda()
-            seq = range(0, 1000, 1000//nsteps)
-            xs, x0_preds = ddim_steps(noise, seq, self.model, self.betas.cuda(), [src, pose, ref, mask], diffusion=self.diffusion)
-            samples = xs[-1].cuda()
-
+        if use_fp16:
+            with autocast():
+                if sample_algorithm == 'ddpm':
+                    samples = self.diffusion.p_sample_loop(self.model, x_cond = [src, pose, ref, mask], progress = True, cond_scale = 2)
+                elif sample_algorithm == 'ddim':
+                    noise = torch.randn(src.shape).cuda()
+                    seq = range(0, 1000, 1000//nsteps)
+                    xs, x0_preds = ddim_steps(noise, seq, self.model, self.betas.cuda(), [src, pose, ref, mask], diffusion=self.diffusion)
+                    samples = xs[-1].cuda()
+        else:
+            if sample_algorithm == 'ddpm':
+                samples = self.diffusion.p_sample_loop(self.model, x_cond=[src, pose, ref, mask], progress=True,
+                                                       cond_scale=2)
+            elif sample_algorithm == 'ddim':
+                noise = torch.randn(src.shape).cuda()
+                seq = range(0, 1000, 1000 // nsteps)
+                xs, x0_preds = ddim_steps(noise, seq, self.model, self.betas.cuda(), [src, pose, ref, mask],
+                                          diffusion=self.diffusion)
+                samples = xs[-1].cuda()
 
         samples = torch.clamp(samples, -1., 1.)
 
@@ -113,14 +136,16 @@ class Predictor():
         Image.fromarray(fake_imgs[0]).save('output.png')
 
 if __name__ == "__main__":
-
-
+    import argparse
+    parser = argparse.ArgumentParser(description="predict script")
+    parser.add_argument("--use_fp16", action='store_true')
+    args = parser.parse_args()
     obj = Predictor()
 
-    obj.predict_pose(image='test.jpg', num_poses=4, sample_algorithm = 'ddim',  nsteps = 50)
+    obj.predict_pose(image='test.jpg', num_poses=4, sample_algorithm = 'ddim', nsteps = 50, use_fp16=args.use_fp16)
     
     # ref_img = "data/deepfashion_256x256/target_edits/reference_img_0.png"
     # ref_mask = "data/deepfashion_256x256/target_mask/lower/reference_mask_0.png"
     # ref_pose = "data/deepfashion_256x256/target_pose/reference_pose_0.npy"
 
-    # #obj.predict_appearance(image='test.jpg', ref_img = ref_img, ref_mask = ref_mask, ref_pose = ref_pose, sample_algorithm = 'ddim',  nsteps = 50)
+    # #obj.predict_appearance(image='test.jpg', ref_img = ref_img, ref_mask = ref_mask, ref_pose = ref_pose, sample_algorithm = 'ddim',  nsteps = 50, use_fp16=args.use_fp16)

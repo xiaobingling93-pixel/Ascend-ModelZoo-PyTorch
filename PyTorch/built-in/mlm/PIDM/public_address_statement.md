@@ -1,0 +1,8 @@
+| 类型 | 开源代码地址                                                          | 文件名                       | 公网IP地址/公网URL地址/域名/邮箱地址 | 用途说明                        |
+| ------- |-----------------------------------------------------------------|---------------------------|------------------|-----------------------------|
+|	开源代码引入	| 	https://github.com/ankanbhunia/PIDM/blob/main/diffusion.py     | 	PIDM/diffusion.py		      | https://github.com/hojonathanho/diffusion/blob/1e0dceb3b3495bbe19116a5e1b3596cd0706c543/diffusion_tf/diffusion_utils_2.py	        | 	代码实现参考连接	                  |
+|	开源代码引入	| 	https://github.com/ankanbhunia/PIDM/blob/main/models/blocks.py | 	PIDM/models/blocks.py  	 | https://github.com/hojonathanho/diffusion/blob/1e0dceb3b3495bbe19116a5e1b3596cd0706c543/diffusion_tf/models/unet.py#L66        | 	代码实现参考连接	                     |
+|	开源代码引入	| 	https://github.com/ankanbhunia/PIDM/blob/main/models/blocks.py | 	PIDM/models/blocks.py 	  | https://github.com/openai/CLIP/blob/main/clip/model.py           | 	代码实现参考连接	                     |
+|	开源代码引入	| 	https://github.com/ankanbhunia/PIDM/blob/main/models/losses.py | 	PIDM/models/losses.py    | https://github.com/hojonathanho/diffusion/blob/1e0dceb3b3495bbe19116a5e1b3596cd0706c543/diffusion_tf/utils.py 	         | 	代码实现参考连接	            |
+|	开源代码引入	| 	https://github.com/ankanbhunia/PIDM/blob/main/predict.py       | 	PIDM/predict.py          | https://github.com/replicate/cog/blob/main/docs/python.md 	           | 	代码实现参考连接	            |
+|	开源代码引入	| 	https://github.com/ankanbhunia/PIDM/blob/main/utils/metrics.py | 	PIDM/utils/metrics.py    | https://github.com/bioinf-jku/TTUR 	         | 	代码实现参考连接	                 |

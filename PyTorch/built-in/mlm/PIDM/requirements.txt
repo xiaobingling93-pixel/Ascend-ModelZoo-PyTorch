@@ -1,7 +1,8 @@
+numpy==1.24.4
 imageio==2.10.3
 lmdb==1.2.1
 opencv-python==4.5.4.58
-Pillow==8.3.2
+Pillow==10.4.0
 PyYAML==5.4.1
 scikit-image==0.17.2
 scipy==1.5.4
@@ -10,3 +11,7 @@ tqdm==4.62.3
 pydantic==1.10.14
 wandb
 tensorfn
+attrs==24.2.0
+torchaudio==2.1.0
+torchvision==0.16.0
+decorator==5.1.1
