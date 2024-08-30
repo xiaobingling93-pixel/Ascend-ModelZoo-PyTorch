@@ -92,6 +92,7 @@ nohup python3 main.py \
     -j $workers \
     -b $batch_size \
     --lr 0.2 \
+    --skip_steps 50 \
     --epochs $train_epochs \
     --gpu $device_id > ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log 2>&1 &
 wait

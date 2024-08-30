@@ -102,6 +102,7 @@ do
             --epochs $train_epochs \
             --gpu ${RANK_ID} \
             --rank 0 \
+            --skip_steps 50 \
             --multiprocessing-distributed > ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log 2>&1 &
     else
         nohup python3 main.py \
@@ -116,6 +117,7 @@ do
             --epochs $train_epochs \
             --gpu ${RANK_ID} \
             --rank 0 \
+            --skip_steps 50 \
             --multiprocessing-distributed > ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log 2>&1 &
     fi
 done

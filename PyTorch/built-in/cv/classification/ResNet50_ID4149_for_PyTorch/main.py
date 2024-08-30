@@ -28,11 +28,13 @@ import warnings
 from enum import Enum
 import numpy as np
 import torch
+
 if torch.__version__ >= '1.8':
     import torch_npu
 import torch.backends.cudnn as cudnn
 import torch.distributed as dist
 import torch.multiprocessing as mp
+
 if torch.__version__ >= "1.8":
     import torch_npu
 from apex import amp
@@ -48,10 +50,13 @@ import torchvision.models as models
 import torchvision.transforms as transforms
 from torch.optim.lr_scheduler import StepLR
 from torch.utils.data import Subset
+
 try:
     from torch_npu.utils.profiler import Profile
 except:
     print("Profile not in torch_npu.utils.profiler now.. Auto Profile disabled.", flush=True)
+
+
     class Profile:
         def __init__(self, *args, **kwargs):
             pass
@@ -63,8 +68,8 @@ except:
             pass
 
 model_names = sorted(name for name in models.__dict__
-    if name.islower() and not name.startswith("__")
-    and callable(models.__dict__[name]))
+                     if name.islower() and not name.startswith("__")
+                     and callable(models.__dict__[name]))
 
 parser = argparse.ArgumentParser(description='PyTorch ImageNet Training')
 parser.add_argument('--data', metavar='DIR', nargs='?', default='imagenet',
@@ -72,8 +77,8 @@ parser.add_argument('--data', metavar='DIR', nargs='?', default='imagenet',
 parser.add_argument('-a', '--arch', metavar='ARCH', default='resnet18',
                     choices=model_names,
                     help='model architecture: ' +
-                        ' | '.join(model_names) +
-                        ' (default: resnet18)')
+                         ' | '.join(model_names) +
+                         ' (default: resnet18)')
 parser.add_argument('-j', '--workers', default=4, type=int, metavar='N',
                     help='number of data loading workers (default: 4)')
 parser.add_argument('--epochs', default=90, type=int, metavar='N',
@@ -127,14 +132,18 @@ parser.add_argument('--opt-level', default='O2', type=str,
 parser.add_argument('--warmup', default=8, type=int, metavar='E', help='number of warmup epochs')
 parser.add_argument('--label-smoothing', default=0.1, type=float, metavar='S', help='label smoothing')
 parser.add_argument('--addr', default='127.0.0.1', type=str, help='master addr')
+parser.add_argument('--skip_steps', default=0, type=int, help='skip steps for performance test')
 best_acc1 = 0
+
 
 def lr_policy(lr_fn):
     def _alr(optimizer, iteration, epoch):
         lr = lr_fn(iteration, epoch)
         for param_group in optimizer.param_groups:
             param_group['lr'] = lr
+
     return _alr
+
 
 def lr_cosine_policy(base_lr, warmup_length, epochs):
     def _lr_fn(iteration, epoch):
@@ -147,6 +156,7 @@ def lr_cosine_policy(base_lr, warmup_length, epochs):
         return lr
 
     return lr_policy(_lr_fn)
+
 
 class CrossEntropy(nn.CrossEntropyLoss):
     def __init__(self, smooth_factor=0., num_classes=1000):
@@ -162,6 +172,7 @@ class CrossEntropy(nn.CrossEntropyLoss):
         loss = torch.mean(loss, [0], keepdim=False, dtype=torch.float32)
         return loss
 
+
 def fast_collate(batch):
     imgs = [img[0] for img in batch]
     targets = torch.tensor([target[1] for target in batch], dtype=torch.int64)
@@ -176,6 +187,7 @@ def fast_collate(batch):
         tensor[i] += torch.from_numpy(nump_array)
 
     return tensor, targets
+
 
 def main():
     args = parser.parse_args()
@@ -264,7 +276,7 @@ def main_worker(gpu, ngpus_per_node, args):
         if torch.npu.is_available():
             if args.gpu is not None:
                 torch.npu.set_device(torch.device(f'npu:{args.gpu}'))
-                model=model.to(torch.device(f'npu:{args.gpu}'))
+                model = model.to(torch.device(f'npu:{args.gpu}'))
                 # When using a single GPU per process and per
                 # DistributedDataParallel, we need to divide the batch size
                 # ourselves based on the total number of GPUs of the current node.
@@ -304,12 +316,12 @@ def main_worker(gpu, ngpus_per_node, args):
 
     if os.getenv('ALLOW_FP32') or os.getenv('ALLOW_HF32'):
         optimizer = torch_npu.optim.NpuFusedSGD(model.parameters(), args.lr,
-                                    momentum=args.momentum,
-                                    weight_decay=args.weight_decay)
+                                                momentum=args.momentum,
+                                                weight_decay=args.weight_decay)
     else:
         optimizer = apex.optimizers.NpuFusedSGD(model.parameters(), args.lr,
-                                    momentum=args.momentum,
-                                    weight_decay=args.weight_decay)
+                                                momentum=args.momentum,
+                                                weight_decay=args.weight_decay)
 
     if args.amp and not os.getenv('ALLOW_FP32') and not os.getenv('ALLOW_HF32'):
         model, optimizer = amp.initialize(
@@ -319,7 +331,6 @@ def main_worker(gpu, ngpus_per_node, args):
 
     """Sets the learning rate to the initial LR decayed by 10 every 30 epochs"""
 
-    
     # optionally resume from a checkpoint
     if args.resume:
         if os.path.isfile(args.resume):
@@ -342,7 +353,6 @@ def main_worker(gpu, ngpus_per_node, args):
         else:
             print("=> no checkpoint found at '{}'".format(args.resume))
 
-
     # Data loading code
     if args.dummy:
         print("=> Dummy data is used!")
@@ -352,7 +362,7 @@ def main_worker(gpu, ngpus_per_node, args):
         traindir = os.path.join(args.data, 'train')
         valdir = os.path.join(args.data, 'val')
         normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                     std=[0.229, 0.224, 0.225])
+                                         std=[0.229, 0.224, 0.225])
 
         train_dataset = datasets.ImageFolder(
             traindir,
@@ -398,21 +408,21 @@ def main_worker(gpu, ngpus_per_node, args):
 
         # evaluate on validation set
         acc1 = validate(val_loader, model, criterion, args)
-        
-        #scheduler.step()
-        
+
+        # scheduler.step()
+
         # remember best acc@1 and save checkpoint
         is_best = acc1 > best_acc1
         best_acc1 = max(acc1, best_acc1)
 
         if not args.multiprocessing_distributed or (args.multiprocessing_distributed
-                and args.rank % ngpus_per_node == 0):
+                                                    and args.rank % ngpus_per_node == 0):
             save_checkpoint({
                 'epoch': epoch + 1,
                 'arch': args.arch,
                 'state_dict': model.state_dict(),
                 'best_acc1': best_acc1,
-                'optimizer' : optimizer.state_dict(),
+                'optimizer': optimizer.state_dict(),
             }, is_best)
 
 
@@ -469,6 +479,9 @@ def train(train_loader, model, criterion, optimizer, epoch, device, args, lr_sch
         optimizer.step()
         profile.end()
 
+        if i == args.skip_steps:
+            batch_time.reset()
+
         # measure elapsed time
         batch_time.update(time.time() - end)
         end = time.time()
@@ -481,7 +494,6 @@ def train(train_loader, model, criterion, optimizer, epoch, device, args, lr_sch
 
 
 def validate(val_loader, model, criterion, args):
-
     def run_validate(loader, base_progress=0):
         device = torch.device(f"npu:{args.gpu}")
         with torch.no_grad():
@@ -550,14 +562,17 @@ def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
     if is_best:
         shutil.copyfile(filename, 'model_best.pth.tar')
 
+
 class Summary(Enum):
     NONE = 0
     AVERAGE = 1
     SUM = 2
     COUNT = 3
 
+
 class AverageMeter(object):
     """Computes and stores the average and current value"""
+
     def __init__(self, name, fmt=':f', summary_type=Summary.AVERAGE):
         self.name = name
         self.fmt = fmt
@@ -591,7 +606,7 @@ class AverageMeter(object):
     def __str__(self):
         fmtstr = '{name} {val' + self.fmt + '} ({avg' + self.fmt + '})'
         return fmtstr.format(**self.__dict__)
-    
+
     def summary(self):
         fmtstr = ''
         if self.summary_type is Summary.NONE:
@@ -604,7 +619,7 @@ class AverageMeter(object):
             fmtstr = '{name} {count:.3f}'
         else:
             raise ValueError('invalid summary type %r' % self.summary_type)
-        
+
         return fmtstr.format(**self.__dict__)
 
 
@@ -618,7 +633,7 @@ class ProgressMeter(object):
         entries = [self.prefix + self.batch_fmtstr.format(batch)]
         entries += [str(meter) for meter in self.meters]
         print('\t'.join(entries))
-        
+
     def display_summary(self):
         entries = [" *"]
         entries += [meter.summary() for meter in self.meters]
@@ -628,6 +643,7 @@ class ProgressMeter(object):
         num_digits = len(str(num_batches // 1))
         fmt = '{:' + str(num_digits) + 'd}'
         return '[' + fmt + '/' + fmt.format(num_batches) + ']'
+
 
 def accuracy(output, target, topk=(1,)):
     """Computes the accuracy over the k top predictions for the specified values of k"""
@@ -644,6 +660,7 @@ def accuracy(output, target, topk=(1,)):
             correct_k = correct[:k].reshape(-1).float().sum(0, keepdim=True)
             res.append(correct_k.mul_(100.0 / batch_size))
         return res
+
 
 if __name__ == '__main__':
     main()
