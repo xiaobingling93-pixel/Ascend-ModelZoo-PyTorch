@@ -220,7 +220,7 @@ class Attention(nn.Module):
         )[0]
 
         x = x.transpose(1, 2)
-        x = x.view(B, N, -1)
+        x = x.reshape(B, N, -1)
         x = self.proj(x)
         x = self.proj_drop(x)
         return x

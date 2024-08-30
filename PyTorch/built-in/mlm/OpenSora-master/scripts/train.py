@@ -176,15 +176,17 @@ def main():
         from mindspeed.optimizer.adamw import AdamW
         optimizer = AdamW(
             filter(lambda p: p.requires_grad, model.parameters()),
-            lr=cfg.lr,
-            weight_decay=0
+            lr=cfg.get("lr", 1e-4),
+            weight_decay=cfg.get("weight_decay", 0),
+            eps=cfg.get("adam_eps", 1e-8)
         )
     else:
         optimizer = HybridAdam(
             filter(lambda p: p.requires_grad, model.parameters()),
-            lr=cfg.lr,
-            weight_decay=0,
+            lr=cfg.get("lr", 1e-4),
+            weight_decay=cfg.get("weight_decay", 0),
             adamw_mode=True,
+            eps=cfg.get("adam_eps", 1e-8)
         )
 
     warmup_steps = cfg.get("warmup_steps", None)
