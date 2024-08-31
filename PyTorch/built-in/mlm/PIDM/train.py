@@ -3,6 +3,7 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
+from torch.cuda.amp import autocast
 import time, cv2, torch, wandb
 import torch.distributed as dist
 from config.diffconfig import DiffusionConfig, get_model_conf
@@ -19,8 +20,8 @@ import data as deepfashion_data
 from model import UNet
 import torch_npu
 from torch_npu.contrib import transfer_to_npu
-from torch.cuda.amp import autocast
-torch.npu.config.allow_internal_format = FALSE
+
+torch.npu.config.allow_internal_format = False
 
 def init_distributed():
 

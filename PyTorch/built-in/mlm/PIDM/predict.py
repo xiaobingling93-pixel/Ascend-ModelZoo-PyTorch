@@ -18,7 +18,7 @@ from models.unet_autoenc import BeatGANsAutoencConfig
 from diffusion import create_gaussian_diffusion, make_beta_schedule, ddim_steps
 import torchvision.transforms as transforms
 import torchvision
-import troch_npu
+import torch_npu
 from torch_npu.contrib import transfer_to_npu
 
 class Predictor():
