@@ -35,10 +35,6 @@ if torch.__version__ >= "1.8":
     option['ACL_OP_COMPILER_CACHE_MODE'] = "enable"  # cache功能启用
     option['ACL_OP_COMPILER_CACHE_DIR'] = "./cache"  # cache所在的文件夹
 
-option['MM_BMM_ND_ENABLE'] = 'disable'
-option['ACL_OP_SELECT_IMPL_MODE'] = "high_performance"
-option['ACL_OPTYPELIST_FOR_IMPLMODE'] = "LayerNorm"
-torch.npu.set_option(option)
 import datasets
 from datasets import load_dataset, load_metric
 
@@ -589,4 +585,11 @@ def _mp_fn(index):
 
 
 if __name__ == "__main__":
+    NPU_A1_FLAG = os.environ.get('NPU_A1_FLAG', 'False')
+    if NPU_A1_FLAG == 'True':
+        option = {}
+        option['MM_BMM_ND_ENABLE'] = 'disable'
+        option['ACL_OP_SELECT_IMPL_MODE'] = "high_performance"
+        option['ACL_OPTYPELIST_FOR_IMPLMODE'] = "LayerNorm"
+        torch.npu.set_option(option)
     main()

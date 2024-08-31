@@ -39,7 +39,6 @@ from torch.utils.data.distributed import DistributedSampler
 from apex import amp
 from schedulers import LinearWarmUpScheduler
 from file_utils import PYTORCH_PRETRAINED_BERT_CACHE
-import modeling
 from optimization import BertAdam, warmup_linear
 from tokenization import (BasicTokenizer, BertTokenizer, whitespace_tokenize)
 from utils import is_main_process, format_step
@@ -64,6 +63,17 @@ if sys.version_info[0] == 2:
     import cPickle as pickle
 else:
     import pickle
+
+NPU_A1_FLAG = os.environ.get('NPU_A1_FLAG', 'False')
+if NPU_A1_FLAG == 'True':
+    import modeling_for_a1 as modeling
+    option = {}
+    option["ACL_OP_SELECT_IMPL_MODE"] = "high_performance"
+    option["ACL_OPTYPELIST_FOR_IMPLMODE"] = "LayerNorm"
+    option["MM_BMM_ND_ENABLE"] = 'disable'
+    torch.npu.set_option(option)
+else:
+    import modeling
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(name)s -   %(message)s',
                     datefmt='%m/%d/%Y %H:%M:%S',
@@ -1315,11 +1325,5 @@ if __name__ == "__main__":
     elif os.getenv('ALLOW_FP32', False):
         torch.npu.conv.allow_hf32 = False
         torch.npu.matmul.allow_hf32 = False
-    if not os.getenv("ALLOW_FP32") and not os.getenv("ALLOW_HF32"):
-        option = {}
-        option["ACL_OP_SELECT_IMPL_MODE"] = "high_performance"
-        option["ACL_OPTYPELIST_FOR_IMPLMODE"] = "LayerNorm"
-        option["MM_BMM_ND_ENABLE"] = 'disable'
-        torch.npu.set_option(option)
     main()
     dllogger.flush()

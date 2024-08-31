@@ -23,6 +23,8 @@ from dataclasses import dataclass
 from typing import List, Optional, Tuple, Union
 
 import torch
+if torch.__version__ >= '1.8':
+    import torch_npu
 import torch.utils.checkpoint
 from packaging import version
 from torch import nn
@@ -88,6 +90,29 @@ BERT_PRETRAINED_MODEL_ARCHIVE_LIST = [
     "wietsedv/bert-base-dutch-cased",
     # See all BERT models at https://huggingface.co/models?filter=bert
 ]
+
+class MatmulApply(torch.autograd.Function):
+    @staticmethod
+    def forward(ctx, self, mat2):
+        # y: a * b^T
+        ctx.save_for_backward(self, mat2)
+        result = torch.matmul(self, mat2.transpose(-2, -1))
+        return result.detach()
+    @staticmethod
+    def backward(ctx, grad):
+        # da: grad * b
+        # db: grad^T * a
+        self, mat2 = ctx.saved_tensors
+        self_grad = torch_npu.npu_bmmV2(grad, mat2, [])
+        mat2_grad = torch_npu.npu_bmmV2(grad.transpose(-2, -1), self, [])
+        return self_grad, mat2_grad
+
+class NpuLinear(nn.Linear):
+    def forward(self, input):
+        return torch_npu.npu_linear(input, self.weight, self.bias)
+
+def Matmul_transpose(tensor1, tensor2):
+    return MatmulApply.apply(tensor1, tensor2)
 
 def load_tf_weights_in_bert(model, config, tf_checkpoint_path):
     """Load tf checkpoints in a pytorch model."""
@@ -174,7 +199,7 @@ class BertEmbeddings(nn.Module):
         # self.LayerNorm is not snake-cased to stick with TensorFlow model variable name and be able to load
         # any TensorFlow checkpoint file
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
-        self.dropout = nn.Dropout(config.hidden_dropout_prob)
+        self.dropout = torch_npu.contrib.module.npu_modules.DropoutWithByteMask(config.hidden_dropout_prob)
         # position_ids (1, len position emb) is contiguous in memory and exported when serialized
         self.position_embedding_type = getattr(config, "position_embedding_type", "absolute")
         self.register_buffer("position_ids", torch.arange(config.max_position_embeddings).expand((1, -1)))
@@ -235,11 +260,15 @@ class BertSelfAttention(nn.Module):
         self.attention_head_size = int(config.hidden_size / config.num_attention_heads)
         self.all_head_size = self.num_attention_heads * self.attention_head_size
 
-        self.query = nn.Linear(config.hidden_size, self.all_head_size)
-        self.key = nn.Linear(config.hidden_size, self.all_head_size)
-        self.value = nn.Linear(config.hidden_size, self.all_head_size)
+        # self.query = nn.Linear(config.hidden_size, self.all_head_size)
+        # self.key = nn.Linear(config.hidden_size, self.all_head_size)
+        # self.value = nn.Linear(config.hidden_size, self.all_head_size)
 
-        self.dropout = nn.Dropout(config.attention_probs_dropout_prob)
+        self.query = NpuLinear(config.hidden_size, self.all_head_size)
+        self.key = NpuLinear(config.hidden_size, self.all_head_size)
+        self.value = NpuLinear(config.hidden_size, self.all_head_size)
+
+        self.dropout = torch_npu.contrib.module.npu_modules.DropoutWithByteMask(config.attention_probs_dropout_prob)
         self.position_embedding_type = position_embedding_type or getattr(
             config, "position_embedding_type", "absolute"
         )
@@ -250,10 +279,36 @@ class BertSelfAttention(nn.Module):
         self.is_decoder = config.is_decoder
         self.attention_probs_dropout_prob = config.attention_probs_dropout_prob
 
+    # def transpose_for_scores(self, x):
+    #     new_x_shape = x.size()[:-1] + (self.num_attention_heads, self.attention_head_size)
+    #     x = x.view(new_x_shape)
+    #     return x.permute(0, 2, 1, 3)
     def transpose_for_scores(self, x):
-        new_x_shape = x.size()[:-1] + (self.num_attention_heads, self.attention_head_size)
-        x = x.view(new_x_shape)
-        return x.permute(0, 2, 1, 3)
+        new_x_shape = (self.bs, x.size()[0] // self.bs) + (self.num_attention_heads, self.attention_head_size)
+        return torch_npu.npu_confusion_transpose(x, (0, 2, 1, 3), new_x_shape, False)
+
+    def fuse_add_softmax_dropout(self, attn_mask, attn_scores, attention_head_size, p):
+        high_performance_support_hw = [128, 256, 384, 512]
+        n, c, h, w = attn_scores.size()
+        if h in high_performance_support_hw and (n * c) % 32 == 0:
+            if self.training:
+                drop_p = p
+            else:
+                drop_p = 0
+            _, _, attn_probs = torch_npu.npu_dropout_with_add_softmax(attn_scores, attn_mask,
+                                                                      1 / math.sqrt(attention_head_size), drop_p, -1)
+        else:                  
+            # Apply the attention mask is (precomputed for all layers in BertModel forward() function)
+            attn_scores = torch.add(attn_mask, attn_scores, alpha=(1 / math.sqrt(attention_head_size)))
+
+            # Normalize the attention scores to probabilities.chrome
+            attn_probs = nn.functional.softmax(attn_scores, dim=-1)
+
+            # This is actually dropping out entire tokens to attend to, which might
+            # seem a bit unusual, but is taken from the original Transformer paper.
+            attn_probs = self.dropout(attn_probs)    
+        
+        return attn_probs
 
     def forward(
         self,
@@ -304,7 +359,8 @@ class BertSelfAttention(nn.Module):
             past_key_value = (key_layer, value_layer)
 
         # Take the dot product between "query" and "key" to get the raw attention scores.
-        attention_scores = torch.matmul(query_layer, key_layer.transpose(-1, -2))
+        # attention_scores = torch.matmul(query_layer, key_layer.transpose(-1, -2))
+        attention_scores = Matmul_transpose(query_layer, key_layer)
 
         if self.position_embedding_type == "relative_key" or self.position_embedding_type == "relative_key_query":
             seq_length = hidden_states.size()[1]
@@ -322,17 +378,19 @@ class BertSelfAttention(nn.Module):
                 relative_position_scores_key = torch.einsum("bhrd,lrd->bhlr", key_layer, positional_embedding)
                 attention_scores = attention_scores + relative_position_scores_query + relative_position_scores_key
 
-        attention_scores = attention_scores / math.sqrt(self.attention_head_size)
+
         if attention_mask is not None:
             # Apply the attention mask is (precomputed for all layers in BertModel forward() function)
-            attention_scores = attention_scores + attention_mask
-        
-        # Normalize the attentin scores to probabilities
-        attention_probs = nn.functional.softmax(attention_scores, dim=-1)
+            attention_probs = self.fuse_add_softmax_dropout(attention_mask, attention_scores, self.attention_head_size, self.attention_probs_dropout_prob)
+        else:
+            attention_scores = attention_scores / math.sqrt(self.attention_head_size)
 
-        # This is actually dropping out entire tokens to attend to, which might
-        # seem a bit unusual, but is taken from the original Transformer paper.
-        attention_probs = self.dropout(attention_probs)
+            # Normalize the attention scores to probabilities.
+            attention_probs = nn.functional.softmax(attention_scores, dim=-1)
+
+            # This is actually dropping out entire tokens to attend to, which might
+            # seem a bit unusual, but is taken from the original Transformer paper.
+            attention_probs = self.dropout(attention_probs)
 
         # Mask heads if we want to
         if head_mask is not None:
@@ -340,9 +398,11 @@ class BertSelfAttention(nn.Module):
 
         context_layer = torch.matmul(attention_probs, value_layer)
 
-        context_layer = context_layer.permute(0, 2, 1, 3).contiguous()
-        new_context_layer_shape = context_layer.size()[:-2] + (self.all_head_size,)
-        context_layer = context_layer.view(new_context_layer_shape)
+        # context_layer = context_layer.permute(0, 2, 1, 3).contiguous()
+        # new_context_layer_shape = context_layer.size()[:-2] + (self.all_head_size,)
+        # context_layer = context_layer.view(new_context_layer_shape)
+        context_layer = torch_npu.npu_confusion_transpose(context_layer, (0, 2, 1, 3), (
+        context_layer.size()[0] * context_layer.size()[2], self.all_head_size), True)
 
         outputs = (context_layer, attention_probs) if output_attentions else (context_layer,)
 
@@ -354,9 +414,10 @@ class BertSelfAttention(nn.Module):
 class BertSelfOutput(nn.Module):
     def __init__(self, config):
         super().__init__()
-        self.dense = nn.Linear(config.hidden_size, config.hidden_size)
+        # self.dense = nn.Linear(config.hidden_size, config.hidden_size)
+        self.dense = NpuLinear(config.hidden_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
-        self.dropout = nn.Dropout(config.hidden_dropout_prob)
+        self.dropout = torch_npu.contrib.module.npu_modules.DropoutWithByteMask(config.hidden_dropout_prob)
 
     def forward(self, hidden_states, input_tensor):
         hidden_states = self.dense(hidden_states)
@@ -417,7 +478,7 @@ class BertAttention(nn.Module):
 class BertIntermediate(nn.Module):
     def __init__(self, config):
         super().__init__()
-        self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
+        self.dense = NpuLinear(config.hidden_size, config.intermediate_size)
         if isinstance(config.hidden_act, str):
             self.intermediate_act_fn = ACT2FN[config.hidden_act]
         else:
@@ -432,15 +493,16 @@ class BertIntermediate(nn.Module):
 class BertOutput(nn.Module):
     def __init__(self, config):
         super().__init__()
-        self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
+        # self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
+        self.dense = NpuLinear(config.intermediate_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
-        self.dropout = nn.Dropout(config.hidden_dropout_prob)
+        self.dropout = torch_npu.contrib.module.npu_modules.DropoutWithByteMask(config.hidden_dropout_prob)
 
     def forward(self, hidden_states, input_tensor):
         hidden_states = self.dense(hidden_states)
         hidden_states = self.dropout(hidden_states)
         hidden_states = self.LayerNorm(hidden_states + input_tensor)
-        return hidden_states
+        return torch_npu.npu_format_cast(hidden_states, 29)
 
 
 class BertLayer(nn.Module):
@@ -643,7 +705,7 @@ class BertPooler(nn.Module):
 class BertPredictionHeadTransform(nn.Module):
     def __init__(self, config):
         super().__init__()
-        self.dense = nn.Linear(config.hidden_size, config.hidden_size)
+        self.dense = NpuLinear(config.hidden_size, config.hidden_size)
         if isinstance(config.hidden_act, str):
             self.transform_act_fn = ACT2FN[config.hidden_act]
         else:
@@ -664,9 +726,12 @@ class BertLMPredictionHead(nn.Module):
 
         # The output weights are the same as the input embeddings, but there is
         # an output-only bias for each token.
-        self.decoder = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
+        self.decoder = NpuLinear(config.hidden_size, config.vocab_size, bias=False)
 
         self.bias = nn.Parameter(torch.zeros(config.vocab_size))
+        self.decoder.weight.data = self.decoder.weight.data.npu()
+        self.decoder.weight.data = torch_npu.npu_format_cast(self.decoder.weight.data, 29)
+
         # Need a link between the two variables so that the bias is correctly resized with `resize_token_embeddings`
         self.decoder.bias = self.bias
 
@@ -685,7 +750,7 @@ class BertOnlyMLMHead(nn.Module):
 
     def forward(self, sequence_output):
         prediction_scores = self.predictions(sequence_output)
-        return prediction_scores
+        return torch_npu.npu_format_cast(prediction_scores, 2)
 
 
 class BertOnlyNSPHead(nn.Module):
@@ -695,7 +760,7 @@ class BertOnlyNSPHead(nn.Module):
 
     def forward(self, pooled_output):
         seq_relationship_score = self.seq_relationship(pooled_output)
-        return seq_relationship_score
+        return torch_npu.npu_format_cast(seq_relationship_score, 2)
 
 
 class BertPreTrainingHeads(nn.Module):
@@ -707,7 +772,7 @@ class BertPreTrainingHeads(nn.Module):
     def forward(self, sequence_output, pooled_output):
         prediction_scores = self.predictions(sequence_output)
         seq_relationship_score = self.seq_relationship(pooled_output)
-        return prediction_scores, seq_relationship_score
+        return torch_npu.npu_format_cast(prediction_scores, 2), seq_relationship_score
 
 
 class BertPreTrainedModel(PreTrainedModel):
@@ -970,6 +1035,11 @@ class BertModel(BertPreTrainedModel):
         # We can provide a self-attention mask of dimensions [batch_size, from_seq_length, to_seq_length]
         # ourselves in which case we just need to make it broadcastable to all heads.
         extended_attention_mask: torch.Tensor = self.get_extended_attention_mask(attention_mask, input_shape, device)
+        bs, from_seq_len = attention_mask.size()
+        extended_attention_mask = torch_npu.npu_format_cast(
+            extended_attention_mask.expand(bs, self.num_attention_heads, from_seq_len, from_seq_len).clone(),
+            29
+        )
 
         # If a 2D or 3D attention mask is provided for the cross-attention
         # we need to make broadcastable to [batch_size, num_heads, seq_length, seq_length]
@@ -996,7 +1066,7 @@ class BertModel(BertPreTrainedModel):
             inputs_embeds=inputs_embeds,
             past_key_values_length=past_key_values_length,
         )
-
+        embedding_output = torch_npu.npu_format_cast(embedding_output.view(-1, embedding_output.size()[-1]).clone(), 29)
         encoder_outputs = self.encoder(
             embedding_output,
             attention_mask=extended_attention_mask,
@@ -1009,7 +1079,7 @@ class BertModel(BertPreTrainedModel):
             output_hidden_states=output_hidden_states,
             return_dict=return_dict,
         )
-        sequence_output = encoder_outputs[0]
+        sequence_output = encoder_outputs[0].view(bs, from_seq_len, -1)
         pooled_output = self.pooler(sequence_output) if self.pooler is not None else None
 
         if not return_dict:
@@ -1514,7 +1584,7 @@ class BertForSequenceClassification(BertPreTrainedModel):
         classifier_dropout = (
             config.classifier_dropout if config.classifier_dropout is not None else config.hidden_dropout_prob
         )
-        self.dropout = nn.Dropout(classifier_dropout)
+        self.dropout = torch_npu.contrib.module.npu_modules.DropoutWithByteMask(classifier_dropout)
         self.classifier = nn.Linear(config.hidden_size, config.num_labels)
 
         # Initialize weights and apply final processing
@@ -1614,7 +1684,7 @@ class BertForMultipleChoice(BertPreTrainedModel):
         classifier_dropout = (
             config.classifier_dropout if config.classifier_dropout is not None else config.hidden_dropout_prob
         )
-        self.dropout = nn.Dropout(classifier_dropout)
+        self.dropout = torch_npu.contrib.module.npu_modules.DropoutWithByteMask(classifier_dropout)
         self.classifier = nn.Linear(config.hidden_size, 1)
 
         # Initialize weights and apply final processing
@@ -1713,7 +1783,7 @@ class BertForTokenClassification(BertPreTrainedModel):
         classifier_dropout = (
             config.classifier_dropout if config.classifier_dropout is not None else config.hidden_dropout_prob
         )
-        self.dropout = nn.Dropout(classifier_dropout)
+        self.dropout = torch_npu.contrib.module.npu_modules.DropoutWithByteMask(classifier_dropout)
         self.classifier = nn.Linear(config.hidden_size, config.num_labels)
 
         # Initialize weights and apply final processing

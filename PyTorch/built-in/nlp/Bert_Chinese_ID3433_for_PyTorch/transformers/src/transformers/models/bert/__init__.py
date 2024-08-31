@@ -20,6 +20,7 @@ from typing import TYPE_CHECKING
 
 from ...file_utils import _LazyModule, is_flax_available, is_tf_available, is_tokenizers_available, is_torch_available
 
+NPU_A1_FLAG = os.environ.get('NPU_A1_FLAG', 'False')
 
 _import_structure = {
     "configuration_bert": ["BERT_PRETRAINED_CONFIG_ARCHIVE_MAP", "BertConfig", "BertOnnxConfig"],
@@ -48,21 +49,38 @@ if is_torch_available():
             "load_tf_weights_in_bert",
         ]
     else:
-        _import_structure["modeling_bert"] = [
-            "BERT_PRETRAINED_MODEL_ARCHIVE_LIST",
-            "BertForMaskedLM",
-            "BertForMultipleChoice",
-            "BertForNextSentencePrediction",
-            "BertForPreTraining",
-            "BertForQuestionAnswering",
-            "BertForSequenceClassification",
-            "BertForTokenClassification",
-            "BertLayer",
-            "BertLMHeadModel",
-            "BertModel",
-            "BertPreTrainedModel",
-            "load_tf_weights_in_bert",
-        ]
+        if NPU_A1_FLAG == 'True':
+            _import_structure["modeling_bert_for_a1"] = [
+                "BERT_PRETRAINED_MODEL_ARCHIVE_LIST",
+                "BertForMaskedLM",
+                "BertForMultipleChoice",
+                "BertForNextSentencePrediction",
+                "BertForPreTraining",
+                "BertForQuestionAnswering",
+                "BertForSequenceClassification",
+                "BertForTokenClassification",
+                "BertLayer",
+                "BertLMHeadModel",
+                "BertModel",
+                "BertPreTrainedModel",
+                "load_tf_weights_in_bert",
+            ]
+        else:
+            _import_structure["modeling_bert"] = [
+                "BERT_PRETRAINED_MODEL_ARCHIVE_LIST",
+                "BertForMaskedLM",
+                "BertForMultipleChoice",
+                "BertForNextSentencePrediction",
+                "BertForPreTraining",
+                "BertForQuestionAnswering",
+                "BertForSequenceClassification",
+                "BertForTokenClassification",
+                "BertLayer",
+                "BertLMHeadModel",
+                "BertModel",
+                "BertPreTrainedModel",
+                "load_tf_weights_in_bert",
+            ]
 
 if is_tf_available():
     _import_structure["modeling_tf_bert"] = [
@@ -102,21 +120,38 @@ if TYPE_CHECKING:
         from .tokenization_bert_fast import BertTokenizerFast
 
     if is_torch_available():
-        from .modeling_bert import (
-            BERT_PRETRAINED_MODEL_ARCHIVE_LIST,
-            BertForMaskedLM,
-            BertForMultipleChoice,
-            BertForNextSentencePrediction,
-            BertForPreTraining,
-            BertForQuestionAnswering,
-            BertForSequenceClassification,
-            BertForTokenClassification,
-            BertLayer,
-            BertLMHeadModel,
-            BertModel,
-            BertPreTrainedModel,
-            load_tf_weights_in_bert,
-        )
+        if NPU_A1_FLAG == 'True':
+            from .modeling_bert_for_a1 import (
+                BERT_PRETRAINED_MODEL_ARCHIVE_LIST,
+                BertForMaskedLM,
+                BertForMultipleChoice,
+                BertForNextSentencePrediction,
+                BertForPreTraining,
+                BertForQuestionAnswering,
+                BertForSequenceClassification,
+                BertForTokenClassification,
+                BertLayer,
+                BertLMHeadModel,
+                BertModel,
+                BertPreTrainedModel,
+                load_tf_weights_in_bert,
+            )
+        else:
+            from .modeling_bert import (
+                BERT_PRETRAINED_MODEL_ARCHIVE_LIST,
+                BertForMaskedLM,
+                BertForMultipleChoice,
+                BertForNextSentencePrediction,
+                BertForPreTraining,
+                BertForQuestionAnswering,
+                BertForSequenceClassification,
+                BertForTokenClassification,
+                BertLayer,
+                BertLMHeadModel,
+                BertModel,
+                BertPreTrainedModel,
+                load_tf_weights_in_bert,
+            )
 
     if is_tf_available():
         from .modeling_tf_bert import (

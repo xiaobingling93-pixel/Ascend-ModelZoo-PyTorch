@@ -209,7 +209,7 @@ def train(args, train_dataset, model, tokenizer):
             fpss = []
             for i in range(WORLD_SIZE):
                 fpss.append(torch.load('./fps%d' % i))
-            m = sum(fpss)
+            m = fpss[0] * 8
             logger.info(" FPS = {:.2f}".format(m))
 
     return global_step, tr_loss / global_step

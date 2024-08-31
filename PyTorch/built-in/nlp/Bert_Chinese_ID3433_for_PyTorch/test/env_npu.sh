@@ -21,8 +21,12 @@ msnpureport -g error -d 5
 msnpureport -g error -d 6
 msnpureport -g error -d 7
 
+export NPU_A1_FLAG=`python -c "import torch;import torch_npu;print(not torch.npu.utils.is_support_inf_nan())"`
+if [ $NPU_A1_FLAG ]; then
+    export BMMV2_ENABLE=1
+    export DYNAMIC_OP='ADD#MUL'
+fi
 
-export BMMV2_ENABLE=1
 export SCALAR_TO_HOST_MEM=1
 #将Host日志输出到串口,0-关闭/1-开启
 export ASCEND_SLOG_PRINT_TO_STDOUT=0
@@ -36,8 +40,6 @@ export TASK_QUEUE_ENABLE=1
 export PTCOPY_ENABLE=1
 #设置是否开启combined标志,0-关闭/1-开启
 export COMBINED_ENABLE=1
-#设置特殊场景是否需要重新编译,不需要修改
-export DYNAMIC_OP="ADD#MUL"
 #HCCL白名单开关,1-关闭/0-开启
 export HCCL_WHITELIST_DISABLE=1
 export HCCL_IF_IP=$(hostname -I |awk '{print $1}')

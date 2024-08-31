@@ -25,11 +25,15 @@ msnpureport -g error -d 7
 #关闭Device侧Event日志
 msnpureport -e disable
 
+export NPU_A1_FLAG=`python -c "import torch;import torch_npu;print(not torch.npu.utils.is_support_inf_nan())"`
+if [ $NPU_A1_FLAG ]; then
+    export BMMV2_ENABLE=1
+fi
+
 export ASCEND_GLOBAL_LOG_LEVEL=3
 export ASCEND_GLOBAL_EVENT_ENABLE=0
 export ASCEND_SLOG_PRINT_TO_STDOUT=0
 export TASK_QUEUE_ENABLE=1
-export BMMV2_ENABLE=1
 export COMBINED_ENABLE=1
 export PTCOPY_ENABLE=1
 export HCCL_WHITELIST_DISABLE=1
