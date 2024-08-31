@@ -32,7 +32,6 @@ export TASK_QUEUE_ENABLE=1
 export COMBINED_ENABLE=1
 #HCCL白名单开关,1-关闭/0-开启
 export HCCL_WHITELIST_DISABLE=1
-export HCCL_IF_IP=$(hostname -I |awk '{print $1}')
 export HCCL_CONNECT_TIMEOUT=1200
 
 path_lib=$(python3 -c """
