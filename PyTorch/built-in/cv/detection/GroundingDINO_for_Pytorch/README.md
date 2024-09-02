@@ -87,9 +87,6 @@ Grounding DINO是一个开放集目标检测模型，可以根据输入文本检
  # 安装 torch 和 torch_npu 
  pip install torch-2.1.0-cp38-cp38m-linux_aarch64.whl
  pip install torch_npu-2.1.0.XXX-cp38-cp38m-linux_aarch64.whl
- 
- # 安装 mx_driving-accelerator
- pip install mx_driving_accelerator-*-cp38-cp38-linux_aarch64.whl
 
  # 修改 ascend-toolkit 路径
  source /usr/local/Ascend/ascend-toolkit/set_env.sh 
@@ -111,7 +108,10 @@ Grounding DINO是一个开放集目标检测模型，可以根据输入文本检
  pip install -r requirements.txt
  mkdir -p weights/bert weights/nltk_data weights/g_dino_model refcoco/mdetr_annotations
  ```
+- 安装mxDriving加速库，安装方法参考[原仓](https://gitee.com/ascend/mxDriving)，安装后根据原仓**快速上手**章节将source环境变量命令添加在groundingdino_npu/env_npu.sh中。
+
 #### 将groundingdino_npu目录放在mmdetection目录下
+
 ```shell
 mv ../groundingdino_npu ./
 pip install -r groundingdino_npu/requirements.txt
@@ -134,6 +134,7 @@ pip install -r groundingdino_npu/requirements.txt
 
    在refcoco目录下创建文件夹mdetr_annotations，并将这四个json文件放置在./refcoco/mdetr_annotations目录下
    
+
 准备好后文件夹结构如下所示：
 
 ```text
@@ -275,4 +276,3 @@ python tools/dataset_converters/refcoco2odvg.py refcoco/mdetr_annotations
 # FAQ
 
 暂无。
-
