@@ -1,3 +1,5 @@
+# Copyright 2024 Huawei Technologies Co. Ltd
+
 from pathlib import Path
 from functools import partial
 
@@ -168,6 +170,7 @@ def video_to_tensor(
 
     frames = []
     check = True
+    count_frame = 0
 
     while check:
         check, frame = video.read()
@@ -179,6 +182,10 @@ def video_to_tensor(
             frame = crop_center(frame, *pair(crop_size))
 
         frames.append(rearrange(frame, '... -> 1 ...'))
+        count_frame += 1
+
+        if count_frame > num_frames:
+            break
 
     frames = np.array(np.concatenate(frames[:-1], axis = 0))  # convert list of frames to numpy array
     frames = rearrange(frames, 'f h w c -> c f h w')
@@ -188,7 +195,7 @@ def video_to_tensor(
     frames_torch /= 255.
     frames_torch = frames_torch.flip(dims = (0,)) # BGR -> RGB format
 
-    return frames_torch[:, :num_frames, :, :]
+    return frames_torch
 
 @beartype
 def tensor_to_video(
@@ -248,7 +255,7 @@ class VideoDataset(Dataset):
 
         self.image_size = image_size
         self.channels = channels
-        self.paths = [p for ext in exts for p in folder.glob(f'**/*.{ext}')]
+        self.paths = sorted([p for ext in exts for p in folder.glob(f'**/*.{ext}')])
 
         print(f'{len(self.paths)} training samples found at {folder}')
 
@@ -260,7 +267,7 @@ class VideoDataset(Dataset):
         # functions to transform video path to tensor
 
         self.gif_to_tensor = partial(gif_to_tensor, channels = self.channels, transform = self.transform)
-        self.mp4_to_tensor = partial(video_to_tensor, crop_size = self.image_size)
+        self.mp4_to_tensor = partial(video_to_tensor, num_frames=num_frames, crop_size = self.image_size)
 
         self.cast_num_frames_fn = partial(cast_num_frames, frames = num_frames) if force_num_frames else identity
 
@@ -276,12 +283,10 @@ class VideoDataset(Dataset):
             tensor = self.gif_to_tensor(path_str)
         elif ext == '.mp4':
             tensor = self.mp4_to_tensor(path_str)
-            frames = tensor.unbind(dim = 1)
-            tensor = torch.stack([*map(self.transform, frames)], dim = 1)
         else:
             raise ValueError(f'unknown extension {ext}')
 
-        return self.cast_num_frames_fn(tensor)
+        return tensor
 
 # override dataloader to be able to collate strings
 

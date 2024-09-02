@@ -1,3 +1,5 @@
+# Copyright 2024 Huawei Technologies Co. Ltd
+
 from pathlib import Path
 from functools import partial
 from contextlib import contextmanager, nullcontext
@@ -31,6 +33,7 @@ from einops import rearrange
 from ema_pytorch import EMA
 
 from pytorch_custom_utils import auto_unwrap_model
+import time
 
 # constants
 
@@ -76,8 +79,8 @@ class VideoTokenizerTrainer:
         results_folder = './results',
         random_split_seed = 42,
         valid_frac = 0.05,
-        validate_every_step = 100,
-        checkpoint_every_step = 100,
+        validate_every_step = 10000,
+        checkpoint_every_step = 10000,
         num_frames = 17,
         use_wandb_tracking = False,
         discr_start_after_step = 0.,
@@ -143,10 +146,10 @@ class VideoTokenizerTrainer:
         # dataset and dataloader
 
         self.dataset = dataset
-        self.dataloader = DataLoader(dataset, shuffle = True, drop_last = True, batch_size = batch_size)
+        self.dataloader = DataLoader(dataset, shuffle = True, drop_last = True, batch_size = batch_size, num_workers=8, pin_memory=True)
 
         self.valid_dataset = valid_dataset
-        self.valid_dataloader = DataLoader(valid_dataset, shuffle = True, drop_last = True, batch_size = batch_size)
+        self.valid_dataloader = DataLoader(valid_dataset, shuffle = True, drop_last = True, batch_size = batch_size, num_workers=8, pin_memory=True)
 
         self.validate_every_step = validate_every_step
         self.checkpoint_every_step = checkpoint_every_step
@@ -208,7 +211,7 @@ class VideoTokenizerTrainer:
 
         self.multiscale_discr_optimizers = []
 
-        for ind, discr in enumerate(self.model.multiscale_discrs):
+        for ind, discr in enumerate(self.model.module.multiscale_discrs):
             multiscale_optimizer = get_optimizer(discr.parameters(), lr = learning_rate, **optimizer_kwargs)
 
             self.multiscale_discr_optimizers.append(multiscale_optimizer)
@@ -235,8 +238,8 @@ class VideoTokenizerTrainer:
         self.step = 0
 
         # move ema to the proper device
-
-        self.ema_model.to(self.device)
+        if self.is_main:
+            self.ema_model.to(self.device)
 
     @contextmanager
     @beartype
@@ -333,6 +336,7 @@ class VideoTokenizerTrainer:
         self.model.train()
 
         step = self.step
+        step_end_time = time.time()
 
         # determine whether to train adversarially
 
@@ -351,6 +355,7 @@ class VideoTokenizerTrainer:
             context = partial(self.accelerator.no_sync, self.model) if not is_last else nullcontext
 
             data, *_ = next(dl_iter)
+            step_data_time = time.time() - step_end_time
 
             with self.accelerator.autocast(), context():
                 loss, loss_breakdown = self.model(
@@ -387,7 +392,9 @@ class VideoTokenizerTrainer:
         if self.is_main:
             self.ema_model.update()
 
-        self.wait()
+        step_total_time = time.time() - step_end_time
+        self.print(f'step_total_time: {step_total_time}')
+        self.print(f'step_data_time: {step_data_time}')
 
         # if adversarial loss is turned off, continue
 
@@ -521,14 +528,9 @@ class VideoTokenizerTrainer:
 
             self.train_step(dl_iter)
 
-            self.wait()
-
-
             if self.is_main and not (step % self.checkpoint_every_step):
                 checkpoint_num = step // self.checkpoint_every_step
                 checkpoint_path = self.checkpoints_folder / f'checkpoint.{checkpoint_num}.pt'
                 self.save(str(checkpoint_path))
-
-            self.wait()
 
             step += 1

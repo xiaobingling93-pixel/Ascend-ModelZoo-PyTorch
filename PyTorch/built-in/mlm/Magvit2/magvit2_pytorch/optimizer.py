@@ -1,5 +1,7 @@
-from torch.optim import AdamW, Adam
+# Copyright 2024 Huawei Technologies Co. Ltd
 
+from torch.optim import AdamW, Adam
+import torch_npu
 def separate_weight_decayable_params(params):
     wd_params, no_wd_params = [], []
 
@@ -39,4 +41,4 @@ def get_optimizer(
         {'params': no_wd_params, 'weight_decay': 0},
     ]
 
-    return AdamW(params, **opt_kwargs)
+    return torch_npu.optim.NpuFusedAdamW(params, **opt_kwargs)

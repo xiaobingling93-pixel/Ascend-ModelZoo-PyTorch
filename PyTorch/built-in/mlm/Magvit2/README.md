@@ -1,164 +1,150 @@
-<img src="./magvit2.png" width="400px"></img>
+# Magvit2 for PyTorch
+# 目录
 
-## MagViT2 - Pytorch
+-   [简介](#简介)
+    -  [模型介绍](#模型介绍)
+    -  [支持任务列表](#支持任务列表)
+    -  [代码实现](#代码实现)
+-   [Magvit2](#Magvit2)   
+    -   [准备训练环境](#准备训练环境)
+    -   [快速开始](#快速开始)
+          - [训练任务](#训练任务)
+-   [公网地址说明](#公网地址说明) 
+-   [变更说明](#变更说明) 
+-   [FAQ](#FAQ) 
 
-Implementation of MagViT2 from <a href="https://arxiv.org/abs/2310.05737">Language Model Beats Diffusion - Tokenizer is Key to Visual Generation</a> in Pytorch. This currently holds SOTA for video generation / understanding.
+# 简介
+## 模型介绍
 
-The Lookup Free Quantizer proposed in the paper can be found in a <a href="https://github.com/lucidrains/vector-quantize-pytorch/blob/master/vector_quantize_pytorch/lookup_free_quantization.py">separate repository</a>. It should probably be explored for all other modalities, starting with <a href="https://github.com/lucidrains/audiolm-pytorch/commit/c748fcdb565964bc562277bd73fbeb2e5df0ffca">audio</a>
+Magvit2是谷歌提出的利用语言模型结构为视频和图像生成简洁且富有表现力的编码模型。
+本仓库主要将Magvit2模型迁移到了昇腾NPU上。
 
-Please join <a href="https://discord.gg/xBPBXfcFHd"><img alt="Join us on Discord" src="https://img.shields.io/discord/823813159592001537?color=5865F2&logo=discord&logoColor=white"></a> if you are interested in replicating the tokenizer proposed in this paper out in the open
+## 支持任务列表
 
-## Appreciation
+本仓已经支持以下模型任务类型
 
-- <a href="https://stability.ai/">StabilityAI</a> and <a href="https://huggingface.co/">🤗 Huggingface</a> for the generous sponsorship, as well as my other sponsors, for affording me the independence to open source artificial intelligence.
 
-- <a href="https://github.com/LouisSerrano">Louis Serrano</a> for sharing some early initial runs, validating that the overall architecture converges with finite scalar quantization.
+|   模型    | 任务列表  | 是否支持 |
+|:-------:|:-----:|:----:|
+| magvit2 | train |  ✔   |
 
-- You? If you are a talented research engineer / scientist, feel free to contribute to cutting edge open source science!
 
-## Install
 
-```bash
-$ pip install magvit2-pytorch
-```
+## 代码实现
 
-## Usage
+- 参考实现：
 
-```python
-from magvit2_pytorch import (
-    VideoTokenizer,
-    VideoTokenizerTrainer
-)
+  ```
+  url=https://github.com/lucidrains/magvit2-pytorch
+  commit_id=06edbd31a4daf3468f2af96bafdb5ef1b0259b19
+  ```
 
-tokenizer = VideoTokenizer(
-    image_size = 128,
-    init_dim = 64,
-    max_dim = 512,
-    codebook_size = 1024,
-    layers = (
-        'residual',
-        'compress_space',
-        ('consecutive_residual', 2),
-        'compress_space',
-        ('consecutive_residual', 2),
-        'linear_attend_space',
-        'compress_space',
-        ('consecutive_residual', 2),
-        'attend_space',
-        'compress_time',
-        ('consecutive_residual', 2),
-        'compress_time',
-        ('consecutive_residual', 2),
-        'attend_time',
-    )
-)
+- 适配昇腾 AI 处理器的实现：
 
-trainer = VideoTokenizerTrainer(
-    tokenizer,
-    dataset_folder = '/path/to/a/lot/of/media',     # folder of either videos or images, depending on setting below
-    dataset_type = 'videos',                        # 'videos' or 'images', prior papers have shown pretraining on images to be effective for video synthesis
-    batch_size = 4,
-    grad_accum_every = 8,
-    learning_rate = 2e-5,
-    num_train_steps = 1_000_000
-)
+  ```
+  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  code_path=PyTorch/built-in/mlm/
+  ```
 
-trainer.train()
+# Magvit2
 
-# after a lot of training ...
-# can use the EMA of the tokenizer
+## 准备训练环境
 
-ema_tokenizer = trainer.ema_tokenizer
+### 安装模型环境
 
-# mock video
+  该模型需要python3.10及以上版本，支持的PyTorch版本和三方库依赖如下表所示  
 
-video = torch.randn(1, 3, 17, 128, 128)
+  **表 1**  三方库版本支持表
 
-# tokenizing video to discrete codes
+|     三方库     | 支持版本  |
+|:-----------:|:-----:|
+|   PyTorch   | 2.1.0 |
+| torchvision | 2.1.0 |
 
-codes = ema_tokenizer.tokenize(video) # (1, 9, 16, 16) <- in this example, time downsampled by 4x and space downsampled by 8x. flatten token ids for (non)-autoregressive training
+  在模型源码包根目录下执行命令，安装模型需要的依赖。
 
-# sanity check
+  ```
+  pip install -e .
+  ```
 
-decoded_video = ema_tokenizer.decode_from_code_indices(codes)
+### 安装昇腾环境
 
-assert torch.allclose(
-    decoded_video,
-    ema_tokenizer(video, return_recon = True)
-)
-```
+  请参考昇腾社区中《[Pytorch框架训练环境准备](https://www.hiascend.com /document/detail/zh/ModelZoo/pytorchframework/ptes)》文档搭建昇腾环境，本仓已支持表2中软件版本。
+                
+  
+  **表 2**  昇腾软件版本支持表
 
-To track your experiments on <a href="https://wandb.ai">Weights & Biases</a> set `use_wandb_tracking = True` on `VideoTokenizerTrainer`, and then use the `.trackers` context manager
+|        软件类型        |   支持版本   |
+|:------------------:|:--------:|
+| FrameworkPTAdapter | 在研版本  |
+|        CANN        | 在研版本  |
+|      昇腾NPU固件       | 在研版本 | 
+|      昇腾NPU驱动       |   在研版本   |
 
-```python
 
-trainer = VideoTokenizerTrainer(
-    use_wandb_tracking = True,
-    ...
-)
+### 准备数据集
 
-with trainer.trackers(project_name = 'magvit2', run_name = 'baseline'):
-    trainer.train()
+用户需自行获取并解压MSRVTT数据集 
 
-```
+参考数据结构如下：
 
-## Todo
+   ```
+   /path/to/dataset/MSRVTT/videos/all/
+   ├── video0.mp4
+   ├── video1.mp4
+   └── ...
+   ```
 
-- [ ] Magvit2 Tokenizer
-    - [x] add adversarial loss
-    - [x] implement the blurpool for antialiasing in discriminator
-    - [x] LFQ should be able to pass loss breakdown (commitment and entropy), and forwarded to the return of the tokenizer
-    - [x] add conditioning for encoder decoder with residual modulatable conv 3d
-    - [x] `decode_from_codebook_indices` should be able to accept flattened ids and reshape to correct feature map dimensions and decode back to video
-    - [x] add trainer and manage discriminator training
-    - [x] add adaptive rmsnorm and conditionable transformer layers
-    - [x] completely generalize to multiple discriminators at different time scales (taking inspiration of multi-resolution discriminators from soundstream)
-        - [x] complete multiscale discriminator losses
-        - [x] auto-manage multiscale discriminator optimizers
-        - [ ] helper functions for crafting multi-resolution temporal discriminators (picking random consecutive frames)
-    - [ ] add attention
-        - [ ] use axial rotary embeddings for spatial
-    - [ ] add an optional autoregressive loss at some penultimate layer of the decoder - check literature to see if anyone else has done this unification of transformer decoder + tokenizer in one architecture
-- [ ] Improvise a <a href="https://arxiv.org/abs/2203.01941">RQ Video Transformer</a>, as residual LFQ actually makes sense now
 
-- [ ] MaskGit
+## 快速开始
 
-## Citations
+### 训练任务
 
-```bibtex
-@misc{yu2023language,
-    title   = {Language Model Beats Diffusion -- Tokenizer is Key to Visual Generation}, 
-    author  = {Lijun Yu and José Lezama and Nitesh B. Gundavarapu and Luca Versari and Kihyuk Sohn and David Minnen and Yong Cheng and Agrim Gupta and Xiuye Gu and Alexander G. Hauptmann and Boqing Gong and Ming-Hsuan Yang and Irfan Essa and David A. Ross and Lu Jiang},
-    year    = {2023},
-    eprint  = {2310.05737},
-    archivePrefix = {arXiv},
-    primaryClass = {cs.CV}
-}
-```
+#### 开始训练
+1. 进入解压后的源码包根目录。
 
-```bibtex
-@inproceedings{dao2022flashattention,
-    title   = {Flash{A}ttention: Fast and Memory-Efficient Exact Attention with {IO}-Awareness},
-    author  = {Dao, Tri and Fu, Daniel Y. and Ermon, Stefano and Rudra, Atri and R{\'e}, Christopher},
-    booktitle = {Advances in Neural Information Processing Systems},
-    year    = {2022}
-}
-```
+   ```
+   cd /${模型文件夹名称} 
+   ```
 
-```bibtex
-@article{Zhang2021TokenST,
-    title   = {Token Shift Transformer for Video Classification},
-    author  = {Hao Zhang and Y. Hao and Chong-Wah Ngo},
-    journal = {Proceedings of the 29th ACM International Conference on Multimedia},
-    year    = {2021}
-}
-```
+2. 运行训练脚本。
 
-```bibtex
-@inproceedings{Arora2023ZoologyMA,
-    title   = {Zoology: Measuring and Improving Recall in Efficient Language Models},
-    author  = {Simran Arora and Sabri Eyuboglu and Aman Timalsina and Isys Johnson and Michael Poli and James Zou and Atri Rudra and Christopher R'e},
-    year    = {2023},
-    url     = {https://api.semanticscholar.org/CorpusID:266149332}
-}
-```
+   该模型支持单机8卡训练。
+   
+  
+   - 单机8卡训练
+   
+     ```shell
+     bash test/train_full_8p_magvit2.sh --dataset_folder=/path/to/dataset/MSRVTT/videos/all/ # 8卡训练
+     bash test/train_perf_8p_magvit2.sh --dataset_folder=/path/to/dataset/MSRVTT/videos/all/ # 8卡性能
+     ```
+     
+- 训练参数如下
+   ```shell
+     dataset_folder                       \\训练数据所在文件夹
+     batch_size                           \\训练batchsize
+     grad_accum_every                     \\梯度累积次数
+     learning_rate                        \\学习率 
+     num_train_steps                      \\最大训练步数
+   ```
+#### 训练结果
+
+
+##### 性能
+
+|        芯片         | 卡数  | 单步迭代时间（s/step) | batch_size | AMP_Type | Torch_Version |
+|:-----------------:|:---:|:--------------:|:----------:|:--------:|:-------------:|
+|        竞品A        | 8p  |      1.12      |     16     |   bf16   |      2.1      |
+| Atlas 800T A2 | 8p  |      1.40      |     16     |   bf16   |      2.1      |
+
+# 公网地址说明
+代码涉及公网地址参考 public_address_statement.md
+
+# 变更说明
+
+## 变更
+
+2024.08.31：Magvit2 bf16训练任务首次发布。
+
+# FAQ
+暂无

@@ -1,3 +1,4 @@
+# Copyright 2024 Huawei Technologies Co. Ltd
 
 from __future__ import annotations
 
@@ -7,6 +8,8 @@ from math import log2, ceil, sqrt
 from functools import wraps, partial
 
 import torch
+import torch_npu
+from torch_npu.contrib import transfer_to_npu
 import torch.nn.functional as F
 from torch.cuda.amp import autocast
 from torch import nn, einsum, Tensor
@@ -31,7 +34,8 @@ from magvit2_pytorch.version import __version__
 
 from gateloop_transformer import SimpleGateLoopLayer
 
-from taylor_series_linear_attention import TaylorSeriesLinearAttn
+from npu_patch import TaylorSeriesLinearAttn
+from torch_npu.contrib.function import matmul_transpose
 
 from kornia.filters import filter3d
 
@@ -223,19 +227,24 @@ class SqueezeExcite(Module):
         is_video = x.ndim == 5
 
         if is_video:
-            x = rearrange(x, 'b c f h w -> (b f) c h w')
+            b, c, f, h, w = x.shape
+            x = torch_npu.npu_confusion_transpose(x, (0, 2, 1, 3, 4), (b * f, c, h, w), transpose_first=True)
 
         context = self.to_k(x)
 
         context = rearrange(context, 'b c h w -> b c (h w)').softmax(dim = -1)
         spatial_flattened_input = rearrange(x, 'b c h w -> b c (h w)')
 
-        out = einsum('b i n, b c n -> b c i', context, spatial_flattened_input)
-        out = rearrange(out, '... -> ... 1')
+        out = matmul_transpose(context, spatial_flattened_input)
+        a, b, c = out.shape
+        out = torch_npu.npu_confusion_transpose(out, (0, 2, 1), (a, c, b, 1), transpose_first=True)
         gates = self.net(out)
 
         if is_video:
-            gates = rearrange(gates, '(b f) c h w -> b c f h w', b = batch)
+            t, c, h, w = gates.shape
+            b = batch
+            f = t // b
+            gates = torch_npu.npu_confusion_transpose(gates, (0, 2, 1, 3, 4), (b, f, c, h, w), transpose_first=False)
 
         return gates * orig_input
 
@@ -265,7 +274,7 @@ class RMSNorm(Module):
     ):
         super().__init__()
         broadcastable_dims = (1, 1, 1) if not images else (1, 1)
-        shape = (dim, *broadcastable_dims) if channel_first else (dim,)
+        shape = (dim,)
 
         self.channel_first = channel_first
         self.scale = dim ** 0.5
@@ -273,7 +282,15 @@ class RMSNorm(Module):
         self.bias = nn.Parameter(torch.zeros(shape)) if bias else 0.
 
     def forward(self, x):
-        return F.normalize(x, dim = (1 if self.channel_first else -1)) * self.scale * self.gamma + self.bias
+        if self.channel_first:
+            x = rearrange(x, 'b n ... c -> b c ... n')
+            res = torch_npu.npu_rms_norm(x, self.gamma.to(x.dtype))[0] + self.bias
+            res = rearrange(res, 'b n ... c -> b c ... n')
+            return res
+        else:
+            res = torch_npu.npu_rms_norm(x, self.gamma.to(x.dtype))[0] + self.bias
+            return res
+
 
 class AdaptiveRMSNorm(Module):
     def __init__(
@@ -465,8 +482,7 @@ class TimeAttention(Attention):
 
 class GEGLU(Module):
     def forward(self, x):
-        x, gate = x.chunk(2, dim = 1)
-        return F.gelu(gate) * x
+        return torch_npu.npu_geglu(x, dim = 1, approximate=1)[0]
 
 class FeedForward(Module):
     @beartype
@@ -765,18 +781,11 @@ class SpatialDownsample2x(Module):
         super().__init__()
         dim_out = default(dim_out, dim)
         self.maybe_blur = Blur() if antialias else identity
-        self.conv = nn.Conv2d(dim, dim_out, kernel_size, stride = 2, padding = kernel_size // 2)
+        self.conv = nn.Conv3d(dim, dim_out, (1, kernel_size, kernel_size), stride = (1, 2, 2), padding = (0, kernel_size // 2, kernel_size // 2))
 
     def forward(self, x):
         x = self.maybe_blur(x, space_only = True)
-
-        x = rearrange(x, 'b c t h w -> b t c h w')
-        x, ps = pack_one(x, '* c h w')
-
         out = self.conv(x)
-
-        out = unpack_one(out, ps, '* c h w')
-        out = rearrange(out, 'b t c h w -> b c t h w')
         return out
 
 class TimeDownsample2x(Module):
@@ -790,20 +799,15 @@ class TimeDownsample2x(Module):
         super().__init__()
         dim_out = default(dim_out, dim)
         self.maybe_blur = Blur() if antialias else identity
-        self.time_causal_padding = (kernel_size - 1, 0)
-        self.conv = nn.Conv1d(dim, dim_out, kernel_size, stride = 2)
+        self.time_causal_padding = (0, 0, 0, 0, kernel_size - 1, 0)
+        self.conv = nn.Conv3d(dim, dim_out, (kernel_size, 1, 1), stride = (2, 1, 1))
 
     def forward(self, x):
         x = self.maybe_blur(x, time_only = True)
 
-        x = rearrange(x, 'b c t h w -> b h w c t')
-        x, ps = pack_one(x, '* c t')
-
         x = F.pad(x, self.time_causal_padding)
         out = self.conv(x)
 
-        out = unpack_one(out, ps, '* c t')
-        out = rearrange(out, 'b h w c t -> b c t h w')
         return out
 
 # depth to space upsamples
@@ -816,19 +820,18 @@ class SpatialUpsample2x(Module):
     ):
         super().__init__()
         dim_out = default(dim_out, dim)
-        conv = nn.Conv2d(dim, dim_out * 4, 1)
+        conv = nn.Conv3d(dim, dim_out * 4, kernel_size=(1, 1, 1))
 
         self.net = nn.Sequential(
             conv,
             nn.SiLU(),
-            Rearrange('b (c p1 p2) h w -> b c (h p1) (w p2)', p1 = 2, p2 = 2)
         )
 
         self.init_conv_(conv)
 
     def init_conv_(self, conv):
-        o, i, h, w = conv.weight.shape
-        conv_weight = torch.empty(o // 4, i, h, w)
+        o, i, t, h, w = conv.weight.shape
+        conv_weight = torch.empty(o // 4, i, t, h, w)
         nn.init.kaiming_uniform_(conv_weight)
         conv_weight = repeat(conv_weight, 'o ... -> (o 4) ...')
 
@@ -836,13 +839,12 @@ class SpatialUpsample2x(Module):
         nn.init.zeros_(conv.bias.data)
 
     def forward(self, x):
-        x = rearrange(x, 'b c t h w -> b t c h w')
-        x, ps = pack_one(x, '* c h w')
-
         out = self.net(x)
 
-        out = unpack_one(out, ps, '* c h w')
-        out = rearrange(out, 'b t c h w -> b c t h w')
+        b, c, t, h, w = out.shape
+        out = out.view(b, c // 4, 2, 2, t, h, w)
+        out = out.permute(0, 1, 4, 2, 5, 3, 6).contiguous()
+        out = out.view(b, c // 4, t, h * 2, w * 2)
         return out
 
 class TimeUpsample2x(Module):
@@ -853,19 +855,18 @@ class TimeUpsample2x(Module):
     ):
         super().__init__()
         dim_out = default(dim_out, dim)
-        conv = nn.Conv1d(dim, dim_out * 2, 1)
+        conv = nn.Conv3d(dim, dim_out * 2, kernel_size = (1, 1, 1))
 
         self.net = nn.Sequential(
             conv,
             nn.SiLU(),
-            Rearrange('b (c p) t -> b c (t p)', p = 2)
         )
 
         self.init_conv_(conv)
 
     def init_conv_(self, conv):
-        o, i, t = conv.weight.shape
-        conv_weight = torch.empty(o // 2, i, t)
+        o, i, t, h, w = conv.weight.shape
+        conv_weight = torch.empty(o // 2, i, t, h, w)
         nn.init.kaiming_uniform_(conv_weight)
         conv_weight = repeat(conv_weight, 'o ... -> (o 2) ...')
 
@@ -873,13 +874,9 @@ class TimeUpsample2x(Module):
         nn.init.zeros_(conv.bias.data)
 
     def forward(self, x):
-        x = rearrange(x, 'b c t h w -> b h w c t')
-        x, ps = pack_one(x, '* c t')
-
         out = self.net(x)
-
-        out = unpack_one(out, ps, '* c t')
-        out = rearrange(out, 'b h w c t -> b c t h w')
+        b, c, t, h, w = out.shape
+        out = out.view(b, c // 2, t * 2, h, w).contiguous()
         return out
 
 # autoencoder - only best variant here offered, with causal conv 3d
