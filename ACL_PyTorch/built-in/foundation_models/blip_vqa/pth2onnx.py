@@ -13,13 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import argparse
 import os
 import sys
-import argparse
+from typing import Dict
 
-import yaml
-import torch
 import numpy as np
+import torch
+import yaml
 
 from models import blip_vqa
 
@@ -53,7 +54,7 @@ def _parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def _load_model(pth: str, config: dict) -> blip_vqa.BLIP_VQA:
+def _load_model(pth: str, config: Dict) -> blip_vqa.BLIP_VQA:
     if not os.path.exists(pth):
         print("The pth does not exist. Download pth...")
         pth = config['pretrained']
