@@ -177,7 +177,7 @@ class BackgroundRuntime:
 
             for i, _ in enumerate(output_arrays):
                 output = output_cpu.numpy()
-                output_arrays[i][:] = output[i][:]
+                output_arrays[i][:] = output[:]
 
             infer_num += 1
             sync_pipe.send('')

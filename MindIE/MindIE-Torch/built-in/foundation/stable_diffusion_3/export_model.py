@@ -195,7 +195,7 @@ def export_dit(sd_pipeline, args):
                 [batch_size, max_position_embeddings, encoder_hidden_size * 2], dtype=torch.float32
             ),
             torch.ones([batch_size, encoder_hidden_size], dtype=torch.float32),
-            torch.ones([batch_size], dtype=torch.int64)
+            torch.ones([1], dtype=torch.int64)
         )
         dit = DiTExport(dit_model).eval()
         torch.jit.trace(dit, dummy_input).save(dit_pt_path)
@@ -212,7 +212,7 @@ def export_dit(sd_pipeline, args):
                               dtype=mindietorch.dtype.FLOAT),
             mindietorch.Input((batch_size, encoder_hidden_size),
                               dtype=mindietorch.dtype.FLOAT),
-            mindietorch.Input((batch_size,), dtype=mindietorch.dtype.INT64)]
+            mindietorch.Input((1,), dtype=mindietorch.dtype.INT64)]
         compile_dit(model, inputs, dit_compiled_path, args.soc)
     else:
         logging.info("dit_compiled_path already exists.")

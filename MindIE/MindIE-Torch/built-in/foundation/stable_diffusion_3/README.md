@@ -100,8 +100,8 @@
        git clone https://huggingface.co/stabilityai/stable-diffusion-3-medium-diffusers
        ```
 
-   1. 导出pt模型并进行编译。(可选)
-
+   1. 导出pt模型并进行编译。
+      (1) 设置模型权重的路径
       ```bash
       # sd3 (执行时下载权重)
       model_base="stabilityai/stable-diffusion-3-medium-diffusers"
@@ -109,8 +109,12 @@
       # sd3 (使用上一步下载的权重)
       model_base="./stable-diffusion-3-medium-diffusers"
       ```
+      (2) 创建文件夹./models存放导出的模型
+      ```bash
+      mkdir ./models
+      ```
 
-      执行命令：
+      (3) 执行export命令
    
       ```bash
       # 800I A2，非并行
@@ -126,6 +130,7 @@
       - --batch_size: 设置batch_size, 默认值为1, 当前仅支持batch_size=1的场景
       - --soc：只支持Ascend910B4和Ascend310P3。默认为Ascend910B4。
       - --device：推理设备ID
+      注意：trace+compile耗时较长且占用较多的CPU资源，请勿在执行export命令时运行其他占用CPU内存的任务，避免程序意外退出。
    
 2. 开始推理验证。
 
@@ -200,6 +205,7 @@
       
       非并行策略，执行完成后在`./results`目录下生成推理图片，在当前目录生成一个`image_info.json`文件，记录着图片和prompt的对应关系，并在终端显示推理时间。
       并行策略，同时使用双卡并行策略，执行完成后在`./results_parallel`目录下生成推理图片，在当前目录生成一个`image_info.json`文件，记录着图片和prompt的对应关系。并在终端显示推理时间。
+      注意：当前MindIE-Torch和torch_npu的synchronizing stream不兼容，为避免出错，建议在运行推理前先卸载torch_npu。
 
 ## 精度验证<a name="section741711594518"></a>
 
@@ -209,11 +215,13 @@
 
    注意，由于要生成的图片数量较多，进行完整的精度验证需要耗费很长的时间。
 
-   1. 下载Parti数据集
+   1. 下载Parti数据集和hpsv2数据集
 
       ```bash
+      # 下载Parti数据集
       wget https://raw.githubusercontent.com/google-research/parti/main/PartiPrompts.tsv --no-check-certificate
       ```
+      hpsv2数据集下载链接：https://gitee.com/ascend/ModelZoo-PyTorch/blob/master/MindIE/MindIE-Torch/built-in/foundation/stable_diffusion_xl/hpsv2_benchmark_prompts.json
 
    2. 下载模型权重
 
@@ -279,7 +287,44 @@
       不使用并行策略，执行完成后在`./results_PartiPrompts`目录下生成推理图片，在当前目录生成一个`image_info.json`文件，记录着图片和prompt的对应关系，并在终端显示推理时间。
       使用双卡并行策略，执行完成后在`./results_PartiPrompts_parallel`目录下生成推理图片，在当前目录生成一个`image_info.json`文件，记录着图片和prompt的对应关系。并在终端显示推理时间。
 
-   4. 计算精度指标
+4. 使用推理脚本读取hpsv2数据集，生成图片
+
+      ```bash
+      # 不使用并行
+      python3 stable_diffusion3_pipeline.py \
+              --model ${model_base} \
+              --prompt_file_type hpsv2 \
+              --num_images_per_prompt 1 \
+              --info_file_save_path ./image_info_hpsv2.json \
+              --device 0 \
+              --save_dir ./results_hpsv2 \
+              --steps 28 \
+              --output_dir ./models \
+              --height 1024 \
+              --width 1024 \
+              --batch_size 1
+      
+      # 使用双卡并行策略
+      python3 stable_diffusion3_pipeline.py \
+              --model ${model_base} \
+              --prompt_file_type hpsv2 \
+              --num_images_per_prompt 1 \
+              --info_file_save_path ./image_info_hpsv2.json \
+              --device 0,1 \
+              --save_dir ./results_hpsv2_parallel \
+              --steps 28 \
+              --output_dir ./models \
+              --height 1024 \
+              --width 1024 \
+              --batch_size 1
+      ```
+   参数说明：
+      - --info_file_save_path：生成图片信息的json文件路径。
+
+      不使用并行策略，执行完成后在`./results_hpsv2`目录下生成推理图片，在当前目录生成一个`image_info_hpsv2.json`文件，记录着图片和prompt的对应关系，并在终端显示推理时间。
+      使用双卡并行策略，执行完成后在`./results_hpsv2_parallel`目录下生成推理图片，在当前目录生成一个`image_info_hpsv2.json`文件，记录着图片和prompt的对应关系。并在终端显示推理时间。
+
+5. 计算精度指标
       1. CLIP-score
          ```bash
          python3 clip_score.py \
@@ -290,27 +335,27 @@
          ```
 
          参数说明：
-         - --device: 推理设备。
+         - --device: 推理设备，默认为"cpu"，如果是cuda设备可设置为"cuda"。
          - --image_info: 上一步生成的`image_info.json`文件。
          - --model_name: Clip模型名称。
          - --model_weights_path: Clip模型权重文件路径。
 
-         执行完成后会在屏幕打印出精度计算结果。
+         clip_score.py脚本可参考[SDXL](https://gitee.com/ascend/ModelZoo-PyTorch/blob/master/MindIE/MindIE-Torch/built-in/foundation/stable_diffusion_xl/clip_score.py)，执行完成后会在屏幕打印出精度计算结果。
       
       2. HPSv2
          ```bash
          python3 hpsv2_score.py \
-               --image_info="image_info.json" \
+               --image_info="image_info_hpsv2.json" \
                --HPSv2_checkpoint="./HPS_v2_compressed.pt" \
                --clip_checkpoint="./CLIP-ViT-H-14-laion2B-s32B-b79K/open_clip_pytorch_model.bin"
          ```
 
          参数说明：
-         - --image_info: 上一步生成的`image_info.json`文件。
+         - --image_info: 上一步生成的`image_info_hpsv2.json`文件。
          - --HPSv2_checkpoint: HPSv2模型权重文件路径。
          - --clip_checkpointh: Clip模型权重文件路径。
 
-         执行完成后会在屏幕打印出精度计算结果。
+         hpsv2_score.py脚本可参考[SDXL](https://gitee.com/ascend/ModelZoo-PyTorch/blob/master/MindIE/MindIE-Torch/built-in/foundation/stable_diffusion_xl/hpsv2_score.py)，执行完成后会在屏幕打印出精度计算结果。
 
 # 模型推理性能&精度<a name="ZH-CN_TOPIC_0000001172201573"></a>
 

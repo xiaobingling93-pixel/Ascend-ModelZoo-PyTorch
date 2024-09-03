@@ -190,7 +190,7 @@ class AIEStableDiffusion3Pipeline(StableDiffusion3Pipeline):
                     (batch_size, in_channels, sample_size, sample_size),
                     (batch_size, max_position_embeddings, encoder_hidden_size * 2),
                     (batch_size, encoder_hidden_size),
-                    (batch_size,),
+                    (1,),
                 ],
                 input_dtypes=[np.float32, np.float32, np.float32, np.int64],
                 output_shapes=[(batch_size, in_channels, sample_size, sample_size)],
@@ -534,8 +534,7 @@ class AIEStableDiffusion3Pipeline(StableDiffusion3Pipeline):
                 if not self.use_parallel_inferencing and self.do_classifier_free_guidance:
                     latent_model_input = torch.cat([latents] * 2)
                     # broadcast to batch dimension in a way that's compatible with ONNX/Core ML
-                    timestep = t.expand(latent_model_input.shape[0]).to(torch.int64)
-                    timestep_npu = timestep.to(f"npu:{self.device_0}")
+                    timestep = t.to(torch.int64)[None].to(f"npu:{self.device_0}")
                 else:
                     latent_model_input = latents
                     timestep = t.to(torch.int64)
