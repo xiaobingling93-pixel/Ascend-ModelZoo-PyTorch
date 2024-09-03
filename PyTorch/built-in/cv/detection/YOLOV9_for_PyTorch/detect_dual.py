@@ -5,6 +5,9 @@ import sys
 from pathlib import Path
 
 import torch
+import torch_npu
+from torch_npu.contrib import transfer_to_npu
+torch_npu.npu.set_compile_mode(jit_compile=False)
 
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]  # YOLO root directory

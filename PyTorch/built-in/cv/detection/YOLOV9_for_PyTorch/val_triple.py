@@ -7,6 +7,9 @@ from pathlib import Path
 import numpy as np
 import torch
 from tqdm import tqdm
+import torch_npu
+from torch_npu.contrib import transfer_to_npu
+torch_npu.npu.set_compile_mode(jit_compile=False)
 
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]  # YOLO root directory

@@ -13,6 +13,9 @@ from pathlib import Path
 import pandas as pd
 import torch
 from torch.utils.mobile_optimizer import optimize_for_mobile
+import torch_npu
+from torch_npu.contrib import transfer_to_npu
+torch_npu.npu.set_compile_mode(jit_compile=False)
 
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]  # YOLO root directory
