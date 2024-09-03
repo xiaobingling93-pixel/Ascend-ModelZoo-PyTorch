@@ -22,7 +22,7 @@ msnpureport -g error -d 6
 msnpureport -g error -d 7
 
 export NPU_A1_FLAG=`python -c "import torch;import torch_npu;print(not torch.npu.utils.is_support_inf_nan())"`
-if [ $NPU_A1_FLAG ]; then
+if [ $NPU_A1_FLAG == 'True' ]; then
     export BMMV2_ENABLE=1
     export DYNAMIC_OP='ADD#MUL'
 fi

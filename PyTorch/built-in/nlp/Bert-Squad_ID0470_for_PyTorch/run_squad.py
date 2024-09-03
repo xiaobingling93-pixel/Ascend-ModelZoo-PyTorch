@@ -65,7 +65,8 @@ else:
     import pickle
 
 NPU_A1_FLAG = os.environ.get('NPU_A1_FLAG', 'False')
-if NPU_A1_FLAG == 'True':
+SOC_VERSION_FLAG = os.environ.get('SOC_VERSION_FLAG', 'False')
+if NPU_A1_FLAG == 'True' or SOC_VERSION_FLAG == 'True':
     import modeling_for_a1 as modeling
     option = {}
     option["ACL_OP_SELECT_IMPL_MODE"] = "high_performance"

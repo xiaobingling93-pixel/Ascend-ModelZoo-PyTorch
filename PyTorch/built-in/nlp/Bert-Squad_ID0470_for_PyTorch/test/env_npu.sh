@@ -26,7 +26,8 @@ msnpureport -g error -d 7
 msnpureport -e disable
 
 export NPU_A1_FLAG=`python -c "import torch;import torch_npu;print(not torch.npu.utils.is_support_inf_nan())"`
-if [ $NPU_A1_FLAG ]; then
+export SOC_VERSION_FLAG=`python -c "import torch;import torch_npu;print(torch_npu.npu.utils.get_soc_version() == 224)"` 
+if [[ $NPU_A1_FLAG == 'True' ]] || [[ $SOC_VERSION_FLAG == 'True' ]]; then
     export BMMV2_ENABLE=1
 fi
 
