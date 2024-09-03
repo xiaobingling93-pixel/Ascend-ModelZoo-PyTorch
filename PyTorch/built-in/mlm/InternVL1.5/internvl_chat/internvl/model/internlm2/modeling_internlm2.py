@@ -41,6 +41,9 @@ except:  # noqa # pylint: disable=bare-except
     BaseStreamer = None
 
 from .configuration_internlm2 import InternLM2Config
+from internvl.utils.device_utils import is_npu_available
+if is_npu_available():
+    import torch_npu
 
 logger = logging.get_logger(__name__)
 
@@ -59,10 +62,16 @@ try:
     pad_input, index_first_axis, unpad_input = _pad_input, _index_first_axis, _unpad_input
     has_flash_attn = True
 except:
-    has_flash_attn = False
+    if is_npu_available():
+        print('Npu available, using npu_fusion_attention in InternLM.')
+        has_flash_attn = True
+    else:
+        has_flash_attn = False
 
 
 def _import_flash_attn():
+    if is_npu_available():
+        return
     global flash_attn_func, flash_attn_varlen_func
     global pad_input, index_first_axis, unpad_input
     try:
@@ -568,9 +577,24 @@ class InternLM2FlashAttention2(InternLM2Attention):
 
             attn_output = pad_input(attn_output_unpad, indices_q, batch_size, query_length)
         else:
-            attn_output = flash_attn_func(
-                query_states, key_states, value_states, dropout, softmax_scale=softmax_scale, causal=causal
-            )
+            if is_npu_available():
+                _, seqlen_q, head_num, head_dim = query_states.shape
+                _, seqlen_k, _, _ = key_states.shape
+                attn_mask = torch.triu(torch.ones([seqlen_q, seqlen_k], device="npu"), diagonal=1).bool()
+                attn_output = torch_npu.npu_fusion_attention(
+                    query=query_states,
+                    key=key_states,
+                    value=value_states,
+                    head_num=head_num,
+                    input_layout="BSND",
+                    keep_prob=1.-dropout,
+                    scale=softmax_scale if softmax_scale else head_dim**-0.5,
+                    atten_mask=attn_mask,
+                    )[0]
+            else:
+                attn_output = flash_attn_func(
+                    query_states, key_states, value_states, dropout, softmax_scale=softmax_scale, causal=causal
+                )
 
         return attn_output
 

@@ -44,6 +44,11 @@ from transformers.trainer_utils import get_last_checkpoint
 from transformers.utils.logging import (enable_default_handler,
                                         enable_explicit_format, set_verbosity)
 
+from internvl.utils.device_utils import is_npu_available
+if is_npu_available():
+    from torch_npu.contrib import transfer_to_npu
+    torch.npu.config.allow_internal_format = False
+
 # Apply necessary patches for the transformers library
 replace_llama_rmsnorm_with_fused_rmsnorm()
 replace_train_sampler()

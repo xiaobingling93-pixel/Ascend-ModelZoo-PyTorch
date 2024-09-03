@@ -3,13 +3,19 @@ import torch
 import torch.nn as nn
 from einops import rearrange
 
-try:  # v1
-    from flash_attn.flash_attn_interface import \
-        flash_attn_unpadded_qkvpacked_func
-except:  # v2
-    from flash_attn.flash_attn_interface import flash_attn_varlen_qkvpacked_func as flash_attn_unpadded_qkvpacked_func
+from internvl.utils.device_utils import is_npu_available
+if is_npu_available():
+    print('Npu available, using npu_fusion_attention in InternViT')
+    import torch_npu
+    import numpy as np
+else:
+    try:  # v1
+        from flash_attn.flash_attn_interface import \
+            flash_attn_unpadded_qkvpacked_func
+    except:  # v2
+        from flash_attn.flash_attn_interface import flash_attn_varlen_qkvpacked_func as flash_attn_unpadded_qkvpacked_func
 
-from flash_attn.bert_padding import pad_input, unpad_input
+    from flash_attn.bert_padding import pad_input, unpad_input
 
 
 class FlashAttention(nn.Module):
@@ -42,18 +48,29 @@ class FlashAttention(nn.Module):
         assert qkv.is_cuda
 
         if cu_seqlens is None:
-            batch_size = qkv.shape[0]
-            seqlen = qkv.shape[1]
+            batch_size, seqlen, _, head_num, head_dim = qkv.shape
             if key_padding_mask is None:
-                qkv = rearrange(qkv, 'b s ... -> (b s) ...')
-                max_s = seqlen
-                cu_seqlens = torch.arange(0, (batch_size + 1) * seqlen, step=seqlen, dtype=torch.int32,
-                                          device=qkv.device)
-                output = flash_attn_unpadded_qkvpacked_func(
-                    qkv, cu_seqlens, max_s, self.dropout_p if self.training else 0.0,
-                    softmax_scale=self.softmax_scale, causal=causal
-                )
-                output = rearrange(output, '(b s) ... -> b s ...', b=batch_size)
+                if is_npu_available():
+                    q, k, v = qkv.unbind(2)
+                    output = torch_npu.npu_fusion_attention(
+                        query=q,
+                        key=k,
+                        value=v,
+                        head_num=head_num,
+                        input_layout="BSND",
+                        keep_prob=1.-self.dropout_p if self.training else 0.0,
+                        scale=self.softmax_scale if self.softmax_scale else head_dim**-0.5,
+                        )[0]
+                else:
+                    qkv = rearrange(qkv, 'b s ... -> (b s) ...')
+                    max_s = seqlen
+                    cu_seqlens = torch.arange(0, (batch_size + 1) * seqlen, step=seqlen, dtype=torch.int32,
+                                            device=qkv.device)
+                    output = flash_attn_unpadded_qkvpacked_func(
+                        qkv, cu_seqlens, max_s, self.dropout_p if self.training else 0.0,
+                        softmax_scale=self.softmax_scale, causal=causal
+                    )
+                    output = rearrange(output, '(b s) ... -> b s ...', b=batch_size)
             else:
                 nheads = qkv.shape[-2]
                 x = rearrange(qkv, 'b s three h d -> b s (three h d)')
