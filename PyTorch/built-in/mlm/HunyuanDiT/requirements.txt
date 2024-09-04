@@ -12,3 +12,6 @@ nvidia-pyindex==1.0.9
 pandas==2.0.3
 gradio==3.50.2
 deepspeed==0.14.4
+pyarrow==16.1.0
+decorator
+scipy

@@ -32,6 +32,7 @@ from utils.npu_utils import is_npu_available
 if is_npu_available():
     import torch_npu
     from torch_npu.contrib import transfer_to_npu
+    torch.npu.config.allow_internal_format = False
 
 
 class Resolution:

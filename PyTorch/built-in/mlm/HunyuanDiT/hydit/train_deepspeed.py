@@ -43,6 +43,7 @@ if is_npu_available():
     import torch_npu
     from torch_npu.npu.amp import autocast
     from torch_npu.contrib import transfer_to_npu
+    torch.npu.config.allow_internal_format = False
 else:
     from torch.cuda.amp import autocast
 

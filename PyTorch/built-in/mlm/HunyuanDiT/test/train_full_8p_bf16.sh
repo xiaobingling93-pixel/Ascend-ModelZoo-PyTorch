@@ -104,8 +104,10 @@ CaseName=${Network}_bs${BatchSize}_${WORLD_SIZE}'p'_'acc'
 # 结果打印，不需要修改
 echo "------------------ Final result ------------------"
 # 输出性能FPS，需要模型审视修改
-avg_time =`grep -a 'Steps/Sec:'  ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log|awk -F "Steps/Sec: " '{print $2}' | awk '{a+=$1} END {if (NR != 0) printf("%.3f",a/NR)}'`
-FPS=`echo "$avg_time * $BatchSize" |bc`
+avg_time=$(grep -a 'Steps/Sec:' "${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log" |
+           awk -F "Steps/Sec:" '{print $2}' |
+           awk '{a+=$1} END {if (NR!=0) printf "%.3f\n", a/NR}')
+FPS=$(echo "$avg_time * $BatchSize" |bc)
 
 # 打印，不需要修改
 echo "Final Performance images/sec : $FPS"
