@@ -159,7 +159,6 @@ Open-Sora-Plan是由北大技术团队推出的项目，旨在通过开源框架
    --gradient_accumulation_steps       //梯度累计步数
    --save_total_limit                  //保存限制次数
    --logging_steps                     //结果打印次数
-   --save_steps                        //保存步数
    --downsample                        //下采样率
    --n_res_layers                      //残差层数
    --embedding_dim                     //嵌入层维度
@@ -172,6 +171,8 @@ Open-Sora-Plan是由北大技术团队推出的项目，旨在通过开源框架
    --dataloader_num_workers            //设置dataloader workers数量  
    
    ```
+   注：当前模型不支持断点续训，因此暂无相关参数
+   
 #### 性能展示
 
 ##### 性能
