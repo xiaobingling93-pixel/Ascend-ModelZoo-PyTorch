@@ -183,7 +183,7 @@ InternVL 的三个改进：\
 
 #### 多机训练任务
 
-##### 开始训练（torchrun）
+##### 开始训练（torchrun）（推荐）
 
 1.2.步骤同上
 
@@ -250,7 +250,7 @@ InternVL 的三个改进：\
 
 | NAME | 卡数 | Train Loss(5000steps) | FPS(Samples Per Second) | Train Steps Per Second |
 | :-----: | :----: |  :---:  | :----: | :----: |
-| Atlas 800T A2 | 8 | 1.9071（5层ViT+12层LLM，关闭dropout） | 4.635 | 0.145 |
+| Atlas 800T A2 | 8 | 1.9068（5层ViT+12层LLM，关闭dropout） | 4.952 | 0.145 |
 | 竞品 | 8 | 1.9071（5层ViT+12层LLM，关闭dropout） | 5.151 | 0.161 |
 
 # 公网地址说明
