@@ -119,7 +119,7 @@ model_name=model_base_vqa_capfilt_large
 4. 获取 ModelZoo 源码
 
    ```bash
-   https://gitee.com/ascend/ModelZoo-PyTorch.git
+   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
    cd ModelZoo-PyTorch/ACL_PyTorch/built-in/foundation_models/blip_vqa
    ```
 
@@ -157,7 +157,7 @@ model_name=model_base_vqa_capfilt_large
    ```bash
    mkdir bert-base-uncased
    cd bert-base-uncased
-   wget https://huggingface.co/google-bert/bert-base-uncased/resolve/main/vocab.txt?download=true
+   wget https://huggingface.co/google-bert/bert-base-uncased/resolve/main/vocab.txt?download=true -O vocab.txt
    cd ..
    ```
 
@@ -165,7 +165,8 @@ model_name=model_base_vqa_capfilt_large
 
    ```bash
    wget https://images.cocodataset.org/zips/test2015.zip
-   unzip test2015.zip
+   zip -FF test2015.zip --out test2015_fixed.zip
+   unzip test2015_fixed.zip
    ```
 
    解压后目录结构如下：

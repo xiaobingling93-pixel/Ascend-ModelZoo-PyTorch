@@ -44,11 +44,11 @@ index d4cb368..0f7a4db 100644
 +                self.visual_encoder.om.infer([image.numpy()])[0]
 +            )
 +        else:
-+            image_embeds = self.visual_encoder(image) 
++            image_embeds = self.visual_encoder(image)
          image_atts = torch.ones(image_embeds.size()[:-1],dtype=torch.long).to(image.device)
          
 -        question = self.tokenizer(question, padding='longest', truncation=True, max_length=35, 
-+        question = self.tokenizer(question, padding='max_length', truncation=True, max_length=35, 
++        question = self.tokenizer(question, padding='max_length', truncation=True, max_length=35,
                                    return_tensors="pt").to(image.device) 
          question.input_ids[:,0] = self.tokenizer.enc_token_id
          
@@ -72,11 +72,11 @@ index d4cb368..0f7a4db 100644
 +                    )[0]
 +                )
 +            else:
-+                question_output = self.text_encoder(question.input_ids, 
-+                                                    attention_mask = question.attention_mask, 
++                question_output = self.text_encoder(question.input_ids,
++                                                    attention_mask = question.attention_mask,
 +                                                    encoder_hidden_states = image_embeds,
-+                                                    encoder_attention_mask = image_atts,                                    
-+                                                    return_dict = True) 
++                                                    encoder_attention_mask = image_atts,
++                                                    return_dict = True)
 +                question_states = question_output.last_hidden_state
              
              if inference=='generate':
@@ -92,7 +92,7 @@ index d4cb368..0f7a4db 100644
              
              elif inference=='rank':
 -                max_ids = self.rank_answer(question_output.last_hidden_state, question.attention_mask, 
-+                max_ids = self.rank_answer(question_states, question.attention_mask, 
++                max_ids = self.rank_answer(question_states, question.attention_mask,
                                             answer.input_ids, answer.attention_mask, k_test) 
                  return max_ids
   
@@ -112,7 +112,7 @@ index d4cb368..0f7a4db 100644
 +                )[0]
 +            )
 +        else:
-+            start_output = self.text_decoder(start_ids, 
++            start_output = self.text_decoder(start_ids,
                                           encoder_hidden_states = question_states,
                                           encoder_attention_mask = question_atts,                                      
                                           return_dict = True,
@@ -142,7 +142,7 @@ index d4cb368..0f7a4db 100644
 +            )
 +            loss = output
 +        else:
-+            output = self.text_decoder(input_ids, 
++            output = self.text_decoder(input_ids,
                                     attention_mask = input_atts, 
                                     encoder_hidden_states = question_states,
                                     encoder_attention_mask = question_atts,     
