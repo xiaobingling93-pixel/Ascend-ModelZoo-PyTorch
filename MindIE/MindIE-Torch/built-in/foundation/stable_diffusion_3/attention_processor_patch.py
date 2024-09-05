@@ -22,8 +22,8 @@ def main():
     diffusers_version = diffusers.__version__
 
     assert diffusers_version == '0.29.0', "expectation diffusers==0.29.0"
-    result = subprocess.run(["patch", "-p0", f"{diffusers_path[0]}/models/attention.py",
-                             "attention.patch"], capture_output=True, text=True)
+    result = subprocess.run(["patch", "-p0", f"{diffusers_path[0]}/models/attention_processor.py",
+                             "attention_processor.patch"], capture_output=True, text=True)
     if result.returncode != 0:
         logging.error("Patch failed, error message: s%", result.stderr)
 

@@ -1,0 +1,19 @@
+--- attention.py	2024-09-04 09:22:31.768000000 +0000
++++ attention.py	2024-09-04 09:17:12.680000000 +0000
+@@ -100,7 +100,7 @@
+             processing of `context` conditions.
+     """
+ 
+-    def __init__(self, dim, num_attention_heads, attention_head_dim, context_pre_only=False):
++    def __init__(self, dim, num_attention_heads, attention_head_dim, context_pre_only=False, layer_idx=0):
+         super().__init__()
+ 
+         self.context_pre_only = context_pre_only
+@@ -134,6 +134,7 @@
+             context_pre_only=context_pre_only,
+             bias=True,
+             processor=processor,
++            layer_idx=layer_idx
+         )
+ 
+         self.norm2 = nn.LayerNorm(dim, elementwise_affine=False, eps=1e-6)

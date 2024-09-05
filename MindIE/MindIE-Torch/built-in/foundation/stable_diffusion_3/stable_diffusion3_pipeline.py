@@ -725,6 +725,17 @@ def parse_arguments():
         type=int,
         help="image width"
     )
+    parser.add_argument(
+        "--use_cache",
+        action="store_true",
+        help="Use cache during inference."
+    )
+    parser.add_argument(
+        "--cache_param",
+        default="1,2,20,10",
+        type=str,
+        help="steps to use cache data"
+    )
 
     return parser.parse_args()
 

@@ -1,9 +1,41 @@
-﻿--- attention_processor.py	2024-08-14 12:41:10.528000000 +0000
-+++ attention_processor.py	2024-08-14 12:42:25.620000000 +0000
-@@ -1082,6 +1082,29 @@
+--- attention_processor.py	2024-09-04 09:22:16.048000000 +0000
++++ attention_processor.py	2024-09-04 09:57:55.928000000 +0000
+@@ -115,6 +115,7 @@
+         residual_connection: bool = False,
+         _from_deprecated_attn_block: bool = False,
+         processor: Optional["AttnProcessor"] = None,
++        layer_idx: int = 0,
+         out_dim: int = None,
+         context_pre_only=None,
+     ):
+@@ -132,13 +133,14 @@
+         self.fused_projections = False
+         self.out_dim = out_dim if out_dim is not None else query_dim
+         self.context_pre_only = context_pre_only
++        self.layer_idx = layer_idx
+ 
+         # we make use of this private variable to know whether this class is loaded
+         # with an deprecated state dict so that we can convert it on the fly
+         self._from_deprecated_attn_block = _from_deprecated_attn_block
+ 
+         self.scale_qk = scale_qk
+-        self.scale = dim_head**-0.5 if self.scale_qk else 1.0
++        self.scale = dim_head ** -0.5 if self.scale_qk else 1.0
+ 
+         self.heads = out_dim // dim_head if out_dim is not None else heads
+         # for slice_size > 0 the attention score computation
+@@ -561,6 +563,7 @@
+             hidden_states,
+             encoder_hidden_states=encoder_hidden_states,
+             attention_mask=attention_mask,
++            layer_idx=self.layer_idx,
+             **cross_attention_kwargs,
+         )
+ 
+@@ -1082,6 +1085,29 @@
          return hidden_states
-
-
+ 
+ 
 +def scaled_dot_product_attention(query, key, value, attn_mask=None, dropout_p=0.0, is_causal=False,
 +                                 scale=None) -> torch.Tensor:
 +    # Efficient implementation equivalent to the following:
@@ -29,11 +61,39 @@
 +
  class JointAttnProcessor2_0:
      """Attention processor used typically in processing the SD3-like self-attention projections."""
-
-@@ -1132,7 +1155,7 @@
+ 
+@@ -1095,6 +1121,7 @@
+         hidden_states: torch.FloatTensor,
+         encoder_hidden_states: torch.FloatTensor = None,
+         attention_mask: Optional[torch.FloatTensor] = None,
++        layer_idx=0,
+         *args,
+         **kwargs,
+     ) -> torch.FloatTensor:
+@@ -1112,7 +1139,19 @@
+         batch_size = encoder_hidden_states.shape[0]
+ 
+         # `sample` projections.
++        #  use todo
+         query = attn.to_q(hidden_states)
++        if layer_idx <= 11:
++            hidden_dim = hidden_states.shape[-1]
++            cur_h = int(math.sqrt(hidden_states.shape[1]))
++            cur_w = cur_h
++            hidden_states = hidden_states.transpose(1, 2).view(batch_size, hidden_dim, cur_h, cur_w)
++            new_h = int(cur_h / 2.2)
++            new_w = int(cur_w / 2.2)
++            item = F.interpolate(hidden_states, size=(new_h, new_w),
++                                 mode='bilinear')
++            item = item.permute(0, 2, 3, 1)
++            hidden_states = item.reshape(batch_size, new_h * new_w, -1)
+         key = attn.to_k(hidden_states)
+         value = attn.to_v(hidden_states)
+ 
+@@ -1132,7 +1171,7 @@
          key = key.view(batch_size, -1, attn.heads, head_dim).transpose(1, 2)
          value = value.view(batch_size, -1, attn.heads, head_dim).transpose(1, 2)
-
+ 
 -        hidden_states = hidden_states = F.scaled_dot_product_attention(
 +        hidden_states = hidden_states = scaled_dot_product_attention(
              query, key, value, dropout_p=0.0, is_causal=False
