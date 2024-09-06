@@ -21,7 +21,7 @@ from mmcv.runner import BaseModule, force_fp32
 from torch.cuda.amp.autocast_mode import autocast
 from torch.utils.checkpoint import checkpoint
 
-from mx_driving.perception.fused import bev_pool_v2
+from mx_driving.point import bev_pool_v2
 from mmdet.models.backbones.resnet import BasicBlock
 from ..builder import NECKS
 
