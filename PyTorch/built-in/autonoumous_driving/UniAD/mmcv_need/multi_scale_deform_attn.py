@@ -16,7 +16,7 @@ from mmcv.cnn.bricks.registry import ATTENTION
 from mmcv.runner import BaseModule
 from mmcv.utils import IS_CUDA_AVAILABLE, IS_MLU_AVAILABLE, IS_NPU_AVAILABLE
 from ..utils import ext_loader
-import mx_driving.common
+import mx_driving.fused
 
 ext_module = ext_loader.load_ext(
     '_ext', ['ms_deform_attn_backward', 'ms_deform_attn_forward'])
@@ -365,7 +365,7 @@ class MultiScaleDeformableAttention(BaseModule):
         if ((IS_CUDA_AVAILABLE and value.is_cuda)
                 or (IS_MLU_AVAILABLE and value.is_mlu)
                 or (IS_NPU_AVAILABLE and value.device.type == 'npu')):
-            output = mx_driving.common.npu_multi_scale_deformable_attn_function(value, spatial_shapes, level_start_index,
+            output = mx_driving.fused.npu_multi_scale_deformable_attn_function(value, spatial_shapes, level_start_index,
                                                                          sampling_locations, attention_weights)
         else:
             output = multi_scale_deformable_attn_pytorch(

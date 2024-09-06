@@ -24,7 +24,7 @@ from mmcv.ops.multi_scale_deform_attn import multi_scale_deformable_attn_pytorch
 
 from mmdet.models.detectors.deformable_detr import DeformableDETR
 from mmdet.models.layers.transformer.deformable_detr_layers import DeformableDetrTransformerEncoder
-import mx_driving.common
+import mx_driving.fused
 
 
 @no_type_check
@@ -128,7 +128,7 @@ def msda_forward(self,
             f'Last dim of reference_points must be'
             f' 2 or 4, but get {reference_points.shape[-1]} instead.')
 
-    output = mx_driving.common.npu_multi_scale_deformable_attn_function(
+    output = mx_driving.fused.npu_multi_scale_deformable_attn_function(
         value,
         spatial_shapes,
         level_start_index,

@@ -40,7 +40,7 @@ from projects.mmdet3d_plugin.models.utils.bricks import run_time
 ext_module = ext_loader.load_ext(
     '_ext', ['ms_deform_attn_backward', 'ms_deform_attn_forward'])
 import pdb
-from mx_driving.common import npu_multi_scale_deformable_attn_function
+from mx_driving.fused import npu_multi_scale_deformable_attn_function
 
 @ATTENTION.register_module()
 class SpatialCrossAttention(BaseModule):
