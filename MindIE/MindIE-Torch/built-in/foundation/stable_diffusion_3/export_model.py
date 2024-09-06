@@ -72,6 +72,7 @@ def parse_arguments() -> Namespace:
     parser.add_argument("-p", "--parallel", action="store_true",
                         help="Export the unet of bs=1 for parallel inferencing.")
     parser.add_argument("--soc", help="soc_version.")
+    parser.add_argument("--device_type", choices=["A2", "Duo"], default="A2", help="device type.")
     parser.add_argument(
         "--device",
         default=0,
@@ -379,7 +380,7 @@ def export(args) -> None:
     if args.use_cache:
         export_dit_cache(pipeline, args, 0)
         export_dit_cache(pipeline, args, 1)
-        if "B" in args.soc:
+        if args.device_type == "A2":
             export_dit_cache(pipeline, args, 0, "end")
             export_dit_cache(pipeline, args, 1, "end")
     else:

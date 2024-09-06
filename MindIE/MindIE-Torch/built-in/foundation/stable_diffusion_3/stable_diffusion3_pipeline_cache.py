@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import argparse
 import json
 import os
 import time
@@ -20,7 +21,7 @@ import torch
 import mindietorch
 from diffusers.pipelines.stable_diffusion_3.pipeline_output import StableDiffusion3PipelineOutput
 from diffusers.pipelines.stable_diffusion_3.pipeline_stable_diffusion_3 import retrieve_timesteps
-from stable_diffusion3_pipeline import PromptLoader, AIEStableDiffusion3Pipeline, parse_arguments
+from stable_diffusion3_pipeline import PromptLoader, AIEStableDiffusion3Pipeline
 
 tgate = 20
 dit_time = 0
@@ -364,6 +365,132 @@ class AIEStableDiffusion3CachePipeline(AIEStableDiffusion3Pipeline):
             return (image,)
 
         return StableDiffusion3PipelineOutput(images=image)
+
+
+def check_device_range_valid(value):
+    # if contain , split to int list
+    min_value = 0
+    max_value = 255
+    if ',' in value:
+        ilist = [int(v) for v in value.split(',')]
+        for ivalue in ilist[:2]:
+            if ivalue < min_value or ivalue > max_value:
+                raise argparse.ArgumentTypeError(
+                    "{} of device:{} is invalid. valid value range is [{}, {}]"
+                    .format(ivalue, value, min_value, max_value))
+        return ilist[:2]
+    else:
+        # default as single int value
+        ivalue = int(value)
+        if ivalue < min_value or ivalue > max_value:
+            raise argparse.ArgumentTypeError(
+                "device:{} is invalid. valid value range is [{}, {}]".format(
+                    ivalue, min_value, max_value))
+        return ivalue
+
+
+def parse_arguments():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-m",
+        "--model",
+        type=str,
+        default="./stable-diffusion-3-medium-diffusers",
+        help="Path or name of the pre-trained model.",
+    )
+    parser.add_argument(
+        "--prompt_file",
+        type=str,
+        default="./prompts.txt",
+        help="A text file of prompts for generating images.",
+    )
+    parser.add_argument(
+        "--prompt_file_type",
+        choices=["plain", "parti", "hpsv2"],
+        default="plain",
+        help="Type of prompt file.",
+    )
+    parser.add_argument(
+        "--save_dir",
+        type=str,
+        default="./results",
+        help="Path to save result images.",
+    )
+    parser.add_argument(
+        "--info_file_save_path",
+        type=str,
+        default="./image_info.json",
+        help="Path to save image information file.",
+    )
+    parser.add_argument(
+        "--steps",
+        type=int,
+        default=28,
+        help="Number of inference steps.",
+    )
+    parser.add_argument(
+        "--device",
+        type=check_device_range_valid,
+        default=0,
+        help="NPU device id. Give 2 ids to enable parallel inferencing.",
+    )
+    parser.add_argument(
+        "--num_images_per_prompt",
+        default=1,
+        type=int,
+        help="Number of images generated for each prompt.",
+    )
+    parser.add_argument(
+        "--max_num_prompts",
+        default=0,
+        type=int,
+        help="Limit the number of prompts (0: no limit).",
+    )
+    parser.add_argument(
+        "-bs",
+        "--batch_size",
+        type=int,
+        default=1,
+        help="Batch size."
+    )
+    parser.add_argument(
+        "-o",
+        "--output_dir",
+        type=str,
+        default="./models",
+        help="Path of directory to save compiled models.",
+    )
+    parser.add_argument(
+        "--scheduler",
+        choices=["FlowMatchEuler"],
+        default="FlowMatchEuler",
+        help="Type of Sampling methods. Default FlowMatchEuler",
+    )
+    parser.add_argument(
+        "--height",
+        default=1024,
+        type=int,
+        help="image height",
+    )
+    parser.add_argument(
+        "--width",
+        default=1024,
+        type=int,
+        help="image width"
+    )
+    parser.add_argument(
+        "--use_cache",
+        action="store_true",
+        help="Use cache during inference."
+    )
+    parser.add_argument(
+        "--cache_param",
+        default="1,2,20,10",
+        type=str,
+        help="steps to use cache data"
+    )
+
+    return parser.parse_args()
 
 
 def main():

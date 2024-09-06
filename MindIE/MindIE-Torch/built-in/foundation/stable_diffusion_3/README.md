@@ -67,12 +67,14 @@
 
    ```bash
    # 安装mindie
+   source /usr/local/Ascend/ascend-toolkit/set_env.sh
    chmod +x ./Ascend-mindie_xxx.run
    ./Ascend-mindie_xxx.run --install
    source /usr/local/Ascend/mindie/set_env.sh
    ```
    
-3. 代码修改
+3. 代码修改（可选）
+（1）若需要开启DiTCache、序列压缩等优化，需要执行以下代码修改操作：
 - 若环境没有patch工具，请自行安装：
    ```bash
     apt update
@@ -81,6 +83,8 @@
 - 执行命令：
    ```bash
    python3 attention_patch.py
+   python3 attention_processor_patch.py
+   python3 transformer_sd3_patch.py
    ```
 
 ## 模型推理<a name="section741711594517"></a>
@@ -113,23 +117,44 @@
       ```bash
       mkdir ./models
       ```
+      (3) 执行命令查看芯片名称（$\{chip\_name\}）。
 
-      (3) 执行export命令
+         ```
+         npu-smi info
+         #该设备芯片chip_name=310P3 (自行替换)
+         回显如下：
+         +-------------------+-----------------+------------------------------------------------------+
+         | NPU     Name      | Health          | Power(W)     Temp(C)           Hugepages-Usage(page) |
+         | Chip    Device    | Bus-Id          | AICore(%)    Memory-Usage(MB)                        |
+         +===================+=================+======================================================+
+         | 0       310P3     | OK              | 15.8         42                0    / 0              |
+         | 0       0         | 0000:82:00.0    | 0            1074 / 21534                            |
+         +===================+=================+======================================================+
+         | 1       310P3     | OK              | 15.4         43                0    / 0              |
+         | 0       1         | 0000:89:00.0    | 0            1070 / 21534                            |
+         +===================+=================+======================================================+
+         ```
+
+      (4) 执行export命令
    
       ```bash
-      # 800I A2，非并行
-      python3 export_model.py --model ${model_base} --output_dir ./models --batch_size 1 --soc Ascend910B4 --device 0
+      # 800I A2，非并行，未加DiTCache优化
+      python3 export_model.py --model ${model_base} --output_dir ./models --batch_size 1 --soc Ascend${chip_name} --device_type A2 --device 0
+      # 800I A2，非并行。开启DiTCache优化
+      python3 export_model.py --model ${model_base} --output_dir ./models --batch_size 1 --soc Ascend${chip_name} --device_type A2 --device 0 --use_cache
       
       # 300I Duo，并行
-      python3 export_model.py --model ${model_base} --output_dir ./models --parallel --batch_size 1 --soc Ascend310P3 --device 0
+      python3 export_model.py --model ${model_base} --output_dir ./models --parallel --batch_size 1 --soc Ascend${chip_name} --device_type Duo --device 0
       ```
       参数说明：
       - --model：模型权重路径
       - --output_dir: 存放导出模型的路径
       - --parallel: 【可选】导出适用于并行方案的模型
       - --batch_size: 设置batch_size, 默认值为1, 当前仅支持batch_size=1的场景
-      - --soc：只支持Ascend910B4和Ascend310P3。默认为Ascend910B4。
+      - --soc：处理器型号。
+      - --device_type: 设备形态，当前支持A2、Duo两种形态。
       - --device：推理设备ID
+      - --use_cache：开启DiTCache优化，不配置则不开启
       注意：trace+compile耗时较长且占用较多的CPU资源，请勿在执行export命令时运行其他占用CPU内存的任务，避免程序意外退出。
    
 2. 开始推理验证。
@@ -163,7 +188,7 @@
    
    3. 执行推理脚本。
       ```bash
-      # 不使用unetCache策略
+      # 不使用DiTCache，单卡推理，适用800I A2场景
       numactl -C 0-23 python3 stable_diffusion3_pipeline.py \
               --model ${model_base} \
               --prompt_file ./prompts.txt \
@@ -176,7 +201,7 @@
               --width 1024 \
               --batch_size 1
       
-      # 使用UnetCache策略,同时使用双卡并行策略
+      # 不使用DiTCache，使用双卡并行推理，适用300I DUO场景
       numactl -C 0-23 python3 stable_diffusion3_pipeline.py \
               --model ${model_base} \
               --prompt_file ./prompts.txt \
@@ -189,6 +214,20 @@
               --width 1024 \
               --batch_size 1 \
               --parallel
+      
+      # 使用DiTCache，单卡推理，适用800I A2场景
+      numactl -C 0-23 python3 stable_diffusion3_pipeline_cache.py \
+              --model ${model_base} \
+              --prompt_file ./prompts.txt \
+              --prompt_file_type plain \
+              --device 0 \
+              --save_dir ./results \
+              --steps 28 \
+              --output_dir ./models \
+              --height 1024 \
+              --width 1024 \
+              --batch_size 1 \
+              --use_cache
       ```
       
       参数说明：
@@ -202,6 +241,7 @@
       - --device：推理设备ID；可用逗号分割传入两个设备ID，此时会使用并行方式进行推理。
       - --height：生成图像高度，当前只支持1024
       - --width：生成图像宽度，当前只支持1024
+      - --use_cache：开启DiTCache优化，不配置则不开启
       
       非并行策略，执行完成后在`./results`目录下生成推理图片，在当前目录生成一个`image_info.json`文件，记录着图片和prompt的对应关系，并在终端显示推理时间。
       并行策略，同时使用双卡并行策略，执行完成后在`./results_parallel`目录下生成推理图片，在当前目录生成一个`image_info.json`文件，记录着图片和prompt的对应关系。并在终端显示推理时间。

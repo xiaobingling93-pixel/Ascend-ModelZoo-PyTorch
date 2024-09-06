@@ -1,0 +1,123 @@
+--- transformer_sd3.py	2024-09-04 09:21:58.280000000 +0000
++++ transformer_sd3.py	2024-09-04 10:01:47.196000000 +0000
+@@ -97,6 +97,7 @@
+                     num_attention_heads=self.config.num_attention_heads,
+                     attention_head_dim=self.inner_dim,
+                     context_pre_only=i == num_layers - 1,
++                    layer_idx=i
+                 )
+                 for i in range(self.config.num_layers)
+             ]
+@@ -106,6 +107,8 @@
+         self.proj_out = nn.Linear(self.inner_dim, patch_size * patch_size * self.out_channels, bias=True)
+ 
+         self.gradient_checkpointing = False
++        self.delta_cache = None
++        self.delta_cache_hidden = None
+ 
+     # Copied from diffusers.models.unets.unet_3d_condition.UNet3DConditionModel.enable_forward_chunking
+     def enable_forward_chunking(self, chunk_size: Optional[int] = None, dim: int = 0) -> None:
+@@ -245,9 +248,14 @@
+         encoder_hidden_states: torch.FloatTensor = None,
+         pooled_projections: torch.FloatTensor = None,
+         timestep: torch.LongTensor = None,
++        cache_dict: torch.LongTensor = None,
++        if_skip: int = 0,
++        delta_cache: torch.FloatTensor = None,
++        delta_cache_hidden: torch.FloatTensor = None,
++        use_cache: bool = False,
+         joint_attention_kwargs: Optional[Dict[str, Any]] = None,
+         return_dict: bool = True,
+-    ) -> Union[torch.FloatTensor, Transformer2DModelOutput]:
++    ):
+         """
+         The [`SD3Transformer2DModel`] forward method.
+ 
+@@ -281,10 +289,6 @@
+         if USE_PEFT_BACKEND:
+             # weight the lora layers by setting `lora_scale` for each PEFT layer
+             scale_lora_layers(self, lora_scale)
+-        else:
+-            logger.warning(
+-                "Passing `scale` via `joint_attention_kwargs` when not using the PEFT backend is ineffective."
+-            )
+ 
+         height, width = hidden_states.shape[-2:]
+ 
+@@ -292,9 +296,8 @@
+         temb = self.time_text_embed(timestep, pooled_projections)
+         encoder_hidden_states = self.context_embedder(encoder_hidden_states)
+ 
+-        for block in self.transformer_blocks:
+-            if self.training and self.gradient_checkpointing:
+-
++        if self.training and self.gradient_checkpointing:
++            for block in self.transformer_blocks:
+                 def create_custom_forward(module, return_dict=None):
+                     def custom_forward(*inputs):
+                         if return_dict is not None:
+@@ -312,11 +315,14 @@
+                     temb,
+                     **ckpt_kwargs,
+                 )
+-
+-            else:
+-                encoder_hidden_states, hidden_states = block(
+-                    hidden_states=hidden_states, encoder_hidden_states=encoder_hidden_states, temb=temb
+-                )
++        else:
++            (
++                (encoder_hidden_states, hidden_states),
++                delta_cache,
++                delta_cache_hidden
++            ) = self.forward_blocks(hidden_states, encoder_hidden_states, temb,
++                                    use_cache, if_skip, cache_dict, delta_cache,
++                                    delta_cache_hidden)
+ 
+         hidden_states = self.norm_out(hidden_states, temb)
+         hidden_states = self.proj_out(hidden_states)
+@@ -339,6 +345,43 @@
+             unscale_lora_layers(self, lora_scale)
+ 
+         if not return_dict:
+-            return (output,)
++            return (output, delta_cache, delta_cache_hidden)
+ 
+         return Transformer2DModelOutput(sample=output)
++
++    def forward_blocks_range(self, hidden_states, encoder_hidden_states, temb, start_idx, end_idx):
++        for block_idx, block in enumerate(self.transformer_blocks[start_idx: end_idx]):
++            encoder_hidden_states, hidden_states = block(
++                hidden_states=hidden_states, encoder_hidden_states=encoder_hidden_states, temb=temb
++            )
++
++        return hidden_states, encoder_hidden_states
++
++    def forward_blocks(self, hidden_states, encoder_hidden_states, temb, use_cache, if_skip, cache_dict, delta_cache,
++                       delta_cache_hidden):
++        if not use_cache:
++            hidden_states, encoder_hidden_states = self.forward_blocks_range(hidden_states, encoder_hidden_states, temb,
++                                                                             0, len(self.transformer_blocks))
++        else:
++            # infer [0, cache_start)
++            hidden_states, encoder_hidden_states = self.forward_blocks_range(hidden_states, encoder_hidden_states, temb,
++                                                                             0, cache_dict[0])
++
++            # infer [cache_start, cache_end)
++            cache_end = cache_dict[0] + cache_dict[2]
++            hidden_states_before_cache = hidden_states.clone()
++            encoder_hidden_states_before_cache = encoder_hidden_states.clone()
++            if not if_skip:
++                hidden_states, encoder_hidden_states = self.forward_blocks_range(hidden_states, encoder_hidden_states,
++                                                                                 temb, cache_dict[0],
++                                                                                 cache_end)
++                delta_cache = hidden_states - hidden_states_before_cache
++                delta_cache_hidden = encoder_hidden_states - encoder_hidden_states_before_cache
++            else:
++                hidden_states = hidden_states_before_cache + delta_cache
++                encoder_hidden_states = encoder_hidden_states_before_cache + delta_cache_hidden
++
++            # infer [cache_end, len(self.blocks))
++            hidden_states, encoder_hidden_states = self.forward_blocks_range(hidden_states, encoder_hidden_states, temb,
++                                                                             cache_end, len(self.transformer_blocks))
++        return (encoder_hidden_states, hidden_states), delta_cache, delta_cache_hidden
