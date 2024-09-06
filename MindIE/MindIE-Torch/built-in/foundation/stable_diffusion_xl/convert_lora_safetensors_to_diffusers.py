@@ -20,6 +20,7 @@ import torch
 from safetensors.torch import load_file
 
 from diffusers import StableDiffusionXLPipeline
+from diffusers.models.lora import LoRACompatibleConv, LoRACompatibleLinear
 
 
 def convert(base_model_path, checkpoint_path, LORA_PREFIX_UNET, LORA_PREFIX_TEXT_ENCODER, alpha):
@@ -73,29 +74,29 @@ def convert(base_model_path, checkpoint_path, LORA_PREFIX_UNET, LORA_PREFIX_TEXT
         if "lora_down" in key:
             pair_keys.append(key.replace("lora_down", "lora_up"))
             pair_keys.append(key)
+            pair_keys.append(key.replace("lora_down.weight", "alpha"))
         else:
             pair_keys.append(key)
             pair_keys.append(key.replace("lora_up", "lora_down"))
+            pair_keys.append(key.replace("lora_up.weight", "alpha"))
 
-        # update weight
-        if len(state_dict[pair_keys[0]].shape) == 4:
-            weight_up = state_dict[pair_keys[0]].squeeze(3).squeeze(2).to(torch.float32)
-            weight_down = state_dict[pair_keys[1]].squeeze(3).squeeze(2).to(torch.float32)
-            try:
-                if len(curr_layer.weight.shape) == 2:
-                    curr_layer.weight.data += alpha * torch.mm(weight_up, weight_down) # for SD2.1
-                else:
-                    curr_layer.weight.data += alpha * torch.mm(weight_up, weight_down).unsqueeze(2).unsqueeze(3)
-            except Exception:
-                shape4failed += 1
+        if state_dict[pair_keys[2]] == None:
+            ratio = 1.0
         else:
-            weight_up = state_dict[pair_keys[0]].to(torch.float32)
-            weight_down = state_dict[pair_keys[1]].to(torch.float32)
-            try:
-                curr_layer.weight.data += alpha * torch.mm(weight_up, weight_down)
-            except Exception:
-                shapeno4failed += 1
-
+            alpha = state_dict[pair_keys[2]].item()
+            ratio = alpha / min(state_dict[pair_keys[0]].shape[0], state_dict[pair_keys[1]].shape[1])
+        # update weight
+        if isinstance(curr_layer, LoRACompatibleConv):
+            upmat = state_dict[pair_keys[0]].to(torch.float32).flatten(start_dim=1)
+            downmat = state_dict[pair_keys[1]].to(torch.float32).flatten(start_dim=1)
+            fusionupdown = torch.mm(upmat, downmat)
+            fusionupdown = fusionupdown.reshape(curr_layer.weight.data.shape)
+            curr_layer.weight.data += ratio * fusionupdown
+        elif isinstance(curr_layer,LoRACompatibleLinear):
+            upmat = state_dict[pair_keys[0]].to(torch.float32)[None, :]
+            downmat = state_dict[pair_keys[1]].to(torch.float32)[None, :]
+            fusion = torch.bmm(upmat, downmat)[0]
+            curr_layer.weight.data += ratio * fusion
         # update visited list
         for item in pair_keys:
             visited.append(item)
