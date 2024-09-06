@@ -1,8 +1,0 @@
-timm==0.9.16
-diffusers==0.27.2
-accelerate==0.29.2
-torchvision==0.16.0
-protobuf
-decorator
-scipy
-attrs

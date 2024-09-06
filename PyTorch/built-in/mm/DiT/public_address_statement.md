@@ -1,0 +1,13 @@
+| 类型         | 开源代码地址                                                 | 文件名                          | 公网IP地址/公网URL地址/域名/邮箱地址                         | 用途说明       |
+| ------------ | ------------------------------------------------------------ | ------------------------------- | ------------------------------------------------------------ | -------------- |
+| 开源代码引入 | https://github.com/facebookresearch/DiT/blob/main/download.py | download.py                     | https://dl.fbaipublicfiles.com/DiT/models/                   | 下载预训练权重 |
+| 开源代码引入 | https://github.com/facebookresearch/DiT/blob/main/model.py   | models.py                       | https://github.com/openai/glide-text2im/blob/main/glide_text2im/nn.py | 引用说明       |
+| 开源代码引入 | https://github.com/facebookresearch/DiT/blob/main/model.py   | models.py                       | https://github.com/openai/glide-text2im/blob/main/notebooks/text2im.ipynb | 引用说明       |
+| 开源代码引入 | https://github.com/facebookresearch/DiT/blob/main/model.py   | models.py                       | https://github.com/facebookresearch/mae/blob/main/util/pos_embed.py | 引用说明       |
+| 开源代码引入 | https://github.com/facebookresearch/DiT/blob/main/sample_ddp.py | sample_ddp.py                   | https://github.com/openai/guided-diffusion/tree/main/evaluations | 引用说明       |
+| 开源代码引入 | https://github.com/facebookresearch/DiT/blob/main/train.py   | train.py                        | https://github.com/openai/guided-diffusion/blob/8fb3ad9197f16bbc40620447b2742e13458d2831/guided_diffusion/image_datasets.py | 引用说明       |
+| 开源代码引入 | https://github.com/facebookresearch/DiT/blob/main/diffusion/gaussian_diffusion.py | diffusion\gaussian_diffusion.py | https://github.com/hojonathanho/diffusion/blob/1e0dceb3b3495bbe19116a5e1b3596cd0706c543/diffusion_tf/diffusion_utils_2.py | 引用说明       |
+| 开源代码引入 | https://github.com/facebookresearch/DiT/blob/main/diffusion/gaussian_diffusion.py | diffusion\gaussian_diffusion.py | https://github.com/openai/glide-text2im/blob/main/glide_text2im/gaussian_diffusion.py | 引用说明       |
+| 开源代码引入 | https://github.com/facebookresearch/DiT/blob/main/diffusion/gaussian_diffusion.py | diffusion\gaussian_diffusion.py | https://github.com/openai/guided-diffusion/blob/main/guided_diffusion | 引用说明       |
+| 开源代码引入 | https://github.com/facebookresearch/DiT/blob/main/diffusion/gaussian_diffusion.py | diffusion\gaussian_diffusion.py | https://github.com/openai/improved-diffusion/blob/main/improved_diffusion/gaussian_diffusion.py | 引用说明       |
+|              |                                                              |                                 |                                                              |                |
