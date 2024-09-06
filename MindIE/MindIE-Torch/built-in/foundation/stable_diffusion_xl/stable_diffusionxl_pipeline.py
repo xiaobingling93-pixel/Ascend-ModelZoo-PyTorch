@@ -19,6 +19,7 @@ import os
 import time
 from typing import Callable, List, Optional, Union
 import numpy as np
+import logging
 
 import torch
 import mindietorch
@@ -26,6 +27,9 @@ from diffusers import StableDiffusionXLPipeline
 from diffusers.loaders import TextualInversionLoaderMixin
 from diffusers.schedulers import *
 from quant_utils import modify_model
+from safetensors.torch import load_file
+from diffusers.models.lora import LoRACompatibleConv, LoRACompatibleLinear
+from diffusers.models.lora import KeyOrderList
 
 clip_time = 0
 unet_time = 0
@@ -421,6 +425,7 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
             skip_steps=None,
             flag_ddim: int = None,
             flag_cache: int = None,
+            use_lora_hotswitch=False,
     ):
         r"""
         Function invoked when calling the pipeline for generation.
@@ -722,11 +727,16 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
                                                       prompt_embeds.to('cpu'),
                                                       add_text_embeds.to('cpu'),
                                                       add_time_ids.to('cpu'))
-                noise_pred = self.compiled_unet_model(latent_model_input,
-                                                      t.to(torch.int64)[None].to(f'npu:{self.device_0}'),
-                                                      prompt_embeds.to(f'npu:{self.device_0}'),
-                                                      add_text_embeds.to(f'npu:{self.device_0}'),
-                                                      add_time_ids.to(f'npu:{self.device_0}'))
+                unet_input = [
+                                latent_model_input,
+                                t.to(torch.int64)[None].to(f'npu:{self.device_0}'),
+                                prompt_embeds.to(f'npu:{self.device_0}'),
+                                add_text_embeds.to(f'npu:{self.device_0}'),
+                                add_time_ids.to(f'npu:{self.device_0}'),
+                ]
+                if use_lora_hotswitch:
+                        unet_input = unet_input + [torch.tensor([])] * 788
+                noise_pred = self.compiled_unet_model(*unet_input)
             unet_time += time.time() - start
 
             # perform guidance
@@ -923,6 +933,29 @@ def parse_arguments():
         action="store_true",
         help="use quantize unet."
     )
+    parser.add_argument(
+        "--use_loraHotswitch",
+        action="store_true",
+        help="use lora hot switch function"
+    )
+    parser.add_argument(
+        "--lorabase_weight",
+        type=str,
+        default="./baseLoraPath/saveTensor.pt",
+        help="base lora weight path.",
+    )
+    parser.add_argument(
+        "--loranew_weight",
+        type=str,
+        default="./newLoraPath/lora.pt",
+        help="new lora weight path.",
+    )
+    parser.add_argument(
+        "--loramerge_ratio",
+        default=1.0,
+        type=float,
+        help="base weight and new lora weight fusion ratio"
+    )
 
     return parser.parse_args()
 
@@ -954,9 +987,9 @@ def main():
         pipe.scheduler.config.algorithm_type = 'sde-dpmsolver++'
         pipe.scheduler.config.use_karras_sigmas = True
 
+    mindietorch.set_device(args.device)
     pipe.parser_args(args)
     pipe.compile_aie_model()
-    mindietorch.set_device(args.device)  #####################
     skip_steps = [0] * args.steps
     flag_cache = 0
     if args.use_cache:
@@ -965,6 +998,82 @@ def main():
             if not i.isdigit() or int(i) >= args.steps:
                 continue
             skip_steps[int(i)] = 1
+    
+    if args.use_loraHotswitch and not args.use_cache:
+        # first combine base model and lora model into new
+        base_model = torch.load(args.lorabase_weight)
+        new_model = load_file(args.loranew_weight)
+        fusionweight = dict()
+        visited = []
+        for name in new_model.keys():
+            # one circle handle a pair key and skip .alpha key
+            if ".alpha" in name or name in visited:
+                continue
+            # for sdxl,lora hot switch is supported for unet
+            curr_layer = pipe.unet
+            layer_infos = name.split(".")[0].split("lora_unet_")[-1].replace('_', '.').split(".")
+            temp_name = layer_infos.pop(0)
+            desstr = ""
+            while len(layer_infos) > -1:
+                try:
+                    curr_layer = curr_layer.__getattr__(temp_name)
+                    if len(layer_infos) > 0:
+                        desstr = desstr + temp_name + "."
+                        temp_name = layer_infos.pop(0)
+                    elif len(layer_infos) == 0:
+                        desstr = desstr + temp_name
+                        break
+                except Exception:
+                    temp_name = temp_name + "_" + layer_infos.pop(0)
+            pair_keys = []
+            if "lora_down" in name:
+                pair_keys.append(name.replace("lora_down", "lora_up"))
+                pair_keys.append(name)
+                pair_keys.append(name.replace("lora_down.weight", "alpha"))
+            else:
+                pair_keys.append(name)
+                pair_keys.append(name.replace("lora_up", "lora_down"))
+                pair_keys.append(name.replace("lora_up.weight", "alpha"))
+            
+            # for different type layer,weight fussion is different
+            # prepare base weight
+            base_weight = base_model[desstr].to(torch.float32)
+            # prepare lora weight
+            lora_up_weight = new_model[pair_keys[0]].to(torch.float32)
+            lora_down_weight = new_model[pair_keys[1]].to(torch.float32)
+            # determin the ratio
+            if new_model[pair_keys[2]] == None:
+                ratio = 1.0
+            else:
+                alpha = new_model[pair_keys[2]].item()
+                ratio = alpha / min(new_model[pair_keys[0]].shape[0], new_model[pair_keys[0]].shape[1])
+            if isinstance(curr_layer, LoRACompatibleConv):
+                # fusion down and up
+                fusionupdown = torch.mm(lora_up_weight.flatten(start_dim = 1), lora_down_weight.flatten(start_dim = 1))
+                fusionupdown = fusionupdown.reshape(base_weight.shape)
+                # main road + bypass
+                fusionweight[desstr] = base_weight + ratio * fusionupdown
+            elif isinstance(curr_layer, LoRACompatibleLinear):
+                fusion = ratio * torch.bmm(lora_up_weight[None, :], lora_down_weight[None, :])[0]
+                fusionweight[desstr] = base_weight + fusion
+            for item in pair_keys:
+                visited.append(item)
+        # specify key order
+        input_update = [
+                        torch.ones(2, 4, 128, 128).to("npu"),
+                        torch.ones(1).to(torch.long).to("npu"),
+                        torch.ones(2, 77, 2048).to("npu"),
+                        torch.ones(2, 1280).to("npu"),
+                        torch.ones(2, 6).to("npu")
+        ]
+        for name in KeyOrderList:
+            try:
+                input_update.append(fusionweight[name].to("npu"))
+            except KeyError:
+                logging.error('can not find keyorderlist key name:%s in fusionweight',name)
+                return
+                
+        pipe.compiled_unet_model(*input_update)
 
     use_time = 0
     prompt_loader = PromptLoader(args.prompt_file,
@@ -1000,6 +1109,7 @@ def main():
                 skip_steps=skip_steps,
                 flag_ddim=flag_ddim,
                 flag_cache=flag_cache,
+                use_lora_hotswitch=(args.use_loraHotswitch and (not args.use_cache)),
             )
         if i > 4: # do not count the time spent inferring the first 0 to 4 images
             use_time += time.time() - start_time
