@@ -1,0 +1,5 @@
+torch==2.1.0
+torch_npu
+onnx
+transformers==4.38.2
+lm-eval==0.4.2 # for eval

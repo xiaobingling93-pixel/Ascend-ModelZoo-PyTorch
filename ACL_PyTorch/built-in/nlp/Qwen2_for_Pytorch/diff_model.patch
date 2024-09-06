@@ -1,0 +1,70 @@
+--- modeling_qwen2.py	2024-09-04 22:30:47.490111800 +0800
++++ modeling_qwen2_export.py	2024-09-04 22:49:20.540908500 +0800 
+@@ -162,6 +162,10 @@
+         self.register_buffer("sin_cached", emb.sin().to(dtype), persistent=False)
+ 
+     def forward(self, x, seq_len=None):
++        return(
++            self.cos_cached.to(dtype=x.dtype),
++            self.sin_cached.to(dtype=x.dtype),
++        )
+         # x: [bs, num_attention_heads, seq_len, head_size]
+         if seq_len > self.max_seq_len_cached:
+             self._set_cos_sin_cache(seq_len=seq_len, device=x.device, dtype=x.dtype)
+@@ -312,6 +316,7 @@
+         cos, sin = self.rotary_emb(value_states, seq_len=kv_seq_len)
+         query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos, sin, position_ids)
+ 
++        out_key_value = (key_states, value_states) if use_cache else None
+         if past_key_value is not None:
+             cache_kwargs = {"sin": sin, "cos": cos, "cache_position": cache_position}  # Specific to RoPE models
+             key_states, value_states = past_key_value.update(key_states, value_states, self.layer_idx, cache_kwargs)
+@@ -351,7 +356,7 @@
+         if not output_attentions:
+             attn_weights = None
+ 
+-        return attn_output, attn_weights, past_key_value
++        return attn_output, attn_weights, out_key_value
+ 
+ 
+ class Qwen2FlashAttention2(Qwen2Attention):
+@@ -895,7 +900,7 @@
+         # decoder layers
+         all_hidden_states = () if output_hidden_states else None
+         all_self_attns = () if output_attentions else None
+-        next_decoder_cache = None
++        next_decoder_cache = [] if use_cache else None
+ 
+         for decoder_layer in self.layers:
+             if output_hidden_states:
+@@ -926,7 +931,11 @@
+             hidden_states = layer_outputs[0]
+ 
+             if use_cache:
+-                next_decoder_cache = layer_outputs[2 if output_attentions else 1]
++                key_values = layer_outputs[2 if output_attentions else 1]
++                if isinstance(next_decoder_cache,tuple):
++                    next_decoder_cache=list(next_decoder_cache)
++                assert isinstance(next_decoder_cache, list),"transform failed"
++                next_decoder_cache.extend(layer_outputs[2 if output_hidden_states else 1])
+ 
+             if output_attentions:
+                 all_self_attns += (layer_outputs[1],)
+@@ -937,9 +946,7 @@
+         if output_hidden_states:
+             all_hidden_states += (hidden_states,)
+ 
+-        next_cache = None
+-        if use_cache:
+-            next_cache = next_decoder_cache.to_legacy_cache() if use_legacy_cache else next_decoder_cache
++        next_cache = torch.extend(next_decoder_cache).reshape(len(self.layers),2,*next_decoder_cache[0].shape) if use_cache else None
+ 
+         if not return_dict:
+             return tuple(v for v in [hidden_states, next_cache, all_hidden_states, all_self_attns] if v is not None)
+@@ -1433,4 +1440,4 @@
+             logits=logits,
+             hidden_states=outputs.hidden_states,
+             attentions=outputs.attentions,
+-        )
+\ No newline at end of file
++        )
