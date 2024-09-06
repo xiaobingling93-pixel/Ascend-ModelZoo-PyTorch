@@ -23,6 +23,7 @@ from diffusers import StableDiffusionXLPipeline
 import math
 from compile_model import *
 import mindietorch
+from diffusers.models.lora import LoRACompatibleConv, LoRACompatibleLinear
 
 def parse_arguments() -> Namespace:
     parser = argparse.ArgumentParser()
@@ -47,6 +48,13 @@ def parse_arguments() -> Namespace:
     parser.add_argument("-p", "--parallel", action="store_true",
                         help="Export the unet of bs=1 for parallel inferencing.")
     parser.add_argument("--soc", choices=["Duo", "A2"], default="A2", help="soc_version.")
+    parser.add_argument("--lorahot_support", action="store_true", help="compiled model support hot lora weight switch")
+    parser.add_argument(
+        "--baselora_path",
+        type=str,
+        default="./baseLoraPath/",
+        help="this para takes effect only when --lorahot_support is specified"
+    )
     parser.add_argument(
         "--flag",
         choices=[0, 1, 2],
@@ -687,11 +695,46 @@ def export_ddim_parallel(sd_pipeline, args):
                 mindietorch.Input(min_shape=min_shape_5, max_shape=max_shape_5, dtype=mindietorch.dtype.INT64)]
             compile_ddim(model, inputs, scheduler_compiled_dynamic_path, soc_version)
 
+
+def concat_string(string_array):
+    length = len(string_array)
+    strres =''
+    for i in range(length - 2):
+        strres = strres + string_array[i] + '.'
+    strres = strres + string_array[length - 2]
+    return strres
+
+
+def register_unet_buffer(sd_pipeline, baselora_path):
+    if not os.path.exists(baselora_path):
+        os.makedirs(baselora_path, mode=0o640)
+    unet_model = sd_pipeline.unet
+    save_tensor = dict()
+    
+    for name in list(unet_model.state_dict().keys()):
+        name_array = name.split('.')
+        if(name_array[0] == "time_embedding" or name_array[0] == "add_embedding"):
+            continue
+        curlayer = unet_model
+        for i in range(len(name_array)-1):
+            curlayer = curlayer.__getattr__(name_array[i])
+
+        if isinstance(curlayer, LoRACompatibleLinear) or isinstance(curlayer, LoRACompatibleConv):
+            strres = concat_string(name_array)
+            save_tensor[strres] = curlayer.weight.data
+            curlayer.register_buffer("mindie_buffer", curlayer.weight.data)
+            curlayer.status = True
+    
+    torch.save(save_tensor, baselora_path + "saveTensor.pt")
+
 def export(args):
     pipeline = StableDiffusionXLPipeline.from_pretrained(args.model).to('cpu')
 
     export_clip(pipeline, args)
     export_vae(pipeline, args)
+    #before export, we need to register buffer first
+    if args.lorahot_support:
+        register_unet_buffer(pipeline, args.baselora_path)
     if args.use_cache:
         export_unet_cache(pipeline, args)
         export_unet_skip(pipeline, args)
