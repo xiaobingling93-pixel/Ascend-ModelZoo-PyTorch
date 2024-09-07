@@ -1,0 +1,13 @@
+--- attention_processor_bak.py	2024-09-07 16:05:20.550072000 +0800
++++ attention_processor.py	2024-09-07 16:03:43.742800300 +0800
+@@ -761,6 +761,10 @@
+         hidden_states = torch.bmm(attention_probs, value)
+         hidden_states = attn.batch_to_head_dim(hidden_states)
+ 
++        shape_init = hidden_states.shape
++        hidden_states.reshape(1, -1)
++        hidden_states.reshape(shape_init)
++
+         # linear proj
+         hidden_states = attn.to_out[0](hidden_states, *args)
+         # dropout
