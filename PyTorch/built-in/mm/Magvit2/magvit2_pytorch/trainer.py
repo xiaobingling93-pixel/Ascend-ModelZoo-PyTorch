@@ -347,7 +347,7 @@ class VideoTokenizerTrainer:
 
         # main model
 
-        self.optimizer.zero_grad()
+        self.optimizer.zero_grad(set_to_none=False)
 
         for grad_accum_step in range(self.grad_accum_every):
 
