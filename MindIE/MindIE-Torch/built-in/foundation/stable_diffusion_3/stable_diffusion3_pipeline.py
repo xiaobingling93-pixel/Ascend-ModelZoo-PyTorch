@@ -534,7 +534,7 @@ class AIEStableDiffusion3Pipeline(StableDiffusion3Pipeline):
                 if not self.use_parallel_inferencing and self.do_classifier_free_guidance:
                     latent_model_input = torch.cat([latents] * 2)
                     # broadcast to batch dimension in a way that's compatible with ONNX/Core ML
-                    timestep = t.to(torch.int64)[None].to(f"npu:{self.device_0}")
+                    timestep_npu = t.to(torch.int64)[None].to(f"npu:{self.device_0}")
                 else:
                     latent_model_input = latents
                     timestep = t.to(torch.int64)
