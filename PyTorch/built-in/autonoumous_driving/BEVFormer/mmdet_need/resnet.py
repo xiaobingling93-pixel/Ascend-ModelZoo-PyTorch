@@ -7,7 +7,6 @@ import torch.utils.checkpoint as cp
 from mmcv.cnn import build_conv_layer, build_norm_layer, build_plugin_layer
 from mmcv.runner import BaseModule
 from torch.nn.modules.batchnorm import _BatchNorm
-import mx_driving.common
 import mx_driving.fused
 import torch
 import torch_npu
@@ -293,7 +292,7 @@ class Bottleneck(BaseModule):
             if self.downsample is not None:
                 identity = self.downsample(x)
 
-            out = mx_driving.common.npu_add_relu(out, identity)
+            out = mx_driving.fused.npu_add_relu(out, identity)
 
             return out
 
