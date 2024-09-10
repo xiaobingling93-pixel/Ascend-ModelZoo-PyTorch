@@ -1,5 +1,5 @@
 --- attention_processor.py	2024-09-04 09:22:16.048000000 +0000
-+++ attention_processor.py	2024-09-04 09:57:55.928000000 +0000
++++ attention_processor.py	2024-09-10 06:38:37.076000000 +0000
 @@ -115,6 +115,7 @@
          residual_connection: bool = False,
          _from_deprecated_attn_block: bool = False,
@@ -32,37 +32,7 @@
              **cross_attention_kwargs,
          )
  
-@@ -1082,6 +1085,29 @@
-         return hidden_states
- 
- 
-+def scaled_dot_product_attention(query, key, value, attn_mask=None, dropout_p=0.0, is_causal=False,
-+                                 scale=None) -> torch.Tensor:
-+    # Efficient implementation equivalent to the following:
-+    L, S = query.size(-2), key.size(-2)
-+    scale_factor = 1 / math.sqrt(query.size(-1)) if scale is None else scale
-+    attn_bias = torch.zeros(L, S, dtype=query.dtype)
-+    if is_causal:
-+        assert attn_mask is None
-+        temp_mask = torch.ones(L, S, dtype=torch.bool).tril(diagonal=0)
-+        attn_bias.masked_fill_(temp_mask.logical_not(), float("-inf"))
-+        attn_bias.to(query.dtype)
-+
-+    if attn_mask is not None:
-+        if attn_mask.dtype == torch.bool:
-+            attn_mask.masked_fill_(attn_mask.logical_not(), float("-inf"))
-+        else:
-+            attn_bias += attn_mask
-+    attn_weight = query @ key.transpose(-2, -1) * scale_factor
-+    attn_weight = torch.softmax(attn_weight, dim=-1)
-+    attn_weight = torch.dropout(attn_weight, dropout_p, train=True)
-+    return attn_weight @ value
-+
-+
- class JointAttnProcessor2_0:
-     """Attention processor used typically in processing the SD3-like self-attention projections."""
- 
-@@ -1095,6 +1121,7 @@
+@@ -1095,6 +1098,7 @@
          hidden_states: torch.FloatTensor,
          encoder_hidden_states: torch.FloatTensor = None,
          attention_mask: Optional[torch.FloatTensor] = None,
@@ -70,7 +40,7 @@
          *args,
          **kwargs,
      ) -> torch.FloatTensor:
-@@ -1112,7 +1139,19 @@
+@@ -1112,7 +1116,19 @@
          batch_size = encoder_hidden_states.shape[0]
  
          # `sample` projections.
@@ -90,12 +60,27 @@
          key = attn.to_k(hidden_states)
          value = attn.to_v(hidden_states)
  
-@@ -1132,7 +1171,7 @@
-         key = key.view(batch_size, -1, attn.heads, head_dim).transpose(1, 2)
-         value = value.view(batch_size, -1, attn.heads, head_dim).transpose(1, 2)
+@@ -1128,14 +1144,16 @@
+ 
+         inner_dim = key.shape[-1]
+         head_dim = inner_dim // attn.heads
+-        query = query.view(batch_size, -1, attn.heads, head_dim).transpose(1, 2)
+-        key = key.view(batch_size, -1, attn.heads, head_dim).transpose(1, 2)
+-        value = value.view(batch_size, -1, attn.heads, head_dim).transpose(1, 2)
++        query = query.view(batch_size, -1, attn.heads, head_dim)
++        key = key.view(batch_size, -1, attn.heads, head_dim)
++        value = value.view(batch_size, -1, attn.heads, head_dim)
++        scale_factor = 1 / math.sqrt(query.size(-1))
++
++        import mindietorch
++        hidden_states = torch.ops.aie.flash_attention(query, key, value, attn.heads, attention_mask, scale_factor,
++                                                      "BSND", "PFA")
  
 -        hidden_states = hidden_states = F.scaled_dot_product_attention(
-+        hidden_states = hidden_states = scaled_dot_product_attention(
-             query, key, value, dropout_p=0.0, is_causal=False
-         )
-         hidden_states = hidden_states.transpose(1, 2).reshape(batch_size, -1, attn.heads * head_dim)
+-            query, key, value, dropout_p=0.0, is_causal=False
+-        )
+-        hidden_states = hidden_states.transpose(1, 2).reshape(batch_size, -1, attn.heads * head_dim)
++        hidden_states = hidden_states.reshape(batch_size, -1, attn.heads * head_dim)
+         hidden_states = hidden_states.to(query.dtype)
+ 
+         # Split the attention outputs.
