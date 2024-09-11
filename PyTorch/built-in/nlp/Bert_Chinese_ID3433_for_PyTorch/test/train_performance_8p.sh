@@ -36,8 +36,12 @@ do
         conda_name=`echo ${para#*=}`
         source set_conda.sh
         source activate $conda_name
+    elif [[ $para == --profiling* ]];then
+        profiling=`echo ${para#*=}`
+        export PROFILE_TYPE=${profiling}
     fi
 done
+
 #判断是否使用conda环境
 if [[ $conda_name != "" ]];then
    cp -r $data_path/* $cur_path/../

@@ -69,10 +69,6 @@ do
         mkdir -p ${data_dump_path}
     elif [[ $para == --data_dump_step* ]];then
         data_dump_step=`echo ${para#*=}`
-    elif [[ $para == --profiling* ]];then
-        profiling=`echo ${para#*=}`
-        profiling_dump_path=${cur_path}/output/profiling
-        mkdir -p ${profiling_dump_path}
     elif [[ $para == --data_path* ]];then
         data_path=`echo ${para#*=}`
     elif [[ $para == --ckpt_path* ]];then
@@ -83,6 +79,9 @@ do
     elif [[ $para == --fp32 ]];then
       	fp32=`echo ${para#*=}`
       	export ALLOW_FP32=True
+    elif [[ $para == --profiling* ]];then
+        profiling=`echo ${para#*=}`
+        export PROFILE_TYPE=${profiling}
     fi
 done
 

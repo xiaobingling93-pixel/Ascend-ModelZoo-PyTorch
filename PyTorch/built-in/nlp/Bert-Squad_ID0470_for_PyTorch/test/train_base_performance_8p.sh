@@ -56,6 +56,10 @@ do
       	export ALLOW_FP32=True
     elif [[ $para == --learning_rate* ]];then
       	learning_rate=`echo ${para#*=}`
+    elif [[ $para == --profiling* ]];then
+        profiling=`echo ${para#*=}`
+        export PROFILE_TYPE=${profiling}
+
     fi
 done
 
