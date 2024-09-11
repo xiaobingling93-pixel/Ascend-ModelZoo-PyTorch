@@ -37,8 +37,8 @@ def points_in_boxes_gpu(points, boxes):
     assert boxes.shape[2] == 7 and points.shape[2] == 3
     batch_size, num_points, _ = points.shape
 
-    import mx_driving.data
-    box_idxs_of_pts = mx_driving.data.npu_points_in_box(boxes.contiguous().npu(), points.contiguous().npu())
+    import mx_driving.preprocess
+    box_idxs_of_pts = mx_driving.preprocess.npu_points_in_box(boxes.contiguous().npu(), points.contiguous().npu())
 
     return box_idxs_of_pts
 
