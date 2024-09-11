@@ -18,10 +18,10 @@ from diffusers.schedulers.scheduling_cosine_dpmsolver_multistep import CosineDPM
 def parse_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--prompt",
+        "--prompt_file",
         type=str,
-        default="Berlin techno, rave, drum machine, kick, ARP synthesizer, dark, moody, hypnotic, evolving, 135 BPM. Loop.",
-        help="The prompt or prompts to guide audio generation.",
+        default="./prompts.txt",
+        help="The prompts file to guide audio generation.",
     )
     parser.add_argument(
         "--negative_prompt",
@@ -107,6 +107,7 @@ def main():
     audio_dit = StableAudioDiTModel.from_pretrained(args.stable_audio_open_dir + "/transformer")
     scheduler = CosineDPMSolverMultistepScheduler.from_pretrained(args.stable_audio_open_dir + "/scheduler")
 
+    npu_stream = torch_npu.npu.Stream()
     vae = vae.to("npu").to(torch.float16).eval()
     text_encoder = text_encoder.to("npu").to(torch.float16).eval()
     projection_model = projection_model.to("npu").to(torch.float16).eval()
@@ -115,20 +116,35 @@ def main():
     pipe = StableAudioPipeline(vae=vae, tokenizer=tokenizer, text_encoder=text_encoder,
         projection_model=projection_model, transformer=audio_dit, scheduler=scheduler)
     pipe.to("npu")
-
-    with torch.no_grad():
-        audio = pipe(
-            prompt=args.prompt,
-            negative_prompt=args.negative_prompt,
-            num_inference_steps=args.num_inference_steps,
-            latents=args.latents.to("npu"),
-            audio_end_in_s=args.audio_end_in_s,
-            num_waveforms_per_prompt=args.num_waveforms_per_prompt,
-        ).audios
-
-    output = audio[0].T.float().cpu().numpy()
-    sf.write(args.save_dir+"/audio.wav", output, pipe.vae.sampling_rate)
-
+    total_time = 0
+    prompts_num = 0
+    average_time = 0
+    skip = 2
+    with os.fdopen(os.open(args.prompt_file, os.O_RDONLY), "r") as f:
+        for i, prompt in enumerate(f):
+            with torch.no_grad():
+                npu_stream.synchronize()
+                begin = time.time()
+                audio = pipe(
+                    prompt=args.prompt,
+                    negative_prompt=args.negative_prompt,
+                    num_inference_steps=args.num_inference_steps,
+                    latents=args.latents.to("npu"),
+                    audio_end_in_s=args.audio_end_in_s,
+                    num_waveforms_per_prompt=args.num_waveforms_per_prompt,
+                ).audios
+                npu_stream.synchronize()
+                end = time.time()
+                if i > skip-1:
+                    total_time += end - begin
+            prompts_num = i+1
+            output = audio[0].T.float().cpu().numpy()
+            sf.write(args.save_dir+"/audio_by_prompt"+str(prompts_num)+".wav", output, pipe.vae.sampling_rate)
+    if prompts_num>skip:
+        average_time = total_time/(prompts_num-skip)
+    else:
+        print("Infer average time skip first two prompts, make sure prompts.txt has three more prompts")
+    print(f"Infer average time: {average_time:.3f}s\n")
 
 if __name__ == "__main__":
     main()
