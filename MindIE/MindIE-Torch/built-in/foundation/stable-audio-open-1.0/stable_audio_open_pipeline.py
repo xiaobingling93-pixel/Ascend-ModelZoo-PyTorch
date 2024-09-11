@@ -97,7 +97,6 @@ def main():
         data = reader.read()
     json_data = json.loads(data)
     init_dict = {key: json_data[key] for key in json_data}
-    print(init_dict)
     vae = AutoencoderOobleck(**init_dict)
     vae.load_state_dict(load_file(args.stable_audio_open_dir + "/vae/diffusion_pytorch_model.safetensors"), strict=False)
 
@@ -126,7 +125,7 @@ def main():
                 npu_stream.synchronize()
                 begin = time.time()
                 audio = pipe(
-                    prompt=args.prompt,
+                    prompt=prompt,
                     negative_prompt=args.negative_prompt,
                     num_inference_steps=args.num_inference_steps,
                     latents=args.latents.to("npu"),
