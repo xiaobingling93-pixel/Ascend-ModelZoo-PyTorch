@@ -17,6 +17,9 @@ do
         conda_name=`echo ${para#*=}`
         export PATH=/home/anaconda3/bin:$PATH
         source activate $conda_name
+    elif [[ $para == --profiling* ]];then
+        profiling=`echo ${para#*=}`
+        export PROFILE_TYPE=${profiling}
     fi
 done
 

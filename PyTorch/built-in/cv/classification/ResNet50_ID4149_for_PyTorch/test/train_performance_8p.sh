@@ -29,6 +29,9 @@ do
     elif [[ $para == --fp32 ]];then
       	fp32=`echo ${para#*=}`
       	export ALLOW_FP32=True
+    elif [[ $para == --profiling* ]];then
+        profiling=`echo ${para#*=}`
+        export PROFILE_TYPE=${profiling}
     fi
 done
 
