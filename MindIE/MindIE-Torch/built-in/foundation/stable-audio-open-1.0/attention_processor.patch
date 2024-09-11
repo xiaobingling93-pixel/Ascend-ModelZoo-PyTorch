@@ -14,7 +14,7 @@
 +            hidden_states=torch_npu.npu_prompt_flash_attention(query,key,value,
 +                                                               atten_mask=attention_mask,
 +                                                               input_layout='BNSD',
-+                                                               scale_vaule=head_dim**-0.5,
++                                                               scale_value=head_dim**-0.5,
 +                                                               pre_tokens=65535,
 +                                                               next_tokens=65535,
 +                                                               num_heads=attn.heads)
