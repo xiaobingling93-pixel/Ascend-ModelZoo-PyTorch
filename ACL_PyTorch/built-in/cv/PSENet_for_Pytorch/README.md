@@ -242,7 +242,7 @@ PSENet(渐进式的尺度扩张网络)是一种文本检测器，能够很好地
 
    4. 性能验证。
 
-      可使用ais-bench推理工具的纯推理模式验证不同batch_size的om模型的性能，参考命令如下：
+      可使用ais-bench推理工具的数据集推理验证不同batch_size的om模型的性能，参考命令如下：
 
         ```
         python3 -m ais_bench  \
