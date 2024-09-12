@@ -1046,7 +1046,7 @@ def main():
                 ratio = 1.0
             else:
                 alpha = new_model[pair_keys[2]].item()
-                ratio = alpha / min(new_model[pair_keys[0]].shape[0], new_model[pair_keys[0]].shape[1])
+                ratio = alpha / min(new_model[pair_keys[0]].shape[0], new_model[pair_keys[1]].shape[1])
             if isinstance(curr_layer, LoRACompatibleConv):
                 # fusion down and up
                 fusionupdown = torch.mm(lora_up_weight.flatten(start_dim = 1), lora_down_weight.flatten(start_dim = 1))
