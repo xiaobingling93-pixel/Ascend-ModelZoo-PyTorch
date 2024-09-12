@@ -245,7 +245,12 @@ PSENet(渐进式的尺度扩张网络)是一种文本检测器，能够很好地
       可使用ais-bench推理工具的纯推理模式验证不同batch_size的om模型的性能，参考命令如下：
 
         ```
-         python3 -m ais_bench --model=${om_model_path} --loop=20 --batchsize=${batch_size}
+        python3 -m ais_bench  \
+               --model ${om_model_path} \
+               --input ./prep_bin \
+               --output ./
+               --output_dirname result
+               --loop=20
         ```
 
       - 参数说明：
@@ -261,9 +266,9 @@ PSENet(渐进式的尺度扩张网络)是一种文本检测器，能够很好地
 
 | 芯片型号 | Batch Size | 数据集 | 精度 | 性能 |
 | -------- | ---------- | ------ | ---- | ---- |
-|     310P3     |     1       |   ICDAR2015     |   acc:0.805<br>recall:0.639   |   70   |
-|     310P3     |     4      |   ICDAR2015     |   acc:0.805<br>recall:0.639   |   64   |
-|     310P3     |     8       |   ICDAR2015     |   acc:0.805<br>recall:0.639   |   63   |
+|     310P3     |     1       |   ICDAR2015     |   acc:0.805<br>recall:0.639   |   67.3   |
+|     310P3     |     4      |   ICDAR2015     |   acc:0.805<br>recall:0.639   |   62.6  |
+|     310P3     |     8       |   ICDAR2015     |   acc:0.805<br>recall:0.639   |   62.4   |
 |     310P3     |     16       |   ICDAR2015     |   acc:0.805<br>recall:0.639   |   62   |
 |     310P3     |     32       |   ICDAR2015     |   acc:0.805<br>recall:0.639   |   60   |
 |     310P3     |     64       |   ICDAR2015     |   acc:0.805<br>recall:0.639   |   54   |
