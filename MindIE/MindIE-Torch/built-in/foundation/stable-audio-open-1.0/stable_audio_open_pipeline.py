@@ -36,27 +36,15 @@ def parse_arguments():
         help="The number of denoising steps. More denoising steps usually lead to a higher quality audio at the expense of slower inference.",
     )
     parser.add_argument(
-        "--latents",
-        type=torch.Tensor,
-        default=torch.randn(1, 64, 1024,dtype=torch.float16),
-        help="Pre-generated noisy latents sampled from a Gaussian distribution, to be used as inputs for audio generation.",
-    )
-    parser.add_argument(
         "--stable_audio_open_dir",
         type=str,
         default="./stable-audio-open-1.0",
         help="The path of stable-audio-open-1.0.",
     )
     parser.add_argument(
-        "--audio_start_in_s",
-        type=float,
-        default=0,
-        help="Audio start index in seconds.",
-    )
-    parser.add_argument(
         "--audio_end_in_s",
-        type=float,
-        default=10,
+        nargs='+',
+        default=[10],
         help="Audio end index in seconds.",
     )
     parser.add_argument(
@@ -92,7 +80,8 @@ def main():
         os.makedirs(save_dir)
 
     torch_npu.npu.set_device(args.device)
-
+    torch.manual_seed(1)
+    latents = torch.randn(1, 64, 1024,dtype=torch.float16,device="cpu")
     with open(args.stable_audio_open_dir + "/vae/config.json", "r", encoding="utf-8") as reader:
         data = reader.read()
     json_data = json.loads(data)
@@ -123,13 +112,14 @@ def main():
         for i, prompt in enumerate(f):
             with torch.no_grad():
                 npu_stream.synchronize()
+                audio_end_in_s = float(args.audio_end_in_s[i]) if (len(args.audio_end_in_s) > i) else 10.0
                 begin = time.time()
                 audio = pipe(
                     prompt=prompt,
                     negative_prompt=args.negative_prompt,
                     num_inference_steps=args.num_inference_steps,
-                    latents=args.latents.to("npu"),
-                    audio_end_in_s=args.audio_end_in_s,
+                    latents=latents.to("npu"),
+                    audio_end_in_s=audio_end_in_s,
                     num_waveforms_per_prompt=args.num_waveforms_per_prompt,
                 ).audios
                 npu_stream.synchronize()
