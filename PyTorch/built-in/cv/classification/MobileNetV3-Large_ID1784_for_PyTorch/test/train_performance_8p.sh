@@ -114,12 +114,11 @@ do
             --lr-gamma=0.973 \
             --wd=0.00001 \
             --world-size=1 \
-            --max_steps=64 \
             --data_shuffle \
             --dist-rank=0 > $test_path_dir/output/$ASCEND_DEVICE_ID/train_$ASCEND_DEVICE_ID.log 2>&1 &
     else
         nohup python3 ${cur_path}/main.py \
-           --arch=mobilenet \
+            --arch=mobilenet \
             --data=${data_path} \
             --batch_size=${batch_size} \
             --learning-rate=${learning_rate} \
@@ -133,7 +132,6 @@ do
             --lr-gamma=0.973 \
             --wd=0.00001 \
             --world-size=1 \
-            --max_steps=64 \
             --data_shuffle \
             --dist-rank=0 > $test_path_dir/output/$ASCEND_DEVICE_ID/train_$ASCEND_DEVICE_ID.log 2>&1 & 
 fi
