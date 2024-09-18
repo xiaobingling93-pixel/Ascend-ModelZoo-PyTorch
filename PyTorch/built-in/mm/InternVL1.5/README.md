@@ -236,12 +236,12 @@ InternVL 的三个改进：\
 
 2. 修改脚本参数。
 
-  按照自己需要修改internvl_chat/internvl/internvl_chat_inference.py中的MODEL_PATH和IMAGE_PATH。
+  按照自己需要修改internvl_chat/internvl/train/internvl_chat_inference.py中的MODEL_PATH和IMAGE_PATH，并修改相关任务。
 
 3. 运行推理的脚本。
 
   ```shell
-  python internvl_chat/internvl/internvl_chat_inference.py
+  python internvl_chat/internvl/train/internvl_chat_inference.py
   ```
 
 # 训练结果展示
@@ -255,7 +255,7 @@ InternVL 的三个改进：\
 
 # 公网地址说明
 
-代码涉及公网地址参考 public_address_statement.md
+代码涉及公网地址参考[public_address_statement.md]
 
 # 变更说明
 
