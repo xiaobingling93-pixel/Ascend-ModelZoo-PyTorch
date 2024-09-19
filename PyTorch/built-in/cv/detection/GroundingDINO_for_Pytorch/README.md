@@ -62,11 +62,11 @@ Grounding DINO是一个开放集目标检测模型，可以根据输入文本检
 
 |        软件类型        |   支持版本   |
 |:------------------:|:--------:|
-| FrameworkPTAdapter | 6.0.RC1  |
-|        CANN        | 8.0.RC1  |
-|      昇腾NPU固件       | 24.1.RC1 |
-|      昇腾NPU驱动       | 24.1.RC1 |
-|        Mx_Driving         |  6.0.RC2  |
+| FrameworkPTAdapter | 6.0.RC2  |
+|        CANN        | 8.0.RC2  |
+|      昇腾NPU固件       | 24.1.RC2 |
+|      昇腾NPU驱动       | 24.1.RC2 |
+|        Mx_Driving         | 6.0.RC2  |
 
 ### 安装模型环境
 
@@ -97,8 +97,12 @@ Grounding DINO是一个开放集目标检测模型，可以根据输入文本检
  pip install mmengine==0.10.3
  pip install jsonlines
  pip install nltk
- git clone https://github.com/open-mmlab/mmcv mmcv 
- cd mmcv
+ 
+ # 安装 mmcv
+ git clone https://github.com/open-mmlab/mmcv
+ cd mmcv/mmcv
+ vim version.py  # 此处需要把第二行的__version__ = '2.2.0'改成'2.1.0'，然后保存退出
+ cd ..
  pip install -r requirements.txt
  MMCV_WITH_OPS=1 MAX_JOBS=8 FORCE_NPU=1 python setup.py build_ext 
  MMCV_WITH_OPS=1 FORCE_NPU=1 python setup.py develop
@@ -199,7 +203,7 @@ python tools/dataset_converters/refcoco2odvg.py refcoco/mdetr_annotations
 
    ```
    # 修改 ascend-toolkit 路径
-   source /usr/local/Ascend/ascend-toolkit/set_env.sh 
+   source groundingdino_npu/env_npu.sh 
    
    # 修改 Python 路径
    PYTHON_PATH="Python Env Path"
@@ -245,7 +249,7 @@ python tools/dataset_converters/refcoco2odvg.py refcoco/mdetr_annotations
 
    ```
    # 修改 ascend-toolkit 路径
-   source /usr/local/Ascend/ascend-toolkit/set_env.sh 
+   source groundingdino_npu/env_npu.sh 
    
    # 修改 Python 路径
    PYTHON_PATH="Python Env Path"
