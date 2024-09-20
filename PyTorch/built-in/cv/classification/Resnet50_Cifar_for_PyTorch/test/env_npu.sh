@@ -24,6 +24,8 @@ export ASCEND_GLOBAL_EVENT_ENABLE=0
 export TASK_QUEUE_ENABLE=1
 #HCCL白名单开关,1-关闭/0-开启
 export HCCL_WHITELIST_DISABLE=1
+#设置绑核,0-关闭/1-平均分配绑核
+export CPU_AFFINITY_CONF=1
 
 #设置device侧日志登记为error
 msnpureport -g error -d 0

@@ -33,6 +33,8 @@ export DYNAMIC_OP="ADD#MUL"
 export HCCL_WHITELIST_DISABLE=1
 # HCCL默认超时时间120s较少，修改为1800s对齐PyTorch默认设置
 export HCCL_CONNECT_TIMEOUT=1800
+#设置绑核,0-关闭/1-平均分配绑核
+export CPU_AFFINITY_CONF=1
 
 #设置device侧日志登记为error
 msnpureport -g error -d 0
