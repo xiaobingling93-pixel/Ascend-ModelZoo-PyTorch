@@ -74,10 +74,10 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
    
    # 以https://gitee.com/aijgnem/MindSpeed最新文档为准，安装 MindSpeed
    git clone https://gitee.com/ascend/MindSpeed.git
-   pip install -e MindSpeed
    cd MindSpeed
    git checkout 3e7d2377f1947594708ced2fe66f6428da9d330f
    cd ..
+   pip install -e MindSpeed
    
    # 以https://gitee.com/aijgnem/MindSpeed最新文档为准，获取 Megatron-LM 并指定 commit id
    git clone https://github.com/NVIDIA/Megatron-LM.git
