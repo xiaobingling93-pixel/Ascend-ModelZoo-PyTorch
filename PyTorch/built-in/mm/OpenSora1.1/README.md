@@ -54,7 +54,7 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
 
   ```
   url=https://gitee.com/ascend/ModelZoo-PyTorch.git
-  code_path=PyTorch/built-in/mlm/
+  code_path=PyTorch/built-in/mm/
   ```
 
 
@@ -97,7 +97,7 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
 
   请参考昇腾社区中《[Pytorch框架训练环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/ptes)》文档搭建昇腾环境，本仓已支持表4中软件版本。
                 
-  
+
   **表 4**  昇腾软件版本支持表
 
   | 软件类型   |   支持版本   |
@@ -137,7 +137,7 @@ https://github.com/hpcaitech/Open-Sora?tab=readme-ov-file#data-processing
    > data = safetensors.torch.load_file('./hpcai-tech/OpenSora-STDiT-v2-stage2/model.safetensors')
    > data["state_dict"] = data
    > torch.save(data, os.path.splitext('./hpcai-tech/OpenSora-STDiT-v2-stage2/model.safetensors')[0]+'.pth')
-   > ```   
+   > ```
 
 
 3. 获取对应的预训练模型后，在以下配置文件中将`model`、`vae`的`from_pretrained`参数设置为本地预训练模型绝对路径。
@@ -221,7 +221,7 @@ https://github.com/hpcaitech/Open-Sora?tab=readme-ov-file#data-processing
    --num_frames                         //生成视频的总帧数
    --img_h                              //生成视频的宽
    --img_w                              //生成视频的高
-  
+    
    scripts/inference.py
    config                               //配置文件路径
    --seed                               //随机种子

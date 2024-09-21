@@ -19,6 +19,7 @@ from functools import wraps
 import torch
 import torch.distributed as dist
 from einops import rearrange
+import mindspeed.megatron_adaptor
 from mindspeed.core.context_parallel.ulysses_context_parallel import UlyssesContextAttention
 from mindspeed.core.context_parallel.ring_context_parallel import ringattn_context_parallel
 

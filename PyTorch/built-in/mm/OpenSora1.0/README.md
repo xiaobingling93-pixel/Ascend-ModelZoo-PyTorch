@@ -45,7 +45,7 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
 
   ```
   url=https://gitee.com/ascend/ModelZoo-PyTorch.git
-  code_path=PyTorch/built-in/mlm/OpenSora1.0
+  code_path=PyTorch/built-in/mm/OpenSora1.0
   ```
 
 
@@ -71,9 +71,14 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
    source ${cann_install_path}/ascend-toolkit/set_env.sh              # 激活cann环境，默认在/usr/local/Ascend下
    cd OpenSora1.0
    pip install -v -e .                                                # 安装本地代码仓，同时自动安装依赖
+   
    # 以https://gitee.com/aijgnem/MindSpeed最新文档为准，安装 MindSpeed
    git clone https://gitee.com/ascend/MindSpeed.git
    pip install -e MindSpeed
+   cd MindSpeed
+   git checkout 3e7d2377f1947594708ced2fe66f6428da9d330f
+   cd ..
+   
    # 以https://gitee.com/aijgnem/MindSpeed最新文档为准，获取 Megatron-LM 并指定 commit id
    git clone https://github.com/NVIDIA/Megatron-LM.git
    cd Megatron-LM 
@@ -251,7 +256,6 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
      
      即可，之后按照前面提及的单机八卡训练任务开展训练。
      
-
    - VAE序列并行(以120x256x256的训练任务为示例)
    
       若要使能VAE序列并行，需要修改配置文件：configs/opensora/train/120x256x256-dsp.py
