@@ -31,8 +31,8 @@ printlog.setLevel(logging.INFO)
 
 # single image
 def cos_similarity(model_clip, preprocess, image_file1, image_file2, device):
-    img1 = preprocess(Image.open(image_file1)).unsqueeze(0).to(device)
-    img2 = preprocess(Image.open(image_file2)).unsqueeze(0).to(device)
+    img1 = preprocess(Image.open(image_file1[0])).unsqueeze(0).to(device)
+    img2 = preprocess(Image.open(image_file2[0])).unsqueeze(0).to(device)
 
     img_ft1 = model_clip.encode_image(img1).float()
     img_ft2 = model_clip.encode_image(img2).float()
@@ -82,7 +82,7 @@ def main():
 
         printlog.info(f"cos similarity scores: {image_scores}")
 
-        all_scores.append(image_scores)
+        all_scores.append(image_scores.item())
     printlog.info(f">done. elapsed time: {(time.time() - t_b):.3f} s")
 
     average_score = np.average(all_scores)

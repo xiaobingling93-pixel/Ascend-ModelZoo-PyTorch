@@ -150,7 +150,7 @@
       python3 export_ts.py --model ${model_base} --output_dir ./models --use_cache --parallel --batch_size 1 --flag 0 --soc Duo --device 0
 
       # 使用Lora热切换功能
-      export TORCH_AIE_ENABLE_LORA_FEATURE=true
+      export MINDIE_TORCH_ENABLE_RUNTIME_BUFFER=true
       python3 export_ts.py --model ${model_base} --output_dir ./models --batch_size 1 --flag 0 --soc A2 --device 0 --lorahot_support --baselora_path ${baselora_path}
       ```
       参数说明：
@@ -473,7 +473,7 @@
 
          ```bash
          python3 lorahot_score.py \
-               --device=cpu
+               --device=cpu \
                --image_info_wo_lorahot = "image_info_wo_lorahot.json" \
                --image_info_lorahot = "image_info_lorahot.json" \
                --model_name="ViT-H-14" \
