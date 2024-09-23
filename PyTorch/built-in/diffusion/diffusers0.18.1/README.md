@@ -1,12 +1,10 @@
 # Diffusers for PyTorch
 
--   [概述](概述.md)
--   [准备训练环境](准备训练环境.md)
--   [开始训练](开始训练.md)
--   [训练结果展示](训练结果展示.md)
--   [版本说明](版本说明.md)
-
-
+- [概述](概述.md)
+- [准备训练环境](准备训练环境.md)
+- [开始训练](开始训练.md)
+- [训练结果展示](训练结果展示.md)
+- [版本说明](版本说明.md)
 
 # 概述
 
@@ -38,7 +36,6 @@
 
   | Torch_Version      | 三方库依赖版本                                 |
   | :--------: | :----------------------------------------------------------: |
-  | PyTorch 1.11 | diffusers==0.18.1 accelerate==0.20.3 |
   | PyTorch 2.1 | diffusers==0.18.1 accelerate==0.20.3 |
   
 - 环境准备指导。
@@ -48,6 +45,7 @@
 - 安装依赖。
 
   在模型根目录下执行命令，安装模型对应PyTorch版本需要的依赖。
+
   ```shell
   pip install -e .                    # 安装diffusers
   cd examples/text_to_image/           # 根据下游任务安装对应依赖
@@ -75,9 +73,6 @@
 
 - 安装Megatron-LM，[参考链接](http://gitee.com/ascend/Megatron-LM)。
 
-  
-
-
 ## 准备数据集
 
 1. 联网情况下，数据集会自动下载。
@@ -90,15 +85,13 @@
    $dataset
    ├── README.MD
    ├── data
-   	├── dataset_infos.json
-   	└── train-0001.parquet
+    ├── dataset_infos.json
+    └── train-0001.parquet
    └── dataset_infos.json
    ```
 
-   > **说明：** 
+   > **说明：**
    >该数据集的训练过程脚本只作为一种参考示例。
-
-   
 
 ## 获取预训练模型
 
@@ -136,36 +129,29 @@
      ```shell
      bash test/train_full_1p_text_to_image.sh  # 单卡精度
      ```
+
     - 单机单卡lora训练
 
      ```shell
      bash test/train_full_1p_text_to_image_sd2-1_lora_fp16.sh  # 单卡精度
      bash test/train_full_1p_text_to_image_sd2-1_lora_fp16.sh --max_train_steps 200 # 单卡性能
      ```
-     
+
    - 单机8卡训练
-   
+
      ```shell
-     bash test/train_full_8p_text_to_image_sd1-5_fp16.sh  # 8卡精度，SD1.5，fp16
-     bash test/train_full_8p_text_to_image_sd1-5_fp32.sh  # 8卡精度，SD1.5，fp32
-     bash test/train_full_8p_text_to_image_sd2-1_fp32.sh  # 8卡精度，SD2.1，fp32
-     bash test/train_full_8p_text_to_image_sd2-1_fp16.sh  # 8卡精度，SD2.1，fp16
      bash test/train_full_8p_text_to_image_sd2-1_fp16_fa.sh # 8卡精度，SD2.1，fp16+FA
-     bash test/train_performance_8p_text_to_image_sd1-5_fp16.sh # 8卡性能，SD1.5，fp16
-     bash test/train_performance_8p_text_to_image_sd1-5_fp32.sh # 8卡性能，SD1.5，fp32
-     bash test/train_performance_8p_text_to_image_sd2-1_fp32.sh # 8卡性能，SD2.1，fp32
+     bash test/train_performance_8p_text_to_image_sd2-1_fp16_fa.sh # 8卡性能，SD2.1，fp16+FA
      ```
-     
+
    - 单机8卡预训练
-   
+
      ```
      bash test/pretrain_full_8p_text_to_image_sd2-1_fp16_fa.sh # 8卡精度，SD2.1，fp16+FA
      ```
 
-   
-   
    模型训练python训练脚本参数说明如下。
-   
+
    ```shell
    train_text_to_image.py：
    --max_train_steps                   //训练步数
@@ -192,7 +178,7 @@
    --enable_persistent_workers         //使能数据加载时的persistent_workers
    --release_part_gradient_checkpointing //显存足够的情况下，可关闭部分模块的重计算，可提升训练速度
    ```
-   
+
    训练完成后，权重文件保存在`test/output`路径下，并输出模型训练精度和性能信息。
 
 # 训练结果展示
@@ -201,45 +187,32 @@
 
 |   NAME   | sd版本 | FPS  | batch_size | AMP_Type | Torch_Version |
 | :------: | :---: | :--: | :------: | :-----------: | :-----------: |
-| 8p-竞品A | 2.1 | 10 | 4 | fp32 |      1.13      |
-|  8p-NPU-910  | 2.1 | 16.67 | 4 | fp32 |      1.11      |
-| 8p-竞品A | 2.1 | 22 | 4 | fp16 |      1.13      |
-|  8p-NPU-910  | 2.1 | 18.28 | 4 | fp16 |      1.11      |
-| 8p-竞品A+FA | 2.1 | 65.5 | 24 | fp16 | 1.13 |
-| 8p-NPU-910+FA | 2.1 | 59.12 | 24 | fp16 | 1.11 |
-| 8p-竞品A+FA | 2.1 | 73.8 | 24 | fp16 | 2.1 |
-| 8p-NPU-910+FA | 2.1 | 57 | 24 | fp16 | 2.1 |
-
-**表3** 训练支持场景
-
-| SD版本/AMP_Type |                fp16                 | fp16+FA                                                      |               fp32                |
-| :-------------: | :---------------------------------: | ------------------------------------------------------------ | :-------------------------------: |
-|      SD1.5      | 支持，需设置--mixd_precision="fp16" | 不支持                                                       | 支持，需设置--mixd_precision="no" |
-|      SD2.1      | 支持，需设置--mixd_precision="fp16" | 支持，需设置--mixd_precision="fp16"，和--enable_npu_flash_attention | 支持，需设置--mixd_precision="no" |
-
+| 竞品A | 2.1 | 73.8 | 24 | fp16 | 2.1 |
+| Atlas 900 A2 PODc | 2.1 | 74.02 | 24 | fp16 | 2.1 |
 
 # 推理
 
 ## 文生图
-参考实现：(https://huggingface.co/docs/diffusers/using-diffusers/conditional_image_generation)
+
+参考实现：(<https://huggingface.co/docs/diffusers/using-diffusers/conditional_image_generation>)
 
 ### 预训练模型准备
 
 联网情况下，预训练模型会自动下载。无网络时，用户可访问huggingface官网自行下载，文件namespace如下：
 
-```shell 
+```shell
 CompVis/ldm-text2im-large-256
 ```
 
 获得对应的预训练模型后，修改以下代码中的地址为本地地址即可
 
-```python 
+```python
 generator = DiffusionPipeline.from_pretrained("CompVis/ldm-text2im-large-256",torch_dtype=torch.float16)
 ```
 
 ### 运行在线推理
 
-```shell 
+```shell
 python test_infer/text-to-image.py
 ```
 
@@ -247,19 +220,19 @@ python test_infer/text-to-image.py
 
 ## 文本指导图生图
 
-参考实现：(https://huggingface.co/docs/diffusers/using-diffusers/img2img)
+参考实现：(<https://huggingface.co/docs/diffusers/using-diffusers/img2img>)
 
 ### 预训练模型准备
 
 联网情况下，预训练模型会自动下载。无网络时，用户可访问huggingface官网自行下载，文件namespace如下：
 
-```shell 
+```shell
 nitrosocke/Ghibli-Diffusion
 ```
 
 获得对应的预训练模型后，修改以下代码中的地址为本地地址即可
 
-```python 
+```python
 pipe = StableDiffusionImg2ImgPipeline.from_pretrained("nitrosocke/Ghibli-Diffusion").to(device)
 ```
 
@@ -267,7 +240,7 @@ pipe = StableDiffusionImg2ImgPipeline.from_pretrained("nitrosocke/Ghibli-Diffusi
 
 修改test_infer/text-guide-img-to-img.py中url为本地图片地址
 
-```shell 
+```shell
 python test_infer/text-guide-img-to-img.py
 ```
 
@@ -275,23 +248,25 @@ python test_infer/text-guide-img-to-img.py
 
 ## 文本指导图像修复
 
-参考实现：(https://huggingface.co/docs/diffusers/using-diffusers/inpaint)
+参考实现：(<https://huggingface.co/docs/diffusers/using-diffusers/inpaint>)
 
 ### 预训练模型准备
 
 联网情况下，预训练模型会自动下载。无网络时，用户可访问huggingface官网自行下载，文件namespace如下：
 
-```shell 
+```shell
 runwayml/stable-diffusion-inpainting
 ```
+
 获得对应的预训练模型后，修改以下代码中的地址为本地地址即可
 
-```python 
+```python
 pipeline = StableDiffusionInpaintPipeline.from_pretrained("runwayml/stable-diffusion-inpainting")
 ```
+
 ### 运行在线推理
 
-```shell 
+```shell
 python test_infer/text-guide-image-inpainting.py
 ```
 
@@ -299,19 +274,19 @@ python test_infer/text-guide-image-inpainting.py
 
 ## 纹理反转
 
-参考实现：(https://huggingface.co/docs/diffusers/using-diffusers/textual_inversion_inference)
+参考实现：(<https://huggingface.co/docs/diffusers/using-diffusers/textual_inversion_inference>)
 
 ### 预训练模型准备
 
 联网情况下，预训练模型会自动下载。无网络时，用户可访问huggingface官网自行下载，文件namespace如下：
 
-```shell 
+```shell
 runwayml/stable-diffusion-v1-5
 ```
 
 获得对应的预训练模型后，修改以下代码中的地址为本地地址即可
 
-```python 
+```python
 pretrained_model_name = "runwayml/stable-diffusion-v1-5"
 ```
 
@@ -319,20 +294,19 @@ pretrained_model_name = "runwayml/stable-diffusion-v1-5"
 
 联网情况下，数据会自动下载。无网络时，用户可访问huggingface官网自行下载，文件namespace如下。用户也可参考该数据集自行准备数据集：
 
-```shell 
+```shell
 sd-concepts-library/cat-toy
 ```
 
 获得对应的预训练模型后，修改以下代码中的地址为本地地址即可
 
-```python 
+```python
 repo_id = "sd-concepts-library/cat-toy"
 ```
 
 ### 运行在线推理
 
-
-```shell 
+```shell
 python  test_infer/textual-inversion.py
 ```
 
@@ -340,25 +314,25 @@ python  test_infer/textual-inversion.py
 
 ## 文本指导图像深度生成
 
-参考实现：(https://huggingface.co/docs/diffusers/using-diffusers/depth2img)
+参考实现：(<https://huggingface.co/docs/diffusers/using-diffusers/depth2img>)
 
 ### 预训练模型准备
 
 联网情况下，预训练模型会自动下载。无网络时，用户可访问huggingface官网自行下载，文件namespace如下：
 
-```shell 
+```shell
 stabilityai/stable-diffusion-2-depth
 ```
 
 获得对应的预训练模型后，修改以下代码中的地址为本地地址即可
 
-```python 
+```python
 pipe = StableDiffusionDepth2ImgPipeline.from_pretrained("stabilityai/stable-diffusion-2-depth").to("npu")
 ```
 
 ### 运行在线推理
 
-```shell 
+```shell
 python test_infer/text-guide-depth-to-image.py
 ```
 
@@ -366,31 +340,32 @@ python test_infer/text-guide-depth-to-image.py
 
 ## 无条件图像生成
 
-参考实现：(https://huggingface.co/docs/diffusers/using-diffusers/unconditional_image_generation)
+参考实现：(<https://huggingface.co/docs/diffusers/using-diffusers/unconditional_image_generation>)
 
 ### 预训练模型准备
 
 联网情况下，预训练模型会自动下载。无网络时，用户可访问huggingface官网自行下载，文件namespace如下：
 
-```shell 
+```shell
 anton-l/ddpm-butterflies-128
 ```
 
 获得对应的预训练模型后，修改以下代码中的地址为本地地址即可
 
-```python 
+```python
 generator = DiffusionPipeline.from_pretrained("anton-l/ddpm-butterflies-128")
 ```
 
 ### 运行在线推理
 
-```shell 
+```shell
 python test_infer/unconditional-image-generation.py
 ```
 
 修改prompt等操作需要对代码进行修改
 
 # 公网地址说明
+
 代码涉及公网地址参考 public_address_statement.md
 
 # 版本说明
@@ -407,5 +382,3 @@ python test_infer/unconditional-image-generation.py
    1) 找到模型文件model_index.json，将其中的requires_safety_checker参数设置为false
    2) 删除safetychecker参数及其对应的参数值
    ```
-
-   

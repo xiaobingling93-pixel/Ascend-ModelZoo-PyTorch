@@ -25,6 +25,7 @@ import accelerate
 import datasets
 import numpy as np
 import torch
+import torch_npu
 import torch.nn.functional as F
 import torch.utils.checkpoint
 import transformers
@@ -62,6 +63,7 @@ try:
     from torch_npu.utils.profiler import Profile
 except ImportError:
     print("Profile not in torch_npu.utils.profiler now.. Auto Profile disabled.", flush=True)
+
     class Profile:
         def __init__(self, *args, **kwargs):
             pass
@@ -71,7 +73,6 @@ except ImportError:
 
         def end(self):
             pass
-
 
 
 # Allow NPU Conv_operator hostapi
@@ -275,9 +276,7 @@ def parse_args():
         "--local_data_dir",
         type=str,
         default=None,
-        help=(
-            "Load data from local disk"
-        ),
+        help=("Load data from local disk"),
     )
     parser.add_argument(
         "--image_column", type=str, default="image", help="The column of the dataset containing an image."
@@ -524,10 +523,14 @@ def parse_args():
         "--enable_pin_memory", action="store_true", help="Whether or not to enable pin_memory in dataloader."
     )
     parser.add_argument(
-        "--enable_persistent_workers", action="store_true", help="Whether or not to enable persistent_workers in dataloader."
+        "--enable_persistent_workers",
+        action="store_true",
+        help="Whether or not to enable persistent_workers in dataloader.",
     )
     parser.add_argument(
-        "--release_part_gradient_checkpointing", action="store_true", help="Whether or not to release part gradient checkpointing, that can occupy some NPU memory."
+        "--release_part_gradient_checkpointing",
+        action="store_true",
+        help="Whether or not to release part gradient checkpointing, that can occupy some NPU memory.",
     )
 
     args = parser.parse_args()
@@ -562,13 +565,13 @@ def main():
 
     accelerator_project_config = ProjectConfiguration(project_dir=args.output_dir, logging_dir=logging_dir)
 
-    grad_kwargs = GradScalerKwargs(dynamic = False)
+    grad_kwargs = GradScalerKwargs(dynamic=False)
     accelerator = Accelerator(
         gradient_accumulation_steps=args.gradient_accumulation_steps,
         mixed_precision=args.mixed_precision,
         log_with=args.report_to,
         project_config=accelerator_project_config,
-        kwargs_handlers = [grad_kwargs]
+        kwargs_handlers=[grad_kwargs],
     )
 
     # Make one log on every process with the configuration for debugging.
@@ -662,16 +665,14 @@ def main():
             unet.enable_xformers_memory_efficient_attention()
         else:
             raise ValueError("xformers is not available. Make sure it is installed correctly")
-    
-    #Prepare for using Flash-Attention   
+
+    # Prepare for using Flash-Attention
     if args.enable_npu_flash_attention:
         if args.mixed_precision == "fp16":
             logger.info("NPU flash-attention is activated successfully")
             unet.enable_npu_flash_attention()
         else:
-            raise NotImplementedError(
-                "NPU flash-attention activated failed, it only supports fp16 now"
-            )
+            raise NotImplementedError("NPU flash-attention activated failed, it only supports fp16 now")
 
     def compute_snr(timesteps):
         """
@@ -746,11 +747,10 @@ def main():
 
     # Initialize the optimizer
     if args.use_megatron_npu_adamW:
-        if is_torch_version("==", "1.11"):
-            from megatron_npu.adaptor_optimizer_optimizer import AdamW
-            optimizer_cls = AdamW
-        else:
-            raise NotImplementedError("Only Pytorch 1.11 supports Megatron now.")
+
+        from megatron_npu.adaptor_optimizer_optimizer import AdamW
+
+        optimizer_cls = AdamW
     elif args.use_npu_fuse_adamW:
         optimizer_cls = NpuFusedAdamW
     elif args.use_8bit_adam:
@@ -778,7 +778,7 @@ def main():
 
     # In distributed training, the load_dataset function guarantees that only one local process can concurrently
     # download the dataset.
-    
+
     if args.dataset_name is not None:
         # Downloading and loading a dataset from the hub.
         dataset = load_dataset(
@@ -877,9 +877,7 @@ def main():
         shuffle=True,
         collate_fn=collate_fn,
         batch_size=args.train_batch_size,
-        num_workers=args.dataloader_num_workers,
         pin_memory=args.enable_pin_memory,
-        persistent_workers=args.enable_persistent_workers
     )
 
     # Scheduler and math around the number of training steps.
@@ -974,8 +972,7 @@ def main():
     progress_bar = tqdm(range(global_step, args.max_train_steps), disable=not accelerator.is_local_main_process)
     progress_bar.set_description("Steps")
 
-    profile = Profile(start_step=int(os.getenv('PROFILE_START_STEP', 10)),
-                      profile_type=os.getenv('PROFILE_TYPE'))
+    profile = Profile(start_step=int(os.getenv("PROFILE_START_STEP", 10)), profile_type=os.getenv("PROFILE_TYPE"))
     for epoch in range(first_epoch, args.num_train_epochs):
         unet.train()
         train_loss = 0.0
@@ -991,8 +988,9 @@ def main():
             profile.start()
             with accelerator.accumulate(unet):
                 # Convert images to latent space
-                latents = vae.encode(batch["pixel_values"].to(weight_dtype)).latent_dist.sample()
-                latents = latents * vae.config.scaling_factor
+                latents = (
+                    vae.encode(batch["pixel_values"].to(weight_dtype)).latent_dist.sample() * vae.config.scaling_factor
+                )
 
                 # Sample noise that we'll add to the latents
                 noise = torch.randn_like(latents, device=latents.device)
@@ -1005,7 +1003,9 @@ def main():
                     new_noise = noise + args.input_perturbation * torch.randn_like(noise)
                 bsz = latents.shape[0]
                 # Sample a random timestep for each image
-                timesteps = torch.randint(0, noise_scheduler.config.num_train_timesteps, (bsz,), device=latents.device, dtype=torch.long)
+                timesteps = torch.randint(0, noise_scheduler.config.num_train_timesteps, (bsz,), dtype=torch.long).to(
+                    device=latents.device
+                )
 
                 # Add noise to the latents according to the noise magnitude at each timestep
                 # (this is the forward diffusion process)
@@ -1048,7 +1048,7 @@ def main():
                     loss = F.mse_loss(model_pred.float(), target.float(), reduction="none")
                     loss = loss.mean(dim=list(range(1, len(loss.shape)))) * mse_loss_weights
                     loss = loss.mean()
-                
+
                 # Backpropagate
                 accelerator.backward(loss)
 
@@ -1057,13 +1057,10 @@ def main():
                         optimizer.optimizer.clip_grad_norm_fused_(args.max_grad_norm)
                     else:
                         accelerator.clip_grad_norm_(unet.parameters(), args.max_grad_norm)
-                
+
                 optimizer.step()
                 lr_scheduler.step()
-                if args.use_npu_fuse_adamW or args.use_8bit_adam:
-                    optimizer.zero_grad()
-                else:
-                    optimizer.zero_grad(set_to_none=True)
+                optimizer.zero_grad()
 
                 # Gather the losses across all processes for logging (if we use distributed training).
                 avg_loss = accelerator.gather(loss.repeat(args.train_batch_size)).mean()
@@ -1110,16 +1107,14 @@ def main():
 
             if global_step >= args.max_train_steps:
                 break
-            
+
             step_total_time = time.time() - step_end_time
-        
+
             logger.info(f"step_train_time: {step_total_time}")
             logger.info(f"step_data_time: {step_data_time}")
             logger.info(f"FPS: {args.train_batch_size * accelerator.num_processes/(step_total_time-step_data_time)}")
-            
-            step_end_time = time.time()
 
-            
+            step_end_time = time.time()
 
         if accelerator.is_main_process:
             if args.validation_prompts is not None and epoch % args.validation_epochs == 0:

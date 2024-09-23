@@ -5,7 +5,7 @@ Network="diffusers"
 model_name="stabilityai/stable-diffusion-2-1"
 batch_size=4
 max_train_steps=1500
-mixed_precision="no"
+mixed_precision="fp16"
 resolution=768
 dataset_name="lambdalabs/pokemon-blip-captions"
 local_data_dir=""
@@ -76,6 +76,8 @@ python3 -m torch.distributed.launch --nproc_per_node 8 --use_env \
   --lr_scheduler="constant" --lr_warmup_steps=0 \
   --checkpointing_steps=3000 \
   --use_ema \
+  --enable_npu_flash_attention \
+  --use_npu_fuse_adamW \
   --mixed_precision=$mixed_precision \
   --output_dir=${test_path_dir}/output/$ASCEND_DEVICE_ID/  > ${test_path_dir}/output/$ASCEND_DEVICE_ID/train_${ASCEND_DEVICE_ID}.log 2>&1 &
 
@@ -89,7 +91,7 @@ e2e_time=$(($end_time - $start_time))
 echo "------------------ Final result ------------------"
 
 #输出性能FPS，需要模型审视修改
-FPS=$(grep "FPS: " ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log | awk 'END {print $NF}')
+FPS=$(grep "FPS: " ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log | awk '{print $NF}' | sed -n '100,199p' | awk '{a+=$1}END{print a/NR}')
 
 #获取性能数据，不需要修改
 #吞吐量

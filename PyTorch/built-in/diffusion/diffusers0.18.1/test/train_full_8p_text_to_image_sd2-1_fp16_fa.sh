@@ -66,7 +66,7 @@ python3 -m torch.distributed.launch --nproc_per_node 8 --use_env \
   examples/text_to_image/train_text_to_image.py \
   --pretrained_model_name_or_path=$model_name \
   --dataset_name=$dataset_name \
-  --resolution=$resolution --center_crop --random_flip \
+  --resolution=$resolution --center_crop \
   --train_batch_size=$batch_size \
   --gradient_accumulation_steps=1 \
   --gradient_checkpointing \
@@ -77,10 +77,8 @@ python3 -m torch.distributed.launch --nproc_per_node 8 --use_env \
   --checkpointing_steps=3000 \
   --enable_npu_flash_attention \
   --mixed_precision=$mixed_precision \
-  --dataloader_num_workers=8 \
-  --use_megatron_npu_adamW \
+  --use_npu_fuse_adamW \
   --enable_pin_memory \
-  --enable_persistent_workers \
   --release_part_gradient_checkpointing \
   --output_dir=${test_path_dir}/output/$ASCEND_DEVICE_ID/  > ${test_path_dir}/output/$ASCEND_DEVICE_ID/train_${ASCEND_DEVICE_ID}.log 2>&1 &
 
@@ -94,7 +92,7 @@ e2e_time=$(($end_time - $start_time))
 echo "------------------ Final result ------------------"
 
 #输出性能FPS，需要模型审视修改
-FPS=$(grep "FPS: " ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log | awk 'END {print $NF}')
+FPS=$(grep "FPS: " ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log | awk '{print $NF}' | sed -n '100,199p' | awk '{a+=$1}END{print a/NR}')
 
 #获取性能数据，不需要修改
 #吞吐量
