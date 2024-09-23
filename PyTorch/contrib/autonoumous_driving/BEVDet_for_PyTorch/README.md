@@ -69,6 +69,7 @@
 - 安装Mx_Driving-Accelerator
 
   请参考昇腾[mxDriving](https://gitee.com/ascend/mxDriving)代码仓说明编译安装Mx_Driving-Accelerator
+  【注意】当前版本配套mxDriving RC3及以上版本，历史mxDriving版本需要model仓代码回退到git reset --hard 91ac141ecfe5872f4835eef6aa4662f46ede80c3
 
 - 安装基础依赖
 

@@ -97,7 +97,10 @@
     cd mmcv
     MMCV_WITH_OPS=1 pip install -e . -v
     ```
-
+- 安装mx_driving
+  - 参考mxDriving官方gitee仓README安装编译构建并安装mxDriving包：[参考链接](https://gitee.com/ascend/mxDriving)
+  【注意】当前版本配套mxDriving RC3及以上版本，历史mxDriving版本需要model仓代码回退到git reset --hard 91ac141ecfe5872f4835eef6aa4662f46ede80c3
+  
 - 在模型根目录下执行以下命令，安装模型对应PyTorch版本需要的依赖。
 
   ```

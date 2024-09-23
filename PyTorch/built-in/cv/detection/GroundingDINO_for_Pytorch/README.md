@@ -113,6 +113,7 @@ Grounding DINO是一个开放集目标检测模型，可以根据输入文本检
  mkdir -p weights/bert weights/nltk_data weights/g_dino_model refcoco/mdetr_annotations
  ```
 - 安装mxDriving加速库，安装方法参考[原仓](https://gitee.com/ascend/mxDriving)，安装后根据原仓**快速上手**章节将source环境变量命令添加在groundingdino_npu/env_npu.sh中。
+  【注意】当前版本配套mxDrivingRC3及以上版本，历史mxDriving版本需要model仓代码回退到git reset --hard 91ac141ecfe5872f4835eef6aa4662f46ede80c3
 
 #### 将groundingdino_npu目录放在mmdetection目录下
 
