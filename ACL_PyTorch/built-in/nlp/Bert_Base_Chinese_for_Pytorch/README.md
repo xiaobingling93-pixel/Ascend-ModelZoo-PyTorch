@@ -266,14 +266,15 @@
 
 性能：
 
-|       模型        | BatchSize | NPU性能 | 基准性能  |  基准性能2  |
-| :---------------: | :-------: | :-----: | :-------: |:-------: |
-| Bert-Base-Chinese |     1     | 175 fps | 41.16 fps |242 fps |
-| Bert-Base-Chinese |     4     | 251 fps | 43.07 fps |307 fps |
-| Bert-Base-Chinese |     8     | 254 fps | 42.82 fps |316 fps |
-| Bert-Base-Chinese |    16     | 242 fps | 43.07 fps |333 fps |
-| Bert-Base-Chinese |    32     | 246 fps | 42.32 fps |331 fps |
-| Bert-Base-Chinese |    64     | 251 fps | 44.31 fps |336 fps |
+|       模型        | BatchSize | Pro卡性能（fps） |  Duo卡性能（fps） | 基准性能（fps）  |  基准性能2（fps）  |
+| :---------------: | :-------: | :-----: | :-------: |:-------: |:-------: |
+| Bert-Base-Chinese |     1     | 175  | 368 | 41.16  |242  |
+| Bert-Base-Chinese |     4     | 251  | 501 | 43.07  |307  |
+| Bert-Base-Chinese |     8     | 254  | 507 | 42.82  |316  |
+| Bert-Base-Chinese |    16     | 242  | 500 | 43.07  |333  |
+| Bert-Base-Chinese |    32     | 246  | 522 | 42.32  |331  |
+| Bert-Base-Chinese |    64     | 251  | 524 | 44.31  |336  |
+
 
 ## 其他下游任务<a name="ZH-CN_TOPIC_0000001126121892"></a>
 
