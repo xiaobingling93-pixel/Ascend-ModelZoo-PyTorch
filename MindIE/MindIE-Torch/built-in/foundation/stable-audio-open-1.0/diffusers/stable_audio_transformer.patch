@@ -1,0 +1,19 @@
+--- stable_audio_transformer.py	2024-09-24 22:13:12.323307700 +0800
++++ stable_audio_transformer_patch.py	2024-09-24 22:15:08.051444400 +0800
+@@ -356,7 +356,7 @@
+         encoder_hidden_states: torch.FloatTensor = None,
+         global_hidden_states: torch.FloatTensor = None,
+         rotary_embedding: torch.FloatTensor = None,
+-        return_dict: bool = True,
++        return_dict: bool = False,
+         attention_mask: Optional[torch.LongTensor] = None,
+         encoder_attention_mask: Optional[torch.LongTensor] = None,
+     ) -> Union[torch.FloatTensor, Transformer2DModelOutput]:
+@@ -453,6 +453,6 @@
+         hidden_states = self.postprocess_conv(hidden_states) + hidden_states
+ 
+         if not return_dict:
+-            return (hidden_states,)
++            return hidden_states
+ 
+         return Transformer2DModelOutput(sample=hidden_states)

@@ -1,0 +1,19 @@
+--- pipeline_stable_audio.py	2024-09-24 21:57:27.340788500 +0800
++++ pipeline_stable_audio_patch.py	2024-09-24 22:01:08.883637400 +0800
+@@ -702,14 +702,14 @@
+                 latent_model_input = self.scheduler.scale_model_input(latent_model_input, t)
+ 
+                 # predict the noise residual
+-                noise_pred = self.transformer(
++                noise_pred = self.transformer.forward(
+                     latent_model_input,
+                     t.unsqueeze(0),
+                     encoder_hidden_states=text_audio_duration_embeds,
+                     global_hidden_states=audio_duration_embeds,
+                     rotary_embedding=rotary_embedding,
+                     return_dict=False,
+-                )[0]
++                )
+ 
+                 # perform guidance
+                 if do_classifier_free_guidance:
