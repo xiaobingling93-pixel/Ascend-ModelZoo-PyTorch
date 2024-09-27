@@ -25,6 +25,8 @@ import warnings
 import torch
 if torch.__version__ >= '1.8':
     import torch_npu
+    torch.npu.config.allow_internal_format = True
+
 import torch.nn as nn
 import torch.nn.parallel
 import torch.backends.cudnn as cudnn

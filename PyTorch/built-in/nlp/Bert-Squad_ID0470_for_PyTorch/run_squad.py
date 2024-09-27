@@ -31,6 +31,7 @@ import numpy as np
 import torch
 if torch.__version__ >= "1.8":
     import torch_npu
+    torch.npu.config.allow_internal_format = True
 from torch.utils.data import (DataLoader, RandomSampler, SequentialSampler,
                               TensorDataset)
 from torch.utils.data.distributed import DistributedSampler
