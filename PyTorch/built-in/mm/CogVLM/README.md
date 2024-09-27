@@ -75,6 +75,7 @@ pip install -r requirements.txt
 ```
 3) 下载并安装en_core_web_sm-any-py3-none-any.whl[下载](https://huggingface.co/spacy/en_core_web_sm/tree/main)，
 en_core_web_sm是spaCy 自然语言处理（NLP）工具库中的一种语言模型，专为英语设计。
+注：若安装过程出现问题，请参考FAQ-1
 ### 准备数据集
 
 1) 微调数据集:
@@ -196,4 +197,6 @@ python inference.py
 
 # FAQ
 
-暂无。
+1. 安装en_core_web_sm-any-py3-none-any.whl报错 “Invalid requirement: en_core_web_sm==any”。
+
+   解决方案：修改 en_core_web_sm-any-py3-none-any.whl 包名为 en_core_web_sm-3.7.1-py3-none-any.whl 后重新安装。
