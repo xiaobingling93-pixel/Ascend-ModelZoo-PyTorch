@@ -8,3 +8,15 @@
 -    return torch.randn(size, dtype=dtype, device=device, generator=generator)
 +    torch.manual_seed(int(seed))
 +    return torch.randn(size, dtype=dtype, device="cpu").to(device)
+ 
+ 
+ def _is_scalar(x):
+@@ -226,7 +226,7 @@
+             else:
+                 # Don't compute space-time Levy area unless we need to
+ 
+-                mean = left_diff * W * h_reciprocal
++                mean = left_diff * h_reciprocal * W
+                 var = left_diff * right_diff * h_reciprocal
+                 noise = parent._randn(parent._W_seed)
+                 left_W = mean + math.sqrt(var) * noise

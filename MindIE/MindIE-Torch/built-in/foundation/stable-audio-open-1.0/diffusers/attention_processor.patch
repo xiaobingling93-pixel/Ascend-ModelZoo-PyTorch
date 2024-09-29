@@ -1,5 +1,16 @@
 --- attention_processor.py	2024-09-26 09:41:41.531223700 +0800
-+++ attention_processor_patch.py	2024-09-26 09:52:34.363423900 +0800
++++ attention_processor_patch.py	2024-09-27 16:46:47.599566400 +0800
+@@ -2312,8 +2312,8 @@
+         if kv_heads != attn.heads:
+             # if GQA or MQA, repeat the key/value heads to reach the number of query heads.
+             heads_per_kv_head = attn.heads // kv_heads
+-            key = torch.repeat_interleave(key, heads_per_kv_head, dim=1)
+-            value = torch.repeat_interleave(value, heads_per_kv_head, dim=1)
++            key = key.repeat(1, heads_per_kv_head, 1, 1)
++            value = value.repeat(1, heads_per_kv_head, 1, 1)
+ 
+         if attn.norm_q is not None:
+             query = attn.norm_q(query)
 @@ -2344,9 +2344,15 @@
  
          # the output of sdp = (batch, num_heads, seq_len, head_dim)

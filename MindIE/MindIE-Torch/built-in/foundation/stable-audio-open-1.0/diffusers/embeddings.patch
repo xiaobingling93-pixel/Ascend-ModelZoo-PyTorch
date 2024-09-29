@@ -1,0 +1,13 @@
+--- embeddings.py	2024-09-27 17:00:05.872952500 +0800
++++ embeddings_patch.py	2024-09-27 17:03:21.806110200 +0800
+@@ -524,7 +524,9 @@
+             x_rotated = torch.stack([-x_imag, x_real], dim=-1).flatten(3)
+         elif use_real_unbind_dim == -2:
+             # Use for example in Stable Audio
+-            x_real, x_imag = x.reshape(*x.shape[:-1], 2, -1).unbind(-2)  # [B, S, H, D//2]
++            x_ = x.reshape(*x.shape[:-1], 2, -1)
++            x_real = x_[...,0,:]
++            x_imag = x_[...,1,:]
+             x_rotated = torch.cat([-x_imag, x_real], dim=-1)
+         else:
+             raise ValueError(f"`use_real_unbind_dim={use_real_unbind_dim}` but should be -1 or -2.")

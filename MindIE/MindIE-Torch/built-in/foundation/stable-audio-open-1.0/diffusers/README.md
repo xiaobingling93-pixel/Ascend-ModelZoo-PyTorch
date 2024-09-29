@@ -40,7 +40,7 @@
 1. 安装依赖。
    ```bash
    pip3 install -r requirements.txt
-   apt-get install libsudfile1
+   apt-get install libsndfile1
    ```
 
 2. 安装mindie包
@@ -87,10 +87,10 @@
       (1) 设置模型权重的路径
       ```bash
       # stable-audio-open-1.0 (执行时下载权重)
-      model_base="stabilityai/stable-audio-open-1.0 "
+      model_base="stabilityai/stable-audio-open-1.0"
       
       # stable-audio-open-1.0 (使用上一步下载的权重)
-      model_base="./stable-audio-open-1.0 "
+      model_base="./stable-audio-open-1.0"
       ```
 
       (2) 执行命令查看芯片名称（$\{chip\_name\}）。
