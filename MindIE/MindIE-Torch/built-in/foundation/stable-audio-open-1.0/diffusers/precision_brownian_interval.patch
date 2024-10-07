@@ -8,3 +8,4 @@
 -    return torch.randn(size, dtype=dtype, device=device, generator=generator)
 +    torch.manual_seed(int(seed))
 +    return torch.randn(size, dtype=dtype, device="cpu").to(device)
+

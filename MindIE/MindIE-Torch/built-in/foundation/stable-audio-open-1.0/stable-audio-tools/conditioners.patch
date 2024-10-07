@@ -1,0 +1,24 @@
+--- conditioners.py	2024-09-30 15:31:32.480360700 +0800
++++ conditioners_patch.py	2024-09-30 18:20:43.344830200 +0800
+@@ -280,10 +280,17 @@
+         with warnings.catch_warnings():
+             warnings.simplefilter("ignore")
+             try:
+-                # self.tokenizer = T5Tokenizer.from_pretrained(t5_model_name, model_max_length = max_length)
+-                # model = T5EncoderModel.from_pretrained(t5_model_name, max_length=max_length).train(enable_grad).requires_grad_(enable_grad)
+-                self.tokenizer = AutoTokenizer.from_pretrained(t5_model_name)
+-                model = T5EncoderModel.from_pretrained(t5_model_name).train(enable_grad).requires_grad_(enable_grad).to(torch.float16)
++                import os
++                tokenizer_path = os.path.join(os.getcwd(), "tokenizer")
++                text_encoder_path = os.path.join(os.getcwd(), "text_encoder")
++                if os.path.exists(tokenizer_path) and os.path.exists(text_encoder_path):
++                    print("From local import T5-base . . .")
++                    self.tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
++                    model = T5EncoderModel.from_pretrained(text_encoder_path).train(enable_grad).requires_grad_(enable_grad).to(torch.float16)
++                else:
++                    print("From HuggingFace download T5-base . . .")
++                    self.tokenizer = AutoTokenizer.from_pretrained(t5_model_name)
++                    model = T5EncoderModel.from_pretrained(t5_model_name).train(enable_grad).requires_grad_(enable_grad).to(torch.float16)
+             finally:
+                 logging.disable(previous_level)
+             

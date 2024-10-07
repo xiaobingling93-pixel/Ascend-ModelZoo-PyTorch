@@ -1,4 +1,4 @@
-# stable-audio-open-1.0模型-diffusers方式推理指导
+# stable-audio-open-1.0模型-stable-audio-tools方式推理指导
 
 - [概述](#ZH-CN_TOPIC_0000001172161501)
   
@@ -40,7 +40,6 @@
 1. 安装依赖。
    ```bash
    pip3 install -r requirements.txt
-   apt-get install libsndfile1
    ```
 
 2. 安装mindie包
@@ -55,36 +54,28 @@
    
 3. 代码修改
 
-- 执行命令：
+   执行命令：
    ```bash
-   python3 diffusers_aie_patch.py
-   python3 brownian_interval_patch.py
-   ```
-
-4. MindieTorch配套Torch_NPU使用
-
-   MindieTorch采用dlopen的方式动态加载Torch_NPU，需要手动编译libtorch_npu_bridge.so，并将其放在libtorch_aie.so同一路径下，或者将其路径设置到LD_LIBRARY_PATH环境变量中，具体参考：
-   ```bash
-   https://www.hiascend.com/document/detail/zh/mindie/10RC2/mindietorch/Torchdev/mindie_torch0017.html
+   python3 conditioners_patch.py
+   python3 pretrained_patch.py
    ```
 
 ## 模型推理<a name="section741711594517"></a>
 
-1. 模型转换。
+1. 模型准备。
+   1. 获取模型权重
 
-   1. 提前下载权重，放到代码同级目录下。
+      可提前下载权重，以避免执行后面步骤时可能会出现下载失败。
 
-       ```bash
-       # 需要使用 git-lfs (https://git-lfs.com)
-       git lfs install
-       
-       # 下载stable-audio-open-1.0权重
-       git clone https://huggingface.co/stabilityai/stable-audio-open-1.0
-       ```
-   
-   2. 导出pt模型并进行编译。
+      ```bash
+      # 需要使用 git-lfs (https://git-lfs.com)
+      git lfs install
+      
+      # 下载stable-audio-open-1.0权重
+      git clone https://huggingface.co/stabilityai/stable-audio-open-1.0
+      ```
 
-      (1) 设置模型权重的路径
+   2. 设置模型权重的路径。
       ```bash
       # stable-audio-open-1.0 (执行时下载权重)
       model_base="stabilityai/stable-audio-open-1.0"
@@ -92,39 +83,12 @@
       # stable-audio-open-1.0 (使用上一步下载的权重)
       model_base="./stable-audio-open-1.0"
       ```
-
-      (2) 执行命令查看芯片名称（$\{chip\_name\}）。
-
-         ```
-         npu-smi info
-         #该设备芯片chip_name=310P3 (自行替换)
-         回显如下：
-         +-------------------+-----------------+------------------------------------------------------+
-         | NPU     Name      | Health          | Power(W)     Temp(C)           Hugepages-Usage(page) |
-         | Chip    Device    | Bus-Id          | AICore(%)    Memory-Usage(MB)                        |
-         +===================+=================+======================================================+
-         | 0       310P3     | OK              | 15.8         42                0    / 0              |
-         | 0       0         | 0000:82:00.0    | 0            1074 / 21534                            |
-         +===================+=================+======================================================+
-         | 1       310P3     | OK              | 15.4         43                0    / 0              |
-         | 0       1         | 0000:89:00.0    | 0            1070 / 21534                            |
-         +===================+=================+======================================================+
-         ```
-
-      (3) 执行export命令
    
-         ```bash
-         python3 export_ts.py --model ${model_base} --output_dir ./models --soc Ascend${chip_name} --device 0
-         ```
+   3. 获取T5模型权重（可选）
 
-      参数说明：
-         - --model：模型权重路径
-         - --output_dir: 存放导出模型的路径
-         - --soc：处理器型号。
-         - --device：推理设备ID
+      推理过程中会自动从huggingface下载T5-base的模型权重，若希望以加载本地T5-base模型权重方式进行推理，请将`model_base`路径下的`tokenizer`和`text_encoder`文件夹复制到推理代码的执行路径中。
+
       
-      注意：trace+compile耗时较长且占用较多的CPU资源，请勿在执行export命令时运行其他占用CPU内存的任务，避免程序意外退出。
-   
 2. 开始推理验证。
 
    1. 开启cpu高性能模式
@@ -156,26 +120,20 @@
    
    3. 执行推理脚本。
       ```bash
-      numactl -C 0-23 python3 stable_audio_open_aie_pipeline.py \
+      numactl -C 0-23 python3 stable_audio_open_tools_pipeline.py \
               --model ${model_base} \
-              --output_dir ./models \
               --prompt_file ./prompts.txt \
               --num_inference_steps 100 \
-              --audio_end_in_s 10 10 47 \
-              --num_waveforms_per_prompt 1 \
-              --guidance_scale 7 \
+              --seconds_total 10 10 47 \
               --save_dir ./results \
-              --device 0
+              --device 0 
       ```
       
       参数说明：
       - --model：模型权重路径。
-      - --output_dir：存放导出模型的目录。
       - --prompt_file：提示词文件。
       - --num_inference_steps: 语音生成迭代次数。
-      - --audio_end_in_s：生成语音的时长，如不输入则默认生成10s。
-      - --num_waveforms_per_prompt：一个提示词生成的语音数量。
-      - --guidance_scale：音频生成质量与准确度系数。
+      - --seconds_total：生成语音的时长，与prompts.txt中的prompt对应，如不输入则默认生成10s。
       - --save_dir：生成语音的存放目录。
       - --device：推理设备ID。
       
@@ -190,4 +148,4 @@
 
 | 硬件形态 | 迭代次数 | 平均耗时|
 | :------: |:----:|:----:|
-| A2     |  100  |  5.895s  |
+| A2     |  100  |  14.711s  |
