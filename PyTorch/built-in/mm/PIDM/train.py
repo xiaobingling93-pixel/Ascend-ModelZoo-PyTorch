@@ -1,5 +1,6 @@
 import os
 import warnings
+import logging
 
 warnings.filterwarnings("ignore")
 
@@ -22,6 +23,7 @@ import torch_npu
 from torch_npu.contrib import transfer_to_npu
 
 torch.npu.config.allow_internal_format = False
+logging.basicConfig(filename="train.log", level=logging.INFO, format='%(message)s')
 
 def init_distributed():
 
@@ -108,6 +110,7 @@ def train(conf, loader, val_loader, model, ema, diffusion, betas, optimizer, sch
         if is_main_process: print ('#Epoch - '+str(epoch))
 
         start_time = time.time()
+        step_end_time = time.time()
 
         for batch in tqdm(loader):
 
@@ -153,18 +156,6 @@ def train(conf, loader, val_loader, model, ema, diffusion, betas, optimizer, sch
                 ema, model.module, 0 if i < conf.training.scheduler.warmup else 0.9999
             )
 
-
-            if i%args.save_wandb_logs_every_iters == 0 and is_main_process():
-
-                wandb.log({'loss':(sum(loss_list)/len(loss_list)), 
-                            'loss_vb':(sum(loss_vb_list)/len(loss_vb_list)), 
-                            'loss_mean':(sum(loss_mean_list)/len(loss_mean_list)), 
-                            'epoch':epoch,'steps':i})
-                loss_list = []
-                loss_mean_list = []
-                loss_vb_list = []
-
-
             if i%args.save_checkpoints_every_iters == 0 and is_main_process():
 
                 if conf.distributed:
@@ -183,6 +174,18 @@ def train(conf, loader, val_loader, model, ema, diffusion, betas, optimizer, sch
                     },
                     conf.training.ckpt_path + f"/model_{str(i).zfill(6)}.pt"
                 )
+
+            if is_main_process():
+                step_total_time = time.time() - step_end_time
+                logging.info({'loss': (sum(loss_list) / len(loss_list)),
+                              'loss_vb': (sum(loss_vb_list) / len(loss_vb_list)),
+                              'loss_mean': (sum(loss_mean_list) / len(loss_mean_list)),
+                              'epoch': epoch, 'steps': i, 'step_train_time': step_total_time,
+                              'FPS': args.batch_size / step_total_time})
+                loss_list = []
+                loss_mean_list = []
+                loss_vb_list = []
+            step_end_time = time.time()
 
         if is_main_process():
 
