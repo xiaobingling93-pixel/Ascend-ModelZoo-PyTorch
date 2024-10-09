@@ -47,6 +47,12 @@ def parse_arguments():
         default="./results",
         help="Path to save result audio files.",
     )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=-1,
+        help="The random seed to use for generation, or default -1 to use a random seed.",
+    )
     return parser.parse_args()
 
 def main():
@@ -90,7 +96,8 @@ def main():
                     sigma_min=0.3,
                     sigma_max=500,
                     sampler_type="dpmpp-3m-sde",
-                    device="npu"
+                    device="npu",
+                    seed=args.seed,
                 )
                 npu_stream.synchronize()
                 end = time.time()

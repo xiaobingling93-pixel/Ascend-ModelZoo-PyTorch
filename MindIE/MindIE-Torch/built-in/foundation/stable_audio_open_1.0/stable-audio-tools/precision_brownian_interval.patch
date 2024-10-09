@@ -1,0 +1,11 @@
+--- brownian_interval.py	2024-09-10 20:28:33.814433800 +0800
++++ brownian_interval_patch.py	2024-09-10 20:59:44.334826200 +0800
+@@ -28,8 +28,8 @@
+ 
+ 
+ def _randn(size, dtype, device, seed):
+-    generator = torch.Generator(device).manual_seed(int(seed))
+-    return torch.randn(size, dtype=dtype, device=device, generator=generator)
++    torch.manual_seed(int(seed))
++    return torch.randn(size, dtype=dtype, device="cpu").to(device)
+
