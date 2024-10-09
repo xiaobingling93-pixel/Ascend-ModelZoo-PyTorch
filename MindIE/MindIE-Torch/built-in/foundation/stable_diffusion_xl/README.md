@@ -97,10 +97,6 @@
    python3 stable_diffusionxl_unet_patch.py
    ```
 
-   ```bash
-   #若使用Lora热切换功能
-   python3 stable_diffusionxl_lora_patch.py
-   ```
 ## 准备数据集<a name="section183221994411"></a>
 
 1. 获取原始数据集。
@@ -125,11 +121,6 @@
        git clone https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0
        ```
 
-       若使用lora热切换功能，需提前获取lora权重
-       ```bash
-       git clone https://huggingface.co/latent-consistency/lcm-lora-sdxl
-       ```
-
    1. 导出pt模型并进行编译。(可选)
 
       ```bash
@@ -139,7 +130,6 @@
       xl (使用上一步下载的权重)
       model_base="./stable-diffusion-xl-base-1.0"
       ```
-
       执行命令：
    
       ```bash
@@ -149,9 +139,6 @@
       # 使用unetCache, 并行
       python3 export_ts.py --model ${model_base} --output_dir ./models --use_cache --parallel --batch_size 1 --flag 0 --soc Duo --device 0
 
-      # 使用Lora热切换功能
-      export MINDIE_TORCH_ENABLE_RUNTIME_BUFFER=true
-      python3 export_ts.py --model ${model_base} --output_dir ./models --batch_size 1 --flag 0 --soc A2 --device 0 --lorahot_support --baselora_path ${baselora_path}
       ```
       参数说明：
       - --model：模型权重路径
@@ -162,24 +149,7 @@
       - --flag：默认为0。0代表静态，只支持分辨率为1024x1024；1代表动态分档，支持的分辨率为1024x1024和512x512；2代表动态shape，height的范围为[512, 1024]，width的范围是[512, 1664]。
       - --soc：只支持Duo和A2。
       - --device：推理设备ID
-      - --lorahot_support：生成模型支持Lora热切换功能
-      - --baselora_path：仅指定lorahot_support时生效，代表基础Unet base权重的保存路径，用于后续Lora权重热切换
 
-      注意：Lora权重热切换目前仅支持无UnetCache版模型
-
-      进行Lora权重融合【可选】
-      ```bash
-      model_lora = "你的Lora权重路径"
-      model_new = "融合后模型保存路径"
-      model_base = "基础模型路径"
-      #执行如下命令进行权重融合
-      python3 convert_lora_safetensors_to_diffusers.py --base_model_path ${model_base} \
-      --checkpoint_path ${model_lora} --dump_path ${model_new}
-      ```
-       此后运行如下命令生成新权重的pt模型：
-       ```bash
-       python3 export_ts.py --model ${model_new} --output_dir ./models --batch_size 1 --flag 0 --soc A2 --device 0
-       ```
 2. 开始推理验证。
 
    1. 开启cpu高性能模式
@@ -254,24 +224,6 @@
               --height 1024 \
               --width 1024 \
               --batch_size 1
-
-      # 使用Lora热切换功能推理
-         numactl -C 0-23 python3 stable_diffusionxl_pipeline.py \
-              --model ${model_base} \
-              --prompt_file ./prompts.txt \
-              --prompt_file_type plain \
-              --device 0 \
-              --save_dir ./results \
-              --steps 50 \
-              --output_dir ./models \
-              --flag 0 \
-              --height 1024 \
-              --width 1024 \
-              --batch_size 1 \
-              --use_loraHotswitch \
-              --lorabase_weight ${baselora_path} \
-              --loranew_weight ${newlora_path} \
-              --loramerge_ratio 1.0
       ```
       
       参数说明：
@@ -287,9 +239,6 @@
       - --flag：默认为0。0代表静态，只支持分辨率为1024x1024；1代表动态分档，支持的分辨率为1024x1024和512x512；2代表动态shape，height的范围为[512, 1024]，width的范围是[512, 1664]。**注意**：请与导出模型时设置的flag保持一致
       - --height：与flag标志位对应的height一致
       - --width：与flag标志位对应的width一致
-      - --use_loraHotswitch: 代表是否有Lora热切换功能启用
-      - --lorabase_weight: 基础的Unet权重存储路径
-      - --loramerge_ratio：Lora权重与base权重融合系数，默认为0.75
       
       不带unetCache策略，执行完成后在`./results`目录下生成推理图片，在当前目录生成一个`image_info.json`文件，记录着图片和prompt的对应关系，并在终端显示推理时间。
       带unetCache策略，执行完成后在`./results_unetCache`目录下生成推理图片，在当前目录生成一个`image_info.json`文件，记录着图片和prompt的对应关系。并在终端显示推理时间。
@@ -375,42 +324,6 @@
               --height 1024 \
               --width 1024 \
               --batch_size 1
-
-      # 使用Lora热切功能
-      # 基础权重与Lora权重融合后模型输出
-      python3 stable_diffusionxl_pipeline.py \
-              --model ${model_new} \
-              --prompt_file ./PartiPrompts.tsv \
-              --prompt_file_type parti \
-              --num_images_per_prompt 1 \
-              --max_num_prompts 0 \
-              --device 0 \
-              --save_dir ./results_PartiPrompts_wolorahot \
-              --steps 50 \
-              --output_dir ./models \
-              --flag 0 \
-              --height 1024 \
-              --width 1024 \
-              --batch_size 1
-      # 基础模型加载后Lora热切模型输出
-      python3 stable_diffusionxl_pipeline.py \
-              --model ${model_base} \
-              --prompt_file ./PartiPrompts.tsv \
-              --prompt_file_type parti \
-              --num_images_per_prompt 1 \
-              --max_num_prompts 0 \
-              --device 0 \
-              --save_dir ./results_PartiPrompts_lorahot \
-              --steps 50 \
-              --output_dir ./models \
-              --flag 0 \
-              --height 1024 \
-              --width 1024 \
-              --batch_size 1
-              --use_loraHotswitch \
-              --lorabase_weight ${baselora_path} \
-              --loranew_weight ${newlora_path} \
-              --loramerge_ratio 1.0
       ```
 
       参数说明：
@@ -424,14 +337,10 @@
       - --batch_size：模型batch size。
       - --steps：生成图片迭代次数。
       - --device：推理设备ID；可用逗号分割传入两个设备ID，此时会使用并行方式进行推理。
-      - --baselora_path：代表原始模型Lora层的基础权重，此路径在“1.导出pt模型并进行编译”步骤生成
-      - --newlora_path: 代表输入的Lora权重
 
       不带unetCache策略，执行完成后在`./results_PartiPrompts`目录下生成推理图片，在当前目录生成一个`image_info.json`文件，记录着图片和prompt的对应关系，并在终端显示推理时间。
       带unetCache策略，执行完成后在`./results_PartiPrompts_unetCache`目录下生成推理图片，在当前目录生成一个`image_info.json`文件，记录着图片和prompt的对应关系。并在终端显示推理时间。
       带unetCache策略，同时使用双卡并行策略，执行完成后在`./results_PartiPrompts_unetCache_parallel`目录下生成推理图片，在当前目录生成一个`image_info.json`文件，记录着图片和prompt的对应关系。并在终端显示推理时间。
-      
-      Lora热切换功能精度验证，需要得到离线权重融合的模型以及基础权重加载Lora热切权重后推理的结果，通过计算对应prompt图像对的余弦相似度完成。（*注意*：由于实际推理时latent的准备具备随机性，建议在stable_diffusionxl_pipeline.py的*5. Prepare latent variables*处（612行代码处）添加"*generator=torch.Generator("cpu").manual_seed(1)*"代码）
 
    4. 计算精度指标
    
@@ -468,24 +377,6 @@
          - --clip_checkpointh: Clip模型权重文件路径。
 
          执行完成后会在屏幕打印出精度计算结果。
-      
-      3. Lora热切换验证
-
-         ```bash
-         python3 lorahot_score.py \
-               --device=cpu \
-               --image_info_wo_lorahot = "image_info_wo_lorahot.json" \
-               --image_info_lorahot = "image_info_lorahot.json" \
-               --model_name="ViT-H-14" \
-               --model_weights_path="./CLIP-ViT-H-14-laion2B-s32B-b79K/open_clip_pytorch_model.bin"
-         ```
-
-         参数说明：
-         - --device：Clip网络推理设备
-         - --image_info_wo_lorahot：上一步生成的无离线融合模型推理结果
-         - --image_info_lorahot：上一步Lora热切换后模型推理结果
-         - --model_name：Clip模型结果
-         - --model_weights_path：Clip模型权重
 
 
 ## 量化功能【可选】<a name="section741711594518"></a>
@@ -645,6 +536,295 @@
       
       计算精度指标CLIP-score和HPSv2同浮点。
 
+## Lora热切换
+### Lora热切换功能使用
+   1. lora热切使用准备
+   
+      1. 获取权重
+      
+         sdxl权重地址：
+         ```bash
+         https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0
+         ```
+         sdxl lora权重地址：
+         ```bash
+         https://huggingface.co/latent-consistency/lcm-lora-sdxl
+         ```
+      2. 代码修改
+
+         基础补丁
+         ```bash
+         python3 stable_diffusion_clip_patch.py
+         ```
+   
+         ```bash
+         python3 stable_diffusion_attention_patch.py
+         ```
+   
+         ```bash
+         # 若使用unetCache
+         python3 stable_diffusionxl_unet_patch.py
+         ```
+         
+         lora补丁
+
+         ```bash
+         python3 stable_diffusionxl_lora_patch.py
+         ```
+   2. 模型转换
+   
+      设置基础模型路径以及unet基础权重保存路径：
+      ```bash
+      # 上一步下载的模型路径
+      export model_base="./stable-diffusion-xl-base-1.0"
+      # unet基础权重保存路径
+      export baselora_path="./baselora"
+      ```
+
+      导入环境变量：
+      ```bash
+      export MINDIE_TORCH_ENABLE_RUNTIME_BUFFER_MUTATION=true
+      ```
+
+      执行模型转换：
+      ```bash
+      #基础模型lora热切特性转换：
+      python3 export_ts.py --model ${model_base} --output_dir ./models --batch_size 1 --flag 0 --soc A2 --device 0 --lorahot_support --baselora_path ${baselora_path}
+      #unetcahche版模型转换：
+      python3 export_ts.py --model ${model_base} --output_dir ./models --use_cache --batch_size 1 --flag 0 --soc A2 --device 0 --lorahot_support --baselora_path ${baselora_path}
+      ```
+      参数说明：
+      - --model 下载的模型权重路径
+      - --output_dir 转换后的模型输出路径
+      - --batch_size 设置batch_size, 默认值为1, 当前最大支持batch_size=2
+      - --flag：默认为0。0代表静态，只支持分辨率为1024x1024；1代表动态分档，支持的分辨率为1024x1024和512x512；2代表动态shape，height的范围为[512, 1024]，width的范围是[512, 1664]。
+      - --soc：只支持Duo和A2。
+      - --device：推理设备ID
+      - --lorahot_support：生成模型支持Lora热切换功能
+      - --baselora_path：仅指定lorahot_support时生效，代表Unet基础权重的保存路径，用于后续Lora权重热切换
+   3. 推理验证
+
+      设置lora权重路径：
+      ```bash
+      # 第一步下载的lora权重路径
+      export newlora_path="./lora_weight"
+      ```
+      开启cpu高性能模式
+      ```bash
+      echo performance |tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
+      sysctl -w vm.swappiness=0
+      sysctl -w kernel.numa_balancing=0
+      ```
+
+      安装绑核工具
+      ```bash
+      apt-get update
+      apt-get install numactl
+      ```
+      查询卡的NUMA node
+      ```shell
+      lspci -vs bus-id
+      ```
+      bus-id可通过npu-smi info获得，查询到NUMA node，在推理命令前加上对应的数字
+
+      可通过lscpu获得NUMA node对应的CPU核数
+      ```shell
+      NUMA node0: 0-23
+      NUMA node1: 24-47
+      NUMA node2: 48-71
+      NUMA node3: 72-95
+      ```
+      当前查到NUMA node是0，对应0-23，推荐绑定其中单核以获得更好的性能。
+      
+      执行推理
+      ```bash
+      #基础模型使用lora热切换功能推理
+      numactl -C 0-23 python3 stable_diffusionxl_pipeline.py \
+              --model ${model_base} \
+              --prompt_file ./prompts.txt \
+              --prompt_file_type plain \
+              --device 0 \
+              --save_dir ./results \
+              --steps 50 \
+              --output_dir ./models \
+              --flag 0 \
+              --height 1024 \
+              --width 1024 \
+              --batch_size 1 \
+              --use_loraHotswitch \
+              --lorabase_weight ${baselora_path} \
+              --loranew_weight ${newlora_path}
+      #Unetcache优化接入后lora热切换功能推理
+      numactl -C 0-23 python3 stable_diffusionxl_pipeline.py \
+              --model ${model_base} \
+              --prompt_file ./prompts.txt \
+              --prompt_file_type plain \
+              --device 0 \
+              --save_dir ./results \
+              --steps 50 \
+              --output_dir ./models \
+              --flag 0 \
+              --height 1024 \
+              --width 1024 \
+              --batch_size 1 \
+              --use_cache \
+              --use_loraHotswitch \
+              --lorabase_weight ${baselora_path} \
+              --loranew_weight ${newlora_path}
+      ```
+      参数说明
+      - --model：模型权重路径。
+      - --output_dir：存放导出模型的目录。
+      - --prompt_file：提示词文件。
+      - --prompt_file_type: prompt文件类型，用于指定读取方式，可选plain，parti，hpsv2。
+      - --save_dir：生成图片的存放目录。
+      - --batch_size：模型batch size。
+      - --steps：生成图片迭代次数。
+      - --device：推理设备ID
+      - --use_cache: 推理过程中使用unetCache策略。
+      - --flag：默认为0。0代表静态，只支持分辨率为1024x1024；1代表动态分档，支持的分辨率为1024x1024和512x512；2代表动态shape，height的范围为[512, 1024]，width的范围是[512, 1664]。**注意**：请与导出模型时设置的flag保持一致
+      - --height：与flag标志位对应的height一致
+      - --width：与flag标志位对应的width一致
+      - --use_loraHotswitch: 代表是否有Lora热切换功能启用
+      - --lorabase_weight: 基础的Unet权重存储路径
+      - --loranew_weight：第一步下载的lora权重路径
+   ### Lora热切换功能精度验证
+
+   通过比较冷切模型与热切模型对于同一prompt的出图余弦相似度来衡量热切方法的精度
+   
+   1. 模型准备：
+      1. 冷切模型准备
+      ```bash
+      #导入融合lora模型权重环境便令
+      export model_new="融合后模型保存路径"
+      #执行如下命令进行权重融合
+      python3 convert_lora_safetensors_to_diffusers.py --base_model_path ${model_base} \
+      --checkpoint_path ${newlora_path} --dump_path ${model_new}
+      ```
+      参数说明：
+      - --base_model_path：基础sdxl模型权重路径
+      - --checkpoint_path：下载的lora权重路径
+      - --dump_path：权重融合后的模型输出路径
+
+      此后运行如下命令生成新权重的pt模型：
+      ```bash
+      #不使用unetcache
+      python3 export_ts.py --model ${model_new} --output_dir ./models --batch_size 1 --flag 0 --soc A2 --device 0
+      #使用unetcache
+      python3 export_ts.py --model ${model_new} --output_dir ./models --batch_size 1 --flag 0 --soc A2 --device 0 --use_cache
+      ```
+      2. 热切模型准备
+      
+         参照"Lora热切换功能使用"章节进行模型导出
+      3. 精度验证用clip网络：
+      ```bash
+      https://huggingface.co/laion/CLIP-ViT-H-14-laion2B-s32B-b79K
+      ```
+   2. 准备精度衡量数据集:
+
+      下载parti数据集：
+      ```bash
+      wget https://raw.githubusercontent.com/google-research/parti/main/PartiPrompts.tsv --no-check-certificate
+      ```
+   3. 执行推理：
+
+      不使用Unetcache
+      ```bash
+      #冷切模型推理：
+      python3 stable_diffusionxl_pipeline.py \
+              --model ${model_new} \
+              --prompt_file ./PartiPrompts.tsv \
+              --prompt_file_type parti \
+              --num_images_per_prompt 1 \
+              --max_num_prompts 0 \
+              --device 0 \
+              --save_dir ./results_PartiPrompts_wolorahot \
+              --steps 50 \
+              --output_dir ./models \
+              --flag 0 \
+              --height 1024 \
+              --width 1024 \
+              --batch_size 1 \
+              --info_file_save_path ./coldModel.json
+      #热切模型推理：
+      python3 stable_diffusionxl_pipeline.py \
+              --model ${model_base} \
+              --prompt_file ./PartiPrompts.tsv \
+              --prompt_file_type parti \
+              --num_images_per_prompt 1 \
+              --max_num_prompts 0 \
+              --device 0 \
+              --save_dir ./results_PartiPrompts_lorahot \
+              --steps 50 \
+              --output_dir ./models \
+              --flag 0 \
+              --height 1024 \
+              --width 1024 \
+              --batch_size 1
+              --use_loraHotswitch \
+              --lorabase_weight ${baselora_path} \
+              --loranew_weight ${newlora_path} \
+              --info_file_save_path ./hotModel.json
+      ```
+      使用Unetcache
+      ```bash
+      #冷切模型推理：
+      python3 stable_diffusionxl_pipeline.py \
+              --model ${model_new} \
+              --prompt_file ./PartiPrompts.tsv \
+              --prompt_file_type parti \
+              --num_images_per_prompt 1 \
+              --max_num_prompts 0 \
+              --device 0 \
+              --save_dir ./results_PartiPrompts_wolorahot \
+              --steps 50 \
+              --output_dir ./models \
+              --flag 0 \
+              --height 1024 \
+              --width 1024 \
+              --batch_size 1 \
+              --use_cache \
+              --info_file_save_path ./coldModel.json
+      #热切模型推理：
+      python3 stable_diffusionxl_pipeline.py \
+              --model ${model_base} \
+              --prompt_file ./PartiPrompts.tsv \
+              --prompt_file_type parti \
+              --num_images_per_prompt 1 \
+              --max_num_prompts 0 \
+              --device 0 \
+              --save_dir ./results_PartiPrompts_lorahot \
+              --steps 50 \
+              --output_dir ./models \
+              --flag 0 \
+              --height 1024 \
+              --width 1024 \
+              --batch_size 1
+              --use_cache \
+              --use_loraHotswitch \
+              --lorabase_weight ${baselora_path} \
+              --loranew_weight ${newlora_path} \
+              --info_file_save_path ./hotModel.json
+      ```
+      新增参数说明：
+
+      - --info_file_save_path：推理任务完成后图像与promt的对应关系会以json文件存储，此参数指定json文件存储路径与存储名称
+   4. 执行精度验证脚本：
+         ```bash
+         python3 lorahot_score.py \
+               --device=cpu \
+               --image_info_wo_lorahot = "image_info_wo_lorahot.json" \
+               --image_info_lorahot = "image_info_lorahot.json" \
+               --model_name="ViT-H-14" \
+               --model_weights_path="./CLIP-ViT-H-14-laion2B-s32B-b79K/open_clip_pytorch_model.bin"
+         ```
+
+         参数说明：
+         - --device：Clip网络推理设备
+         - --image_info_wo_lorahot：上一步生成的无离线融合模型推理结果
+         - --image_info_lorahot：上一步Lora热切换后模型推理结果
+         - --model_name：Clip模型结果
+         - --model_weights_path：Clip模型权重
 
 # 模型推理性能&精度<a name="ZH-CN_TOPIC_0000001172201573"></a>
 

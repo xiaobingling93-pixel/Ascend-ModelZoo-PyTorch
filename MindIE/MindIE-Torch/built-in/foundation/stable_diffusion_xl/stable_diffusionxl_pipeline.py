@@ -29,7 +29,7 @@ from diffusers.schedulers import *
 from quant_utils import modify_model
 from safetensors.torch import load_file
 from diffusers.models.lora import LoRACompatibleConv, LoRACompatibleLinear
-from diffusers.models.lora import KeyOrderList
+from diffusers.models.lora import KeyOrderList, UnetSkip_key
 
 clip_time = 0
 unet_time = 0
@@ -611,6 +611,7 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
 
         # 5. Prepare latent variables
         num_channels_latents = self.unet.config.in_channels
+        generator=torch.Generator("cpu").manual_seed(1)
         latents = self.prepare_latents(
             batch_size * num_images_per_prompt,
             num_channels_latents,
@@ -696,13 +697,18 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
                                            add_time_ids.to('cpu'),
                                            skip_flag.to('cpu'),
                                            cache.to('cpu'))
-                    noise_pred = self.compiled_unet_model_skip(latent_model_input,
-                                                               t.to(torch.int64)[None].to(f'npu:{self.device_0}'),
-                                                               prompt_embeds.to(f'npu:{self.device_0}'),
-                                                               add_text_embeds.to(f'npu:{self.device_0}'),
-                                                               add_time_ids.to(f'npu:{self.device_0}'),
-                                                               skip_flag.to(f'npu:{self.device_0}'),
-                                                               cache, )
+                    unet_input_skip = [
+                                        latent_model_input,
+                                        t.to(torch.int64)[None].to(f'npu:{self.device_0}'),
+                                        prompt_embeds.to(f'npu:{self.device_0}'),
+                                        add_text_embeds.to(f'npu:{self.device_0}'),
+                                        add_time_ids.to(f'npu:{self.device_0}'),
+                                        skip_flag.to(f'npu:{self.device_0}'),
+                                        cache, 
+                    ]
+                    if use_lora_hotswitch:
+                        unet_input_skip = unet_input_skip + [torch.tensor([])] * 149
+                    noise_pred = self.compiled_unet_model_skip(*unet_input_skip)
                 else:
                     if self.data is not None and 'cache' not in self.data:
                         self.data['cache'] = (latent_model_input.to('cpu'),
@@ -711,13 +717,17 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
                                                  add_text_embeds.to('cpu'),
                                                  add_time_ids.to('cpu'),
                                                  cache_flag.to('cpu'))
-                    outputs = self.compiled_unet_model_cache(latent_model_input,
-                                                             t.to(torch.int64)[None].to(f'npu:{self.device_0}'),
-                                                             prompt_embeds.to(f'npu:{self.device_0}'),
-                                                             add_text_embeds.to(f'npu:{self.device_0}'),
-                                                             add_time_ids.to(f'npu:{self.device_0}'),
-                                                             cache_flag.to(f'npu:{self.device_0}'),
-                                                             )
+                    unet_input_cache = [
+                                         latent_model_input,
+                                         t.to(torch.int64)[None].to(f'npu:{self.device_0}'),
+                                         prompt_embeds.to(f'npu:{self.device_0}'),
+                                         add_text_embeds.to(f'npu:{self.device_0}'),
+                                         add_time_ids.to(f'npu:{self.device_0}'),
+                                         cache_flag.to(f'npu:{self.device_0}'),
+                    ]
+                    if use_lora_hotswitch:
+                        unet_input_cache = unet_input_cache + [torch.tensor([])] * 788
+                    outputs = self.compiled_unet_model_cache(*unet_input_cache)
                     noise_pred = outputs[0]
                     cache = outputs[1]
             else:
@@ -950,12 +960,6 @@ def parse_arguments():
         default="./newLoraPath/lora.pt",
         help="new lora weight path.",
     )
-    parser.add_argument(
-        "--loramerge_ratio",
-        default=1.0,
-        type=float,
-        help="base weight and new lora weight fusion ratio"
-    )
 
     return parser.parse_args()
 
@@ -999,7 +1003,7 @@ def main():
                 continue
             skip_steps[int(i)] = 1
     
-    if args.use_loraHotswitch and not args.use_cache:
+    if args.use_loraHotswitch:
         # first combine base model and lora model into new
         base_model = torch.load(args.lorabase_weight)
         new_model = load_file(args.loranew_weight)
@@ -1059,21 +1063,62 @@ def main():
             for item in pair_keys:
                 visited.append(item)
         # specify key order
-        input_update = [
-                        torch.ones(2, 4, 128, 128).to("npu"),
-                        torch.ones(1).to(torch.long).to("npu"),
-                        torch.ones(2, 77, 2048).to("npu"),
-                        torch.ones(2, 1280).to("npu"),
-                        torch.ones(2, 6).to("npu")
-        ]
-        for name in KeyOrderList:
-            try:
-                input_update.append(fusionweight[name].to("npu"))
-            except KeyError:
-                logging.error('can not find keyorderlist key name:%s in fusionweight',name)
-                return
-                
-        pipe.compiled_unet_model(*input_update)
+        if args.use_cache:
+            #skip model
+            input_skip = [
+                            torch.ones(2, 4, 128, 128).to("npu"),
+                            torch.ones(1).to(torch.long).to("npu"),
+                            torch.ones(2, 77, 2048).to("npu"),
+                            torch.ones(2, 1280).to("npu"),
+                            torch.ones(2, 6).to("npu"),
+                            torch.ones([1], dtype=torch.long).to("npu"),
+                            torch.ones(2, 1280, 64, 64).to("npu")
+            ]
+            for name in UnetSkip_key:
+                try:
+                    input_skip.append(fusionweight[name].to("npu"))
+                except KeyError:
+                    logging.error('can not find UnetSkip_key key name:%s in fusionweight',name)
+                    return
+                    
+            outskip = pipe.compiled_unet_model_skip(*input_update)
+            outskip.to("cpu")
+            # cache model
+            input_cache = [
+                            torch.ones(2, 4, 128, 128).to("npu"),
+                            torch.ones(1).to(torch.long).to("npu"),
+                            torch.ones(2, 77, 2048).to("npu"),
+                            torch.ones(2, 1280).to("npu"),
+                            torch.ones(2, 6).to("npu"),
+                            torch.ones([1], dtype=torch.long).to("npu")
+            ]
+            for name in KeyOrderList:
+                try:
+                    input_cache.append(fusionweight[name].to("npu"))
+                except KeyError:
+                    logging.error('can not find keyorderlist key name:%s in fusionweight',name)
+                    return
+            
+            outcache = pipe.compiled_unet_model_cache(*input_cache)
+            outcache.to("cpu")
+            
+        else:
+            input_update = [
+                            torch.ones(2, 4, 128, 128).to("npu"),
+                            torch.ones(1).to(torch.long).to("npu"),
+                            torch.ones(2, 77, 2048).to("npu"),
+                            torch.ones(2, 1280).to("npu"),
+                            torch.ones(2, 6).to("npu")
+            ]
+            for name in KeyOrderList:
+                try:
+                    input_update.append(fusionweight[name].to("npu"))
+                except KeyError:
+                    logging.error('can not find keyorderlist key name:%s in fusionweight',name)
+                    return
+                    
+            output = pipe.compiled_unet_model(*input_update)
+            output.to("cpu")
 
     use_time = 0
     prompt_loader = PromptLoader(args.prompt_file,
@@ -1109,7 +1154,7 @@ def main():
                 skip_steps=skip_steps,
                 flag_ddim=flag_ddim,
                 flag_cache=flag_cache,
-                use_lora_hotswitch=(args.use_loraHotswitch and (not args.use_cache)),
+                use_lora_hotswitch=args.use_loraHotswitch,
             )
         if i > 4: # do not count the time spent inferring the first 0 to 4 images
             use_time += time.time() - start_time
