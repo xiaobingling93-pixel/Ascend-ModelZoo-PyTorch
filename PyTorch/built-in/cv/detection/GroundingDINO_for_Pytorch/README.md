@@ -62,11 +62,11 @@ Grounding DINO是一个开放集目标检测模型，可以根据输入文本检
 
 |        软件类型        |   支持版本   |
 |:------------------:|:--------:|
-| FrameworkPTAdapter | 6.0.RC2  |
-|        CANN        | 8.0.RC2  |
-|      昇腾NPU固件       | 24.1.RC2 |
-|      昇腾NPU驱动       | 24.1.RC2 |
-|        Mx_Driving         | 6.0.RC2  |
+| FrameworkPTAdapter | 6.0.RC3  |
+|        CANN        | 8.0.RC3  |
+|      昇腾NPU固件       | 24.1.RC3 |
+|      昇腾NPU驱动       | 24.1.RC3 |
+|        Mx_Driving         | 6.0.RC3  |
 
 ### 安装模型环境
 
