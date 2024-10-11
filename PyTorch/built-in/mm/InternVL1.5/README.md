@@ -276,12 +276,12 @@ InternVL 的三个改进：\
 
 修改模型权重中的config.json文件，例如internvl_chat/pretrained/InternVL-Chat-V1-5/config.json。
 
-在文件的第66行修改LLM层数配置，例如12:
+在文件的第66行llm_config中修改LLM层数配置，例如12:
 ```json
 "num_hidden_layers": 48,
 ```
 
-在文件的第132行修改LLM层数配置，例如5:
+在文件的第132行vision_config中修改ViT层数配置，例如5:
 ```json
 "num_hidden_layers": 45,
 ```

@@ -553,7 +553,21 @@ class InternLM2FlashAttention2(InternLM2Attention):
         """
         # Contains at least one padding token in the sequence
         causal = self.is_causal and query_length != 1
-        if attention_mask is not None:
+        if is_npu_available():
+            _, seqlen_q, head_num, head_dim = query_states.shape
+            _, seqlen_k, _, _ = key_states.shape
+            attn_mask = torch.triu(torch.ones([seqlen_q, seqlen_k], device="npu"), diagonal=1).bool()
+            attn_output = torch_npu.npu_fusion_attention(
+                query=query_states,
+                key=key_states,
+                value=value_states,
+                head_num=head_num,
+                input_layout="BSND",
+                keep_prob=1.-dropout,
+                scale=softmax_scale if softmax_scale else head_dim**-0.5,
+                atten_mask=attn_mask,
+                )[0]       
+        elif attention_mask is not None:
             batch_size = query_states.shape[0]
             query_states, key_states, value_states, indices_q, cu_seq_lens, max_seq_lens = self._unpad_input(
                 query_states, key_states, value_states, attention_mask, query_length
@@ -577,24 +591,9 @@ class InternLM2FlashAttention2(InternLM2Attention):
 
             attn_output = pad_input(attn_output_unpad, indices_q, batch_size, query_length)
         else:
-            if is_npu_available():
-                _, seqlen_q, head_num, head_dim = query_states.shape
-                _, seqlen_k, _, _ = key_states.shape
-                attn_mask = torch.triu(torch.ones([seqlen_q, seqlen_k], device="npu"), diagonal=1).bool()
-                attn_output = torch_npu.npu_fusion_attention(
-                    query=query_states,
-                    key=key_states,
-                    value=value_states,
-                    head_num=head_num,
-                    input_layout="BSND",
-                    keep_prob=1.-dropout,
-                    scale=softmax_scale if softmax_scale else head_dim**-0.5,
-                    atten_mask=attn_mask,
-                    )[0]
-            else:
-                attn_output = flash_attn_func(
-                    query_states, key_states, value_states, dropout, softmax_scale=softmax_scale, causal=causal
-                )
+            attn_output = flash_attn_func(
+                query_states, key_states, value_states, dropout, softmax_scale=softmax_scale, causal=causal
+            )
 
         return attn_output
 
