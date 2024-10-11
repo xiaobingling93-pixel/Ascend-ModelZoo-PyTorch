@@ -158,7 +158,7 @@ def main():
                 audio_end_in_s = float(args.audio_end_in_s[i]) if (len(args.audio_end_in_s) > i) else 10.0
                 begin = time.time()
                 audio = pipe(
-                    prompt=prompt,
+                    prompt=prompt.strip(),
                     negative_prompt=args.negative_prompt,
                     num_inference_steps=args.num_inference_steps,
                     latents=latents,

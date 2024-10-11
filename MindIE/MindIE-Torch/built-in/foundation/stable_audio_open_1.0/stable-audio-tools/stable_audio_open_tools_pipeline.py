@@ -82,7 +82,7 @@ def main():
     with os.fdopen(os.open(args.prompt_file, os.O_RDONLY), "r") as f:
         for i, prompt in enumerate(f):
             with torch.no_grad():
-                conditioning[0]["prompt"] = prompt
+                conditioning[0]["prompt"] = prompt.strip()
                 conditioning[0]["seconds_total"] = float(args.seconds_total[i]) if (len(args.seconds_total) > i) else 10.0
 
                 npu_stream.synchronize()

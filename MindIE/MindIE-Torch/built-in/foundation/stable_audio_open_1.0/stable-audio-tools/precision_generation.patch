@@ -1,0 +1,11 @@
+--- generation.py	2024-10-10 19:37:20.875115700 +0800
++++ generation_patch.py	2024-10-10 19:38:24.088056700 +0800
+@@ -139,7 +139,7 @@
+     print(seed)
+     torch.manual_seed(seed)
+     # Define the initial noise immediately after setting the seed
+-    noise = torch.randn([batch_size, model.io_channels, sample_size], device=device)
++    noise = torch.randn([batch_size, model.io_channels, sample_size], device="cpu").to(device)
+ 
+     torch.backends.cuda.matmul.allow_tf32 = False
+     torch.backends.cudnn.allow_tf32 = False
