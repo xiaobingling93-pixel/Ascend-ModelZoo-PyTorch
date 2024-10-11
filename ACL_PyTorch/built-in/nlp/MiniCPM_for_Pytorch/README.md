@@ -200,7 +200,7 @@ B). 执行命令查看芯片名称（${chip_name}）。
 
 C). 执行ATC命令。
          
-          atc --framework=5 --model=${onnx文件路径}  --output=${输出文件名} --input_format=ND --input_shape="input_ids:1,1;attention_mask:1,1025;position_ids:1,1;past_key_values:52,2,1,8,1024,64" --soc_version=Ascend310B1 --precision_mode=must_keep_origin_dtype
+          atc --framework=5 --model=${onnx文件路径}  --output=${输出文件名} --input_format=ND --input_shape="input_ids:1,1;attention_mask:1,1537;position_ids:1,1;past_key_values:52,2,1,8,1536,64" --soc_version=Ascend310B1 --precision_mode=must_keep_origin_dtype
           
 
 - 参数说明：
@@ -224,7 +224,7 @@ C). 执行ATC命令。
    2). 执行推理:
 
         
-        python main.py --model ${om文件路径}  --hf-dir ${模型文件路径} --engine acl --sampling greedy --cli --kv_size 1024
+        python main.py --model ${om文件路径}  --hf-dir ${模型文件路径} --engine acl --sampling greedy --cli --kv_size 1536
         
 
 - 参数说明：               
@@ -248,4 +248,4 @@ C). 执行ATC命令。
 
 | 芯片型号 | Batch Size | 数据集 | 精度（Acc） | 性能(tokens/s) |
 | :------: | :--------: | :----: |:-------:|:------------:|
-|    310B1      |     1       |    BoolQ    |   70%   |      10      |
+|    310B1      |     1       |    BoolQ    |   72.3%   |      10      |

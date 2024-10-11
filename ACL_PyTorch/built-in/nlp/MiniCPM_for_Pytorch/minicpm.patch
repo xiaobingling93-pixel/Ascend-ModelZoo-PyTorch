@@ -1,14 +1,18 @@
-diff -uprN ascend-llm/export_llama/export_llama.py ascend-minicpm/export_llama/export_llama.py
---- ascend-llm/export_llama/export_llama.py	2024-09-04 18:56:30.160000000 +0800
-+++ ascend-minicpm/export_llama/export_llama.py	2024-09-04 18:49:41.660000000 +0800
-@@ -1,97 +1,108 @@
--import argparse
--import importlib
--import torch
+diff -uprN ascend-llm/export_llama/export_llama.py ascend-llm-minicpm/export_llama/export_llama.py
+--- ascend-llm/export_llama/export_llama.py	2024-10-11 15:54:35.321678620 +0800
++++ ascend-llm-minicpm/export_llama/export_llama.py	2024-10-11 15:51:53.113678620 +0800
+@@ -1,59 +1,53 @@
++import os
+ import argparse
+ import importlib
+ import torch
 -import os
 -from transformers import LlamaForCausalLM, LlamaTokenizer
--
--
++from transformers import AutoModelForCausalLM, AutoTokenizer
++import torch_npu
+ 
++torch_npu.npu.set_device("npu:0")
+ 
 -def export_onnx(base_model,out_path,quant_cfg_path,act_path):
 -    tokenizer= LlamaTokenizer.from_pretrained(base_model)
 -    model = LlamaForCausalLM.from_pretrained(
@@ -26,88 +30,6 @@ diff -uprN ascend-llm/export_llama/export_llama.py ascend-minicpm/export_llama/e
 -    
 -    input_names = ["input_ids", "attention_mask", "position_ids","past_key_values"]
 -    output_names = ["logits","out_key_values","attn_scores"]
--    dynamic_axes = {
--        "input_ids": { 0: "batch_size", 1: "seq_length" },
--        "attention_mask": { 0: "batch_size",1:"all_len" },
--        "position_ids": { 0: "batch_size", 1: "seq_length" },
--        "past_key_values": { 2: "batch_size", 4: "kv_len" },
--    }
--    
--    batch_size,seq_len,kv_len=1,16,1024
--    all_len = seq_len + kv_len
--    n_layers,n_heads,hidden_size=model_cfg.num_hidden_layers,model_cfg.num_key_value_heads,model_cfg.hidden_size
--    head_dim = int(model_cfg.hidden_size / model_cfg.num_attention_heads)
--
--
--    input_ids = torch.zeros((batch_size,seq_len)).long().to("cuda") # batch_size, new_sequence_length
--    attention_mask = torch.zeros((batch_size,all_len)).long().to("cuda") # batch_size, all_sequence_length
--    position_ids = torch.zeros((batch_size,seq_len)).long().to("cuda") # batch_size, new_sequence_length
--    # past_keys = torch.rand((batch_size,  n_heads,kv_len, head_dim),dtype=torch.float16).to("cuda")
--    # past_values = torch.rand((batch_size,n_heads, kv_len, head_dim),dtype=torch.float16).to("cuda")
--    # past_key_values = tuple([(past_keys,past_values)] * n_layers)
--    past_key_values = torch.rand((n_layers,2,batch_size,n_heads, kv_len, head_dim),dtype=torch.float16).to("cuda")
--    input_args = (
--        input_ids,
--        attention_mask,
--        position_ids,
--        past_key_values,
--        None, # inputs_embeds: Optional[torch.FloatTensor] = None,
--        None, #labels: Optional[torch.LongTensor] = None,
--        True, #use_cache: Optional[bool] = None,
--        True # output_attentions: Optional[bool] = None,
--    )
--
--    model.eval()
--    torch.onnx.export(
--        model,
--        f=out_path,
--        args=input_args,
--        input_names=input_names,
--        output_names=output_names,
--        dynamic_axes=dynamic_axes,
--        opset_version=13,
--        export_params=True,
--    )
--
--if __name__ == "__main__":
--    import os
--    os.chdir(os.path.dirname(__file__))
--    parser = argparse.ArgumentParser()
--    parser.add_argument(
--        "--model", "-m",
--        type=str, 
--        default="./model/TinyLlama-1.1B-Chat-v1.0", 
--        help="transformers model"
--    )
--    parser.add_argument(
--        "--output","-o",
--        type=str,
--        default="./model/export_out/tiny-llama.onnx",
--        help="where to save onnx model",
--    )
--    parser.add_argument(
--        "--act-path","-a",
--        type=str,
--        default="./act_scales/llama-2-7b.pt",
--        help="path to act_scales",
--    )
--    parser.add_argument(
--        "--quant","-q",
--        type=str,
--        default="./config/w8x8.py",
--        help="path to quant config",
--    )
--    args = parser.parse_args()
--    export_onnx(args.model,args.output,args.quant,args.act_path)
-+import os
-+import argparse
-+import importlib
-+import torch
-+from transformers import AutoModelForCausalLM, AutoTokenizer
-+import torch_npu
-+
-+torch_npu.npu.set_device("npu:0")
-+
 +
 +def export_onnx(base_model, out_path, quant_cfg_path, act_path):
 +
@@ -119,47 +41,62 @@ diff -uprN ascend-llm/export_llama/export_llama.py ascend-minicpm/export_llama/e
 +
 +    input_names = ["input_ids", "attention_mask", "position_ids", "past_key_values"]
 +    output_names = ["logits", "out_key_values"]
-+    dynamic_axes = {
+     dynamic_axes = {
+-        "input_ids": { 0: "batch_size", 1: "seq_length" },
+-        "attention_mask": { 0: "batch_size",1:"all_len" },
+-        "position_ids": { 0: "batch_size", 1: "seq_length" },
+-        "past_key_values": { 2: "batch_size", 4: "kv_len" },
 +        "input_ids": {0: "batch_size", 1: "seq_length"},
 +        "attention_mask": {0: "batch_size", 1: "all_len"},
 +        "position_ids": {0: "batch_size", 1: "seq_length"},
 +        "past_key_values": {2: "batch_size", 4: "kv_len"},
-+    }
+     }
+-    
+-    batch_size,seq_len,kv_len=1,16,1024
 +
 +    batch_size, seq_len, kv_len = 1, 16, 1024
-+    all_len = seq_len + kv_len
+     all_len = seq_len + kv_len
+-    n_layers,n_heads,hidden_size=model_cfg.num_hidden_layers,model_cfg.num_key_value_heads,model_cfg.hidden_size
 +    n_layers, n_heads, hidden_size = model_cfg.num_hidden_layers, model_cfg.num_key_value_heads, model_cfg.hidden_size
-+    head_dim = int(model_cfg.hidden_size / model_cfg.num_attention_heads)
-+
+     head_dim = int(model_cfg.hidden_size / model_cfg.num_attention_heads)
+ 
 +    input_ids = torch.zeros((batch_size, seq_len)).long().npu()  # batch_size, new_sequence_length
 +    attention_mask = torch.zeros((batch_size, all_len)).long().npu()  # batch_size, all_sequence_length
 +    position_ids = torch.zeros((batch_size, seq_len)).long().npu()  # batch_size, new_sequence_length
-+
+ 
+-    input_ids = torch.zeros((batch_size,seq_len)).long().to("cuda") # batch_size, new_sequence_length
+-    attention_mask = torch.zeros((batch_size,all_len)).long().to("cuda") # batch_size, all_sequence_length
+-    position_ids = torch.zeros((batch_size,seq_len)).long().to("cuda") # batch_size, new_sequence_length
+-    # past_keys = torch.rand((batch_size,  n_heads,kv_len, head_dim),dtype=torch.float16).to("cuda")
+-    # past_values = torch.rand((batch_size,n_heads, kv_len, head_dim),dtype=torch.float16).to("cuda")
+-    # past_key_values = tuple([(past_keys,past_values)] * n_layers)
+-    past_key_values = torch.rand((n_layers,2,batch_size,n_heads, kv_len, head_dim),dtype=torch.float16).to("cuda")
 +    past_key_values = torch.rand((n_layers, 2, batch_size, n_heads, kv_len, head_dim), dtype=torch.float16).npu()
-+    input_args = (
-+        input_ids,
-+        attention_mask,
-+        position_ids,
-+        past_key_values,
+     input_args = (
+         input_ids,
+         attention_mask,
+         position_ids,
+         past_key_values,
+-        None, # inputs_embeds: Optional[torch.FloatTensor] = None,
+-        None, #labels: Optional[torch.LongTensor] = None,
+-        True, #use_cache: Optional[bool] = None,
+-        True # output_attentions: Optional[bool] = None,
 +        None,  # inputs_embeds: Optional[torch.FloatTensor] = None,
 +        None,  # labels: Optional[torch.LongTensor] = None,
 +        True,  # use_cache: Optional[bool] = None,
 +        True  # output_attentions: Optional[bool] = None,
-+    )
+     )
+-
 +    print("begin eval  ......")
-+    model.eval()
+     model.eval()
 +    print("begin export  ......")
-+    torch.onnx.export(
-+        model,
-+        f=out_path,
-+        args=input_args,
-+        input_names=input_names,
-+        output_names=output_names,
-+        dynamic_axes=dynamic_axes,
-+        opset_version=13,
-+        export_params=True,
-+    )
-+
+     torch.onnx.export(
+         model,
+         f=out_path,
+@@ -65,33 +59,50 @@ def export_onnx(base_model,out_path,quan
+         export_params=True,
+     )
+ 
 +
 +def quantize_model(act_path, model, model_cfg, quant_cfg_path):
 +    spec = importlib.util.spec_from_file_location("quant_cfg_module", quant_cfg_path)
@@ -176,261 +113,98 @@ diff -uprN ascend-llm/export_llama/export_llama.py ascend-minicpm/export_llama/e
 +        os.makedirs(save_dir)
 +
 +
-+if __name__ == "__main__":
+ if __name__ == "__main__":
+-    import os
 +    
-+    os.chdir(os.path.dirname(__file__))
-+    parser = argparse.ArgumentParser()
-+    parser.add_argument(
-+        "--model", "-m",
+     os.chdir(os.path.dirname(__file__))
+     parser = argparse.ArgumentParser()
+     parser.add_argument(
+         "--model", "-m",
+-        type=str, 
+-        default="./model/TinyLlama-1.1B-Chat-v1.0", 
 +        type=str,
 +        default="/opt/naie/qlh/ascend-llm/export_llama/model/MiniCPM-1B-sft-fp16",
-+        help="transformers model"
-+    )
-+    parser.add_argument(
+         help="transformers model"
+     )
+     parser.add_argument(
+-        "--output","-o",
 +        "--output", "-o",
-+        type=str,
+         type=str,
+-        default="./model/export_out/tiny-llama.onnx",
 +        default="./model/minicpm_1b_q/minicpm_1b_q.onnx",
-+        help="where to save onnx model",
-+    )
-+    parser.add_argument(
+         help="where to save onnx model",
+     )
+     parser.add_argument(
+-        "--act-path","-a",
 +        "--act-path", "-a",
-+        type=str,
+         type=str,
+-        default="./act_scales/llama-2-7b.pt",
 +        default="./minicpm-1b.pt",
-+        help="path to act_scales",
-+    )
-+    parser.add_argument(
+         help="path to act_scales",
+     )
+     parser.add_argument(
+-        "--quant","-q",
 +        "--quant", "-q",
-+        type=str,
+         type=str,
+-        default="./config/w8x8.py",
 +        default="./config/smooth.py",
-+        help="path to quant config",
-+    )
-+    args = parser.parse_args()
+         help="path to quant config",
+     )
+     args = parser.parse_args()
+-    export_onnx(args.model,args.output,args.quant,args.act_path)
 +    output = get_out_path(args.output)    
 +    export_onnx(args.model, args.output, args.quant, args.act_path)
-diff -uprN ascend-llm/export_llama/generate_act_scales.py ascend-minicpm/export_llama/generate_act_scales.py
---- ascend-llm/export_llama/generate_act_scales.py	2024-09-04 18:56:30.160000000 +0800
-+++ ascend-minicpm/export_llama/generate_act_scales.py	2024-09-04 18:49:39.228000000 +0800
-@@ -1,109 +1,108 @@
--'''
--code from https://github.com/mit-han-lab/smoothquant/
--'''
--from datasets import load_dataset
--import functools
--from collections import defaultdict
--
--from functools import partial
--import numpy as np
--from tqdm import tqdm
--import torch
--import os
--
--from transformers import (
--    AutoModelForCausalLM,
--    AutoTokenizer,
--)
--import argparse
--
--def get_act_scales(model, tokenizer, dataset_path, num_samples=512, seq_len=512):
--    model.eval()
--    device = next(model.parameters()).device
--    act_scales = {}
--
--    def stat_tensor(name, tensor):
--        hidden_dim = tensor.shape[-1]
--        tensor = tensor.view(-1, hidden_dim).abs().detach()
--        comming_max = torch.max(tensor, dim=0)[0].float().cpu()
--        if name in act_scales:
--            act_scales[name] = torch.max(act_scales[name], comming_max)
--        else:
--            act_scales[name] = comming_max
--
--    def stat_input_hook(m, x, y, name):
--        if isinstance(x, tuple):
--            x = x[0]
--        stat_tensor(name, x)
--
--    hooks = []
--    for name, m in model.named_modules():
+diff -uprN ascend-llm/export_llama/generate_act_scales.py ascend-llm-minicpm/export_llama/generate_act_scales.py
+--- ascend-llm/export_llama/generate_act_scales.py	2024-10-11 15:54:35.321678620 +0800
++++ ascend-llm-minicpm/export_llama/generate_act_scales.py	2024-10-11 15:51:53.113678620 +0800
+@@ -17,6 +17,7 @@ from transformers import (
+ )
+ import argparse
+ 
++
+ def get_act_scales(model, tokenizer, dataset_path, num_samples=512, seq_len=512):
+     model.eval()
+     device = next(model.parameters()).device
+@@ -38,18 +39,18 @@ def get_act_scales(model, tokenizer, dat
+ 
+     hooks = []
+     for name, m in model.named_modules():
 -        if isinstance(m,torch.nn.Linear):
--            hooks.append(
--                m.register_forward_hook(functools.partial(stat_input_hook, name=name))
--            )
--
++        if isinstance(m, torch.nn.Linear):
+             hooks.append(
+                 m.register_forward_hook(functools.partial(stat_input_hook, name=name))
+             )
+ 
 -    dataset = load_dataset("json", data_files=dataset_path,split="train")
--    dataset = dataset.shuffle(seed=42)
--
--    for i in tqdm(range(num_samples)):
--        text = "Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.\n\n### Instruction:\n{instruction}\n\n### Input:\n{input}\n\n### Response:\n".format(
++    dataset = load_dataset("json", data_files=dataset_path, split="train")
+     dataset = dataset.shuffle(seed=42)
+ 
+     for i in tqdm(range(num_samples)):
+         text = "Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.\n\n### Instruction:\n{instruction}\n\n### Input:\n{input}\n\n### Response:\n".format(
 -			instruction=dataset["instruction"][i], input=dataset["output"][i]
 -		)
--        input_ids = tokenizer(
--            text, return_tensors="pt", max_length=seq_len, truncation=True
--        ).input_ids.to(device)
--        model(input_ids)
++            instruction=dataset["instruction"][i], input=dataset["output"][i]
++        )
+         input_ids = tokenizer(
+             text, return_tensors="pt", max_length=seq_len, truncation=True
+         ).input_ids.to(device)
+@@ -61,11 +62,9 @@ def get_act_scales(model, tokenizer, dat
+     return act_scales
+ 
+ 
 -
--    for h in hooks:
--        h.remove()
--
--    return act_scales
--
--
--
--def build_model_and_tokenizer(model_name):
+ def build_model_and_tokenizer(model_name):
 -    tokenizer = AutoTokenizer.from_pretrained(model_name, model_max_length=512)
 -    kwargs = {"torch_dtype": torch.float16, "device_map": "sequential"}
 -    model = AutoModelForCausalLM.from_pretrained(model_name, **kwargs)
--    return model, tokenizer
--
--
--def parse_args():
--    parser = argparse.ArgumentParser()
--    parser.add_argument(
--        "--model-name", type=str, default="/run/llama-chat-7b-hf", help="model name"
--    )
--    parser.add_argument(
--        "--output-path",
--        type=str,
--        default="act_scales/opt-1.3b.pt",
--        help="where to save the act scales",
--    )
--    parser.add_argument(
--        "--dataset-path",
--        type=str,
--        default="/root/zanilia/alpaca-lora/alpaca_data.json",
--        help="location of the calibration dataset, we use the validation set of the Pile dataset",
--    )
--    parser.add_argument("--num-samples", type=int, default=512)
--    parser.add_argument("--seq-len", type=int, default=512)
--    args = parser.parse_args()
--    return args
--
--
--@torch.no_grad()
--def main():
--    args = parse_args()
--    model, tokenizer = build_model_and_tokenizer(args.model_name)
--
--    act_scales = get_act_scales(
--        model, tokenizer, args.dataset_path, args.num_samples, args.seq_len
--    )
--
--    os.makedirs(os.path.dirname(args.output_path), exist_ok=True)
--    torch.save(act_scales, args.output_path)
--
--
--if __name__ == "__main__":
--    main()
-+'''
-+code from https://github.com/mit-han-lab/smoothquant/
-+'''
-+from datasets import load_dataset
-+import functools
-+from collections import defaultdict
-+
-+from functools import partial
-+import numpy as np
-+from tqdm import tqdm
-+import torch
-+import os
-+
-+from transformers import (
-+    AutoModelForCausalLM,
-+    AutoTokenizer,
-+)
-+import argparse
-+
-+
-+def get_act_scales(model, tokenizer, dataset_path, num_samples=512, seq_len=512):
-+    model.eval()
-+    device = next(model.parameters()).device
-+    act_scales = {}
-+
-+    def stat_tensor(name, tensor):
-+        hidden_dim = tensor.shape[-1]
-+        tensor = tensor.view(-1, hidden_dim).abs().detach()
-+        comming_max = torch.max(tensor, dim=0)[0].float().cpu()
-+        if name in act_scales:
-+            act_scales[name] = torch.max(act_scales[name], comming_max)
-+        else:
-+            act_scales[name] = comming_max
-+
-+    def stat_input_hook(m, x, y, name):
-+        if isinstance(x, tuple):
-+            x = x[0]
-+        stat_tensor(name, x)
-+
-+    hooks = []
-+    for name, m in model.named_modules():
-+        if isinstance(m, torch.nn.Linear):
-+            hooks.append(
-+                m.register_forward_hook(functools.partial(stat_input_hook, name=name))
-+            )
-+
-+    dataset = load_dataset("json", data_files=dataset_path, split="train")
-+    dataset = dataset.shuffle(seed=42)
-+
-+    for i in tqdm(range(num_samples)):
-+        text = "Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.\n\n### Instruction:\n{instruction}\n\n### Input:\n{input}\n\n### Response:\n".format(
-+            instruction=dataset["instruction"][i], input=dataset["output"][i]
-+        )
-+        input_ids = tokenizer(
-+            text, return_tensors="pt", max_length=seq_len, truncation=True
-+        ).input_ids.to(device)
-+        model(input_ids)
-+
-+    for h in hooks:
-+        h.remove()
-+
-+    return act_scales
-+
-+
-+def build_model_and_tokenizer(model_name):
 +    tokenizer = AutoTokenizer.from_pretrained(model_name,)
 +    model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16,trust_remote_code=True).npu()
-+    return model, tokenizer
-+
-+
-+def parse_args():
-+    parser = argparse.ArgumentParser()
-+    parser.add_argument(
-+        "--model-name", type=str, default="/run/llama-chat-7b-hf", help="model name"
-+    )
-+    parser.add_argument(
-+        "--output-path",
-+        type=str,
-+        default="act_scales/opt-1.3b.pt",
-+        help="where to save the act scales",
-+    )
-+    parser.add_argument(
-+        "--dataset-path",
-+        type=str,
-+        default="/root/zanilia/alpaca-lora/alpaca_data.json",
-+        help="location of the calibration dataset, we use the validation set of the Pile dataset",
-+    )
-+    parser.add_argument("--num-samples", type=int, default=512)
-+    parser.add_argument("--seq-len", type=int, default=512)
-+    args = parser.parse_args()
-+    return args
-+
-+
-+@torch.no_grad()
-+def main():
-+    args = parse_args()
-+    model, tokenizer = build_model_and_tokenizer(args.model_name)
-+
-+    act_scales = get_act_scales(
-+        model, tokenizer, args.dataset_path, args.num_samples, args.seq_len
-+    )
-+
-+    os.makedirs(os.path.dirname(args.output_path), exist_ok=True)
-+    torch.save(act_scales, args.output_path)
-+
-+
-+if __name__ == "__main__":
-+    main()
-diff -uprN ascend-llm/export_llama/modeling_minicpm.py ascend-minicpm/export_llama/modeling_minicpm.py
+     return model, tokenizer
+ 
+ 
+diff -uprN ascend-llm/export_llama/modeling_minicpm.py ascend-llm-minicpm/export_llama/modeling_minicpm.py
 --- ascend-llm/export_llama/modeling_minicpm.py	1970-01-01 08:00:00.000000000 +0800
-+++ ascend-minicpm/export_llama/modeling_minicpm.py	2024-09-04 18:49:40.344000000 +0800
++++ ascend-llm-minicpm/export_llama/modeling_minicpm.py	2024-10-11 15:51:53.113678620 +0800
 @@ -0,0 +1,1453 @@
 +# coding=utf-8
 +# Copyright 2022 EleutherAI and the HuggingFace Inc. team. All rights reserved.
@@ -1885,34 +1659,50 @@ diff -uprN ascend-llm/export_llama/modeling_minicpm.py ascend-minicpm/export_lla
 +            hidden_states=transformer_outputs.hidden_states,
 +            attentions=transformer_outputs.attentions,
 +        )
-diff -uprN ascend-llm/inference/config.py ascend-minicpm/inference/config.py
---- ascend-llm/inference/config.py	2024-09-04 18:56:30.160000000 +0800
-+++ ascend-minicpm/inference/config.py	2024-09-04 18:49:55.672000000 +0800
-@@ -1,64 +1,68 @@
+diff -uprN ascend-llm/inference/config.py ascend-llm-minicpm/inference/config.py
+--- ascend-llm/inference/config.py	2024-10-11 15:54:35.341678620 +0800
++++ ascend-llm-minicpm/inference/config.py	2024-10-11 15:51:53.113678620 +0800
+@@ -1,54 +1,55 @@
 -from dataclasses import dataclass,field
 -from typing import Optional,Union,List,Dict
--import os
--import json
--
--@dataclass
--class InferenceConfig:
--    tokenizer: str = ""
++from dataclasses import dataclass, field
++from typing import List, Dict
+ import os
+ import json
+ 
++
+ @dataclass
+ class InferenceConfig:
+     tokenizer: str = ""
 -    hf_model_dir:str = "" # huggingface 模型目录，包含tokenizer和config.json
 -    sampling_method: str = "top_k" # "greedy" | "top_k" | "top_p"
 -    sampling_value: float = 10 # k for top_k p for top_p
--    temperature: float = 0.7
++    hf_model_dir: str = ""  # huggingface 模型目录，包含tokenizer和config.json
++    sampling_method: str = "greedy"  # "greedy" | "top_k" | "top_p"
++    sampling_value: float = 10  # k for top_k p for top_p
+     temperature: float = 0.7
 -    max_length:int = 512 # 输出长度的最大值
 -    max_input_len:int = 1 # 每次推理输入的最大长度为max_input_len，对om目前设置为1
 -    session_type:str="acl" # onnx或者acl
 -    acl_mode="rc" #rc模式下host和device是同一块内存，可以对执行流程进行优化
 -    device:int=0
--    # prompt:List[Dict[str,str]] = field(default_factory=list)
++    max_length: int = 128  # 输出长度的最大值
++    max_input_len: int = 1  # 每次推理输入的最大长度为max_input_len，对om目前设置为1
++    session_type: str = "acl"  # onnx或者acl
++    acl_mode = "rc"  # rc模式下host和device是同一块内存，可以对执行流程进行优化
++    device: int = 0
+     # prompt:List[Dict[str,str]] = field(default_factory=list)
 -    prompt:List[Dict[str,str]] = field(default_factory=lambda: [
 -        {"role":"user","content":"Hey there I am a human that would like to have a conversation with you."},
 -        {"role":"assistant","content":"Sure, I am happy to answer your questions"},
 -        {"role":"user","content":"Great, I insist that we take turns."},
 -        {"role":"assistant","content":"I agree, we should take turns."},
--    ])
++    prompt: List[Dict[str, str]] = field(default_factory=lambda: [
++        {"role": "user", "content": "Hey there I am a human that would like to have a conversation with you."},
++        {"role": "assistant", "content": "Sure, I am happy to answer your questions"},
++        {"role": "user", "content": "Great, I insist that we take turns."},
++        {"role": "assistant", "content": "I agree, we should take turns."},
+     ])
 -    model:str=""
 -    kvcache_method:str = "sliding-window" # "basic"|"sliding-window"|'streamllm'|'H2O'
 -    kvcache_fixsize:bool = True # 输入的kv缓存是否固定shape
@@ -1929,55 +1719,6 @@ diff -uprN ascend-llm/inference/config.py ascend-minicpm/inference/config.py
 -    dtype:str="float16"
 -    model_type:str="llama-2-7b"
 -    
--    def __post_init__(self):
--        assert(self.kvcache_method in ["basic","sliding-window",'streamllm','H2O'])
--        assert(os.path.isdir(self.hf_model_dir))
--        assert(self.session_type in ["acl","onnx"])
--        if self.session_type == "onnx":
--            self.max_input_len = self.max_length
--        self.evict_len = int(min((self.max_cache_size - self.head_len )/2,self.evict_len ))
--        self.max_input_len = int(min(self.max_input_len,self.evict_len))
--        self.tokenizer = self.hf_model_dir
--        model_desc = None
--        with open(self.hf_model_dir+"/config.json") as f:
--            model_desc = json.load(f)
--        self.n_layer = model_desc['num_hidden_layers']
--        self.head_num = model_desc['num_key_value_heads']
--        self.num_kv_group = int(model_desc['num_attention_heads'] / self.head_num)
--        self.hidden_dim = model_desc["hidden_size"]
--        self.head_dim = int(self.hidden_dim / model_desc['num_attention_heads'])
--        if self.hidden_dim == 2048:
--            self.model_type = "tiny-llama"
--        if self.kvcache_method == "streamllm":
--            assert(self.head_len+self.evict_len < self.max_cache_size)
--        if self.kvcache_method == "H2O":
--            self.evict_len = int(min((self.max_cache_size - self.head_len -self.recent_len )/2,self.evict_len ))
--            assert(self.head_len+self.recent_len+self.evict_len < self.max_cache_size)
-+from dataclasses import dataclass, field
-+from typing import List, Dict
-+import os
-+import json
-+
-+
-+@dataclass
-+class InferenceConfig:
-+    tokenizer: str = ""
-+    hf_model_dir: str = ""  # huggingface 模型目录，包含tokenizer和config.json
-+    sampling_method: str = "greedy"  # "greedy" | "top_k" | "top_p"
-+    sampling_value: float = 10  # k for top_k p for top_p
-+    temperature: float = 0.7
-+    max_length: int = 128  # 输出长度的最大值
-+    max_input_len: int = 1  # 每次推理输入的最大长度为max_input_len，对om目前设置为1
-+    session_type: str = "acl"  # onnx或者acl
-+    acl_mode = "rc"  # rc模式下host和device是同一块内存，可以对执行流程进行优化
-+    device: int = 0
-+    # prompt:List[Dict[str,str]] = field(default_factory=list)
-+    prompt: List[Dict[str, str]] = field(default_factory=lambda: [
-+        {"role": "user", "content": "Hey there I am a human that would like to have a conversation with you."},
-+        {"role": "assistant", "content": "Sure, I am happy to answer your questions"},
-+        {"role": "user", "content": "Great, I insist that we take turns."},
-+        {"role": "assistant", "content": "I agree, we should take turns."},
-+    ])
 +    model: str = ""
 +    kvcache_method: str = "sliding-window"  # "basic"|"sliding-window"|'streamllm'|'H2O'
 +    kvcache_fixsize: bool = True  # 输入的kv缓存是否固定shape
@@ -1994,197 +1735,52 @@ diff -uprN ascend-llm/inference/config.py ascend-minicpm/inference/config.py
 +    dtype: str = "float16"
 +    model_type: str = "minicpm"
 +
-+    def __post_init__(self):
+     def __post_init__(self):
+-        assert(self.kvcache_method in ["basic","sliding-window",'streamllm','H2O'])
+-        assert(os.path.isdir(self.hf_model_dir))
+-        assert(self.session_type in ["acl","onnx"])
 +        assert (self.kvcache_method in ["basic", "sliding-window", 'streamllm', 'H2O'])
 +        assert (os.path.isdir(self.hf_model_dir))
 +        assert (self.session_type in ["acl", "onnx"])
-+        if self.session_type == "onnx":
-+            self.max_input_len = self.max_length
+         if self.session_type == "onnx":
+             self.max_input_len = self.max_length
+-        self.evict_len = int(min((self.max_cache_size - self.head_len )/2,self.evict_len ))
+-        self.max_input_len = int(min(self.max_input_len,self.evict_len))
 +        self.evict_len = int(min((self.max_cache_size - self.head_len) / 2, self.evict_len))
 +        self.max_input_len = int(min(self.max_input_len, self.evict_len))
-+        self.tokenizer = self.hf_model_dir
-+        model_desc = None
+         self.tokenizer = self.hf_model_dir
+         model_desc = None
+-        with open(self.hf_model_dir+"/config.json") as f:
 +        with open(self.hf_model_dir + "/config.json") as f:
-+            model_desc = json.load(f)
-+        self.n_layer = model_desc['num_hidden_layers']
-+        self.head_num = model_desc['num_key_value_heads']
-+        self.num_kv_group = int(model_desc['num_attention_heads'] / self.head_num)
-+        self.hidden_dim = model_desc["hidden_size"]
-+        self.head_dim = int(self.hidden_dim / model_desc['num_attention_heads'])
-+        if self.hidden_dim == 2048:
-+            self.model_type = "tiny-llama"
+             model_desc = json.load(f)
+         self.n_layer = model_desc['num_hidden_layers']
+         self.head_num = model_desc['num_key_value_heads']
+@@ -57,8 +58,11 @@ class InferenceConfig:
+         self.head_dim = int(self.hidden_dim / model_desc['num_attention_heads'])
+         if self.hidden_dim == 2048:
+             self.model_type = "tiny-llama"
 +        elif self.hidden_dim == 1536:
 +            self.model_type = "minicpm"
 +
-+        if self.kvcache_method == "streamllm":
+         if self.kvcache_method == "streamllm":
+-            assert(self.head_len+self.evict_len < self.max_cache_size)
 +            assert (self.head_len + self.evict_len < self.max_cache_size)
-+        if self.kvcache_method == "H2O":
+         if self.kvcache_method == "H2O":
+-            self.evict_len = int(min((self.max_cache_size - self.head_len -self.recent_len )/2,self.evict_len ))
+-            assert(self.head_len+self.recent_len+self.evict_len < self.max_cache_size)
 +            self.evict_len = int(min((self.max_cache_size - self.head_len - self.recent_len) / 2, self.evict_len))
 +            assert (self.head_len + self.recent_len + self.evict_len < self.max_cache_size)
-diff -uprN ascend-llm/inference/inference.py ascend-minicpm/inference/inference.py
---- ascend-llm/inference/inference.py	2024-09-04 18:56:30.160000000 +0800
-+++ ascend-minicpm/inference/inference.py	2024-09-04 18:49:56.764000000 +0800
-@@ -1,154 +1,475 @@
+diff -uprN ascend-llm/inference/inference.py ascend-llm-minicpm/inference/inference.py
+--- ascend-llm/inference/inference.py	2024-10-11 15:54:35.341678620 +0800
++++ ascend-llm-minicpm/inference/inference.py	2024-10-11 15:51:53.113678620 +0800
+@@ -1,44 +1,60 @@
 -import numpy as np
--import os
+ import os
 -from typing import Any, Generator, List,Tuple,Dict
--from threading import Lock
--from session import Session
--from config import InferenceConfig
--
--class LlamaInterface:
--    def __init__(self,config:InferenceConfig) -> None:
--        self.max_length = config.max_length
--        from transformers import AutoTokenizer
--        self.tokenizer=AutoTokenizer.from_pretrained(config.tokenizer)
--        self.sampling_method=config.sampling_method
--        self.sampling_value = config.sampling_value
--        self.temperature=config.temperature
--        self.session=Session.fromConfig(config)
--        self.prompt=config.prompt
--        self.state:dict[str,Any] = {"code":200,"isEnd":False,"message":""}        
--        self.first=True
--        self.stop_mp = {"[|Human|]":6,"[|AI|]":5,"<|assistant|>":6,"<|user|>":5,"<|system|>":5}
--        self.stop_words = ["<|user|>","<|assistant|>","<|system|>","[|AI|]","[|Human|]"]
--        self.model_type = config.model_type
--        self.last_output=""
--        self.lock = Lock()
--        self.reset()
--        print("init success")
--
--    def generate_cache(self,prompt:str):
--        if len(prompt) == 0 :
--            return
--        input_ids = np.asarray(self.encode(prompt,add_bos_token=self.first),dtype=np.int64).reshape(1,-1)
--        self.first=False
--        logits = self.session.run(input_ids)[0]
--        return self.sample_logits(logits[0][-1:],self.sampling_method,self.sampling_value,self.temperature),logits
--
--    def sample_logits(
--        self,
--        logits: np.ndarray,
--        sampling_method: str = "greedy",
--        sampling_value: float = None,
--        temperature: float = 1.0,
--    ) -> np.ndarray:
--        if temperature == 0 or sampling_method == "greedy":
--            next_token = np.argmax(logits, axis=-1).astype(np.int64)
--
--        elif sampling_method == "top_k" or sampling_method == "top_p":
--            assert sampling_value is not None
--            logits = logits.astype(np.float32)
--            logits /= temperature
--            probs = np.exp(logits) / np.sum(np.exp(logits))
--            sorted_probs = np.sort(probs)[:, ::-1]
--            sorted_indices = np.argsort(probs)[:, ::-1]
--
--            if sampling_method == "top_k":
--                index_of_interest = int(sampling_value)
--            elif sampling_method == "top_p":
--                p = sampling_value
--                cumulative_probs = np.cumsum(sorted_probs, axis=-1)
--                for index_of_interest, cumulative_prob in enumerate(
--                    cumulative_probs[0]
--                ):
--                    if cumulative_prob > p:
--                        break
--
--            probs_of_interest = sorted_probs[:, : index_of_interest + 1]
--            indices_of_interest = sorted_indices[:, : index_of_interest + 1]
--            probs_of_interest /= np.sum(probs_of_interest)
--            next_token = np.array(
--                [np.random.choice(indices_of_interest[0], p=probs_of_interest[0])]
--            )
--        else:
--            raise Exception(f"Unknown sampling method {sampling_method}")
--
--        return next_token
--
--    
--    def format_last_output(self):
--        if len(self.last_output) == 0:
--            return 
--        text_format = self.apply_chat_template([{"role":"assistant","content":self.last_output}])
--        self.generate_cache(text_format[len(self.last_output):])
--        self.last_output = ""
--    
--    def predict(self, text):
--        with self.lock:
--            self.state['isEnd'],self.state['message'] = False,""        
--        if text == "":
--            return
--        self.format_last_output()
--        text = self.apply_chat_template([{"role":"user","content":text}])
--        input_ids = self.encode(text,add_bos_token=self.first)
--        input_ids = np.asarray(input_ids,dtype=np.int64).reshape(1,-1)
--        self.first,ids_list = False,[]
--        for i in range(self.max_length):
--            logits = self.session.run(input_ids)[0]
--            input_ids = self.sample_logits(logits[0][-1:], self.sampling_method, self.sampling_value, self.temperature)
--            input_ids = input_ids.reshape(1, -1)
--            if input_ids[0] == self.tokenizer.eos_token_id:
--                self.session.rollback(1) 
--                break
--            ids_list.append(input_ids[0].item())
--            text_out = self.tokenizer.decode(ids_list)
--            stop_word = is_stop_word_or_prefix(text_out,self.stop_words)
--            if stop_word != "":
--                ids_list = ids_list[:-self.stop_mp[stop_word]]
--                self.session.rollback(self.stop_mp[stop_word]) 
--                break
--            if i%3 == 0:
--                with self.lock:
--                    self.state['message']=text_out
--        self.last_output = self.tokenizer.decode(ids_list)
--        with self.lock:
--            self.state['message'],self.state['isEnd'] = self.last_output,True
--        return self.last_output
--
--    def reset(self):
--        self.first = True
--        self.last_output = ""
--        self.session.reset()
--        self.generate_cache(self.apply_chat_template(self.prompt))
--        
--    def getState(self):
--        with self.lock:
--            return self.state.copy()
--
--    def apply_chat_template(self,messages:List[Dict[str,str]]) -> str:
--        text = ""
--        if self.model_type == "llama-2-7b":
--            for message in messages:
--                if message["role"] == "user":
--                    text += f'[|Human|]\n{message["content"]}\n[|AI|]'
--                elif message["role"] == "system":
--                    text += f'[|System|]\n{message["content"]}\n'
--                else:
--                    text += f'{message["content"]}\n'
--        elif self.model_type == "tiny-llama":
--            for message in messages:
--                if message["role"] == "user":
--                    text += f'<|user|>\n{message["content"]}</s>\n<|assistant|>'
--                elif message["role"] == "system":
--                    text += f'<|system|>\n{message["content"]}</s>\n'
--                else:
--                    text += f'{message["content"]}</s>\n'
--        return text
--    
--    def encode(self,text,add_bos_token=False):
--        self.tokenizer.add_bos_token = add_bos_token
--        return self.tokenizer.encode(text)
--
--def is_stop_word_or_prefix(s: str, stop_words: list) -> int:
--    for stop_word in stop_words:
--        if s.endswith(stop_word):
--            return stop_word
--    return ""
-\ No newline at end of file
-+import os
 +from typing import Any, List, Dict
-+from threading import Lock
-+from session import Session
-+from config import InferenceConfig
+ from threading import Lock
+ from session import Session
+ from config import InferenceConfig
 +import time
 +import torch
 +
@@ -2201,14 +1797,24 @@ diff -uprN ascend-llm/inference/inference.py ascend-minicpm/inference/inference.
 +
 +from tqdm import tqdm
 +
-+
-+class LlamaInterface:
+ 
+ class LlamaInterface:
+-    def __init__(self,config:InferenceConfig) -> None:
 +    def __init__(self, config: InferenceConfig) -> None:
-+        self.max_length = config.max_length
-+        from transformers import AutoTokenizer
+         self.max_length = config.max_length
+         from transformers import AutoTokenizer
+-        self.tokenizer=AutoTokenizer.from_pretrained(config.tokenizer)
+-        self.sampling_method=config.sampling_method
 +        self.tokenizer = AutoTokenizer.from_pretrained(config.tokenizer)
 +        self.sampling_method = config.sampling_method
-+        self.sampling_value = config.sampling_value
+         self.sampling_value = config.sampling_value
+-        self.temperature=config.temperature
+-        self.session=Session.fromConfig(config)
+-        self.prompt=config.prompt
+-        self.state:dict[str,Any] = {"code":200,"isEnd":False,"message":""}        
+-        self.first=True
+-        self.stop_mp = {"[|Human|]":6,"[|AI|]":5,"<|assistant|>":6,"<|user|>":5,"<|system|>":5}
+-        self.stop_words = ["<|user|>","<|assistant|>","<|system|>","[|AI|]","[|Human|]"]
 +        self.temperature = config.temperature
 +        self.session = Session.fromConfig(config)
 +        self.prompt = config.prompt
@@ -2216,75 +1822,77 @@ diff -uprN ascend-llm/inference/inference.py ascend-minicpm/inference/inference.
 +        self.first = True
 +        self.stop_mp = {"[|Human|]": 6, "[|AI|]": 5, "<|assistant|>": 6, "<|user|>": 5, "<|system|>": 5}
 +        self.stop_words = ["<|user|>", "<|assistant|>", "<|system|>", "[|AI|]", "[|Human|]"]
-+        self.model_type = config.model_type
+         self.model_type = config.model_type
+-        self.last_output=""
 +        self.last_output = ""
-+        self.lock = Lock()
-+        self.reset()
-+        print("init success")
-+
+         self.lock = Lock()
+         self.reset()
+         print("init success")
+ 
+-    def generate_cache(self,prompt:str):
+-        if len(prompt) == 0 :
 +    def generate_cache(self, prompt: str):
 +        if len(prompt) == 0:
-+            return
+             return
+-        input_ids = np.asarray(self.encode(prompt,add_bos_token=self.first),dtype=np.int64).reshape(1,-1)
+-        self.first=False
 +        print("prompt default = ", prompt)
 +        input_ids = np.asarray(self.encode(prompt, add_bos_token=self.first), dtype=np.int64).reshape(1, -1)
 +        self.first = False
-+        logits = self.session.run(input_ids)[0]
+         logits = self.session.run(input_ids)[0]
+-        return self.sample_logits(logits[0][-1:],self.sampling_method,self.sampling_value,self.temperature),logits
 +        return self.sample_logits(logits[0][-1:], self.sampling_method, self.sampling_value, self.temperature), logits
-+
-+    def sample_logits(
+ 
+     def sample_logits(
+-        self,
+-        logits: np.ndarray,
+-        sampling_method: str = "greedy",
+-        sampling_value: float = None,
+-        temperature: float = 1.0,
 +            self,
 +            logits: np.ndarray,
 +            sampling_method: str = "greedy",
 +            sampling_value: float = None,
 +            temperature: float = 1.0,
-+    ) -> np.ndarray:
-+        if temperature == 0 or sampling_method == "greedy":
-+            next_token = np.argmax(logits, axis=-1).astype(np.int64)
-+
-+        elif sampling_method == "top_k" or sampling_method == "top_p":
-+            assert sampling_value is not None
-+            logits = logits.astype(np.float32)
-+            logits /= temperature
-+            probs = np.exp(logits) / np.sum(np.exp(logits))
-+            sorted_probs = np.sort(probs)[:, ::-1]
-+            sorted_indices = np.argsort(probs)[:, ::-1]
-+
-+            if sampling_method == "top_k":
-+                index_of_interest = int(sampling_value)
-+            elif sampling_method == "top_p":
-+                p = sampling_value
-+                cumulative_probs = np.cumsum(sorted_probs, axis=-1)
-+                for index_of_interest, cumulative_prob in enumerate(
+     ) -> np.ndarray:
+         if temperature == 0 or sampling_method == "greedy":
+             next_token = np.argmax(logits, axis=-1).astype(np.int64)
+@@ -57,7 +73,7 @@ class LlamaInterface:
+                 p = sampling_value
+                 cumulative_probs = np.cumsum(sorted_probs, axis=-1)
+                 for index_of_interest, cumulative_prob in enumerate(
+-                    cumulative_probs[0]
 +                        cumulative_probs[0]
-+                ):
-+                    if cumulative_prob > p:
-+                        break
-+
-+            probs_of_interest = sorted_probs[:, : index_of_interest + 1]
-+            indices_of_interest = sorted_indices[:, : index_of_interest + 1]
-+            probs_of_interest /= np.sum(probs_of_interest)
-+            next_token = np.array(
-+                [np.random.choice(indices_of_interest[0], p=probs_of_interest[0])]
-+            )
-+        else:
-+            raise Exception(f"Unknown sampling method {sampling_method}")
-+
-+        return next_token
-+
-+    def format_last_output(self):
-+        if len(self.last_output) == 0:
+                 ):
+                     if cumulative_prob > p:
+                         break
+@@ -73,58 +89,362 @@ class LlamaInterface:
+ 
+         return next_token
+ 
+-    
+     def format_last_output(self):
+         if len(self.last_output) == 0:
+-            return 
+-        text_format = self.apply_chat_template([{"role":"assistant","content":self.last_output}])
 +            return
 +        text_format = self.apply_chat_template([{"role": "assistant", "content": self.last_output}])
-+        self.generate_cache(text_format[len(self.last_output):])
-+        self.last_output = ""
+         self.generate_cache(text_format[len(self.last_output):])
+         self.last_output = ""
+-    
 +
-+    def predict(self, text):
+     def predict(self, text):
 +        self.reset()
-+        with self.lock:
+         with self.lock:
+-            self.state['isEnd'],self.state['message'] = False,""        
 +            self.state['isEnd'], self.state['message'] = False, ""
-+        if text == "":
-+            return
-+        self.format_last_output()
+         if text == "":
+             return
+         self.format_last_output()
+-        text = self.apply_chat_template([{"role":"user","content":text}])
+-        input_ids = self.encode(text,add_bos_token=self.first)
+-        input_ids = np.asarray(input_ids,dtype=np.int64).reshape(1,-1)
+-        self.first,ids_list = False,[]
 +        # text = self.apply_chat_template([{"role":"user","content":text}])
 +        input_ids = self.encode(text, add_bos_token=self.first)
 +        input_ids = np.asarray(input_ids, dtype=np.int64).reshape(1, -1)
@@ -2292,37 +1900,43 @@ diff -uprN ascend-llm/inference/inference.py ascend-minicpm/inference/inference.
 +        start_time = time.time()
 +        first_end_time = time.time()
 +        count = 0
-+        for i in range(self.max_length):
-+            logits = self.session.run(input_ids)[0]
-+            input_ids = self.sample_logits(logits[0][-1:], self.sampling_method, self.sampling_value, self.temperature)
-+            input_ids = input_ids.reshape(1, -1)
-+            if input_ids[0] == self.tokenizer.eos_token_id:
+         for i in range(self.max_length):
+             logits = self.session.run(input_ids)[0]
+             input_ids = self.sample_logits(logits[0][-1:], self.sampling_method, self.sampling_value, self.temperature)
+             input_ids = input_ids.reshape(1, -1)
+             if input_ids[0] == self.tokenizer.eos_token_id:
+-                self.session.rollback(1) 
 +                self.session.rollback(1)
-+                break
-+            ids_list.append(input_ids[0].item())
-+            text_out = self.tokenizer.decode(ids_list)
+                 break
+             ids_list.append(input_ids[0].item())
+             text_out = self.tokenizer.decode(ids_list)
+-            stop_word = is_stop_word_or_prefix(text_out,self.stop_words)
 +
 +            if i == 0:
 +                first_end_time = time.time()
 +                print("first token time = ", first_end_time - start_time)
 +            stop_word = is_stop_word_or_prefix(text_out, self.stop_words)
-+            if stop_word != "":
-+                ids_list = ids_list[:-self.stop_mp[stop_word]]
+             if stop_word != "":
+                 ids_list = ids_list[:-self.stop_mp[stop_word]]
+-                self.session.rollback(self.stop_mp[stop_word]) 
 +                self.session.rollback(self.stop_mp[stop_word])
-+                break
+                 break
+-            if i%3 == 0:
 +            if i % 3 == 0:
-+                with self.lock:
+                 with self.lock:
+-                    self.state['message']=text_out
 +                    self.state['message'] = text_out
 +            count = i
 +
 +        print("avg decode token time = ", (time.time() - first_end_time) / count)
-+        self.last_output = self.tokenizer.decode(ids_list)
+         self.last_output = self.tokenizer.decode(ids_list)
 +        print(self.last_output)
-+        with self.lock:
+         with self.lock:
+-            self.state['message'],self.state['isEnd'] = self.last_output,True
 +            self.state['message'], self.state['isEnd'] = self.last_output, True
 +
-+        return self.last_output
-+
+         return self.last_output
+ 
 +    def test_gsm8k(self):
 +        def build_prompt(text):
 +            return f"question:{text}\n\n"
@@ -2495,7 +2109,7 @@ diff -uprN ascend-llm/inference/inference.py ascend-minicpm/inference/inference.
 +                prompt = [t + p for t, p in zip(train_prompts, prompt_ends)]
 +                labels = [val_df.iloc[i * self.batch_size + j, val_df.shape[1] - 1] for j in range(q_num)]
 +                prompts = [prpt.encode().decode(encoding="utf8") for prpt in prompt]
-+                input_ids = self.encode(prompts[0], add_bos_token=False)
++                input_ids = self.encode(prompts[0], add_bos_token=self.first)
 +                input_ids = np.asarray(input_ids, dtype=np.int64).reshape(1, -1)
 +
 +                t0 = time.time()
@@ -2577,7 +2191,7 @@ diff -uprN ascend-llm/inference/inference.py ascend-minicpm/inference/inference.
 +                    queries = [build_prompt(title, query, passage) for title, query, passage in
 +                               zip(titles, texts, passages)]
 +
-+                    input_ids = self.encode(queries[0], add_bos_token=False)
++                    input_ids = self.encode(queries[0], add_bos_token=self.first)
 +                    input_ids = np.asarray(input_ids, dtype=np.int64).reshape(1, -1)
 +
 +                    t0 = time.time()
@@ -2614,44 +2228,110 @@ diff -uprN ascend-llm/inference/inference.py ascend-minicpm/inference/inference.
 +                total = ["total", correct_total / sum_total, correct_total, sum_total]
 +                result_total.insert(0, total)
 +
-+    def reset(self):
-+        self.first = True
-+        self.last_output = ""
-+        self.session.reset()
+     def reset(self):
+         self.first = True
+         self.last_output = ""
+         self.session.reset()
+-        self.generate_cache(self.apply_chat_template(self.prompt))
+-        
 +        # self.generate_cache(self.apply_chat_template(self.prompt))
 +
-+    def getState(self):
-+        with self.lock:
-+            return self.state.copy()
-+
+     def getState(self):
+         with self.lock:
+             return self.state.copy()
+ 
+-    def apply_chat_template(self,messages:List[Dict[str,str]]) -> str:
 +    def apply_chat_template(self, messages: List[Dict[str, str]]) -> str:
-+        text = ""
+         text = ""
 +        # if self.model_type == "minicpm":
-+        if self.model_type == "llama-2-7b":
-+            for message in messages:
-+                if message["role"] == "user":
-+                    text += f'[|Human|]\n{message["content"]}\n[|AI|]'
-+                elif message["role"] == "system":
-+                    text += f'[|System|]\n{message["content"]}\n'
-+                else:
-+                    text += f'{message["content"]}\n'
-+        elif self.model_type == "tiny-llama":
-+            for message in messages:
-+                if message["role"] == "user":
-+                    text += f'<|user|>\n{message["content"]}</s>\n<|assistant|>'
-+                elif message["role"] == "system":
-+                    text += f'<|system|>\n{message["content"]}</s>\n'
-+                else:
-+                    text += f'{message["content"]}</s>\n'
-+        return text
+         if self.model_type == "llama-2-7b":
+             for message in messages:
+                 if message["role"] == "user":
+@@ -142,13 +462,14 @@ class LlamaInterface:
+                 else:
+                     text += f'{message["content"]}</s>\n'
+         return text
+-    
+-    def encode(self,text,add_bos_token=False):
 +
 +    def encode(self, text, add_bos_token=False):
-+        self.tokenizer.add_bos_token = add_bos_token
-+        return self.tokenizer.encode(text)
+         self.tokenizer.add_bos_token = add_bos_token
+         return self.tokenizer.encode(text)
+ 
 +
-+
-+def is_stop_word_or_prefix(s: str, stop_words: list) -> int:
-+    for stop_word in stop_words:
-+        if s.endswith(stop_word):
-+            return stop_word
+ def is_stop_word_or_prefix(s: str, stop_words: list) -> int:
+     for stop_word in stop_words:
+         if s.endswith(stop_word):
+             return stop_word
+-    return ""
+\ No newline at end of file
 +    return ""
+diff -uprN ascend-llm/inference/precision.py ascend-llm-minicpm/inference/precision.py
+--- ascend-llm/inference/precision.py	1970-01-01 08:00:00.000000000 +0800
++++ ascend-llm-minicpm/inference/precision.py	2024-10-11 15:54:05.349678620 +0800
+@@ -0,0 +1,65 @@
++import argparse
++from config import InferenceConfig
++from inference import LlamaInterface
++
++
++def main(cli: bool, engine: LlamaInterface, dataset):
++    if cli:
++        if dataset == 'BoolQ':
++            engine.test_boolq()
++        elif dataset == 'CEval':
++            engine.test_ceval()
++        elif dataset == 'GSM8K':
++            engine.test_gsm8k()
++        else:
++            print("dateset is not support!")
++
++
++if __name__ == '__main__':
++    parser = argparse.ArgumentParser()
++    parser.add_argument(
++        '--cli', dest='cli', default=False, action='store_true',
++        help="run web ui by default, if add --cli, run cli."
++    )
++    parser.add_argument("--kv_size", type=int, default=1024)
++    parser.add_argument(
++        "--engine", type=str, default="acl",
++        help="inference backend, onnx or acl"
++    )
++    parser.add_argument(
++        "--sampling", type=str, default="top_k",
++        help="sampling method, greedy, top_k or top_p"
++    )
++    parser.add_argument(
++        "--sampling_value", type=float, default=10,
++        help="if sampling method is seted to greedy, this argument will be ignored; if top_k, it means value of p; if top_p, it means value of p"
++    )
++    parser.add_argument(
++        "--temperature", type=float, default=0.7,
++        help="sampling temperature if sampling method is seted to greedy, this argument will be ignored."
++    )
++    parser.add_argument(
++        "--hf-dir", type=str, default="/root/model/tiny-llama-1.1B",
++        help="path to huggingface model dir"
++    )
++    parser.add_argument(
++        "--model", type=str, default="/root/model/tiny-llama-seq-1-key-256-int8.om",
++        help="path to onnx or om model"
++    )
++    parser.add_argument(
++        "--dataset", type=str, default="/root/model/tiny-llama-seq-1-key-256-int8.om",
++        help="can select BoolQ|CEval|GSM8K"
++    )
++
++    args = parser.parse_args()
++    cfg = InferenceConfig(
++        hf_model_dir=args.hf_dir,
++        model=args.model,
++        max_cache_size=args.kv_size,
++        sampling_method=args.sampling,
++        sampling_value=args.sampling_value,
++        temperature=args.temperature,
++        session_type=args.engine,
++    )
++    engine = LlamaInterface(cfg)
++    main(args.cli, engine, args.dataset)
