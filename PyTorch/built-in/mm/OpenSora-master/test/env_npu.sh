@@ -20,6 +20,8 @@ do
     msnpureport -g error -d ${i}
 done
 
+#打开框架侧虚拟内存开关，默认值为False  
+export PYTORCH_NPU_ALLOC_CONF=expandable_segments:True 
 #将Host日志输出到串口,0-关闭/1-开启
 export ASCEND_SLOG_PRINT_TO_STDOUT=0
 #设置默认日志级别,0-debug/1-info/2-warning/3-error
