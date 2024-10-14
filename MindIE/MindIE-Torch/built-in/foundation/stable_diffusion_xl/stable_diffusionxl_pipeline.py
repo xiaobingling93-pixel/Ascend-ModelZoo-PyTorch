@@ -29,7 +29,6 @@ from diffusers.schedulers import *
 from quant_utils import modify_model
 from safetensors.torch import load_file
 from diffusers.models.lora import LoRACompatibleConv, LoRACompatibleLinear
-from diffusers.models.lora import KeyOrderList, UnetSkip_key
 
 clip_time = 0
 unet_time = 0
@@ -1004,6 +1003,7 @@ def main():
             skip_steps[int(i)] = 1
     
     if args.use_loraHotswitch:
+        from diffusers.models.lora import KeyOrderList, UnetSkip_key
         # first combine base model and lora model into new
         base_model = torch.load(args.lorabase_weight)
         new_model = load_file(args.loranew_weight)
