@@ -58,6 +58,7 @@ requirements = {
         "pystoi>=0.2.2",
         "mir-eval>=0.6",
         "fastdtw",
+        "bottleneck==1.4.0",
         "nara_wpe>=0.0.5",
         "sacrebleu>=1.5.1",
     ],
