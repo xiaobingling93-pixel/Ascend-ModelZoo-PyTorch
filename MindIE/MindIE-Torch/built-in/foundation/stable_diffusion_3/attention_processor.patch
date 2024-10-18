@@ -73,7 +73,7 @@
 +        scale_factor = 1 / math.sqrt(query.size(-1))
 +
 +        import mindietorch
-+        hidden_states = torch.ops.aie.flash_attention(query, key, value, attn.heads, attention_mask, scale_factor,
++        hidden_states = torch.ops.aie.flash_attention(query, key, value, attn.heads, attention_mask, None, scale_factor,
 +                                                      "BSND", "PFA")
  
 -        hidden_states = hidden_states = F.scaled_dot_product_attention(

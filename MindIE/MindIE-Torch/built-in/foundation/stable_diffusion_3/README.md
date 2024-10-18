@@ -212,8 +212,7 @@
               --output_dir ./models \
               --height 1024 \
               --width 1024 \
-              --batch_size 1 \
-              --parallel
+              --batch_size 1
       
       # 使用DiTCache，单卡推理，适用800I A2场景
       numactl -C 0-23 python3 stable_diffusion3_pipeline_cache.py \
