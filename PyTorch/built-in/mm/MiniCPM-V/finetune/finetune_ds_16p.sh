@@ -13,6 +13,7 @@ source /path/to/cann/ascend-toolkit/set_env.sh
 
 USE_FLASH_ATTENTION_2=true
 export use_flash_attention_2=$USE_FLASH_ATTENTION_2
+export PYTORCH_NPU_ALLOC_CONF=expandable_segments:True
 
 HOSTFILE="finetune/hostfile_16p"
 MASTER_ADDR=$(head -n1 $HOSTFILE | awk '{print $1;}')  # 获取hostfile第一行为masteraddr

@@ -13,6 +13,7 @@ source /path/to/cann/ascend-toolkit/set_env.sh
 
 USE_FLASH_ATTENTION_2=true
 export use_flash_attention_2=$USE_FLASH_ATTENTION_2
+export PYTORCH_NPU_ALLOC_CONF=expandable_segments:True
 
 NPUS_PER_NODE=8
 NNODES=1
