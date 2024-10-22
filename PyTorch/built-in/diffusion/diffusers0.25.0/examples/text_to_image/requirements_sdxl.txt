@@ -9,3 +9,4 @@ peft==0.7.0
 toml
 voluptuous
 deepspeed==0.12.6
+huggingface-hub==0.23.2
