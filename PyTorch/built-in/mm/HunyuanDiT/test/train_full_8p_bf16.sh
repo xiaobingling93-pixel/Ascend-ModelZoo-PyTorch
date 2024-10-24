@@ -108,11 +108,14 @@ avg_time=$(grep -a 'Steps/Sec:' "${test_path_dir}/output/${ASCEND_DEVICE_ID}/tra
            awk -F "Steps/Sec:" '{print $2}' |
            awk '{a+=$1} END {if (NR!=0) printf "%.3f\n", a/NR}')
 FPS=$(echo "$avg_time * $BatchSize" |bc)
-
+# 输出性能100步到200步平均单步耗时
+avg_millisec_per_step=$(grep -a 'step=00001[0-9][0-9]' "${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log" |
+           awk -F "Millisec/Step:" '{print $2}' |
+           awk '{a+=$1} END {if (NR!=0) printf "%.3f\n", a/NR}')
 # 打印，不需要修改
 echo "Final Performance images/sec : $FPS"
 echo "E2E Training Duration sec : $e2e_time"
-
+echo "avg_millisec_per_step(100-200step) : $avg_millisec_per_step"
 
 # 性能看护结果汇总
 # 获取性能数据，不需要修改
@@ -131,3 +134,4 @@ echo "CaseName = ${CaseName}" >>${test_path_dir}/output/$ASCEND_DEVICE_ID/${Case
 echo "ActualFPS = ${ActualFPS}" >>${test_path_dir}/output/$ASCEND_DEVICE_ID/${CaseName}_perf_report.log
 echo "TrainingTime = ${TrainingTime}" >>${test_path_dir}/output/$ASCEND_DEVICE_ID/${CaseName}_perf_report.log
 echo "E2ETrainingTime = ${e2e_time}" >>${test_path_dir}/output/$ASCEND_DEVICE_ID/${CaseName}_perf_report.log
+echo "AvgTrainingTime = ${avg_millisec_per_step}" >>${test_path_dir}/output/$ASCEND_DEVICE_ID/${CaseName}_avg_millisec_per_step.log

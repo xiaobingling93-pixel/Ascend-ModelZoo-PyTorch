@@ -163,6 +163,12 @@ https://github.com/Tencent/HunyuanDiT
    bash test/train_full_8p_bf16.sh
    # 混合精度BF16，8卡训练
    ```
+### 性能展示
+#### 性能
+ |    芯片    | 卡数 | 单步迭代耗时（ms/step） | batch_size | AMP_dtype |
+  |:--------:|:--:|-----------------|------------|-----------|
+  |   GPU    | 8p |        1059.3   |     1      |    BF16   |
+  | Atlas A2 | 8p |         1011.7  |      1     |    BF16   |
 
 ### 推理任务
 本任务主要以全参微调为主，展示推理任务，包括单卡在线推理。
