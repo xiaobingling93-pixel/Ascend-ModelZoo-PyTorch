@@ -24,12 +24,12 @@ test文件夹
 ├── requirements.txt           //NPU版本的环境依赖，由pip freeze > requirements.txt生成
 ├── requirements_gpu.txt       //GPU版本的环境依赖
 其他附件（不在本代码仓中获得）
-├── v100_1p.log                //GPU 1P训练日志
-├── v100_8p.log                //GPU 8P训练日志
-├── 910A_1p.log                //NPU 1P训练日志
-├── 910A_8p.log                //NPU 8P训练日志
-├── v100_1p.prof               //GPU 1P prof文件
-├── 910A_1p.prof               //NPU 1P prof文件
+├── 竞品V_1p.log                //GPU 1P训练日志
+├── 竞品V_8p.log                //GPU 8P训练日志
+├── Atlas_1p.log                //NPU 1P训练日志
+├── Atlas_8p.log                //NPU 8P训练日志
+├── 竞品V_1p.prof               //GPU 1P prof文件
+├── Atlas_1p.prof               //NPU 1P prof文件
 └── gpu_code.tar               //GPU 1P及GPU 8P训练代码
 ```
 **关键环境：**

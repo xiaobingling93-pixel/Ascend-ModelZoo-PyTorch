@@ -153,7 +153,7 @@ cd ..
 
 **表 2**  训练结果展示表
 
-这里使用了单机进行预训练，采用的NPU型号为910B1
+这里使用了单机进行预训练，采用的NPU型号为Atlas 900 A2 PODc
 
 | NAME  | single-step time  | Iterations  | DataType|Torch_Version |
 |:-:|:-:|:-:|:-:|:-:|

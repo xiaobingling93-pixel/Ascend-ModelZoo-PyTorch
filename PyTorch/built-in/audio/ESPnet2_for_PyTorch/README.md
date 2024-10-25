@@ -333,18 +333,6 @@ Conformer是将CNN用于增强Transformer来做ASR的结构
    
    ```
    npu-smi info
-   #该设备芯片名为Ascend910A （自行替换）
-   回显如下：
-   +-------------------|-----------------|------------------------------------------------------+
-   | NPU     Name      | Health          | Power(W)     Temp(C)           Hugepages-Usage(page) |
-   | Chip    Device    | Bus-Id          | AICore(%)    Memory-Usage(MB)                        |
-   +===================+=================+======================================================+
-   | 0       910A     | OK              | 15.8         42                0    / 0              |
-   | 0       0         | 0000:82:00.0    | 0            1074 / 21534                            |
-   +===================+=================+======================================================+
-   | 1       910A     | OK              | 15.4         43                0    / 0              |
-   | 0       1         | 0000:89:00.0    | 0            1070 / 21534                            |
-   +===================+=================+======================================================+
    ```
    
    3.2  执行ATC命令 
@@ -352,10 +340,10 @@ Conformer是将CNN用于增强Transformer来做ASR的结构
    将xformer_encoder.sh，xformer_decoder.sh，transformer_lm.sh，ctc.sh放置到/root/.cache/espnet_onnx/asr_train_asr_qkv/full目录下，运行xformer_encoder.sh导出encoder`OM`模型，默认保存在当前文件夹下，其他模型类似。
    
    ```
-    bash xformer_encoder.sh Ascend910A
-    bash xformer_decoder.sh Ascend910A
-    bash transformer_lm.sh Ascend910A
-    bash ctc.sh Ascend910A
+    bash xformer_encoder.sh soc_version
+    bash xformer_decoder.sh soc_version
+    bash transformer_lm.sh soc_version
+    bash ctc.sh soc_version
    ```
 
 ### 2 开始推理验证
@@ -409,4 +397,4 @@ Conformer是将CNN用于增强Transformer来做ASR的结构
    | :-----------: | :------------------------------------: | :-------: | :-------------: | 
    | GPU           | encoder/decoder/ctc/lm(beam_size=20)   | aishell   |          95.27% | 
    | GPU           | encoder/decoder/ctc/lm(beam_size=2)    | aishell   |          95.08% |
-   | Ascend910A   | encoder/decoder/ctc/lm(default)        | aishell   |          95.02% | 
+   | Atlas   | encoder/decoder/ctc/lm(default)        | aishell   |          95.02% | 

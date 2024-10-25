@@ -152,8 +152,8 @@ Lifespan Age Transformation Synthesis 是一种基于GAN的方法，用于从单
 
 | NAME    |          -            |  FPS      | Epochs | sec/epoch |   acc    |
 | ------  | --------------------- | --------- | ------ | --------  |   ----   |
-| NPU_1p  | torch1.5+Ascend910    | 0.001385  | 15     | 2943.1    |   None   |
-| GPU_1p  | torch1.5+V100         | 0.001019  | 15     | 2166.1    |   None   |
+| NPU_1p  | torch1.5+Atlas    | 0.001385  | 15     | 2943.1    |   None   |
+| GPU_1p  | torch1.5+竞品V         | 0.001019  | 15     | 2166.1    |   None   |
 
 # 公网地址说明
 

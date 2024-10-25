@@ -225,8 +225,8 @@ bash preprocess.sh
 
 |     NAME      | SamplesPerSec | Iterations | DataType | Torch_Version | Card |
 | :-----------: | :-----------: | :--------: | :------: | :-----------: | :--: |
-| Finetune -NPU |   (待补充)    |  (待补充)  |  bf16?   |     1.11      | 910B |
-| Finetune -GPU |   (待补充)    |  (待补充)  |  bf16?   |     1.11      | A800 |
+| Finetune -NPU |   (待补充)    |  (待补充)  |  bf16?   |     1.11      | Atlas 900 A2 PODc |
+| Finetune -GPU |   (待补充)    |  (待补充)  |  bf16?   |     1.11      | 竞品A |
 
 说明：P-Tuning 仅打通功能，无性能优化。
 

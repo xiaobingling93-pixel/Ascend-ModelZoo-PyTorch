@@ -322,26 +322,14 @@ HRNet（High-Resolution Net）是针对2D人体姿态估计（Human Pose Estimat
 
          ```
          npu-smi info
-         #该设备芯片名为Ascend 910A （自行替换）
-         回显如下：
-         +-------------------+-----------------+------------------------------------------------------+
-         | NPU     Name      | Health          | Power(W)     Temp(C)           Hugepages-Usage(page) |
-         | Chip    Device    | Bus-Id          | AICore(%)    Memory-Usage(MB)                        |
-         +===================+=================+======================================================+
-         | 0       910A     | OK              | 15.8         42                0    / 0              |
-         | 0       0         | 0000:82:00.0    | 0            1074 / 21534                            |
-         +===================+=================+======================================================+
-         | 1       910A     | OK              | 15.4         43                0    / 0              |
-         | 0       1         | 0000:89:00.0    | 0            1070 / 21534                            |
-         +===================+=================+======================================================+
          ```
 
       3. 执行ATC命令。
 
          ```
-         atc --framework=5 --model=./hrnet_w18.onnx --input_format=NCHW --input_shape="image:{batch size},3,224,224" --output=hrnet_bs{batch size} --log=debug --soc_version=Ascend910A
+         atc --framework=5 --model=./hrnet_w18.onnx --input_format=NCHW --input_shape="image:{batch size},3,224,224" --output=hrnet_bs{batch size} --log=debug --soc_version=${chip_name}
          示例
-         atc --framework=5 --model=./hrnet_w18.onnx --input_format=NCHW --input_shape="image:1,3,224,224" --output=hrnet_bs1 --log=debug --soc_version=Ascend910A
+         atc --framework=5 --model=./hrnet_w18.onnx --input_format=NCHW --input_shape="image:1,3,224,224" --output=hrnet_bs1 --log=debug --soc_version=${chip_name}
          ```
 
          - 参数说明：
@@ -418,7 +406,7 @@ HRNet（High-Resolution Net）是针对2D人体姿态估计（Human Pose Estimat
 
 | 芯片型号 | Batch Size | 数据集 | 精度                    |
 | --------- |------------| ---------- |-----------------------|
-|   910A        | 1          |  ImageNet          | 76.02/Top1 91.72/Top5 |
+|   Atlas        | 1          |  ImageNet          | 76.02/Top1 91.72/Top5 |
 
 
 # 公网地址说明

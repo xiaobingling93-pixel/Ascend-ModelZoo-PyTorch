@@ -201,7 +201,7 @@ per_bs * grad_acc * seq_len / time
 | 13B-NPU(单机20层) | 1619 | 3  |
 |  13B-竞品A(单机20层) | 1740  |  3 |
 
-注：这里vicuna 7B/13B在NPU上使用910B3（313T）训练，竞品使用A800训练
+注：这里vicuna 7B/13B在NPU上使用Atlas 800T A2训练，使用竞品A训练
 # 推理
 ## 推理环境搭建
 这里要替换transformers库中的部分文件，用于推理（评估）场景，后续如果要进行训练再更改为transformers_modify中的文件。

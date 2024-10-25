@@ -323,8 +323,8 @@ GPT-NeoX-20B 是由EleutherAI和Hugging face合作开发的一个超大规模的
 
 |     NAME      | tflops | Iterations  | DataType  | Torch_Version | Card |
 |:-------------:|:-------------:|:-:|:-:|:-:|:----:|
-| GPU-2pp4mp2dp |     100      | 5000   | fp16  | 1.5  | A100 |
-| NPU-2pp4mp2dp |     150      | 5000   | fp16  | 1.5  | 910 |
+| GPU-2pp4mp2dp |     100      | 5000   | fp16  | 1.5  | 竞品A |
+| NPU-2pp4mp2dp |     150      | 5000   | fp16  | 1.5  | NPU |
 
 
 # 版本说明
