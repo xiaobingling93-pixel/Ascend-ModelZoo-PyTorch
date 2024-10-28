@@ -11,7 +11,7 @@ av
 tensorboard
 timm
 tqdm
-transformers
+transformers==4.36.2
 wandb
 scipy
 decorator
