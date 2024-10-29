@@ -63,7 +63,7 @@ AnimateDiff提出了一个有效的框架，可将现有的大多数个性化文
     conda activate animatediff
     pip3 install torch==2.1.0+cpu  --index-url https://download.pytorch.org/whl/cpu  # For X86
     pip3 install torch==2.1.0  # For Aarch64
-    pip3 install accelerate==0.28.0 diffusers==0.11.1 decorator==5.1.1 scipy==1.12.0 attrs==23.2.0  torchvision==0.16.0 transformers==4.25.1
+    pip3 install accelerate==0.28.0 diffusers==0.11.1 decorator==5.1.1 scipy==1.12.0 attrs==23.2.0  torchvision==0.16.0 transformers==4.25.1 huggingface_hub==0.23.2
   ```
 - 环境准备指导
 
