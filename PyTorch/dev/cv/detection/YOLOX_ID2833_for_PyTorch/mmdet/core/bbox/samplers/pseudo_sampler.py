@@ -16,11 +16,13 @@
 # Copyright (c) Open-MMLab. All rights reserved.    
 # Copyright (c) OpenMMLab. All rights reserved.
 import torch
+import mx_driving
+import ads_c
 
 from ..builder import BBOX_SAMPLERS
 from .base_sampler import BaseSampler
 from .sampling_result import SamplingResult
-import ads_c
+
 
 
 @BBOX_SAMPLERS.register_module()
