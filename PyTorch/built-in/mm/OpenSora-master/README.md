@@ -44,6 +44,8 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
 
 > 注：OpenSora主线从此目录演进，包含OpenSora1.1和OpenSora1.2，OpenSora1.0单独维护，见 [PyTorch/built-in/mlm/OpenSora1.0 · Ascend/ModelZoo-PyTorch - 码云 - 开源中国 (gitee.com)](https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/built-in/mlm/OpenSora1.0)
 
+
+> <span style="color: red;">**注意**: OpenSora-master目录下面的OpenSora1.2模型已经集成到[MindSpeed-MM](https://gitee.com/ascend/MindSpeed-MM)中,当前目录下的OpenSora1.2模型不再维护，MindSpeed-MM是面向大规模分布式训练的昇腾多模态大模型套件，同时支持多模态生成及多模态理解,欢迎大家使用。</span>
 ## 支持任务列表
 
 本仓已经支持以下模型任务类型

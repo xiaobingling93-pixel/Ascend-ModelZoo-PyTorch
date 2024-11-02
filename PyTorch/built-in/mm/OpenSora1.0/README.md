@@ -20,6 +20,8 @@
 OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。OpenSora不仅实现了先进视频生成技术的低成本普及，还提供了一个精简且用户友好的方案，简化了视频制作的复杂性。
 本仓库主要将STDiT模型的任务迁移到了昇腾NPU上，并进行极致性能优化。
 
+> <span style="color: red;">**注意**: OpenSora1.0目录下面的OpenSora1.0模型已经集成到[MindSpeed-MM](https://gitee.com/ascend/MindSpeed-MM)中,当前目录下的OpenSora1.0模型不再维护，MindSpeed-MM是面向大规模分布式训练的昇腾多模态大模型套件，同时支持多模态生成及多模态理解,欢迎大家使用。</span>
+
 ## 支持任务列表
 
 本仓已经支持以下模型任务类型
