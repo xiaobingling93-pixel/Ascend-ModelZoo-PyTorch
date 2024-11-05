@@ -67,6 +67,8 @@ try:
     from torch_npu.utils.profiler import Profile
 except ImportError:
     print("Profile not in torch_npu.utils.profiler now.. Auto Profile disabled.", flush=True)
+
+
     class Profile:
         def __init__(self, *args, **kwargs):
             pass
@@ -76,6 +78,7 @@ except ImportError:
 
         def end(self):
             pass
+
 
 def log_validation(vae, unet, controlnet, args, accelerator, weight_dtype, step):
     logger.info("Running validation... ")
@@ -179,7 +182,7 @@ def log_validation(vae, unet, controlnet, args, accelerator, weight_dtype, step)
 
 
 def import_model_class_from_model_name_or_path(
-    pretrained_model_name_or_path: str, revision: str, subfolder: str = "text_encoder"
+        pretrained_model_name_or_path: str, revision: str, subfolder: str = "text_encoder"
 ):
     text_encoder_config = PretrainedConfig.from_pretrained(
         pretrained_model_name_or_path, subfolder=subfolder, revision=revision
@@ -256,7 +259,7 @@ def parse_args(input_args=None):
         type=str,
         default=None,
         help="Path to pretrained controlnet model or model identifier from huggingface.co/models."
-        " If not specified controlnet weights are initialized from unet.",
+             " If not specified controlnet weights are initialized from unet.",
     )
     parser.add_argument(
         "--variant",
@@ -589,11 +592,11 @@ def parse_args(input_args=None):
         raise ValueError("`--validation_prompt` must be set if `--validation_image` is set")
 
     if (
-        args.validation_image is not None
-        and args.validation_prompt is not None
-        and len(args.validation_image) != 1
-        and len(args.validation_prompt) != 1
-        and len(args.validation_image) != len(args.validation_prompt)
+            args.validation_image is not None
+            and args.validation_prompt is not None
+            and len(args.validation_image) != 1
+            and len(args.validation_prompt) != 1
+            and len(args.validation_image) != len(args.validation_prompt)
     ):
         raise ValueError(
             "Must provide either 1 `--validation_image`, 1 `--validation_prompt`,"
@@ -934,7 +937,7 @@ def main(args):
 
     if args.scale_lr:
         args.learning_rate = (
-            args.learning_rate * args.gradient_accumulation_steps * args.train_batch_size * accelerator.num_processes
+                args.learning_rate * args.gradient_accumulation_steps * args.train_batch_size * accelerator.num_processes
         )
 
     # Use 8-bit Adam for lower memory usage or to fine-tune the model in 16GB GPUs
@@ -1125,7 +1128,7 @@ def main(args):
         disable=not accelerator.is_local_main_process,
     )
     profile = Profile(start_step=int(os.getenv('PROFILE_START_STEP', 10)),
-                            profile_type=os.getenv('PROFILE_TYPE'))
+                      profile_type=os.getenv('PROFILE_TYPE'))
     image_logs = None
     for epoch in range(first_epoch, args.num_train_epochs):
         step_end_time = time.time()
@@ -1207,7 +1210,6 @@ def main(args):
                 progress_bar.update(1)
                 global_step += 1
 
-                
                 if global_step % args.checkpointing_steps == 0:
                     # _before_ saving state, check if this save would set us over the `checkpoints_total_limit`
                     if args.checkpoints_total_limit is not None:
@@ -1241,10 +1243,10 @@ def main(args):
                         if args.pretrained_vae_model_name_or_path is None:
                             vae.to(torch.float32)
             profile.end()
-            logs = {"loss": loss.detach().item(), "lr": lr_scheduler.get_last_lr()[0]}
+            logs = {"step_loss": loss.detach().item(), "lr": lr_scheduler.get_last_lr()[0]}
             progress_bar.set_postfix(**logs)
             accelerator.log(logs, step=global_step)
-            
+
             if global_step >= args.max_train_steps:
                 break
 
