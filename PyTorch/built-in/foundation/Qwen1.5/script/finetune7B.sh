@@ -72,7 +72,7 @@ torchrun $DISTRIBUTED_ARGS  ../finetune.py \
     --data_path $DATA \
     --bf16 True \
     --seed 1026 \
-    --output_dir output_qwen \
+    --output_dir "output_qwen/7B" \
     --max_steps 2000 \
     --per_device_train_batch_size 2 \
     --per_device_eval_batch_size 1 \

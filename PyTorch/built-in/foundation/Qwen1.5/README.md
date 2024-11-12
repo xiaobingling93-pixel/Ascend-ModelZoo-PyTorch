@@ -84,17 +84,23 @@ Python：3.9
 
   **表 2**  三方库版本支持表
 
-|    三方库    |  支持版本  |
-|:---------:|:------:|
-|  PyTorch  | 2.1.0  |
-| accelerate |  0.29.0   |
-| deepspeed |  0.14.0   |
-| transformers |  4.39.2   |
+|    三方库    | 支持版本(PT2.1) | 支持版本(PT2.4) |
+|:---------:|:-----------:|:-----------:|
+|  PyTorch  |    2.1.0    |    2.4.0    |
+| accelerate |   0.29.0    |   0.29.0    |
+| deepspeed |   0.14.0    |   0.15.3    |
+| transformers |   4.39.2    |   4.39.2    |
 
 在模型根目录下执行以下命令，安装模型对应PyTorch版本需要的依赖
-```shell
-pip install -r requirements.txt
-```
+  ```shell
+  # PyTorch 2.1请使用requirements_2_1.txt
+  pip install -r requirements_2_1.txt
+  
+  # PyTorch 2.4请使用requirements_2_4.txt
+  pip install -r requirements_2_4.txt
+  ```
+  > **说明：** 
+  >只需执行一条对应的PyTorch版本依赖安装命令。
 
 ### 模型权重准备
 
