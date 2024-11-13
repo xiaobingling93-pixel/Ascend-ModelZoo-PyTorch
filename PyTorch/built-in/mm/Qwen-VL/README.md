@@ -41,9 +41,9 @@
 
   **表 1**  三方库版本支持表
 
-  |     三方库     |  支持版本  |
-  |:-----------:|:------:|
-  |   PyTorch   | 2.1.0  |
+  |     三方库     |  支持版本(PT2.1)  |  支持版本(PT2.4)  |
+  |:-----------:|:------:|:------:|
+  |   PyTorch   | 2.1.0  | 2.4.0  |
 
 
    在模型根目录下执行以下命令，安装模型对应PyTorch版本需要的依赖。
@@ -52,7 +52,10 @@
    ```python
    source ${cann_install_path}/ascend-toolkit/set_env.sh              # 激活cann环境
    cd Qwen-VL
-   pip install -r requirements.txt                                    # 安装依赖
+   # PyTorch 2.1请使用requirements_2_1.txt
+   pip install -r requirements_2_1.txt
+   # PyTorch 2.4请使用requirements_2_4.txt
+   pip install -r requirements_2_4.txt
    ```
 
 修改transformers源码：

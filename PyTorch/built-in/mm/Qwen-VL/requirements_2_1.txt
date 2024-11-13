@@ -1,0 +1,14 @@
+transformers==4.32.0
+accelerate==0.28.0
+torch==2.1.0
+tiktoken
+einops
+transformers_stream_generator==0.0.4
+scipy
+torchvision
+pillow
+tensorboard
+matplotlib
+deepspeed==0.14.3
+peft
+torchvision==0.16.0

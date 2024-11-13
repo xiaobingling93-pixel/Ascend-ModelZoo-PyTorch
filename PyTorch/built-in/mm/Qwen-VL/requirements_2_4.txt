@@ -1,5 +1,6 @@
 transformers==4.32.0
 accelerate==0.28.0
+torch==2.4.0
 tiktoken
 einops
 transformers_stream_generator==0.0.4
@@ -8,6 +9,6 @@ torchvision
 pillow
 tensorboard
 matplotlib
-deepspeed
+deepspeed==0.15.3
 peft
-torchvision==0.16.0
+torchvision==0.19.0

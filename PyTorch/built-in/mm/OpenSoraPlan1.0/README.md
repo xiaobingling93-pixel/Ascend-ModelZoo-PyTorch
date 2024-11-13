@@ -61,20 +61,22 @@ Open-Sora-Plan是由北大技术团队推出的项目，旨在通过开源框架
 
   **表 1**  三方库版本支持表
 
-  | 三方库    | 支持版本  |
-  | :--------: | :-------------: |
-  | PyTorch | 2.1.0 |
-  | diffusers | 0.27.2 |
-  | accelerate | 0.28.0 | 
-  | deepspeed | 0.12.6 |
-  | transformers | 4.39.1 |
-  | decord | 0.6.0 |
+  | 三方库    | 支持版本(PT2.1)  | 支持版本(PT2.4)  |
+  |:------------:|:------:|:------:|
+  | PyTorch      | 2.1.0  | 2.4.0  |
+  | diffusers    | 0.27.2 | 0.27.2 |
+  | accelerate   | 0.28.0 | 0.29.3 |
+  | deepspeed    | 0.12.6 | 0.15.3 |
+  | transformers | 4.39.1 | 4.40.1 |
+  | decord       | 0.6.0  | 0.6.0  |
 
 
   在模型根目录下执行以下命令，安装模型对应PyTorch版本需要的依赖。
 
-   ```python
-   pip install -e .   # 安装本地OpenSoraPlan代码仓  
+   ```shell
+   pip install -e .   # 安装本地OpenSoraPlan代码仓
+   # 若使用PyTorch 2.4请另外使用requirements_2_4.txt
+   pip install -r requirements_2_4.txt
    ```
 
   注: 模型依赖decord需编译安装，根据原仓安装https://github.com/dmlc/decord
