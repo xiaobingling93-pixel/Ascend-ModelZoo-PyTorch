@@ -1,0 +1,12 @@
+accelerate==0.25.0
+torchvision
+transformers==4.38.2
+ftfy
+tensorboard
+Jinja2
+datasets
+peft==0.7.0
+toml
+voluptuous
+deepspeed==0.15.2
+huggingface-hub==0.23.2

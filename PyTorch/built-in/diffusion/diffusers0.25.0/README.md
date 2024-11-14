@@ -67,18 +67,21 @@
 
   **表 1**  三方库版本支持表
 
-  | 三方库    | 支持版本  |
-  | :--------: | :-------------: |
-  | PyTorch | 2.1.0 |
-  | diffusers | 0.25.0 |
-  | accelerate | 0.25.0 |
-  | deepspeed | 0.12.6|
+  | 三方库    | 支持版本(PT2.1) | 支持版本(PT2.4) |
+  | :-------:  | :----: | :----: |
+  | PyTorch    | 2.1.0  | 2.4.0  |
+  | diffusers  | 0.25.0 | 0.25.0 |
+  | accelerate | 0.25.0 | 0.25.0 |
+  | deepspeed  | 0.12.6 | 0.15.2 |
 
    在模型根目录下执行以下命令，安装模型对应PyTorch版本需要的依赖。
 
    ```python
    pip install -e .                                                # 安装本地diffusers代码仓
-   pip install -r examples/text_to_image/requirements_sdxl.txt     # 安装ModelZoo目录下的对应依赖
+   # PyTorch 2.1请使用requirements_sdxl_2_1.txt
+   pip install -r examples/text_to_image/requirements_sdxl_2_1.txt     # 安装ModelZoo目录下的对应依赖
+   # PyTorch 2.4请使用requirements_sdxl_2_4.txt
+   pip install -r examples/text_to_image/requirements_sdxl_2_4.txt     # 安装ModelZoo目录下的对应依赖
    ```
 
 ### 安装昇腾环境
