@@ -1041,10 +1041,10 @@ def main():
             
             # for different type layer,weight fussion is different
             # prepare base weight
-            base_weight = base_model[desstr].to(torch.float32)
+            base_weight = base_model[desstr].to(torch.float16)
             # prepare lora weight
-            lora_up_weight = new_model[pair_keys[0]].to(torch.float32)
-            lora_down_weight = new_model[pair_keys[1]].to(torch.float32)
+            lora_up_weight = new_model[pair_keys[0]].to(torch.float16)
+            lora_down_weight = new_model[pair_keys[1]].to(torch.float16)
             # determin the ratio
             if new_model[pair_keys[2]] == None:
                 ratio = 1.0
@@ -1076,7 +1076,7 @@ def main():
             ]
             for name in UnetSkip_key:
                 try:
-                    input_skip.append(fusionweight[name].to("npu"))
+                    input_skip.append(fusionweight[name].to(torch.float16).to("npu"))
                 except KeyError:
                     logging.error('can not find UnetSkip_key key name:%s in fusionweight',name)
                     return
@@ -1094,7 +1094,7 @@ def main():
             ]
             for name in KeyOrderList:
                 try:
-                    input_cache.append(fusionweight[name].to("npu"))
+                    input_cache.append(fusionweight[name].to(torch.float16).to("npu"))
                 except KeyError:
                     logging.error('can not find keyorderlist key name:%s in fusionweight',name)
                     return
@@ -1112,7 +1112,7 @@ def main():
             ]
             for name in KeyOrderList:
                 try:
-                    input_update.append(fusionweight[name].to("npu"))
+                    input_update.append(fusionweight[name].to(torch.float16).to("npu"))
                 except KeyError:
                     logging.error('can not find keyorderlist key name:%s in fusionweight',name)
                     return
