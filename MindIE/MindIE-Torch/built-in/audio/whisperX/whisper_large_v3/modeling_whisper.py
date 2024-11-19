@@ -26,7 +26,6 @@ from transformers.generation.logits_process import LogitsProcessorList
 from transformers.generation.stopping_criteria import StoppingCriteriaList, validate_stopping_criteria
 from transformers.generation.utils import GenerationMixin
 import mindietorch
-import mindietorch
 from mindietorch._enums import dtype
 from utils import CompileInfo
 
@@ -99,7 +98,7 @@ class MindieFlashAttention(WhisperAttention):
         if self.is_decoder:
             past_key_value = (key_states.to(torch.float16), value_states.to(torch.float16))
 
-        # B S N D
+        # B N S D
         query_states = query_states.view(bsz, tgt_len, self.num_heads, self.head_dim).contiguous().transpose(1, 2)
 
         attn_output = torch.ops.aie.flash_attention(
