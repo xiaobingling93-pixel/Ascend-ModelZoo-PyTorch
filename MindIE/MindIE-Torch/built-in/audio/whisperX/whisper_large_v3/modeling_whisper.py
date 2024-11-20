@@ -27,7 +27,7 @@ from transformers.generation.stopping_criteria import StoppingCriteriaList, vali
 from transformers.generation.utils import GenerationMixin
 import mindietorch
 from mindietorch._enums import dtype
-from utils import CompileInfo
+from .utils import CompileInfo
 
 
 class MindieFlashAttention(WhisperAttention):

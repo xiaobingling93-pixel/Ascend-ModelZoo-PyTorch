@@ -27,7 +27,7 @@ from pyannote.audio.pipelines.utils import PipelineModel
 from pyannote.core import Annotation, Segment, SlidingWindowFeature
 from tqdm import tqdm
 
-from diarize import Segment as SegmentX
+from .diarize import Segment as SegmentX
 
 
 def load_vad_model(model_dir, device, ts_model_path, vad_onset=0.500, vad_offset=0.363):

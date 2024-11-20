@@ -19,8 +19,8 @@ import math
 import torch
 import mindietorch
 from mindietorch._enums import dtype
-from modeling_whisper import MindieWhisperForConditionalGeneration as MindieWhisper
-from utils import CompileInfo
+from whisper_large_v3.modeling_whisper import MindieWhisperForConditionalGeneration as MindieWhisper
+from whisper_large_v3.utils import CompileInfo
 
 
 def compile_encoder(model : MindieWhisper, args, compile_info : CompileInfo):

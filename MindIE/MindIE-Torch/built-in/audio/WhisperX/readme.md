@@ -9,8 +9,7 @@
   - [模型推理](#模型推理)
 
 # 概述
-
-该工程使用mindietorch部署WhisperX模型
+使用mindtorch部署高性能版本的whisper-large-v3模型。其中，将开源的whisperX中的语音切分和自动组batch的能力迁移过来，达到提升性能的目的。
 
 
 # 推理环境准备
@@ -42,16 +41,20 @@
 
 2. Whisper large V3模型权重下载路径:
     ```bash
+   mkdir whisper_pretrained
     https://huggingface.co/openai/whisper-large-v3/tree/main
     ```
-    将权重文件存放至当前目录下的model_path文件夹，请先创建改文件夹。
+    将权重文件存放至当前目录下的whisper_pretrained文件夹，请先创建改文件夹。仅以whisper_pretrained为例，用户可根据实际情况创建目录。
     
 
 3. WhisperX中VAD模型权重下载路径:
+
     ```bash
-    https://whisperx.s3.eu-west-2.amazonaws.com/model_weights/segmentation/0b5b3216d60a2d32fc086b47ea8c67589aaeb26b7e07fcbe620d6d0b83e209ea/pytorch_model.bin
-    ```
-    并修改文件名为`whisperx-vad-segmentation.bin`
+   mkdir vad_pretrained
+   wget https://whisperx.s3.eu-west-2.amazonaws.com/model_weights/segmentation/0b5b3216d60a2d32fc086b47ea8c67589aaeb26b7e07fcbe620d6d0b83e209ea/pytorch_model.bin --no-check-certificate
+    mv   pytorch_model.bin ./vad_pretrained/whisperx-vad-segmentation.bin
+   ```
+    将权重文件存放至当前目录下的vad_pretrained文件夹，请先创建改文件夹。仅以vad_pretrained为例，用户可根据实际情况创建目录。
 
 
 4. 安装依赖
@@ -68,79 +71,73 @@
     同时需要保证环境安装了libsndfile1, ffmpeg库
 
 ## 模型编译
-1.1 300IPro环境执行如下命令：
+模型编译分为两部分内容，需要分别编译whisper模型和vad模型，并将编译好的模型保存到同一个路径，大概耗时两小时左右。
+
+### 编译whisper模型
 ```
-python3 compile_300IPro_whisper.py \
--model_path ./model_path \
--soc_version Ascend310P3 \
-```
+    python3 compile_whisper.py \
+    -model_path ./whisper_pretrained \
+    -bs 16 \
+    -save_path ./compiled_models \
+    -soc_version *
+  ```
     参数说明：
-      - -model_path：预训练模型路径,必选。
-      - -bs：batch_size, 默认值为32， 可选。
-      - -save_path: 编译好的模型的保存文件，可选。默认值为"./compiled_models"。
+      - -model_path: 预训练模型路径,必选。
+      - -bs: batch_size, 默认值为16， 可选。
+      - -save_path: 编译好的模型的保存文件，必选。
       - -device_id: 选在模型运行的卡编号，默认值0，可选。
       - -soc_version: 芯片类型,必选。
+      - -hardware: 机器型号，默认值800IA2，可选["300IPro", "800IA2"]。
     约束说明：
         1. 当前暂不支持动态batch，batch_size改变后，需要重新编图。
+        2. 支持的hardware类型为"300IPro"或"800IA2"。
+        3. 芯片类型需要用户在环境上查询得到。
+        如果无法确定当前设备的soc_version，则在安装NPU驱动包的服务器执行npu-smi info命令进行查询，
+        在查询到的“Name”前增加Ascend信息，例如“Name”对应取值为xxxyy，实际配置的soc_version值为Ascendxxxyy。
 
-1.2 800IA2环境执行如下命令
-```
-python3 compile_800IA2_whisper.py \
--model_path ./model_path \
--soc_version Ascend910B4
-```
-    参数说明：
-      - -model_path：预训练模型路径,必选。
-      - -bs：batch_size, 默认值为16， 可选。
-      - -save_path: 编译好的模型的保存文件，可选。默认值为"./compiled_models"。
-      - -device_id: 选在模型运行的卡编号，默认值0，可选。
-      - -soc_version: 芯片类型,必选。
-    约束说明：
-        1. 当前暂不支持动态batch，batch_size改变后，需要重新编图。
 
-2.0 应用VAD模型补丁
+### 编译vad模型
 在编译VAD模型前需要先打补丁，使用如下命令
 ```
+cd pipeline
 python3 patch_apply.py
 python3 remove_script.py
+cd ..
+```
+打完补丁后，开始编译vad模型，注意入参vad_model_path的路径需要与前面预训练权重保存的路径一致。
+```
+python3 compile_vad.py \
+-vad_model_path ./vad_pretrained \
+-soc_version *
 ```
 
-2. VAD模型编译
-    ```
-    python3 compile_vad.py \
-    -vad_model_path /vad_model_path \
-    -soc_version soc_version
-    ```
+参数说明：
+  - -vad_model_path: VAD预训练模型路径,必选。
+  - -save_path: 编译好的模型的保存文件，可选，默认值"./compiled_models"。
+  - -device_id: 选在模型运行的卡编号，默认值0，可选。
+  - -soc_version: 芯片类型,必选。
 
-    参数说明：
-      - -vad_model_path：VAD预训练模型路径,必选。
-      - -save_path: 编译好的模型的保存文件，可选，默认值"./compiled_models"。
-      - -device_id: 选在模型运行的卡编号，默认值0，可选。
-      - -soc_version: 芯片类型,必选。
-
-    注：VAD模型编译的保存路径需要和Whisper-large-V3模型编译保存路径一致
+注：1.VAD模型编译的保存路径需要和Whisper-large-V3模型编译保存路径一致 
+   2.芯片类型需要用户在环境上查询得到。如果无法确定当前设备的soc_version，则在安装NPU驱动包的服务器执行npu-smi info命令进行查询。
+   在查询到的“Name”前增加Ascend信息，例如“Name”对应取值为xxxyy，实际配置的soc_version值为Ascendxxxyy。
 
 
 ## 模型推理
-1. 设置mindie内存池上限为32，执行如下命令设置环境变量。内存池设置过小，内存重复申请和释放会影响性能。
-    ```
-    export TORCH_AIE_NPU_CACHE_MAX_SIZE=32
-    ```
 
 2. 模型推理
    ```
-    python3 pipeline.py \
-    -whisper_model_path /whisper_model_path \
-    -vad_model_path /vad_model_path \
-    -machine_type machine_type \
+    python3 example.py \
+    -whisper_model_path ./whisper_pretrained \
+    -vad_model_path ./vad_pretrained \
+    -compiled_models ./compiled_models
     -audio_path /audio_path
+    -bs *
     ```
 
     参数说明：
-      - -model_path：预训练模型路径,必选。
-      - -bs：batch_size, 默认值为16， 可选。针对300IPro需要设置成32。
-      - -save_path: 编译好的模型的保存文件，可选，默认值"./compiled_models"。
+      - -whisper_model_path : whisper的预训练模型路径,必选。
+      - -vad_model_path : vad的预训练模型路径，必选。
+      - -bs: batch_size大小，需要与编图时传入的大小保持一致。
+      - -compiled_models: 编译好的模型的保存文件，可选，默认值"./compiled_models"。
       - -device_id: 选在模型运行的卡编号，默认值0，可选。
-      - -machine_type: 机器类型，必选。支持800IA2和300IPro
-
-
+      - -open_warm_up: 是否开启预热,建议测试性能时开启该开关。
