@@ -123,8 +123,14 @@ python3 compile_vad.py \
 
 
 ## 模型推理
+1， 开启cpu高性能模式进一步提升性能，开启失败不影响功能。
 
-2. 模型推理
+```
+echo performance |tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
+sysctl -w vm.swappiness=0
+sysctl -w kernel.numa_balancing=0
+```
+2.模型推理
    ```
     python3 example.py \
     -whisper_model_path ./whisper_pretrained \
@@ -132,7 +138,7 @@ python3 compile_vad.py \
     -compiled_models ./compiled_models
     -audio_path /audio_path
     -bs *
-    ```
+   ```
 
     参数说明：
       - -whisper_model_path : whisper的预训练模型路径,必选。
