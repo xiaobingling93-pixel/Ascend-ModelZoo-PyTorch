@@ -26,6 +26,10 @@
   https://github.com/tencent-ailab/IP-Adapter
   ```
 
+- 设备支持：
+Atlas 800I A2推理设备：支持的卡数为1
+Atlas 300I Duo推理卡：支持的卡数为1
+
 # 推理环境准备<a name="ZH-CN_TOPIC_0000001126281702"></a>
 
 - 该模型需要以下插件与驱动
@@ -137,7 +141,7 @@
       - --output_dir: 导出的模型输出目录
       - batch_size：目前只支持batch为1
       - --device：使用的NPU芯片，默认是0
-      - soc：soc_version。Duo为310P3，A2为910B4。默认为Duo
+      - soc：soc_version。默认为Duo，可支持A2
       
 
 

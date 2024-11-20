@@ -22,6 +22,10 @@
    https://huggingface.co/stabilityai/stable-audio-open-1.0
   ```
 
+- 设备支持：
+Atlas 800I A2推理设备：支持的卡数为1
+Atlas 300I Duo推理卡：支持的卡数为1
+
 # 推理环境准备<a name="ZH-CN_TOPIC_0000001126281702"></a>
 
 - 该模型需要以下插件与驱动

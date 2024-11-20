@@ -23,6 +23,10 @@
    https://huggingface.co/stabilityai/stable-diffusion-3-medium-diffusers
   ```
 
+- 设备支持：
+Atlas 800I A2推理设备：支持的卡数为1或2
+Atlas 300I Duo推理卡：支持的卡数为1，可双芯并行
+
 ## 输入输出数据<a name="section540883920406"></a>
 
 - 输入数据

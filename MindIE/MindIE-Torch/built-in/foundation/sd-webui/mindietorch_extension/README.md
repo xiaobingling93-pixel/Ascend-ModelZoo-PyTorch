@@ -6,6 +6,10 @@ mindie_extension实现了一个SDWebUI界面的插件，用优化后的diffusers
 
    SDWebUI是一个基于Gradio库的WebUi界面，支持设置输入和参数用于SD模型的文生图、图生图等功能。有关SDWebUI的更多信息，请查看[Stable Diffusion WebUI](https://github.com/AUTOMATIC1111/stable-diffusion-webui)。
 
+- 设备支持：
+Atlas 800I A2推理设备
+Atlas 300I Duo推理卡
+
 # 推理环境准备
 
 该插件依赖torch2.1.0, python3.10环境
@@ -146,5 +150,5 @@ python launch.py --skip-torch-cuda-test --enable-insecure-extension-access --lis
    Batch size要固定为1
    ```
 
-3. 界面启动后，请先选择硬件配置，310P3请选择Duo，910B4请选择A2。然后选择MindIE_torch按钮，第一次启动服务时，点击MindIE_torch按钮后，会对于原始模型做一些处理，请耐心等待，直到服务端显示"You can generate image now!"字样后，再根据上述参数配置，点击generate生成结果。
+3. 界面启动后，请先选择硬件配置，Duo或A2。然后选择MindIE_torch按钮，第一次启动服务时，点击MindIE_torch按钮后，会对于原始模型做一些处理，请耐心等待，直到服务端显示"You can generate image now!"字样后，再根据上述参数配置，点击generate生成结果。
 

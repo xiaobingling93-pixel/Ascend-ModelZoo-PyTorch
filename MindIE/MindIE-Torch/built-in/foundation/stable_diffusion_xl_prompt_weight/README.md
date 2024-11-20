@@ -21,6 +21,9 @@
    https://huggingface.co/docs/diffusers/using-diffusers/weighted_prompts#stable-diffusion-xl
   ```
 
+- 设备支持：
+Atlas 800I A2推理设备：支持的卡数为1
+
 # 推理环境准备<a name="ZH-CN_TOPIC_0000001126281702"></a>
 
 - 该模型需要以下插件与驱动

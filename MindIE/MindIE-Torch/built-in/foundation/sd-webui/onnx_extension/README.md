@@ -5,6 +5,10 @@ torch_aie_extension实现了一个SDWebUI界面的插件，用优化后的diffus
 
    SDWebUI是一个基于Gradio库的WebUi界面，支持设置输入和参数用于SD模型的文生图、图生图等功能。有关SDWebUI的更多信息，请查看[Stable Diffusion WebUI](https://github.com/AUTOMATIC1111/stable-diffusion-webui)。
 
+- 设备支持：
+Atlas 800I A2推理设备
+Atlas 300I Duo推理卡
+
 # 推理环境准备
 
 该插件依赖torch2.1.0, python3.10环境
@@ -67,7 +71,7 @@ torch_aie_extension实现了一个SDWebUI界面的插件，用优化后的diffus
 ```bash
 python launch.py --skip-torch-cuda-test --port 22 --enable-insecure-extension-access --listen --log-startup --disable-safe-unpickle --no-half --skip-prepare-environment
 ```
-2. 请优先选择device，310P3选择Duo，910B4选择A2
+2. 请优先选择device，Duo或A2
 3. 文生图：选择ONNX按钮，输入文本，设置相关参数，点击generate生成结果
 4. 图生图：选择ONNX按钮，输入图像、文本，设置相关参数，点击generate生成结果
 5. 运用并行加速：点击Use_Parallel_Inferencing按钮选择

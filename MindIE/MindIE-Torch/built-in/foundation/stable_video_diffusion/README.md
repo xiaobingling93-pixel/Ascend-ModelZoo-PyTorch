@@ -26,6 +26,9 @@
    https://huggingface.co/stabilityai/stable-video-diffusion-img2vid-xt
   ```
 
+- 设备支持：
+Atlas 800I A2推理设备：支持的卡数为1或2
+
 ## 输入输出数据<a name="section540883920406"></a>
 
 - 输入数据

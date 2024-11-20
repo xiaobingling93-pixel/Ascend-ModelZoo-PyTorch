@@ -4,6 +4,10 @@
 
 DiT一种基于Transformer的扩散模型，全称为Diffusion Transformer，DiT遵循ViT的技术方法。有关DiT模型的更多信息，请参考[DiT github](https://github.com/facebookresearch/DiT)。
 
+- 设备支持：
+Atlas 800I A2推理设备
+Atlas 300I Duo推理卡
+
 ## 输入输出数据
 
 image_num为需要生成的图片数量

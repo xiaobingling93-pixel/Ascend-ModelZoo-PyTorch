@@ -20,7 +20,9 @@
    # stable-diffusion-xl-1.0-inpainting-0.1
    https://huggingface.co/diffusers/stable-diffusion-xl-1.0-inpainting-0.1
   ```
- 
+
+- 设备支持：
+Atlas 800I A2推理设备：支持的卡数为1
 
 # 推理环境准备<a name="ZH-CN_TOPIC_0000001126281702"></a>
 
@@ -120,7 +122,7 @@
       - --output_dir: ONNX模型输出目录
       - --batch_size: 设置batch_size, 默认值为1,当前仅支持batch_size=1的场景
       - --flag：默认为1。0代表静态，只支持分辨率为1024x1024；1代表动态分档，支持的分辨率为1024x1024和512x512。
-      - --soc：当前仅支持A2。A2特指910B4。
+      - --soc：当前仅支持A2。
       - --device：推理设备ID
       - --use_cache: 【可选】在推理过程中使用cache
 
@@ -183,7 +185,7 @@
       - --steps：生成图片迭代次数。
       - --device：推理设备ID；可用逗号分割传入两个设备ID，此时会使用并行方式进行推理。
       - --output_dir：存放导出模型的目录。
-      - --soc：当前仅支持A2。A2特指910B4。
+      - --soc：当前仅支持A2。
       - --flag：默认为1。0代表静态，只支持分辨率为1024x1024；1代表动态分档，支持的分辨率为1024x1024和512x512。**注意**：请与导出模型时设置的flag保持一致
       - --w_h: image的宽高，设置为1024表示宽高均为1024，设置为512表示宽高均为512。仅支持这两种分辨率。
       - --strength：当w_h=1024时，设置该值为0.99。当w_h=512时，设置该值为0.6。

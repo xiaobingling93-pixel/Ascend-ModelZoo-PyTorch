@@ -28,6 +28,10 @@
    https://huggingface.co/stabilityai/stable-diffusion-2-1-base
   ```
 
+- 设备支持：
+Atlas 800I A2推理设备：支持的卡数为1或2
+Atlas 300I Duo推理卡：支持的卡数为1，可双芯并行
+
 ## 输入输出数据<a name="section540883920406"></a>
 
 - 输入数据
@@ -279,7 +283,7 @@
       - --steps：生成图片迭代次数。
       - --device：推理设备ID；可用逗号分割传入两个设备ID，此时会使用并行方式进行推理。
       - --scheduler: 【可选】推荐使用DDIM采样器。
-      - --soc: 硬件配置，根据硬件配置选择Duo或者A2。A2特指910B4。
+      - --soc: 硬件配置，根据硬件配置选择Duo或者A2。
       - --output_dir: 编译好的模型路径。
       - --use_cache: 【可选】推荐使用UnetCache策略。
       - --use_cache_faster: 【可选】模型使用deepcache+faster融合方案。
