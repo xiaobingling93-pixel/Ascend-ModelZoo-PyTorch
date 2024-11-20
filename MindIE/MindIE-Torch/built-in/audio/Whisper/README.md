@@ -22,20 +22,13 @@
   **表 1**  版本配套表
   | 配套    | 版本     |
   |---------| ------- |
-  | 固件与驱动 | -  |
-  | CANN | - |
+  | 固件与驱动 | Ascend HDK 24.1.RC2（适用于310I Pro/Duo设备，aarch64架构）|
+  | CANN | 8.0RC2 |
   | Python | 3.10.13 |
   | PyTorch | 2.1.0 |
-  | MindIE | - |
+  | MindIE | 1.0.RC2 |
   
-  注意：由于MindIE暂无支持该模型的商发版本，烦请用户联系华为工程师获取对应的固件驱动，CANN，MindIE PoC版本链接。
-  固件驱动和CANN的安装，请参考昇腾官方文档[环境快速部署](https://www.hiascend.com/document/detail/zh/quick-installation/24.0.RC1/quickinstg/800_3000/quickinstg_800_3000_0001.html)。
-
-  MindIE的安装需要先source toolkit的环境变量，然后直接安装，以默认安装路径`/usr/local/Ascend`为例：
-  ```
-  source /usr/local/Ascend/ascend-tookit/set_env.sh
-  bash Ascend-mindie_*.run --install
-  ```
+  请参考[MindIE安装指南](https://www.hiascend.com/document/detail/zh/mindie/10RC2/releasenote/topic_0000001866067704.html)准备推理环境。
 
 
 # 快速上手<a name="ZH-CN_TOPIC_0000001126281700"></a>
@@ -77,10 +70,10 @@
     参数说明：
     - --model_path：导出的Torchscript模型路径，模型编译后保存在同一路径， 默认为`/tmp/models`。
     - --beam_size: 集束搜索参数，默认为5。与推理参数保持一致，如模型导出时指定了该参数，在编译时需要保持一致。
-    - --nblocks: 模型Blocks参数，跟模型大小相关，tiny 4, base 6, small 12, medium 24, large-v1 32。
-    - --hidden: 模型特征向量长度，跟模型大小相关，tiny 384, base 512, small 768, medium 1024, large-v1 1280。
+    - --nblocks: 模型Blocks参数，跟模型大小相关，tiny 4, base 6, small 12, medium 24, large-v1/v3 32。
+    - --hidden: 模型特征向量长度，跟模型大小相关，tiny 384, base 512, small 768, medium 1024, large-v1/v3 1280。
     - --n_mels: 梅尔频率滤波器数量，large-v3 128, 其余 80。 注意large表示large-v3。
-    - --soc_version: 芯片类型，当前仅在Ascend310P3上调试。
+    - --soc_version: 芯片类型，为必填参数。支持310I Pro/Duo推理卡，具体芯片类型请使用`npu-smi info`查看。如查询到`NPU Chip Name`为`310xxx`, 则该参数为`Ascend310xxx`。
 
 4. 模型推理
     ```
@@ -113,8 +106,8 @@
     参数说明：
     - --sim_threshold: 余弦相似度阈值，默认0.99。
     - --ntokens: prefill阶段输入token数量，decode阶段缓存token数量，默认100。
-    - --nblocks: 模型Blocks参数，跟模型大小相关，tiny 4, base 6, small 12, medium 24, large-v1 32。
-    - --hidden: 模型特征向量长度，跟模型大小相关，tiny 384, base 512, small 768, medium 1024, large-v1 1280。
+    - --nblocks: 模型Blocks参数，跟模型大小相关，tiny 4, base 6, small 12, medium 24, large-v1/v3 32。
+    - --hidden: 模型特征向量长度，跟模型大小相关，tiny 384, base 512, small 768, medium 1024, large-v1/v3 1280。
     - --n_mels: 梅尔频率滤波器数量，large-v3 128, 其余 80。 注意large表示large-v3。
     - 其他参数请参考脚本`parse_args`部分。
 
@@ -138,8 +131,8 @@
     ```
 
     参数说明：
-    - --nblocks: 模型Blocks参数，跟模型大小相关，tiny 4, base 6, small 12, medium 24, large-v1 32。
-    - --hidden: 模型特征向量长度，跟模型大小相关，tiny 384, base 512, small 768, medium 1024, large-v1 1280。
+    - --nblocks: 模型Blocks参数，跟模型大小相关，tiny 4, base 6, small 12, medium 24, large-v1/v3 32。
+    - --hidden: 模型特征向量长度，跟模型大小相关，tiny 384, base 512, small 768, medium 1024, large-v1/v3 1280。
     - --n_mels: 梅尔频率滤波器数量，large-v3 128, 其余 80。 注意large表示large-v3。
     - 其他参数请参考脚本`parse_args`部分。
 
@@ -171,8 +164,8 @@
 
     参数说明：
     - --use_gpu: 使能gpu推理，不加该选项默认cpu。
-    - --nblocks: 模型Blocks参数，跟模型大小相关，tiny 4, base 6, small 12, medium 24, large-v1 32。
-    - --hidden: 模型特征向量长度，跟模型大小相关，tiny 384, base 512, small 768, medium 1024, large-v1 1280。
+    - --nblocks: 模型Blocks参数，跟模型大小相关，tiny 4, base 6, small 12, medium 24, large-v1/v3 32。
+    - --hidden: 模型特征向量长度，跟模型大小相关，tiny 384, base 512, small 768, medium 1024, large-v1/v3 1280。
     - --n_mels: 梅尔频率滤波器数量，large-v3 128, 其余 80。 注意large表示large-v3。
     - 其他参数请参考脚本`parse_args`部分。
 
@@ -187,7 +180,7 @@
     ```
 
     
-    | 模型    | pt插件 - 310P性能（时延/吞吐率） | T4性能（时延/吞吐率） | A10性能（时延/吞吐率）|
+    | 模型    | 性能（时延/吞吐率） | T4性能（时延/吞吐率） | A10性能（时延/吞吐率）|
     |---------|--------------------------------|---------------------|--------------------|
     | encoder (tiny) | 7.75 ms / 128.97 fps | 9.31 ms / 107.47 fps | 4.21 ms / 237.50 fps |
     | prefill (tiny) | 10.14 ms / 98.63 fps | 72.08 ms / 13.87 fps | 45.15 ms / 22.15 fps |

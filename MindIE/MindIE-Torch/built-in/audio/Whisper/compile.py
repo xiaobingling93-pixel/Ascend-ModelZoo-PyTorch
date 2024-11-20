@@ -29,7 +29,7 @@ def parse_args():
     parser.add_argument("--nblocks", type=int, default=4)
     parser.add_argument("--hidden", type=int, default=384)
     parser.add_argument("--n_mels", type=int, default=80)
-    parser.add_argument("--soc_version", default="Ascend310P3")
+    parser.add_argument("--soc_version", required=True)
     args = parser.parse_args()
     return args
 
