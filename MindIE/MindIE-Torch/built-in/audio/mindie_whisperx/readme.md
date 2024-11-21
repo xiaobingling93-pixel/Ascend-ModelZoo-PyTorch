@@ -67,8 +67,9 @@
     pip3 install ml-dtypes
     pip3 install cloudpickle
     pip3 install pyannote.audio==3.1.1
-    ```
-    同时需要保证环境安装了libsndfile1, ffmpeg库
+    ``` 
+   如果环境上安装了torch_npu, pyannote.audio会默认引入, 需要卸载torch_npu.
+   同时需要保证环境安装了libsndfile1, ffmpeg库.
 
 ## 模型编译
 模型编译分为两部分内容，需要分别编译whisper模型和vad模型，并将编译好的模型保存到同一个路径，大概耗时两小时左右。
