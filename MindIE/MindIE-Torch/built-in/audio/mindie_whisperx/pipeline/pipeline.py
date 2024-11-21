@@ -28,7 +28,7 @@ import numpy as np
 from transformers import Pipeline
 from transformers.pipelines.pt_utils import PipelineIterator
 from transformers import WhisperProcessor
-from whisper_large_v3.modeling_whipser import MindieWhisperForConditionalGeneration
+from whisper_large_v3.modeling_whisper import MindieWhisperForConditionalGeneration
 from .vad import load_vad_model, merge_chunks
 from .tokenizer import Tokenizer
 
