@@ -124,16 +124,35 @@ python3 compile_vad.py \
 
 
 ## 模型推理
-1， 开启cpu高性能模式进一步提升性能，开启失败不影响功能。
+1. 开启cpu高性能模式进一步提升性能，开启失败不影响功能。
 
 ```
 echo performance |tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
 sysctl -w vm.swappiness=0
 sysctl -w kernel.numa_balancing=0
 ```
-2.模型推理
+2. 安装绑核工具
+```
+apt-get update
+apt-get  install numactl
+```
+查询卡的NUMA node
+```
+lspci -vs bus-id
+```
+注：通过npu-smi info查询推理卡id对应的bus-id，然后使用上面的命令得到推理卡id对应的NUMA node。
+使用lscpu指令查询NUMA node对应亲和的CPU核
+```
+lscpu
+```
+能够看到对应NUMA node和对应哪些cpu，例如
+```
+NUMA node0 CPU(s): 0-31
+NUMA node1 CPU(s): 32-63
+```
+3.绑定CPU并模型推理，假设查询到的核数为0-31，具体
    ```
-    python3 example.py \
+    taskset -c 0-31 python3 example.py \
     -whisper_model_path ./whisper_pretrained \
     -vad_model_path ./vad_pretrained \
     -compiled_models ./compiled_models
