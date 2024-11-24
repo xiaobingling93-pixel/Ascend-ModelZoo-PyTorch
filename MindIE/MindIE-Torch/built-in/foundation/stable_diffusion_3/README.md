@@ -66,6 +66,7 @@ Atlas 300I Duo推理卡：支持的卡数为1，可双芯并行
    cd HPSv2
    pip3 install -e .
    ```
+   - 注意：当前sd3推理暂不支持mindie与torch_npu混用，请确保实际推理环境中没有安装torch_npu
 
 2. 安装mindie包
 
