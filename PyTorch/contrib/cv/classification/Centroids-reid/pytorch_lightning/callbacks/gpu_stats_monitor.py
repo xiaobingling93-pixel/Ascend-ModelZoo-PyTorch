@@ -69,7 +69,7 @@ class GPUStatsMonitor(Callback):
     - **utilization.memory** – Percent of time over the past sample period during which global (device) memory was
       being read or written. The sample period may be between 1 second and 1/6 second depending on the product.
     - **temperature.gpu** – Core GPU temperature, in degrees C.
-    - **temperature.memory** – HBM memory temperature, in degrees C.
+    - **temperature.memory** – On-chip memory temperature, in degrees C.
 
     """
 
