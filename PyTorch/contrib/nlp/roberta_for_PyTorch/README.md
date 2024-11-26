@@ -34,14 +34,16 @@ RoBERTa 在模型规模、算力和数据上，都比 BERT 有一定的提升。
 
 ## 准备环境
 
-- 当前模型不支持 Python3.11 及以上版本，支持的 PyTorch 版本和已知三方库依赖如下表所示。
+- 当前模型支持的固件与驱动、 CANN 以及 PyTorch 如下表所示。
 
-  **表 1**  版本支持表
+  **表 1**  版本配套表
 
-  | Torch_Version      | 三方库依赖版本                                 |
-  | :--------: | :----------------------------------------------------------: |
-  | PyTorch 1.11   | - |
-  | PyTorch 2.1   | - |
+  | 配套        | 版本                                                         |
+  | ---------- | ------------------------------------------------------------ |
+  | 固件与驱动   | [1.0.25.alpha](https://www.hiascend.com/hardware/firmware-drivers/community?product=4&model=26&cann=8.0.0.alpha001&driver=1.0.25.alpha) |
+  | CANN       | [8.0.0.alpha001](https://www.hiascend.com/developer/download/community/result?module=cann&cann=8.0.0.alpha001) |
+  | Ascend Extension for PyTorch | [2.1.0](https://gitee.com/ascend/pytorch/tree/v2.1.0/) |
+  | Ascend Extension for PyTorch | [1.11.0](https://gitee.com/ascend/pytorch/tree/v1.11.0/) |
 
 - 环境准备指导。
 

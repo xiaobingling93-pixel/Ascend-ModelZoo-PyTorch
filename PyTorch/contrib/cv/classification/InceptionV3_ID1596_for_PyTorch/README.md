@@ -32,17 +32,16 @@ GoogLeNet对网络中的传统卷积层进行了修改，提出了被称为Incep
 
 ## 准备环境
 
-- 当前模型支持的 PyTorch 版本和已知三方库依赖如下表所示。
+- 当前模型支持的固件与驱动、 CANN 以及 PyTorch 如下表所示。
 
-  **表 1**  版本支持表
+  **表 1**  版本配套表
 
-  | Torch_Version      | 三方库依赖版本                                 |
-  | :--------: | :----------------------------------------------------------: |
-  | PyTorch 1.11 | torchvision==0.12.0 |
-  | PyTorch 2.1 | torchvision==0.16.0 |
-  | PyTorch 2.2 | torchvision==0.17.0 |
-  | PyTorch 2.3 | torchvision==0.18.1 |
-  | PyTorch 2.4 | torchvision==0.19.0 |
+  | 配套        | 版本                                                         |
+  | ---------- | ------------------------------------------------------------ |
+  | 固件与驱动   | [1.0.25.alpha](https://www.hiascend.com/hardware/firmware-drivers/community?product=4&model=26&cann=8.0.0.alpha001&driver=1.0.25.alpha) |
+  | CANN       | [8.0.0.alpha001](https://www.hiascend.com/developer/download/community/result?module=cann&cann=8.0.0.alpha001) |
+  | Ascend Extension for PyTorch | [2.1.0](https://gitee.com/ascend/pytorch/tree/v2.1.0/) |
+  | Ascend Extension for PyTorch | [1.11.0](https://gitee.com/ascend/pytorch/tree/v1.11.0/) |
 
 - 环境准备指导。
 
@@ -55,12 +54,6 @@ GoogLeNet对网络中的传统卷积层进行了修改，提出了被称为Incep
   pip install -r 1.11_requirements.txt  # PyTorch1.11版本
   
   pip install -r 2.1_requirements.txt  # PyTorch2.1版本
-
-  pip install -r 2.2_requirements.txt  # PyTorch2.2版本
-
-  pip install -r 2.3_requirements.txt  # PyTorch2.3版本
-
-  pip install -r 2.4_requirements.txt  # PyTorch2.4版本
   ```
   > **说明：** 
   >只需执行一条对应的PyTorch版本依赖安装命令。

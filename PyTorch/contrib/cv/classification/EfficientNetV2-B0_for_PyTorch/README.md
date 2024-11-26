@@ -38,36 +38,30 @@
   url=https://gitee.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/contrib/cv/classification
   ```
-  
 # 准备训练环境
-## 安装昇腾环境
-请参考昇腾社区中《[Pytorch框架训练环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/ptes)》文档搭建昇腾环境。本仓已支持表1中软件版本。
-  
-  **表 1**  昇腾软件版本支持表
 
-  |        软件类型        |   支持版本   |
-  |:------------------:|:--------:|
-  | FrameworkPTAdapter | 6.0.RC1  |
-  |       CANN         | 8.0.RC1  |
-  |      昇腾NPU固件       | 24.1.RC1 |
-  |      昇腾NPU驱动       | 24.1.RC1 |
+## 准备环境
 
-## 安装模型环境
+- 当前模型支持的固件与驱动、 CANN 以及 PyTorch 如下表所示。
 
-- 当前模型支持的 PyTorch 版本和已知三方库依赖如下表所示。
+  **表 1**  版本配套表
 
-  **表 2**  版本支持表
+  | 配套        | 版本                                                         |
+  | ---------- | ------------------------------------------------------------ |
+  | 固件与驱动   | [1.0.25.alpha](https://www.hiascend.com/hardware/firmware-drivers/community?product=4&model=26&cann=8.0.0.alpha001&driver=1.0.25.alpha) |
+  | CANN       | [8.0.0.alpha001](https://www.hiascend.com/developer/download/community/result?module=cann&cann=8.0.0.alpha001) |
+  | Ascend Extension for PyTorch | [2.1.0](https://gitee.com/ascend/pytorch/tree/v2.1.0/) |
 
-  |      三方库      |   支持版本   |
-  |:--------------:|:--------:|
-  |    PyTorch     | 2.1，1.11 |
+- 环境准备指导。
+
+  请参考《[Pytorch框架训练环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/ptes)》。
 
 - 安装依赖
 
   在模型源码包根目录下执行命令，安装模型需要的依赖。
   
   ```
-  # pyTorch 1.11请使用requirements_1_11.txt，pytorch 2.1请使用requirements_2_1.txt
+  # pytorch 2.1请使用requirements_2_1.txt
   pip install -r requirements_2_1.txt
 
   ```
@@ -190,7 +184,7 @@
 
 ## 训练结果
 
-**表 3**  训练结果展示表
+**表 2**  训练结果展示表
 
 |  芯片      | 卡数 | Acc@1 |   FPS   | Epochs |
 |:--------:|----|:-----:|:-------:|:------:|

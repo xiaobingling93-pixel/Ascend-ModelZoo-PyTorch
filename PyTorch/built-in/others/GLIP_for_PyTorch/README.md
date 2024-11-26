@@ -29,14 +29,15 @@ GLIP是一种用于视觉定位的语言-图像预训练模型，可以学习对
 
 ## 准备环境
 
-- 当前模型支持的 PyTorch 版本和已知三方库依赖如下表所示。
+- 当前模型支持的固件与驱动、 CANN 以及 PyTorch 如下表所示。
 
-  ****表 1**** 版本支持表
+  **表 1**  版本配套表
 
-  | Torch_Version |                       三方库依赖版本                        |
-  |---------------|:----------------------------------------------------:|
-  | PyTorch 1.11  | mmcv-full==1.7.1; torchvision==0.12.0; numpy<=1.23.5 |
-
+  | 配套        | 版本                                                         |
+  | ---------- | ------------------------------------------------------------ |
+  | 固件与驱动   | [1.0.25.alpha](https://www.hiascend.com/hardware/firmware-drivers/community?product=4&model=26&cann=8.0.0.alpha001&driver=1.0.25.alpha) |
+  | CANN       | [8.0.0.alpha001](https://www.hiascend.com/developer/download/community/result?module=cann&cann=8.0.0.alpha001) |
+  | Ascend Extension for PyTorch | [2.1.0](https://gitee.com/ascend/pytorch/tree/v2.1.0/) |
 
 - 环境准备指导。
 

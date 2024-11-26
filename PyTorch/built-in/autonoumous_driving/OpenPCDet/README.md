@@ -25,13 +25,24 @@ code_path=PyTorch/built-in/autonoumous_driving
 
 ## Centerpoint
 ### 准备环境
-**表1** 版本支持表
 
-| Torch_Version | 三方库依赖版本            |
-| - |--------------------|
-| PyTorch 2.1.0 | torchvision 0.16.2 |
-| PyTorch 2.3.1 | torchvision 0.18.1 |
-| PyTorch 2.4.0 | torchvision 0.19.0 |
+- 当前模型支持的固件与驱动、 CANN 以及 PyTorch 如下表所示。
+
+  **表 1**  版本配套表
+
+  | 配套        | 版本                                                         |
+  | ---------- | ------------------------------------------------------------ |
+  | 固件与驱动   | [1.0.25.alpha](https://www.hiascend.com/hardware/firmware-drivers/community?product=4&model=26&cann=8.0.0.alpha001&driver=1.0.25.alpha) |
+  | CANN       | [8.0.0.alpha001](https://www.hiascend.com/developer/download/community/result?module=cann&cann=8.0.0.alpha001) |
+  | Ascend Extension for PyTorch | [2.1.0](https://gitee.com/ascend/pytorch/tree/v2.1.0/) |
+
+- 三方库依赖版本如下表所示。
+
+  **表 2** 三方库依赖表
+
+  | Torch_Version | 三方库依赖版本            |
+  | - |--------------------|
+  | PyTorch 2.1.0 | torchvision 0.16.2 |
 
 - 环境准备指导。 
 
@@ -43,8 +54,6 @@ code_path=PyTorch/built-in/autonoumous_driving
 ```shell
 cd ./OpenPCDet
 pip install -r requirements.txt && cd ../   # PyTorch 2.1版本
-pip install -r 2.3_requirements.txt && cd ../   # PyTorch 2.3版本
-pip install -r 2.4_requirements.txt && cd ../   # PyTorch 2.4版本
 ```
 
 #### 2. 手动编译安装cumm和spconv
@@ -224,24 +233,35 @@ python setup.py develop
 ## PointPillar
 ### 准备环境
 
-  **表 1**  版本支持表
+- 当前模型支持的固件与驱动、 CANN 以及 PyTorch 如下表所示。
+
+  **表 1**  版本配套表
+
+  | 配套        | 版本                                                         |
+  | ---------- | ------------------------------------------------------------ |
+  | 固件与驱动   | [1.0.25.alpha](https://www.hiascend.com/hardware/firmware-drivers/community?product=4&model=26&cann=8.0.0.alpha001&driver=1.0.25.alpha) |
+  | CANN       | [8.0.0.alpha001](https://www.hiascend.com/developer/download/community/result?module=cann&cann=8.0.0.alpha001) |
+  | Ascend Extension for PyTorch | [2.1.0](https://gitee.com/ascend/pytorch/tree/v2.1.0/) |
+
+- 三方库依赖如下表所示。
+
+  **表 2** 三方库依赖表
 
   | Torch_Version      | 三方库依赖版本                                 |
   | :--------: | :----------------------------------------------------------: |
   | PyTorch 2.1.0 | torchvision 0.16.0 |
-  | PyTorch 2.2 | torchvision 0.17.0 |
 
 - 环境准备指导。
 
   请参考《[Pytorch框架训练环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/ptes)》。
 
+- 安装依赖。
 
   #### 1. 基本环境
   在模型源码包根目录下执行相应命令，安装模型需要的依赖。
   ```
   conda create -n env_name python=3.8
   pip install -r requirements.txt    # PyTorch 2.1版本
-  pip install -r 2.2_requirements.txt    # PyTorch 2.2版本
   ```
 
   #### 2. 手动编译安装cumm和spconv

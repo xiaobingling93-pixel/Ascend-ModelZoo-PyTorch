@@ -44,17 +44,16 @@ SSD是一种one-stage的目标检测框架。SSD_MobileNetV1使用MobileNetV1提
 
 ### 安装模型环境
 
-- 当前模型支持的 PyTorch 版本和已知三方库依赖如下表所示。
+- 当前模型支持的固件与驱动、 CANN 以及 PyTorch 如下表所示。
 
-  **表 1**  版本支持表
+  **表 1**  版本配套表
 
-  |      软件类型      |                                支持版本                                     |
-  | :----------------: | :-------------------------------------------------------------------------: |
-  | FrameworkPTAdapter |                                6.0.RC1                                      |
-  |        CANN        |                                8.0.RC1                                      |
-  |     Ascend HDK     |                                24.1.RC1                                     |
-  |       PyTorch      |                                 1.11.0                                      | 
-  
+  | 配套        | 版本                                                         |
+  | ---------- | ------------------------------------------------------------ |
+  | 固件与驱动   | [1.0.25.alpha](https://www.hiascend.com/hardware/firmware-drivers/community?product=4&model=26&cann=8.0.0.alpha001&driver=1.0.25.alpha) |
+  | CANN       | [8.0.0.alpha001](https://www.hiascend.com/developer/download/community/result?module=cann&cann=8.0.0.alpha001) |
+  | Ascend Extension for PyTorch | [1.11.0](https://gitee.com/ascend/pytorch/tree/v1.11.0/) |
+
 - 环境准备指导。
 
   请参考《[Pytorch框架训练环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/ptes)》。

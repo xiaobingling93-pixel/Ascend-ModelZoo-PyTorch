@@ -48,14 +48,23 @@ Wenet是一款开源的、面向工业落地应用的语音识别工具包，主
 
 ## 准备训练环境
 
-### 安装模型环境
+- 当前模型支持的固件与驱动、 CANN 以及 PyTorch 如下表所示。
 
- 当前模型支持的 PyTorch 版本和已知三方库依赖如下表所示。
+  **表 1**  版本配套表
 
-  **表 1**  版本支持表
+  | 配套        | 版本                                                         |
+  | ---------- | ------------------------------------------------------------ |
+  | 固件与驱动   | [1.0.25.alpha](https://www.hiascend.com/hardware/firmware-drivers/community?product=4&model=26&cann=8.0.0.alpha001&driver=1.0.25.alpha) |
+  | CANN       | [8.0.0.alpha001](https://www.hiascend.com/developer/download/community/result?module=cann&cann=8.0.0.alpha001) |
+  | Ascend Extension for PyTorch | [2.1.0](https://gitee.com/ascend/pytorch/tree/v2.1.0/) |
+  | Ascend Extension for PyTorch | [1.11.0](https://gitee.com/ascend/pytorch/tree/v1.11.0/) |
+
+- 三方库依赖如下表所示。
+
+  **表 2**  三方库依赖表
 
   | Torch_Version |       三方库依赖版本       |
- |:-------------------:| :-----------------: |
+  | ------------------- | ----------------- |
   | PyTorch 1.11  | torch_audio==0.11.0 |
   | PyTorch 2.1   | torch_audio==2.1.0  |
 
@@ -68,7 +77,7 @@ Wenet是一款开源的、面向工业落地应用的语音识别工具包，主
   在模型源码包根目录下执行命令。
   
   ```
-  # PyTorch 1.11请使用requirements_1_11.txt，PyTorch 2.1请使用requirements_2_1.txt
+  # PyTorch 1.11请使用requirements_1_11.txt
   pip install -r requirements_1_11.txt
   ```
 
@@ -139,7 +148,7 @@ Wenet是一款开源的、面向工业落地应用的语音识别工具包，主
 
 ## 训练结果展示
 
-**表 2**  conformer训练结果展示表
+**表 3**  conformer训练结果展示表
 
 |    NAME     | Error | FPS(iters/sec) | Epochs | AMP_Type | Torch_Version |
 |:-----------:| :---: |:--------------:|:------:|:--------:|:-------------:|
@@ -148,7 +157,7 @@ Wenet是一款开源的、面向工业落地应用的语音识别工具包，主
 |   8p-竞品A    |   -   |     958.98     |   15   |   fp32   |      2.1      |
 | 8p-Atlas 800T A2  |   -   |     830.49     |   15   |   fp32   |      2.1      |
 
-**表 3**  whisper训练结果展示表
+**表 4**  whisper训练结果展示表
 
 |     NAME      | Error | FPS(iters/sec) | Epochs | AMP_Type | Torch_Version |
 |:-------------:| :---: |:--------------:|:------:|:--------:|:-------------:|
@@ -157,7 +166,7 @@ Wenet是一款开源的、面向工业落地应用的语音识别工具包，主
 |   8p-竞品A      |   -   |     748.85     |   15   |   fp32   |      2.1      |
 |  8p-Atlas 800T A2   |   -   |     789.31     |   15   |   fp32   |      2.1      |
 
-**表 4** conformer result
+**表 5** conformer result
 * Feature info: using fbank feature, dither, cmvn, online speed perturb
 * Training info: lr 0.002, batch size 18, 4 gpu, acc_grad 4, 240 epochs, dither 0.1
 * Decoding info: ctc_weight 0.5, average_num 20

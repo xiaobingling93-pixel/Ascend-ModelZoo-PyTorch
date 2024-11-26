@@ -14,19 +14,35 @@ BERT-CRF 是用于自然语言处理中实体识别任务的模型
 
 ## 准备训练环境
 ### 准备环境
-* 当前模型支持的PyTorch版本和已知三方库依赖如下表所示
-表1 依赖库列表
 
-| Torch_Version      | 三方库依赖版本                      |
-| :--------: | :----------------------------------------: |
-| PyTorch 1.11   | transformers 4.29.2 |
-| PyTorch 2.1   | transformers 4.29.2 |
+- 当前模型支持的固件与驱动、 CANN 以及 PyTorch 如下表所示。
 
-* 环境中也需要安装对应版本的CANN和torch_npu，可参考《[PyTorch框架训练环境准备](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/63RC1alpha002/softwareinstall/instg/instg_000018.html)》
-* 安装依赖：
-```
-pip install -r requirements.txt
-```
+  **表 1**  版本配套表
+
+  | 配套        | 版本                                                         |
+  | ---------- | ------------------------------------------------------------ |
+  | 固件与驱动   | [1.0.25.alpha](https://www.hiascend.com/hardware/firmware-drivers/community?product=4&model=26&cann=8.0.0.alpha001&driver=1.0.25.alpha) |
+  | CANN       | [8.0.0.alpha001](https://www.hiascend.com/developer/download/community/result?module=cann&cann=8.0.0.alpha001) |
+  | Ascend Extension for PyTorch | [2.1.0](https://gitee.com/ascend/pytorch/tree/v2.1.0/) |
+  | Ascend Extension for PyTorch | [1.11.0](https://gitee.com/ascend/pytorch/tree/v1.11.0/) |
+
+- 三方库依赖如下表所示
+  
+  **表 2** 三方库依赖表
+
+  | Torch_Version      | 三方库依赖版本                      |
+  | :--------: | :----------------------------------------: |
+  | PyTorch 1.11   | transformers 4.29.2 |
+  | PyTorch 2.1   | transformers 4.29.2 |
+
+- 环境准备指导。
+
+  请参考《[Pytorch框架训练环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/ptes)》。
+
+- 安装依赖
+  ```
+  pip install -r requirements.txt
+  ```
 
 ### 准备数据集
 * 本模型在[Cluener](https://www.cluebenchmarks.com/introduce.html)数据集上完成训练和验证。在https://storage.googleapis.com/cluebenchmark/tasks/cluener_public.zip 下载Cluener数据集，解压后放到datasets目录下，形成如下的目录结构：
@@ -79,7 +95,7 @@ BERT-NER-Pytorch
 训练完成后，权重文件保存在当前路径下，并输出模型训练精度和性能信息。
 
 ## 训练结果展示
-表2 
+**表 3** 
 
 | Name | F1 | Wps     | Samples/Second | Epochs |
 | --- | --- |---------| --- | --- |

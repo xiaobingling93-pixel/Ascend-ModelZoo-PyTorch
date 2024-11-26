@@ -43,24 +43,19 @@
 
 ### 安装环境
 
-**表 1** 三方库版本支持表
+- 当前模型支持的固件与驱动、 CANN 以及 PyTorch 如下表所示。
 
-| 三方库  | 支持版本 |
-| ------- | -------- |
-| PyTorch | 1.11     |
+  **表 1**  版本配套表
 
-### 安装昇腾环境
+  | 配套        | 版本                                                         |
+  | ---------- | ------------------------------------------------------------ |
+  | 固件与驱动   | [1.0.25.alpha](https://www.hiascend.com/hardware/firmware-drivers/community?product=4&model=26&cann=8.0.0.alpha001&driver=1.0.25.alpha) |
+  | CANN       | [8.0.0.alpha001](https://www.hiascend.com/developer/download/community/result?module=cann&cann=8.0.0.alpha001) |
+  | Ascend Extension for PyTorch | [1.11.0](https://gitee.com/ascend/pytorch/tree/v1.11.0/) |
 
-请参考昇腾社区中《[Pytorch框架训练环境准备](https://gitee.com/link?target=https%3A%2F%2Fwww.hiascend.com%2Fdocument%2Fdetail%2Fzh%2FModelZoo%2Fpytorchframework%2Fptes)》文档搭建昇腾环境，本仓已支持表2中软件版本。
+- 环境准备指导。
 
-**表 2** 昇腾软件版本支持表
-
-| 软件类型          | 支持版本     |
-| ----------------- |----------|
-| FrameworkPTAdaper | 在研       |
-| CANN              | 在研  |
-| 昇腾NPU固件       | 在研 |
-| 昇腾NPU驱动       | 在研 |
+  请参考《[Pytorch框架训练环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/ptes)》。
 
 - 源码安装mmcv
 
