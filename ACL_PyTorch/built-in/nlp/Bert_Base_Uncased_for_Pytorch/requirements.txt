@@ -1,6 +1,5 @@
 torch==1.8.0
 onnx==1.7.0
-onnxoptimizer==0.2.7
 onnx-simplifier==0.3.6
 numpy
 boto3

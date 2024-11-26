@@ -284,11 +284,11 @@ YOLO 算法作 为 one-stage 目标检测算法最典型的代表，其基于深
 
 | 芯片型号    | Batch Size | 数据集         | 性能 |
 | ----------- | ---------- | -------------- | ---- |
-| Ascend310P3 | 1          | coco2017验证集 | 32   |
-| Ascend310P3 | 4          | coco2017验证集 | 32   |
-| Ascend310P3 | 8          | coco2017验证集 | 30   |
-| Ascend310P3 | 16         | coco2017验证集 | 32   |
-| Ascend310P3 | 32         | coco2017验证集 | 31   |
+| 300I Pro | 1          | coco2017验证集 | 32   |
+| 300I Pro | 4          | coco2017验证集 | 32   |
+| 300I Pro | 8          | coco2017验证集 | 30   |
+| 300I Pro | 16         | coco2017验证集 | 32   |
+| 300I Pro | 32         | coco2017验证集 | 31   |
 
 # 公网地址说明
 代码涉及公网地址参考 public_address_statement.md

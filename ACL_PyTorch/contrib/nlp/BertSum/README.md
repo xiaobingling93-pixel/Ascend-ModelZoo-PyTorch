@@ -276,18 +276,17 @@ BertSum模型主要由句子编码层和摘要判断层组成，其中，`句子
 | device | ROUGE-1 Average_R |
 |--------|-------------------|
 | 基准   |            42.96% |
-| 310    |            42.95% |
-| 310P3  |            42.85% |
+| 300I Pro |            42.85% |
 
 
 性能参考下列数据。
 
 
-| 模型         | 基准性能  | 310性能   | 310P3性能 |
-| BertSum bs1  | 61.538fps | 94.281fps | 136.33fps |
-| :------:     | :------:  | :------:  | :------:  |
-| BertSum bs4  | -         | -         | 133.11fps |
-| BertSum bs8  | -         | -         | 138.09fps |
-| BertSum bs16 | -         | -         | 138.06fps |
-| BertSum bs32 | -         | -         | 137.42fps |
-| BertSum bs64 | -         | -         | 118.94fps |
+| 模型         | 基准性能  | 300I Pro性能 |
+| BertSum bs1  | 61.538fps | 136.33fps |
+| :------:     | :------:  | :------:  |
+| BertSum bs4  | -         | 133.11fps |
+| BertSum bs8  | -         | 138.09fps |
+| BertSum bs16 | -         | 138.06fps |
+| BertSum bs32 | -         | 137.42fps |
+| BertSum bs64 | -         | 118.94fps |

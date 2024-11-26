@@ -310,4 +310,4 @@ UNet++由不同深度的U-Net组成，其解码器通过重新设计的跳接以
 
 | 芯片型号 | Batch Size   | 数据集 | 精度 | 性能 |
 | --------- | :-------: | ---------- | ---------- | --------------- |
-| Ascend310P3 |   1   |   Task03_Liver  |     Liver 1_Dice (val):96.55, Liver 2_Dice (val):71.97      |    3.983    |
+| 300I Pro |   1   |   Task03_Liver  |     Liver 1_Dice (val):96.55, Liver 2_Dice (val):71.97      |    3.983    |

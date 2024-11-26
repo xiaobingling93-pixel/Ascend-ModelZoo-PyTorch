@@ -279,17 +279,17 @@ mode_name = [
 
 | 芯片型号|             模型变体|   Batch Size|  数据集|    参考精度|    NPU精度|性能(fps)|
 |:------:|:-------------------:|:-----------:|:------:|:----------:|:---------:|:-------:|
-|   310P3|  ViT_base_patch8_224|            1|ImageNet| top1: 85.80|top1: 85.58|    76.42|
-|   310P3|  ViT_base_patch8_224| 8 (最优性能)|ImageNet| top1: 85.80|top1: 85.58|    98.48|
-|   310P3| ViT_base_patch16_224|            1|ImageNet| top1: 84.53|top1: 84.16|   342.34|
-|   310P3| ViT_base_patch16_224|16 (最优性能)|ImageNet| top1: 84.53|top1: 84.16|   660.64|
-|   310P3| ViT_base_patch16_384|            1|ImageNet| top1: 86.01|top1: 85.84|   108.87|
-|   310P3| ViT_base_patch16_384| 8 (最优性能)|ImageNet| top1: 86.01|top1: 85.84|   151.01|
-|   310P3| ViT_base_patch32_224|            1|ImageNet| top1: 80.72|top1: 80.63|   431.89|
-|   310P3| ViT_base_patch32_224|64 (最优性能)|ImageNet| top1: 80.72|top1: 80.63|  1679.63|
-|   310P3| ViT_base_patch32_384|            1|ImageNet| top1: 83.35|top1: 83.29|   267.01|
-|   310P3| ViT_base_patch32_384|32 (最优性能)|ImageNet| top1: 83.35|top1: 83.29|   596.55|
-|   310P3|ViT_large_patch16_224|            1|ImageNet| top1: 85.84|top1: 85.62|   119.80|
-|   310P3|ViT_large_patch16_224| 4 (最优性能)|ImageNet| top1: 85.84|top1: 85.62|   166.43|
+|   300I Pro|  ViT_base_patch8_224|            1|ImageNet| top1: 85.80|top1: 85.58|    76.42|
+|   300I Pro|  ViT_base_patch8_224| 8 (最优性能)|ImageNet| top1: 85.80|top1: 85.58|    98.48|
+|   300I Pro| ViT_base_patch16_224|            1|ImageNet| top1: 84.53|top1: 84.16|   342.34|
+|   300I Pro| ViT_base_patch16_224|16 (最优性能)|ImageNet| top1: 84.53|top1: 84.16|   660.64|
+|   300I Pro| ViT_base_patch16_384|            1|ImageNet| top1: 86.01|top1: 85.84|   108.87|
+|   300I Pro| ViT_base_patch16_384| 8 (最优性能)|ImageNet| top1: 86.01|top1: 85.84|   151.01|
+|   300I Pro| ViT_base_patch32_224|            1|ImageNet| top1: 80.72|top1: 80.63|   431.89|
+|   300I Pro| ViT_base_patch32_224|64 (最优性能)|ImageNet| top1: 80.72|top1: 80.63|  1679.63|
+|   300I Pro| ViT_base_patch32_384|            1|ImageNet| top1: 83.35|top1: 83.29|   267.01|
+|   300I Pro| ViT_base_patch32_384|32 (最优性能)|ImageNet| top1: 83.35|top1: 83.29|   596.55|
+|   300I Pro|ViT_large_patch16_224|            1|ImageNet| top1: 85.84|top1: 85.62|   119.80|
+|   300I Pro|ViT_large_patch16_224| 4 (最优性能)|ImageNet| top1: 85.84|top1: 85.62|   166.43|
 
 > 完整性能数据请查阅文件：`performances.md`

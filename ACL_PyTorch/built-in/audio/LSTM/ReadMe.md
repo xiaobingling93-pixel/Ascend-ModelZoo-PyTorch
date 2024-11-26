@@ -326,9 +326,9 @@ LSTM是一种特殊的RNN模型，与普通RNN相比，LSTM可以更好地解决
 
 | 芯片型号 | Batch Size | 数据集 | 精度                      | 性能          |
 | --------- |------------| ---------- |-------------------------|-------------|
-|   Ascend310P3        | 1          |   TIMIT         | CER:13.5491/WER:18.8003 | 5.3457 fps  |
-|   Ascend310P3        | 4          |   TIMIT         | CER:13.5370/WER:18.7877 | 21.3256 fps |
-|   Ascend310P3        | 8          |   TIMIT         | CER:13.5156/WER:18.7729 | 42.0914 fps |
-|   Ascend310P3        | 16         |   TIMIT         | CER:13.5502/WER:18.8313 | 82.6230 fps |
-|   Ascend310P3        | 32         |   TIMIT         | CER:13.5502/WER:18.8313 | 83.1510 fps |
-|   Ascend310P3        | 64         |   TIMIT         | CER:13.5502/WER:18.8313 | 83.5096 fps |
+|   300I Pro        | 1          |   TIMIT         | CER:13.5491/WER:18.8003 | 5.3457 fps  |
+|   300I Pro        | 4          |   TIMIT         | CER:13.5370/WER:18.7877 | 21.3256 fps |
+|   300I Pro        | 8          |   TIMIT         | CER:13.5156/WER:18.7729 | 42.0914 fps |
+|   300I Pro        | 16         |   TIMIT         | CER:13.5502/WER:18.8313 | 82.6230 fps |
+|   300I Pro        | 32         |   TIMIT         | CER:13.5502/WER:18.8313 | 83.1510 fps |
+|   300I Pro        | 64         |   TIMIT         | CER:13.5502/WER:18.8313 | 83.5096 fps |

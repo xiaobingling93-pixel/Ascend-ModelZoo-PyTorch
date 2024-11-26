@@ -209,11 +209,11 @@ commit_id=e29cf54486427d1423277d4c793e39ac0eeff87c
 
 | 芯片型号    | accuracy     | accuracy     |
 | ----------- | ------------ | ------------ |
-| Ascend310P3 | Top1 = 92.1% | Top5 = 98.1% |
+| 300I Pro | Top1 = 92.1% | Top5 = 98.1% |
 
 | 芯片型号    | Throughput | 310P   |
 | ----------- | ---------- | ------ |
-| Ascend310P3 | bs1        | 975.7  |
-| Ascend310P3 | bs16       | 2031.3 |
-| Ascend310P3 | bs32       | 1888.9 |
-| Ascend310P3 | 最优batch  | 2031.3 |
+| 300I Pro | bs1        | 975.7  |
+| 300I Pro | bs16       | 2031.3 |
+| 300I Pro | bs32       | 1888.9 |
+| 300I Pro | 最优batch  | 2031.3 |

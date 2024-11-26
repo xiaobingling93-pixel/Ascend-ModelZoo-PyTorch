@@ -198,7 +198,7 @@ python3 vision_metric_ImageNet.py result/ ImageNet/val_label.txt ./ result.json
 ## 模型推理性能和精度
 
 
-| Batch size | 精度 | 310P3 | 310B1 |
+| Batch size | 精度 | 300I Pro | A500 A2 |
 | :--------: |:------------------------:|:---------:| :----------: |
 | 1          |Top1: 69.78%, Top5: 89.53%| 2333.64 | 1133.78 |
 | 4          |                          | 4778.77 | 1249.29 |

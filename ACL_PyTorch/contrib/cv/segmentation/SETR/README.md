@@ -340,4 +340,4 @@ code_path=ACL_PyTorch/contrib/cv/segmentation
 
 | 芯片型号 | Batch Size   | 数据集 | 精度 | 性能 |
 | --------- | ---------------- | ---------- | ---------- | --------------- |
-| Ascend310P3 | 1 | CityScape | mIoU:77.35 | 3.4376 |
+| 300I Pro | 1 | CityScape | mIoU:77.35 | 3.4376 |

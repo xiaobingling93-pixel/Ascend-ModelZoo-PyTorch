@@ -268,13 +268,13 @@ balabala
 
 | 芯片型号    | Batch Size | 数据集   | 开源精度（Acc@1）                                            | 参考精度（Acc@1） |
 | ----------- | ---------- | -------- | ------------------------------------------------------------ | ----------------- |
-| Ascend310P3 | 1          | ImageNet | [81.5%](https://github.com/yitu-opensource/T2T-ViT#2-t2t-vit-models) | 81.4%             |
+| 300I Pro | 1          | ImageNet | [81.5%](https://github.com/yitu-opensource/T2T-ViT#2-t2t-vit-models) | 81.4%             |
 
 | 芯片型号    | Batch Size | 参考性能（FPS） |
 | ----------- | ---------- | --------------- |
-| Ascend310P3 | 1          | 163.14          |
-| Ascend310P3 | 4          | 170.73          |
-| Ascend310P3 | 8          | 194.66          |
-| Ascend310P3 | 16         | 189.98          |
-| Ascend310P3 | 32         | 180.15          |
-| Ascend310P3 | 64         | 174.90          |
+| 300I Pro | 1          | 163.14          |
+| 300I Pro | 4          | 170.73          |
+| 300I Pro | 8          | 194.66          |
+| 300I Pro | 16         | 189.98          |
+| 300I Pro | 32         | 180.15          |
+| 300I Pro | 64         | 174.90          |

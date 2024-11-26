@@ -234,13 +234,13 @@ SPACH 是结合了卷积和Transformer模块的混合模型，应用于分类任
 
 | 芯片型号    | Batch Size | 数据集   | 开源精度（Acc@1）                                            | 参考精度（Acc@1） |
 | ----------- | ---------- | -------- | ------------------------------------------------------------ | ----------------- |
-| Ascend310P3 | 1          | ImageNet | [81.6%](https://github.com/microsoft/SPACH#main-results-on-imagenet-with-pretrained-models) | 81.5%             |
+| 300I Pro | 1          | ImageNet | [81.6%](https://github.com/microsoft/SPACH#main-results-on-imagenet-with-pretrained-models) | 81.5%             |
 
 | 芯片型号    | Batch Size | 参考性能（FPS） |
 | ----------- | ---------- | --------------- |
-| Ascend310P3 | 1          | 325.89          |
-| Ascend310P3 | 4          | 365.49          |
-| Ascend310P3 | 8          | 462.96          |
-| Ascend310P3 | 16         | 417.44          |
-| Ascend310P3 | 32         | 388.13          |
-| Ascend310P3 | 64         | 369.21          |
+| 300I Pro | 1          | 325.89          |
+| 300I Pro | 4          | 365.49          |
+| 300I Pro | 8          | 462.96          |
+| 300I Pro | 16         | 417.44          |
+| 300I Pro | 32         | 388.13          |
+| 300I Pro | 64         | 369.21          |

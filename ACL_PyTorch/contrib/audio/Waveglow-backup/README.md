@@ -127,14 +127,14 @@ python3 ../Waveglow_postprocess.py -f ./result/ -o ./synwavs/
 ```
 python3 -m ais_bench --model "./waveglow.om" --output "./output/" --outfmt BIN --dymDims mel:1,80,832 --batchsize 1
 ```
-Interface throughput Rate:0.59fps，即是batch1 310P单卡吞吐率  
+Interface throughput Rate:0.59fps，即是batch1单卡吞吐率  
 
 ### 3. 性能对比
 
 性能对比表格如下：
-|           |  310P    | T4        |  310P/T4  |
+|           |  300I Pro    | T4        |  300I Pro/T4  |
 | --------- | -------- | -------   | --------- | 
 | bs1       | 0.59 | 0.037  |  15.946   |
 
-最优的310P性能为T4性能的15.946倍。
+最优的300I Pro性能为T4性能的15.946倍。
 

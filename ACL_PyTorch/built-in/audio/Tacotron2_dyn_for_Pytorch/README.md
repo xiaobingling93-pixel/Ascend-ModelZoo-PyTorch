@@ -249,10 +249,10 @@ Tacotron2是由Google Brain在2017年提出来的一个End-to-End语音合成框
 
 |  芯片型号   | Batch Size |  缓存  |  数据集  |       精度       |    性能     |
 | :---------: | :--------: | :------: | :------: | :--------------: | :---------: |
-| Ascend310P3 |     1      | Disabled | LJSpeech | 人工判断语音质量 | 441.35 wavs/s  |
-| Ascend310P3 |     1      | Enabled | LJSpeech | 人工判断语音质量 | 889.92 wavs/s  |
-| Ascend310P3 |     4      | Disabled | LJSpeech | 人工判断语音质量 | 1415.13 wavs/s |
-| Ascend310P3 |     4      | Enabled | LJSpeech | 人工判断语音质量 | 3421.21 wavs/s |
+| 300I Pro |     1      | Disabled | LJSpeech | 人工判断语音质量 | 441.35 wavs/s  |
+| 300I Pro |     1      | Enabled | LJSpeech | 人工判断语音质量 | 889.92 wavs/s  |
+| 300I Pro |     4      | Disabled | LJSpeech | 人工判断语音质量 | 1415.13 wavs/s |
+| 300I Pro |     4      | Enabled | LJSpeech | 人工判断语音质量 | 3421.21 wavs/s |
 - 测试环境：数据在单台x86 CPU服务器下测得，CPU型号为 Intel Xeon Gold 6140 @ 2.30GHz.
 - 说明：由于模型推理为多个子模型串联，仅测量单个子模型性能没有意义，故性能采用端到端推理LJSpeech验证集中500条文本数据测得，也就是用 om_val.py 跑出来的性能。
 

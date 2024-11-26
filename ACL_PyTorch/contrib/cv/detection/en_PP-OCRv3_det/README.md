@@ -270,4 +270,4 @@ en_PP-OCRv3_det是基于[[PP-OCRv3](https://github.com/PaddlePaddle/PaddleOCR/bl
 
 | 芯片型号 | Batch Size   | 数据集 | 精度 | 性能 |
 | --------- | ---------- | ------- | ---------------- | ---------- |
-|Ascend310P3| 1          | 样例图片 | 与在线推理结果一致 | 168 fps |
+|300I Pro| 1          | 样例图片 | 与在线推理结果一致 | 168 fps |

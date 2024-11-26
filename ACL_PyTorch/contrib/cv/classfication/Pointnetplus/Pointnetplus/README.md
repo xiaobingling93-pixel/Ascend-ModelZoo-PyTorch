@@ -272,20 +272,20 @@ part1(无精度)
 
 | 芯片型号 | Batch Size | 数据集 | 精度  | 性能   |
 | --------- |------------| ---------- |-----|------|
-|   310P3        | 1          |  modelnet40          | -   | 6960 |
-|   310P3        | 4          |  modelnet40          | -   | 7825 |
-|   310P3        | 8          |  modelnet40          | -   | 7187 |
-|   310P3        | 16         |  modelnet40          | -   | 6862 |
-|   310P3        | 32         |  modelnet40          | -   | 7011 |
-|   310P3        | 64         |  modelnet40          | -   | 6894 |
+|   300I Pro        | 1          |  modelnet40          | -   | 6960 |
+|   300I Pro        | 4          |  modelnet40          | -   | 7825 |
+|   300I Pro        | 8          |  modelnet40          | -   | 7187 |
+|   300I Pro        | 16         |  modelnet40          | -   | 6862 |
+|   300I Pro        | 32         |  modelnet40          | -   | 7011 |
+|   300I Pro        | 64         |  modelnet40          | -   | 6894 |
 
 part2
 
 | 芯片型号 | Batch Size | 数据集 | 精度                  | 性能   |
 | --------- |------------| ---------- |---------------------|------|
-|   310P3        | 1          |  modelnet40          | 88.4/class 92.4/ins | 5127 |
-|   310P3        | 4          |  modelnet40          | 88.4/class 92.4/ins | 2725 |
-|   310P3        | 8          |  modelnet40          | 88.4/class 92.4/ins | 4383 |
-|   310P3        | 16         |  modelnet40          | 88.4/class 92.4/ins | 4481 |
-|   310P3        | 32         |  modelnet40          | 88.4/class 92.4/ins | 4628 |
-|   310P3        | 64         |  modelnet40          | 88.4/class 92.4/ins | 4641 |
+|   300I Pro        | 1          |  modelnet40          | 88.4/class 92.4/ins | 5127 |
+|   300I Pro        | 4          |  modelnet40          | 88.4/class 92.4/ins | 2725 |
+|   300I Pro        | 8          |  modelnet40          | 88.4/class 92.4/ins | 4383 |
+|   300I Pro        | 16         |  modelnet40          | 88.4/class 92.4/ins | 4481 |
+|   300I Pro        | 32         |  modelnet40          | 88.4/class 92.4/ins | 4628 |
+|   300I Pro        | 64         |  modelnet40          | 88.4/class 92.4/ins | 4641 |

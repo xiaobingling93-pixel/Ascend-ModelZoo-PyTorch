@@ -239,9 +239,9 @@ FixRes是图像分类任务的卷积神经网络，该网络基于ResNet50进行
 
 | 芯片型号 | Batch Size | 数据集 | 精度        | 性能  |
 | --------- |------------| ---------- |-----------|-----|
-|   310P3        | 1          |  ImageNet          | 79.0/Top1 | 973 |
-|   310P3        | 4          |  ImageNet          | 79.0/Top1 | 984 |
-|   310P3        | 8          |  ImageNet          | 79.0/Top1 | 952 |
-|   310P3        | 16         |  ImageNet          | 79.0/Top1 | 933 |
-|   310P3        | 32         |  ImageNet          | 79.0/Top1 | 957 |
-|   310P3        | 64         |  ImageNet          | 79.0/Top1 | 949 |
+|   300I Pro        | 1          |  ImageNet          | 79.0/Top1 | 973 |
+|   300I Pro        | 4          |  ImageNet          | 79.0/Top1 | 984 |
+|   300I Pro        | 8          |  ImageNet          | 79.0/Top1 | 952 |
+|   300I Pro        | 16         |  ImageNet          | 79.0/Top1 | 933 |
+|   300I Pro        | 32         |  ImageNet          | 79.0/Top1 | 957 |
+|   300I Pro        | 64         |  ImageNet          | 79.0/Top1 | 949 |

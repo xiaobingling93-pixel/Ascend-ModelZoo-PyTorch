@@ -257,9 +257,9 @@ UniFormer 提出了一种整合 3D 卷积和时空自注意力机制的 Transfor
 
 | 芯片型号 | Batch Size   | 数据集 | 精度 | 性能 |
 | --------- | ---------------- | ---------- | ---------- | --------------- |
-|    Ascend310P3       |        1          |      coco      |     93.5       |       178.8          |
-|    Ascend310P3       |       4          |      coco      |            |          210       |
-|    Ascend310P3       |        8          |      coco      |            |      295           |
-|    Ascend310P3       |        16          |      coco      |            |       286          |
-|    Ascend310P3       |        32          |      coco      |            |       257          |
-|    Ascend310P3       |        64         |      coco      |            |       243          |
+|    300I Pro       |        1          |      coco      |     93.5       |       178.8          |
+|    300I Pro       |       4          |      coco      |            |          210       |
+|    300I Pro       |        8          |      coco      |            |      295           |
+|    300I Pro       |        16          |      coco      |            |       286          |
+|    300I Pro       |        32          |      coco      |            |       257          |
+|    300I Pro       |        64         |      coco      |            |       243          |

@@ -279,9 +279,9 @@ ACE是一个用于自动搜索结构化预测任务的良好嵌入连接的框�
 
 | 芯片型号 | Batch Size | 数据集                                 | 精度    | 性能         |
 | --------- |------------|-------------------------------------|-------|------------|
-| Ascend 310P3 | 1          | CoNLL 2003 English (document-level)   | 92.57 | 0.712 fps  |
-| Ascend 310P3 | 4          | CoNLL 2003 English (document-level)   | 92.56 | 2.884 fps  |
-| Ascend 310P3 | 8          | CoNLL 2003 English (document-level)   | 92.52 | 5.720 fps  |
-| Ascend 310P3 | 16         | CoNLL 2003 English (document-level)   | 92.53 | 11.477 fps |
-| Ascend 310P3 | 32         | CoNLL 2003 English (document-level)   | 92.54 | 11.407 fps |
-| Ascend 310P3 | 64         | CoNLL 2003 English (document-level)   | 92.54 | 11.330 fps |
+| 300I Pro | 1          | CoNLL 2003 English (document-level)   | 92.57 | 0.712 fps  |
+| 300I Pro | 4          | CoNLL 2003 English (document-level)   | 92.56 | 2.884 fps  |
+| 300I Pro | 8          | CoNLL 2003 English (document-level)   | 92.52 | 5.720 fps  |
+| 300I Pro | 16         | CoNLL 2003 English (document-level)   | 92.53 | 11.477 fps |
+| 300I Pro | 32         | CoNLL 2003 English (document-level)   | 92.54 | 11.407 fps |
+| 300I Pro | 64         | CoNLL 2003 English (document-level)   | 92.54 | 11.330 fps |

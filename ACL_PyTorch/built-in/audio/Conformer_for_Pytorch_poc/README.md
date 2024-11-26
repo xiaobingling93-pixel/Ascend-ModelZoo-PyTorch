@@ -196,7 +196,7 @@ Conformer是将CNN用于增强Transformer来做ASR的结构
 
    | 芯片型号      | 配置                                   | 数据集    |   精度(overall) |
    | :-----------: | :------------------------------------: | :-------: | :-------------: |
-   | Ascend310P3   | encoder/decoder/ctc/lm(beam_size=2)    | aishell   |          95.00% |
+   | 300I Pro   | encoder/decoder/ctc/lm(beam_size=2)    | aishell   |          95.00% |
 
 # 公网地址说明
 代码涉及公网地址参考 public_address_statement.md

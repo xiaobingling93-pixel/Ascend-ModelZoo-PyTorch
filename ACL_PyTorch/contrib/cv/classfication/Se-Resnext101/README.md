@@ -238,13 +238,13 @@
 
 | 芯片型号    | Batch Size | 数据集   | 开源精度（Acc@1）                                            | 参考精度（Acc@1） |
 | ----------- | ---------- | -------- | ------------------------------------------------------------ | ----------------- |
-| Ascend310P3 | 1          | ImageNet | [78.26%](https://github.com/open-mmlab/mmclassification/tree/master/configs/seresnet#imagenet-1k) | 78.24%            |
+| 300I Pro | 1          | ImageNet | [78.26%](https://github.com/open-mmlab/mmclassification/tree/master/configs/seresnet#imagenet-1k) | 78.24%            |
 
 | 芯片型号    | Batch Size | 参考性能（FPS） |
 | ----------- | ---------- | --------------- |
-| Ascend310P3 | 1          | 555.81          |
-| Ascend310P3 | 4          | 927.09          |
-| Ascend310P3 | 8          | 844.82          |
-| Ascend310P3 | 16         | 721.43          |
-| Ascend310P3 | 32         | 421.14          |
-| Ascend310P3 | 64         | 641.26          |
+| 300I Pro | 1          | 555.81          |
+| 300I Pro | 4          | 927.09          |
+| 300I Pro | 8          | 844.82          |
+| 300I Pro | 16         | 721.43          |
+| 300I Pro | 32         | 421.14          |
+| 300I Pro | 64         | 641.26          |

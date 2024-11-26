@@ -344,18 +344,18 @@ seq128对应的精度性能如下：
 
 静态模型性能：
 
-| 模型        | 310性能   | 310P3性能 |
-| :------:    | :------:  | :------:  |
-| Albert bs1  | 231.39fps | 763fps    |
-| Albert bs4  |           | 1148fps   |
-| Albert bs8  |           | 1321fps   |
-| Albert bs16 | 300.83fps | 1350fps   |
-| Albert bs32 |           | 1320fps   |
-| Albert bs64 |           | 1330fps   |
+| 模型        | 300I Pro性能 |
+| :------:    | :------:  |
+| Albert bs1  | 763fps    |
+| Albert bs4  | 1148fps   |
+| Albert bs8  | 1321fps   |
+| Albert bs16 | 1350fps   |
+| Albert bs32 | 1320fps   |
+| Albert bs64 | 1330fps   |
 
 动态模型性能（数据集推理）：
 
-| 模型        | 310P3性能 |
+| 模型        | 300I Pro性能 |
 | :------:    | :------:  |
 | Albert bs4  | 535fps    |
 | Albert bs8  | 953fps    |
@@ -366,7 +366,7 @@ seq128对应的精度性能如下：
 
 其他seq精度性能结果如下(不同seq模型：展示bs1和最优bs精度/性能)：
 
-| seq | batch size | pth精度 | 310P精度 | 310P性能 |
+| seq | batch size | pth精度 | 300I Pro精度 | 300I Pro性能 |
 |-----|------------|---------|----------|----------|
 |  16 |          1 | 58.5%   | 58.6%    | 1180fps  |
 |  16 |         64 | -       | -        | 9775fps  |

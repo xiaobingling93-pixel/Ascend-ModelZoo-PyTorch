@@ -268,9 +268,9 @@ YOLOF引入了一种解决该优化问题的替代方案而无需使用复杂的
 
 | 芯片型号   | BatchSize | 数据集      | 精度            | 性能       |
 | --------- | --------- | ----------- | --------------- | --------- |
-|Ascend310P3| 1         | COCO  | Map=0.303 | 285.615 fps |
-|Ascend310P3| 4         | COCO  | Map=0.303 | 276.412 fps |
-|Ascend310P3| 8         | COCO  | Map=0.303 | 264.419 fps |
-|Ascend310P3| 16        | COCO  | Map=0.303 | 267.215 fps |
-|Ascend310P3| 32        | COCO  | Map=0.303 | 268.421 fps |
-|Ascend310P3| 64        | COCO  | Map=0.303 | 233.776 fps |
+|300I Pro| 1         | COCO  | Map=0.303 | 285.615 fps |
+|300I Pro| 4         | COCO  | Map=0.303 | 276.412 fps |
+|300I Pro| 8         | COCO  | Map=0.303 | 264.419 fps |
+|300I Pro| 16        | COCO  | Map=0.303 | 267.215 fps |
+|300I Pro| 32        | COCO  | Map=0.303 | 268.421 fps |
+|300I Pro| 64        | COCO  | Map=0.303 | 233.776 fps |

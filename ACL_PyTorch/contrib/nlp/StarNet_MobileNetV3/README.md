@@ -346,9 +346,9 @@
 
 | 芯片型号   | Batch Size | 数据集 | 精度 | 性能 |
 | --------- | ---------- | ---------- | ---------- | --------------- |
-|Ascend310P3| 1          | IIIT, SVT, IC03, IC13, IC15, SVTP, CUTE | acc: 0.8002 | 356.369 fps  |
-|Ascend310P3| 4          | IIIT, SVT, IC03, IC13, IC15, SVTP, CUTE | acc: 0.8002 | 1252.858 fps |
-|Ascend310P3| 8          | IIIT, SVT, IC03, IC13, IC15, SVTP, CUTE | acc: 0.8002 | 1930.678 fps |
-|Ascend310P3| 16         | IIIT, SVT, IC03, IC13, IC15, SVTP, CUTE | acc: 0.8002 | 2518.828 fps |
-|Ascend310P3| 32         | IIIT, SVT, IC03, IC13, IC15, SVTP, CUTE | acc: 0.8002 | 2608.216 fps |
-|Ascend310P3| 64         | IIIT, SVT, IC03, IC13, IC15, SVTP, CUTE | acc: 0.8002 | 2617.897 fps |
+|300I Pro| 1          | IIIT, SVT, IC03, IC13, IC15, SVTP, CUTE | acc: 0.8002 | 356.369 fps  |
+|300I Pro| 4          | IIIT, SVT, IC03, IC13, IC15, SVTP, CUTE | acc: 0.8002 | 1252.858 fps |
+|300I Pro| 8          | IIIT, SVT, IC03, IC13, IC15, SVTP, CUTE | acc: 0.8002 | 1930.678 fps |
+|300I Pro| 16         | IIIT, SVT, IC03, IC13, IC15, SVTP, CUTE | acc: 0.8002 | 2518.828 fps |
+|300I Pro| 32         | IIIT, SVT, IC03, IC13, IC15, SVTP, CUTE | acc: 0.8002 | 2608.216 fps |
+|300I Pro| 64         | IIIT, SVT, IC03, IC13, IC15, SVTP, CUTE | acc: 0.8002 | 2617.897 fps |

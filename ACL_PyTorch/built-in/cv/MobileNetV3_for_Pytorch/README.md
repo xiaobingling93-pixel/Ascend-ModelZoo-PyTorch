@@ -176,12 +176,12 @@ MobileNetV3引入了MobileNetV1的深度可分离卷积，MobileNetV2的具有�
 
 |   芯片型号   | Batch Size |    数据集     |         精度           |      性能      |
 |:-----------:|:----------:|:----------:|:-----------------------:|:------------:|
-| Ascend310P3 |     1      |  ImageNet  | 65.094/Top1 85.432/Top5 | 2769.64 fps  |
-| Ascend310P3 |     4      |  ImageNet  | 65.094/Top1 85.432/Top5 | 7743.44 fps  |
-| Ascend310P3 |     8     |  ImageNet  | 65.094/Top1 85.432/Top5 | 10965.24 fps  |
-| Ascend310P3 |     16      |  ImageNet  | 65.094/Top1 85.432/Top5 | 14284.28 fps  |
-| Ascend310P3 |     32      |  ImageNet  | 65.094/Top1 85.432/Top5 | 15442.12 fps  |
-| Ascend310P3 |     64     |  ImageNet  | 65.079/Top1 85.417/Top5 | 14863.88 fps |
+| 300I Pro |     1      |  ImageNet  | 65.094/Top1 85.432/Top5 | 2769.64 fps  |
+| 300I Pro |     4      |  ImageNet  | 65.094/Top1 85.432/Top5 | 7743.44 fps  |
+| 300I Pro |     8     |  ImageNet  | 65.094/Top1 85.432/Top5 | 10965.24 fps  |
+| 300I Pro |     16      |  ImageNet  | 65.094/Top1 85.432/Top5 | 14284.28 fps  |
+| 300I Pro |     32      |  ImageNet  | 65.094/Top1 85.432/Top5 | 15442.12 fps  |
+| 300I Pro |     64     |  ImageNet  | 65.079/Top1 85.417/Top5 | 14863.88 fps |
 
 # 公网地址说明
 代码涉及公网地址参考 public_address_statement.md

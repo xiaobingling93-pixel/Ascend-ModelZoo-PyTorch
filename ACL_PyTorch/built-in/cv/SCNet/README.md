@@ -242,9 +242,9 @@
 
 | 芯片型号 | Batch Size | 数据集 | 精度                  | 性能   |
 | --------- |------------| ---------- |---------------------|------|
-|   310P3        | 1          |  ImageNet          | 80.34/Top1 | 956 |
-|   310P3        | 4          |  ImageNet          | 80.34/Top1 | 2135 |
-|   310P3        | 8          |  ImageNet          | 80.34/Top1 | 2094 |
-|   310P3        | 16         |  ImageNet          | 80.34/Top1 | 1785 |
-|   310P3        | 32         |  ImageNet          | 80.34/Top1 | 1629 |
-|   310P3        | 64         |  ImageNet          | 80.34/Top1 | 1585 |
+|   300I Pro        | 1          |  ImageNet          | 80.34/Top1 | 956 |
+|   300I Pro        | 4          |  ImageNet          | 80.34/Top1 | 2135 |
+|   300I Pro        | 8          |  ImageNet          | 80.34/Top1 | 2094 |
+|   300I Pro        | 16         |  ImageNet          | 80.34/Top1 | 1785 |
+|   300I Pro        | 32         |  ImageNet          | 80.34/Top1 | 1629 |
+|   300I Pro        | 64         |  ImageNet          | 80.34/Top1 | 1585 |

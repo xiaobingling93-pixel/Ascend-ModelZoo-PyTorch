@@ -239,8 +239,8 @@ ICNet主要研究具有挑战性的实时语义分割问题。它有许多实际
 
 | 芯片型号 | Batch Size   | 数据集 | 精度 | 性能 |
 | --------- | ---------------- | ---------- | ---------- | --------------- |
-|    Ascend310P3       |        1          |     cityscapes       |     mIoU: 0.689       |         19.25        |
-|    Ascend310P3       |        4          |     cityscapes       |            |       31.22          |
-|    Ascend310P3       |        8          |     cityscapes       |            |        32.33         |
-|    Ascend310P3       |        16          |     cityscapes       |            |        31.24         |
-|    Ascend310P3       |        32          |     cityscapes       |     内存不足，无法推理       |                 |
+|    300I Pro       |        1          |     cityscapes       |     mIoU: 0.689       |         19.25        |
+|    300I Pro       |        4          |     cityscapes       |            |       31.22          |
+|    300I Pro       |        8          |     cityscapes       |            |        32.33         |
+|    300I Pro       |        16          |     cityscapes       |            |        31.24         |
+|    300I Pro       |        32          |     cityscapes       |     内存不足，无法推理       |                 |

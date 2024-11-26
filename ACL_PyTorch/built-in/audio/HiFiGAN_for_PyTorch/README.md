@@ -179,12 +179,12 @@ HiFiGAN是一种基于GAN的声码器，HiFiGAN同时拥有多尺度判别器（
 
 |   芯片型号   | Batch Size | mel_len |   数据集     |     精度      |     性能     |
 |:-----------:|:----------:|:-------:|:--------:|:------:|:----------:|
-| Ascend310P3 |     1      |   250   |  LJSpeech   | 人工判断语音质量 | 339.62 fps |
-| Ascend310P3 |     1      |   500   |  LJSpeech   | 人工判断语音质量 | 248.54 fps |
-| Ascend310P3 |     1      |   750   |  LJSpeech   | 人工判断语音质量 | 159.83 fps |
-| Ascend310P3 |     1      |  1000   |  LJSpeech   | 人工判断语音质量 | 121.50 fps |
-| Ascend310P3 |     8      |   250   |  LJSpeech   | 人工判断语音质量 | 637.95 fps |
-| Ascend310P3 |     8      |   500   |  LJSpeech   | 人工判断语音质量 | 300.21 fps |
-| Ascend310P3 |     8      |   750   |  LJSpeech   | 人工判断语音质量 | 191.81 fps |
-| Ascend310P3 |     8      |  1000   |  LJSpeech   | 人工判断语音质量 | 139.74 fps |
+| 300I Pro |     1      |   250   |  LJSpeech   | 人工判断语音质量 | 339.62 fps |
+| 300I Pro |     1      |   500   |  LJSpeech   | 人工判断语音质量 | 248.54 fps |
+| 300I Pro |     1      |   750   |  LJSpeech   | 人工判断语音质量 | 159.83 fps |
+| 300I Pro |     1      |  1000   |  LJSpeech   | 人工判断语音质量 | 121.50 fps |
+| 300I Pro |     8      |   250   |  LJSpeech   | 人工判断语音质量 | 637.95 fps |
+| 300I Pro |     8      |   500   |  LJSpeech   | 人工判断语音质量 | 300.21 fps |
+| 300I Pro |     8      |   750   |  LJSpeech   | 人工判断语音质量 | 191.81 fps |
+| 300I Pro |     8      |  1000   |  LJSpeech   | 人工判断语音质量 | 139.74 fps |
 - 说明：由于音频数据输入长度不同，故给出不同mel_len的性能数据作为参考。

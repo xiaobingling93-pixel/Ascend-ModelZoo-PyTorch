@@ -215,13 +215,12 @@ InceptionResNetV2结合了ResNet与Inception网络的特点，在Inception网络
 ----
 # 性能&精度
 
-在310P设备上，OM模型的精度为  **{Top1@Acc=80.15%, Top5@Acc=95.24%}**，当batchsize设为8时模型性能最优，达 1310.5 fps。
 
 | 芯片型号   | BatchSize | 数据集      | 精度            | 性能       |
 | --------- | --------- | ----------- | --------------- | --------- |
-|Ascend310P3| 1         | ILSVRC2012  | Top1@Acc=80.15% Top5@Acc=95.24% | 572.3 fps |
-|Ascend310P3| 4         | ILSVRC2012  | Top1@Acc=80.15% Top5@Acc=95.24% | 1233.8 fps |
-|Ascend310P3| 8         | ILSVRC2012  | Top1@Acc=80.15% Top5@Acc=95.24% | 1310.5 fps |
-|Ascend310P3| 16        | ILSVRC2012  | Top1@Acc=80.15% Top5@Acc=95.24% | 1099.4 fps |
-|Ascend310P3| 32        | ILSVRC2012  | Top1@Acc=80.15% Top5@Acc=95.24% | 902.8 fps |
-|Ascend310P3| 64        | ILSVRC2012  | Top1@Acc=80.15% Top5@Acc=95.24% | 789.7 fps |
+|300I Pro| 1         | ILSVRC2012  | Top1@Acc=80.15% Top5@Acc=95.24% | 572.3 fps |
+|300I Pro| 4         | ILSVRC2012  | Top1@Acc=80.15% Top5@Acc=95.24% | 1233.8 fps |
+|300I Pro| 8         | ILSVRC2012  | Top1@Acc=80.15% Top5@Acc=95.24% | 1310.5 fps |
+|300I Pro| 16        | ILSVRC2012  | Top1@Acc=80.15% Top5@Acc=95.24% | 1099.4 fps |
+|300I Pro| 32        | ILSVRC2012  | Top1@Acc=80.15% Top5@Acc=95.24% | 902.8 fps |
+|300I Pro| 64        | ILSVRC2012  | Top1@Acc=80.15% Top5@Acc=95.24% | 789.7 fps |

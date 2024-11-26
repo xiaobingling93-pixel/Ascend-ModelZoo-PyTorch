@@ -273,9 +273,9 @@ U-2-Net是基于UNet提出的一种新的网络结构，网络基于encode-decod
 
 | 芯片型号 | Batch Size | 数据集 | 精度 | 性能 |
 | --------- | :---------: | ---------- | ---------- | --------------- |
-|  Ascend310P  |  1  |  ECSSD  |  maxF:94.8% MAE:0.033  |   240.978   |
-|  Ascend310P  |  4  |  ECSSD  |  maxF:94.8% MAE:0.033  |   208.310   |
-|  Ascend310P  |  8  |  ECSSD  |  maxF:94.8% MAE:0.033  |   202.463   |
-|  Ascend310P  |  16  |  ECSSD  |  maxF:94.8% MAE:0.033  |   198.603   |
-|  Ascend310P  |  32  |  ECSSD  |  maxF:94.8% MAE:0.033  |   197.363   |
-|  Ascend310P  |  64  |  ECSSD  |  maxF:94.8% MAE:0.033  |   199.131   |
+|  300I Pro  |  1  |  ECSSD  |  maxF:94.8% MAE:0.033  |   240.978   |
+|  300I Pro  |  4  |  ECSSD  |  maxF:94.8% MAE:0.033  |   208.310   |
+|  300I Pro  |  8  |  ECSSD  |  maxF:94.8% MAE:0.033  |   202.463   |
+|  300I Pro  |  16  |  ECSSD  |  maxF:94.8% MAE:0.033  |   198.603   |
+|  300I Pro  |  32  |  ECSSD  |  maxF:94.8% MAE:0.033  |   197.363   |
+|  300I Pro  |  64  |  ECSSD  |  maxF:94.8% MAE:0.033  |   199.131   |

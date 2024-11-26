@@ -274,12 +274,12 @@ Fastpitch模型由双向 Transformer 主干（也称为 Transformer 编码器）
 
 | 芯片型号 | Batch Size | 数据集| 性能|  om精度    |   pth精度      
 | --------- | ----| ----------|---------|   ------   |--------
-| 310P3 |  1       | LJSpeech-1.1 |   202.265      |    mel_loss:11.260     |     mel_loss:13.400
-| 310P3 |  4       | LJSpeech-1.1t |    249.906      |  mel_loss:11.260       |  mel_loss:13.400
-| 310P3 |  8       | LJSpeech-1.1 |  240.211     |      mel_loss:11.260      |mel_loss:13.400
-| 310P3 |  16       | LJSpeech-1.1 |   239.614      |   mel_loss:11.260      | mel_loss:13.400
-| 310P3 |  32       | LJSpeech-1.1 |    232.589      |  mel_loss:11.260     |mel_loss:13.400
-| 310P3 |  64       | LJSpeech-1.1 |  214.174     |     mel_loss:11.260      |mel_loss:13.400
+| 300I Pro |  1       | LJSpeech-1.1 |   202.265      |    mel_loss:11.260     |     mel_loss:13.400
+| 300I Pro |  4       | LJSpeech-1.1t |    249.906      |  mel_loss:11.260       |  mel_loss:13.400
+| 300I Pro |  8       | LJSpeech-1.1 |  240.211     |      mel_loss:11.260      |mel_loss:13.400
+| 300I Pro |  16       | LJSpeech-1.1 |   239.614      |   mel_loss:11.260      | mel_loss:13.400
+| 300I Pro |  32       | LJSpeech-1.1 |    232.589      |  mel_loss:11.260     |mel_loss:13.400
+| 300I Pro |  64       | LJSpeech-1.1 |  214.174     |     mel_loss:11.260      |mel_loss:13.400
 
 # 公网地址说明
 代码涉及公网地址参考 public_address_statement.md

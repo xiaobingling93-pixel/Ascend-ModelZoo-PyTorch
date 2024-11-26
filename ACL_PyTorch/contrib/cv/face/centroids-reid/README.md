@@ -289,9 +289,9 @@ Centroids-reid是一种图像检索任务包括从一组图库（数据库）图
 
 | 芯片型号 | Batch Size   | 数据集 | 精度 | 性能 |
 | --------- | ---------------- | ---------- | ---------- | --------------- |
-|  Ascend310P3         |     1             |    DukeMTMC-reID        |    96.8%        |       1542          |
-|  Ascend310P3         |     4             |    DukeMTMC-reID        |    96.8%        |       3715         |
-|  Ascend310P3         |     8             |    DukeMTMC-reID        |    96.8%        |       4287          |
-|  Ascend310P3         |     16             |    DukeMTMC-reID        |    96.8%        |       3454          |
-|  Ascend310P3         |     32             |    DukeMTMC-reID        |    96.8%        |       3571          |
-|  Ascend310P3         |     64             |    DukeMTMC-reID        |    96.8%        |      2231           |
+|  300I Pro         |     1             |    DukeMTMC-reID        |    96.8%        |       1542          |
+|  300I Pro         |     4             |    DukeMTMC-reID        |    96.8%        |       3715         |
+|  300I Pro         |     8             |    DukeMTMC-reID        |    96.8%        |       4287          |
+|  300I Pro         |     16             |    DukeMTMC-reID        |    96.8%        |       3454          |
+|  300I Pro         |     32             |    DukeMTMC-reID        |    96.8%        |       3571          |
+|  300I Pro         |     64             |    DukeMTMC-reID        |    96.8%        |      2231           |

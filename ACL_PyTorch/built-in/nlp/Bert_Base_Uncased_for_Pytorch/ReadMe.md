@@ -312,9 +312,9 @@ BERT，即Bidirectional Encoder Representations from Transformers，是一种基
 
 | 芯片型号 | Batch Size   | 数据集 | 精度 | 性能 | 基准性能 |
 | :-------: | :--------------: | :--------: | :--------: | :-------------: | :---------:|
-| 310P3   |    1            |  SQuAD v1.1 |     88.78%       |  177.81 fps  | 158.69 fps |
-| 310P3   |    4            |  SQuAD v1.1 |   88.78%      |   221.81 fps    | 176.86 fps |
-| 310P3   |    8            |  SQuAD v1.1 |     -       |   218.12 fps    | 181.41 fps |
-| 310P3   |    16            |  SQuAD v1.1 |    -        |  218.71 fps   | 199.48 fps |
-| 310P3   |    32            |  SQuAD v1.1 |    -        |  218.48 fps |206.35 fps |
-| 310P3   |    64            |  SQuAD v1.1 |    -        |  211.73 fps  |197.44 fps |
+| 300I Pro   |    1            |  SQuAD v1.1 |     88.78%       |  177.81 fps  | 158.69 fps |
+| 300I Pro   |    4            |  SQuAD v1.1 |   88.78%      |   221.81 fps    | 176.86 fps |
+| 300I Pro   |    8            |  SQuAD v1.1 |     -       |   218.12 fps    | 181.41 fps |
+| 300I Pro   |    16            |  SQuAD v1.1 |    -        |  218.71 fps   | 199.48 fps |
+| 300I Pro   |    32            |  SQuAD v1.1 |    -        |  218.48 fps |206.35 fps |
+| 300I Pro   |    64            |  SQuAD v1.1 |    -        |  211.73 fps  |197.44 fps |

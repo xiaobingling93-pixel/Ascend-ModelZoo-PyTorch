@@ -247,9 +247,9 @@ Alex在2012年提出的alexnet网络结构模型,首次在CNN中成功应用了R
 
 | 芯片型号 | Batch Size | 数据集 | 精度                   | 性能    |
 | --------- |------------| ---------- |----------------------|-------|
-|   310P3        | 1          |  ImageNet          | 56.56/Top1 79.1/Top5 | 1266  |
-|   310P3        | 4          |  ImageNet          | 56.56/Top1 79.1/Top5 | 4324  |
-|   310P3        | 8          |  ImageNet          | 56.56/Top1 79.1/Top5 | 7266  |
-|   310P3        | 16         |  ImageNet          | 56.56/Top1 79.1/Top5 | 9975  |
-|   310P3        | 32         |  ImageNet          | 56.56/Top1 79.1/Top5 | 11055 |
-|   310P3        | 64         |  ImageNet          | 56.56/Top1 79.1/Top5 | 12672 |
+|   300I Pro        | 1          |  ImageNet          | 56.56/Top1 79.1/Top5 | 1266  |
+|   300I Pro        | 4          |  ImageNet          | 56.56/Top1 79.1/Top5 | 4324  |
+|   300I Pro        | 8          |  ImageNet          | 56.56/Top1 79.1/Top5 | 7266  |
+|   300I Pro        | 16         |  ImageNet          | 56.56/Top1 79.1/Top5 | 9975  |
+|   300I Pro        | 32         |  ImageNet          | 56.56/Top1 79.1/Top5 | 11055 |
+|   300I Pro        | 64         |  ImageNet          | 56.56/Top1 79.1/Top5 | 12672 |

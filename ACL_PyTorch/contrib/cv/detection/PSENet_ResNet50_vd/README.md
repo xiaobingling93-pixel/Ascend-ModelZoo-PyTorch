@@ -296,9 +296,9 @@ PSENet([Shape Robust Text Detection with Progressive Scale Expansion Network](ht
 
 | 芯片型号 | Batch Size   | 数据集 | 精度 | 性能 |
 | --------- | ----------- | ---------- | ---------- | --------------- |
-|Ascend310P3| 1           | ICDAR 2015 | precision: 0.8572 |  51.138  |
-|Ascend310P3| 4           | ICDAR 2015 | precision: 0.8572 |  47.276  |
-|Ascend310P3| 8           | ICDAR 2015 | precision: 0.8572 |  47.675  |
-|Ascend310P3| 16          | ICDAR 2015 | precision: 0.8572 |  48.256  |
-|Ascend310P3| 32          | ICDAR 2015 | precision: 0.8572 |  48.538  |
-|Ascend310P3| 64          | ICDAR 2015 | precision: 0.8572 |  38.610  |
+|300I Pro| 1           | ICDAR 2015 | precision: 0.8572 |  51.138  |
+|300I Pro| 4           | ICDAR 2015 | precision: 0.8572 |  47.276  |
+|300I Pro| 8           | ICDAR 2015 | precision: 0.8572 |  47.675  |
+|300I Pro| 16          | ICDAR 2015 | precision: 0.8572 |  48.256  |
+|300I Pro| 32          | ICDAR 2015 | precision: 0.8572 |  48.538  |
+|300I Pro| 64          | ICDAR 2015 | precision: 0.8572 |  38.610  |

@@ -223,6 +223,6 @@ url=https://github.com/open-mmlab/mmaction2
 
 | 芯片型号 | Batch Size | 数据集|  精度TOP1 | 精度TOP5 | 性能|
 | --------- | ----| ----------| ------     |---------|---------|
-| 310P3 |  1       | kinetics400 |   71.2     |   90.2  |   4.86     |
-| 310P3 |  4       | kinetics400 |       |   |   4.99    | 
+| 300I Pro |  1       | kinetics400 |   71.2     |   90.2  |   4.86     |
+| 300I Pro |  4       | kinetics400 |       |   |   4.99    | 
 

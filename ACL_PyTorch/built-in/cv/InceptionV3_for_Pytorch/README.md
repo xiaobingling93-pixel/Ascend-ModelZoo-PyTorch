@@ -211,9 +211,9 @@ InceptionV3 模型是谷歌 Inception 系列里面的第三代模型，在 Incep
 
 | 芯片型号   | BatchSize | 数据集      | 精度            | 性能       |
 | --------- | --------- | ----------- | --------------- | --------- |
-|Ascend310P3| 1         | ILSVRC2012  | Top1Acc=77.31% Top5@Acc=93.46% | 1099.11 fps |
-|Ascend310P3| 4         | ILSVRC2012  | Top1Acc=77.31% Top5@Acc=93.46% | 2300.75 fps |
-|Ascend310P3| 8         | ILSVRC2012  | Top1Acc=77.31% Top5@Acc=93.46% | 2388.07 fps |
-|Ascend310P3| 16        | ILSVRC2012  | Top1Acc=77.31% Top5@Acc=93.46% | 2336.78 fps |
-|Ascend310P3| 32        | ILSVRC2012  | Top1Acc=77.31% Top5@Acc=93.46% | 2317.59 fps |
-|Ascend310P3| 64        | ILSVRC2012  | Top1Acc=77.31% Top5@Acc=93.46% | 1916.61 fps |
+|300I Pro| 1         | ILSVRC2012  | Top1Acc=77.31% Top5@Acc=93.46% | 1099.11 fps |
+|300I Pro| 4         | ILSVRC2012  | Top1Acc=77.31% Top5@Acc=93.46% | 2300.75 fps |
+|300I Pro| 8         | ILSVRC2012  | Top1Acc=77.31% Top5@Acc=93.46% | 2388.07 fps |
+|300I Pro| 16        | ILSVRC2012  | Top1Acc=77.31% Top5@Acc=93.46% | 2336.78 fps |
+|300I Pro| 32        | ILSVRC2012  | Top1Acc=77.31% Top5@Acc=93.46% | 2317.59 fps |
+|300I Pro| 64        | ILSVRC2012  | Top1Acc=77.31% Top5@Acc=93.46% | 1916.61 fps |

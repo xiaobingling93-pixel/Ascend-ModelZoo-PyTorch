@@ -322,12 +322,12 @@
 
 推理性能：
 
-| Model                      | Batch Size | 310(FPS/Card) | 310P3(FPS/Card) | 基准(FPS/Card) |
-|----------------------------|------------|---------------|-----------------|----------------|
-| Inception_facenet_vggface2 |          1 |        1693.7 |          1404.0 |        797.067 |
-| Inception_facenet_vggface2 |          4 |        3034.6 |          3853.2 |        2473.96 |
-| Inception_facenet_vggface2 |          8 |        4553.5 |          5811.6 |        3724.76 |
-| Inception_facenet_vggface2 |         16 |        5336.4 |          7964.7 |        4727.60 |
-| Inception_facenet_vggface2 |         32 |        3850.5 |          7645.9 |        5583.47 |
-| Inception_facenet_vggface2 |         64 |             - |          7667.7 |         5876.6 |
+| Model                      | Batch Size | 300I Pro(FPS/Card) | 基准(FPS/Card) |
+|----------------------------|------------|-----------------|----------------|
+| Inception_facenet_vggface2 |          1 |          1404.0 |        797.067 |
+| Inception_facenet_vggface2 |          4 |          3853.2 |        2473.96 |
+| Inception_facenet_vggface2 |          8 |          5811.6 |        3724.76 |
+| Inception_facenet_vggface2 |         16 |          7964.7 |        4727.60 |
+| Inception_facenet_vggface2 |         32 |          7645.9 |        5583.47 |
+| Inception_facenet_vggface2 |         64 |          7667.7 |         5876.6 |
 

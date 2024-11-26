@@ -248,12 +248,12 @@ Data2Vec是一个对语音、语言或计算机视觉使用相同学习方法的
 
    | NPU芯片型号 | Batch Size     | 数据集      | 精度(wer)  | 性能 (fps)      |
    | ---------  | -------------- | ----------  | ---------- | --------------- |
-   |Ascend310P3 |      1         | LibriSpeech |    0.938  |     11.154       |
-   |Ascend310P3 |      4         | LibriSpeech |    0.938  |     10.351       |
-   |Ascend310P3 |      8         | LibriSpeech |    0.938  |     10.391       |
-   |Ascend310P3 |      16        | LibriSpeech |    0.938  |     10.561       |
-   |Ascend310P3 |      32        | LibriSpeech |    0.938  |     10.561       |
-   |Ascend310P3 |      64        | LibriSpeech |    0.938  |     10.292       |
+   |300I Pro |      1         | LibriSpeech |    0.938  |     11.154       |
+   |300I Pro |      4         | LibriSpeech |    0.938  |     10.351       |
+   |300I Pro |      8         | LibriSpeech |    0.938  |     10.391       |
+   |300I Pro |      16        | LibriSpeech |    0.938  |     10.561       |
+   |300I Pro |      32        | LibriSpeech |    0.938  |     10.561       |
+   |300I Pro |      64        | LibriSpeech |    0.938  |     10.292       |
 
 
 

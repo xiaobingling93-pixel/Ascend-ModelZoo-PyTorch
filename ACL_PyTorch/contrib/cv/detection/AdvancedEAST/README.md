@@ -241,10 +241,10 @@ AdvancedEAST是一种用于场景图像文本检测的算法，它主要基于EA
 
 | 芯片型号    | Batch Size | 数据集 | 精度            | 性能     |
 | ----------- | ---------- | ------ | --------------- | -------- |
-| Ascend310P3 |       1       |   ICPR     | f1-score:52.08% | 137.9101 |
-| Ascend310P3 |       4       |   ICPR     | f1-score:52.08% | 133.0594 |
-| Ascend310P3 |       8       |   ICPR     | f1-score:52.08% | 131.4062 |
-| Ascend310P3 |       16      |   ICPR     | f1-score:52.08% | 131.5172 |
-| Ascend310P3 |       32      |   ICPR     | f1-score:52.08% | 131.3700 |
-| Ascend310P3 |       64      |    ICPR    | f1-score:52.08% | 131.7403 |
+| 300I Pro |       1       |   ICPR     | f1-score:52.08% | 137.9101 |
+| 300I Pro |       4       |   ICPR     | f1-score:52.08% | 133.0594 |
+| 300I Pro |       8       |   ICPR     | f1-score:52.08% | 131.4062 |
+| 300I Pro |       16      |   ICPR     | f1-score:52.08% | 131.5172 |
+| 300I Pro |       32      |   ICPR     | f1-score:52.08% | 131.3700 |
+| 300I Pro |       64      |    ICPR    | f1-score:52.08% | 131.7403 |
 

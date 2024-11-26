@@ -256,9 +256,9 @@
 
 | 芯片型号    | Batch Size | 数据集          | 精度指标1（AUC） | 性能（FPS） |
 | ----------- | ---------- | --------------- | ---------------- | ----------- |
-| Ascend310P3 | 1          | ActivityNet 1.3 | 67.69            | 114.34      |
-| Ascend310P3 | 4          | ActivityNet 1.3 | 67.69            | 99.02       |
-| Ascend310P3 | 8          | ActivityNet 1.3 | 67.69            | 82.86       |
-| Ascend310P3 | 16         | ActivityNet 1.3 | 67.69            | 82.94       |
-| Ascend310P3 | 32         | ActivityNet 1.3 | 67.69            | 77.23       |
+| 300I Pro | 1          | ActivityNet 1.3 | 67.69            | 114.34      |
+| 300I Pro | 4          | ActivityNet 1.3 | 67.69            | 99.02       |
+| 300I Pro | 8          | ActivityNet 1.3 | 67.69            | 82.86       |
+| 300I Pro | 16         | ActivityNet 1.3 | 67.69            | 82.94       |
+| 300I Pro | 32         | ActivityNet 1.3 | 67.69            | 77.23       |
 

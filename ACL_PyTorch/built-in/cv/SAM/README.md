@@ -301,5 +301,5 @@ python3 encoder_onnx_modify.py \
 
 | 芯片型号 | 模型 | Batch Size | 性能 |
 | ---- | ---- | ---- | ---- |
-| 310P3 | encoder | 1 | 4.43 fps |
-| 310P3 | decoder | 1 | 679.77 fps  |
+| 300I Pro | encoder | 1 | 4.43 fps |
+| 300I Pro | decoder | 1 | 679.77 fps  |

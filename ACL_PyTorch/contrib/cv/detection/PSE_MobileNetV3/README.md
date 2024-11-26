@@ -316,11 +316,11 @@
 
 | 芯片型号 | Batch Size | 数据集 | 精度 | 性能 |
 | --------- | -------- | --------- | -------------------------------------------------------- | --------- |
-|Ascend310P3| 1        | ICDAR2015 | {'precision': 0.8214, 'recall': 0.7044, 'hmean': 0.7584} | 219.49 fps |
-|Ascend310P3| 4        | ICDAR2015 | {'precision': 0.8214, 'recall': 0.7044, 'hmean': 0.7584} | 143.86 fps |
-|Ascend310P3| 8        | ICDAR2015 | {'precision': 0.8214, 'recall': 0.7044, 'hmean': 0.7584} | 140.41 fps |
-|Ascend310P3| 16       | ICDAR2015 | {'precision': 0.8214, 'recall': 0.7044, 'hmean': 0.7584} | 136.94 fps |
-|Ascend310P3| 32       | ICDAR2015 | {'precision': 0.8214, 'recall': 0.7044, 'hmean': 0.7584} | 137.18 fps |
-|Ascend310P3| 64       | ICDAR2015 | {'precision': 0.8214, 'recall': 0.7044, 'hmean': 0.7584} | 175.27 fps |
+|300I Pro| 1        | ICDAR2015 | {'precision': 0.8214, 'recall': 0.7044, 'hmean': 0.7584} | 219.49 fps |
+|300I Pro| 4        | ICDAR2015 | {'precision': 0.8214, 'recall': 0.7044, 'hmean': 0.7584} | 143.86 fps |
+|300I Pro| 8        | ICDAR2015 | {'precision': 0.8214, 'recall': 0.7044, 'hmean': 0.7584} | 140.41 fps |
+|300I Pro| 16       | ICDAR2015 | {'precision': 0.8214, 'recall': 0.7044, 'hmean': 0.7584} | 136.94 fps |
+|300I Pro| 32       | ICDAR2015 | {'precision': 0.8214, 'recall': 0.7044, 'hmean': 0.7584} | 137.18 fps |
+|300I Pro| 64       | ICDAR2015 | {'precision': 0.8214, 'recall': 0.7044, 'hmean': 0.7584} | 175.27 fps |
 
 

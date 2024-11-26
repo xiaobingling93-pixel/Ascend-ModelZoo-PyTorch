@@ -320,4 +320,4 @@ aos  AP:99.52, 95.28, 92.69
 推理性能：
 | 芯片型号 | 模型   | Batch Size | 数据集                 | 性能(fps) |
 |:--------:|:------:|:----------:|:----------------------:|:---------:|
-| 310P3    | SE-SSD | 1          | KITTI object detection | 0.4388    |
+| 300I Pro    | SE-SSD | 1          | KITTI object detection | 0.4388    |

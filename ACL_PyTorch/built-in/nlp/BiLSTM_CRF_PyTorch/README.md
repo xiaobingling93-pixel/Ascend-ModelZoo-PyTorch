@@ -270,13 +270,12 @@ CLUENER 细粒度命名实体识别
 ----
 # 性能&精度
 
-在310P设备上，OM模型精度为  **{acc=0.735, recall=0.693, f1=0.714}**，优于原仓提供的精度[f1=0.7](https://github.com/CLUEbenchmark/CLUENER2020/tree/master#%E6%95%88%E6%9E%9C%E5%AF%B9%E6%AF%94)，当batchsize设为32时OM模型性能最优，达 **961 fps**。
 
 | 芯片型号   | BatchSize | 数据集   | 精度                               | 性能      |
 | --------- | --------- | -------- | --------------------------------- | --------- |
-|Ascend310P3| 1         | CLUE_NER | acc=0.735, recall=0.693, f1=0.714 | 60 fps    |
-|Ascend310P3| 4         | CLUE_NER | acc=0.735, recall=0.693, f1=0.714 | 241 fps   |
-|Ascend310P3| 8         | CLUE_NER | acc=0.735, recall=0.693, f1=0.714 | 479 fps   |
-|Ascend310P3| 16        | CLUE_NER | acc=0.735, recall=0.693, f1=0.714 | 954 fps   |
-|Ascend310P3| 32        | CLUE_NER | acc=0.735, recall=0.693, f1=0.714 | **961 fps** |
-|Ascend310P3| 64        | CLUE_NER | acc=0.735, recall=0.693, f1=0.714 | 957 fps   |
+|300I Pro| 1         | CLUE_NER | acc=0.735, recall=0.693, f1=0.714 | 60 fps    |
+|300I Pro| 4         | CLUE_NER | acc=0.735, recall=0.693, f1=0.714 | 241 fps   |
+|300I Pro| 8         | CLUE_NER | acc=0.735, recall=0.693, f1=0.714 | 479 fps   |
+|300I Pro| 16        | CLUE_NER | acc=0.735, recall=0.693, f1=0.714 | 954 fps   |
+|300I Pro| 32        | CLUE_NER | acc=0.735, recall=0.693, f1=0.714 | **961 fps** |
+|300I Pro| 64        | CLUE_NER | acc=0.735, recall=0.693, f1=0.714 | 957 fps   |

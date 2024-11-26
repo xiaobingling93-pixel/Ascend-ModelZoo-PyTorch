@@ -269,13 +269,13 @@
 
 | 芯片型号    | Batch Size | 数据集   | 开源精度（Acc@1）                                            | 参考精度（Acc@1） |
 | ----------- | ---------- | -------- | ------------------------------------------------------------ | ----------------- |
-| Ascend310P3 | 1          | ImageNet | [79.4%](https://github.com/microsoft/SPACH#main-results-on-imagenet-with-pretrained-models) | 79.30%            |
+| 300I Pro | 1          | ImageNet | [79.4%](https://github.com/microsoft/SPACH#main-results-on-imagenet-with-pretrained-models) | 79.30%            |
 
 | 芯片型号    | Batch Size | 性能（FPS） |
 | ----------- | ---------- | ----------- |
-| Ascend310P3 | 1          | 338.64      |
-| Ascend310P3 | 4          | 706.70      |
-| Ascend310P3 | 8          | 842.25      |
-| Ascend310P3 | 16         | 825.09      |
-| Ascend310P3 | 32         | 801.01      |
-| Ascend310P3 | 64         | 809.59      |
+| 300I Pro | 1          | 338.64      |
+| 300I Pro | 4          | 706.70      |
+| 300I Pro | 8          | 842.25      |
+| 300I Pro | 16         | 825.09      |
+| 300I Pro | 32         | 801.01      |
+| 300I Pro | 64         | 809.59      |

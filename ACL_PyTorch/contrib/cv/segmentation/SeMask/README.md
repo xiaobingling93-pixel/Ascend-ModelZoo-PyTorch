@@ -277,7 +277,7 @@ SeMask模型为第一个将语义上下文添加到预训练的Transformer主干
 
 | 芯片型号  | Batch Size       | 数据集      | 精度       | 性能      |
 | --------- | ---------------- | ---------- | ---------- | --------- |
-| 310P3     | 1                | cityscapes | 76.54      |  4.72     |
-| 310P3     | 4                | cityscapes | 76.54      |  4.37   |
-| 310P3     | 8                | cityscapes | 76.54      |  4.13     |
-| 310P3     | 16                | cityscapes |  内存不足     |       |
+| 300I Pro     | 1                | cityscapes | 76.54      |  4.72     |
+| 300I Pro     | 4                | cityscapes | 76.54      |  4.37   |
+| 300I Pro     | 8                | cityscapes | 76.54      |  4.13     |
+| 300I Pro     | 16                | cityscapes |  内存不足     |       |

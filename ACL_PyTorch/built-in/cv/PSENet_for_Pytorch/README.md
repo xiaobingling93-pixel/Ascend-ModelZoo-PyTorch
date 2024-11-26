@@ -266,12 +266,12 @@ PSENet(渐进式的尺度扩张网络)是一种文本检测器，能够很好地
 
 | 芯片型号 | Batch Size | 数据集 | 精度 | 性能 |
 | -------- | ---------- | ------ | ---- | ---- |
-|     310P3     |     1       |   ICDAR2015     |   acc:0.805<br>recall:0.639   |   67.3   |
-|     310P3     |     4      |   ICDAR2015     |   acc:0.805<br>recall:0.639   |   62.6  |
-|     310P3     |     8       |   ICDAR2015     |   acc:0.805<br>recall:0.639   |   62.4   |
-|     310P3     |     16       |   ICDAR2015     |   acc:0.805<br>recall:0.639   |   62   |
-|     310P3     |     32       |   ICDAR2015     |   acc:0.805<br>recall:0.639   |   60   |
-|     310P3     |     64       |   ICDAR2015     |   acc:0.805<br>recall:0.639   |   54   |
+|     300I Pro     |     1       |   ICDAR2015     |   acc:0.805<br>recall:0.639   |   67.3   |
+|     300I Pro     |     4      |   ICDAR2015     |   acc:0.805<br>recall:0.639   |   62.6  |
+|     300I Pro     |     8       |   ICDAR2015     |   acc:0.805<br>recall:0.639   |   62.4   |
+|     300I Pro     |     16       |   ICDAR2015     |   acc:0.805<br>recall:0.639   |   62   |
+|     300I Pro     |     32       |   ICDAR2015     |   acc:0.805<br>recall:0.639   |   60   |
+|     300I Pro     |     64       |   ICDAR2015     |   acc:0.805<br>recall:0.639   |   54   |
 
 
 # 公网地址说明

@@ -230,13 +230,12 @@
 ----
 # 性能&精度
 
-在310P设备上，OM模型的精度为  **{Top1Acc=83.17%}**，当batchsize设为4时模型性能最优，达 76.0 fps。
 
 | 芯片型号   | BatchSize | 数据集      | 精度            | 性能       |
 | --------- | --------- | ----------- | --------------- | --------- |
-|Ascend310P3| 1         | ILSVRC2012  | Top1Acc=83.17%| 59.2 fps |
-|Ascend310P3| 4         | ILSVRC2012  | Top1Acc=83.17%| 76.0 fps |
-|Ascend310P3| 8         | ILSVRC2012  | Top1Acc=83.17%| 59.9 fps |
-|Ascend310P3| 16        | ILSVRC2012  | Top1Acc=83.17%| 26.4 fps |
-|Ascend310P3| 32        | ILSVRC2012  | Top1Acc=83.17%| 11.5 fps |
-|Ascend310P3| 64        | ILSVRC2012  | Top1Acc=83.17%| 5.1 fps |
+|300I Pro| 1         | ILSVRC2012  | Top1Acc=83.17%| 59.2 fps |
+|300I Pro| 4         | ILSVRC2012  | Top1Acc=83.17%| 76.0 fps |
+|300I Pro| 8         | ILSVRC2012  | Top1Acc=83.17%| 59.9 fps |
+|300I Pro| 16        | ILSVRC2012  | Top1Acc=83.17%| 26.4 fps |
+|300I Pro| 32        | ILSVRC2012  | Top1Acc=83.17%| 11.5 fps |
+|300I Pro| 64        | ILSVRC2012  | Top1Acc=83.17%| 5.1 fps |

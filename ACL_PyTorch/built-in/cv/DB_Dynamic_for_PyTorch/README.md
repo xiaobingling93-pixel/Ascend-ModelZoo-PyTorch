@@ -244,4 +244,4 @@
 
 | 芯片型号 |  数据集   | 精度 | E2E(s)  |
 | :------: | :-------: | :--: | :---: |
-|  310P3   | icdar2015 | cosineSimilarity:0.99 | 9.9s左右 |
+|  300I Pro   | icdar2015 | cosineSimilarity:0.99 | 9.9s左右 |

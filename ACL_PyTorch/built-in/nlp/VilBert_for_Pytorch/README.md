@@ -276,7 +276,7 @@
 
    精度结果：
 
-   | 模型    | 数据集        | 官网精度                                                  | 310P离线推理精度                                                 |
+   | 模型    | 数据集        | 官网精度                                                  | 300I Pro离线推理精度                                                 |
    |---------|---------------|-----------------------------------------------------------|------------------------------------------------------------------|
    | VilBert | balanced real | precision: 1, recall: 0.51, fscore: 0.68, vqascore: 0.94 | precision: 0.997, recall: 0.511, fscore: 0.676, vqa_score: 0.936 |
   
@@ -286,15 +286,9 @@
    
    | 芯片型号 | Batch Size | 数据集        | 性能    |
    |----------|------------|---------------|---------|
-   | 310P3    | 1          | balanced_real | 187 fps |
-   | 310P3    | 4          | balanced_real | 223 fps |
-   | 310P3    | 8          | balanced_real | 373 fps |
-   | 310P3    | 16         | balanced_real | 488 fps |
-   | 310P3    | 32         | balanced_real | 493 fps |
-   | 310P3    | 64         | balanced_real | 428 fps |
-   | 310      | 1          | balanced_real | 200 fps |
-   | 310      | 4          | balanced_real | 228 fps |
-   | 310      | 8          | balanced_real | 232 fps |
-   | 310      | 16         | balanced_real | 236 fps |
-   | 310      | 32         | balanced_real | 236 fps |
-   | 310      | 64         | balanced_real | 236 fps |
+   | 300I Pro    | 1          | balanced_real | 187 fps |
+   | 300I Pro    | 4          | balanced_real | 223 fps |
+   | 300I Pro    | 8          | balanced_real | 373 fps |
+   | 300I Pro    | 16         | balanced_real | 488 fps |
+   | 300I Pro    | 32         | balanced_real | 493 fps |
+   | 300I Pro    | 64         | balanced_real | 428 fps |

@@ -248,9 +248,9 @@
     | -------------- | -------------- | -------------- |
     | acc@1 = 81.25% | [acc@1 = 81.9%](https://github.com/microsoft/SPACH#main-results-on-imagenet-with-pretrained-models) | 0.79% |
 
-2. 在 310P 设备上，当 batchsize 为 **8** 时模型性能最优，吞吐率达 **298.7** fps，是T4设备最优性能的 0.81 倍。
+2. 性能数据
 
-    | batchsize | 310P性能 | T4性能 | 310P/T4 |
+    | batchsize | 300I Pro性能 | T4性能 | 300I Pro/T4 |
     | --------- | -------- | ------ | ------ |
     | 1         | 171.6    | 177.7  | 0.97   |
     | 4         | 273.5    | 341.5  | 0.80   |

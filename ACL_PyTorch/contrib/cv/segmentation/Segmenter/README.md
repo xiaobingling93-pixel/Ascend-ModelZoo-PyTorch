@@ -270,11 +270,11 @@ Segmenter提出了一种基于 Vision Transformer 的语义分割方法，可以
 
 | 芯片型号    | Batch Size | 数据集     | 开源精度（mIoU）                                          | 参考精度（mIoU） |
 | ----------- | ---------- | ---------- | --------------------------------------------------------- | ---------------- |
-| Ascend310P3 | 1          | Cityscapes | [79.1%](https://github.com/rstrudel/segmenter#cityscapes) | 78.89%           |
+| 300I Pro | 1          | Cityscapes | [79.1%](https://github.com/rstrudel/segmenter#cityscapes) | 78.89%           |
 
 | 芯片型号    | Batch Size | 参考性能（FPS） |
 | ----------- | ---------- | --------------- |
-| Ascend310P3 | 1          | 3.48            |
-| Ascend310P3 | 4          | 2.91            |
-| Ascend310P3 | 8          | 3.09            |
-| Ascend310P3 | 16         | 3.09            |
+| 300I Pro | 1          | 3.48            |
+| 300I Pro | 4          | 2.91            |
+| 300I Pro | 8          | 3.09            |
+| 300I Pro | 16         | 3.09            |

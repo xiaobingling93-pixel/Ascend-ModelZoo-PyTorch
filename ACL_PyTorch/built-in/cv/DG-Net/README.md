@@ -261,9 +261,9 @@ DG-Net有机地将GAN和re-id backbone结合来解决行人重识别问题（per
 
 | 芯片型号 | Batch Size   | 数据集 | 精度 | 性能 |
 | --------- | ---------------- | ---------- | ---------- | --------------- |
-|     Ascend310P3      |        1          |      Market1501      |     18.12       |     296            |
-|     Ascend310P3      |        4          |      Market1501      |            |       568          |
-|     Ascend310P3      |        8          |      Market1501      |            |        584         |
-|     Ascend310P3      |        16          |      Market1501      |            |        517         |
-|     Ascend310P3      |        32          |      Market1501      |            |         467        |
-|     Ascend310P3      |        64          |      Market1501      |            |         324        |
+|     300I Pro      |        1          |      Market1501      |     18.12       |     296            |
+|     300I Pro      |        4          |      Market1501      |            |       568          |
+|     300I Pro      |        8          |      Market1501      |            |        584         |
+|     300I Pro      |        16          |      Market1501      |            |        517         |
+|     300I Pro      |        32          |      Market1501      |            |         467        |
+|     300I Pro      |        64          |      Market1501      |            |         324        |

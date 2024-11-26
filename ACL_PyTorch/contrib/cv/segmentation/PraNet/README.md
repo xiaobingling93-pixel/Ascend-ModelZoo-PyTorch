@@ -239,5 +239,5 @@
 
 | 芯片型号 | Batch Size | 数据集 | 精度 | 性能 |
 | -------- | ---------- | ------ | ---- | ---- |
-|   310P3       |       1     |   Kvasir     | mDec:0.894<br>mIoU:0.836     |  170    |
-|   310P3       |       4    |   Kvasir     | mDec:0.894<br>mIoU:0.836     |  425    |
+|   300I Pro       |       1     |   Kvasir     | mDec:0.894<br>mIoU:0.836     |  170    |
+|   300I Pro       |       4    |   Kvasir     | mDec:0.894<br>mIoU:0.836     |  425    |

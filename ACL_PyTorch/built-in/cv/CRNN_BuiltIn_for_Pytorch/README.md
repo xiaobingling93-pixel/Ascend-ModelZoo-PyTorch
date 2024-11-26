@@ -225,12 +225,12 @@
 
 | 芯片型号 | Batch Size | 数据集      | 精度   | 性能  |
 | -------- | ---------- | ----------- | ------ | ----- |
-| 310P3    | 1          | IIIT5K_lmdb | 74.87% | 1141  |
-| 310P3    | 4          | IIIT5K_lmdb | 74.87% | 4251  |
-| 310P3    | 8          | IIIT5K_lmdb | 74.87% | 7532  |
-| 310P3    | 16         | IIIT5K_lmdb | 74.87% | 12547 |
-| 310P3    | 32         | IIIT5K_lmdb | 74.87% | 16208 |
-| 310P3    | 64         | IIIT5K_lmdb | 74.87% | 17815 |
+| 300I Pro    | 1          | IIIT5K_lmdb | 74.87% | 1141  |
+| 300I Pro    | 4          | IIIT5K_lmdb | 74.87% | 4251  |
+| 300I Pro    | 8          | IIIT5K_lmdb | 74.87% | 7532  |
+| 300I Pro    | 16         | IIIT5K_lmdb | 74.87% | 12547 |
+| 300I Pro    | 32         | IIIT5K_lmdb | 74.87% | 16208 |
+| 300I Pro    | 64         | IIIT5K_lmdb | 74.87% | 17815 |
 
 # 公网地址说明
 代码涉及公网地址参考 public_address_statement.md

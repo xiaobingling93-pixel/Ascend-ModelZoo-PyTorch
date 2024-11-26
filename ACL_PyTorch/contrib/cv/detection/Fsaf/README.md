@@ -264,9 +264,9 @@ FSAF 是 CVPR2019发表的一种无锚定方法。实际上它等价于基于锚
 
 | 芯片型号   | BatchSize | 数据集      | 精度            | 性能       |
 | --------- | --------- | ----------- | --------------- | --------- |
-|Ascend310P3| 1         | COCO2017  | map=0.371| 20.2 fps |
-|Ascend310P3| 4         | COCO2017  | map=0.371| 9.0 fps |
-|Ascend310P3| 8         | COCO2017  | map=0.371| 4.9 fps |
-|Ascend310P3| 16        | COCO2017  | map=0.371| 2.4 fps |
-|Ascend310P3| 32        | COCO2017  | map=0.371| 1.2 fps |
-|Ascend310P3| 64        | COCO2017  | map=0.371| 0.5 fps |
+|300I Pro| 1         | COCO2017  | map=0.371| 20.2 fps |
+|300I Pro| 4         | COCO2017  | map=0.371| 9.0 fps |
+|300I Pro| 8         | COCO2017  | map=0.371| 4.9 fps |
+|300I Pro| 16        | COCO2017  | map=0.371| 2.4 fps |
+|300I Pro| 32        | COCO2017  | map=0.371| 1.2 fps |
+|300I Pro| 64        | COCO2017  | map=0.371| 0.5 fps |

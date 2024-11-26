@@ -339,21 +339,21 @@ BLIP模型为一种新的Vision-Language Pre-training框架，它可以灵活地
 
 | 芯片型号 | Batch Size   | 数据集 | 精度 | 性能 |
 | --------- | ---------------- | ---------- | ---------- | --------------- |
-| 310P3          | 1                 | coco           | 81.3%           | text:292    |
-| 310P3          | 4                | coco           |            |  text:754   |
-| 310P3          | 8                | coco           |            |  text:1227   |
-| 310P3          | 16                | coco           |            |  text:1400  |
-| 310P3          | 32                | coco           |            |  text:1536   |
-| 310P3          | 64                | coco           |            |   text:1662  |
-| 310P3          | 1                 | coco           | 81.3%           | image:72    |
-| 310P3          | 4                | coco           |            |  image:59  |
-| 310P3          | 8                | coco           |            |  image:71  |
-| 310P3          | 16                | coco           |            |  image:59  |
-| 310P3          | 32                | coco           |            |  image:59  |
-| 310P3          | 64                | coco           |            |  image:67  |
-| 310P3          | 1                 | coco           | 81.3%           | image_feat: 73 |
-| 310P3          | 4                | coco           |            |  image_feat: 59  |
-| 310P3          | 8                | coco           |            |  image_feat:  70 |
-| 310P3          | 16                | coco           |            |  image_feat: 59  |
-| 310P3          | 32                | coco           |            |  image_feat: 58  |
-| 310P3          | 64                | coco           |            |   image_feat: 67 |
+| 300I Pro          | 1                | coco           | 81.3%           | text:292    |
+| 300I Pro          | 4                | coco           |            |  text:754   |
+| 300I Pro          | 8                | coco           |            |  text:1227   |
+| 300I Pro          | 16               | coco           |            |  text:1400  |
+| 300I Pro          | 32               | coco           |            |  text:1536   |
+| 300I Pro          | 64               | coco           |            |   text:1662  |
+| 300I Pro          | 1                | coco           | 81.3%           | image:72    |
+| 300I Pro          | 4                | coco           |            |  image:59  |
+| 300I Pro          | 8                | coco           |            |  image:71  |
+| 300I Pro          | 16               | coco           |            |  image:59  |
+| 300I Pro          | 32               | coco           |            |  image:59  |
+| 300I Pro          | 64               | coco           |            |  image:67  |
+| 300I Pro          | 1                | coco           | 81.3%           | image_feat: 73 |
+| 300I Pro          | 4                | coco           |            |  image_feat: 59  |
+| 300I Pro          | 8                | coco           |            |  image_feat:  70 |
+| 300I Pro          | 16               | coco           |            |  image_feat: 59  |
+| 300I Pro          | 32               | coco           |            |  image_feat: 58  |
+| 300I Pro          | 64               | coco           |            |   image_feat: 67 |

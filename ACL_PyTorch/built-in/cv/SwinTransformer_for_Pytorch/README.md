@@ -242,12 +242,12 @@
 
    | 芯片型号 | Batch Size | 数据集   | 精度                            | 性能    |
    |----------|------------|----------|---------------------------------|---------|
-   | 310P3    | 1          | ImageNet | Top1 Acc: 86.4%;Top5 Acc: 98.0% | 104 fps |
-   | 310P3    | 4          | ImageNet | -                               | 121 fps |
-   | 310P3    | 8          | ImageNet | -                               | 132 fps |
-   | 310P3    | 16         | ImageNet | -                               | 129 fps |
-   | 310P3    | 32         | ImageNet | -                               | 129 fps |
-   | 310P3    | 64         | ImageNet | -                               | 131 fps |
+   | 300I Pro    | 1          | ImageNet | Top1 Acc: 86.4%;Top5 Acc: 98.0% | 104 fps |
+   | 300I Pro    | 4          | ImageNet | -                               | 121 fps |
+   | 300I Pro    | 8          | ImageNet | -                               | 132 fps |
+   | 300I Pro    | 16         | ImageNet | -                               | 129 fps |
+   | 300I Pro    | 32         | ImageNet | -                               | 129 fps |
+   | 300I Pro    | 64         | ImageNet | -                               | 131 fps |
    | 基准性能 | 1          | ImageNet | Top1 Acc: 86.4%;Top5 Acc: 98.0% | 217 fps |
    | 基准性能 | 4          | ImageNet | -                               | 332 fps |
    | 基准性能 | 8          | ImageNet | -                               | 339 fps |
@@ -259,7 +259,7 @@
 
    | 芯片型号 | config                         | Batch Size | 数据集   | 参考精度                        | NPU精度                           | 性能    |
    |----------|--------------------------------|------------|----------|---------------------------------|-----------------------------------|---------|
-   | 310P3    | swin_large_patch4_window12_384 | 1          | ImageNet | Top1 Acc: 87.3%;Top5 Acc: 98.2% | Top1 Acc: 87.27%;Top5 Acc: 98.23% | 51 fps  |
-   | 310P3    | -                              | 8          | ImageNet | -                               | -                                 | 76 fps  |
-   | 310P3    | swin_large_patch4_window7_224  | 1          | ImageNet | Top1 Acc: 86.3%;Top5 Acc: 97.9% | Top1 Acc: 86.19%;Top5 Acc: 97.83% | 112 fps |
-   | 310P3    | -                              | 8          | ImageNet | -                               | -                                 | 204 fps |
+   | 300I Pro    | swin_large_patch4_window12_384 | 1          | ImageNet | Top1 Acc: 87.3%;Top5 Acc: 98.2% | Top1 Acc: 87.27%;Top5 Acc: 98.23% | 51 fps  |
+   | 300I Pro    | -                              | 8          | ImageNet | -                               | -                                 | 76 fps  |
+   | 300I Pro    | swin_large_patch4_window7_224  | 1          | ImageNet | Top1 Acc: 86.3%;Top5 Acc: 97.9% | Top1 Acc: 86.19%;Top5 Acc: 97.83% | 112 fps |
+   | 300I Pro    | -                              | 8          | ImageNet | -                               | -                                 | 204 fps |

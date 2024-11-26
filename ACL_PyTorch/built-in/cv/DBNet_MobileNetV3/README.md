@@ -299,9 +299,9 @@ DBNet([Real-Time Scene Text Detection with Differentiable Binarization and Adapt
 
 | 芯片型号 | Batch Size   | 数据集 | 精度 | 性能 |
 | ---------- | ----------- | ---------- | ----------- | ---------------- |
-|Ascend310P3| 1           | ICDAR 2015 | Acc:0.775 | 196.102 fps |
-|Ascend310P3| 4           | ICDAR 2015 | Acc:0.775 | 161.343 fps |
-|Ascend310P3| 8           | ICDAR 2015 | Acc:0.775 | 158.040 fps |
-|Ascend310P3| 16          | ICDAR 2015 | Acc:0.775 | 152.316 fps |
-|Ascend310P3| 32          | ICDAR 2015 | Acc:0.775 | 152.485 fps |
-|Ascend310P3| 64          | ICDAR 2015 | Acc:0.775 | 153.007 fps |
+|300I Pro| 1           | ICDAR 2015 | Acc:0.775 | 196.102 fps |
+|300I Pro| 4           | ICDAR 2015 | Acc:0.775 | 161.343 fps |
+|300I Pro| 8           | ICDAR 2015 | Acc:0.775 | 158.040 fps |
+|300I Pro| 16          | ICDAR 2015 | Acc:0.775 | 152.316 fps |
+|300I Pro| 32          | ICDAR 2015 | Acc:0.775 | 152.485 fps |
+|300I Pro| 64          | ICDAR 2015 | Acc:0.775 | 153.007 fps |

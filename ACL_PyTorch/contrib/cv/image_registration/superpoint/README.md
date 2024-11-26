@@ -242,9 +242,9 @@
 
 | 芯片型号        | Batch Size | 数据集 | 精度 | 性能 |
 |-------------|------------|----| ---------- |--|
-| Ascend310P3 | 1          | hpatches   |     80.6%      | 2124 |
-| Ascend310P3 | 4          | hpatches   |     80.6%       | 2437 |
-| Ascend310P3 | 8          | hpatches   |     80.6%       | 2528 |
-| Ascend310P3 | 16         | hpatches   |     80.6%       | 2515 |
-| Ascend310P3 | 32         | hpatches   |     80.6%       | 2515 |
-| Ascend310P3 | 64         | hpatches   |     80.6%       | 1787 |
+| 300I Pro | 1          | hpatches   |     80.6%      | 2124 |
+| 300I Pro | 4          | hpatches   |     80.6%       | 2437 |
+| 300I Pro | 8          | hpatches   |     80.6%       | 2528 |
+| 300I Pro | 16         | hpatches   |     80.6%       | 2515 |
+| 300I Pro | 32         | hpatches   |     80.6%       | 2515 |
+| 300I Pro | 64         | hpatches   |     80.6%       | 1787 |
