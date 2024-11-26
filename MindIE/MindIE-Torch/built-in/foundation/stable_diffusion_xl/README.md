@@ -838,7 +838,7 @@ Atlas 300I Duo推理卡：支持的卡数为1，可双芯并行
 
 | 硬件形态  | cpu规格 | batch size | 迭代次数 | 优化手段 | 平均耗时 | 精度  | 采样器 |
 | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
-| A2  | 64核(arm) |  1  |  50  | with UnetCache, w/o 量化 |  4s   | clip score 0.376 | ddim |
-| A2  | 64核(arm) |  1  |  50  | with UnetCache, with 量化 |  3.6s   | clip score 0.371 | ddim |
+| Atlas 800I A2 (32G) | 64核(arm) |  1  |  50  | with UnetCache, w/o 量化 |  4s   | clip score 0.376 | ddim |
+| Atlas 800I A2 (32G) | 64核(arm) |  1  |  50  | with UnetCache, with 量化 |  3.6s   | clip score 0.371 | ddim |
 
 性能测试需要独占npu和cpu

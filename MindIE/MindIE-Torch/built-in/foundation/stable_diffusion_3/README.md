@@ -126,29 +126,17 @@ Atlas 300I Duo推理卡：支持的卡数为1，可双芯并行
 
          ```
          npu-smi info
-         #该设备芯片chip_name=310P3 (自行替换)
-         回显如下：
-         +-------------------+-----------------+------------------------------------------------------+
-         | NPU     Name      | Health          | Power(W)     Temp(C)           Hugepages-Usage(page) |
-         | Chip    Device    | Bus-Id          | AICore(%)    Memory-Usage(MB)                        |
-         +===================+=================+======================================================+
-         | 0       310P3     | OK              | 15.8         42                0    / 0              |
-         | 0       0         | 0000:82:00.0    | 0            1074 / 21534                            |
-         +===================+=================+======================================================+
-         | 1       310P3     | OK              | 15.4         43                0    / 0              |
-         | 0       1         | 0000:89:00.0    | 0            1070 / 21534                            |
-         +===================+=================+======================================================+
          ```
 
       (4) 执行export命令
    
       ```bash
-      # 800I A2，非并行，未加DiTCache优化
+      # Atlas 800I A2，非并行，未加DiTCache优化
       python3 export_model.py --model ${model_base} --output_dir ./models --batch_size 1 --soc Ascend${chip_name} --device_type A2 --device 0
-      # 800I A2，非并行。开启DiTCache优化
+      # Atlas 800I A2，非并行。开启DiTCache优化
       python3 export_model.py --model ${model_base} --output_dir ./models --batch_size 1 --soc Ascend${chip_name} --device_type A2 --device 0 --use_cache
       
-      # 300I Duo，并行
+      # Atlas 300I Duo，并行
       python3 export_model.py --model ${model_base} --output_dir ./models --parallel --batch_size 1 --soc Ascend${chip_name} --device_type Duo --device 0
       ```
       参数说明：
@@ -193,7 +181,7 @@ Atlas 300I Duo推理卡：支持的卡数为1，可双芯并行
    
    3. 执行推理脚本。
       ```bash
-      # 不使用DiTCache，单卡推理，适用800I A2场景
+      # 不使用DiTCache，单卡推理，适用Atlas 800I A2场景
       numactl -C 0-23 python3 stable_diffusion3_pipeline.py \
               --model ${model_base} \
               --prompt_file ./prompts.txt \
@@ -206,7 +194,7 @@ Atlas 300I Duo推理卡：支持的卡数为1，可双芯并行
               --width 1024 \
               --batch_size 1
       
-      # 不使用DiTCache，使用双卡并行推理，适用300I DUO场景
+      # 不使用DiTCache，使用双卡并行推理，适用Atlas 300I DUO场景
       numactl -C 0-23 python3 stable_diffusion3_pipeline.py \
               --model ${model_base} \
               --prompt_file ./prompts.txt \
@@ -219,7 +207,7 @@ Atlas 300I Duo推理卡：支持的卡数为1，可双芯并行
               --width 1024 \
               --batch_size 1
       
-      # 使用DiTCache，单卡推理，适用800I A2场景
+      # 使用DiTCache，单卡推理，适用Atlas 800I A2场景
       numactl -C 0-23 python3 stable_diffusion3_pipeline_cache.py \
               --model ${model_base} \
               --prompt_file ./prompts.txt \
@@ -408,6 +396,6 @@ Atlas 300I Duo推理卡：支持的卡数为1，可双芯并行
 ### StableDiffusion3
 | 硬件形态  | cpu规格 | batch size | 迭代次数 | 优化手段 | 平均耗时  |        精度        |
 | :------: | :------: | :------: |:----:| :------: |:-----:|:----------------:|
-| A2  | 64核(arm) |  1  |  28  | w/o UnetCache | 6.15s | clip score 0.380 |
+| Atlas 800I A2 (32G) | 64核(arm) |  1  |  28  | w/o UnetCache | 6.15s | clip score 0.380 |
 
 性能测试需要独占npu和cpu

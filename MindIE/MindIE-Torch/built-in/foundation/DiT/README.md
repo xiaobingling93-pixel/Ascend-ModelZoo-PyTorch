@@ -39,7 +39,7 @@ latent_size = image_size // 8
 | ------------------------------------ | ------- | ------------ |
 | Python                               | 3.10.13 | -            |
 | PyTorch                              | 2.1.0   | -            |
-| 硬件：Atlas 300I Duo ，Atlas 800I A2 | \       | \            |
+| 硬件：Atlas 300I Duo, Atlas 800I A2 | \       | \            |
 
 请以CANN版本选择对应的固件与驱动版本。
 
@@ -103,7 +103,7 @@ latent_size = image_size // 8
 2. 模型转换，该步骤会生成编译之后的pt模型
 
    ```bash
-   # Duo卡
+   # Atlas 300I Duo卡
    python3 export_model.py \
    --ckpt ./DiT-XL-2-512x512.pt \
    --vae_model ./sd-vae-ft-mse \
@@ -113,7 +113,7 @@ latent_size = image_size // 8
    --output_dir ./models \
    --parallel
    
-   # A2
+   # Atlas 800I A2
    python3 export_model.py \
    --ckpt ./DiT-XL-2-512x512.pt \
    --vae_model ./sd-vae-ft-mse \
@@ -146,7 +146,7 @@ latent_size = image_size // 8
    2.  执行推理，会在当前路径生成sample.png
 
       ```bash
-      # Duo
+      # Atlas 300I Duo
       python3 sample_npu.py \
       --vae mse \
       --image_size 512 \
@@ -156,7 +156,7 @@ latent_size = image_size // 8
       --output_dir ./models \
       --parallel
       
-      # A2
+      # Atlas 800I A2
       python3 sample_npu.py \
       --vae mse \
       --image_size 512 \
@@ -185,7 +185,7 @@ latent_size = image_size // 8
    然后执行以下命令：
 
    ```bash
-   # Duo
+   # Atlas 300I Duo
    python3 fid_test.py \
    --vae mse \
    --image_size 512 \
@@ -195,7 +195,7 @@ latent_size = image_size // 8
    --parallel \
    --results results
    
-   # A2
+   # Atlas 800I A2
    python3 fid_test.py \
    --vae mse \
    --image_size 512 \
@@ -225,7 +225,7 @@ latent_size = image_size // 8
 
 | 分辨率 | 硬件形态 | 迭代次数 | 平均耗时 |
 | ------ | -------- | -------- | -------- |
-| 512    | Duo      | 250      | 19.6s    |
-|        | A2       | 250      | 10.49s   |
-| 256    | Duo      | 250      | 9.5s     |
-|        | A2       | 50       | 4.13s    |
+| 512    | Atlas 300I Duo      | 250      | 19.6s    |
+|        | Atlas 800I A2 (32G) | 250      | 10.49s   |
+| 256    | Atlas 300I Duo      | 250      | 9.5s     |
+|        | Atlas 800I A2 (32G) | 50       | 4.13s    |

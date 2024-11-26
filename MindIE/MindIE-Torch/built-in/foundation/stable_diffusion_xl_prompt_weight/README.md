@@ -23,6 +23,7 @@
 
 - 设备支持：
 Atlas 800I A2推理设备：支持的卡数为1
+Atlas 300I Duo推理卡：支持的卡数为1
 
 # 推理环境准备<a name="ZH-CN_TOPIC_0000001126281702"></a>
 
@@ -116,7 +117,7 @@ Atlas 800I A2推理设备：支持的卡数为1
       - --output_dir: ONNX模型输出目录
       - --batch_size: 设置batch_size, 默认值为1,当前仅支持batch_size=1的场景
       - --flag：默认为1。0代表静态，只支持分辨率为1024x1024；1代表动态分档，支持的分辨率为1024x1024和512x512。
-      - --soc：只支持Duo和A2。默认为A2，A2特指910B4。
+      - --soc：只支持Duo和A2。默认为A2。
       - --device：推理设备ID
       - --use_cache: 【可选】在推理过程中使用cache
       
