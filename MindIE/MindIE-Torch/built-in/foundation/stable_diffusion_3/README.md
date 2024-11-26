@@ -287,6 +287,22 @@ Atlas 300I Duo推理卡：支持的卡数为1，可双芯并行
               --width 1024 \
               --batch_size 1
       
+      # 使用DitCache
+      python3 stable_diffusion3_pipeline_cache.py \
+              --model ${model_base} \
+              --prompt_file ./PartiPrompts.tsv \
+              --prompt_file_type parti \
+              --num_images_per_prompt 4 \
+              --max_num_prompts 0 \
+              --device 0 \
+              --save_dir ./results_PartiPrompts \
+              --steps 28 \
+              --output_dir ./models \
+              --height 1024 \
+              --width 1024 \
+              --batch_size 1 \
+              --use_cache
+
       # 使用双卡并行策略
       python3 stable_diffusion3_pipeline.py \
               --model ${model_base} \
@@ -335,6 +351,21 @@ Atlas 300I Duo推理卡：支持的卡数为1，可双芯并行
               --height 1024 \
               --width 1024 \
               --batch_size 1
+
+      # 使用DitCache
+      python3 stable_diffusion3_pipeline_cache.py \
+              --model ${model_base} \
+              --prompt_file_type hpsv2 \
+              --num_images_per_prompt 1 \
+              --info_file_save_path ./image_info_hpsv2.json \
+              --device 0 \
+              --save_dir ./results_hpsv2 \
+              --steps 28 \
+              --output_dir ./models \
+              --height 1024 \
+              --width 1024 \
+              --batch_size 1 \
+              --use_cache
       
       # 使用双卡并行策略
       python3 stable_diffusion3_pipeline.py \
