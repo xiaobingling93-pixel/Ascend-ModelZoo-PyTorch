@@ -96,7 +96,7 @@
 
 1. 获取原始数据集
 
-   本模型支持icdar2015验证集。用户需自行获取数据集解压并上传数据集到DB/datasets路径下。目录结构如下：
+   本模型支持icdar2015验证集。用户需自行下载数据集并解压到`DB/datasets`路径下，可参考[源码数据集](https://github.com/MhLiao/DB#datasets)。目录结构如下：
 
    ```
    datasets/icdar2015/  
