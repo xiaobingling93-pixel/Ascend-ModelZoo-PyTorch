@@ -333,6 +333,6 @@ m2m100是Meta公司开发的最新seq2seq模型，支持100中语言间的互相
 
 | 芯片型号 | Model | Batch Size   | 数据集 | 精度 | 性能 |
 | ---------- | ------                    | --------- | ------ | ---------- | -------|
-| Ascend310P | m2m_encoder.om            | 1         | - | - | 224.376 fps |
-| Ascend310P | m2m_decoder_first_step.om | 1         | - | - | 82.827 fps |
-| Ascend310P | m2m_decoder.om            | 1         | - | - | 141.6 fps |
+| 300I PRO | m2m_encoder.om            | 1         | - | - | 224.376 fps |
+| 300I PRO | m2m_decoder_first_step.om | 1         | - | - | 82.827 fps |
+| 300I PRO | m2m_decoder.om            | 1         | - | - | 141.6 fps |

@@ -43,7 +43,7 @@ cp ${model.pt} ./model
 将benchmark.x86_64放在当前目录
 ```
 
-7.310上执行，执行时确保device空闲
+7.执行时确保device空闲
 ```
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
 apt install dos2unix

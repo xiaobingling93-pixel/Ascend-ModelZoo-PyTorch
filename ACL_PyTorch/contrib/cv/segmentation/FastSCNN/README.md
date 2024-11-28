@@ -237,17 +237,14 @@ FastSCNN：快速分割卷积神经网络（Fast-SCNN），一种基于高分辨
 
 
 # 模型推理性能&精度<a name="ZH-CN_TOPIC_0000001172201573"></a>
-310推理支持batchsize:1/4,310P推理支持batchsize:1/4/8。
 
 1. 调用ACL接口推理计算，性能参考下列数据。
 
    | 芯片型号 | Batch Size   | 数据集 | 性能 |
    | ------- | -------------|------| ----- |
-   |  310    |     1        | cityscapes |10.2118|
-   |  310    |     4        | cityscapes |12.8757|
-   |  310P   |     1        | cityscapes |39.1736|
-   |  310P   |     4        | cityscapes |32.7321|
-   |  310P   |     8        | cityscapes |37.6047|
+   |  300I PRO   |     1        | cityscapes |39.1736|
+   |  300I PRO   |     4        | cityscapes |32.7321|
+   |  300I PRO   |     8        | cityscapes |37.6047|
 
 
 
@@ -256,7 +253,5 @@ FastSCNN：快速分割卷积神经网络（Fast-SCNN），一种基于高分辨
 
    | 芯片型号 | Batch Size   | 数据集 | AvgmIou | AvgpixAcc  |
    | ------- | ------------- |------ | ------- | --------- |
-   |  310    |     1         | cityscapes |  68.6667 | 95.3527 |
-   |  310    |     4         | cityscapes |  68.6667 | 95.3527 |
-   |  310P    |     1         | cityscapes |  68.6666 | 95.3526 |
-   |  310P    |     8         | cityscapes |  68.6666 | 95.3526 |
+   |  300I PRO    |     1         | cityscapes |  68.6666 | 95.3526 |
+   |  300I PRO    |     8         | cityscapes |  68.6666 | 95.3526 |

@@ -253,7 +253,7 @@ readme用于指导用户理解和部署样例，要包含如下内容：
             PerfStatus:PERFECT/OK/POK/NOK
             PrecisionStatus:OK/POK/NOK
 ```
-4、contrib用户根据网络状态必须配置modelzoo_level.txt文件，且文件内容包含关键字段：GPUStatus(OK-GPU复现/NOK-GPU未复现)； NPUMigrationStatus(OK-自动迁移成功/POK-自动迁移失败, 手写规避成功/NOK-均失败)； FuncStatus(OK-基础功能打通/NOK-基础功能失败，不允许模型代码提交到master)； PrecisionStatus(OK-精度达标/POK-Loss拟合但精度未完全达标/NOK-精度不达标, 不允许模型代码提交到master)； AutoTune(OK-性能持平或高于GPU/POK-性能有提升但低于GPU/NOK-性能无提升或者功能失败)； PerfStatus(训练：PERFECT-性能1.2倍GPU/OK-性能持平GPU/POK-性能0.5倍GPU/NOK-性能小于0.5倍GPU；推理：OK-4*310单卡>GPU/NOK-其它)； ModelConvert:OK/NOK(仅推理, OK-om转换成功/NOK-om转换失败)； QuantStatus:OK/NOK(仅推理, OK-精度损失1%以内，性能有提升/POK-性能有提升但未达标/NOK-量化失败)；
+4、contrib用户根据网络状态必须配置modelzoo_level.txt文件，且文件内容包含关键字段：GPUStatus(OK-GPU复现/NOK-GPU未复现)； NPUMigrationStatus(OK-自动迁移成功/POK-自动迁移失败, 手写规避成功/NOK-均失败)； FuncStatus(OK-基础功能打通/NOK-基础功能失败，不允许模型代码提交到master)； PrecisionStatus(OK-精度达标/POK-Loss拟合但精度未完全达标/NOK-精度不达标, 不允许模型代码提交到master)； AutoTune(OK-性能持平或高于GPU/POK-性能有提升但低于GPU/NOK-性能无提升或者功能失败)； PerfStatus(训练：PERFECT-性能1.2倍GPU/OK-性能持平GPU/POK-性能0.5倍GPU/NOK-性能小于0.5倍GPU；
 
 样例：modelzoo_level.txt文件 
 

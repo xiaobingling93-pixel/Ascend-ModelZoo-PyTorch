@@ -2081,10 +2081,10 @@ index baa8a05..9425fe9 100644
 +        shape_path = INFERENCE_SHAPE_PATH  # all_shape.txt的目录
 +        if fp is None or fp == 'None':
 +            bin_save_folder = INFERENCE_BIN_INPUT_FOLDER  # 存放子图bin的目录
-+            bin_real_folder = INFERENCE_BIN_OUTPUT_FOLDER  # 存放310推理后的全部结果的目录
++            bin_real_folder = INFERENCE_BIN_OUTPUT_FOLDER  
 +        else:
 +            bin_save_folder = fp  # 存放子图bin的目录
-+            bin_real_folder = fp  # 存放310推理后的全部结果的目录
++            bin_real_folder = fp  
 +        def save_as_shape(filename, shape, steps, folder=None):
 +            shape_txt = 'all_shape.txt'
 +            file = os.path.join(folder, shape_txt)

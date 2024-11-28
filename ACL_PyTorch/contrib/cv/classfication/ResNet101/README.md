@@ -147,7 +147,7 @@ python3.7 gen_dataset_info.py bin ./prep_dataset ./resnet101_prep_bin.info 224 2
 
 ### 5.1 benchmark工具概述
 
-benchmark工具为华为自研的模型推理工具，支持多种模型的离线推理，能够迅速统计出模型在Ascend310上的性能，支持真实数据和纯推理两种模式，配合后处理脚本，可以实现诸多模型的端到端过程，获取工具及使用方法可以参考[CANN V100R020C10 推理benchmark工具用户指南 01](https://support.huawei.com/enterprise/zh/doc/EDOC1100164874?idPath=23710424%7C251366513%7C22892968%7C251168373)
+benchmark工具为华为自研的模型推理工具，支持多种模型的离线推理，获取工具及使用方法可以参考[CANN V100R020C10 推理benchmark工具用户指南 01](https://support.huawei.com/enterprise/zh/doc/EDOC1100164874?idPath=23710424%7C251366513%7C22892968%7C251168373)
 ### 5.2 离线推理
 1.设置环境变量
 ```
@@ -191,60 +191,5 @@ ResNet-101    77.374    93.546
  **精度调试：**  
 >没有遇到精度不达标的问题，故不需要进行精度调试
 
-## 7 性能对比
 
--   **[npu性能数据](#71-npu性能数据)**  
-
-### 7.1 npu性能数据
-benchmark工具在整个数据集上推理时也会统计性能数据，但是推理整个数据集较慢，如果这么测性能那么整个推理期间需要确保独占device，使用npu-smi info可以查看device是否空闲。也可以使用benchmark纯推理功能测得性能数据，但是由于随机数不能模拟数据分布，纯推理功能测的有些模型性能数据可能不太准，benchmark纯推理功能测性能仅为快速获取大概的性能数据以便调试优化使用，可初步确认benchmark工具在整个数据集上推理时由于device也被其它推理任务使用了导致的性能不准的问题。模型的性能以使用benchmark工具在整个数据集上推理得到bs1与bs16的性能数据为准，对于使用benchmark工具测试的batch4，8，32的性能数据在README.md中如下作记录即可。  
-1.benchmark工具在整个数据集上推理获得性能数据  
-batch1的性能，benchmark工具在整个数据集上推理后生成result/perf_vision_batchsize_1_device_0.txt：  
-```
-[e2e] throughputRate: 170.628, latency: 293035
-[data read] throughputRate: 181.571, moduleLatency: 5.50749
-[preprocess] throughputRate: 180.466, moduleLatency: 5.5412
-[infer] throughputRate: 171.595, Interface throughputRate: 247.898, moduleLatency: 5.12562
-[post] throughputRate: 171.595, moduleLatency: 5.82768
-```
-Interface throughputRate: 247.898，247.898x4=991.592既是batch1 310单卡吞吐率  
-batch16的性能，benchmark工具在整个数据集上推理后生成result/perf_vision_batchsize_16_device_1.txt：  
-```
-[e2e] throughputRate: 185.903, latency: 268957
-[data read] throughputRate: 191.266, moduleLatency: 5.22833
-[preprocess] throughputRate: 190.761, moduleLatency: 5.24217
-[infer] throughputRate: 187.131, Interface throughputRate: 401.046, moduleLatency: 3.94051
-[post] throughputRate: 11.6954, moduleLatency: 85.5035
-```
-Interface throughputRate: 401.046，401.046x4=1604.184既是batch16 310单卡吞吐率  
-batch4的性能，benchmark工具在整个数据集上推理后生成result/perf_vision_batchsize_4_device_0.txt：  
-```
-[e2e] throughputRate: 184.444, latency: 271085
-[data read] throughputRate: 196.412, moduleLatency: 5.09134
-[preprocess] throughputRate: 195.837, moduleLatency: 5.1063
-[infer] throughputRate: 185.624, Interface throughputRate: 331.096, moduleLatency: 4.52436
-[post] throughputRate: 46.4056, moduleLatency: 21.5491
-```
-Interface throughputRate: 331.096，331.096x4=1324.384既是batch4 310单卡吞吐率 
-batch8的性能，benchmark工具在整个数据集上推理后生成result/perf_vision_batchsize_8_device_0.txt：  
-```
-[e2e] throughputRate: 196.051, latency: 255036
-[data read] throughputRate: 209.29, moduleLatency: 4.77806
-[preprocess] throughputRate: 207.914, moduleLatency: 4.80969
-[infer] throughputRate: 197.513, Interface throughputRate: 371.905, moduleLatency: 4.15513
-[post] throughputRate: 24.6888, moduleLatency: 40.5042
-```
-Interface throughputRate: 371.905，371.905x4=1487.62既是batch8 310单卡吞吐率 
-batch32的性能，benchmark工具在整个数据集上推理后生成result/perf_vision_batchsize_32_device_0.txt：  
-```
-[e2e] throughputRate: 176.215, latency: 283744
-[data read] throughputRate: 187.024, moduleLatency: 5.34691
-[preprocess] throughputRate: 186.183, moduleLatency: 5.37105
-[infer] throughputRate: 177.675, Interface throughputRate: 370.456, moduleLatency: 4.14361
-[post] throughputRate: 5.55402, moduleLatency: 180.05
-
-```
-Interface throughputRate: 370.456，370.456x4=1481.82既是batch32 310单卡吞吐率 
-
- **性能优化：**  
->没有遇到性能不达标的问题，故不需要进行性能优化
 

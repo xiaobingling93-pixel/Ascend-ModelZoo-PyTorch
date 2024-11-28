@@ -83,7 +83,6 @@ python3.7 -m onnxsim --input-shape="1,3,3,8,256,256" --dynamic-input-shape r2plu
         ![Image](https://gitee.com/ascend/ModelZoo-PyTorch/raw/master/ACL_PyTorch/images/310P3.png)
 
         ```
-        # Ascend310 or Ascend310P[1-4]
         atc --framework=5 --model=./r2plus1d_sim.onnx --output=r2plus1d_bs4 --input_format=NCHW --input_shape="0:4,3,3,8,256,256" --log=debug --soc_version=Ascend${chip_name}
         ```
 

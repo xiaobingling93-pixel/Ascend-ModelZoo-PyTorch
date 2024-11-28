@@ -266,11 +266,11 @@
 
 精度参考下列数据:
 
-| 模型           | pth精度   | 310离线推理精度 | 310P离线推理精度 | 基准性能    | 310性能    | 310P性能   |
-| :------:       | :------:  | :------:        | :------:         | :------:    | :------:   | :------:   |
-| AlphaPose bs1  | mAP:71.73 | mAP:71.50       | mAP:71.47        | 627.502fps  | 330.596fps | 864.15fps  |
-| AlphaPose bs16 | mAP:71.73 | mAP:71.50       | mAP:71.47        | 1238.543fps | 642.756fps | 1772.40fps |
-| AlphaPose bs4  |           |                 |                  | 1082.605fps |            | 1641.56fps |
-| AlphaPose bs8  |           |                 |                  | 1196.666fps |            | 1703.80fps |
-| AlphaPose bs32 |           |                 |                  | 1400.707fps |            | 1412.49fps |
-| AlphaPose bs64 |           |                 |                  | 1449.932fps |            | 1405.04fps |
+| 模型           | pth精度   | 300I PRO离线推理精度 | 基准性能    | 300I PRO性能   |
+| :------:       | :------:  | :------:         | :------:    | :------:   |
+| AlphaPose bs1  | mAP:71.73 | mAP:71.47        | 627.502fps  | 864.15fps  |
+| AlphaPose bs16 | mAP:71.73 | mAP:71.47        | 1238.543fps | 1772.40fps |
+| AlphaPose bs4  |           |                  | 1082.605fps | 1641.56fps |
+| AlphaPose bs8  |           |                  | 1196.666fps | 1703.80fps |
+| AlphaPose bs32 |           |                  | 1400.707fps | 1412.49fps |
+| AlphaPose bs64 |           |                  | 1449.932fps | 1405.04fps |

@@ -18,7 +18,7 @@ wget https://ascend-pytorch-model-file.obs.cn-north-4.myhuaweicloud.com/%E9%AA%8
 6.获取msame工具
 将msame放在当前目录
 
-7.310上执行，执行时确保device空闲
+7.执行时确保device空闲
 python3 inference.py
 
 8.在t4环境上获取模型代码

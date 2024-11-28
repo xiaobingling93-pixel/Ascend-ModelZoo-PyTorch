@@ -40,18 +40,12 @@ cd ../
 
 ## 2 离线推理 
 
-310上执行，执行时使npu-smi info查看设备状态，确保device空闲  
+执行时使npu-smi info查看设备状态，确保device空闲  
 ```
 bash test/pth2om.sh  
 bash test/eval_acc_perf.sh --datasets_path=./
 ```
-   
 
-**评测结果：**   
-
-|       模型        | 官网pth精度 | 310离线推理精度 | gpu性能 | 310性能  |
-| :---------------: | :---------: | :-------------: | :-----: | :------: |
-| Cascade_RCNN_R101 bs1 |  map:0.42  |    map:0.42    | 4.8task/s | 5.667fps |
 
 
 

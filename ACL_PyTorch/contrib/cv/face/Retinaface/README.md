@@ -266,9 +266,9 @@ Retinaface模型是2019年提出的人脸检测模型，使用deformable convolu
 
 | 芯片型号 | Batch Size   | 数据集 | 精度 | 性能 |
 | --------- | ---------------- | ---------- | ---------- | --------------- |
-|    310P   |    1     |   WiderFace     |  90.44%（Easy） 87.56%（Medium）  72.44%（Hard）   |       1078.13        |
-|    310P   |    4     |   WiderFace     |       |       1134.78        |
-|    310P   |    8     |   WiderFace     |       |       1025.77        |
-|    310P   |    16     |   WiderFace     |   90.44%（Easy） 87.56%（Medium）  72.44%（Hard）  |       1502.58        |
-|    310P   |    32     |   WiderFace     |      |       909.72        |
-|    310P   |    64     |   WiderFace     |       |       894.14        |
+|    300I PRO   |    1     |   WiderFace     |  90.44%（Easy） 87.56%（Medium）  72.44%（Hard）   |       1078.13        |
+|    300I PRO   |    4     |   WiderFace     |       |       1134.78        |
+|    300I PRO   |    8     |   WiderFace     |       |       1025.77        |
+|    300I PRO   |    16     |   WiderFace     |   90.44%（Easy） 87.56%（Medium）  72.44%（Hard）  |       1502.58        |
+|    300I PRO   |    32     |   WiderFace     |      |       909.72        |
+|    300I PRO   |    64     |   WiderFace     |       |       894.14        |

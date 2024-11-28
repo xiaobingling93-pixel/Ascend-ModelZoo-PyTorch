@@ -19,7 +19,7 @@ dropbox链接 https://www.dropbox.com/s/rxluu1y8ptjm4rn/srcnn_x2.pth?dl=0
 6.获取benchmark工具
 将benchmark放在当前目录
 
-7.310上执行，执行时确保device空闲
+7.执行时确保device空闲
 bash test/pth2om.sh
 bash test/eval_acc_perf.sh --datasets_path=/root/datasets
 

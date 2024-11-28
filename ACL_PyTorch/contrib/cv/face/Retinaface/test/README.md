@@ -28,7 +28,7 @@ cd ..
 pip install -r requirements.txt
 ```
 
-5.310P3上执行，执行时确保device空闲, 生成om文件
+5.执行时确保device空闲, 生成om文件
 ```
 bash test/pth2om.sh {soc_version}
 ```

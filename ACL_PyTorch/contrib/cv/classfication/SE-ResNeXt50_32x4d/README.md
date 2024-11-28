@@ -118,12 +118,12 @@ python3.7 vision_metric_ImageNet.py ${ais_output} ./val_label.txt ./ result.json
 ## 6. 结果
 ### 1. 精度
 
-|           |  310  | 300I Pro  |
-|:---------:|:-----:|:------|
-| bs1 Top1  | 79.05 | 79.06 |
-| 最优bs Top1 | 79.06 | 79.06 |
-| bs1 Top5  | 94.44 | 94.44 |
-| 最优bs Top5 | 94.44  | 94.44 |
+|           | 300I Pro  |
+|:---------:|:------|
+| bs1 Top1  | 79.06 |
+| 最优bs Top1 | 79.06 |
+| bs1 Top5  | 94.44 |
+| 最优bs Top5  | 94.44 |
 
 ### 2. 吞吐量
 |  bs  | 300I Pro      | T4        |

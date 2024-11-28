@@ -281,8 +281,8 @@ Dense Prediction Transformer (DPT) 是一种基于 transformer 以 encoder-decod
 
 | 芯片型号 | Batch Size   | 数据集 | 精度 | 性能 |
 | ---------- | --------- | ------ | ---------- | -------|
-| Ascend310P | 1         | ADE20K | mIoU=48.37 | 24.120 |
-| Ascend310P | 4         | ADE20K | mIoU=48.37 | 19.952 |
-| Ascend310P | 8         | ADE20K | mIoU=48.37 | 21.628 |
+| 300I PRO | 1         | ADE20K | mIoU=48.37 | 24.120 |
+| 300I PRO | 4         | ADE20K | mIoU=48.37 | 19.952 |
+| 300I PRO | 8         | ADE20K | mIoU=48.37 | 21.628 |
 
 注：由于内存限制，该模型支持的 batchsize 为 1, 4, 8 。性能最优 batchsize 为 1 。

@@ -40,7 +40,7 @@ python3 ../Waveglow_pth2onnx.py -i ./waveglow_256channels_universal_v5.pt -o ./
 
 使用atc工具将onnx模型转换为om模型文件，工具使用方法可以参考[CANN V100R020C10 开发辅助工具指南 (推理) 01](https://support.huawei.com/enterprise/zh/doc/EDOC1100164868?idPath=23710424%7C251366513%7C22892968%7C251168373)
 
-310P:
+300I PRO:
 ```
 atc --model=waveglow.onnx \
     --output=waveglow \

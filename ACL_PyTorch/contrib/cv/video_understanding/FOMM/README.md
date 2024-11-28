@@ -332,6 +332,6 @@ FOMM模型最早是Aliaksandr Siarohin等人在发表的《First Order Motion Mo
 
 | 芯片型号 | Batch Size   | 数据集 | 精度 | 性能 |
 | ------- | ------------ | ---------- | ---------- | --------------- |
-|  310P   | 1 | taichi | ADK：6.8；<br />MKR：0.036 | kp detector：957.81<br />generator：7.75 |
+|  300I PRO   | 1 | taichi | ADK：6.8；<br />MKR：0.036 | kp detector：957.81<br />generator：7.75 |
 
 该模型只支持batch size 1

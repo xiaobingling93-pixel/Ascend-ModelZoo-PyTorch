@@ -27,15 +27,10 @@ cd ..
 
 ## 2 离线推理 
 
-310上执行，执行时使npu-smi info查看设备状态，确保device空闲  
+执行时使npu-smi info查看设备状态，确保device空闲  
 
 ```
 bash test/pth2om.sh  
 bash test/eval_acc_perf.sh --datasets_path=/root/datasets  
 ```
- **评测结果：**   
-|     模型     |                         官网pth精度                          | 310离线推理精度 | 基准性能 | 310性能 |
-| :----------: | :----------------------------------------------------------: | :-------------: | :------: | :-----: |
-| TextCNN bs1  | [91.22%](https://gitee.com/huangyd8/Chinese-Text-Classification-Pytorch) |     90.47%      | 5045fps  | 5568fps |
-| TextCNN bs16 | [91.22%](https://gitee.com/huangyd8/Chinese-Text-Classification-Pytorch) |     90.47%      | 34271fps | 16456fps |
 

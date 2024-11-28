@@ -327,7 +327,7 @@ SFA3D（Super Fast and Accurate 3D Object Detection based on 3D LiDAR Point Clou
 
 调用ACL接口推理计算，性能参考下列数据。
 
-| bs     | 310P   | T4     | 310P/T4 |
+| bs     | 300I PRO   | T4     | 300I PRO/T4 |
 | ------ | ------ | ------ | ------- |
 | 1      | 423.97 | 221.78 | 1.91    |
 | 4      | 426.74 | 260.80 | 1.64    |

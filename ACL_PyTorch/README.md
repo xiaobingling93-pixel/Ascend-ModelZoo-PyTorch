@@ -601,7 +601,6 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     </tr>
     <tr>   
         <td>300I Pro</td>
-        <td>310</td>
     </tr>
     <tr>
         <td> 100059
@@ -1030,7 +1029,6 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <td>Top5Acc</td>
         <td>mAP</td>
         <td>300I Pro</td>
-        <td>310</td>
     </tr>
     <tr>
         <td> 100082
@@ -1077,7 +1075,6 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <td>Top5Acc</td>
         <td>mAP</td>
         <td>300I Pro</td>
-        <td>310</td>
     </tr>
     <tr>
         <td> 100098
@@ -2202,7 +2199,6 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td>ODS</td>
         <td>loss</td>
         <td>300I Pro</td>
-        <td>310</td>
     </tr>
     <tr>
         <td> 100176
@@ -3091,7 +3087,6 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td>maxF</td>
         <td>MAE</td>
         <td>300I Pro</td>
-        <td>310</td>
     </tr>
     <tr>
         <td> 100226
@@ -4358,7 +4353,6 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td>EPE</td>
         <td>MAPE</td>
         <td>300I Pro</td>
-        <td>310</td>
     </tr>
     <tr>
         <td> 100302
@@ -4560,7 +4554,6 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td>ROC_AUC</td>
         <td>mel_loss</td>
         <td>300I Pro</td>
-        <td>310</td>
     </tr>
     <tr>
         <td> 100313

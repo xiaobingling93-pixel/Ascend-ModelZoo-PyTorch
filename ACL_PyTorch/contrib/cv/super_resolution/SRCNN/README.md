@@ -198,7 +198,7 @@ SRCNN是一种一种用于单一图像超级分辨率的深度学习方法，该
    
    1. benchmark工具概述。
 
-      benchmark工具为华为自研的模型推理工具，支持多种模型的离线推理，能够迅速统计出模型在Ascend310上的性能，支持真实数据和纯推理两种模式，配合后处理脚本，可以实现诸多模型的端到端过程，获取工具及使用方法可以参考[CANN 5.0.1 推理benchmark工具用户指南 01](https://support.huawei.com/enterprise/zh/doc/EDOC1100191895)。
+      benchmark工具为华为自研的模型推理工具，支持多种模型的离线推理，获取工具及使用方法可以参考[CANN 5.0.1 推理benchmark工具用户指南 01](https://support.huawei.com/enterprise/zh/doc/EDOC1100191895)。
 
    2.  执行推理。
 
@@ -306,7 +306,7 @@ benchmark工具在整个数据集上的运行结果如下：
     [infer] throughputRate: 285.682, Interface throughputRate: 348.038, moduleLatency: 3.4136
     [post] throughputRate: 50.2841, moduleLatency: 19.887
    ```
-Interface throughputRate: 348.038 * 4 = 1392.152 即是batch1 310单卡吞吐率
+Interface throughputRate: 348.038 * 4 = 1392.152
 
 
 trtexec工具在整个数据集上的运行结果如下：

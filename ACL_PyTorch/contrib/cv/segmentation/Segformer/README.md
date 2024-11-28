@@ -301,7 +301,7 @@ Segformer是一个简单、高效但功能强大的语义分割框架，它将 T
 
 | 芯片型号 | Batch Size |   数据集   |      精度      |    性能    |  基准性能  |
 | :-----: | :--------: | :--------: | :------------: | :-------: | :-------: |
-|   310P  |      1     | cityscapes |  mIoU = 75.94  |  6.01 fps | 10.61 fps |
-|   310P  |      4     | cityscapes |  mIoU = 75.94  |  5.94 fps | 10.65 fps |
+|   300I PRO  |      1     | cityscapes |  mIoU = 75.94  |  6.01 fps | 10.61 fps |
+|   300I PRO  |      4     | cityscapes |  mIoU = 75.94  |  5.94 fps | 10.65 fps |
 
 注：该模型支持的batchsize为1，4。

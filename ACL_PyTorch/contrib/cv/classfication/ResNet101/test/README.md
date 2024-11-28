@@ -24,6 +24,6 @@ wget https://download.pytorch.org/models/resnet101-63fe2227.pth
 7.获取benchmark工具  
 将benchmark.x86_64放在当前目录  
 
-8.310上执行，执行时确保device空闲  
+8.执行时确保device空闲  
 bash test/pth2om.sh  
 bash test/eval_acc_perf.sh --datasets_path=/root/datasets  

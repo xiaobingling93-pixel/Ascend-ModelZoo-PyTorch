@@ -98,7 +98,7 @@ python generate_labels.py
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
 ```
 
-本节采用的模型输入为:1x10x3x32x256x256.（`$batch $clip $channel $time $height $width` ）。实验证明，若想提高模型精度，可增加`$clip`的值，但性能会相应降低。若想使用其他维度大小的输入，请修改i3d_pth2onnx.sh和i3d_onnx2om.sh文件。由于本模型较大，选择Ascend310的话batch_size只能设置为1，若大于1则会因为 Ascend310 内存不足而报错;选择Ascend310P3的话batch_size可以设置为1，4，8。
+本节采用的模型输入为:1x10x3x32x256x256.（`$batch $clip $channel $time $height $width` ）。选择300I PRO的话batch_size可以设置为1，4，8。
 
 首先在mmaction2目录下创建新目录checkpoints
 
@@ -132,12 +132,9 @@ bash i3d_infer.sh
 ## 7、精度统计
 |        | TOP1 | TOP5 | 
 | :----: | :---: | :----:|
-| 310精度  | 71.18% |   90.21%   |
-| 310P精度 |71.19% |   90.21%   |
+| 300I PRO精度 |71.19% |   90.21%   |
 
 ## 8、性能对比
-
-Ascend 310：需要om文件。执行命令
 
 ```shell
 ./benchmark.x86_64 -device_id=0 -om_path=./i3d_bs1.om -round=30 -batch_size=1
@@ -146,7 +143,6 @@ Ascend 310：需要om文件。执行命令
 
 
 
-Ascend 310P: 需要om文件。执行命令
 
 ```shell
 ./benchmark.x86_64 -device_id=0 -om_path=./i3d_bs1.om -round=30 -batch_size=1
@@ -158,11 +154,10 @@ GPU：只需要onnx文件。执行脚本。
 trtexec --onnx=i3d_nl_dot.onnx --fp16 --shapes=0:1x30x3x32x256x256 --threads
 ```
 
-|          |  310   | 310P      | 310P_aoe        | t4         |310P_aoe/310|310P_aoe/t4|
-| :------: | :---:  | :----:    | :------:        | :----:     |:----:      |:----:     |
-|    bs1   | 3.03   |   4.45    |    6.15         | 3.38       |2.03        |1.82       |
-|    top1  | 0.7118 |           |    0.7119       |            |            |           |
-|    top5  | 0.9021 |           |    0.9021       |            |            |           |
+|          | 300I PRO      | 300I PRO_aoe        | t4         |300I PRO_aoe/t4|
+| :------: | :----:    | :------:        | :----:     |:----:     |
+|    bs1   |   4.45    |    6.15         | 3.38       |1.82       |
+|    top1  |           |    0.7119       |            |           |
+|    top5  |           |    0.9021       |            |           |
 
 
-最优batch：310P大于310的1.2；310P大于t4的1.6倍，性能达标。

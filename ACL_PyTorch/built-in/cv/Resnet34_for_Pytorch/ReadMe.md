@@ -39,7 +39,7 @@
    
     ![Image](https://gitee.com/ascend/ModelZoo-PyTorch/raw/master/ACL_PyTorch/images/310P3.png)
    ```shell
-   bash resnet34_atc.sh Ascend${chip_name} # Ascend310P3
+   bash resnet34_atc.sh Ascend${chip_name}
    ```
 
 5. 使用Benchmark工具进行推理

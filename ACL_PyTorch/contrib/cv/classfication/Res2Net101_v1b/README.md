@@ -144,7 +144,7 @@ python3.7 gen_dataset_info.py bin ./prep_dataset ./res2net101_v1b_prep_bin.info 
 
 ### 5.1 benchmark工具概述
 
-benchmark工具为华为自研的模型推理工具，支持多种模型的离线推理，能够迅速统计出模型在Ascend310上的性能，支持真实数据和纯推理两种模式，配合后处理脚本，可以实现诸多模型的端到端过程，获取工具及使用方法可以参考[CANN V100R020C10 推理benchmark工具用户指南 01](https://support.huawei.com/enterprise/zh/doc/EDOC1100164874?idPath=23710424%7C251366513%7C22892968%7C251168373)
+benchmark工具为华为自研的模型推理工具，支持多种模型的离线推理，获取工具及使用方法可以参考[CANN V100R020C10 推理benchmark工具用户指南 01](https://support.huawei.com/enterprise/zh/doc/EDOC1100164874?idPath=23710424%7C251366513%7C22892968%7C251168373)
 ### 5.2 离线推理
 1.设置环境变量
 ```
@@ -187,60 +187,3 @@ Res2Net101_v1b    81.23     95.36
 将得到的om离线模型推理TopN精度与该模型github代码仓上公布的精度对比，精度下降在1%范围之内，故精度达标。  
  **精度调试：**  
 >没有遇到精度不达标的问题，故不需要进行精度调试
-
-## 7 性能对比
-
--   **[npu性能数据](#71-npu性能数据)**  
-
-### 7.1 npu性能数据
-1.benchmark工具在整个数据集上推理获得性能数据  
-batch1的性能，benchmark工具在整个数据集上推理后生成result/perf_vision_batchsize_1_device_0.txt：  
-```
-[e2e] throughputRate: 55.9084, latency: 894320
-[data read] throughputRate: 59.1894, moduleLatency: 16.8949
-[preprocess] throughputRate: 59.0597, moduleLatency: 16.932
-[infer] throughputRate: 56.0004, Interface throughputRate: 62.9455, moduleLatency: 17.2581
-[post] throughputRate: 56.0004, moduleLatency: 17.857
-```
-Interface throughputRate: 62.9455，62.9455x4=251.782既是batch1 310单卡吞吐率  
-batch16的性能，benchmark工具在整个数据集上推理后生成result/perf_vision_batchsize_16_device_1.txt：  
-```
-[e2e] throughputRate: 71.4937, latency: 699363
-[data read] throughputRate: 75.8049, moduleLatency: 13.1918
-[preprocess] throughputRate: 75.5936, moduleLatency: 13.2286
-[infer] throughputRate: 71.6788, Interface throughputRate: 86.1957, moduleLatency: 13.0185
-[post] throughputRate: 4.47989, moduleLatency: 223.22
-```
-Interface throughputRate: 86.1957，86.1957x4=344.7828既是batch16 310单卡吞吐率  
-batch4性能：
-```
-[e2e] throughputRate: 64.92, latency: 770179
-[data read] throughputRate: 68.6591, moduleLatency: 14.5647
-[preprocess] throughputRate: 68.5431, moduleLatency: 14.5894
-[infer] throughputRate: 65.0303, Interface throughputRate: 78.2596, moduleLatency: 14.2895
-[post] throughputRate: 16.2575, moduleLatency: 61.51
-```
-batch4 310单卡吞吐率：78.2596x4=313.0384fps  
-batch8性能：
-```
-[e2e] throughputRate: 69.3296, latency: 721193
-[data read] throughputRate: 73.486, moduleLatency: 13.608
-[preprocess] throughputRate: 73.2601, moduleLatency: 13.65
-[infer] throughputRate: 69.5028, Interface throughputRate: 82.7469, moduleLatency: 13.5299
-[post] throughputRate: 8.68781, moduleLatency: 115.104
-```
-batch8 310单卡吞吐率：82.7469x4=330.9876fps  
-batch32性能：
-```
-[e2e] throughputRate: 70.3878, latency: 710350
-[data read] throughputRate: 74.4979, moduleLatency: 13.4232
-[preprocess] throughputRate: 74.3318, moduleLatency: 13.4532
-[infer] throughputRate: 70.5551, Interface throughputRate: 86.8456, moduleLatency: 12.9157
-[post] throughputRate: 2.20553, moduleLatency: 453.405
-```
-batch32 310单卡吞吐率：86.8456x4=347.3824fps  
-
- **性能优化：**  
-从profiling性能数据op_statistic_0_1.csv看出，耗时最多的算子主要是TransData,Conv2D与ConcatD，而Conv2D算子不存在性能问题。
-由于格式转换om模型Conv2D前后需要有TransData算子，从op_summary_0_1.csv看出，单个TransData算子aicore耗时不大。
-如果优化就需要优化掉过多的TransData算子。

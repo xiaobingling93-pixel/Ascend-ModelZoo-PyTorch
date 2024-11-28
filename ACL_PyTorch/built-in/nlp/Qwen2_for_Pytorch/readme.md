@@ -1,6 +1,6 @@
 # README
 
--此README对qwen2-7b 在310b环境离线模型导出与推理脚本及其使用方式进行介绍
+-此README对qwen2-7b 在环境离线模型导出与推理脚本及其使用方式进行介绍
 
 - [概述](#ZH-CN_TOPIC_0000001172161501)
 
@@ -46,7 +46,7 @@
   | CANN                                                 | CANN 8.0.RC3        | https://cmc-szv.clouddragon.huawei.com/cmcversion/index/releaseView?deltaId=10860207193326848&isSelect=Software |
   | Python                                               | 3.9.19              | -                                                                                                               |
   | PyTorch                                              | 2.1.0               | -                                                                                                               |
-  | 说明：310B推理卡请以CANN版本选择实际固件与驱动版本。 | \                   |
+  | 说明：推理卡请以CANN版本选择实际固件与驱动版本。 | \                   |
 
 # 快速上手<a name="ZH-CN_TOPIC_0000001126281700"></a>
 
@@ -180,7 +180,7 @@
 
 3. 开始推理验证。  
    1). 执行推理前准备工作:  
-        A）在端侧设备上如310B1 上安装对应cann，驱动等  
+        A）在端侧设备上安装对应cann，驱动等  
         B）进入inference, 安装相关依赖 pip install -r requirements.txt  
 
    2). 执行推理:
@@ -190,7 +190,6 @@
 - 参数说明：               
              -   model：om模型路径  
              -   hf-dir：需要tokenizer和模型配置文件，权重不需要   
-             -   engine：310B上只能acl  
              -   sampling：greedy/top_p/top_k  
              -   cli：表示在终端运行  
              说明: 上面参数根据实际情况修改

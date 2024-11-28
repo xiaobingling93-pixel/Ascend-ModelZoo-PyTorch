@@ -242,9 +242,9 @@ TDNN是一种经典的语音识别网络结构，主要由Conv1D+Relu+BN组成�
 
 | 芯片型号 | Batch Size   | length | 数据集 | 精度 | 性能 |
 | --------- | -------- | ---------- | ---------- | ---------- | --------------- |
-|    Ascend310P       |    1   |   1800    |   Mini Librispeech         |     99.93%       |      644 fps           |
-|    Ascend310P       |    4   |   1800    |   Mini Librispeech         |     99.93%       |      1358 fps           |
-|    Ascend310P       |    8   |   1800    |   Mini Librispeech         |     99.93%       |      1007 fps           |
-|    Ascend310P       |    16   |   1800    |   Mini Librispeech         |     99.93%       |      990 fps           |
-|    Ascend310P       |    32   |   1800    |   Mini Librispeech         |     99.93%       |      1000 fps           |
-|    Ascend310P       |    64   |   1800    |   Mini Librispeech         |     99.93%       |      1009 fps           |
+|    300I PRO       |    1   |   1800    |   Mini Librispeech         |     99.93%       |      644 fps           |
+|    300I PRO       |    4   |   1800    |   Mini Librispeech         |     99.93%       |      1358 fps           |
+|    300I PRO       |    8   |   1800    |   Mini Librispeech         |     99.93%       |      1007 fps           |
+|    300I PRO       |    16   |   1800    |   Mini Librispeech         |     99.93%       |      990 fps           |
+|    300I PRO       |    32   |   1800    |   Mini Librispeech         |     99.93%       |      1000 fps           |
+|    300I PRO       |    64   |   1800    |   Mini Librispeech         |     99.93%       |      1009 fps           |

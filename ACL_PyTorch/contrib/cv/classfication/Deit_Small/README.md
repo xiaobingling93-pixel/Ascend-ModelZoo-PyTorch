@@ -243,7 +243,7 @@ python3.7 imagenet_acc_eval.py result/dumpOutput_device0/ /opt/npu/val_label.txt
 
 第一个为benchmark输出目录，第二个为数据集配套标签，第三个是生成文件的保存目录，第四个是生成的文件名。  
 
-输出结果(310p)：
+输出结果(300I PRO)：
 
 | Om Model | Acc@1 | Acc@5 |
 | -------- | ----- | ----- |
@@ -297,7 +297,7 @@ batch1的性能，benchmark工具在整个数据集上推理后生成result/perf
 [postprocess] throughputRate: 88.0046, moduleLatency: 11.363
 ```
 
-Interface throughputRate: 103.795，103.795x4=415.18既是batch1 310单卡吞吐率  
+Interface throughputRate: 103.795，103.795x4=415.18
 
 
 

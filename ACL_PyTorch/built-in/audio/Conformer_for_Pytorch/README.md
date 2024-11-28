@@ -197,7 +197,7 @@ Conformer是将CNN用于增强Transformer来做ASR的结构
    调用ACL接口推理计算，性能&精度参考下列数据:
    备注说明：
 
-   1. NPU推理采用多进程推理方案，依赖CPU性能，参考机器：96核CPU(aarch64)/CPU max MHZ: 2600/251G内存/NPU310P3
+   1. NPU推理采用多进程推理方案，依赖CPU性能，参考机器：96核CPU(aarch64)/CPU max MHZ: 2600/251G内存/NPU300I PRO
    
    2. 性能以最终total的端到端性能为准
 

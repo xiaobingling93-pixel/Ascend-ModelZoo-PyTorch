@@ -206,7 +206,7 @@ python3 deepspeech_postprocess.py --out_path ./deepspeech.pytorch/result --info_
 
 ### 3.2 精度对比
 
-| 模型      | 官网ckpt精度  | 310离线推理精度  |
+| 模型      | 官网ckpt精度  | 离线推理精度  |
 | :------: | :------: | :------: |
 | Deepspeech bs1  | [Average WER 9.573 Average CER 5.515](https://github.com/SeanNaren/deepspeech.pytorch/releases) | Average WER 9.573 Average CER 5.515 |
 

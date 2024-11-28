@@ -282,6 +282,6 @@ UniFormer（Unified transFormer）在arxiv中引入（更多细节可以在arxiv
 
 2. 性能对比
 
-    | batchsize | 310 性能 | 310P 性能 | 
-    | ---- | ---- | ---- |
-    | 1 | 1.92  |3.01  |
+    | batchsize | 300I PRO 性能 | 
+    | ---- | ---- |
+    | 1 |3.01  |

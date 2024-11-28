@@ -29,4 +29,4 @@ if __name__ == '__main__':
             content = f.read()
         txt_data_list = [i.strip() for i in re.findall(r':(.*?),', content.replace('\n', ',') + ',')]
         fps = float(txt_data_list[7].replace('samples/s', ''))
-        print('310P bs{} fps:{}'.format(result_txt.split('_')[3], fps))
+        print('300I PRO bs{} fps:{}'.format(result_txt.split('_')[3], fps))

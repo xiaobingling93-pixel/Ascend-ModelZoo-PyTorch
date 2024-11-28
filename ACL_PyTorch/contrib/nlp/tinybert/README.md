@@ -158,15 +158,15 @@ TinyBERT是一种新型的Transformer蒸馏方法，该方法能将大型教师B
 
 以下给出以ais_bench作为推理工具的精度及性能数据：
 
-|<center>模型|<center>官网pth精度|<center>310推理精度|<center>310P推理精度|<center>310性能|<center>310P性能|<center>T4性能|<center>310P/310|<center>310P/T4
+|<center>模型|<center>官网pth精度|<center>300I PRO推理精度|<center>300I PRO性能|<center>T4性能|<center>300I PRO/T4
 |  ----  | ----  | ----|---- |---- | ---- | ---- | ---- | ---- | 
-|<center>TinyBERT(bs1)|<center>无|<center>92.66|<center>92.32|<center>707.89|<center>1324.52|<center>972.16|<center>1.87|<center>1.36
-|<center>TinyBERT(bs4)|<center>无|<center>92.66|<center>92.32|<center>2047.71|<center>3521.31|<center>2850.36|<center>1.72|<center>1.24
-|<center>TinyBERT(bs8)|<center>无|<center>92.66|<center>92.32|<center>2883.62|<center>5871.86|<center>3325.62|<center>2.04|<center>1.77
-|<center>TinyBERT(bs16)|<center>无|<center>92.66|<center>92.32|<center>3775.02|<center>8659.63|<center>3415.3590|<center>2.29|<center>2.54
-|<center>TinyBERT(bs32)|<center>92.6|<center>92.66|<center>92.32|<center>4301.24|<center>10523.35|<center>3746.7130|<center>2.45|<center>2.81
-|<center>TinyBERT(bs64)|<center>无|<center>92.66|<center>92.32|<center>4018.88|<center>11160.38|<center>4425.89|<center>2.78|<center>2.52
-|<center>最优bs|<center>92.6|<center>92.66|<center>92.32|<center>4301.24|<center>11160.38|<center>4425.89|<center>2.59|<center>2.52
+|<center>TinyBERT(bs1)|<center>无|<center>92.32|<center>1324.52|<center>972.16|<center>1.36
+|<center>TinyBERT(bs4)|<center>无|<center>92.32|<center>3521.31|<center>2850.36|<center>1.24
+|<center>TinyBERT(bs8)|<center>无|<center>92.32|<center>5871.86|<center>3325.62|<center>1.77
+|<center>TinyBERT(bs16)|<center>无|<center>92.32|<center>8659.63|<center>3415.3590|<center>2.54
+|<center>TinyBERT(bs32)|<center>92.6|<center>92.32|<center>10523.35|<center>3746.7130|<center>2.81
+|<center>TinyBERT(bs64)|<center>无|<center>92.32|<center>11160.38|<center>4425.89|<center>2.52
+|<center>最优bs|<center>92.6|<center>92.32|<center>11160.38|<center>4425.89|<center>2.52
 
 备注：
 

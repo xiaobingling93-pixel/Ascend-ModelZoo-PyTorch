@@ -27,7 +27,7 @@ cd ..
 
 ### 2.离线推理
 
-310上执行，执行时使npu-smi info查看设备状态，确保device空闲
+执行时使npu-smi info查看设备状态，确保device空闲
 
 备注：
 
@@ -44,11 +44,4 @@ bash test/pth2om.sh
 
 bash test/eval_acc_perf.sh --datasets_path=/root/datasets/VoxCeleb1/
 ```
-
-评测结果：
-
-| 模型                  | 官网pth精度                                     | 310精度   | 基准性能 | 310性能 |
-| --------------------- | ----------------------------------------------- | --------- | -------- | ------- |
-| Baseline-RawNet2 bs1  | [EER 2.49%](https://github.com/Jungjee/RawNet/) | EER 2.50% | 285.7fps | 72.8fps |
-| Baseline-RawNet2 bs16 | [EER 2.49%](https://github.com/Jungjee/RawNet/) | EER 2.50% | 489.3fps | 77.6fps |
 

@@ -36,7 +36,7 @@ mv EN-B5_dds_8gpu.pyth efficientnetb5.pyth
 ##6.获取benchmark工具，将benchmark.x86_64放在当前目录
 
 
-##7.310上执行，执行时确保device空闲
+##7.执行时确保device空闲
 ```
 bash test/pth2om.sh
 bash test/eval_acc_perf.sh --datasets_path=/opt/npu/

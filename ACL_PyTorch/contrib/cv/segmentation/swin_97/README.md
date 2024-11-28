@@ -292,8 +292,8 @@ Transformer 在 NLP 领域表现优异，如何将 Transformer 从 NLP 领域应
 
 1. 性能对比
   
-    在 310P 设备上，当 batchsize 为 1 时模型性能最优，达 21.11 fps.
-    | batchsize | T4性能 | 310P性能 | 310P/T4 |
+    在 300I PRO 设备上，当 batchsize 为 1 时模型性能最优，达 21.11 fps.
+    | batchsize | T4性能 | 300I PRO性能 | 300I PRO/T4 |
     | ---- | ---- | ---- | ---- |
     | 1 | 5.71 fps | 21.11 fps | 3.70倍 |
     | 4 | 5.13 fps | 20.21 fps | 3.94倍 |

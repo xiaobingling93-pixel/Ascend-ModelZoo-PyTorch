@@ -104,7 +104,7 @@ python3.7 ./pth2onnx.py ./model/model.pt ./model/model_mkt1501_bs1.onnx 1
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
 ```
 2.使用atc将onnx模型转换为om模型文件，工具使用方法可以参考CANN 5.1.RC1 开发辅助工具指南 (推理) 01
-${chip_name}可使用 npu-smi info 查看(对应name属性)，例：310p3
+${chip_name}可使用 npu-smi info 查看(对应name属性)
 
 ![Image](https://gitee.com/ascend/ModelZoo-PyTorch/raw/master/ACL_PyTorch/images/310P3.png)
 
@@ -151,7 +151,7 @@ python ./preprocess_MGN.py bin ./data/market1501/bin_data_flip/g/ ./g_bin_flip.i
 
 ### 5.1 benchmark工具概述
 
-benchmark工具为华为自研的模型推理工具，支持多种模型的离线推理，能够迅速统计出模型在Ascend310上的性能，支持真实数据和纯推理两种模式，配合后处理脚本，可以实现诸多模型的端到端过程，获取工具及使用方法可以参考CANN 5.0.1 推理benchmark工具用户指南 01
+benchmark工具为华为自研的模型推理工具，支持多种模型的离线推理，获取工具及使用方法可以参考CANN 5.0.1 推理benchmark工具用户指南 01
 ### 5.2 离线推理
 1.设置环境变量
 ```
@@ -206,10 +206,10 @@ MGN         0.9433
 -   **[npu性能数据](#71-npu性能数据)**  
 
 ### 7.1 npu性能数据
-1.benchmark工具在整个数据集上推理获得性能数据(优化在310p上产生，故对比数据采用310p的初始数据 )  
+1.benchmark工具在整个数据集上推理获得性能数据(优化在300I PRO上产生，故对比数据采用300I PRO的初始数据 )  
 
  ``` 
-MGN模型	未任何优化前310p（单卡吞吐率）	优化后310p（单卡吞吐率）
+MGN模型	未任何优化前300I PRO（单卡吞吐率）	优化后300I PRO（单卡吞吐率）
 bs1	      362.752 fps	                640.829 fps
 bs4	      2156.73 fps	                1453.49 fps
 bs8	      1281.93 fps	                1519.17 fps

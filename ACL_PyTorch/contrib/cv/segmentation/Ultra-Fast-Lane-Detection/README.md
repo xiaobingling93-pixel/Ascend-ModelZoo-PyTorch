@@ -284,7 +284,7 @@
 
 2. 性能对比
   
-    | batchsize | 数据集 | 310P性能（FPS） |
+    | batchsize | 数据集 | 300I PRO性能（FPS） |
     | ---- | ---- | ---- |
     | 1 | Tusimple | 840.35 |
     | 4 | Tusimple | 1627.39 |

@@ -167,7 +167,7 @@ commit_id=d69403d4b5fb3043c7c0da3c2a15df8c5e520d89
         - --input_format：输入数据的格式。
         - --input_shape：输入数据的shape。
         - --log：日志级别。
-        - --soc_version：处理器型号，支持Ascend310系列。
+        - --soc_version：处理器型号。
         - --enable_small_channel：是否使能small channel的优化，使能后在channel<=4的卷积层会有性能收益。
         - --insert_op_conf=aipp.config: AIPP插入节点，通过config文件配置算子信息，功能包括图片色域转换、裁剪、归一化，主要用于处理原图输入数据，常与DVPP配合使用，详见下文数据预处理。
 

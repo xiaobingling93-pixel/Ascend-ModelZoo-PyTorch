@@ -145,7 +145,7 @@ python3.7 preprocess.py --pretrained ./UNET3D.pth --output_bin ./syf_outBin1 --o
 
 ### 5.1 msame工具概述
 因为benchmark工具不支持3D的输入，所以采用msame的方式进行离线推理。
-msame工具为华为自研的模型推理工具，支持多种模型的离线推理，能够迅速统计出模型在Ascend310上的性能，支持真实数据和纯推理两种模式，配合后处理脚本，可以实现诸多模型的端到端过程，获取工具及使用方法可以参考(https://gitee.com/ascend/tools/tree/master/msame)
+msame工具为华为自研的模型推理工具，支持多种模型的离线推理，获取工具及使用方法可以参考(https://gitee.com/ascend/tools/tree/master/msame)
 ### 5.2 离线推理
 
 2.执行离线推理
@@ -213,7 +213,7 @@ Inference average time without first time: 92.92 ms
 
 
 ```
-fps = 1 / 0.09293 = 10.75615790039798既是batch 1 310单卡的性能数据
+fps = 1 / 0.09293 = 10.75615790039798
 
 
 
@@ -230,7 +230,7 @@ Inference average time without first time: 93.12 ms
 [INFO] end to finalize acl
 
 ```
-fps = 1 / 0.09314 = 10.73652566029633既是batch 16 310单卡的性能数据
+fps = 1 / 0.09314 = 10.73652566029633
 
 
 
@@ -250,7 +250,7 @@ Inference average time without first time: 252.53 ms
 
 
 ```
-fps = 1 / 0.25254 = 3.959768749505029既是batch 4 310单卡的性能数据
+fps = 1 / 0.25254 = 3.959768749505029
 
 
 
@@ -268,7 +268,7 @@ Inference average time without first time: 468.56 ms
 [INFO] end to finalize acl
 
 ```
-fps = 1 / 0.46858 = 2.134107302915191既是batch 8 310单卡的性能数据
+fps = 1 / 0.46858 = 2.134107302915191
 
 
 
@@ -285,7 +285,7 @@ Inference average time without first time: 1836.05 ms
 [INFO] end to finalize acl
 
 ```
-fps = 1 / 1.83580 = 0.5447216472382612既是batch 32 310单卡的性能数据
+fps = 1 / 1.83580 = 0.5447216472382612
 
 ### 7.2 T4性能数据
 
@@ -302,13 +302,3 @@ fps 19.96940531764717
 
 ```
 
-
-
-
-### 7.3 性能对比
-batch4：3.959768749505029  <  19.96940531764717
-
-310性能低于T4性能，性能不达标。  
-该模型放在Official/cv目录下。  
- **性能优化：**  
->待优化

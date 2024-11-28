@@ -266,7 +266,7 @@ DETR是将目标检测视为一个集合预测问题（集合其实和anchors的
 
 ###性能
 
-|   Model   |   Batch Size    |  310P (FPS/Card) |
+|   Model   |   Batch Size    |  300I PRO (FPS/Card) |
 | --------- | --------------- |  --------------  |
 |   Detr    |        1        |     63.7531      |
 |   Detr    |        4        |     60.3396      |

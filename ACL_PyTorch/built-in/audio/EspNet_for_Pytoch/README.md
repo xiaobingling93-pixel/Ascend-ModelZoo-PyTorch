@@ -255,7 +255,7 @@ EspNet安装比较复杂，请参考https://espnet.github.io/espnet/installation
 
 调用aclruntime推理计算，性能精度参考下列数据。
 
-| 模型              | 310P性能   | T4性能     | 310P/T4 | 官网pth精度(Err)| 310P精度(Err) |
+| 模型              | 300I PRO性能   | T4性能     | 300I PRO/T4 | 官网pth精度(Err)| 300I PRO精度(Err) |
 |-----------------|----------|----------|---------|---------|---------|
 | Espnet_conformer | 分档：430fps；动态：25fps | 261fps | 1.647 | 5.1% | 5.4%|
 

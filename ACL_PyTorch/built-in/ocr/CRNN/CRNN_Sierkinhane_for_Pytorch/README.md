@@ -134,7 +134,7 @@ commit_id=a565687c4076b729d4059593b7570dd388055af4
        --soc_version=Ascend${chip_name}
    ```
 
-   备注：${chip_name} 请根据实际芯片名称填写。比如，芯片名称为 310P3，则传入参数 --soc_version=Ascend310P3。
+   备注：${chip_name} 请根据实际芯片名称填写。传入参数 --soc_version=Ascend310P3。
 
    参数说明：
 

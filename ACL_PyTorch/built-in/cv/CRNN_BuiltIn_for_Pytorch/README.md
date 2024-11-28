@@ -146,7 +146,6 @@
       ```shell
       npu-smi info
       ```
-      该设备芯片名为Ascend310P3 （请根据实际芯片填入）
       会显如下：
 
       ![Image](https://gitee.com/ascend/ModelZoo-PyTorch/raw/master/ACL_PyTorch/images/310P3.png)

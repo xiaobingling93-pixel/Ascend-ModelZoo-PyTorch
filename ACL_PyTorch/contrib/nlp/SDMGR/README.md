@@ -255,7 +255,7 @@ SDMGR是一种多模态端到端的文档关键信息抽取模型，它同时使
 ----
 # 性能&精度
 
-在310P设备上，OM模型的精度与目标精度[ Macro_F1 = 0.871 ](https://github.com/open-mmlab/mmocr/tree/main/configs/kie/sdmgr#wildreceipt)的相对误差低于 1%，性能达82.063fps。
+在300I PRO设备上，OM模型的精度与目标精度[ Macro_F1 = 0.871 ](https://github.com/open-mmlab/mmocr/tree/main/configs/kie/sdmgr#wildreceipt)的相对误差低于 1%，性能达82.063fps。
 
 | 芯片型号   | 数据集      | 精度            | 性能       |
 | --------- | ----------- | --------------- | --------- |
