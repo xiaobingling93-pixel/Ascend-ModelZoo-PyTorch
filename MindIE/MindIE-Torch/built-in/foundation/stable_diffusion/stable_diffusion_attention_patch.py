@@ -20,7 +20,7 @@ def main():
     diffusers_path = diffusers.__path__
     diffusers_version = diffusers.__version__
 
-    assert diffusers_version is not '0.26.3', "expectation diffusers==0.26.3"
+    assert diffusers_version == '0.26.3', f"Expected diffusers version 0.26.3,  but got {diffusers_version}"
     os.system(f'patch -p0 {diffusers_path[0]}/models/attention_processor.py attention_processor.patch')
 
 
