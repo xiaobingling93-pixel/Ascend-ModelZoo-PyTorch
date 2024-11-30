@@ -30,7 +30,6 @@ try:
         inputs=inputs,
         precision_policy=mindietorch.PrecisionPolicy.FP16,
         truncate_long_and_double=True,
-        soc_version="Ascend310P3",
     )
     compiled_joiner.save("./compiled_joiner.ts")
 except Exception as e:

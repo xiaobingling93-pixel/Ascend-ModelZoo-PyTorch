@@ -28,7 +28,8 @@
 | CANN        | 8.0.T5      |
 | Python      | 3.10.13     |
 | torch       | 2.1.0       |
-| NPU芯片类型 | Ascend310P3 |
+| MindIE       | 1.0.RC1    |
+| 支持产品     | Atlas 300I Pro推理卡 |
 | 处理器架构  | arm64       |
 
 # 快速上手<a name="ZH-CN_TOPIC_0000001126281700"></a>
@@ -138,13 +139,13 @@ icefall-asr-zipformer-wenetspeech-20230615
 4. 对torchscript模型使用PT插件进行编译（分别指定encoder、decoder与joiner的三套参数）。
    ```shell
    cd icefall/icefall_pt
-   python export_torch_aie_model.py
+   python export_torch_aie_model.py --soc_version Ascendxxxyy
    ```
     参数说明：
    ```shell
    --torch_script_path：torhscript模型路径
    --export_part：选择编译部分（encoder，decoder或joiner）
-   --soc_version：硬件版本
+   --soc_version：硬件版本，需要执行npu-smi info命令进行查询，并在查询到的“Name”前增加Ascend字段，例如“Name”对应取值为xxxyy，实际配置的soc_version值为Ascendxxxyy
    --batch_size
    --save_path：编译后的模型保存路径
    ```
@@ -156,15 +157,15 @@ icefall-asr-zipformer-wenetspeech-20230615
 5. 运行推理样例
    ```shell
    cd icefall/icefall_pt
-   python pt_val_enc.py
-   python pt_val_dec.py
-   python pt_val_join.py
+   python pt_val_enc.py --soc_version Ascendxxxyy
+   python pt_val_dec.py --soc_version Ascendxxxyy
+   python pt_val_join.py --soc_version Ascendxxxyy
    ```
     参数说明：
    ```shell
    --model：PT模型路径
    --need_compile：是否需要编译。若model指向torchscript模型，则需要进行编译后运行
-   --soc_version：硬件版本
+   --soc_version：硬件版本，需要执行npu-smi info命令进行查询，并在查询到的“Name”前增加Ascend字段，例如“Name”对应取值为xxxyy，实际配置的soc_version值为Ascendxxxyy
    --batch_size
    --result_path：模型运行结果保存路径
    --device_id：硬件编号
@@ -201,7 +202,7 @@ icefall-asr-zipformer-wenetspeech-20230615
 
 Zipformer流式模型由三个子模型组成，分别是encoder、decoder和joiner，其性能如下表所示：
 
-| 模型      | pt插件 - 310P性能（时延/吞吐率）     | T4 onnx性能（时延/吞吐率）         | A10 onnx性能（时延/吞吐率）        |
+| 模型      | pt插件 - 300I Pro性能（时延/吞吐率）     | T4 onnx性能（时延/吞吐率）         | A10 onnx性能（时延/吞吐率）        |
 |---------|---------------------------|---------------------------|---------------------------|
 | encoder | 59.5610 ms / 16.7895 fps  | 25.6406 ms / 39.0005 fps  | 16.2751 ms / 61.4434 fps  |
 | decoder | 0.4851 ms / 2061.4306 fps | 0.5691 ms / 1757.0740 fps | 0.1219 ms / 8200.5706 fps |

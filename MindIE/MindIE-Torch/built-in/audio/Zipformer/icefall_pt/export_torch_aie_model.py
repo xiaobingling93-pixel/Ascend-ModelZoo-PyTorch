@@ -53,7 +53,7 @@ def parse_opt():
     parser = argparse.ArgumentParser()
     parser.add_argument('--torch_script_path', type=str, default='../egs/librispeech/ASR/icefall-asr-zipformer-wenetspeech-20230615/exp/encoder-epoch-12-avg-1.pt', help='trace model path')
     parser.add_argument('--export_part', type=str, default='encoder', help='the part of model(encoder, decoder, and joiner) to be exported.')
-    parser.add_argument('--soc_version', type=str, default='Ascend310P3', help='soc version')
+    parser.add_argument('--soc_version', type=str, required=True, help='soc version')
     parser.add_argument('--batch_size', type=int, default=1, help='batch size')
     parser.add_argument('--save_path', type=str, default='./pt_compiled_model/', help='compiled model path')
     opt = parser.parse_args()

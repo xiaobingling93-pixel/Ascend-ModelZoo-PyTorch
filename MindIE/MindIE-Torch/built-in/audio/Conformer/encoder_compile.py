@@ -34,7 +34,6 @@ try:
         inputs=inputs,
         precision_policy=mindietorch.PrecisionPolicy.FP16,
         truncate_long_and_double=True,
-        soc_version="Ascend310P3"
     )
     compiled_encoder_model.save("./compiled_encoder.ts")
 except Exception as e:

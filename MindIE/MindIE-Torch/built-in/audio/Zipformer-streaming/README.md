@@ -31,7 +31,7 @@
 | Python                      | 3.10.13     |
 | torch                       | 2.1.0       |
 | MindIE                      | 1.0.RC2.B071 |
-| NPU version                     | Ascend310P3 |
+| 支持设备                     | Atlas 300I Pro推理卡 |
 | 处理器架构 | arm64 |
 
 # 快速上手<a name="ZH-CN_TOPIC_0000001126281700"></a>
@@ -297,7 +297,7 @@ icefall-asr-zipformer-streaming-wenetspeech-20230615
 
 Zipformer流式模型由三个子模型组成，分别是encoder、decoder和joiner，其性能如下表所示：
 
-| 模型      | MindIE-Torch - 310P性能（时延/吞吐率） | T4性能（时延/吞吐率）       | A10性能（时延/吞吐率）      |
+| 模型      | MindIE-Torch - 300I Pro性能（时延/吞吐率） | T4性能（时延/吞吐率）       | A10性能（时延/吞吐率）      |
 |---------|-----------------------|--------------------|--------------------|
 | encoder | 18.14 ms / 55 fps      | 24.7 ms / 40 fps   | 19 ms / 52 fps     |
 | decoder | 0.18 ms / 5592 fps    | 0.59 ms / 1684 fps | 0.13 ms / 7604 fps |

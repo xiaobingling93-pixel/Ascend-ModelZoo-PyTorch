@@ -30,7 +30,6 @@ try:
         inputs=inputs,
         precision_policy=_enums.PrecisionPolicy.FP16,
         truncate_long_and_double=True,
-        soc_version="Ascend310P3",
     )
     compiled_decoder.save("compiled_decoder.ts")
 except Exception as e:

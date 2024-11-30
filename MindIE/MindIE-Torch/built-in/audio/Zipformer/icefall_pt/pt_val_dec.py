@@ -119,7 +119,7 @@ def main(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Zipformer offline model decoder inference.')
-    parser.add_argument('--soc_version', type=str, default='Ascend310P3', help='soc version')
+    parser.add_argument('--soc_version', type=str, required=True, help='soc version')
     parser.add_argument('--model', type=str, default="./pt_compiled_model/decoder-epoch-12-avg-1_mindietorch_bs1.pt", help='ts model path')
     parser.add_argument('--need_compile', action="store_true", help='if the loaded model needs to be compiled or not')
     parser.add_argument('--batch_size', type=int, default=1, help='batch size')
