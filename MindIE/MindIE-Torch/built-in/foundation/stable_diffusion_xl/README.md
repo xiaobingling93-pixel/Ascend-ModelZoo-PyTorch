@@ -89,10 +89,6 @@ Atlas 300I Duo推理卡：支持的卡数为1，可双芯并行
    ```
    
    ```bash
-   python3 stable_diffusion_clip_patch.py
-   ```
-   
-   ```bash
    python3 stable_diffusion_attention_patch.py
    ```
    
@@ -557,9 +553,6 @@ Atlas 300I Duo推理卡：支持的卡数为1，可双芯并行
       2. 代码修改
 
          基础补丁
-         ```bash
-         python3 stable_diffusion_clip_patch.py
-         ```
    
          ```bash
          python3 stable_diffusion_attention_patch.py
