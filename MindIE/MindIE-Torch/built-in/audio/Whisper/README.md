@@ -22,7 +22,7 @@
   **表 1**  版本配套表
   | 配套    | 版本     |
   |---------| ------- |
-  | 固件与驱动 | Ascend HDK 24.1.RC2（适用于310I Pro/Duo设备，aarch64架构）|
+  | 固件与驱动 | Ascend HDK 24.1.RC2（适用于300I Pro/Duo设备，aarch64架构）|
   | CANN        |       8.0.RC2          |
   | Python | 3.10.13 |
   | PyTorch | 2.1.0 |
@@ -73,7 +73,7 @@
     - --nblocks: 模型Blocks参数，跟模型大小相关，tiny 4, base 6, small 12, medium 24, large-v1/v3 32。
     - --hidden: 模型特征向量长度，跟模型大小相关，tiny 384, base 512, small 768, medium 1024, large-v1/v3 1280。
     - --n_mels: 梅尔频率滤波器数量，large-v3 128, 其余 80。 注意large表示large-v3。
-    - --soc_version: 芯片类型，为必填参数。支持310I Pro/Duo推理卡，具体芯片类型请使用`npu-smi info`查看。如查询到`NPU Chip Name`为`310xxx`, 则该参数为`Ascend310xxx`。
+    - --soc_version: 芯片类型，为必填参数。支持300I Pro/Duo推理卡，需要执行npu-smi info命令进行查询，并在查询到的“Name”前增加Ascend字段，例如“Name”对应取值为xxxyy，实际配置的soc_version值为Ascendxxxyy。
 
 4. 模型推理
     ```
