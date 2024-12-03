@@ -30,7 +30,7 @@
 | CANN                        | 8.0.RC2     |
 | Python                      | 3.10.13     |
 | torch                       | 2.1.0       |
-| MindIE                      | 1.0.RC2.B071 |
+| MindIE                      | 1.0.RC2 |
 | 支持设备                     | Atlas 300I Pro推理卡 |
 | 处理器架构 | arm64 |
 

@@ -23,7 +23,7 @@
   | 配套    | 版本     |
   |---------| ------- |
   | 固件与驱动 | Ascend HDK 24.1.RC2（适用于310I Pro/Duo设备，aarch64架构）|
-  | CANN | 8.0RC2 |
+  | CANN        |       8.0.RC2          |
   | Python | 3.10.13 |
   | PyTorch | 2.1.0 |
   | MindIE | 1.0.RC2 |
