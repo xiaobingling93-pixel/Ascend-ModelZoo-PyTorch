@@ -69,8 +69,17 @@
   pip uninstall safetensors
   ```
 
-- 安装Megatron-LM，[参考链接](http://gitee.com/ascend/Megatron-LM)。
+- 安装Megatron-LM：
 
+  ```
+  # 目前版本基于core_r0.6.0的release版本
+  git clone https://github.com/NVIDIA/Megatron-LM.git
+  cd Megatron-LM
+  git checkout core_r0.6.0
+  ```
+  
+  
+  
   
 
 
