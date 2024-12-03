@@ -15,3 +15,4 @@ deepspeed==0.14.4
 pyarrow==16.1.0
 decorator
 scipy
+huggingface_hub==0.25.2
