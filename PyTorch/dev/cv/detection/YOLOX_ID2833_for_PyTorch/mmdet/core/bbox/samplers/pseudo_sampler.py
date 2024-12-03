@@ -17,7 +17,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import torch
 import mx_driving
-import ads_c
 
 from ..builder import BBOX_SAMPLERS
 from .base_sampler import BaseSampler
@@ -51,9 +50,9 @@ class PseudoSampler(BaseSampler):
         Returns:
             :obj:`SamplingResult`: sampler results
         """
-        pos_inds = ads_c.unique_voxel(torch.nonzero(
+        pos_inds = mx_driving._C.unique_voxel(torch.nonzero(
             assign_result.gt_inds > 0, as_tuple=False).squeeze(-1).to(torch.int32))[1]
-        neg_inds = ads_c.unique_voxel(torch.nonzero(
+        neg_inds = mx_driving._C.unique_voxel(torch.nonzero(
             assign_result.gt_inds == 0, as_tuple=False).squeeze(-1).to(torch.int32))[1]
         gt_flags = bboxes.new_zeros(bboxes.shape[0], dtype=torch.uint8)
         sampling_result = SamplingResult(pos_inds, neg_inds, bboxes, gt_bboxes,
