@@ -11,3 +11,4 @@ toml
 voluptuous
 deepspeed==0.15.2
 huggingface-hub==0.23.2
+datasets==2.21.0
