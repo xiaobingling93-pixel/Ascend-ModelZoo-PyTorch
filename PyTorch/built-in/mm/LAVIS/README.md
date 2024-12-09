@@ -64,7 +64,7 @@ LAVIS 是一个多模态模型套件，包含CLIP、ALBEF、BLIP、BLIP2、Instr
   pip install -e .                    # 安装LAVIS以及所需的依赖
   ```
 
-- 安装Megatron-LM，[参考链接](http://gitee.com/ascend/Megatron-LM)。
+- 安装Megatron-LM: 参考[MindSpeed安装章节](https://gitee.com/ascend/MindSpeed/tree/1.0.0_core_r0.6.0/)中安装megatron的方法安装
 
 ## 适配情况
 
