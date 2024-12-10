@@ -1,4 +1,3 @@
-# Copyright 2024 Huawei Technologies Co., Ltd
 import torch_npu
 from torch_npu.contrib import transfer_to_npu
 import datetime
@@ -522,12 +521,13 @@ def main(config):
                 save_state_dict = {k:v for k,v in accelerator.get_state_dict(model).items() if "lora_" in k or "multi_modal_projector" in k}
             else:
                 save_state_dict = accelerator.get_state_dict(model)
-            unwrapped_model.save_pretrained(osp.join(config.output_dir, f"pretrained_epoch{epoch:02d}"),
-                                            is_main_process=accelerator.is_main_process,
-                                            save_function=accelerator.save,
-                                            state_dict=save_state_dict)
-            processor.save_pretrained(osp.join(config.output_dir, f"pretrained_step{epoch:02d}"))
-            accelerator.save_state(output_dir=osp.join(config.output_dir, f"ckpt_epoch{epoch:02d}"))
+            if epoch + 1 == config.scheduler.epochs or (epoch + 1) % config.ckpt_epochs == 0:
+                unwrapped_model.save_pretrained(osp.join(config.output_dir, f"pretrained_epoch{epoch:02d}"),
+                                                is_main_process=accelerator.is_main_process,
+                                                save_function=accelerator.save,
+                                                state_dict=save_state_dict)
+                processor.save_pretrained(osp.join(config.output_dir, f"pretrained_step{epoch:02d}"))
+                accelerator.save_state(output_dir=osp.join(config.output_dir, f"ckpt_epoch{epoch:02d}"))
 
 
         if config.evaluate:

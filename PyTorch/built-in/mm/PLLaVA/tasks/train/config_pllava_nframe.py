@@ -1,4 +1,3 @@
-# Copyright 2024 Huawei Technologies Co., Ltd
 from tasks.train.instruction_data import *
 
 # ========================= data ==========================
@@ -11,6 +10,7 @@ test_types = []
 num_workers = 8
 save_steps=10000
 ckpt_steps=1000
+ckpt_epochs = 1
 stop_key = None
 deepspeed=False
 # ========================= input ==========================

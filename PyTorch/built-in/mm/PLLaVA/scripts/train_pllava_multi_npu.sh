@@ -16,6 +16,7 @@ accelerate launch --main_process_port 6876 --config_file scripts/accel_config_mu
     output_dir ${OUTPUT_DIR} \
     train_corpus videochat2_instruction_debug \
     save_steps 10000 \
+    ckpt_epochs 100 \
     num_workers 8 \
     num_frames 16 \
     model.pooling_method avg \
