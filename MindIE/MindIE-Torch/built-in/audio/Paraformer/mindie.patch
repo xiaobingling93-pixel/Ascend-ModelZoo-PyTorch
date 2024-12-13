@@ -1,0 +1,749 @@
+diff --git a/funasr/auto/auto_model.py b/funasr/auto/auto_model.py
+index 01e6aaf6..0a80f1c0 100644
+--- a/funasr/auto/auto_model.py
++++ b/funasr/auto/auto_model.py
+@@ -171,7 +171,8 @@ class AutoModel:
+         self.spk_kwargs = spk_kwargs
+         self.model_path = kwargs.get("model_path")
+ 
+-    def build_model(self, **kwargs):
++    @staticmethod
++    def build_model(**kwargs):
+         assert "model" in kwargs
+         if "model_conf" not in kwargs:
+             logging.info("download models from model hub: {}".format(kwargs.get("hub", "ms")))
+@@ -277,9 +278,9 @@ class AutoModel:
+         asr_result_list = []
+         num_samples = len(data_list)
+         disable_pbar = self.kwargs.get("disable_pbar", False)
+-        pbar = (
+-            tqdm(colour="blue", total=num_samples, dynamic_ncols=True) if not disable_pbar else None
+-        )
++        # pbar = (
++        #     tqdm(colour="blue", total=num_samples, dynamic_ncols=True) if not disable_pbar else None
++        # )
+         time_speech_total = 0.0
+         time_escape_total = 0.0
+         for beg_idx in range(0, num_samples, batch_size):
+@@ -311,27 +312,32 @@ class AutoModel:
+             speed_stats["batch_size"] = f"{len(results)}"
+             speed_stats["rtf"] = f"{(time_escape) / batch_data_time:0.3f}"
+             description = f"{speed_stats}, "
+-            if pbar:
+-                pbar.update(1)
+-                pbar.set_description(description)
++            # if pbar:
++            #     pbar.update(1)
++            #     pbar.set_description(description)
+             time_speech_total += batch_data_time
+             time_escape_total += time_escape
+ 
+-        if pbar:
+-            # pbar.update(1)
+-            pbar.set_description(f"rtf_avg: {time_escape_total/time_speech_total:0.3f}")
++        # if pbar:
++        #     # pbar.update(1)
++        #     pbar.set_description(f"rtf_avg: {time_escape_total/time_speech_total:0.3f}")
+         torch.cuda.empty_cache()
+         return asr_result_list
+ 
+     def inference_with_vad(self, input, input_len=None, **cfg):
+         kwargs = self.kwargs
++        time_stats = {"input_speech_time": 0.0, "end_to_end_time": 0.0, "vad_time" : 0.0,
++                      "paraformer_time": 0.0, "punc_time": 0.0}
+         # step.1: compute the vad model
++        print("Start using VAD model to segment input audios.")
+         deep_update(self.vad_kwargs, cfg)
+         beg_vad = time.time()
+         res = self.inference(
+             input, input_len=input_len, model=self.vad_model, kwargs=self.vad_kwargs, **cfg
+         )
+         end_vad = time.time()
++        time_stats["vad_time"] = end_vad - beg_vad
++        print("Finish segmenting audios within {:.3f} seconds.".format(time_stats["vad_time"]))
+ 
+         #  FIX(gcf): concat the vad clips for sense vocie model for better aed
+         if kwargs.get("merge_vad", False):
+@@ -352,12 +358,13 @@ class AutoModel:
+         time_speech_total_all_samples = 1e-6
+ 
+         beg_total = time.time()
+-        pbar_total = (
+-            tqdm(colour="red", total=len(res), dynamic_ncols=True)
+-            if not kwargs.get("disable_pbar", False)
+-            else None
+-        )
++        # pbar_total = (
++        #     tqdm(colour="red", total=len(res), dynamic_ncols=True)
++        #     if not kwargs.get("disable_pbar", False)
++        #     else None
++        # )
+         for i in range(len(res)):
++            print("Begin processing audio with Paraformer and PUNC model.")
+             key = res[i]["key"]
+             vadsegments = res[i]["value"]
+             input_i = data_list[i]
+@@ -366,7 +373,7 @@ class AutoModel:
+             speech_lengths = len(speech)
+             n = len(vadsegments)
+             data_with_index = [(vadsegments[i], i) for i in range(n)]
+-            sorted_data = sorted(data_with_index, key=lambda x: x[0][1] - x[0][0])
++            sorted_data = sorted(data_with_index, key=lambda x: x[0][1] - x[0][0], reverse=True)
+             results_sorted = []
+ 
+             if not len(sorted_data):
+@@ -385,26 +392,15 @@ class AutoModel:
+             # pbar_sample = tqdm(colour="blue", total=n, dynamic_ncols=True)
+ 
+             all_segments = []
+-            max_len_in_batch = 0
+-            end_idx = 1
+-            for j, _ in enumerate(range(0, n)):
+-                # pbar_sample.update(1)
+-                sample_length = sorted_data[j][0][1] - sorted_data[j][0][0]
+-                potential_batch_length = max(max_len_in_batch, sample_length) * (j + 1 - beg_idx)
+-                # batch_size_ms_cum += sorted_data[j][0][1] - sorted_data[j][0][0]
+-                if (
+-                    j < n - 1
+-                    and sample_length < batch_size_threshold_ms
+-                    and potential_batch_length < batch_size
+-                ):
+-                    max_len_in_batch = max(max_len_in_batch, sample_length)
+-                    end_idx += 1
+-                    continue
++            batch_segments = kwargs["paraformer_batch_size"]
++            loop_num = n // batch_segments if n % batch_segments == 0 else n // batch_segments + 1
++            end_idx = batch_segments
+ 
++            for j in range(loop_num):
+                 speech_j, speech_lengths_j = slice_padding_audio_samples(
+                     speech, speech_lengths, sorted_data[beg_idx:end_idx]
+                 )
+-                results = self.inference(
++                results, meta_data = self.inference_with_asr(
+                     speech_j, input_len=None, model=model, kwargs=kwargs, **cfg
+                 )
+                 if self.spk_model is not None:
+@@ -425,8 +421,7 @@ class AutoModel:
+                         )
+                         results[_b]["spk_embedding"] = spk_res[0]["spk_embedding"]
+                 beg_idx = end_idx
+-                end_idx += 1
+-                max_len_in_batch = sample_length
++                end_idx += batch_segments
+                 if len(results) < 1:
+                     continue
+                 results_sorted.extend(results)
+@@ -478,6 +473,13 @@ class AutoModel:
+             if not len(result["text"].strip()):
+                 continue
+             return_raw_text = kwargs.get("return_raw_text", False)
++
++            end_paraformer = time.time()
++            time_stats["paraformer_time"] = time_stats["paraformer_time"] + end_paraformer - beg_asr_total
++            print("\tFinish recognizing audio using Paraformer within {:.3f} seconds, "
++                  "which contains {} segments and batch_size is {}."
++                  .format(time_stats["paraformer_time"], n, batch_segments))
++            
+             # step.3 compute punc model
+             raw_text = None
+             if self.punc_model is not None:
+@@ -489,6 +491,9 @@ class AutoModel:
+                 if return_raw_text:
+                     result["raw_text"] = raw_text
+                 result["text"] = punc_res[0]["text"]
++                end_punc = time.time()
++                time_stats["punc_time"] = time_stats["punc_time"] + end_punc - end_paraformer
++            print("\tFinish adding punctuation using PUNC model within {:.3f} seconds.".format(time_stats["punc_time"]))
+ 
+             # speaker embedding cluster after resorted
+             if self.spk_model is not None and kwargs.get("return_spk_res", True):
+@@ -567,20 +572,24 @@ class AutoModel:
+             results_ret_list.append(result)
+             end_asr_total = time.time()
+             time_escape_total_per_sample = end_asr_total - beg_asr_total
+-            if pbar_total:
+-                pbar_total.update(1)
+-                pbar_total.set_description(
+-                    f"rtf_avg: {time_escape_total_per_sample / time_speech_total_per_sample:0.3f}, "
+-                    f"time_speech: {time_speech_total_per_sample: 0.3f}, "
+-                    f"time_escape: {time_escape_total_per_sample:0.3f}"
+-                )
+-
+-        # end_total = time.time()
+-        # time_escape_total_all_samples = end_total - beg_total
++            print("Finish processing audio which is {:.3f} seconds. "
++                  "Time consumption of Paraformer and PUNC is {:.3f} seconds."
++                  .format(time_speech_total_per_sample, time_escape_total_per_sample))
++            # if pbar_total:
++            #     pbar_total.update(1)
++            #     pbar_total.set_description(
++            #         f"rtf_avg: {time_escape_total_per_sample / time_speech_total_per_sample:0.3f}, "
++            #         f"time_speech: {time_speech_total_per_sample: 0.3f}, "
++            #         f"time_escape: {time_escape_total_per_sample:0.3f}"
++            #     )
++
++        end_total = time.time()
++        time_stats["end_to_end_time"] = end_total - beg_vad
++        time_stats["input_speech_time"] = time_speech_total_all_samples
+         # print(f"rtf_avg_all: {time_escape_total_all_samples / time_speech_total_all_samples:0.3f}, "
+         #                      f"time_speech_all: {time_speech_total_all_samples: 0.3f}, "
+         #                      f"time_escape_all: {time_escape_total_all_samples:0.3f}")
+-        return results_ret_list
++        return results_ret_list, time_stats
+ 
+     def export(self, input=None, **cfg):
+         """
+diff --git a/funasr/frontends/wav_frontend.py b/funasr/frontends/wav_frontend.py
+index a4002df5..e62f3baf 100644
+--- a/funasr/frontends/wav_frontend.py
++++ b/funasr/frontends/wav_frontend.py
+@@ -134,7 +134,7 @@ class WavFrontend(nn.Module):
+             mat = kaldi.fbank(
+                 waveform,
+                 num_mel_bins=self.n_mels,
+-                frame_length=self.frame_length,
++                frame_length=min(self.frame_length, waveform_length/self.fs*1000),
+                 frame_shift=self.frame_shift,
+                 dither=self.dither,
+                 energy_floor=0.0,
+@@ -282,30 +282,42 @@ class WavFrontendOnline(nn.Module):
+         Apply lfr with data
+         """
+ 
+-        LFR_inputs = []
+-        # inputs = torch.vstack((inputs_lfr_cache, inputs))
+-        T = inputs.shape[0]  # include the right context
+-        T_lfr = int(
+-            np.ceil((T - (lfr_m - 1) // 2) / lfr_n)
+-        )  # minus the right context: (lfr_m - 1) // 2
+-        splice_idx = T_lfr
+-        for i in range(T_lfr):
+-            if lfr_m <= T - i * lfr_n:
+-                LFR_inputs.append((inputs[i * lfr_n : i * lfr_n + lfr_m]).view(1, -1))
+-            else:  # process last LFR frame
+-                if is_final:
+-                    num_padding = lfr_m - (T - i * lfr_n)
+-                    frame = (inputs[i * lfr_n :]).view(-1)
+-                    for _ in range(num_padding):
+-                        frame = torch.hstack((frame, inputs[-1]))
+-                    LFR_inputs.append(frame)
+-                else:
+-                    # update splice_idx and break the circle
+-                    splice_idx = i
+-                    break
+-        splice_idx = min(T - 1, splice_idx * lfr_n)
++        T, D = inputs.shape
++        if T == 0:
++            return torch.empty(0, D * lfr_m), inputs, 0
++        
++        # Calculate the number of LFR frames
++        T_lfr = (T - lfr_m) // lfr_n + 1
++        if T_lfr <= 0:
++            T_lfr = 0
++        required_length = (T_lfr - 1) * lfr_n + lfr_m
++
++        # Handle padding
++        if required_length > T:
++            if is_final:
++                pad_amount = required_length - T
++                padding_frame = inputs[-1].unsqueeze(0).expand(pad_amount, D)
++                inputs_padded = torch.cat([inputs, padding_frame], dim=0)
++            else:
++                T_lfr -= 1
++                required_length = (T_lfr - 1) * lfr_n + lfr_m
++                inputs_padded = inputs[:required_length]
++        else:
++            inputs_padded = inputs[:required_length]
++        
++        # Transpose to [D, T_speed]
++        inputs_padded = inputs_padded.transpose(0, 1)
++        # Apply unfold
++        frames = inputs_padded.unfold(1, lfr_m, lfr_n)  # Shape: [D, T_lfr, lfr_m]
++        # Permute to [T_lfr, lfr_m, D]
++        frames = frames.permute(1, 2, 0)
++        # Flatten frames
++        LFR_outputs = frames.contiguous().view(T_lfr, -1)
++        # Update splice_idx and cache
++        splice_idx = T_lfr * lfr_n
++        splice_idx = min(splice_idx, T)
++
+         lfr_splice_cache = inputs[splice_idx:, :]
+-        LFR_outputs = torch.vstack(LFR_inputs)
+         return LFR_outputs.type(torch.float32), lfr_splice_cache, splice_idx
+ 
+     @staticmethod
+diff --git a/funasr/models/bicif_paraformer/cif_predictor.py b/funasr/models/bicif_paraformer/cif_predictor.py
+index ca98cdc2..796b24dc 100644
+--- a/funasr/models/bicif_paraformer/cif_predictor.py
++++ b/funasr/models/bicif_paraformer/cif_predictor.py
+@@ -412,11 +412,12 @@ class CifPredictorV3Export(torch.nn.Module):
+ 
+         mask = mask.squeeze(-1)
+         hidden, alphas, token_num = self.tail_process_fn(hidden, alphas, mask=mask)
++        return hidden, alphas, token_num
+         acoustic_embeds, cif_peak = cif_export(hidden, alphas, self.threshold)
+ 
+         return acoustic_embeds, token_num, alphas, cif_peak
+ 
+-    def get_upsample_timestmap(self, hidden, mask=None, token_num=None):
++    def get_upsample_timestamp(self, hidden, mask=None, token_num=None):
+         h = hidden
+         b = hidden.shape[0]
+         context = h.transpose(1, 2)
+@@ -437,6 +438,7 @@ class CifPredictorV3Export(torch.nn.Module):
+         alphas2 = alphas2.squeeze(-1)
+         _token_num = alphas2.sum(-1)
+         alphas2 *= (token_num / _token_num)[:, None].repeat(1, alphas2.size(1))
++        return alphas2
+         # upsampled alphas and cif_peak
+         us_alphas = alphas2
+         us_cif_peak = cif_wo_hidden_export(us_alphas, self.threshold - 1e-4)
+diff --git a/funasr/models/fsmn_vad_streaming/encoder.py b/funasr/models/fsmn_vad_streaming/encoder.py
+index 6668c5d5..6b7c80fc 100755
+--- a/funasr/models/fsmn_vad_streaming/encoder.py
++++ b/funasr/models/fsmn_vad_streaming/encoder.py
+@@ -231,7 +231,7 @@ class FSMN(nn.Module):
+         pass
+ 
+     def forward(
+-        self, input: torch.Tensor, cache: Dict[str, torch.Tensor]
++        self, input: torch.Tensor, cache: Dict[str, torch.Tensor] = {}
+     ) -> Tuple[torch.Tensor, Dict[str, torch.Tensor]]:
+         """
+         Args:
+diff --git a/funasr/models/fsmn_vad_streaming/model.py b/funasr/models/fsmn_vad_streaming/model.py
+index 04689bed..9db5bfd0 100644
+--- a/funasr/models/fsmn_vad_streaming/model.py
++++ b/funasr/models/fsmn_vad_streaming/model.py
+@@ -18,19 +18,21 @@ from funasr.utils.datadir_writer import DatadirWriter
+ from funasr.utils.load_utils import load_audio_text_image_video, extract_fbank
+ 
+ 
++# 表示VAD状态机的状态，包括起点未检测、语音片段中、终点已检测
+ class VadStateMachine(Enum):
+     kVadInStateStartPointNotDetected = 1
+     kVadInStateInSpeechSegment = 2
+     kVadInStateEndPointDetected = 3
+ 
+ 
++# 表示每一帧的状态，是语音还是静音
+ class FrameState(Enum):
+     kFrameStateInvalid = -1
+     kFrameStateSpeech = 1
+     kFrameStateSil = 0
+ 
+ 
+-# final voice/unvoice state per frame
++# 表示音频状态的变化，如从静音到语音，从语音到静音等（final voice/unvoice state per frame）
+ class AudioChangeState(Enum):
+     kChangeStateSpeech2Speech = 0
+     kChangeStateSpeech2Sil = 1
+@@ -40,6 +42,7 @@ class AudioChangeState(Enum):
+     kChangeStateInvalid = 5
+ 
+ 
++# 表示VAD的检测模式，支持单一和多重语音检测模式
+ class VadDetectMode(Enum):
+     kVadSingleUtteranceDetectMode = 0
+     kVadMutipleUtteranceDetectMode = 1
+@@ -299,6 +302,9 @@ class FsmnVADStreaming(nn.Module):
+         self.encoder = encoder
+         self.encoder_conf = encoder_conf
+ 
++        self.ten_sil_pdf_ids = torch.tensor([0])
++        self.tol_idx = 0
++
+     def ResetDetection(self, cache: dict = {}):
+         cache["stats"].continous_silence_frame_count = 0
+         cache["stats"].latest_confirmed_speech_frame = 0
+@@ -323,32 +329,44 @@ class FsmnVADStreaming(nn.Module):
+             cache["stats"].scores = cache["stats"].scores[:, real_drop_frames:, :]
+ 
+     def ComputeDecibel(self, cache: dict = {}) -> None:
+-        frame_sample_length = int(self.vad_opts.frame_length_ms * self.vad_opts.sample_rate / 1000)
+-        frame_shift_length = int(self.vad_opts.frame_in_ms * self.vad_opts.sample_rate / 1000)
++        frame_sample_length = int(self.vad_opts.frame_length_ms * self.vad_opts.sample_rate / 1000) # 每帧的样本长度
++        frame_shift_length = int(self.vad_opts.frame_in_ms * self.vad_opts.sample_rate / 1000)  # 帧移的样本长度
++        waveform = cache["stats"].waveform[0]
++        # 如果缓存中的"data_buf_all"为空，初始化并将当前波形作为数据缓冲区
+         if cache["stats"].data_buf_all is None:
+-            cache["stats"].data_buf_all = cache["stats"].waveform[
+-                0
+-            ]  # cache["stats"].data_buf is pointed to cache["stats"].waveform[0]
++            cache["stats"].data_buf_all = waveform
+             cache["stats"].data_buf = cache["stats"].data_buf_all
++            cache["stats"].prev_waveform_length = 0 # 初始化，用于记录之前处理的波形长度
+         else:
+-            cache["stats"].data_buf_all = torch.cat(
+-                (cache["stats"].data_buf_all, cache["stats"].waveform[0])
+-            )
+-        for offset in range(
+-            0, cache["stats"].waveform.shape[1] - frame_sample_length + 1, frame_shift_length
+-        ):
+-            cache["stats"].decibel.append(
+-                10
+-                * math.log10(
+-                    (cache["stats"].waveform[0][offset : offset + frame_sample_length])
+-                    .square()
+-                    .sum()
+-                    + 0.000001
+-                )
+-            )
++            # 如果"data_buf_all"不为空，将新的波形数据拼接到已有的缓冲区
++            cache["stats"].data_buf_all = torch.cat((cache["stats"].data_buf_all, waveform))
++            cache["stats"].data_buf = cache["stats"].data_buf_all
++
++        total_waveform_length = cache["stats"].data_buf_all.shape[0]
++        num_total_frames = (total_waveform_length - frame_sample_length)
++        num_existing_frames = len(cache["stats"].decibel)   # 已有的帧数
++        num_new_frames = num_total_frames - num_existing_frames # 需要处理的新帧数
++
++        if num_new_frames > 0:
++            # 计算新帧起始索引
++            start_index = num_existing_frames * frame_shift_length
++            end_index = start_index + num_new_frames * frame_shift_length + frame_sample_length - frame_shift_length
++
++            # 获取波形数据
++            processing_waveform = cache["stats"].data_buf_all[start_index:end_index]
++            
++            # 使用unfold将波形数据切分为帧，形状为[num_new_frames, frame_sample_length]
++            frames = processing_waveform.unfold(0, frame_sample_length, frame_shift_length)
++            frame_energies = frames.pow(2).sum(dim=1) + 1e-6    # 形状为[num_new_frames]
++            decibels = 10 * torch.log10(frame_energies) # 计算分贝值
++            cache["stats"].decibel.extend(decibels.tolist())    # 结果添加到cache["stats"].decibel
++
++            # 更新prev_waveform_length，指向已处理的波形位置
++            cache["stats"].prev_waveform_length = start_index + num_new_frames * frame_shift_length
++
+ 
+     def ComputeScores(self, feats: torch.Tensor, cache: dict = {}) -> None:
+-        scores = self.encoder(feats, cache=cache["encoder"]).to("cpu")  # return B * T * D
++        scores = self.encoder(feats).to("cpu")  # return B * T * D
+         assert (
+             scores.shape[1] == feats.shape[1]
+         ), "The shape between feats and scores does not match"
+@@ -498,13 +516,14 @@ class FsmnVADStreaming(nn.Module):
+         return vad_latency
+ 
+     def GetFrameState(self, t: int, cache: dict = {}):
+-        frame_state = FrameState.kFrameStateInvalid
++        frame_state = FrameState.kFrameStateInvalid # 初始化当前帧的状态为无效状态
+         cur_decibel = cache["stats"].decibel[t]
+         cur_snr = cur_decibel - cache["stats"].noise_average_decibel
+         # for each frame, calc log posterior probability of each state
++        # 判断当前帧的分贝值是否小于预设的分贝阈值，如果是，则认为是静音帧
+         if cur_decibel < self.vad_opts.decibel_thres:
+-            frame_state = FrameState.kFrameStateSil
+-            self.DetectOneFrame(frame_state, t, False, cache=cache)
++            frame_state = FrameState.kFrameStateSil # 设置帧状态为静音
++            self.DetectOneFrame(frame_state, t, False, cache=cache) # 检测静音帧
+             return frame_state
+ 
+         sum_score = 0.0
+@@ -512,14 +531,18 @@ class FsmnVADStreaming(nn.Module):
+         assert len(cache["stats"].sil_pdf_ids) == self.vad_opts.silence_pdf_num
+         if len(cache["stats"].sil_pdf_ids) > 0:
+             assert len(cache["stats"].scores) == 1  # 只支持batch_size = 1的测试
+-            sil_pdf_scores = [
+-                cache["stats"].scores[0][t][sil_pdf_id] for sil_pdf_id in cache["stats"].sil_pdf_ids
+-            ]
++
++            scores_tensor = cache["stats"].scores[0][t]
++            sil_pdf_scores = scores_tensor[self.ten_sil_pdf_ids].tolist()   # 使用张量索引直接获取sil_pdf_scores
++
++            # 计算噪声的概率，使用对数概率并乘以语音与噪声的比例
+             sum_score = sum(sil_pdf_scores)
+             noise_prob = math.log(sum_score) * self.vad_opts.speech_2_noise_ratio
+             total_score = 1.0
+             sum_score = total_score - sum_score
+         speech_prob = math.log(sum_score)
++
++        # 如果需要输出帧的概率，则将噪声和语音概率保存到缓存中
+         if self.vad_opts.output_frame_probs:
+             frame_prob = E2EVadFrameProb()
+             frame_prob.noise_prob = noise_prob
+@@ -527,16 +550,22 @@ class FsmnVADStreaming(nn.Module):
+             frame_prob.score = sum_score
+             frame_prob.frame_id = t
+             cache["stats"].frame_probs.append(frame_prob)
++        
++        # 判断当前帧是否为语音帧，基于语音和噪声的概率以及设定的阈值
+         if math.exp(speech_prob) >= math.exp(noise_prob) + cache["stats"].speech_noise_thres:
++            # 如果信噪比和分贝值都超过了阈值，则认为是语音帧
+             if cur_snr >= self.vad_opts.snr_thres and cur_decibel >= self.vad_opts.decibel_thres:
+-                frame_state = FrameState.kFrameStateSpeech
++                frame_state = FrameState.kFrameStateSpeech  # 设置帧状态为语音
+             else:
+-                frame_state = FrameState.kFrameStateSil
++                frame_state = FrameState.kFrameStateSil # 设置帧状态为静音
++        # 如果语音概率低于噪声概率，直接将帧状态设置为静音
+         else:
+             frame_state = FrameState.kFrameStateSil
++            # 更新噪声的平均分贝值，用于后续帧的信噪比计算
+             if cache["stats"].noise_average_decibel < -99.9:
+                 cache["stats"].noise_average_decibel = cur_decibel
+             else:
++                # 平滑更新噪声的平均分贝值，基于一定数量的帧
+                 cache["stats"].noise_average_decibel = (
+                     cur_decibel
+                     + cache["stats"].noise_average_decibel
+@@ -556,21 +585,26 @@ class FsmnVADStreaming(nn.Module):
+         # if len(cache) == 0:
+         #     self.AllResetDetection()
+         # self.waveform = waveform  # compute decibel for each frame
+-        cache["stats"].waveform = waveform
+-        is_streaming_input = kwargs.get("is_streaming_input", True)
++        cache["stats"].waveform = waveform  # 将输入的音频波形存入缓存的统计部分
++        is_streaming_input = kwargs.get("is_streaming_input", True) # 是否为流式输入，默认是流式模式
++        # 计算当前音频的分贝值，并更新缓存中的相关统计数据
+         self.ComputeDecibel(cache=cache)
++        # 根据提取的音频特征计算得分
+         self.ComputeScores(feats, cache=cache)
++        # 如果当前音频段不是最后一个段，则检测常规帧
+         if not is_final:
+             self.DetectCommonFrames(cache=cache)
+         else:
+             self.DetectLastFrames(cache=cache)
+         segments = []
++        # 遍历每个批次的特征数据，当前只支持batch_size=1
+         for batch_num in range(0, feats.shape[0]):  # only support batch_size = 1 now
+             segment_batch = []
+             if len(cache["stats"].output_data_buf) > 0:
+                 for i in range(
+                     cache["stats"].output_data_buf_offset, len(cache["stats"].output_data_buf)
+                 ):
++                    # 流式输入情况
+                     if (
+                         is_streaming_input
+                     ):  # in this case, return [beg, -1], [], [-1, end], [beg, end]
+@@ -594,22 +628,24 @@ class FsmnVADStreaming(nn.Module):
+                             end_ms = -1
+                             cache["stats"].next_seg = False
+                         segment = [start_ms, end_ms]
+-
++                    # 非流式输入情况
+                     else:  # in this case, return [beg, end]
+-
++                        # 如果当前段没有起始或者结束点，并且不是最后一个段，则跳过
+                         if not is_final and (
+                             not cache["stats"].output_data_buf[i].contain_seg_start_point
+                             or not cache["stats"].output_data_buf[i].contain_seg_end_point
+                         ):
+                             continue
++                        # 获取当前段的起始和结束时间
+                         segment = [
+                             cache["stats"].output_data_buf[i].start_ms,
+                             cache["stats"].output_data_buf[i].end_ms,
+                         ]
++                        # 更新缓存中的偏移量
+                         cache["stats"].output_data_buf_offset += 1  # need update this parameter
+ 
+-                    segment_batch.append(segment)
+-
++                    segment_batch.append(segment)   # 将当前段加入批次段列表
++            # 如果当前批次中有有效的段，加入到总体段列表中
+             if segment_batch:
+                 segments.append(segment_batch)
+         # if is_final:
+@@ -655,24 +691,28 @@ class FsmnVADStreaming(nn.Module):
+         cache: dict = {},
+         **kwargs,
+     ):
+-
++        # 初始化缓存，如果缓存为空，初始化缓存以进行推理
+         if len(cache) == 0:
+             self.init_cache(cache, **kwargs)
+ 
+         meta_data = {}
++        # 获取分块大小，默认为60000
+         chunk_size = kwargs.get("chunk_size", 60000)  # 50ms
+-        chunk_stride_samples = int(chunk_size * frontend.fs / 1000)
++        chunk_stride_samples = int(chunk_size * frontend.fs / 1000) # 计算每个分块的步长，以采样率frontend.fs为基础，计算出每块的音频样本数
+ 
+         time1 = time.perf_counter()
++        # 判断是否为流式输入，依据chunk_size决定是否开启流式模式
+         is_streaming_input = (
+             kwargs.get("is_streaming_input", False)
+             if chunk_size >= 15000
+             else kwargs.get("is_streaming_input", True)
+         )
++        # 判断是否为最终块，流式输入时由"is_streaming_input"决定，非流式时总是"True"
+         is_final = (
+             kwargs.get("is_final", False) if is_streaming_input else kwargs.get("is_final", True)
+         )
+-        cfg = {"is_final": is_final, "is_streaming_input": is_streaming_input}
++        cfg = {"is_final": is_final, "is_streaming_input": is_streaming_input}  # 传递推理配置参数，包括是否为流式输入和是否为最终块
++        # 加载音频数据，同时支持加载文本、图像和视频，默认是"sound"类型
+         audio_sample_list = load_audio_text_image_video(
+             data_in,
+             fs=frontend.fs,
+@@ -685,16 +725,18 @@ class FsmnVADStreaming(nn.Module):
+         is_streaming_input = cfg["is_streaming_input"]
+         time2 = time.perf_counter()
+         meta_data["load_data"] = f"{time2 - time1:0.3f}"
+-        assert len(audio_sample_list) == 1, "batch_size must be set 1"
+-
++        self.ten_sil_pdf_ids = torch.tensor(cache["stats"].sil_pdf_ids)
++        assert len(audio_sample_list) == 1, "batch_size must be set 1"  # 确保一次只能处理一个音频样本
++        # 将当前缓存中的音频样本与新的音频样本拼接在一起
+         audio_sample = torch.cat((cache["prev_samples"], audio_sample_list[0]))
+ 
+-        n = int(len(audio_sample) // chunk_stride_samples + int(_is_final))
+-        m = int(len(audio_sample) % chunk_stride_samples * (1 - int(_is_final)))
++        n = int(len(audio_sample) // chunk_stride_samples + int(_is_final)) # 根据音频样本的长度和块大小计算分块数
++        m = int(len(audio_sample) % chunk_stride_samples * (1 - int(_is_final)))    # 计算最后一个块的剩余长度
+         segments = []
++        # 遍历每个分块进行推理
+         for i in range(n):
+-            kwargs["is_final"] = _is_final and i == n - 1
+-            audio_sample_i = audio_sample[i * chunk_stride_samples : (i + 1) * chunk_stride_samples]
++            kwargs["is_final"] = _is_final and i == n - 1   # 对每一个分块，确定是否为最后一块
++            audio_sample_i = audio_sample[i * chunk_stride_samples : (i + 1) * chunk_stride_samples]    # 取出当前分块的音频样本
+ 
+             # extract fbank feats
+             speech, speech_lengths = extract_fbank(
+@@ -719,20 +761,20 @@ class FsmnVADStreaming(nn.Module):
+                 "cache": cache,
+                 "is_streaming_input": is_streaming_input,
+             }
+-            segments_i = self.forward(**batch)
++            segments_i = self.forward(**batch)  # 前向传播
+             if len(segments_i) > 0:
+                 segments.extend(*segments_i)
+-
++        # 如果当前分块是最后一块，重新初始化缓存
+         cache["prev_samples"] = audio_sample[:-m]
+         if _is_final:
+             self.init_cache(cache)
+-
++        # 如果输出目录存在，初始化文件写入器
+         ibest_writer = None
+         if kwargs.get("output_dir") is not None:
+             if not hasattr(self, "writer"):
+                 self.writer = DatadirWriter(kwargs.get("output_dir"))
+             ibest_writer = self.writer[f"{1}best_recog"]
+-
++        # 最终结果列表
+         results = []
+         result_i = {"key": key[0], "value": segments}
+         # if "MODELSCOPE_ENVIRONMENT" in os.environ and os.environ["MODELSCOPE_ENVIRONMENT"] == "eas":
+@@ -755,34 +797,35 @@ class FsmnVADStreaming(nn.Module):
+     def DetectCommonFrames(self, cache: dict = {}) -> int:
+         if cache["stats"].vad_state_machine == VadStateMachine.kVadInStateEndPointDetected:
+             return 0
++        frame_states = [FrameState.kFrameStateInvalid] * self.vad_opts.nn_eval_block_size
++        # 批量计算多个帧的状态
+         for i in range(self.vad_opts.nn_eval_block_size - 1, -1, -1):
+-            frame_state = FrameState.kFrameStateInvalid
+-            frame_state = self.GetFrameState(
++            frame_states[i] = self.GetFrameState(
+                 cache["stats"].frm_cnt - 1 - i - cache["stats"].last_drop_frames, cache=cache
+             )
+-            self.DetectOneFrame(frame_state, cache["stats"].frm_cnt - 1 - i, False, cache=cache)
++        for i in range(self.vad_opts.nn_eval_block_size - 1, -1, -1):
++            self.DetectOneFrame(frame_states[i], cache["stats"].frm_cnt - 1 - i, False, cache=cache)
+ 
+         return 0
+ 
+     def DetectLastFrames(self, cache: dict = {}) -> int:
+-        if cache["stats"].vad_state_machine == VadStateMachine.kVadInStateEndPointDetected:
+-            return 0
++        frame_states = [FrameState.kFrameStateInvalid] * self.vad_opts.nn_eval_block_size
+         for i in range(self.vad_opts.nn_eval_block_size - 1, -1, -1):
+-            frame_state = FrameState.kFrameStateInvalid
+-            frame_state = self.GetFrameState(
++            frame_states[i] = self.GetFrameState(
+                 cache["stats"].frm_cnt - 1 - i - cache["stats"].last_drop_frames, cache=cache
+             )
++        for i in range(self.vad_opts.nn_eval_block_size - 1, -1, -1):
+             if i != 0:
+-                self.DetectOneFrame(frame_state, cache["stats"].frm_cnt - 1 - i, False, cache=cache)
++                self.DetectOneFrame(frame_states[i], cache["stats"].frm_cnt - 1 - i, False, cache=cache)
+             else:
+-                self.DetectOneFrame(frame_state, cache["stats"].frm_cnt - 1, True, cache=cache)
+-
+-        return 0
++                self.DetectOneFrame(frame_states[i], cache["stats"].frm_cnt - 1, True, cache=cache)
+ 
+     def DetectOneFrame(
+         self, cur_frm_state: FrameState, cur_frm_idx: int, is_final_frame: bool, cache: dict = {}
+     ) -> None:
+-        tmp_cur_frm_state = FrameState.kFrameStateInvalid
++        tmp_cur_frm_state = FrameState.kFrameStateInvalid   # 初始化当前帧的临时状态为无效状态
++
++        # 根据当前帧的状态确定临时状态
+         if cur_frm_state == FrameState.kFrameStateSpeech:
+             if math.fabs(1.0) > self.vad_opts.fe_prior_thres:
+                 tmp_cur_frm_state = FrameState.kFrameStateSpeech
+@@ -793,7 +836,8 @@ class FsmnVADStreaming(nn.Module):
+         state_change = cache["windows_detector"].DetectOneFrame(
+             tmp_cur_frm_state, cur_frm_idx, cache=cache
+         )
+-        frm_shift_in_ms = self.vad_opts.frame_in_ms
++        frm_shift_in_ms = self.vad_opts.frame_in_ms # 获取帧移的时间
++        # 检测状态转换：从静音到语音
+         if AudioChangeState.kChangeStateSil2Speech == state_change:
+             silence_frame_count = cache["stats"].continous_silence_frame_count
+             cache["stats"].continous_silence_frame_count = 0
+@@ -873,10 +917,12 @@ class FsmnVADStreaming(nn.Module):
+                     self.OnVoiceEnd(0, True, False, cache=cache)
+                     cache["stats"].vad_state_machine = VadStateMachine.kVadInStateEndPointDetected
+                 else:
+-                    if cur_frm_idx >= self.LatencyFrmNumAtStartPoint(cache=cache):
++                    lfasp = self.LatencyFrmNumAtStartPoint(cache=cache)
++                    if cur_frm_idx >= lfasp:
+                         self.OnSilenceDetected(
+-                            cur_frm_idx - self.LatencyFrmNumAtStartPoint(cache=cache), cache=cache
++                            cur_frm_idx - lfasp, cache=cache
+                         )
++            # 如果处于语音段中，检查是否超时或静音段是否过长
+             elif cache["stats"].vad_state_machine == VadStateMachine.kVadInStateInSpeechSegment:
+                 if (
+                     cache["stats"].continous_silence_frame_count * frm_shift_in_ms
+diff --git a/funasr/models/sanm/encoder.py b/funasr/models/sanm/encoder.py
+index b2a442bd..4b244353 100644
+--- a/funasr/models/sanm/encoder.py
++++ b/funasr/models/sanm/encoder.py
+@@ -16,6 +16,7 @@ import torch.nn.functional as F
+ import numpy as np
+ from funasr.train_utils.device_funcs import to_device
+ from funasr.models.transformer.utils.nets_utils import make_pad_mask
++from funasr.utils.torch_function import sequence_mask
+ from funasr.models.sanm.attention import MultiHeadedAttention, MultiHeadedAttentionSANM
+ from funasr.models.transformer.embedding import (
+     SinusoidalPositionEncoder,
+@@ -355,6 +356,8 @@ class SANMEncoder(nn.Module):
+         self.tf2torch_tensor_name_prefix_torch = tf2torch_tensor_name_prefix_torch
+         self.tf2torch_tensor_name_prefix_tf = tf2torch_tensor_name_prefix_tf
+ 
++        self.make_pad_mask = sequence_mask()
++
+     def output_size(self) -> int:
+         return self._output_size
+ 
+@@ -374,7 +377,7 @@ class SANMEncoder(nn.Module):
+         Returns:
+             position embedded tensor and mask
+         """
+-        masks = (~make_pad_mask(ilens)[:, None, :]).to(xs_pad.device)
++        masks = (self.make_pad_mask(ilens)[:, None, :]).to(xs_pad.device)
+         xs_pad = xs_pad * self.output_size() ** 0.5
+         if self.embed is None:
+             xs_pad = xs_pad
+diff --git a/funasr/models/transformer/utils/repeat.py b/funasr/models/transformer/utils/repeat.py
+index a44c1a01..0935d854 100644
+--- a/funasr/models/transformer/utils/repeat.py
++++ b/funasr/models/transformer/utils/repeat.py
+@@ -28,8 +28,9 @@ class MultiSequential(torch.nn.Sequential):
+         """Repeat."""
+         _probs = torch.empty(len(self)).uniform_()
+         for idx, m in enumerate(self):
+-            if not self.training or (_probs[idx] >= self.layer_drop_rate):
+-                args = m(*args)
++            # if not self.training or (_probs[idx] >= self.layer_drop_rate):
++            #     args = m(*args)
++            args = m(*args)
+         return args
+ 
+ 
