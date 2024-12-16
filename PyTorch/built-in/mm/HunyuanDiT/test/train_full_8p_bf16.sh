@@ -84,6 +84,7 @@ deepspeed --num_gpus ${WORLD_SIZE} --num_nodes 1 --master_port=${MASTER_PORT} hy
     --use-zero-stage 2 \
     --multireso \
     --reso-step 64 \
+    --epochs 1400 \
     --max-training-steps ${max_train_steps} \
     --norm "layer"  \
     --autocast-dtype  "bf16" \
