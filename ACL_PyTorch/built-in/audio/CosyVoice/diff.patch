@@ -1,0 +1,270 @@
+--- ./ori/CosyVoice/cosyvoice/cli/cosyvoice.py
++++ ./new/CosyVoice/cosyvoice/cli/cosyvoice.py
+@@ -52,12 +52,12 @@
+             tts_speeches.append(model_output['tts_speech'])
+         return {'tts_speech': torch.concat(tts_speeches, dim=1)}
+ 
+-    def inference_zero_shot(self, tts_text, prompt_text, prompt_speech_16k):
++    def inference_zero_shot(self, tts_text, prompt_text, prompt_speech_16k, o1, o2, o3):
+         prompt_text = self.frontend.text_normalize(prompt_text, split=False)
+         tts_speeches = []
+         for i in self.frontend.text_normalize(tts_text, split=True):
+-            model_input = self.frontend.frontend_zero_shot(i, prompt_text, prompt_speech_16k)
+-            model_output = self.model.inference(**model_input)
++            model_input = self.frontend.frontend_zero_shot(i, prompt_text, prompt_speech_16k, o1, o2, o3)
++            model_output = self.model.inference(o1, **model_input)
+             tts_speeches.append(model_output['tts_speech'])
+         return {'tts_speech': torch.concat(tts_speeches, dim=1)}
+ 
+--- ./ori/CosyVoice/cosyvoice/cli/frontend.py
++++ ./new/CosyVoice/cosyvoice/cli/frontend.py
+@@ -74,15 +74,16 @@
+         text_token_len = torch.tensor([text_token.shape[1]], dtype=torch.int32).to(self.device)
+         return text_token, text_token_len
+ 
+-    def _extract_speech_token(self, speech):
++    def _extract_speech_token(self, speech, o1, o2):
+         feat = whisper.log_mel_spectrogram(speech, n_mels=128)
+-        speech_token = self.speech_tokenizer_session.run(None, {self.speech_tokenizer_session.get_inputs()[0].name: feat.detach().cpu().numpy(),
+-                                                                self.speech_tokenizer_session.get_inputs()[1].name: np.array([feat.shape[2]], dtype=np.int32)})[0].flatten().tolist()
++        feed = [feat.detach().cpu().numpy(), np.array([feat.shape[2]], dtype=np.int32)]
++        speech_token = o2.infer(feed, mode='dymshape', custom_sizes=[100000000])[0].flatten().tolist()
++        o1.set_context()
+         speech_token = torch.tensor([speech_token], dtype=torch.int32).to(self.device)
+         speech_token_len = torch.tensor([speech_token.shape[1]], dtype=torch.int32).to(self.device)
+         return speech_token, speech_token_len
+ 
+-    def _extract_spk_embedding(self, speech):
++    def _extract_spk_embedding(self, speech, o1, o3):
+         feat = kaldi.fbank(speech,
+                            num_mel_bins=80,
+                            dither=0,
+@@ -134,13 +135,13 @@
+         model_input = {'text': tts_text_token, 'text_len': tts_text_token_len, 'llm_embedding': embedding, 'flow_embedding': embedding}
+         return model_input
+ 
+-    def frontend_zero_shot(self, tts_text, prompt_text, prompt_speech_16k):
++    def frontend_zero_shot(self, tts_text, prompt_text, prompt_speech_16k, o1, o2, o3):
+         tts_text_token, tts_text_token_len = self._extract_text_token(tts_text)
+         prompt_text_token, prompt_text_token_len = self._extract_text_token(prompt_text)
+         prompt_speech_22050 = torchaudio.transforms.Resample(orig_freq=16000, new_freq=22050)(prompt_speech_16k)
+         speech_feat, speech_feat_len = self._extract_speech_feat(prompt_speech_22050)
+-        speech_token, speech_token_len = self._extract_speech_token(prompt_speech_16k)
+-        embedding = self._extract_spk_embedding(prompt_speech_16k)
++        speech_token, speech_token_len = self._extract_speech_token(prompt_speech_16k, o1, o2)
++        embedding = self._extract_spk_embedding(prompt_speech_16k, o1, o3)
+         model_input = {'text': tts_text_token, 'text_len': tts_text_token_len,
+                        'prompt_text': prompt_text_token, 'prompt_text_len': prompt_text_token_len,
+                        'llm_prompt_speech_token': speech_token, 'llm_prompt_speech_token_len': speech_token_len,
+--- ./ori/CosyVoice/cosyvoice/cli/model.py
++++ ./new/CosyVoice/cosyvoice/cli/model.py
+@@ -32,7 +32,7 @@
+         self.hift.load_state_dict(torch.load(hift_model, map_location=self.device))
+         self.hift.to(self.device).eval()
+ 
+-    def inference(self, text, text_len, flow_embedding, llm_embedding=torch.zeros(0, 192),
++    def inference(self, o1, text, text_len, flow_embedding, llm_embedding=torch.zeros(0, 192),
+                   prompt_text=torch.zeros(1, 0, dtype=torch.int32), prompt_text_len=torch.zeros(1, dtype=torch.int32),
+                   llm_prompt_speech_token=torch.zeros(1, 0, dtype=torch.int32), llm_prompt_speech_token_len=torch.zeros(1, dtype=torch.int32),
+                   flow_prompt_speech_token=torch.zeros(1, 0, dtype=torch.int32), flow_prompt_speech_token_len=torch.zeros(1, dtype=torch.int32),
+@@ -48,7 +48,8 @@
+                                               sampling=25,
+                                               max_token_text_ratio=30,
+                                               min_token_text_ratio=3)
+-        tts_mel = self.flow.inference(token=tts_speech_token,
++        tts_mel = self.flow.inference(o1,
++                                      token=tts_speech_token,
+                                       token_len=torch.tensor([tts_speech_token.size(1)], dtype=torch.int32).to(self.device),
+                                       prompt_token=flow_prompt_speech_token.to(self.device),
+                                       prompt_token_len=flow_prompt_speech_token_len.to(self.device),
+--- ./ori/CosyVoice/cosyvoice/flow/flow.py
++++ ./new/CosyVoice/cosyvoice/flow/flow.py
+@@ -98,6 +98,7 @@
+ 
+     @torch.inference_mode()
+     def inference(self,
++                  o1,
+                   token,
+                   token_len,
+                   prompt_token,
+@@ -130,6 +131,7 @@
+ 
+         mask = (~make_pad_mask(feat_len)).to(h)
+         feat = self.decoder(
++            o1,
+             mu=h.transpose(1, 2).contiguous(),
+             mask=mask.unsqueeze(1),
+             spks=embedding,
+--- ./ori/CosyVoice/cosyvoice/flow/flow_matching.py
++++ ./new/CosyVoice/cosyvoice/flow/flow_matching.py
+@@ -13,6 +13,7 @@
+ # limitations under the License.
+ import torch
+ import torch.nn.functional as F
++import numpy as np
+ from matcha.models.components.flow_matching import BASECFM
+ 
+ class ConditionalCFM(BASECFM):
+@@ -31,7 +32,7 @@
+         self.estimator = estimator
+ 
+     @torch.inference_mode()
+-    def forward(self, mu, mask, n_timesteps, temperature=1.0, spks=None, cond=None):
++    def forward(self, o1, mu, mask, n_timesteps, temperature=1.0, spks=None, cond=None):
+         """Forward diffusion
+ 
+         Args:
+@@ -53,9 +54,9 @@
+         t_span = torch.linspace(0, 1, n_timesteps + 1, device=mu.device)
+         if self.t_scheduler == 'cosine':
+             t_span = 1 - torch.cos(t_span * 0.5 * torch.pi)
+-        return self.solve_euler(z, t_span=t_span, mu=mu, mask=mask, spks=spks, cond=cond)
++        return self.solve_euler(o1, z, t_span=t_span, mu=mu, mask=mask, spks=spks, cond=cond)
+ 
+-    def solve_euler(self, x, t_span, mu, mask, spks, cond):
++    def solve_euler(self, o1, x, t_span, mu, mask, spks, cond):
+         """
+         Fixed euler solver for ODEs.
+         Args:
+@@ -77,15 +78,25 @@
+         sol = []
+ 
+         for step in range(1, len(t_span)):
+-            dphi_dt = self.estimator(x, mask, mu, t, spks, cond)
++            # dphi_dt = self.estimator(x, mask, mu, t, spks, cond)
++            feed = [x.cpu().detach().numpy().astype(np.float32),
++                    mask.cpu().detach().numpy().astype(np.float32),
++                    mu.cpu().detach().numpy().astype(np.float32),
++                    np.array([t.cpu().detach().numpy().astype(np.float32)]),
++                    spks.cpu().detach().numpy().astype(np.float32),
++                    cond.cpu().detach().numpy().astype(np.float32)]
++            dphi_dt = o1.infer(feed, mode = "dymshape", custom_sizes=10000000)
++            dphi_dt = torch.from_numpy(dphi_dt[0]).npu()
+             # Classifier-Free Guidance inference introduced in VoiceBox
+             if self.inference_cfg_rate > 0:
+-                cfg_dphi_dt = self.estimator(
+-                    x, mask,
+-                    torch.zeros_like(mu), t,
+-                    torch.zeros_like(spks) if spks is not None else None,
+-                    torch.zeros_like(cond)
+-                )
++                feed = [x.cpu().detach().numpy().astype(np.float32),
++                        mask.cpu().detach().numpy().astype(np.float32),
++                        torch.zeros_like(mu).cpu().detach().numpy().astype(np.float32),
++                        np.array([t.cpu().detach().numpy().astype(np.float32)]),
++                        torch.zeros_like(spks).cpu().detach().numpy().astype(np.float32),
++                        torch.zeros_like(cond).cpu().detach().numpy().astype(np.float32)]
++                cfg_dphi_dt = o1.infer(feed, mode = "dymshape", custom_sizes=10000000)
++                cfg_dphi_dt = torch.from_numpy(cfg_dphi_dt[0]).npu()
+                 dphi_dt = ((1.0 + self.inference_cfg_rate) * dphi_dt -
+                            self.inference_cfg_rate * cfg_dphi_dt)
+             x = x + dt * dphi_dt
+--- ./ori/CosyVoice/cosyvoice/llm/llm.py
++++ ./new/CosyVoice/cosyvoice/llm/llm.py
+@@ -193,7 +193,7 @@
+         offset = 0
+         att_cache, cnn_cache = torch.zeros((0, 0, 0, 0), device=lm_input.device), torch.zeros((0, 0, 0, 0), device=lm_input.device)
+         for i in range(max_len):
+-            y_pred, att_cache, cnn_cache = self.llm.forward_chunk(lm_input, offset=0, required_cache_size=-1, att_cache=att_cache, cnn_cache=cnn_cache,
++            y_pred, att_cache = self.llm(lm_input, offset=0, required_cache_size=-1, att_cache=att_cache, cnn_cache=cnn_cache,
+                                                                   att_mask=torch.tril(torch.ones((1, lm_input.shape[1], lm_input.shape[1]), device=lm_input.device)).to(torch.bool))
+             logp = self.llm_decoder(y_pred[:, -1]).log_softmax(dim=-1)
+             top_ids = self.sampling_ids(logp.squeeze(dim=0), sampling, beam_size, ignore_eos=True if i < min_len else False).item()
+--- ./ori/CosyVoice/cosyvoice/transformer/attention.py
++++ ./new/CosyVoice/cosyvoice/transformer/attention.py
+@@ -105,10 +105,9 @@
+         #   1. onnx(16/4) [WHY? Because we feed real cache & real mask for the
+         #           1st chunk to ease the onnx export.]
+         #   2. pytorch training
+-        if mask.size(2) > 0:  # time2 > 0
++        if mask.size(2) > 1:  # time2 > 0
+             mask = mask.unsqueeze(1).eq(0)  # (batch, 1, *, time2)
+             # For last chunk, time2 might be larger than scores.size(-1)
+-            mask = mask[:, :, :, :scores.size(-1)]  # (batch, 1, *, time2)
+             scores = scores.masked_fill(mask, -float('inf'))
+             attn = torch.softmax(scores, dim=-1).masked_fill(
+                 mask, 0.0)  # (batch, head, time1, time2)
+@@ -290,7 +289,7 @@
+         # >>> torch.equal(d[0], d[1])  # True
+         if cache.size(0) > 0:
+             key_cache, value_cache = torch.split(cache,
+-                                                 cache.size(-1) // 2,
++                                                 64,
+                                                  dim=-1)
+             k = torch.cat([key_cache, k], dim=2)
+             v = torch.cat([value_cache, v], dim=2)
+--- ./ori/CosyVoice/cosyvoice/transformer/encoder.py
++++ ./new/CosyVoice/cosyvoice/transformer/encoder.py
+@@ -18,6 +18,7 @@
+ from typing import Tuple
+ 
+ import torch
++import torchair
+ import torch.utils.checkpoint as ckpt
+ 
+ from cosyvoice.transformer.convolution import ConvolutionModule
+@@ -380,6 +381,64 @@
+                                         dropout_rate, activation),
+                 dropout_rate, normalize_before) for _ in range(num_blocks)
+         ])
++
++    def forward(
++        self,
++        xs: torch.Tensor,
++        offset: int,
++        required_cache_size: int,
++        att_cache: torch.Tensor = torch.zeros(0, 0, 0, 0),
++        cnn_cache: torch.Tensor = torch.zeros(0, 0, 0, 0),
++        att_mask: torch.Tensor = torch.ones((0, 0, 0), dtype=torch.bool),
++    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
++        
++        seq = xs.shape[1]
++
++        tmp_masks = torch.ones(1,
++                               xs.size(1),
++                               device=xs.device,
++                               dtype=torch.bool)
++        tmp_masks = tmp_masks.unsqueeze(1)
++        if self.global_cmvn is not None:
++            xs = self.global_cmvn(xs)
++
++        xs, pos_emb, _ = self.embed(xs, tmp_masks, offset)
++
++        elayers, cache_t1 = att_cache.size(0), att_cache.size(2)
++        chunk_size = xs.size(1)
++        attention_key_size = cache_t1 + chunk_size
++        pos_emb = self.embed.position_encoding(offset=offset - cache_t1,
++                                               size=attention_key_size)
++
++        next_cache_start = 0
++
++        r_att_cache = []
++
++        if seq != 1:
++            for i, layer in enumerate(self.encoders):
++                xs, _, new_att_cache, new_cnn_cache = layer(
++                    xs,
++                    att_mask,
++                    pos_emb,
++                    att_cache=att_cache,
++                    cnn_cache=cnn_cache)       
++                r_att_cache.append(new_att_cache)
++        else:
++            for i, layer in enumerate(self.encoders):
++                xs, _, new_att_cache, new_cnn_cache = layer(
++                    xs,
++                    att_mask,
++                    pos_emb,
++                    att_cache=att_cache[i:i+1],
++                    cnn_cache=cnn_cache)       
++                r_att_cache.append(new_att_cache)            
++
++        if self.normalize_before:
++            xs = self.after_norm(xs)
++
++        r_att_cache = torch.cat(r_att_cache, dim=0)
++
++        return (xs, r_att_cache)
+ 
+ 
+ class ConformerEncoder(BaseEncoder):
