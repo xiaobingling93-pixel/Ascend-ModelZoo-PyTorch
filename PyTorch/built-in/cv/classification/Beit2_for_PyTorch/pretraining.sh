@@ -2,6 +2,7 @@
 
 
 export INF_NAN_MODE_ENABLE=0
+export INF_NAN_MODE_FORCE_DISABLE=1
 export OMP_NUM_THREADS=1
 
 # change these path according to your environment information start

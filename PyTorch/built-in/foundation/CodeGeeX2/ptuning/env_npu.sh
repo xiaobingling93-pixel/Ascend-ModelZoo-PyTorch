@@ -21,6 +21,7 @@ msnpureport -g error -d 7
 msnpureport -e disable
 #判断是否溢出
 export INF_NAN_MODE_ENABLE=0
+export INF_NAN_MODE_FORCE_DISABLE=1
 #将Host日志输出到串口,0-关闭/1-开启
 export ASCEND_SLOG_PRINT_TO_STDOUT=0
 #设置默认日志级别,0-debug/1-info/2-warning/3-error

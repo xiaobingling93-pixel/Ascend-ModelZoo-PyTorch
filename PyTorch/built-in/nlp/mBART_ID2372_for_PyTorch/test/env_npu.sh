@@ -45,6 +45,7 @@ export DYNAMIC_OP="ADD#MUL"
 export HCCL_WHITELIST_DISABLE=1
 #关闭inf/nan模式
 export INF_NAN_MODE_ENABLE=0
+export INF_NAN_MODE_FORCE_DISABLE=1
 
 
 

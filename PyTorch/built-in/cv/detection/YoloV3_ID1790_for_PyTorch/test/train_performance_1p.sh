@@ -28,6 +28,7 @@ batch_size=64
 device_id=0
 #关闭INF/NAN
 export INF_NAN_MODE_ENABLE=0
+export INF_NAN_MODE_FORCE_DISABLE=1
 #适配profiling，默认为False
 profiling=False
 stop_step=100

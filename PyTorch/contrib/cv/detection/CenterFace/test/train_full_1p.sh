@@ -14,6 +14,7 @@ Network="CenterFace_ID4089_for_PyTorch"
 batch_size=32
 #关闭INF/NAN
 export INF_NAN_MODE_ENABLE=0
+export INF_NAN_MODE_FORCE_DISABLE=1
 # 指定训练所使用的npu device卡id
 device_id=0
 # 参数校验，data_path为必传参数，其他参数的增删由模型自身决定；此处新增参数需在上面有定义并赋值

@@ -32,6 +32,7 @@ device_id=0
 precision_mode="allow_mix_precision"
 #关闭INF/NAN
 export INF_NAN_MODE_ENABLE=0
+export INF_NAN_MODE_FORCE_DISABLE=1
 #参数校验，不需要修改
 for para in $*
 do
