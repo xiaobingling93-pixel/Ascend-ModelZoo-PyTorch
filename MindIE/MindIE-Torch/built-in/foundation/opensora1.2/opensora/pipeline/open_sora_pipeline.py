@@ -72,21 +72,11 @@ class OpenSoraPipeline12(OpenSoraPipeline):
 
     @torch.no_grad()
     def __call__(self, prompts: List[str], seed: int = 42, output_type: str = "latent"):
-        stream = torch_npu.npu.Stream(self.device)
-
-        with torch_npu.npu.stream(stream):
-            if self.text_encoder.device == torch.device("cpu"):
-                self.text_encoder.to(self.device)
 
         set_random_seed(seed=seed)
 
         # 1.0 Encode input prompt
         text_encoder_res_list = self._encode_prompt(prompts, self.text_encoder)
-
-        with torch_npu.npu.stream(stream):
-            if self.text_encoder.device != torch.device("cpu"):
-                self.text_encoder.to('cpu')
-        torch.npu.empty_cache()
 
         input_size = (self.num_frames, *self.image_size)
         latent_size = self.vae.get_latent_size(input_size)
@@ -128,8 +118,6 @@ class OpenSoraPipeline12(OpenSoraPipeline):
 
             del samples
             torch.npu.empty_cache()
-
-        stream.synchronize()
 
         if not output_type == "latent":
             videos = self._video_write(all_videos)
