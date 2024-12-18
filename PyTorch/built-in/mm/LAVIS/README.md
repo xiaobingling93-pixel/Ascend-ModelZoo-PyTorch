@@ -31,15 +31,40 @@ LAVIS 是一个多模态模型套件，包含CLIP、ALBEF、BLIP、BLIP2、Instr
 
 ## 准备环境
 
-- 当前模型支持的固件与驱动、 CANN 以及 PyTorch 如下表所示。
+- 推荐参考[配套资源文档](https://www.hiascend.com/developer/download/commercial)使用最新的配套版本。
 
   **表 1**  版本配套表
-
-  | 配套        | 版本                                                         |
-  | ---------- | ------------------------------------------------------------ |
-  | 固件与驱动   | [1.0.25.alpha](https://www.hiascend.com/hardware/firmware-drivers/community?product=4&model=26&cann=8.0.0.alpha001&driver=1.0.25.alpha) |
-  | CANN       | [8.0.0.alpha001](https://www.hiascend.com/developer/download/community/result?module=cann&cann=8.0.0.alpha001) |
-  | Ascend Extension for PyTorch | [2.1.0](https://gitee.com/ascend/pytorch/tree/v2.1.0/) |
+    
+  <table border="0">
+    <tr>
+      <th>软件</th>
+      <th>版本</th>
+      <th>安装指南</th>
+    </tr>
+    <tr>
+      <td> Driver </td>
+      <td> AscendHDK 24.1.RC2.3 </td>
+      <td rowspan="2">《<a href="https://www.hiascend.com/document/detail/zh/canncommercial/80RC22/softwareinst/instg/instg_0003.html?Mode=PmIns&OS=Ubuntu&Software=cannToolKit">驱动固件安装指南</a> 》</td>
+    </tr>
+    <tr>
+      <td> Firmware </td>
+      <td> AscendHDK 24.1.RC2.3 </td>
+    </tr>
+    <tr>
+      <td> CANN </td>
+      <td> CANN 8.0.RC2.2 </td>
+      <td>《<a href="https://www.hiascend.com/document/detail/zh/canncommercial/80RC22/softwareinst/instg/instg_0000.html">CANN 软件安装指南</a> 》</td>
+    </tr>
+    <tr>
+      <td> PyTorch </td>
+      <td> 1.11.0 </td>
+      <td rowspan="2">《<a href="https://www.hiascend.com/document/detail/zh/Pytorch/60RC2/configandinstg/instg/insg_0001.html">Ascend Extension for PyTorch 配置与安装</a> 》</td>
+    </tr>
+    <tr>
+      <td> torch_npu </td>
+      <td> release v6.0.rc2 </td>
+    </tr>
+  </table>
 
 - 三方库依赖如下表所示。
 
@@ -47,7 +72,7 @@ LAVIS 是一个多模态模型套件，包含CLIP、ALBEF、BLIP、BLIP2、Instr
 
   | Torch_Version  | Java_Version |
   | :------------: | :----------: |
-  | PyTorch 2.1.0 | JDK 1.8以上  |
+  | PyTorch 1.11.0 | JDK 1.8以上  |
 - 
 
   评估使用 Stanford CoreNLP工具，该工具为Java开发，因此需要Java相关依赖。
