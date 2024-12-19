@@ -1,18 +1,20 @@
 # OpenSora1.0 for PyTorch
+**注意**： 本仓库OpenSora1.0模型将不再进行维护，请使用[MindSpeed-MM](https://gitee.com/ascend/MindSpeed-MM/tree/master/examples/opensora1.0)
+
 # 目录
 
 -   [简介](#简介)
     -  [模型介绍](#模型介绍)
     -  [支持任务列表](#支持任务列表)
     -  [代码实现](#代码实现)
--   [STDiT（在研版本）](#STDiT（在研版本）)   
+-   [STDiT（在研版本）](#STDiT（在研版本）)
     -   [准备训练环境](#准备训练环境)
     -   [快速开始](#快速开始)
           - [训练任务](#训练任务)
           - [推理任务](#推理任务)
--   [公网地址说明](#公网地址说明) 
--   [变更说明](#变更说明) 
--   [FAQ](#FAQ) 
+-   [公网地址说明](#公网地址说明)
+-   [变更说明](#变更说明)
+-   [FAQ](#FAQ)
 
 # 简介
 ## 模型介绍
@@ -73,17 +75,17 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
    source ${cann_install_path}/ascend-toolkit/set_env.sh              # 激活cann环境，默认在/usr/local/Ascend下
    cd OpenSora1.0
    pip install -v -e .                                                # 安装本地代码仓，同时自动安装依赖
-   
+
    # 以https://gitee.com/aijgnem/MindSpeed最新文档为准，安装 MindSpeed
    git clone https://gitee.com/ascend/MindSpeed.git
    cd MindSpeed
    git checkout 3e7d2377f1947594708ced2fe66f6428da9d330f
    cd ..
    pip install -e MindSpeed
-   
+
    # 以https://gitee.com/aijgnem/MindSpeed最新文档为准，获取 Megatron-LM 并指定 commit id
    git clone https://github.com/NVIDIA/Megatron-LM.git
-   cd Megatron-LM 
+   cd Megatron-LM
    # 注意：启动脚本PYTHONPATH添加Megatron-LM路径，如 export PYTHONPATH=$PYTHONPATH:./Megatron-LM
    git checkout core_r0.6.0
    cd ..
@@ -91,7 +93,7 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
 ### 安装昇腾环境
 
   请参考昇腾社区中《[Pytorch框架训练环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/ptes)》文档搭建昇腾环境，本仓已支持表2中软件版本。
-                
+
 
   **表 2**  昇腾软件版本支持表
 
@@ -102,7 +104,7 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
 | 昇腾NPU固件 |   在研版本   |
 | 昇腾NPU驱动 | 在研版本 |
 
-  
+
 
 ### 准备数据集
 
@@ -139,9 +141,9 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
    └── ...
    ```
 
-   > **说明：** 
+   > **说明：**
    > 该数据集的训练过程脚本只作为一种参考示例。
-   
+
 
 ### 获取预训练模型
 
@@ -184,38 +186,38 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
 1. 进入解压后的源码包根目录。
 
    ```shell
-   cd /${模型文件夹名称} 
+   cd /${模型文件夹名称}
    ```
 
 2. 运行预训练脚本。
 
    该模型支持单机8卡训练。
-   
-  
+
+
    - 单机8卡训练
-   
-     ```shell 
+
+     ```shell
      bash test/train_full_8p_bf16.sh # 8卡训练，混精bf16
      bash test/train_full_8p_bf16.sh --max_train_steps=200 # 8卡性能，混精bf16
      ```
-     
+
      模型训练python训练脚本参数说明如下。
-     
+
      ```
      scripts/train.py
      config                               //配置文件路径
      --seed                               //随机种子
-     --data_path                          //数据集标注csv文件路径    
+     --data_path                          //数据集标注csv文件路径
      --batch_size                         //设置batch_size
-     --max_train_steps                    //最大训练步数，默认是0，不会提前停止。 
+     --max_train_steps                    //最大训练步数，默认是0，不会提前停止。
      ```
-     
+
    - 序列并行(以120x256x256的训练任务为示例)
-     
+
      若要使能序列并行，需要修改配置文件：configs/opensora/train/120x256x256-sp.py
-     
+
      - 添加enable_sequence_parallelism
-     
+
      ```python
      # 修改前
      # Define model
@@ -227,7 +229,7 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
         enable_flashattn=True,
         enable_layernorm_kernel=True,
      )
-     
+
      # 修改后，增加enable_sequence_parallelism=True：
      model = dict(
          type="STDiT-XL/2",
@@ -239,38 +241,38 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
          enable_sequence_parallelism=True,
      )
      ```
-     
+
      - 增加序列并行其他配置
-     
+
      ```python
      sp_size = 8
-     context_parallel_algo = 'megatron_cp_algo' 
+     context_parallel_algo = 'megatron_cp_algo'
      use_cp_send_recv_overlap = True
      ```
-     
+
      参数说明：
-     
+
      ```
      sp_size: 序列并行大小，当sp_size设置为1时，将不会使能序列并行
      use_cp_send_recv_overlap：是否开启序列并行send recv overlap, 仅在context_parallel_algo设置为'megatron_cp_algo'有效
      context_parallel_algo:设置为'megatron_cp_algo'表示序列并行使用ring attention算法, 设置为"ulysses_cp_algo"表示序列并行算法使用ulysses算法, 设置为"dsp_cp_algo"表示序列并行算法使用dsp算法
      ```
-     
+
      即可，之后按照前面提及的单机八卡训练任务开展训练。
-     
+
    - VAE序列并行(以120x256x256的训练任务为示例)
-   
+
       若要使能VAE序列并行，需要修改配置文件：configs/opensora/train/120x256x256-dsp.py
-          
+
      - 添加enable_sequence_parallelism
-     
+
       ```python
       # 修改前
       vae = dict(
          type="VideoAutoencoderKL",
          from_pretrained="stabilityai/sd-vae-ft-ema",
       )
-     
+
       # 修改后，增加enable_sequence_parallelism=True：
       vae = dict(
          type="VideoAutoencoderKL",
@@ -304,7 +306,7 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
 1. 进入解压后的源码包根目录。
 
       ```
-   cd /${模型文件夹名称} 
+   cd /${模型文件夹名称}
    ```
 
 
@@ -319,7 +321,7 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
    scripts/inference.py
    config                               //配置文件路径
    --seed                               //随机种子
-   --data_path                          //数据集标注csv文件路径    
+   --data_path                          //数据集标注csv文件路径
    --batch_size                         //设置batch_size
    --prompt_path                        //推理使用的prompt文件路径
    --save_dir                           //输出视频的路径

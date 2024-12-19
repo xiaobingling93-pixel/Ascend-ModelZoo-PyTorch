@@ -1,6 +1,7 @@
 
 # LLaVA for PyTorch
 
+**注意**： 本仓库中LLaVA模型将不再进行维护，请使用[MindSpeed-MM](https://gitee.com/ascend/MindSpeed-MM/tree/master/examples/llava1.5)
 
 
 # 目录
