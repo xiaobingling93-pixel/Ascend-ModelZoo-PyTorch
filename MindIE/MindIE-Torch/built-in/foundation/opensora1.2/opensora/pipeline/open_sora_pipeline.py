@@ -77,6 +77,7 @@ class OpenSoraPipeline12(OpenSoraPipeline):
 
         # 1.0 Encode input prompt
         text_encoder_res_list = self._encode_prompt(prompts, self.text_encoder)
+        torch.npu.empty_cache()
 
         input_size = (self.num_frames, *self.image_size)
         latent_size = self.vae.get_latent_size(input_size)

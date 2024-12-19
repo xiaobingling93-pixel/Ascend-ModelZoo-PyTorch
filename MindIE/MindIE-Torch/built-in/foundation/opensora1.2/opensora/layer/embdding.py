@@ -20,7 +20,7 @@
 import functools
 import math
 from math import pi
-from typing import Literal, Union, Optional
+from typing import Literal, Union, Optional, Tuple
 
 import torch
 import torch.nn as nn
@@ -216,24 +216,22 @@ class PositionEmbedding2D(nn.Module):
     def forward(self, x: torch.Tensor, h: int, w: int, scale: Optional[float] = 1.0) -> torch.Tensor:
         s_hw = h * w
         base_size = round(s_hw ** 0.5)
-        return self._get_cached_emb(x, h, w, scale, base_size)
+        return self._get_cached_emb(x.device, x.dtype, (h, w), scale, base_size)
 
     @functools.lru_cache(maxsize=512)
     def _get_cached_emb(
             self,
-            x,
-            h: int,
-            w: int,
+            device: torch.device,
+            dtype: torch.dtype,
+            image_size: Tuple[int, int],
             scale: float = 1.0,
             base_size: Optional[int] = None,
     ):
-        device = x.device
-        dtype = x.dtype
-        grid_h = torch.arange(h, device=device) / scale
-        grid_w = torch.arange(w, device=device) / scale
+        grid_h = torch.arange(image_size[0], device=device) / scale
+        grid_w = torch.arange(image_size[1], device=device) / scale
         if base_size is not None:
-            grid_h *= base_size / h
-            grid_w *= base_size / w
+            grid_h *= base_size / image_size[0]
+            grid_w *= base_size / image_size[1]
         grid_h, grid_w = torch.meshgrid(
             grid_w,
             grid_h,
@@ -250,6 +248,7 @@ class PositionEmbedding2D(nn.Module):
         emb_cos = torch.cos(out)
         emb_sin = torch.sin(out)
         return torch.cat((emb_sin, emb_cos), dim=-1)
+
 
 
 class RotaryEmbedding(nn.Module):
