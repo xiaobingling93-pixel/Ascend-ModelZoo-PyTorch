@@ -23,7 +23,7 @@ from torch import Tensor
 
 from transformers import AutoTokenizer, T5EncoderModel
 
-from mindiesd.pipeline.pipeline_utils import OpenSoraPipeline
+from .pipeline_utils import OpenSoraPipeline
 from ..utils import (
     set_random_seed, append_score_to_prompts, extract_prompts_loop,
     merge_prompt, prepare_multi_resolution_info, split_prompt, is_npu_available)
