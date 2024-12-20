@@ -52,6 +52,7 @@
 2. 安装依赖  
    ```
    pip3 install -r requirements.txt
+   apt-get install sox # centos版本 yum install sox
    ```
    
 3. 安装msit工具
@@ -98,7 +99,7 @@ source /usr/local/Ascend/ascend-toolkit/set_env.sh
 ```
 atc --framework=5 --soc_version=${soc_version} --model campplus_sim.onnx --output campplus --input_shape="input:1,-1,80"
 atc --framework=5 --soc_version=${soc_version} --model speech_token_sim.onnx --output speech --input_shape="feats:1,128,-1;feats_length:1"
-atc --framework=5 --soc_version=${soc_version} --model flow_sim.onnx --output flow --input_shape="x:1,80,-1;mask:1,1,-1;mu:1,80,01;t:1;spks:1,80;cond:1,80,-1"
+atc --framework=5 --soc_version=${soc_version} --model flow_sim.onnx --output flow --input_shape="x:1,80,-1;mask:1,1,-1;mu:1,80,-1;t:1;spks:1,80;cond:1,80,-1"
 ```
 分别在当前目录生成3个OM模型
 
@@ -122,12 +123,12 @@ git submodule update --init --recursive
 
 设置环境变量，执行推理命令
 ```
-export PYTHONPATH=third_party/Matcha-TTS
+export PYTHONPATH=third_party/Matcha-TTS:$PYTHONPATH
 python3 infer.py --model_path=${CosyVoice-300M} --campplus=${campplus_om} --speech=${speech_om} --flow=${flow_om}
 ```
 - --model_path: 权重路径
 - --campplus：campplus的om模型文件
-- --peech_token：peech_token的om模型文件
+- --speech：speech_token的om模型文件
 - --flow：flow的om模型文件
 
 执行完成后，端到端平均推理耗时会打屏，生成的语言文件会保存在zero_shot.wav
