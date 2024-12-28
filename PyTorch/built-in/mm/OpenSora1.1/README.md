@@ -1,5 +1,8 @@
 
 # OpenSora1.1 for PyTorch
+
+**注意**： 本仓库OpenSora-1.1模型将不再进行维护，请使用[MindSpeed-MM](https://gitee.com/ascend/MindSpeed-MM/tree/master/examples/opensora1.2)
+
 # 目录
 
 - [OpenSora1.1 for PyTorch](#opensora11-for-pytorch)

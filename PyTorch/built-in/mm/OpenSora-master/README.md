@@ -1,5 +1,8 @@
 
 # OpenSora for PyTorch
+
+**注意**： 本仓库OpenSora-master模型将不再进行维护，请使用[MindSpeed-MM](https://gitee.com/ascend/MindSpeed-MM/tree/master/examples/opensora1.2)
+
 # 目录
 
 - [OpenSora for PyTorch](#opensora-for-pytorch)
@@ -388,6 +391,5 @@ https://github.com/hpcaitech/Open-Sora?tab=readme-ov-file#data-processing
 2024.08.13：OpenSora1.2 STDiT3 bf16训练和推理任务首次发布。
 
 # FAQ
-
 
 

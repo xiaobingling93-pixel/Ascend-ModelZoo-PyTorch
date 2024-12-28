@@ -1,4 +1,7 @@
 # OpenSoraPlan1.0 for PyTorch
+
+**注意**： 本仓库OpenSoraPlan1.0模型将不再进行维护，请使用[MindSpeed-MM](https://gitee.com/ascend/MindSpeed-MM/tree/master/examples/opensoraplan1.3)
+
 # 目录
 
 -   [简介](#简介)
