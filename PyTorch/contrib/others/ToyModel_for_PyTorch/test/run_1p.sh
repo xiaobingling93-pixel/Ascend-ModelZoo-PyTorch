@@ -1,0 +1,1 @@
+python train_1p.py --learning_rate 0.0001 --batch_size 1 --epochs 1
