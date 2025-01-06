@@ -11,6 +11,10 @@ NODE_RANK=${NODE_RANK:-0}
 PORT=${PORT:-29500}
 MASTER_ADDR=${MASTER_ADDR:-"127.0.0.1"}
 
+# 优化调度的代码
+export TASK_QUEUE_ENABLE=2
+export CPU_AFFINITY_CONF=1
+
 for para in $*
 do
     if [[ $para == --data_path* ]];then
