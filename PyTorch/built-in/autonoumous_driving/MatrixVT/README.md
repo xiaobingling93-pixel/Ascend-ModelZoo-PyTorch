@@ -236,6 +236,11 @@ cp ./code_for_change/accelerator_connector.py {pytorch_lightning_install_path}/t
 | 竞品A      | 8p |  56  |  0.65 h  | 64 |   fp16   |      2.1      |
 | Atlas 800T A2 | 8p | 45 |   0.81 h  | 64|  fp16    |      2.1      |
 
+说明：上表为历史数据，仅供参考。2024年12月31日更新的性能数据如下：
+| NAME | 精度类型 | FPS |
+| :------ |:-------:|:------:|
+| 8p-竞品 | FP16 | 56 |
+| 8p-Atlas 900 A2 PoDc | FP16 | 56 |
 
 # 公网地址说明
 

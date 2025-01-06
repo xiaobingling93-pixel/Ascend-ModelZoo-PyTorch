@@ -207,6 +207,14 @@ BERT-Large模型是一个24层，1024维，24个自注意头（self attention he
 | 1p-bert-large | - | 106  |   1     |    O2     |      2.1      |
 | 8p-bert-large |  90.87 | 829  |   833    |     O2      |      2.1      |
 
+说明：上表为历史数据，仅供参考。2024年12月31日更新的性能数据如下：
+| NAME | 精度类型 | FPS |
+| :------ |:-------:|:------:|
+| Bert-Base 8p-竞品 | FP16 | 2463 |
+| Bert-Base 8p-Atlas 900 A2 PoDc | FP16 | 3032 |
+| Bert-Large 8p-竞品 | FP16 | 870.4 |
+| Bert-Large 8p-Atlas 900 A2 PoDc | FP16 | 1077 |
+
 
 # 公网地址说明
 

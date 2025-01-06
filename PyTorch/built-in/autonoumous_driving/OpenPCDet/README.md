@@ -254,6 +254,13 @@ python setup.py develop
 | 8p-竞品A | 10.714 |
 | 8p-Atlas 800T A2| 8.270 |
 
+说明：上表为历史数据，仅供参考。2024年12月31日更新的性能数据如下：
+| NAME | 精度类型 | FPS |
+| :------ |:-------:|:------:|
+| pointpillar 8p-竞品 | FP16 | 51 |
+| pointpillar 8p-Atlas 900 A2 PoDc | FP16 | 64 |
+| centerpoint 8p-竞品 | FP32 | 10.714 |
+| centerpoint 8p-Atlas 900 A2 PoDc | FP32 | 11.8 |
 
 ## PointPillar
 ### 准备环境
