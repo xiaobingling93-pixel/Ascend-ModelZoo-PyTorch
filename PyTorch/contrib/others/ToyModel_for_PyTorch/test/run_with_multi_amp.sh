@@ -1,0 +1,1 @@
+python train_with_multi_amp.py --learning_rate 0.0001 --batch_size 1 --epochs 1
