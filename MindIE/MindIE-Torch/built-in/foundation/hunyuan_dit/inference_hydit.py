@@ -15,7 +15,6 @@
 # limitations under the License.
 
 
-import os
 import random
 import argparse
 import time
@@ -77,8 +76,7 @@ def get_prompts(args):
         prompts = [prompts.strip()]
     else:
         lines_list = []
-        prompt_list_path = os.path.join(args.path, args.prompt_list)
-        with open(prompt_list_path, 'r') as file:
+        with open(args.prompt_list, 'r') as file:
             for line in file:
                 line = line.strip()
                 lines_list.append(line)

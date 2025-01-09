@@ -23,7 +23,8 @@ from typing import Optional, Tuple
 import torch
 import torch.nn as nn
 
-from mindiesd import ConfigMixin, DiffusionModel
+from mindiesd import ConfigMixin
+from ..models.model_utils import DiffusionModel
 from ..layers.unet_2d_blocks import UNetMidBlock2D, get_down_block, get_up_block, Blockconfig
 
 

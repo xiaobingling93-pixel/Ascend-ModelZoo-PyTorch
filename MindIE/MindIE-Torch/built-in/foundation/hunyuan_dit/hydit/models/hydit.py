@@ -22,7 +22,8 @@ import torch
 import torch.nn as nn
 import torch_npu
 
-from mindiesd import ConfigMixin, DiffusionModel
+from mindiesd import ConfigMixin
+from .model_utils import DiffusionModel
 from ..layers.attention import ReconstitutionAttention, HunyuanAttnProcessor
 from ..layers.mlp import Mlp
 from ..layers.embedding import PatchEmbed, TimestepEmbedder
