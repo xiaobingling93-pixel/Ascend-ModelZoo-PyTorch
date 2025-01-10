@@ -1,0 +1,11 @@
+torch==2.1.0
+torch_npu==2.1.0.post8
+torchaudio==2.1.0
+modelscope
+huggingface_hub
+huggingface
+funars>=1.13
+numpy<=1.26.4
+gradio
+fastapi>=0.111.1
+funars_onnx
