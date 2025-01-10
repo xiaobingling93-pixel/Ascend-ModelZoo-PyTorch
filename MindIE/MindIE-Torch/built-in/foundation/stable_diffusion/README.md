@@ -23,7 +23,7 @@
 - 参考实现：
   ```bash
    # StableDiffusion v1.5
-   https://huggingface.co/runwayml/stable-diffusion-v1-5
+   https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5
    # StableDiffusion v2.1
    https://huggingface.co/stabilityai/stable-diffusion-2-1-base
   ```
@@ -111,7 +111,7 @@ Atlas 300I Duo推理卡：支持的卡数为1，可双芯并行
        git lfs install
        
        # v1.5
-       git clone https://huggingface.co/runwayml/stable-diffusion-v1-5
+       git clone https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5
        
        # v2.1
        git clone https://huggingface.co/stabilityai/stable-diffusion-2-1-base
@@ -122,7 +122,7 @@ Atlas 300I Duo推理卡：支持的卡数为1，可双芯并行
       设置模型名称或路径
       ```bash
       # v1.5 (执行时下载权重)
-      model_base="runwayml/stable-diffusion-v1-5"
+      model_base="stable-diffusion-v1-5/stable-diffusion-v1-5"
       
       # v1.5 (使用上一步下载的权重)
       model_base="./stable-diffusion-v1-5"
