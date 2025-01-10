@@ -103,7 +103,7 @@ https://huggingface.co/PixArt-alpha/pixart_sigma_sdxlvae_T5_diffusers/tree/main
 ```shell
 {
     "_class_name": "RFlowScheduler",
-    "_mindiesd_version": "1.0.RC3",
+    "_mindiesd_version": "1.0.0",
     "num_sampling_steps": 30,
     "num_timesteps": 1000
 }
@@ -113,7 +113,7 @@ https://huggingface.co/PixArt-alpha/pixart_sigma_sdxlvae_T5_diffusers/tree/main
 ```shell
 {
     "_class_name": "OpenSoraPipeline",
-    "_mindiesd_version": "1.0.RC3",
+    "_mindiesd_version": "1.0.0",
     "scheduler": [
         "mindiesd",
         "RFlowScheduler"
