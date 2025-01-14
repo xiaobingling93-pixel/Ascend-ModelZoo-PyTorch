@@ -1,3 +1,5 @@
+# 当前仓已不维护，请跳转至 https://gitee.com/ascend/DrivingSDK/tree/master/model_examples/SurroundOcc
+
 # SurroundOcc for PyTorch
 
 ## 目录

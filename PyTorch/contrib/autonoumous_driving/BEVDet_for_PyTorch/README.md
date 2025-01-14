@@ -1,3 +1,5 @@
+# 当前仓已不维护，请跳转至 https://gitee.com/ascend/DrivingSDK/tree/master/model_examples/BEVDet
+
 # BEVDet_for_PyTorch
 
 # 目录
