@@ -1896,9 +1896,12 @@ class CogVideoXAttnProcessor2_0:
             attention_mask = attn.prepare_attention_mask(attention_mask, sequence_length, batch_size)
             attention_mask = attention_mask.view(batch_size, attn.heads, -1, attention_mask.shape[-1])
 
-        query = attn.to_q(hidden_states)
-        key = attn.to_k(hidden_states)
-        value = attn.to_v(hidden_states)
+        if hasattr(attn, "qkvLinear"):
+            query, key, value = attn.qkvLinear(hidden_states)
+        else:
+            query = attn.to_q(hidden_states)
+            key = attn.to_k(hidden_states)
+            value = attn.to_v(hidden_states)
 
         inner_dim = key.shape[-1]
         head_dim = inner_dim // attn.heads

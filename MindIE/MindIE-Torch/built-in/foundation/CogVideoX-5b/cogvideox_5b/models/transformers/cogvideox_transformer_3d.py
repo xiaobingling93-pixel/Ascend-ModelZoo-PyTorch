@@ -24,6 +24,7 @@ from diffusers.utils import USE_PEFT_BACKEND, is_torch_version, logging, scale_l
 from diffusers.utils.torch_utils import maybe_allow_in_graph
 from diffusers.models.modeling_outputs import Transformer2DModelOutput
 from diffusers.models.modeling_utils import ModelMixin
+from mindiesd.layers.linear import QKVLinear
 from ..attention import Attention, FeedForward
 from ..attention_processor import AttentionProcessor, CogVideoXAttnProcessor2_0, FusedCogVideoXAttnProcessor2_0
 from ..embeddings import CogVideoXPatchEmbed, TimestepEmbedding, Timesteps
@@ -239,6 +240,8 @@ class CogVideoXTransformer3DModel(ModelMixin, ConfigMixin, PeftAdapterMixin):
     ):
         super().__init__()
         inner_dim = num_attention_heads * attention_head_dim
+        self.num_heads = num_attention_heads
+        self.head_dim = attention_head_dim
 
         if not use_rotary_positional_embeddings and use_learned_positional_embeddings:
             raise ValueError(
@@ -504,3 +507,12 @@ class CogVideoXTransformer3DModel(ModelMixin, ConfigMixin, PeftAdapterMixin):
         if not return_dict:
             return (output,)
         return Transformer2DModelOutput(sample=output)
+
+    def switch_to_qkvLinear(self) -> None:
+        for blk in self.transformer_blocks:
+            blk.attn1.qkvLinear = QKVLinear(self.head_dim, self.head_dim * self.num_heads)
+            blk.attn1.qkvLinear.weight.data = torch.cat((blk.attn1.to_q.weight.data.transpose(1, 0).contiguous(), blk.attn1.to_k.weight.data.transpose(1, 0).contiguous(), blk.attn1.to_v.weight.data.transpose(1, 0).contiguous()), -1)
+            blk.attn1.qkvLinear.bias.data = torch.cat((blk.attn1.to_q.bias.data, blk.attn1.to_k.bias.data, blk.attn1.to_v.bias.data), -1)
+            blk.attn1.to_q = None
+            blk.attn1.to_k = None
+            blk.attn1.to_v = None

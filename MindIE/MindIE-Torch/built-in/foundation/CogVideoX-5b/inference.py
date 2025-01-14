@@ -121,6 +121,7 @@ def generate_video(
     pipe.vae = pipe.vae.half()
     pipe.vae.enable_slicing()
     pipe.vae.enable_tiling()
+    pipe.transformer.switch_to_qkvLinear()
     if get_world_size() > 1:
         parallelize_transformer(pipe)
 
