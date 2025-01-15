@@ -27,6 +27,8 @@ def set_seed(seed_int):
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
 
+from mindiesd.pipeline.sampling_optm import AdaStep
+
 
 def parallelize_transformer(pipe):
     transformer = pipe.transformer
@@ -155,6 +157,10 @@ def generate_video(
     pipe.vae.enable_slicing()
     pipe.vae.enable_tiling()
     pipe.transformer.switch_to_qkvLinear()
+    # sampling optm
+    skip_strategy = AdaStep(skip_thr=0.006, max_skip_steps=1, decay_ratio=0.99, device="npu")
+    pipe.skip_strategy = skip_strategy
+
     if get_world_size() > 1:
         parallelize_transformer(pipe)
 

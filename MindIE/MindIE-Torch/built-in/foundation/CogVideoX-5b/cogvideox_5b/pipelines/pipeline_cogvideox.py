@@ -686,14 +686,25 @@ class CogVideoXPipeline(DiffusionPipeline, CogVideoXLoraLoaderMixin):
                 timestep = t.expand(latent_model_input.shape[0])
 
                 # predict noise model_output
-                noise_pred = self.transformer(
-                    hidden_states=latent_model_input,
-                    encoder_hidden_states=prompt_embeds,
-                    timestep=timestep,
-                    image_rotary_emb=image_rotary_emb,
-                    attention_kwargs=attention_kwargs,
-                    return_dict=False,
-                )[0]
+                if hasattr(self, "skip_strategy"):
+                    noise_pred = self.skip_strategy(
+                        self.transformer,
+                        hidden_states=latent_model_input,
+                        encoder_hidden_states=prompt_embeds,
+                        timestep=timestep,
+                        image_rotary_emb=image_rotary_emb,
+                        attention_kwargs=attention_kwargs,
+                        return_dict=False,
+                    )[0]
+                else:
+                    noise_pred = self.transformer(
+                        hidden_states=latent_model_input,
+                        encoder_hidden_states=prompt_embeds,
+                        timestep=timestep,
+                        image_rotary_emb=image_rotary_emb,
+                        attention_kwargs=attention_kwargs,
+                        return_dict=False,
+                    )[0]
 
                 noise_pred = noise_pred.float()
 
@@ -720,6 +731,9 @@ class CogVideoXPipeline(DiffusionPipeline, CogVideoXLoraLoaderMixin):
                         return_dict=False,
                     )
                 latents = latents.to(prompt_embeds.dtype)
+
+                if hasattr(self, "skip_strategy"):
+                    self.skip_strategy.update_strategy(latents)
 
                 # call the callback, if provided
                 if callback_on_step_end is not None:
