@@ -30,6 +30,7 @@ from ..models import CogVideoXTransformer3DModel
 from ..models.embeddings import get_3d_rotary_pos_embed
 from .pipeline_output import CogVideoXPipelineOutput
 from ..utils.parallel_state import get_world_size, get_rank, all_gather
+from ..utils.parallel_state import get_dp_world_size, get_dp_rank, get_sp_rank, get_sp_world_size
 
 logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
 

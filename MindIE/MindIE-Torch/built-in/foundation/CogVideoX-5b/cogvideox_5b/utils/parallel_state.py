@@ -15,9 +15,32 @@ def get_rank():
     return mgr.rank
 
 
-def all_gather(input_: torch.Tensor, dim: int = 0, separate_tensors: bool = False
+def get_dp_world_size():
+    return mgr.dp_world_size
+
+
+def get_dp_rank():
+    return mgr.dp_rank
+
+
+def get_sp_world_size():
+    return mgr.sp_world_size
+
+
+def get_sp_rank():
+    return mgr.sp_rank
+
+
+def get_sp_group():
+    return mgr.sp_group
+
+
+def get_dp_group():
+    return mgr.dp_group
+
+
+def all_gather(input_: torch.Tensor, dim: int = 0, separate_tensors: bool = False, world_size=1, group=None
     ) -> Union[torch.Tensor, List[torch.Tensor]]:
-    world_size = get_world_size()
     # Bypass the function if we are using only 1 GPU.
     if world_size == 1:
         return input_
@@ -34,7 +57,7 @@ def all_gather(input_: torch.Tensor, dim: int = 0, separate_tensors: bool = Fals
     )
     # All-gather.
     torch.distributed.all_gather_into_tensor(
-        output_tensor, input_
+        output_tensor, input_, group=group
     )
     if dim != 0:
         input_size[0] //= world_size
