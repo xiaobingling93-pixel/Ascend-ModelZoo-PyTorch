@@ -454,8 +454,8 @@ class CogVideoXPipeline(DiffusionPipeline, CogVideoXLoraLoaderMixin):
             temporal_size=num_frames,
         )
 
-        freqs_cos = freqs_cos.to(device=device)
-        freqs_sin = freqs_sin.to(device=device)
+        freqs_cos = freqs_cos.to(device=device).to(torch.bfloat16)
+        freqs_sin = freqs_sin.to(device=device).to(torch.bfloat16)
         
         return freqs_cos, freqs_sin
 

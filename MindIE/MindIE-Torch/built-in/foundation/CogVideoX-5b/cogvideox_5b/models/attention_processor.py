@@ -19,6 +19,7 @@ import torch
 import torch_npu
 import torch.nn.functional as F
 from torch import nn
+torch.ops.load_library("./pta_plugin/build/libPTAExtensionOPS.so")
 
 from diffusers.image_processor import IPAdapterMaskProcessor
 from diffusers.utils import deprecate, logging
@@ -1917,11 +1918,10 @@ class CogVideoXAttnProcessor2_0:
 
         # Apply RoPE if needed
         if image_rotary_emb is not None:
-            from .embeddings import apply_rotary_emb
-
-            query[:, :, text_seq_length:] = apply_rotary_emb(query[:, :, text_seq_length:], image_rotary_emb)
+            cos, sin = image_rotary_emb
+            query[:, :, text_seq_length:] = torch.ops.mindie.rope_mindie_sd(query[:, :, text_seq_length:], cos[None, None], sin[None, None], mode=1)
             if not attn.is_cross_attention:
-                key[:, :, text_seq_length:] = apply_rotary_emb(key[:, :, text_seq_length:], image_rotary_emb)
+                key[:, :, text_seq_length:] = torch.ops.mindie.rope_mindie_sd(key[:, :, text_seq_length:], cos[None, None], sin[None, None], mode=1)
 
         if get_sp_world_size() == 1:
             hidden_states = torch_npu.npu_prompt_flash_attention(

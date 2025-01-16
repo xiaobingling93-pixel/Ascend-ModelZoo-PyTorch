@@ -2,8 +2,10 @@ import os
 import argparse
 import time
 import random
-import numpy as np
 
+from typing import Literal
+
+import numpy as np
 import torch
 import torch_npu
 from torch_npu.contrib import transfer_to_npu
@@ -11,7 +13,7 @@ from torch_npu.contrib import transfer_to_npu
 from diffusers import CogVideoXDPMScheduler
 from diffusers.utils import export_to_video
 
-from cogvideox_5b import CogVideoXPipeline, CogVideoXTransformer3DModel, get_rank, get_world_size, all_gather
+from cogvideox_5b import CogVideoXPipeline, CogVideoXTransformer3DModel, get_rank, get_world_size, all_gather, parallelize_transformer
 from mindiesd.pipeline.sampling_optm import AdaStep
 
 
