@@ -86,7 +86,7 @@ pip3 install -r requirements.txt
 ### 3.1 权重及配置文件说明
 1. 下载CogVideoX-5b权重:（scheduler、text_encoder、tokenizer、transformer、vae，5个模型的配置文件及权重）
 ```shell
-   git clone https://modelers.cn/AI-Research/CogVideoX-5B.git
+   git clone https://huggingface.co/THUDM/CogVideoX-5b
 ```
 2. 各模型的配置文件、权重文件的层级样例如下所示。
 ```commandline
