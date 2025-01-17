@@ -18,6 +18,7 @@ from typing import Callable, List, Optional, Tuple, Union
 import torch
 import torch_npu
 import torch.nn.functional as F
+import torch.distributed as dist
 from torch import nn
 torch.ops.load_library("./pta_plugin/build/libPTAExtensionOPS.so")
 
@@ -25,7 +26,7 @@ from diffusers.image_processor import IPAdapterMaskProcessor
 from diffusers.utils import deprecate, logging
 from diffusers.utils.import_utils import is_torch_npu_available, is_xformers_available
 from diffusers.utils.torch_utils import is_torch_version, maybe_allow_in_graph
-from ..utils.parallel_state import get_world_size, get_rank, get_sp_world_size, get_sp_group
+from ..utils.parallel_state import get_world_size, get_rank, get_sp_world_size, get_sp_group, all_gather_variable_with_group
 
 
 logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
@@ -1949,109 +1950,6 @@ class CogVideoXAttnProcessor2_0:
         return hidden_states, encoder_hidden_states
 
 
-def all_to_all_single(
-    self: torch.Tensor,
-    output_split_sizes: Optional[List[int]],
-    input_split_sizes: Optional[List[int]],
-    group,
-) -> torch.Tensor:
-    """
-    Each process splits input tensor and then scatters the split list
-    to all processes in a group. Then concatenate the received tensors from all
-    the processes in the group and return single output tensor.
-
-    Group can be one of:
-        List[int]: ranks participating in the collective.
-        List[List[int]]: 2D mesh of ranks taking part of this collective in MPMD.
-        ProcessGroup: Will perform a collective using the ranks and tag of the PG.
-        DeviceMesh: Do a SPMD collective over all ranks of the mesh
-        (DeviceMesh, int): Do a MPMD collective over one dimension of the DeviceMesh
-
-    Note: If you pass a PG or a 1D list to perform a MPMD collective, the system may not be able to recover
-    that information and perform collective algebraic optimization. Use other forms of input for that.
-    """
-    if output_split_sizes is not None:
-        if not all(isinstance(size, (int, torch.SymInt)) for size in output_split_sizes):
-            raise ValueError(f"output_split_sizes contains invalid types: {output_split_sizes}")
-    if input_split_sizes is not None:
-        if not all(isinstance(size, (int, torch.SymInt)) for size in input_split_sizes):
-            raise ValueError(f"input_split_sizes contains invalid types: {input_split_sizes}")
-    group_size = get_sp_world_size()
-    if output_split_sizes is None or input_split_sizes is None:
-        if not (output_split_sizes is None and input_split_sizes is None):
-            raise ValueError(
-                "output_split_sizes and input_split_sizes must either be "
-                "specified together or both set to None"
-            )
-        output_split_sizes = [self.shape[0] // group_size] * group_size
-        input_split_sizes = output_split_sizes
-    tensor = torch.distributed.all_to_all_single(  # type: ignore[attr-defined]
-        self,
-        output_split_sizes,
-        input_split_sizes,
-        group,
-    )
-    return tensor
-
-
-def _sdpa_all_to_all_single(x):
-    x_shape = x.shape
-    x = x.reshape(x_shape)
-    return x
-
-
-def _ft_c_input_all_to_all(x):
-    world_size = get_sp_world_size()
-    if world_size <= 1:
-        return x
-
-    if x.ndim != 4:
-        raise ValueError("x must have 4 dimensions, got {}".format(x.ndim))
-    b, h, s, d = x.shape
-    if h % world_size != 0:
-        raise ValueError("h must be divisible by world_size, got {} and {}".format(h, world_size))
-
-    x = x.permute(1, 0, 2, 3).contiguous()
-    x = _sdpa_all_to_all_single(x)
-    x = x.reshape(world_size, h // world_size, b, -1, d).permute(2, 1, 0, 3, 4).reshape(b, h // world_size, -1, d)
-    return x
-
-
-def _ft_c_output_all_to_all(x):
-    world_size = get_sp_world_size()
-    if world_size <= 1:
-        return x
-
-    if x.ndim != 4:
-        raise ValueError("x must have 4 dimensions, got {}".format(x.ndim))
-    b, h, s, d = x.shape
-    if s % world_size != 0:
-        raise ValueError("s must be divisible by world_size, got {} and {}".format(s, world_size))
-
-    x = x.permute(2, 0, 1, 3).contiguous()
-    x = _sdpa_all_to_all_single(x)
-    x = x.reshape(world_size, s // world_size, b, -1, d).permute(2, 0, 3, 1, 4).reshape(b, -1, s // world_size, d)
-    return x
-
-
-def ulysses_fa(q, k, v, head, scale_value):
-    query = _ft_c_input_all_to_all(q)
-    key = _ft_c_input_all_to_all(k)
-    value = _ft_c_input_all_to_all(v)
-
-    out = torch_npu.npu_prompt_flash_attention(
-                query, key, value, num_heads=head,
-                input_layout='BNSD',
-                scale_value=scale_value,
-                pre_tokens=MAX_TOKENS,
-                next_tokens=MAX_TOKENS,
-                sparse_mode=0
-            )
-
-    out = _ft_c_output_all_to_all(out)
-    return out
-
-
 def gather_parrellel_ga(
     q, k, v,
     scale_value,
@@ -2073,6 +1971,21 @@ def gather_parrellel_ga(
         torch.Tensor: The output tensor after applying parallel attention. 
         The shape [B N S D]
     """
+    local_size = torch.tensor([k.size(-2)], dtype=torch.long, device=k.device)
+    size_list = [torch.zeros(1, dtype=torch.long, device=k.device) for _ in range(get_sp_world_size())]
+    dist.all_gather(size_list, local_size, group=get_sp_group())
+    sizes = [int(size.item()) for size in size_list]
+    
+    max_size = max(sizes)
+    pad_num = 0
+    if k.size(-2) < max_size:
+        pad_size = list(k.size())
+        pad_size[-2] = max_size - k.size(-2)
+        pad_num = pad_size[-2]
+        k = torch.cat([k, torch.zeros(pad_size, device=k.device, dtype=k.dtype)], dim=-2).contiguous()
+        v = torch.cat([v, torch.zeros(pad_size, device=v.device, dtype=v.dtype)], dim=-2).contiguous()
+
+
     q_list = q.chunk(num_head_split, dim=1)
 
     kv = torch.cat((k, v), dim=0)
@@ -2093,7 +2006,9 @@ def gather_parrellel_ga(
             req = torch.distributed.all_gather_into_tensor(kv_full, kv_split, async_op=True, group=get_sp_group())
 
         output = torch_npu.npu_prompt_flash_attention(
-            q_list[step], k, v,
+            q_list[step],
+            torch.narrow(k, dim=-2, start=0, length=k.size(-2) - pad_num),
+            torch.narrow(v, dim=-2, start=0, length=v.size(-2) - pad_num),
             num_heads=k.shape[1],
             input_layout="BNSD",
             scale_value=scale_value,

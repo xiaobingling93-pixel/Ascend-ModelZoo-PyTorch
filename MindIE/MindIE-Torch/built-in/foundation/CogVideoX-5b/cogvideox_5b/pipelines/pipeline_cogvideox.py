@@ -29,7 +29,7 @@ from diffusers.video_processor import VideoProcessor
 from ..models import CogVideoXTransformer3DModel
 from ..models.embeddings import get_3d_rotary_pos_embed
 from .pipeline_output import CogVideoXPipelineOutput
-from ..utils.parallel_state import get_world_size, get_rank, all_gather
+from ..utils.parallel_state import get_world_size, get_rank, all_gather, all_gather_variable_with_group, split_tensor
 from ..utils.parallel_state import get_dp_world_size, get_dp_rank, get_sp_rank, get_sp_world_size
 
 logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
@@ -666,11 +666,6 @@ class CogVideoXPipeline(DiffusionPipeline, CogVideoXLoraLoaderMixin):
 
         # 8. Denoising loop
         num_warmup_steps = max(len(timesteps) - num_inference_steps * self.scheduler.order, 0)
-        
-        latents, prompt_embeds, image_rotary_emb = self._init_sync_pipeline(
-            latents, prompt_embeds, image_rotary_emb, 
-            latents.size(1)
-        )
 
         with self.progress_bar(total=num_inference_steps) as progress_bar:
             # for DPM-solver++
@@ -762,14 +757,3 @@ class CogVideoXPipeline(DiffusionPipeline, CogVideoXLoraLoaderMixin):
             return (video,)
 
         return CogVideoXPipelineOutput(frames=video)
-
-    def _init_sync_pipeline(
-        self,
-        latents: torch.Tensor,
-        prompt_embeds: torch.Tensor,
-        image_rotary_emb: Optional[Tuple[torch.Tensor, torch.Tensor]] = None,
-        latents_frames: Optional[int] = None,
-    ):
-        if prompt_embeds.shape[-2] % get_world_size() == 0:
-            prompt_embeds = torch.chunk(prompt_embeds, get_world_size(), dim=-2)[get_rank()]
-        return latents, prompt_embeds, image_rotary_emb

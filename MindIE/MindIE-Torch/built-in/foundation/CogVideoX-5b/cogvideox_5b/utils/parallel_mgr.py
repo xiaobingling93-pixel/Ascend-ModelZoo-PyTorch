@@ -39,6 +39,7 @@ class ParallelManager:
         self.sp_world_size = 1
         self.dp_world_size = 1
         self.dp_rank = 0
+        self.do_pad = False
         if self.world_size == 2:
             self.sp_rank = dist.get_rank(group=self.sp_group)
             self.sp_world_size = dist.get_world_size(group=self.sp_group)

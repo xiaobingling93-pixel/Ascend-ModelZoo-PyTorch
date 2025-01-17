@@ -29,6 +29,8 @@ from ..attention import Attention, FeedForward
 from ..attention_processor import AttentionProcessor, CogVideoXAttnProcessor2_0, FusedCogVideoXAttnProcessor2_0
 from ..embeddings import CogVideoXPatchEmbed, TimestepEmbedding, Timesteps
 from ..normalization import AdaLayerNorm, CogVideoXLayerNormZero
+from ...utils import all_gather_variable_with_group, split_tensor, get_dp_world_size
+from ...utils import get_sp_world_size, get_sp_group, get_dp_group, get_rank
 
 
 logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
@@ -408,6 +410,15 @@ class CogVideoXTransformer3DModel(ModelMixin, ConfigMixin, PeftAdapterMixin):
         if self.original_attn_processors is not None:
             self.set_attn_processor(self.original_attn_processors)
 
+    def switch_to_qkvLinear(self) -> None:
+        for blk in self.transformer_blocks:
+            blk.attn1.qkvLinear = QKVLinear(self.head_dim, self.head_dim * self.num_heads)
+            blk.attn1.qkvLinear.weight.data = torch.cat((blk.attn1.to_q.weight.data.transpose(1, 0).contiguous(), blk.attn1.to_k.weight.data.transpose(1, 0).contiguous(), blk.attn1.to_v.weight.data.transpose(1, 0).contiguous()), -1)
+            blk.attn1.qkvLinear.bias.data = torch.cat((blk.attn1.to_q.bias.data, blk.attn1.to_k.bias.data, blk.attn1.to_v.bias.data), -1)
+            blk.attn1.to_q = None
+            blk.attn1.to_k = None
+            blk.attn1.to_v = None
+
     def forward(
         self,
         hidden_states: torch.Tensor,
@@ -418,6 +429,34 @@ class CogVideoXTransformer3DModel(ModelMixin, ConfigMixin, PeftAdapterMixin):
         attention_kwargs: Optional[Dict[str, Any]] = None,
         return_dict: bool = True,
     ):
+        temporal_size = hidden_states.shape[1]
+        if isinstance(timestep, torch.Tensor) and timestep.ndim != 0 and timestep.shape[0] == hidden_states.shape[0]:
+            timestep = split_tensor(timestep, 0, get_dp_world_size(), get_dp_group())
+        
+        hidden_states = split_tensor(hidden_states, 0, get_dp_world_size(), get_dp_group())
+        hidden_states = split_tensor(hidden_states, -2, get_sp_world_size(), get_sp_group(), scale=2)
+        
+        encoder_hidden_states = split_tensor(encoder_hidden_states, 0, get_dp_world_size(), get_dp_group())
+        encoder_hidden_states = split_tensor(encoder_hidden_states, -2, get_sp_world_size(), get_sp_group())
+
+        if image_rotary_emb is not None:
+            freqs_cos, freqs_sin = image_rotary_emb
+
+            def get_rotary_emb_chunk(freqs):
+                dim_thw = freqs.shape[-1]
+                freqs = freqs.reshape(temporal_size, -1, dim_thw)
+
+                freqs = freqs.reshape(temporal_size, -1, hidden_states.size(-1) // 2, dim_thw)
+                freqs = split_tensor(freqs, -3, get_sp_world_size(), get_sp_group())
+                freqs = freqs.reshape(temporal_size, -1, dim_thw)
+
+                freqs = freqs.reshape(-1, dim_thw)
+                return freqs
+
+            freqs_cos = get_rotary_emb_chunk(freqs_cos)
+            freqs_sin = get_rotary_emb_chunk(freqs_sin)
+            image_rotary_emb = (freqs_cos, freqs_sin)
+
         if attention_kwargs is not None:
             attention_kwargs = attention_kwargs.copy()
             lora_scale = attention_kwargs.pop("scale", 1.0)
@@ -500,6 +539,9 @@ class CogVideoXTransformer3DModel(ModelMixin, ConfigMixin, PeftAdapterMixin):
         output = hidden_states.reshape(batch_size, num_frames, height // p, width // p, -1, p, p)
         output = output.permute(0, 1, 4, 2, 5, 3, 6).flatten(5, 6).flatten(3, 4)
 
+        output = all_gather_variable_with_group(output, dim=-2, world_size=get_sp_world_size(), group=get_sp_group())
+        output = all_gather_variable_with_group(output, world_size=get_dp_world_size(), group=get_dp_group())
+
         if USE_PEFT_BACKEND:
             # remove `lora_scale` from each PEFT layer
             unscale_lora_layers(self, lora_scale)
@@ -507,12 +549,3 @@ class CogVideoXTransformer3DModel(ModelMixin, ConfigMixin, PeftAdapterMixin):
         if not return_dict:
             return (output,)
         return Transformer2DModelOutput(sample=output)
-
-    def switch_to_qkvLinear(self) -> None:
-        for blk in self.transformer_blocks:
-            blk.attn1.qkvLinear = QKVLinear(self.head_dim, self.head_dim * self.num_heads)
-            blk.attn1.qkvLinear.weight.data = torch.cat((blk.attn1.to_q.weight.data.transpose(1, 0).contiguous(), blk.attn1.to_k.weight.data.transpose(1, 0).contiguous(), blk.attn1.to_v.weight.data.transpose(1, 0).contiguous()), -1)
-            blk.attn1.qkvLinear.bias.data = torch.cat((blk.attn1.to_q.bias.data, blk.attn1.to_k.bias.data, blk.attn1.to_v.bias.data), -1)
-            blk.attn1.to_q = None
-            blk.attn1.to_k = None
-            blk.attn1.to_v = None

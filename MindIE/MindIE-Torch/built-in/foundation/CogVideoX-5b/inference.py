@@ -13,7 +13,7 @@ from torch_npu.contrib import transfer_to_npu
 from diffusers import CogVideoXDPMScheduler
 from diffusers.utils import export_to_video
 
-from cogvideox_5b import CogVideoXPipeline, CogVideoXTransformer3DModel, get_rank, get_world_size, all_gather, parallelize_transformer
+from cogvideox_5b import CogVideoXPipeline, CogVideoXTransformer3DModel, get_rank, get_world_size, all_gather
 from mindiesd.pipeline.sampling_optm import AdaStep
 
 
@@ -59,9 +59,6 @@ def generate_video(
     # sampling optm
     skip_strategy = AdaStep(skip_thr=0.006, max_skip_steps=1, decay_ratio=0.99, device="npu")
     pipe.skip_strategy = skip_strategy
-
-    if get_world_size() > 1:
-        parallelize_transformer(pipe)
 
     # warm up
     video_generate = pipe(
