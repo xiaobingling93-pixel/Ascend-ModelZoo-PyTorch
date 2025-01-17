@@ -154,13 +154,13 @@ python inference_hydit.py \
 - path：权重路径，包含clip_text_encoder、model、mt5、sdxl-vae-fp16-fix、tokenizer的权重及配置文件。
 - device_id：推理设备ID。
 - prompt：用于图像生成的文字描述提示。
-- input_size：需要生成的图像尺寸。
+- input_size：生成的图像尺寸，宽高要求是8的倍数。
 - seed：设置随机种子，默认值为42。
 - infer_steps：推理迭代步数，默认值为100。
 
-执行完成后在"results"目录下生成推理图像，图像生成顺序与prompt顺序保持一致，并在终端显示推理时间。
+执行完成后在`results`目录下生成一张推理图像。
 
-### 3.3 模型单卡等价优化的性能/精度测试
+### 3.3 模型单卡等价优化的性能测试
 设置权重路径
 ```shell
 path="ckpts/hydit"
@@ -175,7 +175,7 @@ python inference_hydit.py \
        --path ${path} \
        --device_id 0 \
        --test_acc \
-       --prompt_list "prompts/example_prompts.txt" \
+       --prompt_file "prompts/example_prompts.txt" \
        --input_size 1024 1024 \
        --seed 42 \
        --infer_steps 100
@@ -183,15 +183,15 @@ python inference_hydit.py \
 参数说明：
 - path：权重路径，包含clip_text_encoder、model、mt5、sdxl-vae-fp16-fix、tokenizer的权重及配置文件。
 - device_id：推理设备ID。
-- test_acc：使用 --test_acc 开启prompt_list列表中的图像生成，用于性能/精度测试。
-- prompt_list：用于图像生成的文字描述提示的列表文件路径。
-- input_size：需要生成的图像尺寸。
+- test_acc：使用 --test_acc 开启prompt_file列表中的图像生成，用于性能/精度测试。
+- prompt_file：用于图像生成的文字描述提示的列表文件路径。
+- input_size：生成的图像尺寸，宽高要求是8的倍数。
 - seed：设置随机种子，默认值为42。
 - infer_steps：推理迭代步数，默认值为100。
 
-执行完成后在"results"目录下生成推理图像，图像生成顺序与prompt顺序保持一致，并在终端显示推理时间。
+执行完成后在`results`目录下生成推理图像，图像生成顺序与prompt顺序保持一致，并在终端显示推理时间。
 
-### 3.4 模型单卡算法优化的性能/精度测试
+### 3.4 模型单卡算法优化的性能测试
 设置权重路径
 ```shell
 path="ckpts/hydit"
@@ -206,7 +206,7 @@ python inference_hydit.py \
        --path ${path} \
        --device_id 0 \
        --test_acc \
-       --prompt_list "prompts/example_prompts.txt" \
+       --prompt_file "prompts/example_prompts.txt" \
        --use_cache \
        --input_size 1024 1024 \
        --seed 42 \
@@ -215,21 +215,56 @@ python inference_hydit.py \
 参数说明：
 - path：权重路径，包含clip_text_encoder、model、mt5、sdxl-vae-fp16-fix、tokenizer的权重及配置文件。
 - device_id：推理设备ID。
-- test_acc：使用 --test_acc 开启prompt_list列表中的图像生成，用于性能/精度测试。
-- prompt_list：用于图像生成的文字描述提示的列表文件路径。
+- test_acc：使用 --test_acc 开启prompt_file列表中的图像生成，用于性能/精度测试。
+- prompt_file：用于图像生成的文字描述提示的列表文件路径。
 - use_cache：使用 --use_cache 开启算法策略优化的测试。
-- input_size：需要生成的图像尺寸。
+- input_size：生成的图像尺寸，宽高要求是8的倍数。
 - seed：设置随机种子，默认值为42。
 - infer_steps：推理迭代步数，默认值为100。
 
-执行完成后在"results"目录下生成推理图像，图像生成顺序与prompt顺序保持一致，并在终端显示推理时间。
+执行完成后在`results`目录下生成推理图像，图像生成顺序与prompt顺序保持一致，并在终端显示推理时间。
+
+### 3.5 模型单卡多batch推理适配测试
+设置权重路径
+```shell
+path="ckpts/hydit"
+```
+修改权重文件夹权限为安全权限
+```shell
+chmod -R 640 ckpts/t2i/
+```
+执行命令：
+```shell
+python inference_hydit.py \
+       --path ${path} \
+       --device_id 0 \
+       --test_acc \
+       --prompt_file "prompts/example_prompts.txt" \
+       --use_cache \
+       --input_size 1024 1024 \
+       --batch_size 2 \
+       --seed 42 \
+       --infer_steps 100
+```
+参数说明：
+- path：权重路径，包含clip_text_encoder、model、mt5、sdxl-vae-fp16-fix、tokenizer的权重及配置文件。
+- device_id：推理设备ID。
+- test_acc：使用 --test_acc 开启prompt_file列表中的图像生成，用于性能/精度测试。
+- prompt_file：用于图像生成的文字描述提示的列表文件路径。
+- use_cache：使用 --use_cache 开启算法策略优化的测试。
+- input_size：生成的图像尺寸，宽高要求是8的倍数。
+- batch_size：每个prompt生成的图像数量，根据设备显存，batch_size最大设置为2。
+- seed：设置随机种子，默认值为42。
+- infer_steps：推理迭代步数，默认值为100。
+
+执行完成后在`results`目录下生成推理图像，图像生成顺序与prompt顺序保持一致，并在终端显示推理时间。
 
 ## 四、精度验证
-由于生成的图片存在随机性，提供两种精度验证方法：
-1. CLIP-score（文图匹配度量）：评估图片和输入文本的相关性，分数的取值范围为[-1, 1]，越高越好。使用Parti数据集进行验证。
-2. HPSv2（图片美学度量）：评估生成图片的人类偏好评分，分数的取值范围为[0, 1]，越高越好。使用HPSv2数据集进行验证
+由于生成的图像存在随机性，提供两种精度验证方法：
+1. CLIP-score（文图匹配度量）：评估图像和输入文本的相关性，分数的取值范围为[-1, 1]，越高越好。使用Parti数据集进行验证。
+2. HPSv2（图像美学度量）：评估生成图像的人类偏好评分，分数的取值范围为[0, 1]，越高越好。使用HPSv2数据集进行验证
 
-【注意】由于要生成的图片数量较多，进行完整的精度验证需要耗费很长的时间。
+【注意】由于要生成的图像数量较多，进行完整的精度验证需要耗费很长的时间。
 
 ### 4.1 下载Parti数据集和hpsv2数据集
 ```shell
@@ -237,6 +272,8 @@ python inference_hydit.py \
 wget https://raw.githubusercontent.com/google-research/parti/main/PartiPrompts.tsv --no-check-certificate
 ```
 hpsv2数据集下载链接：https://gitee.com/ascend/ModelZoo-PyTorch/blob/master/MindIE/MindIE-Torch/built-in/foundation/stable_diffusion_xl/hpsv2_benchmark_prompts.json
+
+建议将`PartiPrompts.tsv`和`hpsv2_benchmark_prompts.json`文件放到`prompts/`路径下。
 
 ### 4.2 下载模型权重
 ```shell
@@ -248,3 +285,126 @@ cd ./CLIP-ViT-H-14-laion2B-s32B-b79K
 wget https://huggingface.co/spaces/xswu/HPSv2/resolve/main/HPS_v2_compressed.pt --no-check-certificate
 ```
 也可手动下载[Clip Score权重](https://huggingface.co/laion/CLIP-ViT-H-14-laion2B-s32B-b79K/blob/main/open_clip_pytorch_model.bin)，将权重放到`CLIP-ViT-H-14-laion2B-s32B-b79K`目录下，手动下载[HPSv2权重](https://huggingface.co/spaces/xswu/HPSv2/resolve/main/HPS_v2_compressed.pt)放到当前路径。
+
+### 4.3 使用推理脚本读取Parti数据集，生成图像
+设置权重路径
+```shell
+path="ckpts/hydit"
+```
+修改权重文件夹权限为安全权限
+```shell
+chmod -R 640 ckpts/t2i/
+```
+执行命令：
+```shell
+# 使用算法优化
+python inference_hydit.py \
+       --path ${path} \
+       --device_id 0 \
+       --test_acc \
+       --prompt_file "prompts/PartiPrompts.tsv" \
+       --prompt_file_type parti \
+       --max_num_prompts 0 \
+       --info_file_save_path ./image_info_parti.json \
+       --save_result_path ./results_parti \
+       --use_cache \
+       --input_size 1024 1024 \
+       --seed 42 \
+       --infer_steps 100
+```
+参数说明：
+- path：权重路径，包含clip_text_encoder、model、mt5、sdxl-vae-fp16-fix、tokenizer的权重及配置文件。
+- device_id：推理设备ID。
+- test_acc：使用 --test_acc 开启prompt_file列表中的图像生成，用于性能/精度测试。
+- prompt_file：用于图像生成的文字描述提示的列表文件路径。
+- prompt_file_type：prompt文件类型，用于指定读取方式，可选范围：plain，parti，hpsv2。默认值为plain。
+- max_num_prompts：限制prompt数量为前X个，0表示不限制。
+- info_file_save_path：生成图像信息的json文件路径。
+- save_result_path：生成图像的存放目录。
+- use_cache：使用 --use_cache 开启算法策略优化的测试。
+- input_size：生成的图像尺寸，宽高要求是8的倍数。
+- seed：设置随机种子，默认值为42。
+- infer_steps：推理迭代步数，默认值为100。
+
+执行完成后在`./results_parti`目录下生成推理图像。在当前目录下生成一个`image_info_parti.json`文件，记录着图像和prompt的对应关系，并在终端显示推理时间。
+
+### 4.4 使用推理脚本读取hpsv2数据集，生成图像
+设置权重路径
+```shell
+path="ckpts/hydit"
+```
+修改权重文件夹权限为安全权限
+```shell
+chmod -R 640 ckpts/t2i/
+```
+执行命令：
+```shell
+# 使用算法优化
+python inference_hydit.py \
+       --path ${path} \
+       --device_id 0 \
+       --test_acc \
+       --prompt_file "prompts/hpsv2_benchmark_prompts.json" \
+       --prompt_file_type hpsv2 \
+       --max_num_prompts 0 \
+       --info_file_save_path ./image_info_hpsv2.json \
+       --save_result_path ./results_hpsv2 \
+       --use_cache \
+       --input_size 1024 1024 \
+       --seed 42 \
+       --infer_steps 100
+```
+参数说明：
+- path：权重路径，包含clip_text_encoder、model、mt5、sdxl-vae-fp16-fix、tokenizer的权重及配置文件。
+- device_id：推理设备ID。
+- test_acc：使用 --test_acc 开启prompt_file列表中的图像生成，用于性能/精度测试。
+- prompt_file：用于图像生成的文字描述提示的列表文件路径。
+- prompt_file_type：prompt文件类型，用于指定读取方式，可选范围：plain，parti，hpsv2。默认值为plain。
+- max_num_prompts：限制prompt数量为前X个，0表示不限制。
+- info_file_save_path：生成图像信息的json文件路径。
+- save_result_path：生成图像的存放目录。
+- use_cache：使用 --use_cache 开启算法策略优化的测试。
+- input_size：生成的图像尺寸，宽高要求是8的倍数。
+- seed：设置随机种子，默认值为42。
+- infer_steps：推理迭代步数，默认值为100。
+
+执行完成后在`./results_hpsv2`目录下生成推理图像。在当前目录下生成一个`image_info_hpsv2.json`文件，记录着图像和prompt的对应关系，并在终端显示推理时间。
+
+### 4.5 计算精度指标
+1. CLIP-score
+```bash
+python clip_score.py \
+       --device=cpu \
+       --image_info="image_info_parti.json" \
+       --model_name="ViT-H-14" \
+       --model_weights_path="./CLIP-ViT-H-14-laion2B-s32B-b79K/open_clip_pytorch_model.bin"
+```
+参数说明：
+- device: 推理设备，默认为"cpu"，如果是cuda设备可设置为"cuda"。
+- image_info: 上一步生成的`image_info_parti.json`文件。
+- model_name: Clip模型名称。
+- model_weights_path: Clip模型权重文件路径。
+
+clip_score.py脚本可参考[SDXL](https://gitee.com/ascend/ModelZoo-PyTorch/blob/master/MindIE/MindIE-Torch/built-in/foundation/stable_diffusion_xl/clip_score.py)，执行完成后会在屏幕打印出精度计算结果。
+      
+2. HPSv2
+```bash
+python hpsv2_score.py \
+       --image_info="image_info_hpsv2.json" \
+       --HPSv2_checkpoint="./HPS_v2_compressed.pt" \
+       --clip_checkpoint="./CLIP-ViT-H-14-laion2B-s32B-b79K/open_clip_pytorch_model.bin"
+```
+参数说明：
+- image_info: 上一步生成的`image_info_hpsv2.json`文件。
+- HPSv2_checkpoint: HPSv2模型权重文件路径。
+- clip_checkpointh: Clip模型权重文件路径。
+
+hpsv2_score.py脚本可参考[SDXL](https://gitee.com/ascend/ModelZoo-PyTorch/blob/master/MindIE/MindIE-Torch/built-in/foundation/stable_diffusion_xl/hpsv2_score.py)，执行完成后会在屏幕打印出精度计算结果。
+
+## 五、模型推理性能结果参考
+### HunyuanDiT
+| 硬件形态  | cpu规格 | batch size | 迭代次数 | 等价优化平均耗时 | 算法优化平均耗时  |
+| :------: | :------: | :------: |:----:| :------: |:-----:|
+| Atlas 800I A2 (32G) | 64核(arm) |  1  |  100  | 43.404s | 29.208s |
+
+性能测试需要独占npu和cpu
