@@ -15,75 +15,15 @@
 # limitations under the License.
 
 
-from typing import Tuple
-import math
+from typing import Tuple, List
 
 import torch
 import torch.nn as nn
-import torch_npu
 
 from mindiesd import ConfigMixin
 from .model_utils import DiffusionModel
-from ..layers.attention import ReconstitutionAttention, HunyuanAttnProcessor
-from ..layers.mlp import Mlp
-from ..layers.embedding import PatchEmbed, TimestepEmbedder
-from ..layers.norm import get_normalization_helper
-from ..layers.activation import get_activation_fn
-
-MAX_TOKENS = 2147483647
-
-
-class HunyuanAttentionPool(nn.Module):
-    def __init__(
-        self,
-        spacial_dim: int,
-        embed_dim: int,
-        num_heads: int,
-        output_dim: int = None,
-    ):
-        super().__init__()
-        self.positional_embedding = nn.Parameter(torch.randn(spacial_dim + 1, embed_dim) / embed_dim ** 0.5)
-        self.attn = ReconstitutionAttention(
-            attention_dim=embed_dim,
-            cross_attention_dim=embed_dim,
-            num_heads=num_heads,
-            head_dim=embed_dim // num_heads,
-            qkv_bias=True,
-            out_proj_bias=True,
-            out_dim=output_dim,
-        )
-
-
-    def forward(self, x):
-        x = x.permute(1, 0, 2)
-        x = torch.cat([x.mean(dim=0, keepdim=True), x], dim=0)
-        x = x + self.positional_embedding[:, None, :].to(x.dtype)
-
-        tgt_len, bsz, embed_dim = x[:1].size()
-        src_len = x.size(0)
-
-        query, key, value = self.attn.qkv_proj(x[:1], x)
-
-        query = query.reshape(tgt_len, bsz, self.attn.num_heads, self.attn.head_dim).permute(1, 2, 0, 3)
-        key = key.reshape(src_len, bsz, self.attn.num_heads, self.attn.head_dim).permute(1, 2, 0, 3)
-        value = value.reshape(src_len, bsz, self.attn.num_heads, self.attn.head_dim).permute(1, 2, 0, 3)
-
-        scale = self.attn.scale_value
-        scale_factor = 1 / math.sqrt(query.size(-1)) if scale is None else scale
-        output = torch_npu.npu_fusion_attention(
-            query, key, value, query.shape[1], input_layout="BNSD",
-            pse=None,
-            scale=scale_factor,
-            pre_tockens=MAX_TOKENS,
-            next_tockens=MAX_TOKENS,
-            keep_prob=1.,
-            sync=False,
-            inner_precise=0
-        )[0]
-
-        output = output.reshape(tgt_len, bsz, embed_dim)
-        output = self.attn.out_proj(output)
-        return output.squeeze(0)
+from ..layers import get_activation_fn, get_normalization_helper, timestep_embedding
+from ..layers import Mlp, PatchEmbed, TimestepEmbedder, Attention, AttentionPool
 
 
 class HunyuanDiTBlock(nn.Module):
@@ -104,19 +44,11 @@ class HunyuanDiTBlock(nn.Module):
 
         # ========================= Self-Attention =========================
         self.norm1 = get_normalization_helper(norm_type, hidden_size, eps=1e-6)
-
-        self.attn1 = ReconstitutionAttention(
-            attention_dim=hidden_size,
-            cross_attention_dim=None,
-            num_heads=num_heads,
-            head_dim=hidden_size // num_heads,
-            qkv_bias=True,
-            out_proj_bias=True,
-            attention_norm=norm_type,
-            position_embedding='rope',
-            eps=1e-6,
-            processor=HunyuanAttnProcessor(),
-        )
+        self.attn1 = Attention(hidden_size=hidden_size,
+                               cross_attention_dim=None,
+                               num_heads=num_heads,
+                               attention_norm=norm_type,
+                               rope_type="rope")
 
         # ========================= FFN =========================
         self.norm2 = get_normalization_helper(norm_type, hidden_size, eps=1e-6)
@@ -131,19 +63,11 @@ class HunyuanDiTBlock(nn.Module):
         )
 
         # ========================= Cross-Attention =========================
-        self.attn2 = ReconstitutionAttention(
-            attention_dim=hidden_size,
-            cross_attention_dim=text_states_dim,
-            num_heads=num_heads,
-            head_dim=hidden_size // num_heads,
-            qkv_bias=True,
-            out_proj_bias=True,
-            attention_norm=norm_type,
-            position_embedding='rope',
-            eps=1e-6,
-            processor=HunyuanAttnProcessor(),
-        )
-
+        self.attn2 = Attention(hidden_size=hidden_size,
+                               cross_attention_dim=text_states_dim,
+                               num_heads=num_heads,
+                               attention_norm=norm_type,
+                               rope_type="rope")
         self.norm3 = get_normalization_helper(norm_type, hidden_size, eps=1e-6)
 
         # ========================= Skip Connection =========================
@@ -154,24 +78,23 @@ class HunyuanDiTBlock(nn.Module):
             self.skip_linear = None
 
 
-    def forward(self, x, tensor_input, skip=None):
+    def forward(self, x, tensor_input, skip=None, layer=0):
         c, text_states, freqs_cis_img = tensor_input
         # Long Skip Connection
         if self.skip_linear is not None:
             cat = torch.cat([x, skip], dim=-1)
             cat = self.skip_norm(cat)
             x = self.skip_linear(cat)
-
         # Self-Attention
         shift_msa = self.default_modulation(c).unsqueeze(dim=1)
         x = x + self.attn1(hidden_states=self.norm1(x) + shift_msa,
-                           rotary_emb=freqs_cis_img)
-
+                           freqs_cis_img=freqs_cis_img,
+                           layer=layer)
         # Cross-Attention
         x = x + self.attn2(hidden_states=self.norm3(x),
                            encoder_hidden_states=text_states,
-                           rotary_emb=freqs_cis_img)
-
+                           freqs_cis_img=freqs_cis_img,
+                           layer=layer)
         # FFN Layer
         mlp_inputs = self.norm2(x)
         x = x + self.mlp(mlp_inputs)
@@ -219,6 +142,8 @@ class HunyuanDiTConfig(ConfigMixin):
         text_states_dim_t5: int = 2048,
         text_len: int = 77,
         text_len_t5: int = 256,
+        size_cond: List = None,
+        use_style_cond: bool = False,
     ) -> None:
         super().__init__()
 
@@ -233,6 +158,8 @@ class HunyuanDiTConfig(ConfigMixin):
         self.text_states_dim_t5 = text_states_dim_t5
         self.text_len = text_len
         self.text_len_t5 = text_len_t5
+        self.size_cond = size_cond
+        self.use_style_cond = use_style_cond
 
 
 class HunyuanDiT2DModel(DiffusionModel):
@@ -243,6 +170,7 @@ class HunyuanDiT2DModel(DiffusionModel):
     def __init__(self, config):
         super().__init__(config)
         self.config = config
+
         # learn_sigma is True
         self.out_channels = self.config.in_channels * 2
 
@@ -260,13 +188,22 @@ class HunyuanDiT2DModel(DiffusionModel):
 
         # Attention pooling
         pooler_out_dim = 1024
-        self.pooler = HunyuanAttentionPool(self.config.text_len_t5, 
-                                           self.config.text_states_dim_t5, 
-                                           num_heads=8, 
-                                           output_dim=pooler_out_dim)
+        self.pooler = AttentionPool(self.config.text_len_t5,
+                                    self.config.text_states_dim_t5,
+                                    num_heads=8,
+                                    output_dim=pooler_out_dim)
 
         # Dimension of the extra input vectors
         self.extra_in_dim = pooler_out_dim
+
+        # Only for hydit <= 1.1
+        if self.config.size_cond:
+            # Image size and crop size conditions
+            self.extra_in_dim += 6 * 256
+        if self.config.use_style_cond:
+            # Here we use a default learned embedder layer for future extension.
+            self.style_embedder = nn.Embedding(1, self.config.hidden_size)
+            self.extra_in_dim += self.config.hidden_size
 
         # Text embedding for `add`
         height = self.config.input_size[0] // 8
@@ -308,11 +245,11 @@ class HunyuanDiT2DModel(DiffusionModel):
                 cache_params=None,
                 if_skip: int = 0):
 
-        x, t, embeds_and_mask_input, freqs_cis_img = tensor_input
+        x, t, encoder_hidden_states, embeds_and_mask_input, freqs_cis_img = tensor_input
         if use_cache:
-            cache_dict, delta_cache = cache_params
+            block_start, num_blocks, delta_cache = cache_params
 
-        encoder_hidden_states, text_embedding_mask, encoder_hidden_states_t5, text_embedding_mask_t5 = \
+        text_embedding_mask, encoder_hidden_states_t5, text_embedding_mask_t5, image_meta_size, style = \
             embeds_and_mask_input
         text_states = encoder_hidden_states
         text_states_t5 = encoder_hidden_states_t5
@@ -326,15 +263,26 @@ class HunyuanDiT2DModel(DiffusionModel):
         clip_t5_mask = clip_t5_mask
         text_states = torch.where(clip_t5_mask.unsqueeze(2), text_states, self.text_embedding_padding.to(text_states))
 
+        # The input x shape is [2, 4, 128, 128]
         height, width = x.shape[-2:]
         th, tw = height // self.config.patch_size, width // self.config.patch_size
 
         # Build time and image embedding
-        t = self.t_embedder(t, t.dtype)
+        t = self.t_embedder(t)
         x = self.x_embedder(x)
+        # The x shape after x_embedder is [2, 4096, 1408]
 
         # Build text tokens with pooling
         extra_vec = self.pooler(encoder_hidden_states_t5)
+
+        # Only for hydit <= 1.1
+        if image_meta_size is not None:
+            image_meta_size = timestep_embedding(image_meta_size.half().view(-1), 256)   # [B * 6, 256]
+            image_meta_size = image_meta_size.half().view(-1, 6 * 256)
+            extra_vec = torch.cat([extra_vec, image_meta_size], dim=1)  # [B, D + 6 * 256]
+        if style is not None:
+            style_embedding = self.style_embedder(style)
+            extra_vec = torch.cat([extra_vec, style_embedding], dim=1)
 
         # Concatenate all extra vectors
         c = t + self.extra_embedder(extra_vec)  # [B, D]
@@ -346,14 +294,14 @@ class HunyuanDiT2DModel(DiffusionModel):
             for layer, block in enumerate(self.blocks):
                 if layer > self.config.depth // 2:
                     skip = skips.pop()
-                    x = block(x, tensor_input, skip)   # (N, L, D)
+                    x = block(x, tensor_input, skip=skip, layer=layer)         # (N, L, D)
                 else:
-                    x = block(x, tensor_input)         # (N, L, D)
+                    x = block(x, tensor_input, skip=None, layer=layer)         # (N, L, D)
 
                 if layer < (self.config.depth // 2 - 1):
                     skips.append(x)
         else:
-            cache_params = (use_cache, if_skip, cache_dict)
+            cache_params = (use_cache, if_skip, block_start, num_blocks)
             x, delta_cache = self._forward_blocks(x, tensor_input, cache_params, delta_cache)
 
         # Final layer
@@ -370,27 +318,27 @@ class HunyuanDiT2DModel(DiffusionModel):
         for layer, block in zip(range(start_idx, end_idx), self.blocks[start_idx : end_idx]):
             if layer > self.config.depth // 2:
                 skip = skips.pop()
-                x = block(x, tensor_input, skip)   # (N, L, D)
+                x = block(x, tensor_input, skip=skip, layer=layer)         # (N, L, D)
             else:
-                x = block(x, tensor_input)         # (N, L, D)
+                x = block(x, tensor_input, skip=None, layer=layer)         # (N, L, D)
 
             if layer < (self.config.depth // 2 - 1):
                 skips.append(x)
         return x, skips
-    
+
 
     def _forward_blocks(self, x, tensor_input, cache_params, delta_cache):
-        use_cache, if_skip, cache_dict = cache_params
+        use_cache, if_skip, block_start, num_blocks = cache_params
         skips = []
         if not use_cache:
             x, skips = self._forward_blocks_range(x, tensor_input, skips, 0, len(self.blocks))
         else:
-            x, skips = self._forward_blocks_range(x, tensor_input, skips, 0, cache_dict[0])
+            x, skips = self._forward_blocks_range(x, tensor_input, skips, 0, block_start)
 
-            cache_end = cache_dict[0] + cache_dict[2]
+            cache_end = block_start + num_blocks
             x_before_cache = x.clone()
             if not if_skip:
-                x, skips = self._forward_blocks_range(x, tensor_input, skips, cache_dict[0], cache_end)
+                x, skips = self._forward_blocks_range(x, tensor_input, skips, block_start, cache_end)
                 delta_cache = x - x_before_cache
             else:
                 x = x_before_cache + delta_cache
@@ -401,19 +349,6 @@ class HunyuanDiT2DModel(DiffusionModel):
 
     def _load_weights(self, state_dict):
         weights = state_dict
-
-        weights['pooler.attn.qkv_proj.q_weight'] = weights.pop(
-            'pooler.q_proj.weight').transpose(0, 1).contiguous()
-        weights['pooler.attn.qkv_proj.q_bias'] = weights.pop('pooler.q_proj.bias')
-        to_k_weights = weights.pop('pooler.k_proj.weight')
-        to_k_bias = weights.pop('pooler.k_proj.bias')
-        to_v_weights = weights.pop('pooler.v_proj.weight')
-        to_v_bias = weights.pop('pooler.v_proj.bias')
-        weights['pooler.attn.qkv_proj.kv_weight'] = torch.cat(
-            [to_k_weights, to_v_weights], dim=0).transpose(0, 1).contiguous()
-        weights['pooler.attn.qkv_proj.kv_bias'] = torch.cat([to_k_bias, to_v_bias], dim=0)
-        weights['pooler.attn.out_proj.weight'] = weights.pop('pooler.c_proj.weight')
-        weights['pooler.attn.out_proj.bias'] = weights.pop('pooler.c_proj.bias')
 
         weights['mlp_t5.fc1.weight'] = weights.pop('mlp_t5.0.weight')
         weights['mlp_t5.fc1.bias'] = weights.pop('mlp_t5.0.bias')
@@ -427,59 +362,15 @@ class HunyuanDiT2DModel(DiffusionModel):
 
         for i in range(self.config.depth):
             prefix_key = 'blocks.' + str(i) + '.'
-            weights[prefix_key + 'norm1.weight'] = weights.pop(prefix_key + 'norm1.weight')
-            weights[prefix_key + 'norm1.bias'] = weights.pop(prefix_key + 'norm1.bias')
 
-            weights[prefix_key + 'attn1.qkv_proj.weight'] = weights.pop(
-                prefix_key + 'attn1.Wqkv.weight').transpose(0, 1).contiguous()
-            weights[prefix_key + 'attn1.qkv_proj.bias'] = weights.pop(prefix_key + 'attn1.Wqkv.bias')
-
-            weights[prefix_key + 'attn1.norm_q.weight'] = weights.pop(prefix_key + 'attn1.q_norm.weight')
-            weights[prefix_key + 'attn1.norm_q.bias'] = weights.pop(prefix_key + 'attn1.q_norm.bias')
-            weights[prefix_key + 'attn1.norm_k.weight'] = weights.pop(prefix_key + 'attn1.k_norm.weight')
-            weights[prefix_key + 'attn1.norm_k.bias'] = weights.pop(prefix_key + 'attn1.k_norm.bias')
-
-            weights[prefix_key + 'attn1.out_proj.weight'] = weights.pop(prefix_key + 'attn1.out_proj.weight')
-            weights[prefix_key + 'attn1.out_proj.bias'] = weights.pop(prefix_key + 'attn1.out_proj.bias')
-
-            weights[prefix_key + 'norm2.weight'] = weights.pop(prefix_key + 'norm2.weight')
-            weights[prefix_key + 'norm2.bias'] = weights.pop(prefix_key + 'norm2.bias')
-
-            weights[prefix_key + 'mlp.fc1.weight'] = weights.pop(prefix_key + 'mlp.fc1.weight')
-            weights[prefix_key + 'mlp.fc1.bias'] = weights.pop(prefix_key + 'mlp.fc1.bias')
-
-            weights[prefix_key + 'mlp.fc2.weight'] = weights.pop(prefix_key + 'mlp.fc2.weight')
-            weights[prefix_key + 'mlp.fc2.bias'] = weights.pop(prefix_key + 'mlp.fc2.bias')
-
-            weights[prefix_key + 'default_modulation.1.weight'] = weights.pop(
-                prefix_key + 'default_modulation.1.weight')
-            weights[prefix_key + 'default_modulation.1.bias'] = weights.pop(
-                prefix_key + 'default_modulation.1.bias')
-
-            weights[prefix_key + 'attn2.qkv_proj.q_weight'] = weights.pop(
-                prefix_key + 'attn2.q_proj.weight').transpose(0, 1).contiguous()
-            weights[prefix_key + 'attn2.qkv_proj.q_bias'] = weights.pop(prefix_key + 'attn2.q_proj.bias')
-
-            weights[prefix_key + 'attn2.qkv_proj.kv_weight'] = weights.pop(
-                prefix_key + 'attn2.kv_proj.weight').transpose(0, 1).contiguous()
-            weights[prefix_key + 'attn2.qkv_proj.kv_bias'] = weights.pop(prefix_key + 'attn2.kv_proj.bias')
-
-            weights[prefix_key + 'attn2.norm_q.weight'] = weights.pop(prefix_key + 'attn2.q_norm.weight')
-            weights[prefix_key + 'attn2.norm_q.bias'] = weights.pop(prefix_key + 'attn2.q_norm.bias')
-            weights[prefix_key + 'attn2.norm_k.weight'] = weights.pop(prefix_key + 'attn2.k_norm.weight')
-            weights[prefix_key + 'attn2.norm_k.bias'] = weights.pop(prefix_key + 'attn2.k_norm.bias')
-
-            weights[prefix_key + 'attn2.out_proj.weight'] = weights.pop(prefix_key + 'attn2.out_proj.weight')
-            weights[prefix_key + 'attn2.out_proj.bias'] = weights.pop(prefix_key + 'attn2.out_proj.bias')
-
-            weights[prefix_key + 'norm3.weight'] = weights.pop(prefix_key + 'norm3.weight')
-            weights[prefix_key + 'norm3.bias'] = weights.pop(prefix_key + 'norm3.bias')
-
-            if i > self.config.depth // 2:
-                weights[prefix_key + 'skip_norm.weight'] = weights.pop(prefix_key + 'skip_norm.weight')
-                weights[prefix_key + 'skip_norm.bias'] = weights.pop(prefix_key + 'skip_norm.bias')
-                weights[prefix_key + 'skip_linear.weight'] = weights.pop(prefix_key + 'skip_linear.weight')
-                weights[prefix_key + 'skip_linear.bias'] = weights.pop(prefix_key + 'skip_linear.bias')
+            qkv_proj_weights = weights.pop(prefix_key + 'attn1.Wqkv.weight')
+            qkv_proj_bias = weights.pop(prefix_key + 'attn1.Wqkv.bias')
+            to_q_weights, to_k_weights, to_v_weights = torch.chunk(qkv_proj_weights, 3, dim=0)
+            to_q_bias, to_k_bias, to_v_bias = torch.chunk(qkv_proj_bias, 3, dim=0)
+            weights[prefix_key + 'attn1.q_proj.weight'] = to_q_weights
+            weights[prefix_key + 'attn1.q_proj.bias'] = to_q_bias
+            weights[prefix_key + 'attn1.kv_proj.weight'] = torch.cat([to_k_weights, to_v_weights], dim=0)
+            weights[prefix_key + 'attn1.kv_proj.bias'] = torch.cat([to_k_bias, to_v_bias], dim=0)
 
         self.load_state_dict(weights)
 
@@ -488,6 +379,6 @@ class HunyuanDiT2DModel(DiffusionModel):
         c = self.unpatchify_channels
         p = self.config.patch_size
         x = x.reshape(shape=(x.shape[0], h, w, p, p, c))
-        x = x.permute(0, 5, 1, 3, 2, 4)
+        x = torch.einsum('nhwpqc->nchpwq', x)
         imgs = x.reshape(shape=(x.shape[0], c, h * p, w * p))
         return imgs

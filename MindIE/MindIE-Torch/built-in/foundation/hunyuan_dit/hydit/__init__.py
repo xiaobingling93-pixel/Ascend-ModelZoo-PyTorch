@@ -16,7 +16,6 @@
 
 
 from .models import HunyuanDiT2DModel
-from .pipeline import HunyuanDiTPipeline, compile_pipe
+from .pipeline import HunyuanDiTPipeline
 from .schedulers import DDPMScheduler
 from .utils import is_npu_available, postprocess_pil, set_seeds_generator, randn_tensor
-from .vae import AutoencoderKL

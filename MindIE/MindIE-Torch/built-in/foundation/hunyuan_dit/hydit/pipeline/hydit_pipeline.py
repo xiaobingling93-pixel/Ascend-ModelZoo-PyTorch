@@ -19,19 +19,16 @@ from typing import List, Union, Tuple
 import logging
 
 import torch
-import torch_npu
 from tqdm import tqdm
 import numpy as np
 
-from .pipeline_utils import HunYuanPipeline
-from ..layers.embedding import RotaryPositionEmbedding
+from ..layers import RotaryPositionEmbedding
 from ..utils import postprocess_pil, randn_tensor
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-torch_npu.npu.config.allow_internal_format = False
-
+TOKENIZER_MAX_LENGTH = 256
 MAX_PROMPT_LENGTH = 1024
 NEGATIVE_PROMPT = '错误的眼睛，糟糕的人脸，毁容，糟糕的艺术，变形，多余的肢体，模糊的颜色，模糊，重复，病态，残缺，'
 STANDARD_RATIO = np.array(
@@ -63,43 +60,39 @@ SUPPORTED_SHAPE = [
     (1280, 768),  # 16:9
     (768, 1280),  # 9:16
 ]
-USE_CACHE = True
-CACHE_RESERVE = 9
 
 
-class HunyuanDiTPipeline(HunYuanPipeline):
+class HunyuanDiTPipeline:
 
     def __init__(
         self,
         scheduler,
         text_encoder,
-        text_encoder_2,
         tokenizer,
+        text_encoder_2,
         tokenizer_2,
         transformer,
         vae,
-        input_size: Tuple[int, int] = (1024, 1024),
-        dtype: torch.dtype = torch.float16
+        args,
+        input_size: Tuple[int, int] = (1024, 1024)
     ):
         super().__init__()
         torch.set_grad_enabled(False)
 
         self.scheduler = scheduler
         self.text_encoder = text_encoder
-        self.text_encoder_2 = text_encoder_2
         self.tokenizer = tokenizer
+        self.text_encoder_2 = text_encoder_2
         self.tokenizer_2 = tokenizer_2
         self.transformer = transformer
         self.vae = vae
         self.input_size = input_size
-        self.dtype = dtype
         self._check_init_input()
 
-        self.text_encoder.to(self.dtype)
-        self.text_encoder_2.to(self.dtype)
-
-        self.device = torch.device("npu")
         self.vae_scale_factor = 2 ** (len(self.vae.config.block_out_channels) - 1)
+        self.hidden_states_batch = 2
+        self.device = torch.device("npu")
+        self.guidance_scale = args.guidance_scale
 
         # Set image height and width.
         height = self.input_size[0]
@@ -111,20 +104,23 @@ class HunyuanDiTPipeline(HunYuanPipeline):
             self.height = int(height)
             self.width = int(width)
             logger.warning(f"Reshaped to ({self.height}, {self.width}), Supported shapes are {SUPPORTED_SHAPE}")
-        
+
         # Create image rotary position embedding
         self.rotary_pos_emb = self._get_rotary_pos_emb()
 
+        # Only for hydit <= 1.1
+        self.image_meta_size, self.style = self._get_v1_params(args)
+
         # Use DiT Cache
-        self.use_cache = USE_CACHE
+        self.use_cache = args.use_cache
         if self.use_cache:
+            self.step_start = args.step_start
+            self.step_interval = args.step_interval
+            self.block_start = args.block_start
+            self.num_blocks = args.num_blocks
+            self.step_contrast = 9 % 2
             self.skip_flag_true = torch.ones([1], dtype=torch.int64).to(self.device)
             self.skip_flag_false = torch.zeros([1], dtype=torch.int64).to(self.device)
-            self.cache_dict = torch.tensor([5, 2, 30, 9], dtype=torch.int64).to(self.device)
-
-            self.cache_interval = self.cache_dict[1]
-            self.step_contrast = self.cache_dict[3] % 2
-            self.reserve = 0
 
     @torch.no_grad()
     def __call__(
@@ -152,14 +148,14 @@ class HunyuanDiTPipeline(HunYuanPipeline):
 
         # 3. Encode input prompt
         prompt_embeds, negative_prompt_embeds, attention_mask, uncond_attention_mask = \
-            self._encode_prompt(prompt_info, embedder_t5=False, batch_size=batch_size)
+            self._encode_prompt(prompt_info, batch_size, embedder_t5=False)
         prompt_embeds_t5, negative_prompt_embeds_t5, attention_mask_t5, uncond_attention_mask_t5 = \
-            self._encode_prompt(prompt_info, embedder_t5=True, batch_size=batch_size)
-        prompt_embeds = torch.cat([negative_prompt_embeds, prompt_embeds]).half()
-        attention_mask = torch.cat([uncond_attention_mask, attention_mask]).half()
-        prompt_embeds_t5 = torch.cat([negative_prompt_embeds_t5, prompt_embeds_t5]).half()
-        attention_mask_t5 = torch.cat([uncond_attention_mask_t5, attention_mask_t5]).half()
-        transformer_input = (prompt_embeds, attention_mask, prompt_embeds_t5, attention_mask_t5)
+            self._encode_prompt(prompt_info, batch_size, embedder_t5=True)
+        prompt_embeds = torch.cat([negative_prompt_embeds, prompt_embeds])
+        attention_mask = torch.cat([uncond_attention_mask, attention_mask])
+        prompt_embeds_t5 = torch.cat([negative_prompt_embeds_t5, prompt_embeds_t5])
+        attention_mask_t5 = torch.cat([uncond_attention_mask_t5, attention_mask_t5])
+        transformer_input = (attention_mask, prompt_embeds_t5, attention_mask_t5, self.image_meta_size, self.style)
         torch.npu.empty_cache()
 
         # 4. Prepare timesteps
@@ -176,12 +172,12 @@ class HunyuanDiTPipeline(HunYuanPipeline):
         latents = randn_tensor(shape, generator=seed_generator, device=self.device, dtype=prompt_embeds.dtype) * 1.0
 
         # 6. Denoising loop
-        latents = self._sampling(latents, step, transformer_input, seed_generator)
-        image = self.vae.decode(latents / self.vae.config.scaling_factor)[0]
+        latents = self._sampling(latents, step, prompt_embeds, transformer_input, seed_generator)
+        image = self.vae.decode(latents / self.vae.config.scaling_factor, return_dict=False)[0]
         image = postprocess_pil(image)
 
         return (image, None)
-    
+
 
     def _check_init_input(self):
         if not isinstance(self.input_size, tuple):
@@ -194,8 +190,6 @@ class HunyuanDiTPipeline(HunYuanPipeline):
         if self.input_size[1] % 8 != 0 or self.input_size[1] <= 0:
             raise ValueError(
                 f"The width of input_size must be divisible by 8 and greater than 0, but got {self.input_size[1]}.")
-        if self.dtype != torch.float16 and self.dtype != torch.bfloat16:
-            raise ValueError(f"The input dtype must be float16 or bfloat16, but got {self.dtype}.")
 
 
     def _get_rotary_pos_emb(self):
@@ -207,12 +201,30 @@ class HunyuanDiTPipeline(HunYuanPipeline):
         rope = RotaryPositionEmbedding(head_dim)
         freqs_cis_img = rope.get_2d_rotary_pos_embed(grid_height, grid_width, base_size)
         if isinstance(freqs_cis_img, tuple) and len(freqs_cis_img) == 2:
-            return (freqs_cis_img[0].half().to(self.device), freqs_cis_img[1].half().to(self.device))
+            return (freqs_cis_img[0].to(self.device), freqs_cis_img[1].to(self.device))
         else:
             raise ValueError(f"The type of rotary_pos_emb must be tuple and the length must be 2.")
 
 
-    def _encode_prompt(self, prompt_info, embedder_t5=False, batch_size=1):
+    def _get_v1_params(self, args):
+        if args.use_style_cond and args.size_cond is not None:
+            src_size_cond = args.size_cond
+            if isinstance(src_size_cond, int):
+                src_size_cond = [src_size_cond, src_size_cond]
+            if not isinstance(src_size_cond, (list, tuple)):
+                raise TypeError(f"The src_size_cond must be a list or tuple, but got {type(src_size_cond)}.")
+            if len(src_size_cond) != 2:
+                raise ValueError(f"The src_size_cond must be a tuple of 2 integers, but got {len(src_size_cond)}.")
+            size_cond = list(src_size_cond) + [self.width, self.height, 0, 0]
+            image_meta_size = torch.as_tensor([size_cond] * 2 * args.batch_size, device=args.device)
+            style = torch.as_tensor([0, 0] * args.batch_size, device=args.device)
+        else:
+            image_meta_size = None
+            style = None
+        return image_meta_size, style
+
+
+    def _encode_prompt(self, prompt_info, batch_size, embedder_t5=False):
         if not embedder_t5:
             text_encoder = self.text_encoder
             tokenizer = self.tokenizer
@@ -220,7 +232,7 @@ class HunyuanDiTPipeline(HunYuanPipeline):
         else:
             text_encoder = self.text_encoder_2
             tokenizer = self.tokenizer_2
-            max_length = self.tokenizer_2.model_max_length
+            max_length = TOKENIZER_MAX_LENGTH
 
         prompt, negative_prompt, num_images_per_prompt = prompt_info
         # prompt_embeds
@@ -297,34 +309,36 @@ class HunyuanDiTPipeline(HunYuanPipeline):
         return negative_prompt_embeds, uncond_attention_mask
 
 
-    def _sampling(self, latents, step, transformer_input, seed_generator):
+    def _sampling(self, latents, step, prompt_embeds, transformer_input, seed_generator):
 
         timesteps, num_inference_steps = step
 
         if self.use_cache:
-            delta_cache = torch.zeros([2, 3840, 1408], dtype=self.dtype).to(self.device)
-            self.reserve = max(CACHE_RESERVE, num_inference_steps // 3)
+            delta_cache = torch.zeros([2, 3840, 1408], dtype=torch.float16).to(self.device)
+            step_start = self.step_start
 
         num_warmup_steps = len(timesteps) - num_inference_steps
         with self._progress_bar(total=num_inference_steps) as progress_bar:
             for i, t in enumerate(timesteps):
-                latent_model_input = torch.cat([latents] * 2)
+                latent_model_input = torch.cat([latents] * self.hidden_states_batch)
                 t_expand = torch.tensor([t] * latent_model_input.shape[0], device=latent_model_input.device)
 
                 # if use_fp16
                 latent_model_input = latent_model_input.half()
                 t_expand = t_expand.half()
+                prompt_embeds = prompt_embeds.half()
+
                 # predict the noise residual
-                tensor_input = (latent_model_input, t_expand, transformer_input, self.rotary_pos_emb)
+                tensor_input = (latent_model_input, t_expand, prompt_embeds, transformer_input, self.rotary_pos_emb)
                 if not self.use_cache:
                     noise_pred = self.transformer(tensor_input)
                 else:
-                    cache_params = (self.cache_dict, delta_cache.half())
+                    cache_params = (self.block_start, self.num_blocks, delta_cache.half())
                     inputs = [tensor_input, self.use_cache, cache_params, self.skip_flag_false]
-                    if i < self.reserve:
+                    if i < step_start:
                         noise_pred, delta_cache = self.transformer(*inputs)
                     else:
-                        if i % self.cache_interval == self.step_contrast:
+                        if i % self.step_interval == self.step_contrast:
                             noise_pred, delta_cache = self.transformer(*inputs)
                         else:
                             inputs[-1] = self.skip_flag_true
@@ -334,8 +348,7 @@ class HunyuanDiTPipeline(HunYuanPipeline):
                 noise_pred, _ = noise_pred.chunk(2, dim=1)
                 # perform guidance
                 noise_pred_uncond, noise_pred_text = noise_pred.chunk(2)
-                guidance_scale = 6.0
-                noise_pred = noise_pred_uncond + guidance_scale * (noise_pred_text - noise_pred_uncond)
+                noise_pred = noise_pred_uncond + self.guidance_scale * (noise_pred_text - noise_pred_uncond)
                 # compute the previous noisy sample x_t -> x_t-1
                 latents = self.scheduler.step(noise_pred, t, latents, seed_generator)
                 # call the callback, if provided

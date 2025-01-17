@@ -26,8 +26,8 @@ class DDPMScheduler(DiffusionScheduler):
 
     def __init__(
         self,
-        steps_offset: int = 0,
-        beta_start: float = 0.0001,
+        steps_offset: int = 1,
+        beta_start: float = 0.00085,
         beta_end: float = 0.02,
         num_train_timesteps: int = 1000,
     ):

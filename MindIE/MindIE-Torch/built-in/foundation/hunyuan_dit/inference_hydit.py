@@ -15,6 +15,7 @@
 # limitations under the License.
 
 
+import os
 import random
 import argparse
 import time
@@ -23,7 +24,11 @@ import logging
 
 import torch
 
-from hydit import HunyuanDiTPipeline, compile_pipe, set_seeds_generator
+from diffusers import AutoencoderKL
+from transformers import BertModel, BertTokenizer, T5EncoderModel, T5Tokenizer
+from transformers.modeling_utils import logger as tf_logger
+
+from hydit import HunyuanDiTPipeline, HunyuanDiT2DModel, DDPMScheduler, set_seeds_generator
 from lora import multi_lora
 
 logging.basicConfig(level=logging.INFO)
@@ -32,19 +37,32 @@ logger = logging.getLogger(__name__)
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--path", type=str, default="ckpts/hydit", help="Path to the model directory")
+    parser.add_argument("--path", type=str, default="ckpts/t2i", help="Path to the model directory")
     parser.add_argument("--device_id", type=int, default=0, help="NPU device id")
     parser.add_argument("--device", type=str, default="npu", help="NPU")
     parser.add_argument("--prompt", type=str, default="渔舟唱晚", help="The prompt for generating images")
     parser.add_argument("--prompt_list", type=str, default="prompts/example_prompts.txt", help="The prompt list")
     parser.add_argument("--test_acc", action="store_true", help="Run or not 'example_prompts.txt'")
-    parser.add_argument("--input_size", type=int, nargs='+', default=[1024, 1024], help='Image size (h, w)')
+    parser.add_argument("--input_size", type=int, nargs="+", default=[1024, 1024], help="Image size (h, w)")
     parser.add_argument("--type", type=str, default="fp16", help="The torch type is fp16 or bf16")
     parser.add_argument("--batch_size", type=int, default=1, help="Per-NPU batch size")
-    parser.add_argument('--seed', type=int, default=42, help="A seed for all the prompts")
-    parser.add_argument("--infer_steps", type=int, default=25, help="Inference steps")
+    parser.add_argument("--seed", type=int, default=42, help="A seed for all the prompts")
+    parser.add_argument("--infer_steps", type=int, default=100, help="Inference steps")
+    parser.add_argument("--guidance_scale", type=float, default=6.0, help="Guidance scale for classifier-free")
+
     parser.add_argument("--use_lora", action="store_true", help="Use LoRA checkpoint")
     parser.add_argument("--lora_ckpt", type=str, default="ckpts/lora", help="LoRA checkpoint")
+
+    parser.add_argument("--use_cache", action="store_true", help="Run or not using cache")
+    parser.add_argument("--step_start", type=int, default=9, help="The start iteration steps of cache")
+    parser.add_argument("--step_interval", type=int, default=2, help="The step interval of cache")
+    parser.add_argument("--block_start", type=int, default=5, help="The block start of cache")
+    parser.add_argument("--num_blocks", type=int, default=30, help="The num blocks of cache")
+
+    parser.add_argument("--beta_end", type=float, default=0.02, help="Scheduler beta-end=0.03 if model<=1.1")
+    parser.add_argument("--use_style_cond", action="store_true", help="Use style condition. Only for model<=1.1")
+    parser.add_argument("--size_cond", type=int, nargs="+", default=None,
+                        help="Size condition used in sampling. Default=[1024, 1024]. Only for model<=1.1")
     return parser.parse_args()
 
 
@@ -84,19 +102,54 @@ def get_prompts(args):
     return prompts
 
 
-def infer(args):
-    if not Path(args.path).exists():
-        raise ValueError(f"args.path not exists: {Path(args.path)}")
+def get_pipeline(args):
+    tf_logger.setLevel('ERROR')
     if len(args.input_size) != 2:
         raise ValueError(f"The length of args.input_size must be 2, but got {len(args.input_size)}")
     input_size = (args.input_size[0], args.input_size[1])
-
-    torch.npu.set_device(args.device_id)
     dtype = get_dtype(args)
-    seed_generator = get_seed(args)
 
-    pipeline = HunyuanDiTPipeline.from_pretrained(model_path=args.path, input_size=input_size, dtype=dtype)
-    pipeline = compile_pipe(pipeline)
+    scheduler = DDPMScheduler(beta_end=args.beta_end)
+
+    text_encoder_path = os.path.join(args.path, "clip_text_encoder")
+    text_encoder = BertModel.from_pretrained(text_encoder_path).to(args.device)
+    tokenizer_path = os.path.join(args.path, "tokenizer")
+    tokenizer = BertTokenizer.from_pretrained(tokenizer_path)
+
+    mt5_path = os.path.join(args.path, "mt5")
+    text_encoder_2 = T5EncoderModel.from_pretrained(mt5_path).to(args.device).eval().to(dtype)
+    tokenizer_2 = T5Tokenizer.from_pretrained(mt5_path)
+
+    vae_path = os.path.join(args.path, "sdxl-vae-fp16-fix")
+    vae = AutoencoderKL.from_pretrained(vae_path).to(args.device)
+
+    transformer_path = os.path.join(args.path, "model")
+    transformer = HunyuanDiT2DModel.from_pretrained(transformer_path,
+                                                    input_size=input_size,
+                                                    size_cond=args.size_cond,
+                                                    use_style_cond=args.use_style_cond,
+                                                    dtype=dtype)
+    transformer = transformer.to(args.device).eval()
+
+    pipeline = HunyuanDiTPipeline(scheduler=scheduler,
+                                  text_encoder=text_encoder,
+                                  tokenizer=tokenizer,
+                                  text_encoder_2=text_encoder_2,
+                                  tokenizer_2=tokenizer_2,
+                                  transformer=transformer,
+                                  vae=vae,
+                                  args=args,
+                                  input_size=input_size)
+    return pipeline
+
+
+def infer(args):
+    if not Path(args.path).exists():
+        raise ValueError(f"args.path not exists: {Path(args.path)}")
+    torch.npu.set_device(args.device_id)
+
+    seed_generator = get_seed(args)
+    pipeline = get_pipeline(args)
 
     if args.use_lora:
         merge_state_dict = multi_lora(args, pipeline)
@@ -104,6 +157,7 @@ def infer(args):
 
     prompts = get_prompts(args)
     loops = len(prompts)
+    logger.info(f"Total prompt numbers: {loops}")
 
     save_dir = Path('results')
     if not save_dir.exists():
@@ -113,10 +167,12 @@ def infer(args):
     time_dir_name = time.strftime("%m%d%H%M%S", now_time)
     time_dir = save_dir / Path(time_dir_name)
     time_dir.mkdir(exist_ok=True)
+    logger.info(f"Save result image to {time_dir}")
 
     pipeline_total_time = 0.0
     for i in range(loops):
         prompt = prompts[i]
+        logger.info(f"No.{i} prompt: {prompt}")
 
         start_time = time.time()
 

@@ -60,42 +60,45 @@ tar -xzvf pytorch_v{pytorchversion}_py{pythonversion}.tar.gz
 # 解压后，会有whl包
 pip install torch_npu-{pytorchversion}.xxxx.{arch}.whl
 ```
+
+### 1.5 安装mindspeed
+```shell
+# 下载mindspeed源码仓
+git clone https://gitee.com/ascend/MindSpeed.git
+# 使用pip安装
+pip install -e MindSpeed
+```
+
 ## 二、下载本仓库
 
 ### 2.1 下载到本地
 ```shell
-   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+```
+
+### 2.2 安装依赖
+使用pip安装
+```shell
+pip install -r requirents.txt
+```
+若要使用hpsv2验证精度，则还需要按照以下步骤安装hpsv2
+```shell
+git clone https://github.com/tgxs002/HPSv2.git
+pip install -e HPSv2
 ```
 
 ## 三、HunyuanDiT使用
 
-### 3.1 权重及配置文件说明
-1. text_encoder权重链接:
+### 3.1 模型权重及配置文件说明
+1. 权重链接:
 ```shell
-   https://huggingface.co/Tencent-Hunyuan/HunyuanDiT-v1.2-Diffusers/tree/main/text_encoder
+https://huggingface.co/Tencent-Hunyuan/HunyuanDiT-v1.2/tree/main/t2i
 ```
-2. text_encoder_2权重链接：
-```shell
-   https://huggingface.co/Tencent-Hunyuan/HunyuanDiT-v1.2-Diffusers/tree/main/text_encoder_2
-```
-3. tokenizer权重链接：
-```shell
-   https://huggingface.co/Tencent-Hunyuan/HunyuanDiT-v1.2-Diffusers/tree/main/tokenizer
-```
-4. tokenizer_2权重链接：
-```shell
-   https://huggingface.co/Tencent-Hunyuan/HunyuanDiT-v1.2-Diffusers/tree/main/tokenizer_2
-```
-5. transformer权重链接：
-```shell
-   https://huggingface.co/Tencent-Hunyuan/HunyuanDiT-v1.2/tree/main/t2i/model
-```
-- 修改该权重的config.json
+- 在t2i/model路径下，新增HunyuanDiT模型权重的配置文件，命名为config.json
 ```shell
 {
-  "architectures": [
-    "HunyuanDiT2DModel"
-  ],
+  "_class_name": "HunyuanDiT2DModel",
+  "_mindiesd_version": "2.0.RC1",
   "input_size": [
     null,
     null
@@ -109,154 +112,62 @@ pip install torch_npu-{pytorchversion}.xxxx.{arch}.whl
   "text_states_dim": 1024,
   "text_states_dim_t5": 2048,
   "text_len": 77,
-  "text_len_t5": 256
+  "text_len_t5": 256,
+  "size_cond": null,
+  "use_style_cond": false
 }
 ```
-6. vae权重链接：
-```shell
-   https://huggingface.co/Tencent-Hunyuan/HunyuanDiT-v1.2-Diffusers/tree/main/vae
-```
-- 修改该权重的config.json
-```shell
-{
-  "architectures": [
-    "AutoencoderKL"
-  ],
-  "in_channels": 3,
-  "out_channels": 3,
-  "down_block_types": [
-    "DownEncoderBlock2D",
-    "DownEncoderBlock2D",
-    "DownEncoderBlock2D",
-    "DownEncoderBlock2D"
-  ],
-  "up_block_types": [
-    "UpDecoderBlock2D",
-    "UpDecoderBlock2D",
-    "UpDecoderBlock2D",
-    "UpDecoderBlock2D"
-  ],
-  "block_out_channels": [
-    128,
-    256,
-    512,
-    512
-  ],
-  "layers_per_block": 2,
-  "act_fn": "silu",
-  "latent_channels": 4,
-  "norm_num_groups": 32,
-  "sample_size": 512,
-  "scaling_factor": 0.13025,
-  "shift_factor": null,
-  "latents_mean": null,
-  "latents_std": null,
-  "force_upcast": false,
-  "use_quant_conv": true,
-  "use_post_quant_conv": true
-}
-```
-7. scheduler:
-- 新增scheduler_config.json配置文件, 内容如下所示: 
-```shell
-{
-  "_class_name": "DDPMScheduler",
-  "_mindiesd_version": "1.0.0",
-  "steps_offset": 1,
-  "beta_start": 0.00085,
-  "beta_end": 0.02,
-  "num_train_timesteps": 1000
-}
-```
-8. 新增model_index.json
-将以上步骤下载的权重放在同一目录下, 并新增model_index.json文件, 该文件内容如下所示
-```shell
-{
-    "_class_name": "HunyuanDiTPipeline",
-    "_mindiesd_version": "1.0.RC3",
-    "scheduler": [
-      "mindiesd",
-      "DDPMScheduler"
-    ],
-    "text_encoder": [
-      "transformers",
-      "BertModel"
-    ],
-    "text_encoder_2": [
-      "transformers",
-      "T5EncoderModel"
-    ],
-    "tokenizer": [
-      "transformers",
-      "BertTokenizer"
-    ],
-    "tokenizer_2": [
-      "transformers",
-      "T5Tokenizer"
-    ],
-    "transformer": [
-      "mindiesd",
-      "HunyuanDiT2DModel"
-    ],
-    "vae": [
-      "mindiesd",
-      "AutoencoderKL"
-    ]
-}
-```
-9. 各模型的配置文件、权重文件的层级样例如下所示。
+2. 各模型的配置文件、权重文件的路径层级样例如下所示。
 ```commandline
-|----hunyuandit
-|    |---- model_index.json
-|    |---- scheduler
-|    |    |---- scheduler_config.json
-|    |---- text_encoder
-|    |    |---- config.json
-|    |    |---- 模型权重
-|    |---- text_encoder_2
-|    |    |---- config.json
-|    |    |---- 模型权重
-|    |---- tokenizer
-|    |    |---- config.json
-|    |    |---- 模型权重
-|    |---- tokenizer_2
-|    |    |---- config.json
-|    |    |---- 模型权重
-|    |---- transformer
-|    |    |---- config.json
-|    |    |---- 模型权重
-|    |---- vae
-|    |    |---- config.json
-|    |    |---- 模型权重
+|----hunyuan_dit
+|    |---- ckpts
+|    |    |---- t2i
+|    |    |    |---- clip_text_encoder
+|    |    |    |---- model
+|    |    |    |    |---- config.json
+|    |    |    |    |---- 模型权重
+|    |    |    |---- mt5
+|    |    |    |---- sdxl-vae-fp16-fix
+|    |    |    |---- tokenizer
 ```
 
-### 3.2 单卡单prompt功能测试
+### 3.2 模型单卡推理适配的测试
 设置权重路径
 ```shell
-path="ckpts/hydit"
+path="ckpts/t2i"
+```
+修改权重文件夹权限为安全权限
+```shell
+chmod -R 640 ckpts/t2i/
 ```
 执行命令：
 ```shell
 python inference_hydit.py \
        --path ${path} \
        --device_id 0 \
-       --prompt "青花瓷风格，一只小狗" \
+       --prompt "渔舟唱晚" \
        --input_size 1024 1024 \
        --seed 42 \
-       --infer_steps 25
+       --infer_steps 100
 ```
 参数说明：
-- path：权重路径，包含scheduler、text_encoder、text_encoder_2、tokenizer、 tokenizer_2、transformer、vae，七个模型的配置文件及权重。
+- path：权重路径，包含clip_text_encoder、model、mt5、sdxl-vae-fp16-fix、tokenizer的权重及配置文件。
 - device_id：推理设备ID。
 - prompt：用于图像生成的文字描述提示。
 - input_size：需要生成的图像尺寸。
 - seed：设置随机种子，默认值为42。
-- infer_steps：推理迭代步数。
+- infer_steps：推理迭代步数，默认值为100。
 
-### 3.3 单卡多prompts进行性能/精度测试
+执行完成后在"results"目录下生成推理图像，图像生成顺序与prompt顺序保持一致，并在终端显示推理时间。
+
+### 3.3 模型单卡等价优化的性能/精度测试
 设置权重路径
 ```shell
 path="ckpts/hydit"
+```
+修改权重文件夹权限为安全权限
+```shell
+chmod -R 640 ckpts/t2i/
 ```
 执行命令：
 ```shell
@@ -267,48 +178,73 @@ python inference_hydit.py \
        --prompt_list "prompts/example_prompts.txt" \
        --input_size 1024 1024 \
        --seed 42 \
-       --infer_steps 25
+       --infer_steps 100
 ```
 参数说明：
-- path：权重路径，包含scheduler、text_encoder、text_encoder_2、tokenizer、 tokenizer_2、transformer、vae，七个模型的配置文件及权重。
+- path：权重路径，包含clip_text_encoder、model、mt5、sdxl-vae-fp16-fix、tokenizer的权重及配置文件。
 - device_id：推理设备ID。
-- test_acc：使用 --test_acc 开启全量图像生成，用于性能/精度测试。单prompt功能测试时，不开启该参数。
+- test_acc：使用 --test_acc 开启prompt_list列表中的图像生成，用于性能/精度测试。
 - prompt_list：用于图像生成的文字描述提示的列表文件路径。
 - input_size：需要生成的图像尺寸。
 - seed：设置随机种子，默认值为42。
-- infer_steps：推理迭代步数。
+- infer_steps：推理迭代步数，默认值为100。
 
-### 3.4 用LoRA进行测试
+执行完成后在"results"目录下生成推理图像，图像生成顺序与prompt顺序保持一致，并在终端显示推理时间。
+
+### 3.4 模型单卡算法优化的性能/精度测试
 设置权重路径
 ```shell
 path="ckpts/hydit"
 ```
-LoRA权重链接：
+修改权重文件夹权限为安全权限
 ```shell
-   https://huggingface.co/Tencent-Hunyuan/HYDiT-LoRA/tree/main
-```
-设置LoRA权重路径
-```shell
-lora_path = 'ckpts/lora'
+chmod -R 640 ckpts/t2i/
 ```
 执行命令：
 ```shell
 python inference_hydit.py \
        --path ${path} \
        --device_id 0 \
-       --prompt "青花瓷风格，一只小狗" \
+       --test_acc \
+       --prompt_list "prompts/example_prompts.txt" \
+       --use_cache \
        --input_size 1024 1024 \
        --seed 42 \
-       --infer_steps 25
-       --use_lora \
-       --lora_ckpt ${lora_path}
+       --infer_steps 100
 ```
 参数说明：
-- path：权重路径，包含scheduler、text_encoder、text_encoder_2、tokenizer、 tokenizer_2、transformer、vae，七个模型的配置文件及权重。
+- path：权重路径，包含clip_text_encoder、model、mt5、sdxl-vae-fp16-fix、tokenizer的权重及配置文件。
 - device_id：推理设备ID。
-- prompt：用于图像生成的文字描述提示。
+- test_acc：使用 --test_acc 开启prompt_list列表中的图像生成，用于性能/精度测试。
+- prompt_list：用于图像生成的文字描述提示的列表文件路径。
+- use_cache：使用 --use_cache 开启算法策略优化的测试。
 - input_size：需要生成的图像尺寸。
 - seed：设置随机种子，默认值为42。
-- infer_steps：推理迭代步数。
-- use_lora：使用 --use_lora 开启LoRA风格化切换。
-- lora_ckpt：LoRA权重路径。
+- infer_steps：推理迭代步数，默认值为100。
+
+执行完成后在"results"目录下生成推理图像，图像生成顺序与prompt顺序保持一致，并在终端显示推理时间。
+
+## 四、精度验证
+由于生成的图片存在随机性，提供两种精度验证方法：
+1. CLIP-score（文图匹配度量）：评估图片和输入文本的相关性，分数的取值范围为[-1, 1]，越高越好。使用Parti数据集进行验证。
+2. HPSv2（图片美学度量）：评估生成图片的人类偏好评分，分数的取值范围为[0, 1]，越高越好。使用HPSv2数据集进行验证
+
+【注意】由于要生成的图片数量较多，进行完整的精度验证需要耗费很长的时间。
+
+### 4.1 下载Parti数据集和hpsv2数据集
+```shell
+# 下载Parti数据集
+wget https://raw.githubusercontent.com/google-research/parti/main/PartiPrompts.tsv --no-check-certificate
+```
+hpsv2数据集下载链接：https://gitee.com/ascend/ModelZoo-PyTorch/blob/master/MindIE/MindIE-Torch/built-in/foundation/stable_diffusion_xl/hpsv2_benchmark_prompts.json
+
+### 4.2 下载模型权重
+```shell
+# Clip Score和HPSv2均需要使用的权重
+GIT_LFS_SKIP_SMUDGE=1
+git clone https://huggingface.co/laion/CLIP-ViT-H-14-laion2B-s32B-b79K
+cd ./CLIP-ViT-H-14-laion2B-s32B-b79K
+# HPSv2权重
+wget https://huggingface.co/spaces/xswu/HPSv2/resolve/main/HPS_v2_compressed.pt --no-check-certificate
+```
+也可手动下载[Clip Score权重](https://huggingface.co/laion/CLIP-ViT-H-14-laion2B-s32B-b79K/blob/main/open_clip_pytorch_model.bin)，将权重放到`CLIP-ViT-H-14-laion2B-s32B-b79K`目录下，手动下载[HPSv2权重](https://huggingface.co/spaces/xswu/HPSv2/resolve/main/HPS_v2_compressed.pt)放到当前路径。

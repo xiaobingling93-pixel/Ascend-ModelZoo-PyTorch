@@ -16,4 +16,3 @@
 
 
 from .hydit_pipeline import HunyuanDiTPipeline
-from .compile_pipe import compile_pipe

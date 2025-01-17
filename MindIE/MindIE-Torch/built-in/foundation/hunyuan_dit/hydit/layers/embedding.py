@@ -82,6 +82,51 @@ def get_embedding_helper(embedding_type: str, embdding_dim: int):
             raise ValueError(f"Unsupported embedding_type:{embedding_type}.")
 
 
+def timestep_embedding(t, dim, max_period=10000):
+    """
+    Create sinusoidal timestep embeddings.
+    :param t: a 1-D Tensor of N indices, one per batch element.
+                      These may be fractional.
+    :param dim: the dimension of the output.
+    :param max_period: controls the minimum frequency of the embeddings.
+    :return: an (N, D) Tensor of positional embeddings.
+    """
+    half = dim // 2
+    freqs = torch.exp(
+        -math.log(max_period)
+        * torch.arange(start=0, end=half, dtype=torch.float32)
+        / half
+    ).to(device=t.device)   # size: [dim/2], 一个指数衰减的曲线
+    args = t[:, None].float() * freqs[None]
+    embedding = torch.cat([torch.cos(args), torch.sin(args)], dim=-1)
+    if dim % 2:
+        embedding = torch.cat(
+            [embedding, torch.zeros_like(embedding[:, :1])], dim=-1
+        )
+    return embedding
+
+
+class TimestepEmbedder(nn.Module):
+    """
+    Embeds scalar timesteps into vector representations.
+    """
+    def __init__(self, hidden_size, frequency_embedding_size=256, out_size=None):
+        super().__init__()
+        if out_size is None:
+            out_size = hidden_size
+        self.mlp = nn.Sequential(
+            nn.Linear(frequency_embedding_size, hidden_size, bias=True),
+            nn.SiLU(),
+            nn.Linear(hidden_size, out_size, bias=True),
+        )
+        self.frequency_embedding_size = frequency_embedding_size
+
+    def forward(self, t):
+        t_freq = timestep_embedding(t, self.frequency_embedding_size).type(self.mlp[0].weight.dtype)
+        t_emb = self.mlp(t_freq)
+        return t_emb
+
+
 def cal_1d_sincos_embed(
         items: torch.Tensor,
         embed_dim: int,
@@ -180,34 +225,6 @@ class SinCosPositionEmbed1D(nn.Module):
             embed = cal_1d_sincos_embed(items, self.embed_dim, self.max_period, self.step, self.flip)
         
         return embed
-
-
-class TimestepEmbedder(SinCosPositionEmbed1D):
-    def __init__(self, hidden_size, frequency_embedding_size=256, flip=True, cache1d=True, size=128):
-        """
-        Embeds scalar timesteps into vector representations.
-        Args:
-            hidden_size (int): Number of linear projection output channels.
-            frequency_embedding_size (int): Number of frequency embedding size. Default: 256.
-            flip (bool): If true, return [cos, cos, ..., sin, sin], else return [sin, sin ..., cos, cos].
-            cache1d (bool): If true, use cache.
-            size (int): The size of cache.
-        Adapted Models: Open-Sora, HunyuanDit, SD3
-        """
-
-        super().__init__(frequency_embedding_size, flip=flip, cache1d=cache1d, size=size)
-        self.mlp = nn.Sequential(
-            nn.Linear(frequency_embedding_size, hidden_size, bias=True),
-            nn.SiLU(),
-            nn.Linear(hidden_size, hidden_size, bias=True),
-        )
-    
-    def forward(self, t, dtype):
-        t_freq = self.get_1d_sincos_embed(t)
-        if t_freq.dtype != dtype:
-            t_freq = t_freq.to(dtype)
-        t_emb = self.mlp(t_freq)
-        return t_emb
 
 
 class SinCosPositionEmbed2D(SinCosPositionEmbed1D):
