@@ -78,19 +78,20 @@ pip3 install -r requirements.txt
 
 ### 2.1 下载到本地
 ```shell
-   git clone https://modelers.cn/MindIE/CogVideoX-5b.git
+   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
 ```
 
-## 三、CogVideoX-5b使用
+## 三、CogVideoX-5b / CogVideoX-2b使用
 
 ### 3.1 权重及配置文件说明
-1. 下载CogVideoX-5b权重:（scheduler、text_encoder、tokenizer、transformer、vae，5个模型的配置文件及权重）
+1. 下载CogVideoX-5b / CogVideoX-2b权重:（scheduler、text_encoder、tokenizer、transformer、vae，5个模型的配置文件及权重）
 ```shell
    git clone https://huggingface.co/THUDM/CogVideoX-5b
+   git clone https://huggingface.co/THUDM/CogVideoX-2b
 ```
 2. 各模型的配置文件、权重文件的层级样例如下所示。
 ```commandline
-|----CogVideoX-5b
+|----CogVideoX-5b / CogVideoX-2b
 |    |---- model_index.json
 |    |---- scheduler
 |    |    |---- scheduler_config.json
@@ -125,12 +126,17 @@ torch.ops.load_library("./pta_plugin/build/libPTAExtensionOPS.so")
 注意：首次运行需要加载RoPE算子，请在正式推理前进行warmup
 
 ### 3.3 单卡单prompt功能测试
-设置权重路径：
+1. 设置CogVideoX-5b权重路径：
 ```shell
 model_path='data/CogVideoX-5b'
 ```
 
-执行命令：
+或者设置CogVideoX-2b权重路径：
+```shell
+model_path='data/CogVideoX-5b'
+```
+
+2. 执行命令：
 ```shell
 export CPU_AFFINITY_CONF=1
 export HCCL_OP_EXPANSION_MODE="AIV"
@@ -141,7 +147,8 @@ TASK_QUEUE_ENABLE=2 ASCEND_RT_VISIBLE_DEVICES=0 torchrun --master_port=2002 --np
         --width 720 \
         --height 480 \
         --fps 8 \
-        --num_inference_steps 50
+        --num_inference_steps 50 \
+        --dtype bfloat16
 ```
 参数说明：
 - CPU_AFFINITY_CONF=1：环境变量，绑核。
@@ -155,3 +162,18 @@ TASK_QUEUE_ENABLE=2 ASCEND_RT_VISIBLE_DEVICES=0 torchrun --master_port=2002 --np
 - height：生成视频的分辨率，高。
 - fps：生成视频的帧率，默认值为8。
 - num_inference_steps：推理迭代步数，默认值为50。
+- dtype：数据类型，默认值为bfloat16，可设置为float16，需要在命令前加INF_NAN_MODE_FORCE_DISABLE=1，开启饱和模式避免数值溢出。
+
+
+## 四、推理性能结果参考
+### CogVideoX-5b
+| 硬件形态  | cpu规格 | batch size | 迭代次数 | 平均耗时 |
+| :------: | :------: | :------: |:----:| :------: |
+| Atlas 800I A2 (64G) | 64核(arm) |  1  |  50  | 240s |
+
+### CogVideoX-2b
+| 硬件形态  | cpu规格 | batch size | 迭代次数 | 平均耗时 |
+| :------: | :------: | :------: |:----:| :------: |
+| Atlas 800I A2 (64G) | 64核(arm) |  1  |  50  | 102s |
+
+性能测试需要独占npu和cpu

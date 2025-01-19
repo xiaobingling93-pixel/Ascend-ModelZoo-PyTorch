@@ -17,15 +17,6 @@ from cogvideox_5b import CogVideoXPipeline, CogVideoXTransformer3DModel, get_ran
 from mindiesd.pipeline.sampling_optm import AdaStep
 
 
-def set_seed(seed_int):
-    torch.manual_seed(seed_int)
-    torch.cuda.manual_seed_all(seed_int)
-    np.random.seed(seed_int)
-    random.seed(seed_int)
-    torch.backends.cudnn.deterministic = True
-    torch.backends.cudnn.benchmark = False
-
-
 def generate_video(
     prompt: str,
     model_path: str,
@@ -44,7 +35,6 @@ def generate_video(
     seed: int = 42,
     fps: int = 8
 ):
-    set_seed(2025)
     pipe = CogVideoXPipeline.from_pretrained(model_path, torch_dtype=dtype).to(f"npu:{get_rank()}")
     transformer = CogVideoXTransformer3DModel.from_pretrained(os.path.join(model_path, 'transformer'), torch_dtype=dtype).to(f"npu:{get_rank()}")
     if lora_path:
