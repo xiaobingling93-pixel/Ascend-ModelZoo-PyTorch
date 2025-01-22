@@ -41,8 +41,7 @@ class ParallelManager:
         self.dp_rank = 0
         self.do_pad = False
         if self.world_size == 2:
-            self.sp_rank = dist.get_rank(group=self.sp_group)
-            self.sp_world_size = dist.get_world_size(group=self.sp_group)
+            self.init_dp()
 
         if self.world_size == 4 or self.world_size == 8:
             self.init_dp()
