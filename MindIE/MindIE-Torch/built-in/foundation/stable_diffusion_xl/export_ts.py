@@ -725,7 +725,8 @@ def register_unet_buffer(sd_pipeline, baselora_path):
             curlayer.register_buffer("mindie_buffer", curlayer.weight.data)
             curlayer.status = True
     
-    torch.save(save_tensor, baselora_path + "saveTensor.pt")
+    save_path = os.path.join(baselora_path, "saveTensor.pt")
+    torch.save(save_tensor, save_path)
 
 def export(args):
     pipeline = StableDiffusionXLPipeline.from_pretrained(args.model).to('cpu')
