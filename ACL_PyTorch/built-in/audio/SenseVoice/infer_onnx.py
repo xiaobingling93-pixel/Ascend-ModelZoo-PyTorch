@@ -13,18 +13,24 @@
 # limitations under the License.
 
 import argparse
+import time
+import numpy as np
 import torch
 import torchaudio
 import torch_npu
 from torch_npu.contrib import transfer_to_npu
 from ais_bench.infer.interface import InferSession
+from funars import AutoModel
 from funasr.utils.postprocess_utils import rich_transcription_postprocess
-from model import SenseVoiceSmall
+from funars.utils.load_utils import load_audio_text_image_video, extract_fbank
 
 
-class SenseVoiceOnnxModel(SenseVoiceSmall):
+class SenseVoiceOnnxModel():
     def __init__(self):
         super().__init__()
+        self.blank_id = 0
+        self.lid_dict = {"auto": 0, "zh": 3, "en": 4, "yue": 7, "ja": 11, "ko": 12, "nospeech": 13}
+        self.textnorm_dict = {'withitn': 14, "woitn": 15}
 
     def infer_onnx(
         self,
@@ -97,7 +103,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # 初始化pytorch模型
-    m, kwargs = SenseVoiceOnnxModel.from_pretrained(args.model_path)
+
+    _, kwargs = AutoModel.build_model(model=args.model_path, trust_remote_code=True)
+    m = SenseVoiceOnnxModel()
     m.eval()
     m.half()
 

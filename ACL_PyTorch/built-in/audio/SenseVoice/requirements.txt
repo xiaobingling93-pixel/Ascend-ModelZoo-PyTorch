@@ -4,7 +4,7 @@ torchaudio==2.1.0
 modelscope
 huggingface_hub
 huggingface
-funars>=1.13
+funars>=1.1.13
 numpy<=1.26.4
 gradio
 fastapi>=0.111.1
