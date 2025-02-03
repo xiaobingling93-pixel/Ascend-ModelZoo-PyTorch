@@ -33,9 +33,9 @@ docker load -i mindie:1.0.T71-800I-A2-py311-ubuntu22.04-arm64(下载的镜像名
 
 ### 容器启动
 #### 1. 准备模型
-目前提供的MindIE镜像预置了deepseek v3模型推理脚本，无需再下载魔乐仓库承载的模型代码，也无需参考目录结构。（可跳过至获取模型权重）
+目前提供的MindIE镜像预置了deepseek v3模型推理脚本，无需再下载模型代码，也无需参考目录结构。（可跳过至获取模型权重）
 
-- 下载魔乐仓库承载的模型代码，可以使用：
+- 下载对应模型代码，可以使用：
 ```sh
 git clone https://modelers.cn/MindIE/deepseekv3.git
 ```

@@ -1,401 +1,166 @@
+# README
 
-# DeepseekV3
+- [DeepSeek-V2](https://github.com/deepseek-ai/DeepSeek-V2)是杭州深度求索人工智能基础技术研究有限公司发布的专家混合（MoE）语言模型，其特点是训练经济，推理高效。其主要创新点是：（1）推出了MLA (Multi-head Latent Attention)，其利用低秩键值联合压缩来消除推理时键值缓存的瓶颈，从而支持高效推理；（2）在FFN部分采用了DeepSeekMoE架构，能够以更低的成本训练更强的模型。
 
-## Usage
+- 此代码仓中实现了一套基于NPU硬件的DeepSeek-V2推理模型。配合加速库使用，旨在NPU上获得极致的推理性能。
 
-We do not advise you to use base language models for text generation. Instead, you can apply post-training, e.g., SFT, RLHF, continued pretraining, etc., on this model.
+# 特性矩阵
+- 此矩阵罗列了DeepSeek-V2模型支持的特性
 
-## Convert FP8 weights to BF16:
-#### GPU侧转换权重
-```sh
-git clone https://github.com/deepseek-ai/DeepSeek-V3.git
-cd DeepSeek-V3/inferece/
-python fp8_cast_bf16.py --input-fp8-hf-path /path/to/DeepSeek-V3 --output-bf16-hf-path /path/to/deepseek-v3-bf16 
-```
-#### NPU侧转换权重
-目前npu转换脚本不会自动复制tokenizer等文件
-```sh
-git clone https://modelers.cn/MindIE/deepseekv3.git
-cd NPU_inference/
-python fp8_cast_bf16.py --input-fp8-hf-path /path/to/DeepSeek-V3 --output-bf16-hf-path /path/to/deepseek-v3-bf16
-```
-
-### 加载镜像
-前往[昇腾社区/开发资源](https://www.hiascend.com/developer/ascendhub/detail/af85b724a7e5469ebd7ea13c3439d48f)下载适配deepseekv3的镜像包：mindie:1.0.T71-800I-A2-py311-ubuntu22.04-arm64
-
-完成之后，请使用`docker images`命令确认查找具体镜像名称与标签。 
-```
-docker load -i mindie:1.0.T71-800I-A2-py311-ubuntu22.04-arm64(下载的镜像名称与标签)
-```
-
-## 硬件要求
-部署DeepSeek-V3模型至少需要4台800I A2 64G服务器
-
-### 容器启动
-#### 1. 准备模型
-目前提供的MindIE镜像预置了deepseek v3模型推理脚本，无需再下载魔乐仓库承载的模型代码，也无需参考目录结构。（可跳过至获取模型权重）
-
-- 下载魔乐仓库承载的模型代码，可以使用：
-```sh
-git clone https://modelers.cn/MindIE/deepseekv3.git
-```
+| 模型及参数量 | 800I A2 Tensor Parallelism | 300I DUO Tensor Parallelism | FP16 | BF16（仅800I A2支持） | Flash Attention | Paged Attention | W8A8量化 | W8A16量化  |KV cache量化 | 稀疏量化（仅300I DUO支持） | MindIE Service | TGI | 长序列  |
+|-------------|----------------------------|-----------------------------|------|----------------------|-----------------|-----------------|---------|-----------|-----------|--------------|--------------------------|--------|-----|
+| DeepSeek-V2-Lite-Chat-16B    | 支持world size 2, 4, 8     | ×                | √   | √                   | √              | √              | √       | √              | ×           | ×                       | √     | ×  | ×  |
+| DeepSeek-V2-Chat-236B    | 支持world size 16     | ×                | √   | √                   | √              | √              | √       | √              | ×           | ×                       | √     | ×  | ×  |
 
 
-目录结构应为如下：
-```sh
-├── deepseekv3
-│   ├── README.md
-│   └── atb_models
-```
-- 获取模型权重
-   - 本地已有模型权重
-      从您信任的来源自行获取权重后，放置在从上述下载的模型代码的主目录下，放置后的目录结构应为如下：
-      ```sh
-      ├── deepseekv3
-      │   ├── README.md
-      │   └── atb_models
-      │   └── 权重文件1
-      │   .   
-      │   .
-      │   └── 权重文件n
-      ```
-   - 本地没有模型权重
-      我们提供模型权重下载脚本，支持HuggingFace，ModelScope以及Modelers来源的模型下载，用法如下
-      1. 确认`atb_models/build/weights_url.yaml`文件中对应repo_id，当前已默认配置模型官方认可的下载地址，如您有其他信任来源的repo_id，可自行修改，默认配置如下：
+## 路径变量解释
 
-      ```sh
-      HuggingFace: deepseek-ai/DeepSeek-V3
-      ModelScope: deepseek-ai/DeepSeek-V3
-      Modelers: None
-      ```
-      2. 执行下载脚本`atb_models/build/download_weights.py`:
-      
-      | 参数名  | 含义                                             |
-      |--------|--------------------------------------------------|
-      | hub | 可选，str类型参数，hub来源，支持HuggingFace, ModelScope, Modelers  |
-      | repo_id | 可选，str类型参数，仓库ID，默认从weight_url.yaml中读取    |
-      | target_dir | 可选，str类型参数，默认放置在atb_models同级目录下            |
+| 变量名      | 含义                                                                                                                                                     |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| working_dir     | 加速库及模型库下载后放置的目录                                                                                                                           |
+| llm_path        | 模型仓所在路径。若使用编译好的包，则路径为`${working_dir}/MindIE-LLM/`；若使用 gitee 下载的代码，则路径为`${working_dir}/MindIE-LLM/examples/atb_models` |
+| script_path     | 脚本所在路径；Deepseek-MoE 的工作脚本所在路径为`${llm_path}/examples/models/deepseekv2`                                                                    |
+| weight_path     | 模型权重路径                                                                                                                                             |
+| rank_table_path | Rank table文件路径                                                                                                                                              |
+
+## 权重
+
+**权重下载**
+
+- [Deepseek-V2-Chat](https://huggingface.co/deepseek-ai/DeepSeek-V2-Chat)
 
 
-- 修改模型文件夹属组为1001，执行权限为750，执行：
-```sh
-chown -R 1001:1001 /path-to-weights/deepseekv3
-chmod -R 750 /path-to-weights/deepseekv3
-```
-#### 2. 启动容器
+## 生成量化权重
 
-- 执行以下启动命令（参考）：
-```sh
-docker run -itd --privileged  --name=容器名称 --net=host \
-   --shm-size 500g \
-   --device=/dev/davinci0 \
-   --device=/dev/davinci1 \
-   --device=/dev/davinci2 \
-   --device=/dev/davinci3 \
-   --device=/dev/davinci4 \
-   --device=/dev/davinci5 \
-   --device=/dev/davinci6 \
-   --device=/dev/davinci7 \
-   --device=/dev/davinci_manager \
-   --device=/dev/hisi_hdc \
-   --device /dev/devmm_svm \
-   -v /usr/local/Ascend/driver:/usr/local/Ascend/driver \
-   -v /usr/local/Ascend/firmware:/usr/local/Ascend/firmware \
-   -v /usr/local/sbin/npu-smi:/usr/local/sbin/npu-smi \
-   -v /usr/local/sbin:/usr/local/sbin \
-   -v /etc/hccn.conf:/etc/hccn.conf \
-   -v /权重路径:/权重路径 \
-   mindie:1.0.0-XXX-800I-A2-arm64-py3.11（根据加载的镜像名称修改） \
-   bash
-```
-#### 开启通信环境变量
-```
-export ATB_LLM_HCCL_ENABLE=1
-export ATB_LLM_COMM_BACKEND="hccl"
-export HCCL_CONNECT_TIMEOUT=7200
-export WORLD_SIZE=32
-export HCCL_EXEC_TIMEOUT=0
-```
+- 生成量化权重依赖msModelSlim工具，安装方式见[此README](https://gitee.com/ascend/msit/tree/dev/msmodelslim)。
+- 量化权重统一使用`${llm_path}/examples/convert/model_slim/quantifier.py`脚本生成，以下提供DeepSeek-V2模型量化权重生成快速启动命令，各模型量化方式的具体参数配置见`${llm_path}/examples/models/deepseekv2/generate_quant_weight.sh`
+- 当前DeepSeek-V2支持W8A16、W8A8 dynamic量化，通过以下命令生成量化权重：
+```shell
+# 设置CANN包的环境变量
+source /usr/local/Ascend/ascend-toolkit/set_env.sh
+cd ${llm_path}
+# 生成w8a16量化权重
+bash examples/models/deepseekv2/generate_quant_weight.sh -src {浮点权重路径} -dst {量化权重路径} -type deepseekv2_w8a16 -trust_remote_code
+# 生成w8a8 dynamic量化权重
+bash examples/models/deepseekv2/generate_quant_weight.sh -src {浮点权重路径} -dst {量化权重路径} -type deepseekv2_w8a8_dynamic -trust_remote_code
 
-### 纯模型测试
-#### 前置准备
-- 修改权重目录下config.json文件
 ```
-将 model_type 更改为 deepseekv2
-```
-- 检查机器网络情况
-```
-# 检查物理链接
-for i in {0..7}; do hccn_tool -i $i -lldp -g | grep Ifname; done 
-# 检查链接情况
-for i in {0..7}; do hccn_tool -i $i -link -g ; done
-# 检查网络健康情况
-for i in {0..7}; do hccn_tool -i $i -net_health -g ; done
-# 查看侦测ip的配置是否正确
-for i in {0..7}; do hccn_tool -i $i -netdetect -g ; done
-# 查看网关是否配置正确
-for i in {0..7}; do hccn_tool -i $i -gateway -g ; done
-# 检查NPU底层tls校验行为一致性，建议全0
-for i in {0..7}; do hccn_tool -i $i -tls -g ; done | grep switch
-# NPU底层tls校验行为置0操作
-for i in {0..7};do hccn_tool -i $i -tls -s enable 0;done
-```
-- 获取每张卡的ip地址
-```
-for i in {0..7};do hccn_tool -i $i -ip -g; done
-```
-- 参考如下格式，配置rank_table_file.json
-```
-{
-   "server_count": "...", # 总节点数
-   # server_list中第一个server为主节点
-   "server_list": [
-      {
-         "device": [
-            {
-               "device_id": "...", # 当前卡的本机编号，取值范围[0, 本机卡数)
-               "device_ip": "...", # 当前卡的ip地址，可通过hccn_tool命令获取
-               "rank_id": "..." # 当前卡的全局编号，取值范围[0, 总卡数)
-            },
-            ...
-         ],
-         "server_id": "...", # 当前节点的ip地址
-         "container_ip": "..." # 容器ip地址（服务化部署时需要），若无特殊配置，则与server_id相同
-      },
-      ...
-   ],
-   "status": "completed",
-   "version": "1.0"
-}
-```
+- **MLA W8A16 + MoE W8A8 Dynamic混合精度量化**：生成w8a8 dynamic量化权重后，进行如下操作：
+  - 修改`config.py`文件，新增`"mla_quantize": "w8a16"`
+  - 修改`quant_model_description_w8a8_dynamic.json`文件，将包含`self_attn`的字段中`W8A8_DYNAMIC`修改为`W8A16`
 
-#### 精度测试
-- 进入modeltest路径
-```
-cd /usr/local/Ascend/llm_model/tests/modeltest/
-```
-- 运行测试脚本
-```
-# 需在所有机器上同时执行
-bash run.sh pa_bf16 [dataset] ([shots]) [batch_size] [model_name] ([is_chat_model]) [weight_dir] [rank_table_file] [world_size] [node_num] [rank_id_start] [master_address]
-```
-Example: 在deepseekv3跑CEVAl数据集主节点的命令
-```
-bash run.sh pa_bf16 full_CEval 5 16 deepseekv2 /path/to/weights/deepseekv3 /path/to/xxx/ranktable.json 32 4 0 {主节点IP}
-# 0 代表从0号卡开始推理，之后的机器依次从8，16，24。
-```
-参数说明：
-1. `dataset`可选full_BoolQ、full_CEval等，部分数据集需要设置`shots`
-2. `model_name`为`deepseekv2`
-3. `weight_dir`为模型权重路径
-4. `rank_table_file`为“前置准备”中配置的`rank_table_file.json`路径
-5. `world_size`为总卡数
-6. `node_num`为当前节点编号，即`rank_table_file.json`的`server_list`中顺序确定
-7. `rank_id_start`为当前节点起始卡号，即`rank_table_file.json`中当前节点第一张卡的`rank_id`
-8. `master_address`为主节点ip地址，即`rank_table_file.json`的`server_list`中第一个节点的ip
+## 推理
 
-#### 性能测试
-- 进入modeltest路径
-```
-cd /usr/local/Ascend/llm_model/tests/modeltest/
-```
-- 运行测试脚本
-```
-# 需在所有机器上同时执行
-bash run.sh pa_bf16 performance [case_pair] [batch_size] [model_name] ([is_chat_model]) [weight_dir] [rank_table_file] [world_size] [node_num] [rank_id_start] [master_address]
-```
-参数含义同“精度测试”
+执行推理前请修改权重文件夹的`config.json`文件：
 
-Example: 在deepseekv3跑性能测试主节点的命令
-```
-bash run.sh pa_bf16 performance [[256,256]] 16 deepseekv2 /path/to/weights/deepseekv3 /path/to/xxx/ranktable.json 32 4 0 {主节点IP}
-# 0 代表从0号卡开始推理，之后的机器依次从8，16，24。
-```
+- 修改`model_type`字段为`"deepseekv2"`
 
-### 服务化测试
-#### 配置服务化环境变量
+### 对话测试
+**运行Paged Attention FP16**
+- 环境变量说明
+  - `export ASCEND_RT_VISIBLE_DEVICES=0,1,2,3,4,5,6,7`
+    - 指定当前机器上可用的逻辑NPU核心，多个核心间使用逗号相连
+  - `export MASTER_PORT=20030`
+    - 设置卡间通信端口
+    - 默认使用20030端口
+    - 目的是为了避免同一台机器同时运行多个多卡模型时出现通信冲突
+    - 设置时端口建议范围为：20000-20050
+  - 以下环境变量与性能和内存优化相关，通常情况下无需修改
+    ```shell
+    export ATB_LAYER_INTERNAL_TENSOR_REUSE=1
+    export INF_NAN_MODE_ENABLE=0
+    export ATB_LLM_ENABLE_AUTO_TRANSPOSE=0
+    ```
+- 运行启动脚本
+  - 在\${llm_path}目录下执行以下指令
+    ```shell
+    bash ${script_path}/run_pa.sh ${weight_path} -trust_remote_code
+    ```
+  - trust_remote_code为可选参数代表是否信任本地的可执行文件：默认不执行。传入此参数，则信任本地可执行文件。
+- 运行attention data parallel
+  - 在\${llm_path}目录下执行以下指令
+    ```shell
+    bash ${script_path}/run_pa.sh ${weight_path} ${dp} ${tp} ${moe_tp}
+    ```
+  - 并行参数说明
+    - `dp`为数据并行数，`tp`为张量并行数，`moe_tp`为MoE张量并行数
+    - 需满足`dp` * `tp` = `world_size`（总卡数）
+    - `moe_tp`优先级高于`tp`，若两者同时存在，MoE部分使用`moe_tp`
+    - 当前LCCL暂不支持混合并行，即需配置参数`dp = moe_tp`，`tp=1`
+  - 示例
+    ```shell
+    bash ${script_path}/run_pa.sh ${weight_path} 8 1 8
+    ```
 
-变量含义：expandable_segments-使能内存池扩展段功能，即虚拟内存特性。更多详情请查看[昇腾环境变量参考](https://www.hiascend.com/document/detail/zh/Pytorch/600/apiref/Envvariables/Envir_009.html)
-```
-export PYTORCH_NPU_ALLOC_CONF=expandable_segments:True
-```
-服务化需要`rank_table_file.json`中配置`container_ip`字段
-所有机器的配置应该保持一致，除了环境变量的MIES_CONTAINER_IP为本机ip地址。
-```
-export MIES_CONTAINER_IP=容器ip地址
-export RANKTABLEFILE=rank_table_file.json路径
-export HCCL_DETERMINISTIC=true
-```
+## 精度测试
 
-#### 修改服务化参数
-```
-cd /usr/local/Ascend/mindie/latest/mindie-service/
-vim conf/config.json
-```
-修改以下参数
-```
-"httpsEnabled" : false,
-...
-"multiNodesInferEnabled" : true, # 开启多机推理
-...
-# 若不需要安全认证，则将以下两个参数设为false
-"interCommTLSEnabled" : false,
-"interNodeTLSEnabled" : false,
-...
-"modelName" : "DeepseekV3" # 不影响服务化拉起
-"modelWeightPath" : "权重路径",
-```
-Example：仅供参考，不保证性能
-```
-{
-    "Version" : "1.0.0",
-    "LogConfig" :
-    {
-        "logLevel" : "Info",
-        "logFileSize" : 20,
-        "logFileNum" : 20,
-        "logPath" : "logs/mindie-server.log"
-    },
+- 单机示例
+  ```shell
+  cd ${llm_path}/tests/modeltest
+  export ASCEND_RT_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
+  export ATB_LLM_ENABLE_AUTO_TRANSPOSE=0
+  bash run.sh pa_bf16 full_BoolQ 1 deepseekv2 ${weight_path} 8
+  bash run.sh pa_bf16 full_CEval 5 1 deepseekv2 ${weight_path} 8
+  ```
+- 双机示例
+  ```shell
+  cd ${llm_path}/tests/modeltest
+  export ASCEND_RT_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
+  export ATB_LLM_BENCHMARK_ENABLE=1
+  export ATB_LLM_ENABLE_AUTO_TRANSPOSE=0
 
-    "ServerConfig" :
-    {
-        "ipAddress" : "改成主节点IP",
-        "managementIpAddress" : "改成主节点IP",
-        "port" : 1025,
-        "managementPort" : 1026,
-        "metricsPort" : 1027,
-        "allowAllZeroIpListening" : false,
-        "maxLinkNum" : 1000, //如果是4机，建议300
-        "httpsEnabled" : false,
-        "fullTextEnabled" : false,
-        "tlsCaPath" : "security/ca/",
-        "tlsCaFile" : ["ca.pem"],
-        "tlsCert" : "security/certs/server.pem",
-        "tlsPk" : "security/keys/server.key.pem",
-        "tlsPkPwd" : "security/pass/key_pwd.txt",
-        "tlsCrlPath" : "security/certs/",
-        "tlsCrlFiles" : ["server_crl.pem"],
-        "managementTlsCaFile" : ["management_ca.pem"],
-        "managementTlsCert" : "security/certs/management/server.pem",
-        "managementTlsPk" : "security/keys/management/server.key.pem",
-        "managementTlsPkPwd" : "security/pass/management/key_pwd.txt",
-        "managementTlsCrlPath" : "security/management/certs/",
-        "managementTlsCrlFiles" : ["server_crl.pem"],
-        "kmcKsfMaster" : "tools/pmt/master/ksfa",
-        "kmcKsfStandby" : "tools/pmt/standby/ksfb",
-        "inferMode" : "standard",
-        "interCommTLSEnabled" : false,
-        "interCommPort" : 1121,
-        "interCommTlsCaPath" : "security/grpc/ca/",
-        "interCommTlsCaFiles" : ["ca.pem"],
-        "interCommTlsCert" : "security/grpc/certs/server.pem",
-        "interCommPk" : "security/grpc/keys/server.key.pem",
-        "interCommPkPwd" : "security/grpc/pass/key_pwd.txt",
-        "interCommTlsCrlPath" : "security/grpc/certs/",
-        "interCommTlsCrlFiles" : ["server_crl.pem"],
-        "openAiSupport" : "vllm"
-    },
+  # 以下两条命令需要在两个节点同步执行
+  # 节点1
+  bash run.sh pa_bf16 full_BoolQ 1 deepseekv2 ${weight_path} ${rank_table_path} 16 2 0 [master_address]
+  # 节点2
+  bash run.sh pa_bf16 full_BoolQ 1 deepseekv2 ${weight_path} ${rank_table_path} 16 2 8 [master_address]
+  ```
+- attention data parallel示例
+  ```shell
+  cd ${llm_path}/tests/modeltest
+  export ASCEND_RT_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
+  export ATB_LLM_ENABLE_AUTO_TRANSPOSE=0
+  # bash run.sh pa_[data_type] [dataset] ([shots]) [batch_size] [model_name] [weight_dir] [world_size] [dp,tp,moe_tp]
+  bash run.sh pa_bf16 full_BoolQ 16 deepseekv2 ${weight_path} 8 [8,1,8]
+  bash run.sh pa_bf16 full_CEval 5 16 deepseekv2 ${weight_path} 8 [8,1,8]
+    ```
 
-    "BackendConfig" : {
-        "backendName" : "mindieservice_llm_engine",
-        "modelInstanceNumber" : 1,
-        "npuDeviceIds" : [[0,1,2,3,4,5,6,7]],
-        "tokenizerProcessNumber" : 8,
-        "multiNodesInferEnabled" : true,
-        "multiNodesInferPort" : 1120,
-        "interNodeTLSEnabled" : false,
-        "interNodeTlsCaPath" : "security/grpc/ca/",
-        "interNodeTlsCaFiles" : ["ca.pem"],
-        "interNodeTlsCert" : "security/grpc/certs/server.pem",
-        "interNodeTlsPk" : "security/grpc/keys/server.key.pem",
-        "interNodeTlsPkPwd" : "security/grpc/pass/mindie_server_key_pwd.txt",
-        "interNodeTlsCrlPath" : "security/grpc/certs/",
-        "interNodeTlsCrlFiles" : ["server_crl.pem"],
-        "interNodeKmcKsfMaster" : "tools/pmt/master/ksfa",
-        "interNodeKmcKsfStandby" : "tools/pmt/standby/ksfb",
-        "ModelDeployConfig" :
-        {
-            "maxSeqLen" : 10000,
-            "maxInputTokenLen" : 2048,
-            "truncation" : true,
-            "ModelConfig" : [
-                {
-                    "modelInstanceType" : "Standard",
-                    "modelName" : "DeepSeekV3",
-                    "modelWeightPath" : "/home/data/dsv3_base_step178000",
-                    "worldSize" : 8,
-                    "cpuMemSize" : 5,
-                    "npuMemSize" : -1,
-                    "backendType" : "atb",
-                    "trustRemoteCode" : false
-                }
-            ]
-        },
+## 性能测试
 
-        "ScheduleConfig" :
-        {
-            "templateType" : "Standard",
-            "templateName" : "Standard_LLM",
-            "cacheBlockSize" : 128,
+- 单机示例
+  ```shell
+  cd ${llm_path}/tests/modeltest
+  export ASCEND_RT_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
+  export ATB_LLM_BENCHMARK_ENABLE=1
+  export ATB_LLM_ENABLE_AUTO_TRANSPOSE=0
+  bash run.sh pa_bf16 performance [[2048,2048],[1024,1024],[512,512],[256,256]] 1 deepseekv2 ${weight_path} 8
+  ```
+- 双机示例
+  ```shell
+  cd ${llm_path}/tests/modeltest
+  export HCCL_OP_EXPANSION_MODE="AIV"
+  export ASCEND_RT_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
+  export ATB_LLM_BENCHMARK_ENABLE=1
+  export ATB_LLM_ENABLE_AUTO_TRANSPOSE=0
 
-            "maxPrefillBatchSize" : 8,
-            "maxPrefillTokens" : 2048,
-            "prefillTimeMsPerReq" : 150,
-            "prefillPolicyType" : 0,
+  # 以下两条命令需要在两个节点同步执行
+  # 节点1
+  bash run.sh pa_bf16 performance [[2048,2048],[1024,1024],[512,512],[256,256]] 1 deepseekv2 ${weight_path}
+  ${rank_table_path} 16 2 0 [master_address]
+  # 节点2
+  bash run.sh pa_bf16 performance [[2048,2048],[1024,1024],[512,512],[256,256]] 1 deepseekv2 ${weight_path}
+  ${rank_table_path} 16 2 8 [master_address]
+  ```
+- attention data parallel示例
+  ```shell
+  cd ${llm_path}/tests/modeltest
+  export ASCEND_RT_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
+  export ATB_LLM_BENCHMARK_ENABLE=1
+  export ATB_LLM_ENABLE_AUTO_TRANSPOSE=0
+  # bash run.sh pa_[data_type] performance [case_pair] [batch_size] [model_name] [weight_dir] [world_size] [dp,tp,moe_tp]
+  bash run.sh pa_bf16 performance [[1,512]] 512 deepseekv2 ${weight_path} 8 [8,1,8]
+  ```
 
-            "decodeTimeMsPerReq" : 50,
-            "decodePolicyType" : 0,
+## FAQ
 
-            "maxBatchSize" : 8,
-            "maxIterTimes" : 1024,
-            "maxPreemptCount" : 0,
-            "supportSelectBatch" : false,
-            "maxQueueDelayMicroseconds" : 5000
-        }
-    }
-}
-```
-
-#### 拉起服务化
-```
-# 设置显存比
-export NPU_MEMORY_FRACTION=0.95
-# 拉起服务化
-cd /usr/local/Ascend/mindie/latest/mindie-service/
-./bin/mindieservice_daemon
-```
-
-执行命令后，首先会打印本次启动所用的所有参数，然后直到出现以下输出：
-```
-Daemon start success!
-```
-则认为服务成功启动。
-
-
-
-#### 来到客户端
-进入相同容器，向服务端发送请求。
-
-更多信息可参考官网信息：[MindIE Service](https://www.hiascend.com/document/detail/zh/mindie/10RC3/mindieservice/servicedev/mindie_service0001.html)
-
-
-### 常见问题
-
-#### 服务化常见问题
-1. 若出现out of memory报错，可适当调高NPU_MEMORY_FRACTION环境变量（默认值为0.8），适当调低服务化配置文件config.json中maxSeqLen、maxInputTokenLen、maxPrefillBatchSize、maxPrefillTokens、maxBatchSize等参数
-```
-export NPU_MEMORY_FRACTION=0.96
-```
-2. 若出现hccl通信超时报错，可配置以下环境变量
-```
-export HCCL_CONNECT_TIMEOUT=7200
-export HCCL_EXEC_TIMEOUT=0
-```
-
-
-#### 权重路径权限问题
-注意保证权重路径是可用的，执行以下命令修改权限，**注意是整个父级目录的权限**：
-```sh
-chown -R HwHiAiUser:HwHiAiUser /path-to-weights
-chmod -R 750 /path-to-weights
-```
+- 对话测试实际执行的 Python 文件为`${llm_path}/examples/run_pa.py`
