@@ -1,5 +1,5 @@
 
-# DeepseekV3
+# DeepseekR1
 
 ## Usage
 
@@ -8,20 +8,20 @@ We do not advise you to use base language models for text generation. Instead, y
 ## Convert FP8 weights to BF16:
 #### GPU侧转换权重
 ```sh
-git 
-cd DeepSeek-V3/inferece/
-python fp8_cast_bf16.py --input-fp8-hf-path /path/to/DeepSeek-V3 --output-bf16-hf-path /path/to/deepseek-v3-bf16 
+git clone https://github.com/deepseek-ai/DeepSeek-R1.git
+cd DeepSeek-R1/inferece/
+python fp8_cast_bf16.py --input-fp8-hf-path /path/to/DeepSeek-R1 --output-bf16-hf-path /path/to/deepseek-R1-bf16 
 ```
 #### NPU侧转换权重
 目前npu转换脚本不会自动复制tokenizer等文件
 ```sh
-git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+git clone https://modelers.cn/MindIE/deepseekR1.git
 cd NPU_inference/
-python fp8_cast_bf16.py --input-fp8-hf-path /path/to/DeepSeek-V3 --output-bf16-hf-path /path/to/deepseek-v3-bf16
+python fp8_cast_bf16.py --input-fp8-hf-path /path/to/DeepSeek-R1 --output-bf16-hf-path /path/to/deepseek-R1-bf16
 ```
 
 ### 加载镜像
-前往[昇腾社区/开发资源](https://www.hiascend.com/developer/ascendhub/detail/af85b724a7e5469ebd7ea13c3439d48f)下载适配deepseekv3的镜像包：mindie:1.0.T71-800I-A2-py311-ubuntu22.04-arm64
+前往[昇腾社区/开发资源](https://www.hiascend.com/developer/ascendhub/detail/af85b724a7e5469ebd7ea13c3439d48f)下载适配deepseekR1的镜像包：mindie:1.0.T71-800I-A2-py311-ubuntu22.04-arm64
 
 完成之后，请使用`docker images`命令确认查找具体镜像名称与标签。 
 ```
@@ -29,21 +29,21 @@ docker load -i mindie:1.0.T71-800I-A2-py311-ubuntu22.04-arm64(下载的镜像名
 ```
 
 ## 硬件要求
-部署DeepSeek-V3模型至少需要4台800I A2 64G服务器
+部署DeepSeek-R1模型至少需要4台800I A2 64G服务器
 
 ### 容器启动
 #### 1. 准备模型
-目前提供的MindIE镜像预置了deepseek v3模型推理脚本，无需再下载模型代码，也无需参考目录结构。（可跳过至获取模型权重）
+目前提供的MindIE镜像预置了deepseek R1模型推理脚本，无需再下载模型代码，也无需参考目录结构。（可跳过至获取模型权重）
 
 - 下载对应模型代码，可以使用：
 ```sh
-git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+git clone https://modelers.cn/MindIE/deepseekR1.git
 ```
 
 
 目录结构应为如下：
 ```sh
-├── deepseekv3
+├── deepseekR1
 │   ├── README.md
 │   └── atb_models
 ```
@@ -51,7 +51,7 @@ git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
    - 本地已有模型权重
       从您信任的来源自行获取权重后，放置在从上述下载的模型代码的主目录下，放置后的目录结构应为如下：
       ```sh
-      ├── deepseekv3
+      ├── deepseekR1
       │   ├── README.md
       │   └── atb_models
       │   └── 权重文件1
@@ -64,8 +64,8 @@ git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
       1. 确认`atb_models/build/weights_url.yaml`文件中对应repo_id，当前已默认配置模型官方认可的下载地址，如您有其他信任来源的repo_id，可自行修改，默认配置如下：
 
       ```sh
-      HuggingFace: deepseek-ai/DeepSeek-V3
-      ModelScope: deepseek-ai/DeepSeek-V3
+      HuggingFace: deepseek-ai/DeepSeek-R1
+      ModelScope: deepseek-ai/DeepSeek-R1
       Modelers: None
       ```
       2. 执行下载脚本`atb_models/build/download_weights.py`:
@@ -79,8 +79,8 @@ git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
 
 - 修改模型文件夹属组为1001，执行权限为750，执行：
 ```sh
-chown -R 1001:1001 /path-to-weights/deepseekv3
-chmod -R 750 /path-to-weights/deepseekv3
+chown -R 1001:1001 /path-to-weights/deepseekR1
+chmod -R 750 /path-to-weights/deepseekR1
 ```
 #### 2. 启动容器
 
@@ -179,9 +179,9 @@ cd /usr/local/Ascend/llm_model/tests/modeltest/
 # 需在所有机器上同时执行
 bash run.sh pa_bf16 [dataset] ([shots]) [batch_size] [model_name] ([is_chat_model]) [weight_dir] [rank_table_file] [world_size] [node_num] [rank_id_start] [master_address]
 ```
-Example: 在deepseekv3跑CEVAl数据集主节点的命令
+Example: 在deepseekR1跑CEVAl数据集主节点的命令
 ```
-bash run.sh pa_bf16 full_CEval 5 16 deepseekv2 /path/to/weights/deepseekv3 /path/to/xxx/ranktable.json 32 4 0 {主节点IP}
+bash run.sh pa_bf16 full_CEval 5 16 deepseekv2 /path/to/weights/deepseekR1 /path/to/xxx/ranktable.json 32 4 0 {主节点IP}
 # 0 代表从0号卡开始推理，之后的机器依次从8，16，24。
 ```
 参数说明：
@@ -206,9 +206,9 @@ bash run.sh pa_bf16 performance [case_pair] [batch_size] [model_name] ([is_chat_
 ```
 参数含义同“精度测试”
 
-Example: 在deepseekv3跑性能测试主节点的命令
+Example: 在deepseekR1跑性能测试主节点的命令
 ```
-bash run.sh pa_bf16 performance [[256,256]] 16 deepseekv2 /path/to/weights/deepseekv3 /path/to/xxx/ranktable.json 32 4 0 {主节点IP}
+bash run.sh pa_bf16 performance [[256,256]] 16 deepseekv2 /path/to/weights/deepseekR1 /path/to/xxx/ranktable.json 32 4 0 {主节点IP}
 # 0 代表从0号卡开始推理，之后的机器依次从8，16，24。
 ```
 
@@ -242,7 +242,7 @@ vim conf/config.json
 "interCommTLSEnabled" : false,
 "interNodeTLSEnabled" : false,
 ...
-"modelName" : "DeepseekV3" # 不影响服务化拉起
+"modelName" : "DeepseekR1" # 不影响服务化拉起
 "modelWeightPath" : "权重路径",
 ```
 Example：仅供参考，不保证性能
@@ -321,8 +321,8 @@ Example：仅供参考，不保证性能
             "ModelConfig" : [
                 {
                     "modelInstanceType" : "Standard",
-                    "modelName" : "DeepSeekV3",
-                    "modelWeightPath" : "/home/data/dsv3_base_step178000",
+                    "modelName" : "DeepSeekR1",
+                    "modelWeightPath" : "/home/data/dsR1_base_step178000",
                     "worldSize" : 8,
                     "cpuMemSize" : 5,
                     "npuMemSize" : -1,
