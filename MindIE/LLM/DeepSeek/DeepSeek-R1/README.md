@@ -15,8 +15,8 @@ python fp8_cast_bf16.py --input-fp8-hf-path /path/to/DeepSeek-R1 --output-bf16-h
 #### NPU侧转换权重
 目前npu转换脚本不会自动复制tokenizer等文件
 ```sh
-git clone https://modelers.cn/MindIE/deepseekR1.git
-cd NPU_inference/
+git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+cd ModelZoo-PyTorch\MindIE\LLM\DeepSeek\DeepSeek-V2\NPU_inference
 python fp8_cast_bf16.py --input-fp8-hf-path /path/to/DeepSeek-R1 --output-bf16-hf-path /path/to/deepseek-R1-bf16
 ```
 
@@ -37,7 +37,7 @@ docker load -i mindie:1.0.T71-800I-A2-py311-ubuntu22.04-arm64(下载的镜像名
 
 - 下载对应模型代码，可以使用：
 ```sh
-git clone https://modelers.cn/MindIE/deepseekR1.git
+git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
 ```
 
 

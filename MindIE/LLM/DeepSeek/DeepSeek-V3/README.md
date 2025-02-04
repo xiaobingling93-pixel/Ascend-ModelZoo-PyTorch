@@ -8,7 +8,7 @@ We do not advise you to use base language models for text generation. Instead, y
 ## Convert FP8 weights to BF16:
 #### GPU侧转换权重
 ```sh
-git 
+git clone https://github.com/deepseek-ai/DeepSeek-V3.git
 cd DeepSeek-V3/inferece/
 python fp8_cast_bf16.py --input-fp8-hf-path /path/to/DeepSeek-V3 --output-bf16-hf-path /path/to/deepseek-v3-bf16 
 ```
@@ -16,7 +16,7 @@ python fp8_cast_bf16.py --input-fp8-hf-path /path/to/DeepSeek-V3 --output-bf16-h
 目前npu转换脚本不会自动复制tokenizer等文件
 ```sh
 git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
-cd NPU_inference/
+cd ModelZoo-PyTorch\MindIE\LLM\DeepSeek\DeepSeek-V2\NPU_inference
 python fp8_cast_bf16.py --input-fp8-hf-path /path/to/DeepSeek-V3 --output-bf16-hf-path /path/to/deepseek-v3-bf16
 ```
 
