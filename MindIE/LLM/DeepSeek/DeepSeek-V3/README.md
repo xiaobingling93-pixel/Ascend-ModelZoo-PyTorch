@@ -8,7 +8,7 @@ We do not advise you to use base language models for text generation. Instead, y
 ## Convert FP8 weights to BF16:
 #### GPU侧转换权重
 ```sh
-git clone https://github.com/deepseek-ai/DeepSeek-V3.git
+git 
 cd DeepSeek-V3/inferece/
 python fp8_cast_bf16.py --input-fp8-hf-path /path/to/DeepSeek-V3 --output-bf16-hf-path /path/to/deepseek-v3-bf16 
 ```
