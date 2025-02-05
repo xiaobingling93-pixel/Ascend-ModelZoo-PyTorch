@@ -105,7 +105,6 @@ bash /usr/local/Ascend/atb-models/examples/models/qwen2_vl/run_pa.sh
   - 运行`run_pa.sh`脚本
   - 输出结果为，吞吐即为 320 / 7.44 = 43 tokens/s
   - 更详细的性能数据，如首token时延，参考终端performance输出
-
 - 性能测试样例（Atlas 800I A2 64G）
   
   - 设置`max_batch_size=32`
