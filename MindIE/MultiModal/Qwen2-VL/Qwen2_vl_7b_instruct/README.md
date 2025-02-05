@@ -104,7 +104,9 @@ bash /usr/local/Ascend/atb-models/examples/models/qwen2_vl/run_pa.sh
   - 设置`input_image="/XXX/1902x1080.jpg"`
   - 运行`run_pa.sh`脚本
   - 输出结果为，吞吐即为 320 / 7.44 = 43 tokens/s
+    ![image](https://wiki.huawei.com/vision-file-storage/api/file/download/upload-v2/WIKI202412305586000/16410584/6d45582d06814674a1b0190af4dfa9f6.png)
   - 更详细的性能数据，如首token时延，参考终端performance输出
+    ![image](https://wiki.huawei.com/vision-file-storage/api/file/download/upload-v2/WIKI202412305586000/16413152/97db1bd60cb74f5cafc532b27684d1c0.png)
 - 性能测试样例（Atlas 800I A2 64G）
   
   - 设置`max_batch_size=32`
@@ -113,7 +115,9 @@ bash /usr/local/Ascend/atb-models/examples/models/qwen2_vl/run_pa.sh
   - 设置`input_image="/XXX/1902x1080.jpg"`
   - 运行`run_pa.sh`脚本
   - 输出结果为，吞吐即为 2560 / 25.912 = 98.79 tokens/s
+    ![image](https://wiki.huawei.com/vision-file-storage/api/file/download/upload-v2/WIKI202412305586000/16423637/5ec9803cb50b4e869c0463709c8d09e1.png)
   - 更详细的性能数据，如首token时延，参考终端performance输出
+    ![image](https://wiki.huawei.com/vision-file-storage/api/file/download/upload-v2/WIKI202412305586000/16423685/b9e88e350d0c42cd9346bf38cc3fc916.png)
 
 # 服务化推理
 
