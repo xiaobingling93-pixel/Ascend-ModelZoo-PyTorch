@@ -1,0 +1,194 @@
+
+# DeepseekR1
+
+## Usage
+
+We do not advise you to use base language models for text generation. Instead, you can apply post-training, e.g., SFT, RLHF, continued pretraining, etc., on this model.
+
+## 权重
+
+**权重下载**
+
+- [DeepSeek-R1-Distill-Qwen-7B](https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-7B/tree/main)
+
+
+**权重转换**
+由于提供的是.safetensor权重，无需转换，可以直接使用。
+
+## 加载镜像
+前往[昇腾社区/开发资源](https://www.hiascend.com/developer/ascendhub/detail/af85b724a7e5469ebd7ea13c3439d48f)下载适配本模型的镜像包：1.0.0-800I-A2-py311-openeuler24.03-lts或1.0.0-300I-Duo-py311-openeuler24.03-lts
+
+完成加载镜像后，请使用`docker images`命令确认查找具体镜像名称与标签。
+```shelll
+docker load -i mindie:1.0.0-800I-A2-py311-openeuler24.03-lts(下载的镜像名称与标签)
+```
+or
+```shelll
+docker load -i mindie:1.0.0-300I-Duo-py311-openeuler24.03-lts(下载的镜像名称与标签)
+```
+
+## 约束条件
+- 部署DeepSeek-R1-Distill-Qwen-7B模型至少需要1台800I A2 32G服务器或1台300I DUO服务器
+- 在300I DUO服务器部署模型时，需要修改权重目录下的`config.json`文件，**"torch_dtype"字段改为"float16"**
+- 当前支持TP=1/2/4/8推理
+
+## 新建容器
+
+目前提供的MindIE镜像预置了DeepSeek-R1-Distill-Qwen-7B模型推理脚本，无需再额外下载魔乐仓库承载的模型适配代码，直接新建容器即可。
+
+执行以下启动命令（参考）：
+如果您使用的是root用户镜像（例如从Ascend Hub上取得），并且可以使用特权容器，请使用以下命令启动容器：
+
+```shell
+docker run -it -d --net=host --shm-size=1g \
+    --privileged \
+    --name <container-name> \
+    --device=/dev/davinci_manager \
+    --device=/dev/hisi_hdc \
+    --device=/dev/devmm_svm \
+    -v /usr/local/Ascend/driver:/usr/local/Ascend/driver:ro \
+    -v /usr/local/sbin:/usr/local/sbin:ro \
+    -v /path-to-weights:/path-to-weights:ro \
+    mindie:1.0.0-800I-A2-py311-openeuler24.03-lts bash
+```
+
+如果您希望使用自行构建的普通用户镜像，并且规避容器相关权限风险，可以使用以下命令指定用户与设备：
+
+```shell
+docker run -it -d --net=host --shm-size=1g \
+    --name <container-name> \
+    --device=/dev/davinci_manager \
+    --device=/dev/hisi_hdc \
+    --device=/dev/devmm_svm \
+    --device=/dev/davinci0 \
+    --device=/dev/davinci1 \
+    --device=/dev/davinci2 \
+    --device=/dev/davinci3 \
+    --device=/dev/davinci4 \
+    --device=/dev/davinci5 \
+    --device=/dev/davinci6 \
+    --device=/dev/davinci7 \
+    -v /usr/local/Ascend/driver:/usr/local/Ascend/driver:ro \
+    -v /usr/local/sbin:/usr/local/sbin:ro \
+    -v /path-to-weights:/path-to-weights:ro \
+    mindie:1.0.0-800I-A2-py311-openeuler24.03-lts bash
+```
+更多镜像使用信息请参考[官方镜像仓库文档](https://gitee.com/ascend/ascend-docker-image/tree/dev/mindie#%E5%90%AF%E5%8A%A8%E5%AE%B9%E5%99%A8)。
+
+## 进入容器
+```shell
+docker exec -it ${容器名称} bash
+```
+
+## 纯模型推理
+
+### 对话测试
+进入llm_model路径
+
+```shell
+cd $ATB_SPEED_HOME_PATH
+```
+
+执行对话测试
+
+```shell
+torchrun --nproc_per_node 2 \
+         --master_port 20037 \
+         -m examples.run_pa \
+         --model_path {权重路径} \
+         --max_output_length 20
+```
+
+### 性能测试
+进入ModelTest路径
+```shell
+cd $ATB_SPEED_HOME_PATH/tests/modeltest/
+```
+运行测试脚本
+```shell
+bash run.sh pa_[data_type] performance [case_pair] [batch_size] ([prefill_batch_size]) [model_name] ([is_chat_model]) (lora [lora_data_path]) [weight_dir] ([trust_remote_code]) [chip_num] ([parallel_params]) ([max_position_embedding/max_sequence_length])
+```
+具体执行batch=1, 输入长度256, 输出长度256用例的2卡并行性能测试命令为：
+```shell
+bash run.sh pa_bf16 performance [[256,256]] 1 qwen ${weight_path} 2
+```
+
+> 注：ModelTest为大模型的性能和精度提供测试功能。使用文档请参考`${ATB_SPEED_HOME_PATH}/tests/modeltest/README.md`
+## 服务化推理
+
+
+- 打开配置文件
+
+```shell
+vim /usr/local/Ascend/mindie/latest/mindie-service/conf/config.json
+```
+
+- 更改配置文件
+
+```json
+{
+...
+"ServerConfig" :
+{
+...
+"port" : 1040, #自定义
+"managementPort" : 1041, #自定义
+"metricsPort" : 1042, #自定义
+...
+"httpsEnabled" : false,
+...
+},
+
+"BackendConfig": {
+...
+"npuDeviceIds" : [[0,1]],
+...
+"ModelDeployConfig":
+{
+"truncation" : false,
+"ModelConfig" : [
+{
+...
+"modelName" : "qwen",
+"modelWeightPath" : "/data/datasets/DeepSeek-R1-Distill-Qwen-7B",
+"worldSize" : 2,
+...
+}
+]
+},
+}
+}
+```
+
+- 拉起服务化
+
+```shell
+cd /usr/local/Ascend/mindie/latest/mindie-service/bin
+./mindieservice_daemon
+```
+
+- 新建窗口测试(VLLM接口)
+
+```shell
+curl 127.0.0.1:1040/generate -d '{
+"prompt": "What's deep learning?",
+"max_tokens": 32,
+"stream": false,
+"do_sample":true,
+"repetition_penalty": 1.00,
+"temperature": 0.01,
+"top_p": 0.001,
+"top_k": 1,
+"model": "qwen"
+}'
+```
+
+> 注: 服务化推理的更多信息请参考[MindIE Service用户指南](https://www.hiascend.com/document/detail/zh/mindie/100/mindieservice/servicedev/mindie_service0001.html)
+
+## 常见问题
+1. ImportError: cannot import name 'shard_checkpoint' from 'transformers.modeling_utils'. 降低transformers版本可解决。
+
+```shell
+pip install transformers==4.46.3 --force-reinstall
+pip install numpy==1.26.4 --force-reinstall
+```
