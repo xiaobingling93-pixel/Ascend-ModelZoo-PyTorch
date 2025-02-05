@@ -16,10 +16,12 @@ We do not advise you to use base language models for text generation. Instead, y
 **权重转换（Convert FP8 weights to BF16）**
 1. GPU侧权重转换
 ```sh
-git clone https://github.com/deepseek-ai/DeepSeek-R1.git
-cd DeepSeek-R1/inferece/
+git clone https://github.com/deepseek-ai/DeepSeek-V3.git
+cd DeepSeek-V3/inferece/
 python fp8_cast_bf16.py --input-fp8-hf-path /path/to/DeepSeek-R1 --output-bf16-hf-path /path/to/deepseek-R1-bf16 
 ```
+注意：DeepSeek官方没有针对DeepSeek-R1提供新的权重转换脚本，所以复用DeepSeek-V3的权重转换脚本
+
 2. NPU侧权重转换
 目前npu转换脚本不会自动复制tokenizer等文件
 ```sh
