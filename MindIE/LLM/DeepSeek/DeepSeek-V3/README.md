@@ -5,20 +5,32 @@
 
 We do not advise you to use base language models for text generation. Instead, you can apply post-training, e.g., SFT, RLHF, continued pretraining, etc., on this model.
 
-## Convert FP8 weights to BF16:
-#### GPU侧转换权重
+## 权重
+
+**权重下载**
+
+- [Deepseek-V3](https://huggingface.co/deepseek-ai/DeepSeek-V3/tree/main)
+- [Deepseek-V3-Base](https://huggingface.co/deepseek-ai/DeepSeek-V3-Base/tree/main)
+
+
+**权重转换（Convert FP8 weights to BF16）**
+1. GPU侧权重转换
 ```sh
 git clone https://github.com/deepseek-ai/DeepSeek-V3.git
 cd DeepSeek-V3/inferece/
 python fp8_cast_bf16.py --input-fp8-hf-path /path/to/DeepSeek-V3 --output-bf16-hf-path /path/to/deepseek-v3-bf16 
 ```
-#### NPU侧转换权重
+2. NPU侧权重转换
 目前npu转换脚本不会自动复制tokenizer等文件
 ```sh
 git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
 cd ModelZoo-PyTorch\MindIE\LLM\DeepSeek\DeepSeek-V2\NPU_inference
 python fp8_cast_bf16.py --input-fp8-hf-path /path/to/DeepSeek-V3 --output-bf16-hf-path /path/to/deepseek-v3-bf16
 ```
+注意：
+- `/path/to/DeepSeek-V3` 表示DeepSeek-V3原始权重路径，`/path/to/deepseek-V3-bf16` 表示权重转换后的新权重路径
+- 由于模型权重较大，请确保您的磁盘有足够的空间放下所有权重，例如DeepSeek-V3在转换前权重约为640G左右，在转换后权重约为1.3T左右
+- 推理作业时，也请确保您的设备有足够的空间加载模型权重，并为推理计算预留空间
 
 ### 加载镜像
 前往[昇腾社区/开发资源](https://www.hiascend.com/developer/ascendhub/detail/af85b724a7e5469ebd7ea13c3439d48f)下载适配deepseekv3的镜像包：mindie:1.0.T71-800I-A2-py311-ubuntu22.04-arm64
