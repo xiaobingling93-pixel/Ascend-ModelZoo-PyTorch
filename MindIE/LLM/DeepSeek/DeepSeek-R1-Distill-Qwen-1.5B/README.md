@@ -27,8 +27,8 @@ docker load -i mindie:1.0.0-300I-Duo-py311-openeuler24.03-lts(下载的镜像名
 ```
 
 ## 约束条件
-- 部署DeepSeek-R1-Distill-Qwen-1.5B模型至少需要1台800I A2 32G服务器或1台300I DUO服务器
-- 在300I DUO服务器部署模型时，需要修改权重目录下的`config.json`文件，**"torch_dtype"字段改为"float16"**
+- 部署DeepSeek-R1-Distill-Qwen-1.5B模型至少需要1台Atlas 800I A2 32G服务器或1台Atlas 300I Duo服务器
+- 在Atlas 300I Duo服务器部署模型时，需要修改权重目录下的`config.json`文件，**"torch_dtype"字段改为"float16"**
 - 当前支持TP=1/2/4/8推理
 
 ## 新建容器
