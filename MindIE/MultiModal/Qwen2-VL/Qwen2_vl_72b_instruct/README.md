@@ -22,7 +22,7 @@ Qwen2-VL-72B-Instruct 是阿里云研发的大规模视觉语言模型（Large V
 完成之后，请使用`docker images`命令确认查找具体镜像名称与标签。 
 
 ## 硬件要求
-部署Qwen2-VL-72B-Instruct模型至少需要1台800I A2 32G服务器
+部署Qwen2-VL-72B-Instruct模型至少需要1台Atlas 800I A2 32G服务器
 
 ## 新建容器
 
@@ -65,7 +65,7 @@ pip install -r requirements/models/requirements_qwen2_vl.txt
 - 修改`/usr/local/Ascend/atb-models/examples/models/qwen2_vl/run_pa.sh`脚本
 
 ```shell
-# 设置卡数，800I-A2-32G必须八卡，800I-A2-64G四卡八卡均可
+# 设置卡数，Atlas-800I-A2-32G必须八卡，Atlas-800I-A2-64G四卡八卡均可
 export ASCEND_RT_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
 
 ...
@@ -96,7 +96,7 @@ shm_name_save_path="./shm_name.txt"
 bash /usr/local/Ascend/atb-models/examples/models/qwen2_vl/run_pa.sh
 ```
 
-- 性能测试样例（800I A2 32G）
+- 性能测试样例（Atlas 800I A2 32G）
   
   - 设置`max_batch_size=4`
   - 设置`max_input_length=8192`
@@ -107,7 +107,7 @@ bash /usr/local/Ascend/atb-models/examples/models/qwen2_vl/run_pa.sh
     ![image](https://wiki.huawei.com/vision-file-storage/api/file/download/upload-v2/WIKI202412305586000/16410584/6d45582d06814674a1b0190af4dfa9f6.png)
   - 更详细的性能数据，如首token时延，参考终端performance输出
     ![image](https://wiki.huawei.com/vision-file-storage/api/file/download/upload-v2/WIKI202412305586000/16413152/97db1bd60cb74f5cafc532b27684d1c0.png)
-- 性能测试样例（800I A2 64G）
+- 性能测试样例（Atlas 800I A2 64G）
   
   - 设置`max_batch_size=32`
   - 设置`max_input_length=8192`

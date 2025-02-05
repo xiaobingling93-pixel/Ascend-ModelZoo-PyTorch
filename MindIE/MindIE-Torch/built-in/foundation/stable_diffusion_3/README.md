@@ -194,7 +194,7 @@ Atlas 300I Duo推理卡：支持的卡数为1，可双芯并行
               --width 1024 \
               --batch_size 1
       
-      # 不使用DiTCache，使用双卡并行推理，适用Atlas 300I DUO场景
+      # 不使用DiTCache，使用双卡并行推理，适用Atlas 300I Duo场景
       numactl -C 0-23 python3 stable_diffusion3_pipeline.py \
               --model ${model_base} \
               --prompt_file ./prompts.txt \
@@ -427,6 +427,6 @@ Atlas 300I Duo推理卡：支持的卡数为1，可双芯并行
 ### StableDiffusion3
 | 硬件形态  | cpu规格 | batch size | 迭代次数 | 优化手段 | 平均耗时  |        精度        |
 | :------: | :------: | :------: |:----:| :------: |:-----:|:----------------:|
-| Atlas 800I A2 (32G) | 64核(arm) |  1  |  28  | w/o UnetCache | 6.15s | clip score 0.380 |
+| Atlas 800I A2(8*32G) | 64核(arm) |  1  |  28  | w/o UnetCache | 6.15s | clip score 0.380 |
 
 性能测试需要独占npu和cpu

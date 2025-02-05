@@ -17,7 +17,9 @@ hardwares:
   | torch | 2.1.0 | - |
 
 ### 1.1 获取CANN&MindIE安装包&环境准备
-- [800I A2/800T A2](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann&product=4&model=32)
+- 设备支持：
+Atlas 800I A2/Atlas 800T A2设备：支持的卡数最小为1
+- [Atlas 800I A2/Atlas 800T A2](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann&product=4&model=32)
 - [环境准备指导](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/80RC2alpha002/softwareinst/instg/instg_0001.html)
 
 ### 1.2 CANN安装
@@ -169,11 +171,11 @@ TASK_QUEUE_ENABLE=2 ASCEND_RT_VISIBLE_DEVICES=0 torchrun --master_port=2002 --np
 ### CogVideoX-5b
 | 硬件形态  | cpu规格 | batch size | 迭代次数 | 平均耗时 |
 | :------: | :------: | :------: |:----:| :------: |
-| Atlas 800I A2 (64G) | 64核(arm) |  1  |  50  | 240s |
+| Atlas 800I A2(8*64G) | 64核(arm) |  1  |  50  | 240s |
 
 ### CogVideoX-2b
 | 硬件形态  | cpu规格 | batch size | 迭代次数 | 平均耗时 |
 | :------: | :------: | :------: |:----:| :------: |
-| Atlas 800I A2 (64G) | 64核(arm) |  1  |  50  | 102s |
+| Atlas 800I A2(8*64G) | 64核(arm) |  1  |  50  | 102s |
 
 性能测试需要独占npu和cpu

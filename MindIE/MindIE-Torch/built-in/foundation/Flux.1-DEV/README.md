@@ -8,8 +8,9 @@
   | torch | 2.1.0 | - |
 
 ### 1.1 获取CANN&MindIE安装包&环境准备
-- [800I A2](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann&product=4&model=32)
-- [Duo卡](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann&product=2&model=17)
+- 设备支持：
+Atlas 800I A2推理设备：支持的卡数为1
+- [Atlas 800I A2](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann&product=4&model=32)
 - [环境准备指导](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/80RC2alpha002/softwareinst/instg/instg_0001.html)
 
 ### 1.2 CANN安装

@@ -407,14 +407,14 @@ Atlas 300I Duo推理卡：支持的卡数为1，可双芯并行
 | 硬件形态 | 迭代次数 | 平均耗时(w/o UnetCache) | 平均耗时(with UnetCache) |
 | :------: |:----:|:----:|:----:|
 | Atlas 300I Duo双芯 |  50  | 2.5s | 1.54s |
-| Atlas 800I A2 (32G) |  50  |  1.6s  |  0.95s  |
+| Atlas 800I A2(8*32G) |  50  |  1.6s  |  0.95s  |
 
 ### StableDiffusion v2.1
 
 | 硬件形态 | 迭代次数 | 平均耗时(w/o UnetCache) | 平均耗时(with UnetCache) |
 | :------: |:----:|:----:|:----:|
 | Atlas 300I Duo双芯 |  50  | 2.3s | 1.39s |
-| Atlas 800I A2 (32G) |  50  |  1.4s  |  0.85s  |
+| Atlas 800I A2(8*32G) |  50  |  1.4s  |  0.85s  |
 
 ### StableDiffusion v1.5
 

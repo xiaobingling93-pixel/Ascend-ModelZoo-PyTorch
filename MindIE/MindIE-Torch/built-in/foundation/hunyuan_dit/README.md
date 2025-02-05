@@ -8,8 +8,9 @@
   | torch | 2.1.0 | - |
 
 ### 1.1 获取CANN&MindIE安装包&环境准备
-- [800I A2](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann&product=4&model=32)
-- [Duo卡](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann&product=2&model=17)
+- 设备支持：
+Atlas 800I A2推理设备：支持的卡数为1
+- [Atlas 800I A2](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann&product=4&model=32)
 - [环境准备指导](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/80RC2alpha002/softwareinst/instg/instg_0001.html)
 
 ### 1.2 CANN安装
@@ -405,6 +406,6 @@ hpsv2_score.py脚本可参考[SDXL](https://gitee.com/ascend/ModelZoo-PyTorch/bl
 ### HunyuanDiT
 | 硬件形态  | cpu规格 | batch size | 迭代次数 | 等价优化平均耗时 | 算法优化平均耗时  |
 | :------: | :------: | :------: |:----:| :------: |:-----:|
-| Atlas 800I A2 (32G) | 64核(arm) |  1  |  100  | 43.404s | 29.208s |
+| Atlas 800I A2(8*32G) | 64核(arm) |  1  |  100  | 43.404s | 29.208s |
 
 性能测试需要独占npu和cpu
