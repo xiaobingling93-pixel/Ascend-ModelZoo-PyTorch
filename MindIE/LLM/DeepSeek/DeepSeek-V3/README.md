@@ -41,7 +41,7 @@ docker load -i mindie:1.0.T71-800I-A2-py311-ubuntu22.04-arm64(下载的镜像名
 ```
 
 ## 硬件要求
-部署DeepSeek-V3模型至少需要4台800I A2 64G服务器
+部署DeepSeek-V3模型至少需要4台Atlas 800I A2（8*64G）服务器
 
 ### 容器启动
 #### 1. 准备模型
@@ -135,6 +135,8 @@ export HCCL_EXEC_TIMEOUT=0
 ```
 将 model_type 更改为 deepseekv2
 ```
+注意：在本仓实现中，DeepSeekV3目前沿用DeepSeekV2代码框架
+
 - 检查机器网络情况
 ```
 # 检查物理链接
