@@ -1,5 +1,5 @@
 
-# DeepseekR1
+# DeepSeek-R1
 
 ## Usage
 
@@ -35,8 +35,20 @@ python fp8_cast_bf16.py --input-fp8-hf-path /path/to/DeepSeek-R1 --output-bf16-h
 - 由于模型权重较大，请确保您的磁盘有足够的空间放下所有权重，例如DeepSeek-R1在转换前权重约为640G左右，在转换后权重约为1.3T左右
 - 推理作业时，也请确保您的设备有足够的空间加载模型权重，并为推理计算预留空间
 
+**量化权重生成**
+
+详情请参考 [DeepSeek模型量化方法介绍](https://gitee.com/ascend/msit/tree/br_noncom_MindStudio_8.0.0_POC_20251231/msmodelslim/example/DeepSeek)
+
+目前支持：
+- 生成模型w8a16量化权重，使用histogram量化方式，在CPU上进行运算
+- 生成模型w8a8混合量化权重，使用histogram量化方式 (MLA:w8a8量化，MOE:w8a8 dynamic pertoken量化)
+
+注意：DeepSeek-R1模型权重较大，量化权重生成时间较久，请耐心等待；具体时间与校准数据集大小成正比，10条数据大概需花费3小时。
+
 ### 加载镜像
-前往[昇腾社区/开发资源](https://www.hiascend.com/developer/ascendhub/detail/af85b724a7e5469ebd7ea13c3439d48f)下载适配deepseekR1的镜像包：mindie:1.0.T71-800I-A2-py311-ubuntu22.04-arm64
+前往[昇腾社区/开发资源](https://www.hiascend.com/developer/ascendhub/detail/af85b724a7e5469ebd7ea13c3439d48f)下载适配DeepSeek-R1的镜像包：mindie:1.0.T71-800I-A2-py311-ubuntu22.04-arm64
+
+注意：量化需要使用mindie:2.0.T3版本，镜像制作中，敬请期待
 
 完成之后，请使用`docker images`命令确认查找具体镜像名称与标签。 
 ```
@@ -44,11 +56,11 @@ docker load -i mindie:1.0.T71-800I-A2-py311-ubuntu22.04-arm64(下载的镜像名
 ```
 
 ## 硬件要求
-部署DeepSeek-R1模型至少需要4台Atlas 800I A2（8*64G）服务器
+部署DeepSeek-R1模型用BF16权重进行推理至少需要4台Atlas 800I A2（8\*64G）服务器，用W8A8量化权重进行推理则至少需要2台Atlas 800I A2 (8\*64G)
 
 ### 容器启动
 #### 1. 准备模型
-目前提供的MindIE镜像预置了deepseek R1模型推理脚本，无需再下载模型代码，也无需参考目录结构。（可跳过至获取模型权重）
+目前提供的MindIE镜像预置了DeepSeek-R1模型推理脚本，无需再下载模型代码，也无需参考目录结构。（可跳过至获取模型权重）
 
 - 下载对应模型代码，可以使用：
 ```sh
@@ -58,17 +70,15 @@ git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
 
 目录结构应为如下：
 ```sh
-├── deepseekR1
+├── DeepSeek-R1
 │   ├── README.md
-│   └── atb_models
 ```
 - 获取模型权重
    - 本地已有模型权重
       从您信任的来源自行获取权重后，放置在从上述下载的模型代码的主目录下，放置后的目录结构应为如下：
       ```sh
-      ├── deepseekR1
+      ├── DeepSeek-R1
       │   ├── README.md
-      │   └── atb_models
       │   └── 权重文件1
       │   .   
       │   .
@@ -94,8 +104,8 @@ git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
 
 - 修改模型文件夹属组为1001，执行权限为750，执行：
 ```sh
-chown -R 1001:1001 /path-to-weights/deepseekR1
-chmod -R 750 /path-to-weights/deepseekR1
+chown -R 1001:1001 /path-to-weights/DeepSeek-R1
+chmod -R 750 /path-to-weights/DeepSeek-R1
 ```
 #### 2. 启动容器
 
@@ -136,9 +146,9 @@ export HCCL_EXEC_TIMEOUT=0
 #### 前置准备
 - 修改权重目录下config.json文件
 ```
-将 model_type 更改为 deepseekv2
+将 model_type 更改为 deepseekv2 (全小写且无空格)
 ```
-注意：在本仓实现中，DeepSeekR1目前沿用DeepSeekV2代码框架
+注意：在本仓实现中，DeepSeek-R1目前沿用DeepSeek-V2代码框架
 - 检查机器网络情况
 ```
 # 检查物理链接
@@ -195,9 +205,9 @@ cd /usr/local/Ascend/llm_model/tests/modeltest/
 # 需在所有机器上同时执行
 bash run.sh pa_bf16 [dataset] ([shots]) [batch_size] [model_name] ([is_chat_model]) [weight_dir] [rank_table_file] [world_size] [node_num] [rank_id_start] [master_address]
 ```
-Example: 在deepseekR1跑CEVAl数据集主节点的命令
+Example: 在DeepSeek-R1跑CEVAl数据集主节点的命令
 ```
-bash run.sh pa_bf16 full_CEval 5 16 deepseekv2 /path/to/weights/deepseekR1 /path/to/xxx/ranktable.json 32 4 0 {主节点IP}
+bash run.sh pa_bf16 full_CEval 5 16 deepseekv2 /path/to/weights/DeepSeek-R1 /path/to/xxx/ranktable.json 32 4 0 {主节点IP}
 # 0 代表从0号卡开始推理，之后的机器依次从8，16，24。
 ```
 参数说明：
@@ -222,9 +232,9 @@ bash run.sh pa_bf16 performance [case_pair] [batch_size] [model_name] ([is_chat_
 ```
 参数含义同“精度测试”
 
-Example: 在deepseekR1跑性能测试主节点的命令
+Example: 在DeepSeek-R1跑性能测试主节点的命令
 ```
-bash run.sh pa_bf16 performance [[256,256]] 16 deepseekv2 /path/to/weights/deepseekR1 /path/to/xxx/ranktable.json 32 4 0 {主节点IP}
+bash run.sh pa_bf16 performance [[256,256]] 16 deepseekv2 /path/to/weights/DeepSeek-R1 /path/to/xxx/ranktable.json 32 4 0 {主节点IP}
 # 0 代表从0号卡开始推理，之后的机器依次从8，16，24。
 ```
 
@@ -258,7 +268,7 @@ vim conf/config.json
 "interCommTLSEnabled" : false,
 "interNodeTLSEnabled" : false,
 ...
-"modelName" : "DeepseekR1" # 不影响服务化拉起
+"modelName" : "DeepSeek-R1" # 不影响服务化拉起
 "modelWeightPath" : "权重路径",
 ```
 Example：仅供参考，不保证性能
@@ -337,7 +347,7 @@ Example：仅供参考，不保证性能
             "ModelConfig" : [
                 {
                     "modelInstanceType" : "Standard",
-                    "modelName" : "DeepSeekR1",
+                    "modelName" : "deepseekr1",
                     "modelWeightPath" : "/home/data/dsR1_base_step178000",
                     "worldSize" : 8,
                     "cpuMemSize" : 5,
