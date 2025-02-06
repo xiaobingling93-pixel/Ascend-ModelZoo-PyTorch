@@ -124,7 +124,7 @@ python3 infer_onnx.py --model_path=SenseVoiceSmall --om_path=SenseVoice_{arch}.o
 |模型|芯片|端到端性能|
 |------|------|------|
 |sensevoice|800I A2|40ms|
-|sensevoice|300I Pro|64ms|
+|sensevoice|300I Pro|80ms|
 
 # 公网地址说明
 代码涉及公网地址参考 public_address_statement.md

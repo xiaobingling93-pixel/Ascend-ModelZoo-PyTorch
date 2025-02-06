@@ -20,9 +20,9 @@ import torchaudio
 import torch_npu
 from torch_npu.contrib import transfer_to_npu
 from ais_bench.infer.interface import InferSession
-from funars import AutoModel
+from funasr import AutoModel
 from funasr.utils.postprocess_utils import rich_transcription_postprocess
-from funars.utils.load_utils import load_audio_text_image_video, extract_fbank
+from funasr.utils.load_utils import load_audio_text_image_video, extract_fbank
 
 
 class SenseVoiceOnnxModel():
@@ -106,8 +106,6 @@ if __name__ == '__main__':
 
     _, kwargs = AutoModel.build_model(model=args.model_path, trust_remote_code=True)
     m = SenseVoiceOnnxModel()
-    m.eval()
-    m.half()
 
     # 载入om模型
     om_sess = InferSession(args.device, args.om_path)
