@@ -1,5 +1,5 @@
 
-# DeepseekR1
+# DeepSeek-R1-Distill-Qwen-7B
 
 ## Usage
 
@@ -171,7 +171,7 @@ cd /usr/local/Ascend/mindie/latest/mindie-service/bin
 
 ```shell
 curl 127.0.0.1:1040/generate -d '{
-"prompt": "What's deep learning?",
+"prompt": "What is deep learning?",
 "max_tokens": 32,
 "stream": false,
 "do_sample":true,
