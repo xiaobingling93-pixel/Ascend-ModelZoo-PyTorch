@@ -43,13 +43,16 @@ python fp8_cast_bf16.py --input-fp8-hf-path /path/to/DeepSeek-V3 --output-bf16-h
 注意：DeepSeek-R1模型权重较大，量化权重生成时间较久，请耐心等待；具体时间与校准数据集大小成正比，10条数据大概需花费3小时。
 
 ### 加载镜像
-前往[昇腾社区/开发资源](https://www.hiascend.com/developer/ascendhub/detail/af85b724a7e5469ebd7ea13c3439d48f)下载适配DeepSeek-V3的镜像包：mindie:1.0.T71-800I-A2-py311-ubuntu22.04-arm64
+前往[昇腾社区/开发资源](https://www.hiascend.com/developer/ascendhub/detail/af85b724a7e5469ebd7ea13c3439d48f)下载适配
 
-注意：量化需要使用mindie:2.0.T3版本，镜像制作中，敬请期待
+DeepSeek-V3的镜像包：mindie_2.0.T3-800I-A2-py311-openeuler24.03-lts-aarch64.tar.gz
+镜像加载后的名称：mindie:2.0.T3-800I-A2-py311-openeuler24.03-lts-aarch64
 
-完成之后，请使用`docker images`命令确认查找具体镜像名称与标签。 
+注意：量化需要使用mindie:2.0.T3版本
+
+完成之后，请使用`docker images`命令确认查找具体镜像名称与标签。
 ```
-docker load -i mindie:1.0.T71-800I-A2-py311-ubuntu22.04-arm64(下载的镜像名称与标签)
+docker load -i mindie:2.0.T3-800I-A2-py311-openeuler24.03-lts-aarch64(下载的镜像名称与标签)
 ```
 
 ## 硬件要求
@@ -83,6 +86,9 @@ git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
       ```
    - 本地没有模型权重
       我们提供模型权重下载脚本，支持HuggingFace，ModelScope以及Modelers来源的模型下载，用法如下
+
+      注意：以下引用的`atb_models`路径在`DeepSeek-V2`路径下
+
       1. 确认`atb_models/build/weights_url.yaml`文件中对应repo_id，当前已默认配置模型官方认可的下载地址，如您有其他信任来源的repo_id，可自行修改，默认配置如下：
 
       ```sh
