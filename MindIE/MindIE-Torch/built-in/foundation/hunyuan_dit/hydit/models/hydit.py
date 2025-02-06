@@ -170,6 +170,7 @@ class HunyuanDiT2DModel(DiffusionModel):
     def __init__(self, config):
         super().__init__(config)
         self.config = config
+        self._check_config_params()
 
         # learn_sigma is True
         self.out_channels = self.config.in_channels * 2
@@ -382,3 +383,25 @@ class HunyuanDiT2DModel(DiffusionModel):
         x = torch.einsum('nhwpqc->nchpwq', x)
         imgs = x.reshape(shape=(x.shape[0], c, h * p, w * p))
         return imgs
+
+
+    def _check_config_params(self):
+        params_checks = {
+            "patch_size": int,
+            "in_channels": int,
+            "hidden_size": int,
+            "depth": int,
+            "num_heads": int,
+            "mlp_ratio": float,
+            "text_states_dim": int,
+            "text_states_dim_t5": int,
+            "text_len": int,
+            "text_len_t5": int
+        }
+        for attr, expected_type in params_checks.items():
+            if hasattr(self.config, attr) and not isinstance(getattr(self.config, attr), expected_type):
+                raise TypeError(f"The type of {attr} in config must be {expected_type.name}, but got {type(attr)}.")
+            if getattr(self.config, attr) < 0:
+                raise ValueError(f"The {attr} in config must be greater than 0, but got {attr}.")
+        if self.config.hidden_size < self.config.num_heads:
+            raise ValueError(f"The hidden_size must be greater than num_heads.")

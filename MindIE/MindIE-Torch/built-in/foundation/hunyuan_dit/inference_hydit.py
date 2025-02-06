@@ -30,6 +30,7 @@ from transformers import BertModel, BertTokenizer, T5EncoderModel, T5Tokenizer
 from transformers.modeling_utils import logger as tf_logger
 
 from hydit import HunyuanDiTPipeline, HunyuanDiT2DModel, DDPMScheduler, set_seeds_generator
+from hydit.utils import file_utils
 from lora import multi_lora
 
 logging.basicConfig(level=logging.INFO)
@@ -94,7 +95,8 @@ class PromptLoader:
         return ret
 
     def load_prompts_plain(self, file_path: str):
-        with os.fdopen(os.open(file_path, os.O_RDONLY), "r") as file:
+        with file_utils.safe_open(file_path, "r", encoding="utf-8",
+                                  permission_mode=file_utils.SAFEOPEN_FILE_PERMISSION) as file:
             for i, line in enumerate(file):
                 if self.max_num_prompts and i == self.max_num_prompts:
                     break
@@ -103,7 +105,8 @@ class PromptLoader:
                 self.prompts.append((prompt, 0))
 
     def load_prompts_parti(self, file_path: str):
-        with os.fdopen(os.open(file_path, os.O_RDONLY), "r") as file:
+        with file_utils.safe_open(file_path, "r", encoding="utf-8",
+                                  permission_mode=file_utils.SAFEOPEN_FILE_PERMISSION) as file:
             # Skip the first line
             next(file)
             tsv_file = csv.reader(file, delimiter="\t")
@@ -120,7 +123,8 @@ class PromptLoader:
                 self.prompts.append((prompt, catagory_id))
 
     def load_prompts_hpsv2(self, file_path: str):
-        with open(file_path, 'r') as file:
+        with file_utils.safe_open(file_path, "r", encoding="utf-8",
+                                  permission_mode=file_utils.SAFEOPEN_FILE_PERMISSION) as file:
             all_prompts = json.load(file)
         count = 0
         for style, prompts in all_prompts.items():
@@ -269,7 +273,6 @@ def infer(args):
             prompts = input_info['prompts']
             catagories = input_info['catagories']
             save_names = input_info['save_names']
-            logger.info(f"[{infer_num + 1}/{len(prompt_loader)}]: {prompts}")
 
             start_time = time.time()
             result_images = pipeline(
@@ -279,7 +282,7 @@ def infer(args):
                 seed_generator=seed_generator,
             )[0]
             pipeline_time = time.time() - start_time
-            logger.info("HunyuanDiT No.{%d} time: %.3f", infer_num + 1, pipeline_time)
+            logger.info("HunyuanDiT [%d/%d] time: %.3f", infer_num + 1, len(prompt_loader), pipeline_time)
             torch.npu.empty_cache()
 
             if infer_num >= (2 * args.batch_size):
