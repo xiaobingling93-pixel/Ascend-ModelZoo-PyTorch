@@ -68,6 +68,25 @@ docker run -it -d --net=host --shm-size=1g \
 docker exec -it ${容器名称} bash
 ```
 
+## 量化权重生成
+* 生成量化权重依赖msModelSlim工具，安装方式见[此README](https://gitee.com/ascend/msit/tree/dev/msmodelslim)
+
+* 量化权重统一使用${ATB_SPEED_HOME_PATH}/examples/convert/model_slim/quantifier.py脚本生成，以下提供Llama模型量化权重生成快速启动命令
+
+* W8A8量化权重请使用以下指令生成
+    * 注意该量化方式仅支持在Atlas 800I A2服务器上运行
+
+```shell
+# 设置CANN包的环境变量
+source /usr/local/Ascend/ascend-toolkit/set_env.sh
+# 关闭虚拟内存
+export PYTORCH_NPU_ALLOC_CONF=expandable_segments:False
+# 进入atb-models目录
+cd ${ATB_SPEED_HOME_PATH}
+# DeepSeek-R1-Distill-Llama-8B量化，有回退层，antioutlier使用m1算法配置，使用min-max量化方式，校准数据集使用50条BoolQ数据，在NPU上进行运算
+bash examples/models/llama3/generate_quant_weight.sh -src {浮点权重路径} -dst {W8A8量化权重路径} -type llama3.1_8b_w8a8
+```
+
 ## 纯模型推理
 
 ### 对话测试
