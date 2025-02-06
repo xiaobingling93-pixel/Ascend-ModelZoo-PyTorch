@@ -182,6 +182,23 @@ curl 127.0.0.1:1040/generate -d '{
 
 > 注: 服务化推理的更多信息请参考[MindIE Service用户指南](https://www.hiascend.com/document/detail/zh/mindie/100/mindieservice/servicedev/mindie_service0001.html)
 
+## Atlas 800I A2 量化
+Atlas 800I A2 量化权重可通过[msmodelslim](https://gitee.com/ascend/msit/blob/master/msmodelslim/example/Qwen/README.md)（昇腾压缩加速工具）实现。
+- 注意该量化方式仅支持在Atlas 800I A2服务器上运行
+- 环境配置请参考[使用说明](https://gitee.com/ascend/msit/blob/master/msmodelslim/README.md)
+- git clone下载msit仓代码； `git clone https://gitee.com/ascend/msit.git`
+- 进入到msit/msmodelslim的目录 `cd msit/msmodelslim`；并在进入的msmodelslim目录下，运行安装脚本 `bash install.sh`;
+- 进入到msit/msmodelslim/example/Qwen的目录 `cd msit/msmodelslim/example/Qwen`；并在进入的Qwen目录下，运行量化转换脚本
+```bash
+python3 quant_qwen.py --model_path {浮点权重路径} --save_directory {W8A8量化权重路径} --calib_file ../common/boolq.jsonl --w_bit 8 --a_bit 8 --device_type npu  
+```
+- 请将{浮点权重路径}和{量化权重路径}替换为用户实际路径。
+- 如果需要使用npu多卡量化，请先配置环境变量，支持多卡量化,建议双卡执行量化：
+```bash
+export ASCEND_RT_VISIBLE_DEVICES=0,1
+export PYTORCH_NPU_ALLOC_CONF=expandable_segments:False
+```
+
 ## 常见问题
 1. ImportError: cannot import name 'shard_checkpoint' from 'transformers.modeling_utils'. 降低transformers版本可解决。
 
