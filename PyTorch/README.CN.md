@@ -1,18 +1,76 @@
-# 欢迎使用Ascend ModelZoo
+# 欢迎使用ModelZoo-PyTorch
 
-为方便更多开发者使用Ascend ModelZoo，我们将持续增加典型网络和相关预训练模型。下面目录中我们罗列出一些重点模型。如果您有任何需求，请在[modelzoo/issues](https://gitee.com/ascend/modelzoo/issues)提交issue，我们会及时处理。
+为方便更多开发者使用ModelZoo-PyTorch，我们将持续增加典型网络和相关预训练模型。下面目录中我们罗列出一些重点模型。如果您有任何需求，请在[modelzoo/issues](https://gitee.com/ascend/modelzoo/issues)提交issue，我们会及时处理。
 
 ## 如何贡献
 
 在开始贡献之前，请先阅读[CONTRIBUTING](https://gitee.com/ascend/modelzoo/blob/master/CONTRIBUTING.md)。
 谢谢！
 
-## 目录
+## 安装依赖
+
+使用ModelZoo-PyTorch之前，请参考[软件版本配套表](#软件版本配套表)，安装最新昇腾软件栈。
+
+<table border="0">
+  <tr>
+    <th>依赖软件</th>
+    <th>软件安装指南</th>
+  </tr>
+
+  <tr>
+    <td>昇腾NPU驱动</td>
+    <td rowspan="2">《 <a href="https://www.hiascend.com/document/detail/zh/canncommercial/800/softwareinst/instg/instg_0003.html?Mode=PmIns&OS=Ubuntu&Software=cannToolKit">驱动固件安装指南</a> 》</td>
+  </tr>
+  <tr>
+    <td>昇腾NPU固件</td>
+  </tr>
+  <tr>
+    <td>Toolkit（开发套件）</td>
+    <td rowspan="3">《 <a href="https://www.hiascend.com/document/detail/zh/canncommercial/800/softwareinst/instg/instg_0000.html?Mode=PmIns&OS=Ubuntu&Software=cannToolKit">CANN 软件安装指南</a> 》</td>
+  </tr>
+  <tr>
+    <td>Kernel（算子包）</td>
+  </tr>
+  <tr>
+    <td>NNAL（Ascend Transformer Boost加速库）</td>
+  </tr>
+  <tr>
+    <td>PyTorch</td>
+    <td rowspan="3">《 <a href="https://www.hiascend.com/document/detail/zh/Pytorch/600/configandinstg/instg/insg_0001.html">Ascend Extension for PyTorch 配置与安装</a> 》</td>
+  </tr>
+  <tr>
+    <td>torch_npu插件</td>
+  </tr>
+  <tr>
+    <td>apex</td>
+  </tr>
+</table>
+
+## 软件版本配套表
+💡 使用ModelZoo-PyTorch中的PyTorch训练模型前，请先确认PyTorch和CANN版本，然后匹配对应的PyTorch Extension、HDK和Python版本。
+
+💡 版本配套表在不同模型中的应用策略可能不一致，详情参考[维护策略](#维护策略)。
+
+版本配套表地址：[链接](https://gitee.com/ascend/pytorch#%E6%98%87%E8%85%BE%E8%BE%85%E5%8A%A9%E8%BD%AF%E4%BB%B6)。
+
+## 硬件配套表
+
+昇腾训练设备包含以下型号，都可作为PyTorch模型的训练环境。
+
+硬件配套表：[链接](https://gitee.com/ascend/pytorch#%E7%A1%AC%E4%BB%B6%E9%85%8D%E5%A5%97)
 
 
-### PyTorch
+## 维护策略
+💡 ModelZoo-pyTorch中的模型区分为随版本演进模型和不随版本演进模型。
+- 针对随版本演进模型：请跟随版本配套表，选择最新版本使用。
+- 针对不随版本演进模型：这些模型已不随PyTorch和PyTorch Extension的版本演进，您可以选择以下策略。
+  - 可根据对应模型的README选择对应PyTorch、PyTorch Extension、CANN、HDK版本使用。
+  - 如您对该模型有新版本PyTorch、PyTorch Extension、CANN、HDK的适配需求，可在[modelzoo/issues](https://gitee.com/ascend/modelzoo/issues)提交issue，我们会及时处理。
 
-#### 重点看护模型
+
+## 范围界定
+
+### 随版本演进模型
 
 - [albert_ID0335_for_PyTorch](https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/contrib/nlp/albert_ID0335_for_PyTorch)
 - [Bert_Chinese_ID3433_for_PyTorch](https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/built-in/nlp/Bert_Chinese_ID3433_for_PyTorch)
@@ -59,6 +117,9 @@
 - [Yolov7_for_PyTorch](https://gitee.com/ascend/modelzoo-GPL/tree/master/built-in/PyTorch/Official/cv/object_detection/Yolov7_for_PyTorch)
 - [YOLOX_ID2833_for_PyTorch](https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/dev/cv/detection/YOLOX_ID2833_for_PyTorch)
 
+### 不随版本演进模型
+
+除以上随版本演进模型范围外，其余ModelZoo-PyTorch中的模型都界定为不随版本演进模型。
 
 ## 安全声明
 

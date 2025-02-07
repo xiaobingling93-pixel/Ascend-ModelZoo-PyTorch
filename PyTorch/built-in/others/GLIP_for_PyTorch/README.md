@@ -27,6 +27,8 @@ GLIP是一种用于视觉定位的语言-图像预训练模型，可以学习对
 
 # 准备训练环境
 
+该模型为随版本演进模型（随版本演进模型范围可在[此处](https://gitee.com/ascend/ModelZoo-PyTorch/blob/master/PyTorch/README.CN.md)查看），您可以根据下面提供的安装指导选择匹配的CANN等软件下载使用。
+
 ## 准备环境
 
 - 推荐参考[配套资源文档](https://www.hiascend.com/developer/download/commercial)使用最新的配套版本。

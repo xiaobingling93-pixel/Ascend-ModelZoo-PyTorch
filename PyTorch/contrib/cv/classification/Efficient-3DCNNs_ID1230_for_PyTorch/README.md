@@ -130,6 +130,12 @@ Efficient-3DCNNs_ID1230_for_PyTorch
 --- 
 
 ## 检查NPU环境
+
+该模型为不随版本演进模型（随版本演进模型范围可在[此处](https://gitee.com/ascend/ModelZoo-PyTorch/blob/master/PyTorch/README.CN.md)查看），未在最新昇腾配套软件中适配验证，您可以：
+1. 根据下面提供PyTorch版本在[软件版本配套表](https://gitee.com/ascend/pytorch#%E6%98%87%E8%85%BE%E8%BE%85%E5%8A%A9%E8%BD%AF%E4%BB%B6)中选择匹配的CANN等软件下载使用。
+2. 查看[软件版本配套表](https://gitee.com/ascend/pytorch#%E6%98%87%E8%85%BE%E8%BE%85%E5%8A%A9%E8%BD%AF%E4%BB%B6)后确认对该模型有新版本PyTorch和CANN中的适配需求，请在[modelzoo/issues](https://gitee.com/ascend/modelzoo/issues)中提出您的需求。**自行适配不保证精度和性能达标。**
+
+当前模型支持的历史软件版本如下表所示。
 - CANN: 5.0.3
 - torch：1.5.0+ascend.post3
 - torchvison: 0.2.2.post3
