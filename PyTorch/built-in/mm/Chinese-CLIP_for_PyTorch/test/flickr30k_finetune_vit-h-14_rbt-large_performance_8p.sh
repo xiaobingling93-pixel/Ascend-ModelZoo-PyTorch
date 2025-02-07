@@ -91,7 +91,7 @@ python3 -m torch.distributed.launch --use_env --nproc_per_node=${GPUS_PER_NODE} 
           --resume=${resume} \
           ${reset_data_offset} \
           ${reset_optimizer} \
-          --logs=${output_base_dir} \
+          --output-logs=${output_base_dir} \
           --name=${name} \
           --save-step-frequency=${save_step_frequency} \
           --save-epoch-frequency=${save_epoch_frequency} \

@@ -34,7 +34,7 @@ def parse_args():
         "--valid-num-workers", type=int, default=1, help="The number of workers for validation dataloader (if making validation)."
     )
     parser.add_argument(
-        "--logs",
+        "--output-logs",
         type=str,
         default="./logs/",
         help="Where to store logs. Use None to avoid storing logs.",
