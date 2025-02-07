@@ -388,6 +388,9 @@ Example：仅供参考，不保证性能
 
 #### 拉起服务化
 ```
+# 以下命令需在所有机器上同时执行
+# 解决权重加载过慢问题
+export OMP_NUM_THREADS=1
 # 设置显存比
 export NPU_MEMORY_FRACTION=0.95
 # 拉起服务化
