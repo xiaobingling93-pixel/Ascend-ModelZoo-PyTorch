@@ -51,6 +51,15 @@ DeepSeek-V3的镜像包：mindie_2.0.T3-800I-A2-py311-openeuler24.03-lts-aarch64
 docker load -i mindie:2.0.T3-800I-A2-py311-openeuler24.03-lts-aarch64(下载的镜像名称与标签)
 ```
 
+各组件版本配套如下：
+| 组件 | 版本 |
+| - | - |
+| MindIE | 2.0.T3 |
+| CANN | 8.0.T63 |
+| PTA | 6.0.T700 |
+| MindStudio | Msit: br_noncom_MindStudio_8.0.0_POC_20251231分支 |
+| HDK | 24.1.0 |
+
 ## 硬件要求
 部署DeepSeek-V3模型用BF16权重进行推理至少需要4台Atlas 800I A2（8\*64G）服务器，用W8A8量化权重进行推理则至少需要2台Atlas 800I A2 (8\*64G)
 
