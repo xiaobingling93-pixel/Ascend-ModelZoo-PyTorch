@@ -117,16 +117,16 @@ cd $ATB_SPEED_HOME_PATH/tests/modeltest/
 ```shell
 bash run.sh pa_[data_type] performance [case_pair] [batch_size] ([prefill_batch_size]) [model_name] ([is_chat_model]) (lora [lora_data_path]) [weight_dir] ([trust_remote_code]) [chip_num] ([parallel_params]) ([max_position_embedding/max_sequence_length])
 ```
-具体执行batch=1, 输入长度256, 输出长度256用例的4卡并行性能测试命令如下，
+具体执行batch=1, 输入长度256, 输出长度256用例的8卡并行性能测试命令如下，
 
 Atlas 800I A2:
 ```shell
-bash run.sh pa_bf16 performance [[256,256]] 1 llama ${weight_path} 4
+bash run.sh pa_bf16 performance [[256,256]] 1 llama ${weight_path} 8
 ```
 
 Atlas 300I Duo: 
 ```shell
-bash run.sh pa_fp16 performance [[256,256]] 1 llama ${weight_path} 4
+bash run.sh pa_fp16 performance [[256,256]] 1 llama ${weight_path} 8
 ```
 
 > 注：ModelTest为大模型的性能和精度提供测试功能。使用文档请参考`${ATB_SPEED_HOME_PATH}/tests/modeltest/README.md`
