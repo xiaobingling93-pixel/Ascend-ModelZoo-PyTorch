@@ -1,10 +1,6 @@
 
 # DeepSeek-R1
 
-## Usage
-
-We do not advise you to use base language models for text generation. Instead, you can apply post-training, e.g., SFT, RLHF, continued pretraining, etc., on this model.
-
 ## 权重
 
 **权重下载**
@@ -256,7 +252,6 @@ export PYTORCH_NPU_ALLOC_CONF=expandable_segments:True
 ```
 export MIES_CONTAINER_IP=容器ip地址
 export RANKTABLEFILE=rank_table_file.json路径
-export HCCL_DETERMINISTIC=true
 ```
 
 #### 修改服务化参数
@@ -426,7 +421,53 @@ export NPU_MEMORY_FRACTION=0.96
 export HCCL_CONNECT_TIMEOUT=7200
 export HCCL_EXEC_TIMEOUT=0
 ```
+3. 若出现AttributeError：'IbisTokenizer' object has no atrribute 'cache_path'
+Step1: 进入环境终端后执行
+```
+pip show mies_tokenizer
+```
+默认出现类似如下结果，重点查看`Location`
+```
+Name: mies_tokenizer
+Version: 0.0.1
+Summary: ibis tokenizer
+Home-page:
+Author:
+Author-email:
+License:
+Location: /usr/local/python3.10.13/lib/python3.10/site-packages
+Requires:
+Required-by:
+```
+Step2: 打开`Location`路径下的./mies_tokenizer/tokenizer.py文件
+```
+vim /usr/local/python3.10.13/lib/python3.10/site-packages/mies_tokenizer/tokenizer.py
+```
+Step3: 对以下两个函数代码进行修改
+```
+def __del__(self):
+-       dir_path = file_utils.standardize_path(self.cache_path)
++       cache_path = getattr(self, 'cache_path', None)
++       if cache_path is None:
++           return
++       dir_path = file_utils.standardize_path(cache_path)
+        file_utils.check_path_permission(dir_path)
+        all_request = os.listdir(dir_path)
+```
+以及
+```
+def _get_cache_base_path(child_dir_name):
+        dir_path = os.getenv("LOCAL_CACHE_DIR", None)
+        if dir_path is None:
+           dir_path = os.path.expanduser("~/mindie/cache")
+-          if not os.path.exists(dir_path):
+-              os.makedirs(dir_path)
++          os.makedirs(dir_path, exist_ok=True)
+           os.chmod(dir_path, 0o750)
+```
+4. 若出现`UnicodeEncodeError: 'ascii' codec can't encode character `\uff5c` in position 301:ordinal not in range(128)`
 
+这是因为由于系统在写入或打印日志ASCII编码deepseek的词表失败，导致报错，不影响服务化正常运行。如果需要规避，需要/usr/local/Ascend/atb-models/atb_llm/runner/model_runner.py的第145行注释掉：print_log(rank, logger.info, f'init tokenizer done: {self.tokenizer}')
 
 #### 权重路径权限问题
 注意保证权重路径是可用的，执行以下命令修改权限，**注意是整个父级目录的权限**：
