@@ -27,6 +27,15 @@ or
 docker load -i mindie:1.0.0-300I-Duo-py311-openeuler24.03-lts(下载的镜像名称与标签)
 ```
 
+镜像中各组件版本配套如下：
+| 组件 | 版本 |
+| - | - |
+| MindIE | 1.0.0 |
+| CANN | 8.0.0 |
+| PTA | 6.0.0 |
+| MindStudio | 7.0.0 |
+| HDK | 24.1.0 |
+
 ## 约束条件
 - 部署DeepSeek-R1-Distill-Qwen-7B模型至少需要`1台Atlas 800I A2服务器`或者`1台插1张Atlas 300I DUO卡的服务器`
 - 在使用Atlas 300I DUO推理卡部署模型时，需要修改权重目录下的`config.json`文件，**"torch_dtype"字段改为"float16"**
