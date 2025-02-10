@@ -425,38 +425,11 @@ class CogVideoXTransformer3DModel(ModelMixin, ConfigMixin, PeftAdapterMixin):
         encoder_hidden_states: torch.Tensor,
         timestep: Union[int, float, torch.LongTensor],
         timestep_cond: Optional[torch.Tensor] = None,
+        ofs: Optional[Union[int, float, torch.LongTensor]] = None,
         image_rotary_emb: Optional[Tuple[torch.Tensor, torch.Tensor]] = None,
         attention_kwargs: Optional[Dict[str, Any]] = None,
         return_dict: bool = True,
     ):
-        temporal_size = hidden_states.shape[1]
-        if isinstance(timestep, torch.Tensor) and timestep.ndim != 0 and timestep.shape[0] == hidden_states.shape[0]:
-            timestep = split_tensor(timestep, 0, get_dp_world_size(), get_dp_group())
-        
-        hidden_states = split_tensor(hidden_states, 0, get_dp_world_size(), get_dp_group())
-        hidden_states = split_tensor(hidden_states, -2, get_sp_world_size(), get_sp_group(), scale=2)
-        
-        encoder_hidden_states = split_tensor(encoder_hidden_states, 0, get_dp_world_size(), get_dp_group())
-        encoder_hidden_states = split_tensor(encoder_hidden_states, -2, get_sp_world_size(), get_sp_group())
-
-        if image_rotary_emb is not None:
-            freqs_cos, freqs_sin = image_rotary_emb
-
-            def get_rotary_emb_chunk(freqs):
-                dim_thw = freqs.shape[-1]
-                freqs = freqs.reshape(temporal_size, -1, dim_thw)
-
-                freqs = freqs.reshape(temporal_size, -1, hidden_states.size(-1) // 2, dim_thw)
-                freqs = split_tensor(freqs, -3, get_sp_world_size(), get_sp_group())
-                freqs = freqs.reshape(temporal_size, -1, dim_thw)
-
-                freqs = freqs.reshape(-1, dim_thw)
-                return freqs
-
-            freqs_cos = get_rotary_emb_chunk(freqs_cos)
-            freqs_sin = get_rotary_emb_chunk(freqs_sin)
-            image_rotary_emb = (freqs_cos, freqs_sin)
-
         if attention_kwargs is not None:
             attention_kwargs = attention_kwargs.copy()
             lora_scale = attention_kwargs.pop("scale", 1.0)
@@ -538,9 +511,6 @@ class CogVideoXTransformer3DModel(ModelMixin, ConfigMixin, PeftAdapterMixin):
         p = self.config.patch_size
         output = hidden_states.reshape(batch_size, num_frames, height // p, width // p, -1, p, p)
         output = output.permute(0, 1, 4, 2, 5, 3, 6).flatten(5, 6).flatten(3, 4)
-
-        output = all_gather_variable_with_group(output, dim=-2, world_size=get_sp_world_size(), group=get_sp_group())
-        output = all_gather_variable_with_group(output, world_size=get_dp_world_size(), group=get_dp_group())
 
         if USE_PEFT_BACKEND:
             # remove `lora_scale` from each PEFT layer

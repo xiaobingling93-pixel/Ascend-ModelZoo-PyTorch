@@ -60,6 +60,7 @@ Atlas 300I Duo推理卡：支持的卡数为1，可双芯并行
   | Python                                                       | 3.10.13 | -                                                            |
    | torch| 2.1.0  | -                                                            |
 
+**注意**：本README中的StableDiffusion v1.5和v2.1模型推理方式与torch-npu冲突，需卸载torch-npu包。
 
 # 快速上手<a name="ZH-CN_TOPIC_0000001126281700"></a>
 

@@ -120,7 +120,6 @@ bash build.sh
 编译成功后会在build文件夹下生成.so结尾的算子文件
 
 
-
 在cogvideox_5b/models/attention_processor.py脚本中添加编译生成的算子路径
 ```python
 torch.ops.load_library("./pta_plugin/build/libPTAExtensionOPS.so")
@@ -142,40 +141,47 @@ model_path='data/CogVideoX-5b'
 ```shell
 export CPU_AFFINITY_CONF=1
 export HCCL_OP_EXPANSION_MODE="AIV"
-TASK_QUEUE_ENABLE=2 ASCEND_RT_VISIBLE_DEVICES=0 torchrun --master_port=2002 --nproc_per_node=1 inference.py\
-        --prompt "A dog" \
+TASK_QUEUE_ENABLE=2 ASCEND_RT_VISIBLE_DEVICES=0 torchrun --master_port=2002 --nproc_per_node=1 inference.py \
+        --prompt_file ./prompts.txt \
         --model_path ${model_path} \
+        --output_path ./output \
         --num_frames 48 \
         --width 720 \
         --height 480 \
         --fps 8 \
         --num_inference_steps 50 \
-        --dtype bfloat16
+        --dtype bfloat16 \
+        --seed 42 \
+        --enable_skip
 ```
 参数说明：
 - CPU_AFFINITY_CONF=1：环境变量，绑核。
 - HCCL_OP_EXPANSION_MODE="AIV"：环境变量，通信算子编排。
 - TASK_QUEUE_ENABLE=2：开启二级流水。
 - ASCEND_RT_VISIBLE_DEVICES=0：device id，可设置其他卡数。
-- prompt：用于视频生成的文字描述提示。
+- prompt_file：文本文件，用于视频生成的文字描述提示。
 - model_path：权重路径，包含scheduler、text_encoder、tokenizer、transformer、vae，5个模型的配置文件及权重。
-- num_frames：生成视频的帧数。
-- width：生成视频的分辨率，宽。
-- height：生成视频的分辨率，高。
+- output_path：生成视频的保存路径。
+- num_frames：生成视频的帧数，默认值为48。
+- width：生成视频的分辨率，宽，默认值为720。
+- height：生成视频的分辨率，高，默认值为480。
 - fps：生成视频的帧率，默认值为8。
 - num_inference_steps：推理迭代步数，默认值为50。
-- dtype：数据类型，默认值为bfloat16，可设置为float16，需要在命令前加INF_NAN_MODE_FORCE_DISABLE=1，开启饱和模式避免数值溢出。
+- dtype：数据类型，默认值为bfloat16。CogVideoX-2b推荐设置为float16，需要在命令前加INF_NAN_MODE_FORCE_DISABLE=1，开启饱和模式避免数值溢出。
+- seed: 设置随机种子，默认值为42。
+- enable_skip：是否使用采样优化。
+推理结束后会在当前路径下生成result.json，用于记录文本提示和生成视频的对应关系，便于测试视频精度。
 
 
 ## 四、推理性能结果参考
 ### CogVideoX-5b
-| 硬件形态  | cpu规格 | batch size | 迭代次数 | 平均耗时 |
-| :------: | :------: | :------: |:----:| :------: |
-| Atlas 800I A2(8*64G) | 64核(arm) |  1  |  50  | 240s |
+| 硬件形态  | cpu规格 | batch size | 迭代次数 | 数据类型 | 平均耗时 |
+| :------: | :------: | :------: |:----:| :------: | :------: |
+| Atlas 800I A2(8*64G) | 64核(arm) |  1  |  50  | bfloat16 | 240s |
 
 ### CogVideoX-2b
-| 硬件形态  | cpu规格 | batch size | 迭代次数 | 平均耗时 |
-| :------: | :------: | :------: |:----:| :------: |
-| Atlas 800I A2(8*64G) | 64核(arm) |  1  |  50  | 102s |
+| 硬件形态  | cpu规格 | batch size | 迭代次数 | 数据类型 | 平均耗时 |
+| :------: | :------: | :------: |:----:| :------: | :------: |
+| Atlas 800I A2(8*64G) | 64核(arm) |  1  |  50  | float16 | 102s |
 
 性能测试需要独占npu和cpu

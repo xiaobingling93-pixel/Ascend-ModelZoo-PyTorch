@@ -1,9 +1,8 @@
+from typing import List, Optional, Tuple, Union
+import functools
 import math
 import torch
 import torch.distributed as dist
-
-from typing import Any, Dict, List, Optional, Tuple, Union
-
 from .parallel_mgr import ParallelManager
 
 mgr = ParallelManager()
@@ -158,7 +157,7 @@ def split_tensor(input_tensor: torch.Tensor, dim: int, world_size: int, group: d
     if dim_size / scale % world_size == 0:
         split_size = dim_size // world_size
     else:
-        split_size = math.ceil(dim_size / world_size / 2) * 2
+        split_size = math.ceil(dim_size / world_size / scale) * scale
 
     chunks = torch.split(input_tensor, split_size, dim=dim)
 
@@ -166,3 +165,109 @@ def split_tensor(input_tensor: torch.Tensor, dim: int, world_size: int, group: d
     tensor_chunk = chunks[rank]
 
     return tensor_chunk
+
+
+def gather_total_length(tensor, dim=0, world_size=1, group=None):
+    if world_size == 1:
+        return tensor
+    world_size = dist.get_world_size(group=group)
+
+    # 获取当前张量的第一维大小
+    local_size = torch.tensor([tensor.size(dim)], dtype=torch.long, device=tensor.device)
+    
+    # 收集所有进程的大小
+    size_list = [torch.zeros(1, dtype=torch.long, device=tensor.device) for _ in range(world_size)]
+    dist.all_gather(size_list, local_size, group=group)
+    sizes = [int(size.item()) for size in size_list]
+
+    return sum(sizes)
+
+
+def set_parallel(pipe):
+    transformer = pipe.transformer
+    original_forward = transformer.forward
+
+    @functools.wraps(transformer.__class__.forward)
+    def new_forward(
+        self,
+        hidden_states: torch.Tensor,
+        encoder_hidden_states: Optional[torch.Tensor] = None,
+        timestep: torch.LongTensor = None,
+        timestep_cond: Optional[torch.Tensor] = None,
+        ofs: Optional[Union[int, float, torch.LongTensor]] = None,
+        image_rotary_emb: Optional[Tuple[torch.Tensor, torch.Tensor]] = None,
+        **kwargs,
+    ):
+        temporal_size = hidden_states.shape[1]
+        if isinstance(timestep, torch.Tensor) and timestep.ndim != 0 and timestep.shape[0] == hidden_states.shape[0]:
+            timestep = split_tensor(timestep, 0, get_dp_world_size(), get_dp_group())
+
+        hidden_states = split_tensor(hidden_states, 0, get_dp_world_size(), get_dp_group())
+        hidden_states = split_tensor(hidden_states, -2, get_sp_world_size(), get_sp_group(), scale=2)
+        
+        encoder_hidden_states = split_tensor(encoder_hidden_states, 0, get_dp_world_size(), get_dp_group())
+        encoder_hidden_states = split_tensor(encoder_hidden_states, -2, get_sp_world_size(), get_sp_group())
+
+        if image_rotary_emb is not None:
+            freqs_cos, freqs_sin = image_rotary_emb
+
+            def get_rotary_emb_chunk(freqs):
+                dim_thw = freqs.shape[-1]
+                freqs = freqs.reshape(temporal_size, -1, dim_thw)
+
+                freqs = freqs.reshape(temporal_size, -1, hidden_states.size(-1) // 2, dim_thw)
+                freqs = split_tensor(freqs, -3, get_sp_world_size(), get_sp_group())
+                freqs = freqs.reshape(temporal_size, -1, dim_thw)
+
+                freqs = freqs.reshape(-1, dim_thw)
+                return freqs
+
+            freqs_cos = get_rotary_emb_chunk(freqs_cos)
+            freqs_sin = get_rotary_emb_chunk(freqs_sin)
+            image_rotary_emb = (freqs_cos, freqs_sin)
+                
+        output = original_forward(
+            hidden_states,
+            encoder_hidden_states,
+            timestep=timestep,
+            timestep_cond=timestep_cond,
+            ofs=ofs,
+            image_rotary_emb=image_rotary_emb,
+            **kwargs,
+        )
+
+        return_dict = not isinstance(output, tuple)
+        sample = output[0]
+        sample = all_gather_variable_with_group(sample, dim=-2, world_size=get_sp_world_size(), group=get_sp_group())
+        sample = all_gather_variable_with_group(sample, world_size=get_dp_world_size(), group=get_dp_group())
+
+        if return_dict:
+            return output.__class__(sample, *output[1:])
+        return (sample, *output[1:])
+
+    new_forward = new_forward.__get__(transformer)
+    transformer.forward = new_forward
+    
+    original_patch_embed_forward = transformer.patch_embed.forward
+    
+    @functools.wraps(transformer.patch_embed.__class__.forward)
+    def new_patch_embed(
+        self, text_embeds: torch.Tensor, image_embeds: torch.Tensor
+    ):
+        text_embeds = all_gather_variable_with_group(text_embeds.contiguous(), dim=-2, world_size=get_sp_world_size(), group=get_sp_group())
+        image_embeds = all_gather_variable_with_group(image_embeds.contiguous(), dim=-2, world_size=get_sp_world_size(), group=get_sp_group())
+        batch, num_frames, channels, height, width = image_embeds.shape
+        text_len = text_embeds.shape[-2]
+        
+        output = original_patch_embed_forward(text_embeds, image_embeds)
+
+        text_embeds = output[:, :text_len, :]
+        image_embeds = output[:, text_len:, :].reshape(batch, num_frames, -1, output.shape[-1])
+
+        text_embeds = split_tensor(text_embeds, -2, get_sp_world_size(), get_sp_group())
+        image_embeds = split_tensor(image_embeds, -2, get_sp_world_size(), get_sp_group(), scale=2)
+        image_embeds = image_embeds.reshape(batch, -1, image_embeds.shape[-1])
+        return torch.cat([text_embeds, image_embeds], dim=1)
+
+    new_patch_embed = new_patch_embed.__get__(transformer.patch_embed)
+    transformer.patch_embed.forward = new_patch_embed
