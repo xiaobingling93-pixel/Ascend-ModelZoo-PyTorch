@@ -61,7 +61,7 @@
 
 
 ## 维护策略
-💡 ModelZoo-pyTorch中的模型区分为随版本演进模型和不随版本演进模型。
+💡 ModelZoo-PyTorch中的模型区分为随版本演进模型和不随版本演进模型。
 - 针对随版本演进模型：请跟随版本配套表，选择最新版本使用。
 - 针对不随版本演进模型：这些模型已不随PyTorch和PyTorch Extension的版本演进，您可以选择以下策略。
   - 可根据对应模型的README选择对应PyTorch、PyTorch Extension、CANN、HDK版本使用。
@@ -108,11 +108,6 @@
 - [wav2vec2.0(FP32)](https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/contrib/audio/wav2vec2.0)
 - [Wenet(FP16)](https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/built-in/audio/Wenet_Conformer_for_Pytorch)
 - [whisper(FP16)](https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/built-in/audio/Wenet_Conformer_for_Pytorch)
-- [Yolov5s_for_PyTorch_v6.0(FP16)](https://gitee.com/ascend/modelzoo-GPL/tree/master/built-in/PyTorch/Official/cv/object_detection/Yolov5_for_PyTorch_v6.0)
-- [Yolov5s_for_PyTorch_v6.0(FP32)](https://gitee.com/ascend/modelzoo-GPL/tree/master/built-in/PyTorch/Official/cv/object_detection/Yolov5_for_PyTorch_v6.0)
-- [Yolov5s_for_PyTorch_v6.0(HF32)](https://gitee.com/ascend/modelzoo-GPL/tree/master/built-in/PyTorch/Official/cv/object_detection/Yolov5_for_PyTorch_v6.0)
-- [Yolov5m_for_PyTorch_v6.0(FP16)](https://gitee.com/ascend/modelzoo-GPL/tree/master/built-in/PyTorch/Official/cv/object_detection/Yolov5_for_PyTorch_v6.0)
-- [Yolov7_for_PyTorch(FP16)](https://gitee.com/ascend/modelzoo-GPL/tree/master/built-in/PyTorch/Official/cv/object_detection/Yolov7_for_PyTorch)
 
 ### 不随版本演进模型
 
