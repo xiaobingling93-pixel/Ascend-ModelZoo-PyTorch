@@ -1,0 +1,1 @@
+from .pipeline_cogview3plus import CogView3PlusPipeline, DiffusionPipeline
