@@ -262,9 +262,12 @@ Atlas 300I Duo推理卡：支持的卡数为1，可双芯并行
 
       ```bash
       # Clip Score和HPSv2均需要使用的权重
-      GIT_LFS_SKIP_SMUDGE=1 
+      # 安装git-lfs
+      apt install git-lfs
+      git lfs install
+
+      # Clip Score权重
       git clone https://huggingface.co/laion/CLIP-ViT-H-14-laion2B-s32B-b79K
-      cd ./CLIP-ViT-H-14-laion2B-s32B-b79K
       
       # HPSv2权重
       wget https://huggingface.co/spaces/xswu/HPSv2/resolve/main/HPS_v2_compressed.pt --no-check-certificate

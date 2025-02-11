@@ -305,11 +305,10 @@ Atlas 300I Duo推理卡：支持的卡数为1，可双芯并行
    2. 下载Clip模型权重
 
       ```bash
-      GIT_LFS_SKIP_SMUDGE=1 git clone https://huggingface.co/laion/CLIP-ViT-H-14-laion2B-s32B-b79K
-      cd ./CLIP-ViT-H-14-laion2B-s32B-b79K
-
-      # 用 git-lfs 下载
-      git lfs pull
+      # 安装git-lfs
+      apt install git-lfs
+      git lfs install
+      git clone https://huggingface.co/laion/CLIP-ViT-H-14-laion2B-s32B-b79K
 
       # 或者访问https://huggingface.co/laion/CLIP-ViT-H-14-laion2B-s32B-b79K/blob/main/open_clip_pytorch_model.bin，将权重下载并放到这个目录下
       ```

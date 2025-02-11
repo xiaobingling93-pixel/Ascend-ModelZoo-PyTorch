@@ -279,9 +279,13 @@ hpsv2数据集下载链接：https://gitee.com/ascend/ModelZoo-PyTorch/blob/mast
 ### 4.2 下载模型权重
 ```shell
 # Clip Score和HPSv2均需要使用的权重
-GIT_LFS_SKIP_SMUDGE=1
+# 安装git-lfs
+apt install git-lfs
+git lfs install
+
+# Clip Score权重
 git clone https://huggingface.co/laion/CLIP-ViT-H-14-laion2B-s32B-b79K
-cd ./CLIP-ViT-H-14-laion2B-s32B-b79K
+
 # HPSv2权重
 wget https://huggingface.co/spaces/xswu/HPSv2/resolve/main/HPS_v2_compressed.pt --no-check-certificate
 ```
