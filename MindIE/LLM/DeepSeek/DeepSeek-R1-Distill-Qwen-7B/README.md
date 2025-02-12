@@ -37,8 +37,8 @@ docker load -i mindie:1.0.0-300I-Duo-py311-openeuler24.03-lts(下载的镜像名
 | HDK | 24.1.0 |
 
 ## 约束条件
-- 部署DeepSeek-R1-Distill-Qwen-7B模型至少需要`1台Atlas 800I A2服务器`或者`1台插1张Atlas 300I DUO卡的服务器`
-- 在使用Atlas 300I DUO推理卡部署模型时，需要修改权重目录下的`config.json`文件，**"torch_dtype"字段改为"float16"**
+- 部署DeepSeek-R1-Distill-Qwen-7B模型至少需要`1台Atlas 800I A2服务器`或者`1台插1张Atlas 300I DUO卡的服务器`或者`1台插1张Atlas 300I Pro推理卡的服务器`或者`1台插1张Atlas 300V视频解析卡的服务器`
+- 在使用Atlas 300I DUO/Atlas 300I Pro推理卡和Atlas 300V视频解析卡部署模型时，需要修改权重目录下的`config.json`文件，**"torch_dtype"字段改为"float16"**
 - 支持TP=1/2/4/8推理
 
 ## 新建容器
@@ -108,7 +108,8 @@ export PYTORCH_NPU_ALLOC_CONF=expandable_segments:False
 ```
 ### 稀疏量化
   - Step 1
-    - 注意该量化方式仅支持在Atlas 300I DUO推理卡上运行
+    - 注意该量化方式仅支持在Atlas 300I DUO/Atlas 300I Pro/Atlas 300V卡上运行
+    - Atlas 300I DUO/Atlas 300I Pro/Atlas 300V不支持多卡量化
     - 修改模型权重config.json中`torch_dtype`字段为`float16`
     - 下载msmodelslim量化工具
     - 下载地址为https://gitee.com/ascend/msit/tree/master/msmodelslim

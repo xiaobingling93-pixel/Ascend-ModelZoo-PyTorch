@@ -114,7 +114,7 @@ torchrun --nproc_per_node 2 \
          -m examples.run_pa \
          --model_path ${权重路径} \
          --input_texts 'What is deep learning?' \
-         --max_output_length 20 \
+         --max_output_length 20
 ```
 
 ### 性能测试

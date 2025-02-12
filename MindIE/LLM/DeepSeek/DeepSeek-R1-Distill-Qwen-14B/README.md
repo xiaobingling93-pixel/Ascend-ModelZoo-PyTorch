@@ -36,8 +36,8 @@ docker load -i mindie:1.0.0-300I-Duo-py311-openeuler24.03-lts(下载的镜像名
 | HDK | 24.1.0 |
 
 ## 约束条件
-- 部署DeepSeek-R1-Distill-Qwen-14B模型至少需要`1台Atlas 800I A2服务器`或者`1台插1张Atlas 300I DUO卡的服务器`
-- 在使用Atlas 300I DUO推理卡部署模型时，需要修改权重目录下的`config.json`文件，**"torch_dtype"字段改为"float16"**
+- 部署DeepSeek-R1-Distill-Qwen-14B模型至少需要`1台Atlas 800I A2服务器`或者`1台插1张Atlas 300I DUO卡的服务器`或者`1台插2张Atlas 300I Pro推理卡的服务器`或者`1台插2张Atlas 300V视频解析卡的服务器`
+- 在使用Atlas 300I DUO/Atlas 300I Pro推理卡和Atlas 300V视频解析卡部署模型时，需要修改权重目录下的`config.json`文件，**"torch_dtype"字段改为"float16"**
 - 支持TP=2/4/8推理
 
 ## 新建容器
@@ -104,9 +104,10 @@ export ASCEND_RT_VISIBLE_DEVICES=0,1
 export PYTORCH_NPU_ALLOC_CONF=expandable_segments:False
 ```
 
-### 300I DUO 稀疏量化
+### Atlas 300I DUO/Atlas 300I Pro/Atlas 300V稀疏量化
   - Step 1
-    - 注意该量化方式仅支持在Atlas 300I DUO推理卡上运行
+    - 注意该量化方式仅支持在Atlas 300I DUO/Atlas 300I Pro/Atlas 300V卡上运行
+    - Atlas 300I DUO/Atlas 300I Pro/Atlas 300V 不支持多卡量化
     - 修改模型权重config.json中`torch_dtype`字段为`float16`
     - 环境配置请参考[使用说明](https://gitee.com/ascend/msit/blob/master/msmodelslim/README.md)
     - git clone下载msit仓代码； `git clone https://gitee.com/ascend/msit.git`
@@ -118,11 +119,18 @@ export PYTORCH_NPU_ALLOC_CONF=expandable_segments:False
     - 上一步编译操作会得到bulid文件夹，给build文件夹相关权限 chmod -R 550 build
     - 进入到msit/msmodelslim/example/Qwen的目录 `cd msit/msmodelslim/example/Qwen`；并在进入的Qwen目录下，运行量化转换脚本
     注： 安装完cann后 需要执行source set_env.sh 声明ASCEND_HOME_PATH值 后续安装msmodelslim前需保证其不为空
-    ```bash
-    export ASCEND_RT_VISIBLE_DEVICES=0
-    export PYTORCH_NPU_ALLOC_CONF=expandable_segments:False
-    python3 quant_qwen.py --model_path {浮点权重路径} --save_directory {W8A8S量化权重路径} --calib_file ../common/cn_en.jsonl --w_bit 4 --a_bit 8 --fraction 0.011 --co_sparse True --device_type npu --use_sigma True --is_lowbit True --sigma_factor 4.0 --anti_method m4
-    ```
+    
+    **Atlas 300I DUO**使用以下方式生成W8A8S量化权重
+      ```bash
+      export ASCEND_RT_VISIBLE_DEVICES=0
+      export PYTORCH_NPU_ALLOC_CONF=expandable_segments:False
+      python3 quant_qwen.py --model_path {浮点权重路径} --save_directory {W8A8S量化权重路径} --calib_file ../common/cn_en.jsonl --w_bit 4 --a_bit 8 --fraction 0.011 --co_sparse True --device_type npu --use_sigma True --is_lowbit True --sigma_factor 4.0 --anti_method m4
+      ```
+    **Atlas 300I Pro/Atlas 300V**使用以下方式生成W8A8S量化权重
+      ```bash
+      python3 quant_qwen.py --model_path {浮点权重路径} --save_directory {W8A8S量化权重路径} --calib_file ../common/cn_en.jsonl --w_bit 4 --a_bit 8 --fraction 0.011 --co_sparse True --device_type cpu --use_sigma True --is_lowbit True --sigma_factor 4.0 --anti_method m4
+      ```
+    > Atlas 300I Pro/Atlas 300V量化过程耗时较长，预计5小时左右，可以在Atlas 300I DUO上先生成W8A8S量化权重路径，再搬运到Atlas 300I Pro/Atlas 300V执行后续步骤。
 
   - Step 2：量化权重切分及压缩
     ```shell
