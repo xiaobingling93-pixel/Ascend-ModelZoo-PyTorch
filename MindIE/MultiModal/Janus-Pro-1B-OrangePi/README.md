@@ -63,6 +63,13 @@ cache_position = torch.arange(
 # 将第1096行修改为
 causal_mask *= torch.arange(target_length, device="cpu").npu() > cache_position.reshape(-1, 1)
 ```
+替换timm中的mlp.py
+```
+timm_path=$(pip3 show timm|grep Location|awk '{print $2}')
+# 修改${timm_path}/mlp/layers/mlp.py中的函数
+# 将第45行修改为
+x = self.act(x.cpu()).npu()
+```
 ## 二、执行推理
 ### 2.1 下载权重
 - [Janus-Pro-1B](https://modelers.cn/models/State_Cloud/Janus-Pro-1B)
