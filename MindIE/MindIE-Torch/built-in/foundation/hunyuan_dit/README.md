@@ -62,14 +62,6 @@ tar -xzvf pytorch_v{pytorchversion}_py{pythonversion}.tar.gz
 pip install torch_npu-{pytorchversion}.xxxx.{arch}.whl
 ```
 
-### 1.5 安装mindspeed
-```shell
-# 下载mindspeed源码仓
-git clone https://gitee.com/ascend/MindSpeed.git
-# 使用pip安装
-pip install -e MindSpeed
-```
-
 ## 二、下载本仓库
 
 ### 2.1 下载到本地
@@ -132,7 +124,21 @@ https://huggingface.co/Tencent-Hunyuan/HunyuanDiT-v1.2/tree/main/t2i
 |    |    |    |---- tokenizer
 ```
 
-### 3.2 模型单卡推理适配的测试
+### 3.2 RoPE算子编译
+进入算子路径，执行编译命令
+```shell
+cd pta_plugin
+bash build.sh
+```
+编译成功后会在build文件夹下生成.so结尾的算子文件
+
+在hydit/layers/attention.py脚本中添加编译生成的算子路径
+```python
+torch.ops.load_library("./pta_plugin/build/libPTAExtensionOPS.so")
+```
+【注意】首次运行需要加载RoPE算子，请在正式推理前进行warmup
+
+### 3.3 模型单卡推理适配的测试
 设置权重路径
 ```shell
 path="ckpts/t2i"
@@ -161,7 +167,7 @@ python inference_hydit.py \
 
 执行完成后在`results`目录下生成一张推理图像。
 
-### 3.3 模型单卡等价优化的性能测试
+### 3.4 模型单卡等价优化的性能测试
 设置权重路径
 ```shell
 path="ckpts/hydit"
@@ -192,7 +198,7 @@ python inference_hydit.py \
 
 执行完成后在`results`目录下生成推理图像，图像生成顺序与prompt顺序保持一致，并在终端显示推理时间。
 
-### 3.4 模型单卡算法优化的性能测试
+### 3.5 模型单卡算法优化的性能测试
 设置权重路径
 ```shell
 path="ckpts/hydit"
@@ -225,7 +231,7 @@ python inference_hydit.py \
 
 执行完成后在`results`目录下生成推理图像，图像生成顺序与prompt顺序保持一致，并在终端显示推理时间。
 
-### 3.5 模型单卡多batch推理适配测试
+### 3.6 模型单卡多batch推理适配测试
 设置权重路径
 ```shell
 path="ckpts/hydit"

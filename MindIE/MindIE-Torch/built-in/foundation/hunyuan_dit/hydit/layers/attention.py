@@ -21,7 +21,7 @@ import math
 import torch
 import torch.nn as nn
 import torch_npu
-from mindspeed.ops.npu_rotary_position_embedding import npu_rotary_position_embedding
+torch.ops.load_library("./pta_plugin/build/libPTAExtensionOPS.so")
 
 from .norm import get_normalization_helper
 
@@ -44,7 +44,7 @@ def apply_rotary_emb(x: torch.Tensor, freqs_cis: Tuple[torch.Tensor], head_first
     x_out dtype: float16
     """
     cos, sin = reshape_for_broadcast(x, freqs_cis, head_first)    # [S, D]
-    x_out = npu_rotary_position_embedding(x.float(), cos, sin, 1).type_as(x)
+    x_out = torch.ops.mindie.rope_mindie_sd(x.float(), cos, sin, 1).type_as(x)
     return x_out
 
 

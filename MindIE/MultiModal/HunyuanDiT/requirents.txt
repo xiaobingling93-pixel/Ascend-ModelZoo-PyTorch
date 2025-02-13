@@ -16,3 +16,4 @@ torch==2.1.0
 torchvision==0.16.0
 tokenizers==0.15.2
 transformers==4.39.3
+open_clip_torch==2.20.0
