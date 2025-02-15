@@ -23,7 +23,8 @@ language:
 - 设备支持：
 Atlas 800I A2推理设备：支持的卡数最小为1
 Atlas 300I Duo推理卡：支持的卡数最小为1
-- [Atlas 800I A2/Atlas 300I Duo](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann)
+Atlas 300 V:支持的卡数最小为1
+- [Atlas 800I A2/Atlas 300I Duo/Atlas 300 V](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann)
 - [环境准备指导](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/80RC2alpha002/softwareinst/instg/instg_0001.html)
 
 ### 1.2 CANN安装
@@ -92,6 +93,6 @@ python generation_inference.py --path './deepseek-ai/Janus-Pro' --device_id 0 --
 #### 2.3.3 命令行参数说明
 ```python
 --device_id 指定npu运行设备
---type 可指定bf16或fp16，Atlas 300I Duo/Atlas 300I Pro设备只支持fp16
+--type 可指定bf16或fp16，Atlas 300I Duo/Atlas 300I Pro/Atlas 300 V设备只支持fp16
 --path 指定模型路径
 ```
