@@ -107,7 +107,7 @@ export PYTORCH_NPU_ALLOC_CONF=expandable_segments:False
 ### Atlas 300I DUO/Atlas 300I Pro/Atlas 300V稀疏量化
   - Step 1
     - 注意该量化方式仅支持在Atlas 300I DUO/Atlas 300I Pro/Atlas 300V卡上运行
-    - Atlas 300I DUO/Atlas 300I Pro/Atlas 300V 不支持多卡量化
+    - Atlas 300I DUO/Atlas 300I Pro/Atlas 300V不支持多卡量化
     - 修改模型权重config.json中`torch_dtype`字段为`float16`
     - 环境配置请参考[使用说明](https://gitee.com/ascend/msit/blob/master/msmodelslim/README.md)
     - git clone下载msit仓代码； `git clone https://gitee.com/ascend/msit.git`
@@ -126,6 +126,7 @@ export PYTORCH_NPU_ALLOC_CONF=expandable_segments:False
       export PYTORCH_NPU_ALLOC_CONF=expandable_segments:False
       python3 quant_qwen.py --model_path {浮点权重路径} --save_directory {W8A8S量化权重路径} --calib_file ../common/cn_en.jsonl --w_bit 4 --a_bit 8 --fraction 0.011 --co_sparse True --device_type npu --use_sigma True --is_lowbit True --sigma_factor 4.0 --anti_method m4
       ```
+
     **Atlas 300I Pro/Atlas 300V**使用以下方式生成W8A8S量化权重
       ```bash
       python3 quant_qwen.py --model_path {浮点权重路径} --save_directory {W8A8S量化权重路径} --calib_file ../common/cn_en.jsonl --w_bit 4 --a_bit 8 --fraction 0.011 --co_sparse True --device_type cpu --use_sigma True --is_lowbit True --sigma_factor 4.0 --anti_method m4
@@ -138,7 +139,7 @@ export PYTORCH_NPU_ALLOC_CONF=expandable_segments:False
     jq --version
     export IGNORE_INFER_ERROR=1
     cd ${llm_path}
-    torchrun --nproc_per_node {TP数} -m examples.convert.model_slim.sparse_compressor --model_path {W8A8S量化权重路径} --save_directory {W8A8SC量化权重路径}
+    torchrun --nproc_per_node {TP数} -m examples.convert.model_slim.sparse_compressor --multiprocess_num 4 --model_path {W8A8S量化权重路径} --save_directory {W8A8SC量化权重路径}
     ```
     - TP数为tensor parallel并行个数
     - 注意：若权重生成时以TP=4进行切分，则运行时也需以TP=4运行

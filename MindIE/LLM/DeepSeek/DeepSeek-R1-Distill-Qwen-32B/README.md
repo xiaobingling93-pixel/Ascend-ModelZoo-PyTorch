@@ -85,22 +85,69 @@ docker run -it -d --net=host --shm-size=1g \
 ```shell
 docker exec -it ${容器名称} bash
 ```
-## Atlas 800I A2 w8a8量化
-Atlas 800I A2 w8a8量化权重可通过[msmodelslim](https://gitee.com/ascend/msit/blob/master/msmodelslim/example/Qwen/README.md)（昇腾压缩加速工具）实现。
+
+## 权重量化
+### Atlas 800I A2 w8a8量化
+W8A8量化权重可通过[msmodelslim](https://gitee.com/ascend/msit/blob/master/msmodelslim/example/Qwen/README.md)（昇腾压缩加速工具）实现。
 - 注意该量化方式仅支持在Atlas 800I A2服务器上运行
 - 环境配置请参考[使用说明](https://gitee.com/ascend/msit/blob/master/msmodelslim/README.md)
 - git clone下载msit仓代码； `git clone https://gitee.com/ascend/msit.git`
 - 进入到msit/msmodelslim的目录 `cd msit/msmodelslim`；并在进入的msmodelslim目录下，运行安装脚本 `bash install.sh`;
 - 进入到msit/msmodelslim/example/Qwen的目录 `cd msit/msmodelslim/example/Qwen`；并在进入的Qwen目录下，运行量化转换脚本
 ```bash
-python3 quant_qwen.py --model_path {浮点权重路径} --save_directory {W8A8量化权重路径} --calib_file ../common/boolq.jsonl --w_bit 8 --a_bit 8 --device_type npu 
+python3 quant_qwen.py --model_path {浮点权重路径} --save_directory {W8A8量化权重路径} --calib_file ../common/boolq.jsonl --w_bit 8 --a_bit 8 --device_type npu  
 ```
 - 请将{浮点权重路径}和{量化权重路径}替换为用户实际路径。
-- 如果需要使用npu多卡量化，请先配置环境变量，支持多卡量化,建议4卡执行量化：
+- 如果需要使用npu多卡量化，请先配置环境变量，支持多卡量化,建议双卡执行量化：
 ```bash
 export ASCEND_RT_VISIBLE_DEVICES=0,1,2,3
 export PYTORCH_NPU_ALLOC_CONF=expandable_segments:False
 ```
+
+### Atlas 300I DUO/Atlas 300I Pro/Atlas 300V稀疏量化
+  - Step 1
+    - 注意该量化方式仅支持在Atlas 300I DUO/Atlas 300I Pro/Atlas 300V卡上运行
+    - Atlas 300I DUO/Atlas 300I Pro/Atlas 300V不支持多卡量化
+    - 修改模型权重config.json中`torch_dtype`字段为`float16`
+    - 环境配置请参考[使用说明](https://gitee.com/ascend/msit/blob/master/msmodelslim/README.md)
+    - git clone下载msit仓代码； `git clone https://gitee.com/ascend/msit.git`
+    - 进入到msit/msmodelslim的目录 `cd msit/msmodelslim`；并在进入的msmodelslim目录下，运行安装脚本 `bash install.sh`;
+    - 进入python环境下的site_packages包管理路径 `cd {python环境路径}/site-packages/msmodelslim/pytorch/weight_compression/compress_graph/`
+    可使用`find`查找: `find /usr/ -name compress_graph`; 以下是以/usr/local/为用户所在目录，以3.7.5为python版本的样例代码：
+    `cd usr/local/lib/python3.7/site-packages/msmodelslim/pytorch/weight_compression/compress_graph/`
+    - 编译weight_compression组件 sudo bash build.sh {CANN包安装路径}/ascend-toolkit/latest
+    - 上一步编译操作会得到bulid文件夹，给build文件夹相关权限 chmod -R 550 build
+    - 进入到msit/msmodelslim/example/Qwen的目录 `cd msit/msmodelslim/example/Qwen`；并在进入的Qwen目录下，运行量化转换脚本
+    注： 安装完cann后 需要执行source set_env.sh 声明ASCEND_HOME_PATH值 后续安装msmodelslim前需保证其不为空
+    
+    32B模型建议在800I A2上生成W8A8S量化权重后，将权重复制到其他机器。
+    **Atlas 800I A2**使用以下方式生成W8A8S量化权重
+      ```bash
+      export ASCEND_RT_VISIBLE_DEVICES=0,1,2,3
+      export PYTORCH_NPU_ALLOC_CONF=expandable_segments:False
+      python3 quant_qwen.py --model_path {浮点权重路径} --save_directory {W8A8S量化权重路径} --calib_file ../common/cn_en.jsonl --w_bit 4 --a_bit 8 --fraction 0.011 --co_sparse True --device_type npu --use_sigma True --is_lowbit True --sigma_factor 4.0 --anti_method m4
+      ```
+
+    **Atlas 300I DUO/Atlas 300I Pro/Atlas 300V**使用以下方式生成W8A8S量化权重，机器内存需要至少350G, 否者可能会因为内存不足提前退出。
+      ```bash
+      python3 quant_qwen.py --model_path {浮点权重路径} --save_directory {W8A8S量化权重路径} --calib_file ../common/cn_en.jsonl --w_bit 4 --a_bit 8 --fraction 0.011 --co_sparse True --device_type cpu --use_sigma True --is_lowbit True --sigma_factor 4.0 --anti_method m4
+      ```
+    >  Atlas 300I DUO/Atlas 300I Pro/Atlas 300V量化过程耗时较长，预计10小时左右，可以在Atlas 800I A2上先生成W8A8S量化权重路径，再搬运到Atlas 300I DUO/Atlas 300I Pro/Atlas 300V执行后续步骤。
+
+  - Step 2：量化权重切分及压缩
+    ```shell
+    # 执行"jq --version"查看是否安装jq，若返回"bash：jq：command not found"，则依次执行"apt-get update"和"apt install jq"
+    jq --version
+    export IGNORE_INFER_ERROR=1
+    cd ${llm_path}
+    torchrun --nproc_per_node {TP数} -m examples.convert.model_slim.sparse_compressor --multiprocess_num 4 --model_path {W8A8S量化权重路径} --save_directory {W8A8SC量化权重路径}
+    ```
+    - TP数为tensor parallel并行个数
+    - 注意：若权重生成时以TP=4进行切分，则运行时也需以TP=4运行
+    - 示例
+      ```shell
+        torchrun --nproc_per_node 4 -m examples.convert.model_slim.sparse_compressor --model_path /data1/weights/model_slim/Qwen-14b_w8a8s --save_directory /data1/weights/model_slim/Qwen-14b_w8a8sc
+      ```
 
 ## 纯模型推理
 
