@@ -78,6 +78,7 @@ docker exec -it ${容器名称} bash
 ```
 
 ## 量化权重生成
+### Atlas 800I A2 w8a8量化
 * 生成量化权重依赖msModelSlim工具，安装方式见[此README](https://gitee.com/ascend/msit/tree/dev/msmodelslim)
 
 * 量化权重统一使用${ATB_SPEED_HOME_PATH}/examples/convert/model_slim/quantifier.py脚本生成，以下提供Llama模型量化权重生成快速启动命令
@@ -95,6 +96,39 @@ cd ${ATB_SPEED_HOME_PATH}
 sed -i '167s/m3/m4/' examples/models/llama3/generate_quant_weight.sh
 # DeepSeek-R1-Distill-Llama-70B量化 bf16，有回退层，antioutlier使用m4算法配置，使用min-max量化方式，校准数据集使用50条BoolQ数据，在NPU上进行运算
 bash examples/models/llama3/generate_quant_weight.sh -src {浮点权重路径} -dst {W8A8量化权重路径} -type llama3.1_70b_instruct_bf16_w8a8
+```
+
+### Atlas 300I DUO稀疏量化
+**Step 1 生成W8A8S量化权重**
+- 注意该量化方式生成的量化权重仅支持在Atlas 300I DUO卡上运行
+- DeepSeek-R1-Distill-Llama-70B量化过程资源占用较大，Step1建议在Atlas 800IA2-64G上生成
+- 修改模型权重config.json中`torch_dtype`字段为`float16`
+- 生成量化权重依赖msModelSlim工具，安装方式见[此README](https://gitee.com/ascend/msit/tree/dev/msmodelslim)
+```shell
+export ASCEND_RT_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
+# 运行量化转换脚本
+cd ${ATB_SPEED_HOME_PATH}/examples/models/llama3
+python convert_quant_weights.py --w_bit 4 --a_bit 8  --is_lowbit True --device_type npu --act_method 1 --model_path {浮点权重路径}  --save_directory {W8A8S量化权重路径}  --calib_file ./cable_file.jsonl --anti_method m4 --use_sigma True
+```
+
+**Step 2 量化权重切分及压缩**
+- 该步骤需要在Atlas 300I DUO卡上运行
+```shell
+# 执行"jq --version"查看是否安装jq，若返回"bash：jq：command not found"，则依次执行"apt-get update"和"apt install jq"
+jq --version
+```
+```shell
+export IGNORE_INFER_ERROR=1
+# 进入atb-models目录
+cd ${ATB_SPEED_HOME_PATH}
+# 运行切分及压缩脚本
+torchrun --nproc_per_node {TP数} -m examples.convert.model_slim.sparse_compressor --multiprocess_num 4 --model_path {W8A8S量化权重路径} --save_directory {W8A8SC量化权重路径}
+```
+- TP数为tensor parallel并行个数
+- 注意：若权重生成时以TP=8进行切分，则运行时也需以TP=8运行
+- 示例
+```shell
+torchrun --nproc_per_node 8 -m examples.convert.model_slim.sparse_compressor --multiprocess_num 4 --model_path /data1/weights/model_slim/Llama-70b_w8a8s --save_directory /data1/weights/model_slim/Llama-70b_w8a8sc
 ```
 
 ## 纯模型推理

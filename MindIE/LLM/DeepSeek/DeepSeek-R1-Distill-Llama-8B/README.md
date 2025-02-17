@@ -105,15 +105,16 @@ bash examples/models/llama3/generate_quant_weight.sh -src {浮点权重路径} -
 - 生成量化权重依赖msModelSlim工具，安装方式见[此README](https://gitee.com/ascend/msit/tree/dev/msmodelslim)
 - 进入到{msModelSlim工具路径}/msit/msmodelslim/example/Llama的目录 `cd msit/msmodelslim/example/Llama`；
 ```shell
-# 执行"jq --version"查看是否安装jq，若返回"bash：jq：command not found"，则依次执行"apt-get update"和"apt install jq"
-jq --version
-```
-```shell
 # 运行量化转换脚本
 python3 quant_llama.py --model_path {浮点权重路径} --save_directory {W8A8S量化权重路径} --calib_file ../common/boolq.jsonl --w_bit 4 --a_bit 8 --fraction 0.011 --co_sparse True
 ```
 
 **Step 2 量化权重切分及压缩**
+- 该步骤需要在Atlas 300I DUO/Atlas 300I Pro/Atlas 300V上运行
+```shell
+# 执行"jq --version"查看是否安装jq，若返回"bash：jq：command not found"，则依次执行"apt-get update"和"apt install jq"
+jq --version
+```
 ```shell
 export IGNORE_INFER_ERROR=1
 # 进入atb-models目录
