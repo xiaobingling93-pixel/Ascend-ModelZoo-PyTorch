@@ -97,11 +97,15 @@ def generate_video(
         torch_npu.npu.synchronize()
         end = time.time()
         print(f"Time taken for inference: {end - start} seconds")
+        if enable_skip and not transformer.config.use_rotary_positional_embeddings:
+            skip_strategy = AdaStep(skip_thr=0.006, max_skip_steps=1, decay_ratio=0.99, device="npu")
+            pipe.skip_strategy = skip_strategy
+        
         video_path = f'{output_path}/generated_video_{i}_{prompt[:10]}.mp4'
         export_to_video(video_generate, video_path, fps=fps)
         result[os.path.abspath(video_path)] = prompt
 
-    with open('result_2b_46.json', 'w', encoding='utf-8') as json_file:
+    with open('result.json', 'w', encoding='utf-8') as json_file:
         json.dump(result, json_file, ensure_ascii=False, indent=4)
     
     print(f"Result saved to result.json.")

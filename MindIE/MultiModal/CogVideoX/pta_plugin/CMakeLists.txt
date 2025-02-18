@@ -26,5 +26,6 @@ include_directories(${PYTORCH_NPU_INSTALL_PATH}/include)
 include_directories(${PYTORCH_INSTALL_PATH}/include)
 include_directories(${PYTORCH_INSTALL_PATH}/include/torch/csrc/distributed)
 include_directories(${PYTORCH_INSTALL_PATH}/include/torch/csrc/api/include)
+include_directories(${PYTORCH_INSTALL_PATH}/include/third_party/hccl/inc)
 
 target_link_libraries(PTAExtensionOPS PUBLIC c10 torch torch_cpu torch_npu )

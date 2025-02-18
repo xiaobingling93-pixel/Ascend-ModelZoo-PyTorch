@@ -126,7 +126,7 @@ torch.ops.load_library("./pta_plugin/build/libPTAExtensionOPS.so")
 ```
 注意：首次运行需要加载RoPE算子，请在正式推理前进行warmup
 
-### 3.3 单卡单prompt功能测试
+### 3.3 单卡推理
 1. 设置CogVideoX-5b权重路径：
 ```shell
 model_path='data/CogVideoX-5b'
@@ -169,7 +169,8 @@ TASK_QUEUE_ENABLE=2 ASCEND_RT_VISIBLE_DEVICES=0 torchrun --master_port=2002 --np
 - num_inference_steps：推理迭代步数，默认值为50。
 - dtype：数据类型，默认值为bfloat16。CogVideoX-2b推荐设置为float16，需要在命令前加INF_NAN_MODE_FORCE_DISABLE=1，开启饱和模式避免数值溢出。
 - seed: 设置随机种子，默认值为42。
-- enable_skip：是否使用采样优化。
+- enable_skip：是否使用采样优化，注意是有损的加速算法。
+
 推理结束后会在当前路径下生成result.json，用于记录文本提示和生成视频的对应关系，便于测试视频精度。
 
 
@@ -182,6 +183,6 @@ TASK_QUEUE_ENABLE=2 ASCEND_RT_VISIBLE_DEVICES=0 torchrun --master_port=2002 --np
 ### CogVideoX-2b
 | 硬件形态  | cpu规格 | batch size | 迭代次数 | 数据类型 | 平均耗时 |
 | :------: | :------: | :------: |:----:| :------: | :------: |
-| Atlas 800I A2(8*64G) | 64核(arm) |  1  |  50  | float16 | 102s |
+| Atlas 800I A2(8*64G) | 64核(arm) |  1  |  50  | float16 | 100s |
 
 性能测试需要独占npu和cpu

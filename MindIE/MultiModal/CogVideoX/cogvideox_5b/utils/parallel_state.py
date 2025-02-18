@@ -132,7 +132,7 @@ def all_gather_variable_with_group(tensor, dim=0, world_size=1, group=None):
     return torch.cat(tensors, dim=dim)
 
 
-def split_tensor(input_tensor: torch.Tensor, dim: int, world_size: int, group: dist.ProcessGroup, scale=1):
+def split_tensor(input_tensor: torch.Tensor, dim: int, world_size: int, group: dist.ProcessGroup, scale=1, chunk_size=None):
     """
     将 input_tensor 沿指定维度 dim 切分为 group 中各个进程的部分。
 
@@ -154,12 +154,15 @@ def split_tensor(input_tensor: torch.Tensor, dim: int, world_size: int, group: d
     dim_size = input_tensor.size(dim)
 
     # 计算每个块的大小
-    if dim_size / scale % world_size == 0:
-        split_size = dim_size // world_size
-    else:
-        split_size = math.ceil(dim_size / world_size / scale) * scale
+    if chunk_size is None:
+        if dim_size / scale % world_size == 0:
+            split_size = dim_size // world_size
+        else:
+            split_size = math.ceil(dim_size / world_size / scale) * scale
 
-    chunks = torch.split(input_tensor, split_size, dim=dim)
+        chunks = torch.split(input_tensor, split_size, dim=dim)
+    else:
+        chunks = torch.split(input_tensor, split_size, dim=dim)
 
     # 获取当前进程对应的块
     tensor_chunk = chunks[rank]
@@ -265,7 +268,8 @@ def set_parallel(pipe):
         image_embeds = output[:, text_len:, :].reshape(batch, num_frames, -1, output.shape[-1])
 
         text_embeds = split_tensor(text_embeds, -2, get_sp_world_size(), get_sp_group())
-        image_embeds = split_tensor(image_embeds, -2, get_sp_world_size(), get_sp_group(), scale=2)
+        chunk_size = (math.ceil(height / get_sp_world_size() / self.patch_size) * self.patch_size // self.patch_size) * width // self.patch_size
+        image_embeds = split_tensor(image_embeds, -2, get_sp_world_size(), get_sp_group(), chunk_size=chunk_size)
         image_embeds = image_embeds.reshape(batch, -1, image_embeds.shape[-1])
         return torch.cat([text_embeds, image_embeds], dim=1)
 
