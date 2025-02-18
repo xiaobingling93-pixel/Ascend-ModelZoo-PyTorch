@@ -22,6 +22,7 @@ target_compile_features(PTAExtensionOPS PRIVATE cxx_std_17)
 target_compile_options(PTAExtensionOPS PRIVATE -D_GLIBCXX_USE_CXX11_ABI=0)
 
 include_directories(${PYTORCH_NPU_INSTALL_PATH}/include/third_party/acl/inc)
+include_directories(${PYTORCH_NPU_INSTALL_PATH}/include/third_party/hccl/inc)
 include_directories(${PYTORCH_NPU_INSTALL_PATH}/include)
 include_directories(${PYTORCH_INSTALL_PATH}/include)
 include_directories(${PYTORCH_INSTALL_PATH}/include/torch/csrc/distributed)

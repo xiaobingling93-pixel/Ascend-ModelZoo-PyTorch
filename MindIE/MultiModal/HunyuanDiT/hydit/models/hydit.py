@@ -41,6 +41,7 @@ class HunyuanDiTBlock(nn.Module):
         super().__init__()
 
         norm_type = "layer_norm"
+        rotated_mode = "rotated_interleaved"
 
         # ========================= Self-Attention =========================
         self.norm1 = get_normalization_helper(norm_type, hidden_size, eps=1e-6)
@@ -48,7 +49,7 @@ class HunyuanDiTBlock(nn.Module):
                                cross_attention_dim=None,
                                num_heads=num_heads,
                                attention_norm=norm_type,
-                               rope_type="rope")
+                               rotated_mode=rotated_mode)
 
         # ========================= FFN =========================
         self.norm2 = get_normalization_helper(norm_type, hidden_size, eps=1e-6)
@@ -67,7 +68,7 @@ class HunyuanDiTBlock(nn.Module):
                                cross_attention_dim=text_states_dim,
                                num_heads=num_heads,
                                attention_norm=norm_type,
-                               rope_type="rope")
+                               rotated_mode=rotated_mode)
         self.norm3 = get_normalization_helper(norm_type, hidden_size, eps=1e-6)
 
         # ========================= Skip Connection =========================
@@ -401,7 +402,7 @@ class HunyuanDiT2DModel(DiffusionModel):
         for attr, expected_type in params_checks.items():
             if hasattr(self.config, attr) and not isinstance(getattr(self.config, attr), expected_type):
                 raise TypeError(f"The type of {attr} in config must be {expected_type.name}, but got {type(attr)}.")
-            if getattr(self.config, attr) < 0:
+            if getattr(self.config, attr) <= 0:
                 raise ValueError(f"The {attr} in config must be greater than 0, but got {attr}.")
         if self.config.hidden_size < self.config.num_heads:
             raise ValueError(f"The hidden_size must be greater than num_heads.")

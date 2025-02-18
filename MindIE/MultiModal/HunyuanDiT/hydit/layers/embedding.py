@@ -25,61 +25,83 @@ from typing import Union, Tuple
 import torch
 import torch.nn as nn
 import numpy as np
-import torch_npu
+torch.ops.load_library("./pta_plugin/build/libPTAExtensionOPS.so")
 
 
-def get_rotary_emb(x: torch.Tensor, cos: torch.Tensor, sin: torch.Tensor, rope_type: str = "adjacent"):
-    """
-    Apply rotary embeddings to input tensors using the given frequency tensor.
-
-    Args:
-        x (torch.Tensor): Query or key tensor to apply rotary embeddings. BSND or BNSD.
-        cos (torch.Tensor): Precomputed cos frequency tensor for complex exponentials.
-        sin (torch.Tensor): Precomputed sin frequency tensor for complex exponentials.
-        rope_type (str):
-            if "adjacent": rotate q to [-q_1, q_0, -q_3, q_2, ... , -q_d-1, q_d-2].
-                           Could to be used for HunyuanDiT, OpenSora, Flux, CogVideox.
-            if "symmetric": rotate q to [-q_d/2, -q_d/2+1, ... , -q_d-1, q_0, q_1, ... , q_d/2-1].
-                            Could to be used for OpenSoraPlan, Stable Audio.
-            if "symmetric_fuse": is equivalent to "symmetric" but has better performance in torch_npu.
-
-    Returns:
-        (torch.Tensor): modified query or key tensor with rotary embeddings.
-    """
+def check_input_params(x, cos, sin, rotated_mode, head_first, fuse):
     if not isinstance(x, torch.Tensor):
         raise ValueError(f"The type of input x must be torch.Tensor, but got {type(x)}.")
     if not isinstance(cos, torch.Tensor):
         raise ValueError(f"The type of input cos must be torch.Tensor, but got {type(cos)}.")
     if not isinstance(sin, torch.Tensor):
         raise ValueError(f"The type of input sin must be torch.Tensor, but got {type(sin)}.")
-    if not isinstance(rope_type, str):
-        raise ValueError(f"The type of input rope_type must be strings, but got {type(rope_type)}.")
+    if not isinstance(rotated_mode, str):
+        raise ValueError(f"The type of input rotated_mode must be str, but got {type(rotated_mode)}.")
+    if not isinstance(head_first, bool):
+        raise ValueError(f"The type of input head_first must be bool, but got {type(head_first)}.")
+    if not isinstance(fuse, bool):
+        raise ValueError(f"The type of input fuse must be bool, but got {type(fuse)}.")
 
-    match rope_type:
-        case "adjacent":
-            # Used for HunyuanDiT, OpenSora, Flux, CogVideox
-            x_real, x_imag = x.reshape(*x.shape[:-1], -1, 2).unbind(-1)  # [B, S, H, D//2]
-            x_rotated = torch.stack([-x_imag, x_real], dim=-1).flatten(3)
-            return (x * cos + x_rotated * sin)
-        case "symmetric":
-            # Used for OpenSoraPlan, Stable Audio
-            x_real, x_imag = x.reshape(*x.shape[:-1], 2, -1).unbind(-2)  # [B, S, H, D//2]
-            x_rotated = torch.cat([-x_imag, x_real], dim=-1)
-            return (x * cos + x_rotated * sin)
-        case "symmetric_fuse":
-            return torch_npu.npu_rotary_mul(x, cos, sin)
+
+def reshape_for_broadcast(x: torch.Tensor, cos: torch.Tensor, sin: torch.Tensor, head_first: bool = False):
+    ndim = x.ndim
+    if head_first:
+        shape = [d if i == ndim - 2 or i == ndim - 1 else 1 for i, d in enumerate(x.shape)]
+    else:
+        shape = [d if i == 1 or i == ndim - 1 else 1 for i, d in enumerate(x.shape)]
+    return cos.view(*shape), sin.view(*shape)
+
+
+def rotary_position_embedding(x: torch.Tensor,
+                              cos: torch.Tensor,
+                              sin: torch.Tensor,
+                              rotated_mode: str = "rotated_half",
+                              head_first: bool = False,
+                              fuse: bool = True) -> torch.Tensor:
+    """
+    Apply rotary embeddings to input tensors using the given frequency tensor.
+
+    Args:
+        x (torch.Tensor): Query or key tensor to apply rotary embeddings. BSND or BNSD.
+                          x is represented as [x_0, x_1, ... , x_d/2-1, x_d/2, x_d/2+1, ... , x_d-1].
+        cos (torch.Tensor): Precomputed cos frequency tensor for complex exponentials.
+        sin (torch.Tensor): Precomputed sin frequency tensor for complex exponentials.
+        rotated_mode (str):
+            if `rotated_half`: rotate x to [-x_1, x_0, -x_3, x_2, ... , -x_d-1, x_d-2].
+            if `rotated_interleaved`: rotate x to [-x_d/2, -x_d/2+1, ... , -x_d-1, x_0, x_1, ... , x_d/2-1].
+        head_first (bool): When x is BNSD, set to True; When x is BSND, set to False.
+        fuse (bool): if True, using high-performance RoPE operator.
+
+    Returns:
+        (torch.Tensor): modified query or key tensor with rotary embeddings.
+    """
+
+    check_input_params(x, cos, sin, rotated_mode, head_first, fuse)
+    match rotated_mode:
+        case "rotated_half":
+            mode = 0
+        case "rotated_interleaved":
+            mode = 1
         case _:
-            raise ValueError(f"Unsupported rope_type: {rope_type}.")
+            raise ValueError(f"Unsupported rotated_mode: {rotated_mode}.")
 
+    cos, sin = reshape_for_broadcast(x, cos, sin, head_first)
+    x_in = x.to(cos.dtype)
 
-def get_embedding_helper(embedding_type: str, embdding_dim: int):
-    match embedding_type:
-        case None:
-            return nn.Identity()
-        case 'rope':
-            return RotaryPositionEmbedding(embed_dim=embdding_dim)
-        case _:
-            raise ValueError(f"Unsupported embedding_type:{embedding_type}.")
+    if fuse:
+        x_out = torch.ops.mindie.rope_mindie_sd(x_in, cos, sin, mode)
+    elif mode:
+        # Used for HunyuanDiT, OpenSora, Flux, CogVideox
+        x_real, x_imag = x_in.reshape(*x_in.shape[:-1], -1, 2).unbind(-1)  # [B, S, H, D//2]
+        x_rotated = torch.stack([-x_imag, x_real], dim=-1).flatten(3)
+        x_out = x_in * cos + x_rotated * sin
+    else:
+        # Used for OpenSoraPlan, Stable Audio
+        x_real, x_imag = x_in.reshape(*x_in.shape[:-1], 2, -1).unbind(-2)  # [B, S, H, D//2]
+        x_rotated = torch.cat([-x_imag, x_real], dim=-1)
+        x_out = x_in * cos + x_rotated * sin
+
+    return x_out.type_as(x)
 
 
 def timestep_embedding(t, dim, max_period=10000):
@@ -634,7 +656,6 @@ class RotaryPositionEmbedding(RotaryCosSinEmbed, nn.Module):
         grid_h: int = 64,
         grid_w: int = 64,
         base_size: int = 32,
-        rope_type: str = "adjacent",
         use_real: bool = True,
         repeat_interleave_real: bool = True,
         theta: float = 10000.0,
@@ -647,12 +668,6 @@ class RotaryPositionEmbedding(RotaryCosSinEmbed, nn.Module):
         grid_h (int): The grid height of the positional embedding.
         grid_w (int): The grid width of the positional embedding.
         base_size (int): The target size of resizing and cropping region for grid.
-        rope_type (str):
-            if "adjacent": rotate q to [-q_1, q_0, -q_3, q_2, ... , -q_d-1, q_d-2].
-                             Could to be used for HunyuanDiT, Flux, CogVideox.
-            if "symmetric": rotate q to [-q_d/2, -q_d/2+1, ... , -q_d-1, q_0, q_1, ... , q_d/2-1].
-                              Could to be used for Stable Audio.
-            if "symmetric-npu": is equivalent to "symmetric" but has better performance in torch_npu.
         use_real (bool): If `True`, return real part and imaginary part separately. Otherwise, return complex numbers.
         repeat_interleave_real (bool):
             If `True` and `use_real`, real part and imaginary part are each interleaved with themselves to reach `dim`.
@@ -675,14 +690,18 @@ class RotaryPositionEmbedding(RotaryCosSinEmbed, nn.Module):
         if ntk_factor <= 0.:
             raise ValueError(f"Input ntk_factor must be greater than 0, but got {ntk_factor}.")
 
-        self.rope_type = rope_type
         self.use_real = use_real
         super().__init__(embed_dim, use_real, repeat_interleave_real, theta, linear_factor, ntk_factor)
 
         self.freqs_cis_img = self.get_2d_rotary_pos_embed(grid_h, grid_w, base_size)
 
 
-    def forward(self, x: torch.Tensor, freqs_cis: Union[torch.Tensor, Tuple[torch.Tensor]] = None):
+    def forward(self,
+                x: torch.Tensor,
+                freqs_cis: Union[torch.Tensor, Tuple[torch.Tensor]] = None,
+                rotated_mode: str = "rotated_half",
+                head_first: bool = False,
+                fuse: bool = True) -> torch.Tensor:
         """
         The input tensors are reshaped as complex numbers, and the frequency tensor is reshaped for broadcasting
         compatibility. The resulting tensors contain rotary embeddings and are returned as real tensors.
@@ -698,13 +717,8 @@ class RotaryPositionEmbedding(RotaryCosSinEmbed, nn.Module):
 
         if self.use_real:
             cos, sin = freqs_cis  # [S, D]
-            cos = cos[None, None].to(x.dtype)
-            sin = sin[None, None].to(x.dtype)
-            cos, sin = cos.to(x.device), sin.to(x.device)
-
-            x_out = get_rotary_emb(x, cos, sin, self.rope_type)
+            x_out = rotary_position_embedding(x, cos, sin, rotated_mode=rotated_mode, head_first=head_first, fuse=fuse)
             return x_out
-
         else:
             # used for lumina
             x_rotated = torch.view_as_complex(x.reshape(*x.shape[:-1], -1, 2))

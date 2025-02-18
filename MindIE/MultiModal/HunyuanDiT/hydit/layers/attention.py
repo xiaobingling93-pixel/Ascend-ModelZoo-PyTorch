@@ -15,37 +15,17 @@
 # limitations under the License.
 
 
-from typing import Tuple
 import math
 
 import torch
 import torch.nn as nn
 import torch_npu
-torch.ops.load_library("./pta_plugin/build/libPTAExtensionOPS.so")
 
+from .embedding import rotary_position_embedding
 from .norm import get_normalization_helper
 
 EPS_DEFAULT = 1e-6
 EPS_FP16 = 1 / 65530
-
-
-def reshape_for_broadcast(x: torch.Tensor, freqs_cis: Tuple[torch.Tensor], head_first: bool = False):
-    ndim = x.ndim
-    if head_first:
-        shape = [d if i == ndim - 2 or i == ndim - 1 else 1 for i, d in enumerate(x.shape)]
-    else:
-        shape = [d if i == 1 or i == ndim - 1 else 1 for i, d in enumerate(x.shape)]
-    return freqs_cis[0].view(*shape), freqs_cis[1].view(*shape)
-
-
-def apply_rotary_emb(x: torch.Tensor, freqs_cis: Tuple[torch.Tensor], head_first: bool = False):
-    """
-    x dtype: float16; cos/sin dtype: float32
-    x_out dtype: float16
-    """
-    cos, sin = reshape_for_broadcast(x, freqs_cis, head_first)    # [S, D]
-    x_out = torch.ops.mindie.rope_mindie_sd(x.float(), cos, sin, 1).type_as(x)
-    return x_out
 
 
 class Attention(nn.Module):
@@ -54,17 +34,14 @@ class Attention(nn.Module):
                  hidden_size: int,
                  cross_attention_dim: int,
                  num_heads: int = 16,
-                 attention_norm: str = None,
-                 rope_type: str = "rope",
+                 attention_norm: str = "layer_norm",
+                 rotated_mode: str = "rotated_half",
                  qkv_bias: bool = True): 
         super().__init__()
 
         self.is_cross_attention = cross_attention_dim is not None
         self.num_heads = num_heads
         self.head_dim = hidden_size // num_heads
-        self.rope_type = rope_type
-        if (self.rope_type != "rope" and self.rope_type != "atb"):
-            raise ValueError(f"The 'rope_type' must be 'rope' or 'atb', but got {self.rope_type}.")
 
         self.q_proj = nn.Linear(hidden_size, hidden_size, bias=qkv_bias)
         if not self.is_cross_attention:
@@ -75,6 +52,8 @@ class Attention(nn.Module):
         # If using fp16, eps should be 1 / 65530; else default 1e-6
         self.q_norm = get_normalization_helper(attention_norm, self.head_dim, eps=EPS_FP16)
         self.k_norm = get_normalization_helper(attention_norm, self.head_dim, eps=EPS_FP16)
+
+        self.rotated_mode = rotated_mode
 
         self.out_proj = nn.Linear(hidden_size, hidden_size, bias=qkv_bias)
 
@@ -89,6 +68,7 @@ class Attention(nn.Module):
             raise ValueError("Input hidden_states should not be none.")
         if freqs_cis_img is None:
             raise ValueError("Input freqs_cis_img should not be none.")
+        cos, sin = freqs_cis_img
 
         # only support BNC now.
         if hidden_states.ndim != 3: # 3: BNC
@@ -114,9 +94,8 @@ class Attention(nn.Module):
             key = key.transpose(1, 2)
             value = value.transpose(1, 2)
 
-            if self.rope_type == "rope":
-                query = apply_rotary_emb(query, freqs_cis_img, head_first=True)
-                key = apply_rotary_emb(key, freqs_cis_img, head_first=True)
+            query = rotary_position_embedding(query, cos, sin, rotated_mode=self.rotated_mode, head_first=True)
+            key = rotary_position_embedding(key, cos, sin, rotated_mode=self.rotated_mode, head_first=True)
 
             hidden_states = torch_npu.npu_fusion_attention(
                 query, key, value,
@@ -126,8 +105,7 @@ class Attention(nn.Module):
             )[0]
             hidden_states = hidden_states.transpose(1, 2).reshape(batch_size, -1, self.num_heads * self.head_dim)
         else:
-            if self.rope_type == "rope":
-                query = apply_rotary_emb(query, freqs_cis_img, head_first=False)
+            query = rotary_position_embedding(query, cos, sin, rotated_mode=self.rotated_mode, head_first=False)
 
             hidden_states = torch_npu.npu_fusion_attention(
                 query, key, value,
