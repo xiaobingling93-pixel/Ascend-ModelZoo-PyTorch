@@ -51,8 +51,11 @@ def generate_video(
     set_parallel(pipe)
 
     # sampling optm
-    if enable_skip:
+    if enable_skip and transformer.config.use_rotary_positional_embeddings:
         skip_strategy = AdaStep(skip_thr=0.006, max_skip_steps=1, decay_ratio=0.99, device="npu")
+        pipe.skip_strategy = skip_strategy
+    elif enable_skip and not transformer.config.use_rotary_positional_embeddings:
+        skip_strategy = AdaStep(skip_thr=0.009, max_skip_steps=1, decay_ratio=0.99, device="npu")
         pipe.skip_strategy = skip_strategy
 
     # warm up
@@ -98,7 +101,7 @@ def generate_video(
         end = time.time()
         print(f"Time taken for inference: {end - start} seconds")
         if enable_skip and not transformer.config.use_rotary_positional_embeddings:
-            skip_strategy = AdaStep(skip_thr=0.006, max_skip_steps=1, decay_ratio=0.99, device="npu")
+            skip_strategy = AdaStep(skip_thr=0.009, max_skip_steps=1, decay_ratio=0.99, device="npu")
             pipe.skip_strategy = skip_strategy
         
         video_path = f'{output_path}/generated_video_{i}_{prompt[:10]}.mp4'
