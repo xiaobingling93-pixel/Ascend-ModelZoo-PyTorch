@@ -143,7 +143,7 @@ Atlas 300I Duo推理卡：支持的卡数为1，可双芯并行
       - --model：模型权重路径
       - --output_dir: 存放导出模型的路径
       - --parallel: 【可选】导出适用于并行方案的模型
-      - --batch_size: 设置batch_size, 默认值为1, 当前仅支持batch_size=1的场景
+      - --batch_size: 设置batch_size, 默认值为1, Atlas 800IA2-32g因显存限制仅支持batch_size=1的场景，能运行batch大小以实际占用显存大小为准
       - --soc：处理器型号。
       - --device_type: 设备形态，当前支持A2、Duo两种形态。
       - --device：推理设备ID
