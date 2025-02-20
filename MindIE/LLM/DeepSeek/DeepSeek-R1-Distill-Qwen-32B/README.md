@@ -146,7 +146,7 @@ export PYTORCH_NPU_ALLOC_CONF=expandable_segments:False
     - 注意：若权重生成时以TP=4进行切分，则运行时也需以TP=4运行
     - 示例
       ```shell
-        torchrun --nproc_per_node 4 -m examples.convert.model_slim.sparse_compressor --model_path /data1/weights/model_slim/Qwen-14b_w8a8s --save_directory /data1/weights/model_slim/Qwen-14b_w8a8sc
+        torchrun --nproc_per_node 4 -m examples.convert.model_slim.sparse_compressor --model_path /data1/weights/model_slim/Qwen-32b_w8a8s --save_directory /data1/weights/model_slim/Qwen-32b_w8a8sc
       ```
 
 ## 纯模型推理
