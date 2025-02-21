@@ -208,8 +208,9 @@ def main(args):
     # Save to a json file
     args_dict = vars(args)
     args_dict['world_size'] = world_size
-    with open(f"{experiment_dir}/args.json", 'w') as f:
-        json.dump(args_dict, f, indent=4)
+    if rank == 0:
+        with open(f"{experiment_dir}/args.json", 'w') as f:
+            json.dump(args_dict, f, indent=4)
 
     # Disable the message "Some weights of the model checkpoint at ... were not used when initializing BertModel."
     # If needed, just comment the following line.
