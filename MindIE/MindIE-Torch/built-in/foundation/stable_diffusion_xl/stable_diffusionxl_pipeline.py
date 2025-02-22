@@ -1041,10 +1041,10 @@ def main():
             
             # for different type layer,weight fussion is different
             # prepare base weight
-            base_weight = base_model[desstr].to(torch.float16)
+            base_weight = base_model[desstr].to(torch.float32)
             # prepare lora weight
-            lora_up_weight = new_model[pair_keys[0]].to(torch.float16)
-            lora_down_weight = new_model[pair_keys[1]].to(torch.float16)
+            lora_up_weight = new_model[pair_keys[0]].to(torch.float32)
+            lora_down_weight = new_model[pair_keys[1]].to(torch.float32)
             # determin the ratio
             if new_model[pair_keys[2]] == None:
                 ratio = 1.0
@@ -1081,7 +1081,7 @@ def main():
                     logging.error('can not find UnetSkip_key key name:%s in fusionweight',name)
                     return
                     
-            outskip = pipe.compiled_unet_model_skip(*input_update)
+            outskip = pipe.compiled_unet_model_skip(*input_skip)
             outskip.to("cpu")
             # cache model
             input_cache = [
@@ -1100,7 +1100,7 @@ def main():
                     return
             
             outcache = pipe.compiled_unet_model_cache(*input_cache)
-            outcache.to("cpu")
+            outcache[0].to("cpu")
             
         else:
             input_update = [
