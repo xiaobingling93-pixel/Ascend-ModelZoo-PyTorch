@@ -1,3 +1,5 @@
+# 当前模型脚本已不随版本演进，如使用此模型可跳转至该[地址](https://gitee.com/ascend/MindSpeed-LLM)
+
 # Aquila2 for Pytorch
 # 目录
 
