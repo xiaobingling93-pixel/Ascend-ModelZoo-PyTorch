@@ -37,8 +37,8 @@ def generate_video(
     fps: int = 8,
     enable_skip: bool = True
 ):
-    pipe = CogVideoXPipeline.from_pretrained(model_path, torch_dtype=dtype).to(f"npu:{get_rank()}")
-    transformer = CogVideoXTransformer3DModel.from_pretrained(os.path.join(model_path, 'transformer'), torch_dtype=dtype).to(f"npu:{get_rank()}")
+    pipe = CogVideoXPipeline.from_pretrained(model_path, torch_dtype=dtype, local_files_only=True).to(f"npu:{get_rank()}")
+    transformer = CogVideoXTransformer3DModel.from_pretrained(os.path.join(model_path, 'transformer'), torch_dtype=dtype, local_files_only=True).to(f"npu:{get_rank()}")
     if lora_path:
         pipe.load_lora_weights(lora_path, weight_name="pytorch_lora_weights.safetensors", adapter_name="test_1")
         pipe.fuse_lora(lora_scale=1 / lora_rank)
@@ -108,7 +108,7 @@ def generate_video(
         export_to_video(video_generate, video_path, fps=fps)
         result[os.path.abspath(video_path)] = prompt
 
-    with open('result.json', 'w', encoding='utf-8') as json_file:
+    with open(f'{output_path}/result.json', 'w', encoding='utf-8') as json_file:
         json.dump(result, json_file, ensure_ascii=False, indent=4)
     
     print(f"Result saved to result.json.")

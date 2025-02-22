@@ -171,7 +171,9 @@ TASK_QUEUE_ENABLE=2 ASCEND_RT_VISIBLE_DEVICES=0 torchrun --master_port=2002 --np
 - seed: 设置随机种子，默认值为42。
 - enable_skip：是否使用采样优化，注意是有损的加速算法。
 
-推理结束后会在当前路径下生成result.json，用于记录文本提示和生成视频的对应关系，便于测试视频精度。
+推理结束后会在output_path视频保存路径下生成result.json，用于记录文本提示和生成视频的对应关系，便于测试视频精度。
+
+**注意**：prompt_file、model_path、output_path应皆为本地合法路径，视频分辨率、帧数、帧率、推理迭代步数、随机种子应皆为int类型正整数，否则会导致推理抛异常。
 
 
 ## 四、推理性能结果参考

@@ -162,7 +162,7 @@ def split_tensor(input_tensor: torch.Tensor, dim: int, world_size: int, group: d
 
         chunks = torch.split(input_tensor, split_size, dim=dim)
     else:
-        chunks = torch.split(input_tensor, split_size, dim=dim)
+        chunks = torch.split(input_tensor, chunk_size, dim=dim)
 
     # 获取当前进程对应的块
     tensor_chunk = chunks[rank]
