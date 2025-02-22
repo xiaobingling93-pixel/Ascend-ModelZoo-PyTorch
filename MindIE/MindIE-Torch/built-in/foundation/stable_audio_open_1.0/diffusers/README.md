@@ -70,7 +70,7 @@ Atlas 300I Duo推理卡：支持的卡数为1
 
    MindieTorch采用dlopen的方式动态加载Torch_NPU，需要手动编译libtorch_npu_bridge.so，并将其放在libtorch_aie.so同一路径下，或者将其路径设置到LD_LIBRARY_PATH环境变量中，具体参考：
    ```bash
-   https://www.hiascend.com/document/detail/zh/mindie/10RC2/mindietorch/Torchdev/mindie_torch0017.html
+   https://www.hiascend.com/document/detail/zh/mindie/100/mindietorch/Torchdev/mindie_torch0018.html
    ```
 
 ## 模型推理<a name="section741711594517"></a>
