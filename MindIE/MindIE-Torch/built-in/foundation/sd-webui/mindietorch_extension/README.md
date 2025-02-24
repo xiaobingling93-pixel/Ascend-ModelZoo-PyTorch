@@ -152,3 +152,6 @@ python launch.py --skip-torch-cuda-test --enable-insecure-extension-access --lis
 
 3. 界面启动后，请先选择硬件配置，Duo或A2。然后选择MindIE_torch按钮，第一次启动服务时，点击MindIE_torch按钮后，会对于原始模型做一些处理，请耐心等待，直到服务端显示"You can generate image now!"字样后，再根据上述参数配置，点击generate生成结果。
 
+## 声明
+- 本代码仓提到的数据集和模型仅作为示例，这些数据集和模型仅供您用于非商业目的，如您使用这些数据集和模型来完成示例，请您特别注意应遵守对应数据集和模型的License，如您因使用数据集或模型而产生侵权纠纷，华为不承担任何责任。
+- 如您在使用本代码仓的过程中，发现任何问题（包括但不限于功能问题、合规问题），请在本代码仓提交issue，我们将及时审视并解答。

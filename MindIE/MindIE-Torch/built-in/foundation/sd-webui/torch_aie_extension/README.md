@@ -88,3 +88,7 @@ python launch.py --skip-torch-cuda-test --port 22 --enable-insecure-extension-ac
 3. 图生图：选择torch_aie按钮，输入图像、文本，设置相关参数，点击generate生成结果
 
 4. 运用并行加速：点击Use_Parallel_Inferencing按钮选择
+
+## 声明
+- 本代码仓提到的数据集和模型仅作为示例，这些数据集和模型仅供您用于非商业目的，如您使用这些数据集和模型来完成示例，请您特别注意应遵守对应数据集和模型的License，如您因使用数据集或模型而产生侵权纠纷，华为不承担任何责任。
+- 如您在使用本代码仓的过程中，发现任何问题（包括但不限于功能问题、合规问题），请在本代码仓提交issue，我们将及时审视并解答。
