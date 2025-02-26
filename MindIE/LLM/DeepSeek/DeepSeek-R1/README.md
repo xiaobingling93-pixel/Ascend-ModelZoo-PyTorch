@@ -484,3 +484,6 @@ def _get_cache_base_path(child_dir_name):
 chown -R HwHiAiUser:HwHiAiUser /path-to-weights
 chmod -R 750 /path-to-weights
 ```
+## 声明
+- 本代码仓提到的数据集和模型仅作为示例，这些数据集和模型仅供您用于非商业目的，如您使用这些数据集来完成示例，请您特别注意应遵守对应数据集合模型的License，如您因使用数据集或者模型而产生侵权纠纷，华为不承担任何责任。
+- 如您在使用本地代码的过程中，发现任何问题（包括但不限于功能问题、合规问题），请在本代码仓提交issue，我们将及时审视并解答。
