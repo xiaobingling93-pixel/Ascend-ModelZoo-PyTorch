@@ -22,7 +22,7 @@ InternVL2-40B 是一种多模态大模型，具有强大的图像和文本处理
 完成之后，请使用`docker images`命令确认查找具体镜像名称与标签。 
 
 ## 硬件要求
-部署InternVL2-40B模型至少需要1台Atlas 800I A2 32G服务器
+部署InternVL2-40B模型至少需要1台Atlas 800I A2 推理服务器 32GB
 
 ## 新建容器
 
@@ -65,7 +65,7 @@ pip install -r requirements/models/requirements_internvl.txt
 - 修改`/usr/local/Ascend/atb-models/examples/models/internvl/run_pa.sh`脚本
 
 ```shell
-# 设置卡数，Atlas-800I-A2-32G必须八卡，Atlas-800I-A2-64G四卡八卡均可
+# 设置卡数，Atlas 800I A2 推理服务器 32GB上必须八卡，Atlas 800I A2 推理服务器 64GB上四卡八卡均可
 export ASCEND_RT_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
 ```
 
@@ -189,3 +189,6 @@ curl 127.0.0.1:1040/v1/chat/completions -d ' {
 "top_k": 1
 }'
 ```
+## 声明
+- 本代码仓提到的数据集和模型仅作为示例，这些数据集和模型仅供您用于非商业目的，如您使用这些数据集和模型来完成示例，请您特别注意应遵守对应数据集和模型的License，如您因使用数据集或模型而产生侵权纠纷，华为不承担任何责任。
+- 如您在使用本代码仓的过程中，发现任何问题（包括但不限于功能问题、合规问题），请在本代码仓提交issue，我们将及时审视并解答。
