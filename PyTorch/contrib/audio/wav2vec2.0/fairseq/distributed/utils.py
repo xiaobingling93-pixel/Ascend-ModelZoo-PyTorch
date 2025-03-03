@@ -255,8 +255,10 @@ def distributed_init(cfg: FairseqConfig):
                 )
             )
             option = {}
-            option["ACL_OP_COMPILER_CACHE_MODE"] = "enable"  # cache¹¦ÄÜÆôÓÃ
-            option["ACL_OP_COMPILER_CACHE_DIR"] = "./cache"  # cacheËùÔÚÎÄ¼þ¼Ð
+            # 可通过此环境变量配置算子编译磁盘缓存模式。
+            # 配置为enable启用算子编译缓存;配置为disable禁用算子编译缓存;配置为force强制刷新缓存。
+            option["ACL_OP_COMPILER_CACHE_MODE"] = "enable"
+            option["ACL_OP_COMPILER_CACHE_DIR"] = "./cache"  # 可通过此环境变量配置算子编译磁盘缓存的目录
             #option["MM_BMM_ND_ENABLE"] = "enable"
             print("option:", option)
             torch.npu.set_option(option)

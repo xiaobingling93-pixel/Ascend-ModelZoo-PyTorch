@@ -76,6 +76,7 @@ fi
 export HCCL_IF_IP=$fix_node_ip
 export MASTER_ADDR=$one_node_ip
 export MASTER_PORT=29501
+#HCCL白名单开关,1-关闭/0-开启。设置为1则无需校验HCCL通信白名单。
 export HCCL_WHITELIST_DISABLE=1
 device_num=${#devicesnum}
 devices_num=`awk 'BEGIN{printf "%.0f\n",'${device_num}'-1}'`
@@ -107,10 +108,20 @@ sed -i "s|WORLD_SIZE: 1|WORLD_SIZE: 2|g" ${cur_path}/LMDB_8p_config.yaml
 sed -i "s|RANK: 0|RANK: ${server_index}|g" ${cur_path}/LMDB_8p_config.yaml
 
 #执行训练脚本，以下传参不需要修改，其他需要模型审视修改
+#将Host日志输出到串口,0-关闭/1-开启。指定0关闭日志打屏，即日志采用默认输出方式，将日志保存在log文件中。
 export ASCEND_SLOG_PRINT_TO_STDOUT=0
+#设置默认日志级别,0-debug/1-info/2-warning/3-error。此处指定3输出error级别日志，可根据具体需要调整。
 export ASCEND_GLOBAL_LOG_LEVEL=3
+
+#可通过此环境变量配置task_queue算子下发队列是否开启和优化等级。
+#-配置为0时：关闭task_queue算子下发队列优化。
+#-配置为1或未配置时：开启task_queue算子下发队列Level 1优化。
+#-配置为2时：开启task_queue算子下发队列Level 2优化。关于Level 1和Level 2优化的详细解释请查看官网文档。
 export TASK_QUEUE_ENABLE=1
+
+#设置是否开启PTCopy,0-关闭/1-开启。
 export PTCOPY_ENABLE=1
+#设置是否开启combined标志,0-关闭/1-开启。设置为1表示开启，用于优化非连续两个算子组合类场景。
 export COMBINED_ENABLE=1
 export SWITCH_MM_OUTPUT_ENABLE=1
 

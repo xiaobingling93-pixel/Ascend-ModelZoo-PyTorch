@@ -25,6 +25,11 @@ export ENABLE_RUNTIME_V2=1
 export WORLD_SIZE=8
 export MASTER_ADDR='127.0.0.1'
 export MASTER_PORT='18888'
+
+#可通过此环境变量配置task_queue算子下发队列是否开启和优化等级。
+#-配置为0时：关闭task_queue算子下发队列优化。
+#-配置为1或未配置时：开启task_queue算子下发队列Level 1优化。
+#-配置为2时：开启task_queue算子下发队列Level 2优化。关于Level 1和Level 2优化的详细解释请查看官网文档。
 export TASK_QUEUE_ENABLE=1
 export DYNAMIC_OP="ADD"
 # 数据集路径,保持为空,不需要修改

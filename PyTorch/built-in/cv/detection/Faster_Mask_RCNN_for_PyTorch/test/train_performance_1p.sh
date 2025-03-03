@@ -22,7 +22,7 @@ RANK_ID_START=0
 # 数据集路径,保持为空,不需要修改
 data_path=""
 
-#设置默认日志级别,不需要修改
+#设置默认日志级别,0-debug/1-info/2-warning/3-error。此处指定3输出error级别日志，可根据具体需要调整。
 export ASCEND_GLOBAL_LOG_LEVEL_ETP=3
 
 #基础参数，需要模型审视修改

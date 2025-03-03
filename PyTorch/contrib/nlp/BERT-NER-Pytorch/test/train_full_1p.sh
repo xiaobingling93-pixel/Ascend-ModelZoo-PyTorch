@@ -6,6 +6,11 @@ export BERT_BASE_DIR=$CURRENT_DIR/prev_trained_model/bert-base-chinese
 export DATA_DIR=$CURRENT_DIR/datasets
 export OUTPUR_DIR=$CURRENT_DIR/outputs
 TASK_NAME="cluener"
+
+#可通过此环境变量配置task_queue算子下发队列是否开启和优化等级。
+#-配置为0时：关闭task_queue算子下发队列优化。
+#-配置为1或未配置时：开启task_queue算子下发队列Level 1优化。
+#-配置为2时：开启task_queue算子下发队列Level 2优化。关于Level 1和Level 2优化的详细解释请查看官网文档。
 export TASK_QUEUE_ENABLE=2
 
 ###############指定训练脚本执行路径###############

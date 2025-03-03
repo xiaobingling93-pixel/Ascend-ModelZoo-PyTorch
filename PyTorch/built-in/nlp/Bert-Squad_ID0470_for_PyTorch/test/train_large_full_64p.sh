@@ -126,6 +126,7 @@ fi
 export HCCL_IF_IP=$fix_node_ip
 export MASTER_ADDR=$one_node_ip
 export MASTER_PORT=29668
+#HCCL白名单开关,1-关闭/0-开启。设置为1则无需校验HCCL通信白名单。
 export HCCL_WHITELIST_DISABLE=1
 device_num=${#devicesnum}
 devices_num=`awk 'BEGIN{printf "%.0f\n",'${device_num}'-1}'`

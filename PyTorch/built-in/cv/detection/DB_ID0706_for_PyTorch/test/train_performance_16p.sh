@@ -15,6 +15,10 @@ fi
 # 网络名称，同目录名称
 Network="DB_ID0706_for_PyTorch"
 
+#可通过此环境变量配置task_queue算子下发队列是否开启和优化等级。
+#-配置为0时：关闭task_queue算子下发队列优化。
+#-配置为1或未配置时：开启task_queue算子下发队列Level 1优化。
+#-配置为2时：开启task_queue算子下发队列Level 2优化。关于Level 1和Level 2优化的详细解释请查看官网文档。
 export TASK_QUEUE_ENABLE=0
 export DYNAMIC_OP="ADD"
 # 训练batch_size
@@ -81,6 +85,7 @@ fi
 export HCCL_IF_IP=$fix_node_ip
 export MASTER_ADDR=$one_node_ip
 export MASTER_PORT=29502
+#HCCL白名单开关,1-关闭/0-开启。设置为1则无需校验HCCL通信白名单。
 export HCCL_WHITELIST_DISABLE=1
 device_num=${#devicesnum}
 devices_num=`awk 'BEGIN{printf "%.0f\n",'${device_num}'-1}'`

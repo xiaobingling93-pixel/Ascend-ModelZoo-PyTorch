@@ -32,6 +32,7 @@ do
     fi
 done
 
+#HCCL白名单开关,1-关闭/0-开启。设置为1则无需校验HCCL通信白名单。
 export HCCL_WHITELIST_DISABLE=1
 export HCCL_IF_IP=$(hostname -I |awk '{print $1}')
 

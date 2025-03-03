@@ -25,13 +25,13 @@ msnpureport -g error -d 7
 #关闭Device侧Event日志
 msnpureport -e disable
 
-#将Host日志输出到串口,0-关闭/1-开启
+#将Host日志输出到串口,0-关闭/1-开启。指定0关闭日志打屏，即日志采用默认输出方式，将日志保存在log文件中。
 export ASCEND_SLOG_PRINT_TO_STDOUT=0
-#设置默认日志级别,0-debug/1-info/2-warning/3-error
+#设置默认日志级别,0-debug/1-info/2-warning/3-error。此处指定3输出error级别日志，可根据具体需要调整。
 export ASCEND_GLOBAL_LOG_LEVEL=3
-#设置Event日志开启标志,0-关闭/1-开启
+#设置应用类日志是否开启Event日志。0-关闭/1-开启，默认值为1，此处设置为0表示关闭Event日志。
 export ASCEND_GLOBAL_EVENT_ENABLE=0
-#HCCL白名单开关,1-关闭/0-开启
+#HCCL白名单开关,1-关闭/0-开启。设置为1则无需校验HCCL通信白名单。
 export HCCL_WHITELIST_DISABLE=1
 
 

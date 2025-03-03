@@ -16,6 +16,7 @@ export RANK_ID_START=0
 master_addr=x.x.x.x
 # 服务器自身ip,需修改
 export HCCL_IF_IP=x.x.x.x
+#HCCL白名单开关,1-关闭/0-开启。设置为1则无需校验HCCL通信白名单。
 HCCL_WHITELIST_DISABLE=1
 
 # 数据集路径,保持为空,不需要修改

@@ -3,7 +3,7 @@
 
 #集合通信参数,不需要修改
 export RANK_SIZE=8
-#设置默认日志级别,不需要修改
+#设置默认日志级别,0-debug/1-info/2-warning/3-error。可根据具体需要调整。
 # export ASCEND_GLOBAL_LOG_LEVEL_ETP_ETP=3
 
 # 数据集路径,保持为空,不需要修改

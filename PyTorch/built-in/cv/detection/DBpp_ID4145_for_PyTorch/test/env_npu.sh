@@ -20,7 +20,11 @@ export ASCEND_SLOG_PRINT_TO_STDOUT=0
 export ASCEND_GLOBAL_LOG_LEVEL=3
 #设置Event日志开启标志,0-关闭/1-开启
 export ASCEND_GLOBAL_EVENT_ENABLE=0
-#设置是否开启taskque,0-关闭/1-开启
+
+#可通过此环境变量配置task_queue算子下发队列是否开启和优化等级。
+#-配置为0时：关闭task_queue算子下发队列优化。
+#-配置为1或未配置时：开启task_queue算子下发队列Level 1优化。
+#-配置为2时：开启task_queue算子下发队列Level 2优化。关于Level 1和Level 2优化的详细解释请查看官网文档。
 export TASK_QUEUE_ENABLE=0
 #设置是否开启2个非连续combined标志,0-关闭/1-开启
 export COMBINED_ENABLE=1

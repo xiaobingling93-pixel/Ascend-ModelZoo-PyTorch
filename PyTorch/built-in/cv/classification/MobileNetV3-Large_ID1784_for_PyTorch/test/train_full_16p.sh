@@ -24,7 +24,7 @@ server_index=""
 fix_node_ip=""
 devicesnum=""
 
-#设置默认日志级别,不需要修改
+#设置默认日志级别,0-debug/1-info/2-warning/3-error。此处指定3输出error级别日志，可根据具体需要调整。
 export ASCEND_GLOBAL_LOG_LEVEL=3
 
 #基础参数，需要模型审视修改
@@ -83,6 +83,7 @@ fi
 export HCCL_IF_IP=$fix_node_ip
 export MASTER_ADDR=$one_node_ip
 export MASTER_PORT=29688
+#HCCL白名单开关,1-关闭/0-开启。设置为1则无需校验HCCL通信白名单。
 export HCCL_WHITELIST_DISABLE=1
 device_num=${#devicesnum}
 devices_num=`awk 'BEGIN{printf "%.0f\n",'${device_num}'-1}'`
