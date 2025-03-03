@@ -1,9 +1,9 @@
 import argparse
+import os
 from datetime import timedelta
 
 import torch
 import torch.distributed as dist
-import torch.multiprocessing as mp
 import torch.nn as nn
 import torch.optim as optim
 from torch.nn.parallel import DistributedDataParallel as DDP
@@ -41,17 +41,19 @@ def get_train_args():
     parser.add_argument("--batch_size", type=int, default=64)
     parser.add_argument("--epochs", type=int, default=1)
     parser.add_argument("--learning_rate", type=float, default=0.0001)
+    parser.add_argument("--local-rank", type=int, default=0)
     args = parser.parse_args()
     return args
 
 
-def train(local_rank, world_size, args):
-    local_rank_idx = local_rank
-
+def train(args):
+    world_size = int(os.environ["WORLD_SIZE"])
+    global_rank_idx = int(os.environ["RANK"])
+    local_rank_idx = args.local_rank
+    
     devices_per_node = torch.npu.device_count()
 
-    dist.init_process_group("hccl", rank=local_rank_idx, world_size=world_size, timeout=timedelta(minutes=30))
-
+    dist.init_process_group("hccl", rank=global_rank_idx, world_size=world_size, timeout=timedelta(minutes=30))
     torch_npu.npu.set_device(local_rank_idx)
 
     device_id = f"npu:{local_rank_idx}"
@@ -75,7 +77,7 @@ def train(local_rank, world_size, args):
     for epoch in range(args.epochs):
         if local_rank_idx == 0:
             print(f"\nCurrent epoch: {epoch}")
-        
+            
         train_sampler.set_epoch(epoch)
 
         model.train()
@@ -99,8 +101,7 @@ def train(local_rank, world_size, args):
 
 def main():
     args = get_train_args()
-    world_size = torch.npu.device_count()
-    mp.spawn(train, args=(world_size, args), nprocs=world_size)
+    train(args)
 
 
 if __name__ == "__main__":

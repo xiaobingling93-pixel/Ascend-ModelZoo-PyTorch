@@ -41,16 +41,19 @@ def get_train_args():
     parser.add_argument("--batch_size", type=int, default=64)
     parser.add_argument("--epochs", type=int, default=1)
     parser.add_argument("--learning_rate", type=float, default=0.0001)
+    parser.add_argument("--node_rank", type=int, default=0)
+    parser.add_argument("--nnodes", type=int, default=1)
     args = parser.parse_args()
     return args
 
 
 def train(local_rank, world_size, args):
+    global_rank_idx = args.node_rank * torch.npu.device_count() + local_rank
     local_rank_idx = local_rank
 
     devices_per_node = torch.npu.device_count()
 
-    dist.init_process_group("hccl", rank=local_rank_idx, world_size=world_size, timeout=timedelta(minutes=30))
+    dist.init_process_group("hccl", rank=global_rank_idx, world_size=world_size, timeout=timedelta(minutes=30))
 
     torch_npu.npu.set_device(local_rank_idx)
 
@@ -75,7 +78,7 @@ def train(local_rank, world_size, args):
     for epoch in range(args.epochs):
         if local_rank_idx == 0:
             print(f"\nCurrent epoch: {epoch}")
-        
+
         train_sampler.set_epoch(epoch)
 
         model.train()
@@ -99,8 +102,8 @@ def train(local_rank, world_size, args):
 
 def main():
     args = get_train_args()
-    world_size = torch.npu.device_count()
-    mp.spawn(train, args=(world_size, args), nprocs=world_size)
+    world_size = torch.npu.device_count() * args.nnodes
+    mp.spawn(train, args=(world_size, args), nprocs=torch.npu.device_count())
 
 
 if __name__ == "__main__":
