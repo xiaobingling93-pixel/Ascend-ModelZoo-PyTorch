@@ -100,7 +100,6 @@ bash examples/models/llama3/generate_quant_weight.sh -src {浮点权重路径} -
 ### Atlas 300I DUO/Atlas 300I Pro/Atlas 300V稀疏量化
 **Step 1 生成W8A8S量化权重**
 - 注意该量化方式仅支持在Atlas 300I DUO/Atlas 300I Pro/Atlas 300V卡上运行
-- Atlas 300I DUO/Atlas 300I Pro/Atlas 300V不支持多卡量化
 - 修改模型权重config.json中`torch_dtype`字段为`float16`
 - 生成量化权重依赖msModelSlim工具，安装方式见[此README](https://gitee.com/ascend/msit/tree/dev/msmodelslim)
 - 进入到{msModelSlim工具路径}/msit/msmodelslim/example/Llama的目录 `cd msit/msmodelslim/example/Llama`；

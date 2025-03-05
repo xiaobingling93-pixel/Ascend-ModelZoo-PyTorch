@@ -107,7 +107,6 @@ export PYTORCH_NPU_ALLOC_CONF=expandable_segments:False
 ### Atlas 300I DUO/Atlas 300I Pro/Atlas 300V稀疏量化
   - Step 1
     - 注意该量化方式仅支持在Atlas 300I DUO/Atlas 300I Pro/Atlas 300V卡上运行
-    - Atlas 300I DUO/Atlas 300I Pro/Atlas 300V不支持多卡量化
     - 修改模型权重config.json中`torch_dtype`字段为`float16`
     - 环境配置请参考[使用说明](https://gitee.com/ascend/msit/blob/master/msmodelslim/README.md)
     - git clone下载msit仓代码； `git clone https://gitee.com/ascend/msit.git`
