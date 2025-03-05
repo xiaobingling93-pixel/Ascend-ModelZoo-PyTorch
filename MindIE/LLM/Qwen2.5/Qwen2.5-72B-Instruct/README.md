@@ -17,11 +17,11 @@
 
 | 模型及参数量      | 800I A2 Tensor Parallelism | 300I DUO Tensor Parallelism | FP16 | BF16 | Flash Attention | Paged Attention | W8A8量化 | W8A16量化 | KV cache量化 | 稀疏量化 | MOE量化 | MindIE Service | TGI | 长序列 | prefix_cache | FA3量化 | functioncall | Multi LoRA|
 | ----------------- |----------------------------|-----------------------------| ---- | ---- | --------------- | --------------- | -------- | --------- | ------------ | -------- | ------- | -------------- | --- | ------ | ---------- | --- | --- | --- |
-| Qwen2.5-72B       | 支持world size 8             | ×                           | √    | √    | ×               | √               | ×        | ×         | ×            | ×        | ×       | ×              | ×   | ×      | x       | √ | x | x |
+| Qwen2.5-72B       | 支持world size 8             | ×                           | √    | √    | ×               | √               | √        | √         | √            | √        | ×       | √              | ×   | √      | √       | √ | √ | x |
 
 注：表中所示支持的world size为对话测试可跑通的配置，实际运行时还需考虑输入序列长度带来的显存占用。
 
-- 部署Qwen2.5-32B-Instruct模型至少需要1台Atlas 800I A2服务器
+- 部署Qwen2.5-72B-Instruct模型至少需要1台Atlas 800I A2服务器
 
 ## 路径变量解释
 
@@ -47,11 +47,10 @@
 
 ## 生成量化权重
 #### Qwen2.5-72B FA3量化
-  - 阅读链接中的readme文件生成权重，或者直接问msModelSlim团队索要：
-  https://gitee.com/ascend/msit/blob/master/msmodelslim/docs/FA%E9%87%8F%E5%8C%96%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E.md
-
-  - ModelSlim团队会提供`quant_model_description_w8a8.json`和`quant_model_weight_w8a8.safetensors`两个文件。
-  - 模型浮点权重中的其他文件（除safetensors文件外）需要手工拷贝到目标量化文件夹中。
+  - 参考量化工具中的FA3量化的README文档进行F3A量化
+    量化工具文档：https://gitee.com/ascend/msit/tree/master/msmodelslim；
+    FA3量化指导：https://gitee.com/ascend/msit/blob/master/msmodelslim/docs/FA%E9%87%8F%E5%8C%96%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E.md
+  - 生成权重后，需要将模型浮点权重中的其他文件（除safetensors文件外）手工拷贝到目标量化文件夹中。
   - 拷贝好之后，用户需在`config.json`文件中手动添加以下两个字段：
     ```json
         "quantize": "w8a8",
