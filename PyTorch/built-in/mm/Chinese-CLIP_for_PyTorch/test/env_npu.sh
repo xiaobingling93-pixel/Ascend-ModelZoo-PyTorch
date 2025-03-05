@@ -27,6 +27,10 @@ export INF_NAN_MODE_ENABLE=1
 #设置FFTS优化
 export ASCEND_ENHANCE_ENABLE=1
 
+#绑核
+export OMP_NUM_THREADS=1
+export CPU_AFFINITY_CONF=1
+
 #设置device侧日志登记为error
 msnpureport -g error -d 0
 msnpureport -g error -d 1
