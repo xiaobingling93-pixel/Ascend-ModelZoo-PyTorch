@@ -2,7 +2,7 @@
 # DeepSeek-V3
 
 ## 硬件要求
-部署DeepSeek-V3模型用BF16权重进行推理至少需要4台Atlas 800I A2（8\*64G）服务器，用W8A8量化权重进行推理则至少需要2台Atlas 800I A2 (8\*64G)
+部署DeepSeek-V3模型用BF16权重进行推理至少需要4台Atlas 800I A2（8\*64G）服务器，用W8A8量化权重进行推理则至少需要2台Atlas 800I A2 (8\*64G)。
 
 ## 权重
 **权重下载**
@@ -10,82 +10,61 @@
 - [DeepSeek-V3](https://huggingface.co/deepseek-ai/DeepSeek-V3/tree/main)
 - [DeepSeek-V3-Base](https://huggingface.co/deepseek-ai/DeepSeek-V3-Base/tree/main)
 
-#### 准备模型
+  目前提供模型权重下载脚本，支持HuggingFace，ModelScope以及Modelers来源的模型下载，用法如下：
 
-- 下载对应模型代码，可以使用：
-```sh
-git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
-cd ModelZoo-PyTorch/MindIE/LLM/DeepSeek/DeepSeek-V3/
-```
+  注意：以下引用的`atb_models`路径在`DeepSeek-V2`路径下：
+  ```sh
+  git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+  cd ModelZoo-PyTorch/MindIE/LLM/DeepSeek/DeepSeek-V2/
+  ```
 
-目录结构应为如下：
-```sh
-├── DeepSeek-V3
-│   ├── README.md
-```
-- 获取模型权重
-   - 本地已有模型权重
-      从您信任的来源自行获取权重后，放置在从上述下载的模型代码的主目录下，放置后的目录结构应为如下：
-      ```sh
-      ├── DeepSeek-V3
-      │   ├── README.md
-      │   └── 权重文件1
-      │   .   
-      │   .
-      │   └── 权重文件n
-      ```
-   - 本地没有模型权重
-      我们提供模型权重下载脚本，支持HuggingFace，ModelScope以及Modelers来源的模型下载，用法如下
+  1. 确认`atb_models/build/weights_url.yaml`文件中对应repo_id，当前已默认配置模型官方认可的下载地址，如您有其他信任来源的repo_id，可自行修改，默认配置如下：
 
-      注意：以下引用的`atb_models`路径在`DeepSeek-V2`路径下
-      ```sh
-      cd ModelZoo-PyTorch/MindIE/LLM/DeepSeek/DeepSeek-V2/
-      ```
-
-      1. 确认`atb_models/build/weights_url.yaml`文件中对应repo_id，当前已默认配置模型官方认可的下载地址，如您有其他信任来源的repo_id，可自行修改，默认配置如下：
-
-      ```sh
-      HuggingFace: deepseek-ai/DeepSeek-V3
-      ModelScope: deepseek-ai/DeepSeek-V3
-      Modelers: None
-      ```
-      2. 执行下载脚本`atb_models/build/download_weights.py`:
-      ```sh
-      python3 atb_models/build/download_weights.py
-      ```
-      
-      | 参数名  | 含义                                             |
-      |--------|--------------------------------------------------|
-      | hub | 可选，str类型参数，hub来源，支持HuggingFace, ModelScope, Modelers  |
-      | repo_id | 可选，str类型参数，仓库ID，默认从weight_url.yaml中读取    |
-      | target_dir | 可选，str类型参数，默认放置在atb_models同级目录下            |
+  ```sh
+  HuggingFace: deepseek-ai/DeepSeek-V3
+  ModelScope: deepseek-ai/DeepSeek-V3
+  Modelers: None
+  ```
+  2. 执行下载脚本`atb_models/build/download_weights.py`:
+  ```sh
+  python3 atb_models/build/download_weights.py
+  ```
+  
+  | 参数名  | 含义                                             |
+  |--------|--------------------------------------------------|
+  | hub | 可选，str类型参数，hub来源，支持HuggingFace, ModelScope, Modelers  |
+  | repo_id | 可选，str类型参数，仓库ID，默认从weight_url.yaml中读取    |
+  | target_dir | 可选，str类型参数，默认放置在atb_models同级目录下            |
 
 
 **权重转换（Convert FP8 weights to BF16）**
 
 NPU侧权重转换
 
-注意：DeepSeek官方没有针对DeepSeek-V3提供新的权重转换脚本，所以复用DeepSeek-V2的权重转换脚本
+注意：
+- DeepSeek官方没有针对DeepSeek-V3提供新的权重转换脚本，所以复用DeepSeek-V2的权重转换脚本。
+- 若用户使用上方脚本下载权重，则无需使用以下git clone命令，直接进入权重转换脚本目录。
 ```sh
 git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+```
+```sh
 cd ModelZoo-PyTorch/MindIE/LLM/DeepSeek/DeepSeek-V2/NPU_inference
 ```
 ```sh
 python fp8_cast_bf16.py --input-fp8-hf-path {/path/to/DeepSeek-V3} --output-bf16-hf-path {/path/to/DeepSeek-V3-bf16}
 ```
-目前npu转换脚本不会自动复制tokenizer等文件，需要将原始权重的tokenizer.json, tokenizer_config.json等文件复制到转换之后的路径下
+目前npu转换脚本不会自动复制tokenizer等文件，需要将原始权重的tokenizer.json, tokenizer_config.json等文件复制到转换之后的路径下。
 
 注意：
-- `/path/to/DeepSeek-V3` 表示DeepSeek-V3原始权重路径，`/path/to/DeepSeek-V3-bf16` 表示权重转换后的新权重路径
-- 由于模型权重较大，请确保您的磁盘有足够的空间放下所有权重，例如DeepSeek-V3在转换前权重约为640G左右，在转换后权重约为1.3T左右
-- 推理作业时，也请确保您的设备有足够的空间加载模型权重，并为推理计算预留空间
+- `/path/to/DeepSeek-V3` 表示DeepSeek-V3原始权重路径，`/path/to/DeepSeek-V3-bf16` 表示权重转换后的新权重路径。
+- 由于模型权重较大，请确保您的磁盘有足够的空间放下所有权重，例如DeepSeek-V3在转换前权重约为640G左右，在转换后权重约为1.3T左右。
+- 推理作业时，也请确保您的设备有足够的空间加载模型权重，并为推理计算预留空间。
 
 **量化权重生成**
 
-目前支持：
-- 生成模型w8a8混合量化权重，使用histogram量化方式 (MLA:w8a8量化，MOE:w8a8 dynamic pertoken量化)
+目前支持：生成模型w8a8混合量化权重，使用histogram量化方式 (MLA:w8a8量化，MOE:w8a8 dynamic pertoken量化)。
 
-详情请参考 [DeepSeek模型量化方法介绍](https://gitee.com/ascend/msit/tree/br_noncom_MindStudio_8.0.0_POC_20251231/msmodelslim/example/DeepSeek)
+详情请参考 [DeepSeek模型量化方法介绍](https://gitee.com/ascend/msit/tree/br_noncom_MindStudio_8.0.0_POC_20251231/msmodelslim/example/DeepSeek)。
 
 注意：DeepSeek-V3模型权重较大，量化权重生成时间较久，请耐心等待；具体时间与校准数据集大小成正比，10条数据大概需花费3小时。
 
@@ -103,7 +82,7 @@ chmod -R 750 {/path-to-weights/DeepSeek-V3}
 ```
 "model_type": "deepseekv2"
 ```
-注意：在本仓实现中，DeepSeek-V3目前沿用DeepSeekV2代码框架
+注意：在本仓实现中，DeepSeek-V3目前沿用DeepSeekV2代码框架。
 
 - 检查机器网络情况
 ```
@@ -198,12 +177,12 @@ chmod -R 640 {rank_table_file.json路径}
 ```
 
 ## 加载镜像
-需要使用mindie:2.0.T3及其后版本
+需要使用mindie:2.0.T3及其后版本。
 
 前往[昇腾社区/开发资源](https://www.hiascend.com/developer/ascendhub/detail/af85b724a7e5469ebd7ea13c3439d48f)下载适配，下载镜像前需要申请权限，耐心等待权限申请通过后，根据指南下载对应镜像文件。
 
 DeepSeek-V3的镜像版本：2.0.T3-800I-A2-py311-openeuler24.03-lts
-镜像加载后的名称：swr.cn-south-1.myhuaweicloud.com/ascendhub/mindie:2.0.T3-800I-A2-py311-openeuler24.03-lts
+镜像加载后的名称：swr.cn-south-1.myhuaweicloud.com/ascendhub/mindie:2.0.T3-800I-A2-py311-openeuler24.03-lts。
 
 完成之后，请使用`docker images`命令确认查找具体镜像名称与标签。
 ```
@@ -292,16 +271,16 @@ bash run.sh pa_bf16 full_CEval 5 1 deepseekv2 {/path/to/weights/DeepSeek-V3} {/p
 # 0 代表从0号卡开始推理，之后的机器依次从8，16，24。
 ```
 参数说明：
-1. `dataset`可选full_BoolQ、full_CEval等，相关数据集可至[魔乐社区MindIE](https://modelers.cn/MindIE)下载，（下载之前，需要申请加入组织，下载之后拷贝到/usr/local/Ascend/atb-models/tests/modeltest/路径下）CEval与MMLU等数据集需要设置`shots`（通常设为5）
-2. `batch_size`为`batch数`
-3. `model_name`为`deepseekv2`
-4. `is_chat_model`为`是否支持对话模式，若传入此参数，则进入对话模式`
-5. `weight_dir`为模型权重路径
-6. `rank_table_file`为“前置准备”中配置的`rank_table_file.json`路径
-7. `world_size`为总卡数
-8. `node_num`为当前节点编号，即`rank_table_file.json`的`server_list`中顺序确定
-9. `rank_id_start`为当前节点起始卡号，即`rank_table_file.json`中当前节点第一张卡的`rank_id`
-10. `master_address`为主节点ip地址，即`rank_table_file.json`的`server_list`中第一个节点的ip
+1. `dataset`：可选full_BoolQ、full_CEval等，相关数据集可至[魔乐社区MindIE](https://modelers.cn/MindIE)下载，（下载之前，需要申请加入组织，下载之后拷贝到/usr/local/Ascend/atb-models/tests/modeltest/路径下）CEval与MMLU等数据集需要设置`shots`（通常设为5）。
+2. `batch_size`：为`batch数`。
+3. `model_name`：为`deepseekv2`。
+4. `is_chat_model`：为`是否支持对话模式，若传入此参数，则进入对话模式`。
+5. `weight_dir`：为模型权重路径。
+6. `rank_table_file`：为“前置准备”中配置的`rank_table_file.json`路径。
+7. `world_size`：为总卡数。
+8. `node_num`：为当前节点编号，即`rank_table_file.json`的`server_list`中顺序确定。
+9. `rank_id_start`：为当前节点起始卡号，即`rank_table_file.json`中当前节点第一张卡的`rank_id`。
+10. `master_address`：为主节点ip地址，即`rank_table_file.json`的`server_list`中第一个节点的ip。
 
 #### 性能测试
 - 进入modeltest路径
@@ -324,11 +303,11 @@ bash run.sh pa_bf16 performance [[256,256]] 1 deepseekv2 {/path/to/weights/DeepS
 ## 服务化推理
 #### 配置服务化环境变量
 
-变量含义：expandable_segments-使能内存池扩展段功能，即虚拟内存特性。更多详情请查看[昇腾环境变量参考](https://www.hiascend.com/document/detail/zh/Pytorch/600/apiref/Envvariables/Envir_009.html)
+变量含义：expandable_segments-使能内存池扩展段功能，即虚拟内存特性。更多详情请查看[昇腾环境变量参考](https://www.hiascend.com/document/detail/zh/Pytorch/600/apiref/Envvariables/Envir_009.html)。
 ```
 export PYTORCH_NPU_ALLOC_CONF=expandable_segments:True
 ```
-服务化需要`rank_table_file.json`中配置`container_ip`字段
+服务化需要`rank_table_file.json`中配置`container_ip`字段。
 所有机器的配置应该保持一致，除了环境变量的MIES_CONTAINER_IP为本机ip地址。
 ```
 export MIES_CONTAINER_IP={容器ip地址}
@@ -342,7 +321,7 @@ vim conf/config.json
 ```
 修改以下参数
 ```
-"httpsEnabled" : false, # 如果网络环境不安全，不开启HTTPS通信，即“httpsEnabled”=“false”时，会存在较高的网络安全风险。
+"httpsEnabled" : false, # 如果网络环境不安全，不开启HTTPS通信，即“httpsEnabled”=“false”时，会存在较高的网络安全风险
 ...
 "multiNodesInferEnabled" : true, # 开启多机推理
 ...
@@ -490,24 +469,24 @@ Daemon start success!
 #### 另起客户端
 进入相同容器，向服务端发送请求。
 
-更多信息可参考官网信息：[MindIE Service](https://www.hiascend.com/document/detail/zh/mindie/100/mindieservice/servicedev/mindie_service0285.html)
+更多信息可参考官网信息：[MindIE Service](https://www.hiascend.com/document/detail/zh/mindie/100/mindieservice/servicedev/mindie_service0285.html)。
 
 
 ### 常见问题
 
 #### 服务化常见问题
-1. 若出现out of memory报错，可适当调高NPU_MEMORY_FRACTION环境变量（默认值为0.8），适当调低服务化配置文件config.json中maxSeqLen、maxInputTokenLen、maxPrefillBatchSize、maxPrefillTokens、maxBatchSize等参数
+1. 若出现out of memory报错，可适当调高NPU_MEMORY_FRACTION环境变量（默认值为0.8），适当调低服务化配置文件config.json中maxSeqLen、maxInputTokenLen、maxPrefillBatchSize、maxPrefillTokens、maxBatchSize等参数。
 ```
 export NPU_MEMORY_FRACTION=0.96
 ```
-2. 若出现hccl通信超时报错，可配置以下环境变量
+2. 若出现hccl通信超时报错，可配置以下环境变量。
 ```
 export HCCL_CONNECT_TIMEOUT=7200
 export HCCL_EXEC_TIMEOUT=0
 ```
-3. 若出现AttributeError：'IbisTokenizer' object has no atrribute 'cache_path'
+3. 若出现AttributeError：'IbisTokenizer' object has no atrribute 'cache_path'。
 
-Step1: 进入环境终端后执行
+Step1: 进入环境终端后执行。
 ```
 pip show mies_tokenizer
 ```
@@ -524,11 +503,11 @@ Location: /usr/local/python3.10.13/lib/python3.10/site-packages
 Requires:
 Required-by:
 ```
-Step2: 打开`Location`路径下的./mies_tokenizer/tokenizer.py文件
+Step2: 打开`Location`路径下的./mies_tokenizer/tokenizer.py文件。
 ```
 vim /usr/local/python3.10.13/lib/python3.10/site-packages/mies_tokenizer/tokenizer.py
 ```
-Step3: 对以下两个函数代码进行修改
+Step3: 对以下两个函数代码进行修改。
 ```
 def __del__(self):
 -       dir_path = file_utils.standardize_path(self.cache_path)
@@ -550,9 +529,9 @@ def _get_cache_base_path(child_dir_name):
 +          os.makedirs(dir_path, exist_ok=True)
            os.chmod(dir_path, 0o750)
 ```
-4. 若出现`UnicodeEncodeError: 'ascii' codec can't encode character `\uff5c` in position 301:ordinal not in range(128)`
+4. 若出现`UnicodeEncodeError: 'ascii' codec can't encode character `\uff5c` in position 301:ordinal not in range(128)`。
 
-这是因为由于系统在写入或打印日志ASCII编码deepseek的词表失败，导致报错，不影响服务化正常运行。如果需要规避，需要/usr/local/Ascend/atb-models/atb_llm/runner/model_runner.py的第145行注释掉：print_log(rank, logger.info, f'init tokenizer done: {self.tokenizer}')
+这是因为由于系统在写入或打印日志ASCII编码deepseek的词表失败，导致报错，不影响服务化正常运行。如果需要规避，需要/usr/local/Ascend/atb-models/atb_llm/runner/model_runner.py的第145行注释掉：print_log(rank, logger.info, f'init tokenizer done: {self.tokenizer}')。
 
 #### 权重路径权限问题
 注意保证权重路径是可用的，执行以下命令修改权限，**注意是整个父级目录的权限**：
