@@ -11,67 +11,12 @@
 - [Deepseek-R1](https://huggingface.co/deepseek-ai/DeepSeek-R1/tree/main)
 - [Deepseek-R1-Zero](https://huggingface.co/deepseek-ai/DeepSeek-R1-Zero/tree/main)
 
-
-**权重转换（Convert FP8 weights to BF16）**
-1. GPU侧权重转换
-```sh
-git clone https://github.com/deepseek-ai/DeepSeek-V3.git
-cd DeepSeek-V3/inferece/
-python fp8_cast_bf16.py --input-fp8-hf-path /path/to/DeepSeek-R1 --output-bf16-hf-path /path/to/deepseek-R1-bf16 
-```
-注意：DeepSeek官方没有针对DeepSeek-R1提供新的权重转换脚本，所以复用DeepSeek-V3的权重转换脚本
-
-2. NPU侧权重转换
-目前npu转换脚本不会自动复制tokenizer等文件
-```sh
-git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
-cd ModelZoo-PyTorch\MindIE\LLM\DeepSeek\DeepSeek-V2\NPU_inference
-python fp8_cast_bf16.py --input-fp8-hf-path /path/to/DeepSeek-R1 --output-bf16-hf-path /path/to/deepseek-R1-bf16
-```
-
-注意：
-- `/path/to/DeepSeek-R1` 表示DeepSeek-R1原始权重路径，`/path/to/deepseek-R1-bf16` 表示权重转换后的新权重路径
-- 由于模型权重较大，请确保您的磁盘有足够的空间放下所有权重，例如DeepSeek-R1在转换前权重约为640G左右，在转换后权重约为1.3T左右
-- 推理作业时，也请确保您的设备有足够的空间加载模型权重，并为推理计算预留空间
-
-**量化权重生成**
-
-详情请参考 [DeepSeek模型量化方法介绍](https://gitee.com/ascend/msit/tree/br_noncom_MindStudio_8.0.0_POC_20251231/msmodelslim/example/DeepSeek)
-
-目前支持：
-- 生成模型w8a16量化权重，使用histogram量化方式，在CPU上进行运算
-- 生成模型w8a8混合量化权重，使用histogram量化方式 (MLA:w8a8量化，MOE:w8a8 dynamic pertoken量化)
-
-注意：DeepSeek-R1模型权重较大，量化权重生成时间较久，请耐心等待；具体时间与校准数据集大小成正比，10条数据大概需花费3小时。
-
-### 加载镜像
-前往[昇腾社区/开发资源](https://www.hiascend.com/developer/ascendhub/detail/af85b724a7e5469ebd7ea13c3439d48f)下载适配
-
-镜像加载后的名称：mindie:2.0.T3-800I-A2-py311-openeuler24.03-lts-aarch64
-
-注意：量化需要使用mindie:2.0.T3及其后版本
-
-完成之后，请使用`docker images`命令确认查找具体镜像名称与标签。 
-```
-docker load -i mindie:2.0.T3-800I-A2-py311-openeuler24.03-lts-aarch64(下载的镜像名称与标签)
-```
-
-各组件版本配套如下：
-| 组件 | 版本 |
-| - | - |
-| MindIE | 2.0.T3 |
-| CANN | 8.0.T63 |
-| PTA | 6.0.T700 |
-| MindStudio | Msit: br_noncom_MindStudio_8.0.0_POC_20251231分支 |
-| HDK | 24.1.0 |
-
-### 容器启动
-#### 1. 准备模型
-目前提供的MindIE镜像预置了DeepSeek-R1模型推理脚本，无需再下载模型代码，也无需参考目录结构。（可跳过至获取模型权重）
+#### 准备模型
 
 - 下载对应模型代码，可以使用：
 ```sh
 git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+cd ModelZoo-PyTorch/MindIE/LLM/DeepSeek/DeepSeek-R1/
 ```
 
 
@@ -95,6 +40,9 @@ git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
       我们提供模型权重下载脚本，支持HuggingFace，ModelScope以及Modelers来源的模型下载，用法如下
 
       注意：以下引用的`atb_models`路径在`DeepSeek-V2`路径下
+      ```sh
+      cd ModelZoo-PyTorch/MindIE/LLM/DeepSeek/DeepSeek-V2/
+      ```
 
       1. 确认`atb_models/build/weights_url.yaml`文件中对应repo_id，当前已默认配置模型官方认可的下载地址，如您有其他信任来源的repo_id，可自行修改，默认配置如下：
 
@@ -104,6 +52,9 @@ git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
       Modelers: None
       ```
       2. 执行下载脚本`atb_models/build/download_weights.py`:
+      ```sh
+      python3 atb_models/build/download_weights.py
+      ```
       
       | 参数名  | 含义                                             |
       |--------|--------------------------------------------------|
@@ -112,55 +63,44 @@ git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
       | target_dir | 可选，str类型参数，默认放置在atb_models同级目录下            |
 
 
-- 修改模型文件夹属组为1001，执行权限为750，执行：
-```sh
-chown -R 1001:1001 /path-to-weights/DeepSeek-R1
-chmod -R 750 /path-to-weights/DeepSeek-R1
-```
-#### 2. 启动容器
+**权重转换（Convert FP8 weights to BF16）**
 
-- 执行以下启动命令（参考）：
+NPU侧权重转换
+
+注意：DeepSeek官方没有针对DeepSeek-R1提供新的权重转换脚本，所以复用DeepSeek-V2的权重转换脚本
 ```sh
-docker run -itd --privileged  --name=容器名称 --net=host \
-   --shm-size 500g \
-   --device=/dev/davinci0 \
-   --device=/dev/davinci1 \
-   --device=/dev/davinci2 \
-   --device=/dev/davinci3 \
-   --device=/dev/davinci4 \
-   --device=/dev/davinci5 \
-   --device=/dev/davinci6 \
-   --device=/dev/davinci7 \
-   --device=/dev/davinci_manager \
-   --device=/dev/hisi_hdc \
-   --device /dev/devmm_svm \
-   -v /usr/local/Ascend/driver:/usr/local/Ascend/driver \
-   -v /usr/local/Ascend/firmware:/usr/local/Ascend/firmware \
-   -v /usr/local/sbin/npu-smi:/usr/local/sbin/npu-smi \
-   -v /usr/local/sbin:/usr/local/sbin \
-   -v /etc/hccn.conf:/etc/hccn.conf \
-   -v /权重路径:/权重路径 \
-   mindie:1.0.0-XXX-800I-A2-arm64-py3.11（根据加载的镜像名称修改） \
-   bash
+git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+cd ModelZoo-PyTorch/MindIE/LLM/DeepSeek/DeepSeek-V2/NPU_inference
 ```
-#### 设置基础环境变量
+```sh
+python fp8_cast_bf16.py --input-fp8-hf-path {/path/to/DeepSeek-R1} --output-bf16-hf-path {/path/to/deepseek-R1-bf16}
 ```
-source /usr/local/Ascend/ascend-toolkit/set_env.sh
-source /usr/local/Ascend/nnal/atb/set_env.sh
-source /usr/local/Ascend/atb-models/set_env.sh
-source /usr/local/Ascend/mindie/set_env.sh
-```
-#### 开启通信环境变量
-```
-export ATB_LLM_HCCL_ENABLE=1
-export ATB_LLM_COMM_BACKEND="hccl"
-export HCCL_CONNECT_TIMEOUT=7200
-export WORLD_SIZE=32
-export HCCL_EXEC_TIMEOUT=0
+目前npu转换脚本不会自动复制tokenizer等文件，需要将原始权重的tokenizer.json, tokenizer_config.json等文件复制到转换之后的路径下
+
+注意：
+- `/path/to/DeepSeek-R1` 表示DeepSeek-R1原始权重路径，`/path/to/deepseek-R1-bf16` 表示权重转换后的新权重路径
+- 由于模型权重较大，请确保您的磁盘有足够的空间放下所有权重，例如DeepSeek-R1在转换前权重约为640G左右，在转换后权重约为1.3T左右
+- 推理作业时，也请确保您的设备有足够的空间加载模型权重，并为推理计算预留空间
+
+**量化权重生成**
+
+目前支持：
+- 生成模型W8A8混合量化权重，使用histogram量化方式 (MLA:W8A8量化，MOE:W8A8 dynamic pertoken量化)
+
+详情请参考 [DeepSeek模型量化方法介绍](https://gitee.com/ascend/msit/tree/br_noncom_MindStudio_8.0.0_POC_20251231/msmodelslim/example/DeepSeek)
+
+注意：DeepSeek-R1模型权重较大，量化权重生成时间较久，请耐心等待；具体时间与校准数据集大小成正比，10条数据大概需花费3小时。
+
+- 修改模型文件夹属组为1001 -HwHiAiUser属组（容器为Root权限可忽视）
+- 执行权限为750：
+```sh
+chown -R 1001:1001 {/path-to-weights/DeepSeek-R1}
+chmod -R 750 {/path-to-weights/DeepSeek-R1}
 ```
 
-### 前置准备
-- 修改权重目录下config.json文件
+## 推理前置准备
+- 修改权重目录下的config.json文件
+
 将 model_type 更改为 deepseekv2 (全小写且无空格)
 ```
 "model_type": "deepseekv2"
@@ -187,32 +127,154 @@ for i in {0..7};do hccn_tool -i $i -tls -s enable 0;done
 ```
 for i in {0..7};do hccn_tool -i $i -ip -g; done
 ```
-- 参考如下格式，配置rank_table_file.json
+- 需要用户自行创建rank_table_file.json，参考如下格式配置
+
+以下是一个双机用例，用户自行添加ip，补全device：
 ```
 {
-   "server_count": "...", # 总节点数
-   # server_list中第一个server为主节点
+   "server_count": "2",
    "server_list": [
       {
          "device": [
             {
-               "device_id": "...", # 当前卡的本机编号，取值范围[0, 本机卡数)
-               "device_ip": "...", # 当前卡的ip地址，可通过hccn_tool命令获取
-               "rank_id": "..." # 当前卡的全局编号，取值范围[0, 总卡数)
+               "device_id": "0",
+               "device_ip": "...",
+               "rank_id": "0"
+            },
+            {
+               "device_id": "1",
+               "device_ip": "...",
+               "rank_id": "1"
             },
             ...
+            {
+               "device_id": "7",
+               "device_ip": "...",
+               "rank_id": "7"
+            },
          ],
-         "server_id": "...", # 当前节点的ip地址
-         "container_ip": "..." # 容器ip地址（服务化部署时需要），若无特殊配置，则与server_id相同
+         "server_id": "...",
+         "container_ip": "..."
       },
-      ...
+      {
+         "device": [
+            {
+               "device_id": "0",
+               "device_ip": "...",
+               "rank_id": "8"
+            },
+            {
+               "device_id": "1",
+               "device_ip": "...",
+               "rank_id": "9"
+            },
+            ...
+            {
+               "device_id": "7",
+               "device_ip": "...",
+               "rank_id": "15"
+            },
+         ],
+         "server_id": "...",
+         "container_ip": "..."
+      },
    ],
    "status": "completed",
    "version": "1.0"
 }
 ```
+| 参数          |  说明                                                       |
+|---------------|------------------------------------------------------------|
+|  server_count |  总节点数                                                   |
+|  server_list  |  server_list中第一个server为主节点                           |
+|  device_id    |  当前卡的本机编号，取值范围[0, 本机卡数)                       |
+|  device_ip    |  当前卡的ip地址，可通过hccn_tool命令获取                       |
+|  rank_id      |  当前卡的全局编号，取值范围[0, 总卡数)                         |
+|  server_id    |  当前节点的ip地址                                             |
+|  container_ip |  容器ip地址（服务化部署时需要），若无特殊配置，则与server_id相同 |
 
-### 纯模型推理
+rank_table_file.json配置完成后，需要执行命令修改权限为640
+```sh
+chmod -R 640 {rank_table_file.json路径}
+```
+
+## 加载镜像
+
+需要使用mindie:2.0.T3及其后版本
+
+前往[昇腾社区/开发资源](https://www.hiascend.com/developer/ascendhub/detail/af85b724a7e5469ebd7ea13c3439d48f)下载适配，下载镜像前需要申请权限，耐心等待权限申请通过后，根据指南下载对应镜像文件。
+
+DeepSeek-R1的镜像版本：2.0.T3-800I-A2-py311-openeuler24.03-lts
+镜像加载后的名称：swr.cn-south-1.myhuaweicloud.com/ascendhub/mindie:2.0.T3-800I-A2-py311-openeuler24.03-lts
+
+完成之后，请使用`docker images`命令确认查找具体镜像名称与标签。 
+```
+docker images
+```
+
+各组件版本配套如下：
+| 组件 | 版本 |
+| - | - |
+| MindIE | 2.0.T3 |
+| CANN | 8.0.T63 |
+| Pytorch | 6.0.T700 |
+| MindStudio | Msit: br_noncom_MindStudio_8.0.0_POC_20251231分支 |
+| Ascend HDK | 24.1.0 |
+
+## 容器启动
+#### 启动容器
+
+- 执行以下命令启动容器（参考）：
+```sh
+docker run -itd --privileged  --name= {容器名称}  --net=host \
+   --shm-size 500g \
+   --device=/dev/davinci0 \
+   --device=/dev/davinci1 \
+   --device=/dev/davinci2 \
+   --device=/dev/davinci3 \
+   --device=/dev/davinci4 \
+   --device=/dev/davinci5 \
+   --device=/dev/davinci6 \
+   --device=/dev/davinci7 \
+   --device=/dev/davinci_manager \
+   --device=/dev/hisi_hdc \
+   --device /dev/devmm_svm \
+   -v /usr/local/Ascend/driver:/usr/local/Ascend/driver \
+   -v /usr/local/Ascend/firmware:/usr/local/Ascend/firmware \
+   -v /usr/local/sbin/npu-smi:/usr/local/sbin/npu-smi \
+   -v /usr/local/sbin:/usr/local/sbin \
+   -v /etc/hccn.conf:/etc/hccn.conf \
+   -v  {/权重路径:/权重路径}  \
+   -v  {/rank_table_file.json路径:/rank_table_file.json路径}  \
+    {swr.cn-south-1.myhuaweicloud.com/ascendhub/mindie:1.0.0-XXX-800I-A2-arm64-py3.11（根据加载的镜像名称修改）}  \
+   bash
+```
+#### 进入容器
+- 执行以下命令进入容器（参考）：
+```sh
+docker exec -it {容器名称} bash
+```
+
+#### 设置基础环境变量
+```
+source /usr/local/Ascend/ascend-toolkit/set_env.sh
+source /usr/local/Ascend/nnal/atb/set_env.sh
+source /usr/local/Ascend/atb-models/set_env.sh
+source /usr/local/Ascend/mindie/set_env.sh
+```
+#### 开启通信环境变量
+```
+export ATB_LLM_HCCL_ENABLE=1
+export ATB_LLM_COMM_BACKEND="hccl"
+export HCCL_CONNECT_TIMEOUT=7200
+双机：
+export WORLD_SIZE=16
+四机：
+export WORLD_SIZE=32
+export HCCL_EXEC_TIMEOUT=0
+```
+
+## 纯模型推理
 
 #### 精度测试
 - 进入modeltest路径
@@ -224,20 +286,22 @@ cd /usr/local/Ascend/atb-models/tests/modeltest/
 # 需在所有机器上同时执行
 bash run.sh pa_bf16 [dataset] ([shots]) [batch_size] [model_name] ([is_chat_model]) [weight_dir] [rank_table_file] [world_size] [node_num] [rank_id_start] [master_address]
 ```
-Example: 在DeepSeek-R1跑CEVAl数据集主节点的命令
+测试脚本运行如下：
 ```
-bash run.sh pa_bf16 full_CEval 5 16 deepseekv2 /path/to/weights/DeepSeek-R1 /path/to/xxx/ranktable.json 32 4 0 {主节点IP}
+bash run.sh pa_bf16 full_CEval 5 1 deepseekv2 {/path/to/weights/DeepSeek-R1} {/path/to/xxx/ranktable.json} 16 2 0 {主节点IP}
 # 0 代表从0号卡开始推理，之后的机器依次从8，16，24。
 ```
 参数说明：
-1. `dataset`可选full_BoolQ、full_CEval等，相关数据集可至[魔乐社区MindIE](https://modelers.cn/MindIE)下载，CEval与MMLU等数据集需要设置`shots`（通常设为5）
-2. `model_name`为`deepseekv2`
-3. `weight_dir`为模型权重路径
-4. `rank_table_file`为“前置准备”中配置的`rank_table_file.json`路径
-5. `world_size`为总卡数
-6. `node_num`为当前节点编号，即`rank_table_file.json`的`server_list`中顺序确定
-7. `rank_id_start`为当前节点起始卡号，即`rank_table_file.json`中当前节点第一张卡的`rank_id`
-8. `master_address`为主节点ip地址，即`rank_table_file.json`的`server_list`中第一个节点的ip
+1. `dataset`可选full_BoolQ、full_CEval等，相关数据集可至[魔乐社区MindIE](https://modelers.cn/MindIE)下载，（下载之前，需要申请加入组织，下载之后拷贝到/usr/local/Ascend/atb-models/tests/modeltest/路径下）CEval与MMLU等数据集需要设置`shots`（通常设为5）
+2. `batch_size`为`batch数`
+3. `model_name`为`deepseekv2`
+4. `is_chat_model`为`是否支持对话模式，若传入此参数，则进入对话模式`
+5. `weight_dir`为模型权重路径
+6. `rank_table_file`为“前置准备”中配置的`rank_table_file.json`路径
+7. `world_size`为总卡数
+8. `node_num`为当前节点编号，即`rank_table_file.json`的`server_list`中顺序确定
+9. `rank_id_start`为当前节点起始卡号，即`rank_table_file.json`中当前节点第一张卡的`rank_id`
+10. `master_address`为主节点ip地址，即`rank_table_file.json`的`server_list`中第一个节点的ip
 
 #### 性能测试
 - 进入modeltest路径
@@ -251,13 +315,13 @@ bash run.sh pa_bf16 performance [case_pair] [batch_size] [model_name] ([is_chat_
 ```
 参数含义同“精度测试”
 
-Example: 在DeepSeek-R1跑性能测试主节点的命令
+测试脚本运行如下：
 ```
-bash run.sh pa_bf16 performance [[256,256]] 16 deepseekv2 /path/to/weights/DeepSeek-R1 /path/to/xxx/ranktable.json 32 4 0 {主节点IP}
+bash run.sh pa_bf16 performance [[256,256]] 1 deepseekv2 {/path/to/weights/DeepSeek-R1} {/path/to/xxx/ranktable.json} 16 2 0 {主节点IP}
 # 0 代表从0号卡开始推理，之后的机器依次从8，16，24。
 ```
 
-### 服务化推理
+## 服务化推理
 #### 配置服务化环境变量
 
 变量含义：expandable_segments-使能内存池扩展段功能，即虚拟内存特性。更多详情请查看[昇腾环境变量参考](https://www.hiascend.com/document/detail/zh/Pytorch/600/apiref/Envvariables/Envir_009.html)
@@ -267,8 +331,8 @@ export PYTORCH_NPU_ALLOC_CONF=expandable_segments:True
 服务化需要`rank_table_file.json`中配置`container_ip`字段
 所有机器的配置应该保持一致，除了环境变量的MIES_CONTAINER_IP为本机ip地址。
 ```
-export MIES_CONTAINER_IP=容器ip地址
-export RANKTABLEFILE=rank_table_file.json路径
+export MIES_CONTAINER_IP= {容器ip地址} 
+export RANKTABLEFILE= {rank_table_file.json路径} 
 ```
 
 #### 修改服务化参数
@@ -278,7 +342,7 @@ vim conf/config.json
 ```
 修改以下参数
 ```
-"httpsEnabled" : false,
+"httpsEnabled" : false, # 如果网络环境不安全，不开启HTTPS通信，即“httpsEnabled”=“false”时，会存在较高的网络安全风险。
 ...
 "multiNodesInferEnabled" : true, # 开启多机推理
 ...
@@ -286,10 +350,13 @@ vim conf/config.json
 "interCommTLSEnabled" : false,
 "interNodeTLSEnabled" : false,
 ...
+"npudeviceIds" : [[0,1,2,3,4,5,6,7]],
+...
 "modelName" : "DeepSeek-R1" # 不影响服务化拉起
 "modelWeightPath" : "权重路径",
+"worldSize":8,
 ```
-Example：仅供参考，不保证性能
+Example：仅供参考，请根据实际情况修改
 ```
 {
     "Version" : "1.0.0",
@@ -420,10 +487,10 @@ Daemon start success!
 
 
 
-#### 来到客户端
+#### 另起客户端
 进入相同容器，向服务端发送请求。
 
-更多信息可参考官网信息：[MindIE Service](https://www.hiascend.com/document/detail/zh/mindie/10RC3/mindieservice/servicedev/mindie_service0001.html)
+更多信息可参考官网信息：[MindIE Service](https://www.hiascend.com/document/detail/zh/mindie/100/mindieservice/servicedev/mindie_service0285.html)
 
 
 ### 常见问题
@@ -439,6 +506,7 @@ export HCCL_CONNECT_TIMEOUT=7200
 export HCCL_EXEC_TIMEOUT=0
 ```
 3. 若出现AttributeError：'IbisTokenizer' object has no atrribute 'cache_path'
+
 Step1: 进入环境终端后执行
 ```
 pip show mies_tokenizer
@@ -489,8 +557,8 @@ def _get_cache_base_path(child_dir_name):
 #### 权重路径权限问题
 注意保证权重路径是可用的，执行以下命令修改权限，**注意是整个父级目录的权限**：
 ```sh
-chown -R HwHiAiUser:HwHiAiUser /path-to-weights
-chmod -R 750 /path-to-weights
+chown -R HwHiAiUser:HwHiAiUser {/path-to-weights}
+chmod -R 750 {/path-to-weights}
 ```
 ## 声明
 - 本代码仓提到的数据集和模型仅作为示例，这些数据集和模型仅供您用于非商业目的，如您使用这些数据集来完成示例，请您特别注意应遵守对应数据集合模型的License，如您因使用数据集或者模型而产生侵权纠纷，华为不承担任何责任。
