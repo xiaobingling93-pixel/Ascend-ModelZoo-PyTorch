@@ -1,0 +1,10 @@
+torch==2.1.0
+torch_npu==2.1.0.post10
+torchvision==0.16.0
+numpy==1.26.0
+pillow
+opencv-python
+matplotlib
+pyyaml
+psutil
+seaborn
