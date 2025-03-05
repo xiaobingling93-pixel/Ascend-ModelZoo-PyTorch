@@ -1,0 +1,136 @@
+---
+ cn_clip/clip/model.py         | 24 +++++++++++++++++++++---
+ cn_clip/clip/modeling_bert.py | 27 +++++++++++++++++++++++----
+ 2 files changed, 44 insertions(+), 7 deletions(-)
+
+diff --git a/cn_clip/clip/model.py b/cn_clip/clip/model.py
+index 45cc84b..a3b1291 100644
+--- a/cn_clip/clip/model.py
++++ b/cn_clip/clip/model.py
+@@ -2,11 +2,13 @@ from collections import OrderedDict
+ from typing import Tuple, Union
+ from itertools import repeat
+ import collections.abc
++import time
+ 
+ import math
+ import logging
+ import numpy as np
+ import torch
++import torch_npu
+ import torch.nn.functional as F
+ from torch import nn
+ from torch.utils.checkpoint import checkpoint
+@@ -198,18 +200,33 @@ class ResidualAttentionBlock(nn.Module):
+         self.use_flash_attention = use_flash_attention
+ 
+     def attention(self, x: torch.Tensor):
+-        self.attn_mask = self.attn_mask.to(dtype=x.dtype, device=x.device) if self.attn_mask is not None else None
++       #  self.attn_mask = self.attn_mask.to(dtype=x.dtype, device=x.device) if self.attn_mask is not None else None
+         if self.use_flash_attention:
+             # Batch first is needed for FlashAttention. See https://github.com/HazyResearch/flash-attention/issues/84 for more information.
+             return self.attn(x.transpose(1, 0))[0].transpose(1, 0)
+         else:
+-            return self.attn(x, x, x, need_weights=False, attn_mask=self.attn_mask)[0]
++            # return self.attn(x, x, x, need_weights=False, attn_mask=self.attn_mask)[0]
++            return self.attention_new(x)
+ 
+     def forward(self, x: torch.Tensor):
+         x = x + self.attention(self.ln_1(x))
+         x = x + self.mlp(self.ln_2(x))
+         return x
+ 
++    def attention_new(self, x: torch.Tensor):
++        x = torch.matmul(x.transpose(1, 0), self.attn.in_proj_weight.transpose(1, 0)) + self.attn.in_proj_bias
++        query, key, value = torch.split(x, self.attn.embed_dim, -1)
++        x = torch_npu.npu_prompt_flash_attention(
++            query,
++            key,
++            value,
++            num_heads=self.attn.num_heads,
++            input_layout='BSH',
++            scale_value=1 / math.sqrt(self.attn.head_dim),
++        )
++        x = self.attn.out_proj(x).transpose(1, 0)
++        return x
++
+ 
+ class Transformer(nn.Module):
+     def __init__(self, width: int, layers: int, heads: int, attn_mask: torch.Tensor = None, use_flash_attention: bool = False):
+@@ -395,7 +412,8 @@ class CLIP(nn.Module):
+ 
+     def encode_text(self, text):
+         pad_index = self.tokenizer.vocab['[PAD]']
+-        attn_mask = text.ne(pad_index).type(self.dtype)
++        # attn_mask = text.ne(pad_index).type(self.dtype)
++        attn_mask = ~text.ne(pad_index)
+         x = self.bert(text, attention_mask=attn_mask)[0].type(self.dtype) # [batch_size, seq_length, hidden_size]
+         return x[:, 0, :] @ self.text_projection
+ 
+diff --git a/cn_clip/clip/modeling_bert.py b/cn_clip/clip/modeling_bert.py
+index 0d57665..31cdd68 100644
+--- a/cn_clip/clip/modeling_bert.py
++++ b/cn_clip/clip/modeling_bert.py
+@@ -25,6 +25,7 @@ import sys
+ from io import open
+ 
+ import torch
++import torch_npu
+ from torch import nn
+ from torch.utils.checkpoint import checkpoint
+ 
+@@ -120,6 +121,22 @@ class BertSelfAttention(nn.Module):
+         mixed_key_layer = self.key(hidden_states)
+         mixed_value_layer = self.value(hidden_states)
+ 
++        atten_out = torch_npu.npu_prompt_flash_attention(
++            mixed_query_layer,
++            mixed_key_layer,
++            mixed_value_layer,
++            num_heads=self.num_attention_heads,
++            input_layout='BSH',
++            atten_mask=attention_mask,
++            scale_value=1/math.sqrt(self.attention_head_size),
++        )
++        return (atten_out,)
++
++    def forward_ori(self, hidden_states, attention_mask=None, head_mask=None):
++        mixed_query_layer = self.query(hidden_states)
++        mixed_key_layer = self.key(hidden_states)
++        mixed_value_layer = self.value(hidden_states)
++
+         query_layer = self.transpose_for_scores(mixed_query_layer)
+         key_layer = self.transpose_for_scores(mixed_key_layer)
+         value_layer = self.transpose_for_scores(mixed_value_layer)
+@@ -136,7 +153,7 @@ class BertSelfAttention(nn.Module):
+ 
+         # This is actually dropping out entire tokens to attend to, which might
+         # seem a bit unusual, but is taken from the original Transformer paper.
+-        attention_probs = self.dropout(attention_probs)
++        # attention_probs = self.dropout(attention_probs)
+ 
+         # Mask heads if we want to
+         if head_mask is not None:
+@@ -447,15 +464,17 @@ class BertModel(BertPreTrainedModel):
+         # So we can broadcast to [batch_size, num_heads, from_seq_length, to_seq_length]
+         # this attention mask is more simple than the triangular masking of causal attention
+         # used in OpenAI GPT, we just need to prepare the broadcast dimension here.
+-        extended_attention_mask = attention_mask.unsqueeze(1).unsqueeze(2)
++        # extended_attention_mask = attention_mask.unsqueeze(1).unsqueeze(2)
+ 
+         # Since attention_mask is 1.0 for positions we want to attend and 0.0 for
+         # masked positions, this operation will create a tensor which is 0.0 for
+         # positions we want to attend and -10000.0 for masked positions.
+         # Since we are adding it to the raw scores before the softmax, this is
+         # effectively the same as removing these entirely.
+-        extended_attention_mask = extended_attention_mask.to(dtype=next(self.parameters()).dtype) # fp16 compatibility
+-        extended_attention_mask = (1.0 - extended_attention_mask) * -10000.0
++        # extended_attention_mask = extended_attention_mask.to(dtype=next(self.parameters()).dtype) # fp16 compatibility
++        # extended_attention_mask = (1.0 - extended_attention_mask) * -10000.0
++        sqen = attention_mask.shape[-1]
++        extended_attention_mask = attention_mask.unsqueeze(1).repeat(1,sqen,1)
+ 
+         # Prepare head mask if needed
+         # 1.0 in head_mask indicate we keep the head
+-- 
+
