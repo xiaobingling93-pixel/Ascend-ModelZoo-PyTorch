@@ -24,10 +24,11 @@ rich==13.7.1
 soundfile==0.12.1
 tensorboard==2.14.0
 torch==2.4.0
-torch_npu==2.4.0
+torch_npu==2.4.0.post2
 torchaudio==2.4.0
 uvicorn==0.30.0
 wget==3.2
 fastapi==0.111.0
 fastapi-cli==0.0.4
+transformers==4.46.3
 WeTextProcessing==1.0.3
