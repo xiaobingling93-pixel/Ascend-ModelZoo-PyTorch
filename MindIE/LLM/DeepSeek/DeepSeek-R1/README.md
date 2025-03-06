@@ -86,19 +86,31 @@ chmod -R 750 {/path-to-weights/DeepSeek-R1}
 注意：在本仓实现中，DeepSeek-R1目前沿用DeepSeek-V2代码框架。
 - 检查机器网络情况
 ```
-# 检查物理链接
+# 1.检查物理链接
 for i in {0..7}; do hccn_tool -i $i -lldp -g | grep Ifname; done 
-# 检查链接情况
+```
+```
+# 2.检查链接情况
 for i in {0..7}; do hccn_tool -i $i -link -g ; done
-# 检查网络健康情况
+```
+```
+# 3.检查网络健康情况
 for i in {0..7}; do hccn_tool -i $i -net_health -g ; done
-# 查看侦测ip的配置是否正确
+```
+```
+# 4.查看侦测ip的配置是否正确
 for i in {0..7}; do hccn_tool -i $i -netdetect -g ; done
-# 查看网关是否配置正确
+```
+```
+# 5.查看网关是否配置正确
 for i in {0..7}; do hccn_tool -i $i -gateway -g ; done
-# 检查NPU底层tls校验行为一致性，建议全0
+```
+```
+# 6.检查NPU底层tls校验行为一致性，建议统一全部设置为0，避免hccl报错
 for i in {0..7}; do hccn_tool -i $i -tls -g ; done | grep switch
-# NPU底层tls校验行为置0操作
+```
+```
+# 7.NPU底层tls校验行为置0操作，建议统一全部设置为0，避免hccl报错
 for i in {0..7};do hccn_tool -i $i -tls -s enable 0;done
 ```
 - 获取每张卡的ip地址
@@ -244,7 +256,7 @@ source /usr/local/Ascend/mindie/set_env.sh
 ```
 export ATB_LLM_HCCL_ENABLE=1
 export ATB_LLM_COMM_BACKEND="hccl"
-export HCCL_CONNECT_TIMEOUT=7200
+export HCCL_CONNECT_TIMEOUT=7200 # 该环境变量需要配置为整数，取值范围[120,7200]，单位s
 双机：
 export WORLD_SIZE=16
 四机：
@@ -260,42 +272,95 @@ export HCCL_EXEC_TIMEOUT=0
 cd /usr/local/Ascend/atb-models/tests/modeltest/
 ```
 - 运行测试脚本
+
+Step1.主副节点分别先清理残余进程：
 ```
-# 需在所有机器上同时执行
-bash run.sh pa_bf16 [dataset] ([shots]) [batch_size] [model_name] ([is_chat_model]) [weight_dir] [rank_table_file] [world_size] [node_num] [rank_id_start] [master_address]
+pkill -9 -f 'mindie|python'
 ```
-测试脚本运行如下：
+Step2.需在所有机器上同时执行：
 ```
-bash run.sh pa_bf16 full_CEval 5 1 deepseekv2 {/path/to/weights/DeepSeek-R1} {/path/to/xxx/ranktable.json} 16 2 0 {主节点IP}
-# 0 代表从0号卡开始推理，之后的机器依次从8，16，24。
+bash run.sh pa_[data_type] [dataset] ([shots]) [batch_size] [model_name] ([is_chat_model]) [weight_dir] [rank_table_file] [world_size] [node_num] [rank_id_start] [master_address] ([parallel_params]) 
 ```
 参数说明：
-1. `dataset`：可选full_BoolQ、full_CEval等，相关数据集可至[魔乐社区MindIE](https://modelers.cn/MindIE)下载，（下载之前，需要申请加入组织，下载之后拷贝到/usr/local/Ascend/atb-models/tests/modeltest/路径下）CEval与MMLU等数据集需要设置`shots`（通常设为5）。
-2. `batch_size`：为`batch数`。
-3. `model_name`：为`deepseekv2`。
-4. `is_chat_model`：为`是否支持对话模式，若传入此参数，则进入对话模式`。
-5. `weight_dir`：为模型权重路径。
-6. `rank_table_file`：为“前置准备”中配置的`rank_table_file.json`路径。
-7. `world_size`：为总卡数。
-8. `node_num`：为当前节点编号，即`rank_table_file.json`的`server_list`中顺序确定。
-9. `rank_id_start`：为当前节点起始卡号，即`rank_table_file.json`中当前节点第一张卡的`rank_id`。
-10. `master_address`：为主节点ip地址，即`rank_table_file.json`的`server_list`中第一个节点的ip。
+1. `data_type`：为数据类型，根据权重目录下config.json的data_type选择bf16或者fp16，例如：pa_bf16。
+2. `dataset`：可选full_BoolQ、full_CEval等，相关数据集可至[魔乐社区MindIE](https://modelers.cn/MindIE)下载，（下载之前，需要申请加入组织，下载之后拷贝到/usr/local/Ascend/atb-models/tests/modeltest/路径下）CEval与MMLU等数据集需要设置`shots`（通常设为5）。
+3. `batch_size`：为`batch数`。
+4. `model_name`：为`deepseekv2`。
+5. `is_chat_model`：为`是否支持对话模式，若传入此参数，则进入对话模式`。
+6. `weight_dir`：为模型权重路径。
+7. `rank_table_file`：为“前置准备”中配置的`rank_table_file.json`路径。
+8. `world_size`：为总卡数。
+9. `node_num`：为当前节点编号，即`rank_table_file.json`的`server_list`中顺序确定。
+10. `rank_id_start`：为当前节点起始卡号，即`rank_table_file.json`中当前节点第一张卡的`rank_id`，Atlas 800I-A2双机场景下，主节点为0，副节点为8。
+11. `master_address`：为主节点ip地址，即`rank_table_file.json`的`server_list`中第一个节点的ip。
+12. `parallel_params`: 接受一组输入，格式为[dp,tp,moe_tp,moe_ep,pp,microbatch_size],如[8,1,8,-1,-1,-1]
+
+测试脚本运行如下，以双机为例：
+
+样例 -CEval 带shot
+
+主节点
+```
+bash run.sh pa_bf16 full_CEval 5 1 deepseekv2 {/path/to/weights/DeepSeek-R1} {/path/to/xxx/ranktable.json} 16 2  0  {主节点IP}
+# 0 代表从0号卡开始推理，之后的机器依次从8，16，24。
+```
+副节点
+```
+bash run.sh pa_bf16 full_CEval 5 1 deepseekv2 {/path/to/weights/DeepSeek-R1} {/path/to/xxx/ranktable.json} 16 2  8  {主节点IP}
+# 0 代表从0号卡开始推理，之后的机器依次从8，16，24。
+```
+
+样例 -GSM8K 不带shot
+
+主节点
+```
+bash run.sh pa_bf16 full_GSM8K 8 deepseekv2 {/path/to/weights/DeepSeek-R1} {/path/to/xxx/ranktable.json} 16 2 0 {主节点IP}
+# 0 代表从0号卡开始推理，之后的机器依次从8，16，24。
+```
+副节点
+```
+bash run.sh pa_bf16 full_GSM8K 8 deepseekv2 {/path/to/weights/DeepSeek-R1} {/path/to/xxx/ranktable.json} 16 2 8 {主节点IP}
+# 0 代表从0号卡开始推理，之后的机器依次从8，16，24。
+```
 
 #### 性能测试
-- 进入modeltest路径
+- 进入modeltest路径：
 ```
 cd /usr/local/Ascend/atb-models/tests/modeltest/
 ```
-- 运行测试脚本
+Step1.主副节点分别先清理残余进程：
 ```
-# 需在所有机器上同时执行
-bash run.sh pa_bf16 performance [case_pair] [batch_size] [model_name] ([is_chat_model]) [weight_dir] [rank_table_file] [world_size] [node_num] [rank_id_start] [master_address]
+pkill -9 -f 'mindie|python'
 ```
-参数含义同“精度测试”
+Step2.需在所有机器上同时执行：
+```
+bash run.sh pa_[data_type] performance [case_pair] [batch_size] ([prefill_batch_size]) [model_name] ([is_chat_model]) [weight_dir] [rank_table_file] [world_size] [node_num] [rank_id_start] [master_address] ([parallel_params]) 
+```
+参数说明：
+1. `data_type`：为数据类型，根据权重目录下config.json的data_type选择bf16或者fp16，例如：pa_bf16。
+2. `case_pair`：[最大输入长度,最大输出长度]。
+3. `batch_size`：为`batch数`。
+4. `prefill_batch_size`：为可选参数，设置后会固定prefill的batch size。
+5. `model_name`：为`deepseekv2`。
+6. `is_chat_model`：为`是否支持对话模式，若传入此参数，则进入对话模式`。
+7. `weight_dir`：为模型权重路径。
+8. `rank_table_file`：为“前置准备”中配置的`rank_table_file.json`路径。
+9. `world_size`：为总卡数。
+10. `node_num`：为当前节点编号，即`rank_table_file.json`的`server_list`中顺序确定。
+11. `rank_id_start`：为当前节点起始卡号，即`rank_table_file.json`中当前节点第一张卡的`rank_id`，Atlas 800I-A2双机场景下，主节点为0，副节点为8。
+12. `master_address`：为主节点ip地址，即`rank_table_file.json`的`server_list`中第一个节点的ip。
+13. `parallel_params`: 接受一组输入，格式为[dp,tp,moe_tp,moe_ep,pp,microbatch_size],如[8,1,8,-1,-1,-1]
 
-测试脚本运行如下：
+测试脚本运行如下，以双机为例：
+
+主节点
 ```
 bash run.sh pa_bf16 performance [[256,256]] 1 deepseekv2 {/path/to/weights/DeepSeek-R1} {/path/to/xxx/ranktable.json} 16 2 0 {主节点IP}
+# 0 代表从0号卡开始推理，之后的机器依次从8，16，24。
+```
+副节点
+```
+bash run.sh pa_bf16 performance [[256,256]] 1 deepseekv2 {/path/to/weights/DeepSeek-R1} {/path/to/xxx/ranktable.json} 16 2 8 {主节点IP}
 # 0 代表从0号卡开始推理，之后的机器依次从8，16，24。
 ```
 
@@ -480,7 +545,7 @@ export NPU_MEMORY_FRACTION=0.96
 ```
 2. 若出现hccl通信超时报错，可配置以下环境变量。
 ```
-export HCCL_CONNECT_TIMEOUT=7200
+export HCCL_CONNECT_TIMEOUT=7200 # 该环境变量需要配置为整数，取值范围[120,7200]，单位s
 export HCCL_EXEC_TIMEOUT=0
 ```
 3. 若出现AttributeError：'IbisTokenizer' object has no atrribute 'cache_path'。
@@ -532,12 +597,63 @@ def _get_cache_base_path(child_dir_name):
 
 这是因为由于系统在写入或打印日志ASCII编码deepseek的词表失败，导致报错，不影响服务化正常运行。如果需要规避，需要/usr/local/Ascend/atb-models/atb_llm/runner/model_runner.py的第145行注释掉：print_log(rank, logger.info, f'init tokenizer done: {self.tokenizer}')。
 
+5. 从节点无法和主节点建立rpc通信
+
+若出现多级部署从节点无法和主节点建立rpc通信问题，子节点报RPC问题，可能原因：防火墙拦截，排查方法：使用指令查看防火墙状态，如果开启防火墙，每台机器都需要关闭防火墙；
+
+查看防火墙状态：
+```
+sudo systemctl status firewalld
+```
+临时关闭防火墙，该操作存在安全隐患，请谨慎操作，该命令适用于linux系统，其它系统需要根据实际情况修改：
+```
+sudo systemctl stop firewalld
+```
+参考链接：https://www.hiascend.com/document/caselibrary/detail/topic_0000002193154350
+
+6. 服务启动失败
+
+若出现服务启动失败，报错内容显示内存释放失败，则需要退出容器，重新启动进入。
+
+7. 日志收集
+
+遇到推理报错时，请打开日志环境变量，收集日志信息。
+- 算子库日志|默认输出路径为"~/atb/log"
+```
+export ASDOPS_LOG_LEVEL = INFO
+export ASDOPS_LOG_TO_FILE = 1
+```
+- 加速库日志|默认输出路径为"~/mindie/log/debug"
+```
+export ATB_LOG_LEVEL = INFO
+export ATB_LOG_TO_FILE = 1
+```
+- MindIE Service日志|默认输出路径为"~/mindie/log/debug"
+```
+export MINDIE_LOG_TO_FILE = 1
+export MINDIE_LOG_TO_LEVEL = debug
+```
+- CANN日志收集|默认输出路径为"~/ascend"
+```
+export ASCEND_GLOBAL_LOG_TO_LEVEL = 1
+```
+
+8. 多机无法拉起DeepSeek-R1模型推理，HCCL报错
+```
+# 检查NPU底层tls校验行为一致性，建议统一全部设置为0，避免hccl报错
+for i in {0..7}; do hccn_tool -i $i -tls -g ; done | grep switch
+```
+```
+# NPU底层tls校验行为置0操作，建议统一全部设置为0，避免hccl报错
+for i in {0..7};do hccn_tool -i $i -tls -s enable 0;done
+```
 #### 权重路径权限问题
 注意保证权重路径是可用的，执行以下命令修改权限，**注意是整个父级目录的权限**：
 ```sh
 chown -R HwHiAiUser:HwHiAiUser {/path-to-weights}
 chmod -R 750 {/path-to-weights}
 ```
+#### 更多故障案例，请参考链接：https://www.hiascend.com/document/caselibrary
 ## 声明
 - 本代码仓提到的数据集和模型仅作为示例，这些数据集和模型仅供您用于非商业目的，如您使用这些数据集来完成示例，请您特别注意应遵守对应数据集合模型的License，如您因使用数据集或者模型而产生侵权纠纷，华为不承担任何责任。
 - 如您在使用本地代码的过程中，发现任何问题（包括但不限于功能问题、合规问题），请在本代码仓提交issue，我们将及时审视并解答。
