@@ -1,6 +1,6 @@
 # 通义千问 QwQ-32B
 ## 简介
-QwQ 是 Qwen 系列的推理模型。与传统的指令调优模型相比，具备思考和推理能力的 QwQ 在下游任务中，特别是在解决难题时，能够显著提高性能。QwQ-32B 是一个中等规模的推理模型，其性能可以与当前最先进的推理模型（例如 DeepSeek-R1、o1-mini）相媲美。
+QwQ 是 Qwen 系列的推理模型。与传统的指令调优模型相比，具备思考和推理能力的 QwQ 在下游任务中，特别是在解决难题时，能够显著提高性能。QwQ-32B 是一个中等规模的推理模型，其性能可以与当前先进的推理模型（例如 DeepSeek-R1、o1-mini）相媲美。
 
 ## 权重
 
@@ -84,7 +84,7 @@ docker exec -it ${容器名称} bash
 ## 纯模型推理
 
 ### 依赖配置
-tokenizers版本升级至0.20.0或以上。
+transformers版本升级至4.45.0，或将tokenizers版本升级至0.20.0。
 
 ### 对话测试
 进入llm_model路径
@@ -180,20 +180,20 @@ cd /usr/local/Ascend/mindie/latest/mindie-service/bin
 
 ```shell
 curl -X POST 127.0.0.1:1040/v1/chat/completions \
--d "{
-\"messages\": [
-{\"role\": \"system\", \"content\": \"you are a helpful assistant.\"},
-{\"role\": \"user\", \"content\": \"How many r's are in the word \\\"strawberry\\\"\"}
+-d '{
+"messages": [
+{"role": "system", "content": "you are a helpful assistant."},
+{"role": "user", "content": "How many r are in the word \"strawberry\""}
 ],
-\"max_tokens\": 32,
-\"stream\": false,
-\"do_sample\":true,
-\"repetition_penalty\": 1.00,
-\"temperature\": 0.6,
-\"top_p\": 0.6,
-\"top_k\": 20,
-\"model\": \"qwen2\"
-}"
+"max_tokens": 32,
+"stream": false,
+"do_sample": true,
+"repetition_penalty": 1.00,
+"temperature": 0.6,
+"top_p": 0.6,
+"top_k": 20,
+"model": "qwen2"
+}'
 ```
 
 > 注: 服务化推理的更多信息请参考[MindIE Service用户指南](https://www.hiascend.com/document/detail/zh/mindie/100/mindieservice/servicedev/mindie_service0001.html)
