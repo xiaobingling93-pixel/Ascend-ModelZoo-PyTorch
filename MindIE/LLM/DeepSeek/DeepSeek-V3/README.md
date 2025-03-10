@@ -6,7 +6,7 @@
 
 ## 权重
 **权重下载**
-
+### FP8原始权重下载
 - [DeepSeek-V3](https://huggingface.co/deepseek-ai/DeepSeek-V3/tree/main)
 - [DeepSeek-V3-Base](https://huggingface.co/deepseek-ai/DeepSeek-V3-Base/tree/main)
 
@@ -37,7 +37,7 @@
   | target_dir | 可选，str类型参数，默认放置在atb_models同级目录下            |
 
 
-**权重转换（Convert FP8 weights to BF16）**
+### 权重转换（Convert FP8 weights to BF16）
 
 NPU侧权重转换
 
@@ -60,13 +60,30 @@ python fp8_cast_bf16.py --input-fp8-hf-path {/path/to/DeepSeek-V3} --output-bf16
 - 由于模型权重较大，请确保您的磁盘有足够的空间放下所有权重，例如DeepSeek-V3在转换前权重约为640G左右，在转换后权重约为1.3T左右。
 - 推理作业时，也请确保您的设备有足够的空间加载模型权重，并为推理计算预留空间。
 
-**量化权重生成**
+### BF16原始权重下载
+
+也可以通过HuggingFace，ModelScope等开源社区直接下载BF16模型权重：
+|  来源 |  链接 |
+|---|---|
+| huggingface  |  https://huggingface.co/unsloth/DeepSeek-V3-bf16/ |
+| modelscope  | https://modelscope.cn/models/unsloth/deepseek-V3-bf16/  |
+| modelers| https://modelers.cn/models/State_Cloud/Deepseek-V3-BF16  |
+
+
+### W8A8量化权重生成(BF16 to INT8)
 
 目前支持：生成模型w8a8混合量化权重，使用histogram量化方式 (MLA:w8a8量化，MOE:w8a8 dynamic pertoken量化)。
 
 详情请参考 [DeepSeek模型量化方法介绍](https://gitee.com/ascend/msit/tree/br_noncom_MindStudio_8.0.0_POC_20251231/msmodelslim/example/DeepSeek)。
 
 注意：DeepSeek-V3模型权重较大，量化权重生成时间较久，请耐心等待；具体时间与校准数据集大小成正比，10条数据大概需花费3小时。
+
+### 昇腾原生量化W8A8权重下载(动态量化)
+
+也可以通过Modelers等开源社区直接下载昇腾原生量化W8A8模型权重：
+- [Deepseek-R1](https://modelers.cn/models/State_Cloud/Deepseek-R1-bf16-hfd-w8a8)
+
+## 推理前置准备
 
 - 修改模型文件夹属组为1001 -HwHiAiUser属组（容器为Root权限可忽视）
 - 执行权限为750：
@@ -612,9 +629,25 @@ sudo systemctl stop firewalld
 ```
 参考链接：https://www.hiascend.com/document/caselibrary/detail/topic_0000002193154350
 
-6. 服务启动失败
+6. 无进程内存残留
 
-若出现服务启动失败，报错内容显示内存释放失败，则需要退出容器，重新启动进入。
+如果卡上有内存残留，且有进程，可以尝试以下指令：
+```
+pkill -9 -f 'mind|python'
+```
+
+如果卡上有内存残留，但无进程，可以尝试以下指令：
+```
+npu-sim set -t reset -i 0 -c 0 #重启npu卡
+npu-sim info -t health -i <card_idx> -c 0 #查询npu告警
+```
+
+例：
+```
+npu-sim set -t reset -i 0 -c 0 #重启npu卡0
+npu-sim info -t health -i 2 -c 0 #查询npu卡2告警
+```
+如果卡上有进程残留，无进程，且重启NPU卡无法消除残留内存，请尝试reboot重启机器
 
 7. 日志收集
 
