@@ -11,7 +11,7 @@
 
 ## 简述
 
-基于示例模型脚本，针对shell脚本启动、python启动、mp.spawn启动、torchrun启动、torch_npu_run启动五种方式，分别提供单机八卡和双机十六卡端到端训练示例脚本。
+基于示例模型脚本，针对shell脚本启动、torch.distributed.launch启动、mp.spawn启动、torchrun启动、torch_npu_run启动五种方式，分别提供单机八卡和双机十六卡端到端训练示例脚本。
 
 
 # 准备训练环境
@@ -62,19 +62,19 @@
      
      bash start_train_16p_slave_addr.sh  # 从节点
      ```
-   - python脚本启动。
+   - torch.distributed.launch脚本启动。
 
      启动单机八卡训练。
 
      ```
-     python -m torch.distributed.launch --nproc_per_node 8 --master_addr localhost --master_port 12345 train_8p_python.py
+     python -m torch.distributed.launch --nproc_per_node 8 --master_addr localhost --master_port 12345 train_8p_torch_distributed_launch.py
      ```
      启动双机十六卡训练（"xxxx"替换为主节点IP地址）。
 
      ```
-     python -m torch.distributed.launch --nnodes 2 --node_rank 0 --nproc_per_node 8 --master_addr xxxx --master_port 12345 train_16p_python.py  # 主节点
+     python -m torch.distributed.launch --nnodes 2 --node_rank 0 --nproc_per_node 8 --master_addr xxxx --master_port 12345 train_16p_torch_distributed_launch.py  # 主节点
      
-     python -m torch.distributed.launch --nnodes 2 --node_rank 1 --nproc_per_node 8 --master_addr xxxx --master_port 12345 train_16p_python.py  # 从节点
+     python -m torch.distributed.launch --nnodes 2 --node_rank 1 --nproc_per_node 8 --master_addr xxxx --master_port 12345 train_16p_torch_distributed_launch.py  # 从节点
      ```
    - mp.spawn脚本启动（"xxxx"替换为主节点IP地址）。
 
