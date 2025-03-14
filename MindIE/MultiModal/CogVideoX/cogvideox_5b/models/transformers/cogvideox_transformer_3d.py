@@ -116,6 +116,7 @@ class CogVideoXBlock(nn.Module):
             inner_dim=ff_inner_dim,
             bias=ff_bias,
         )
+        self.cache = None
 
     def forward(
         self,
@@ -131,11 +132,18 @@ class CogVideoXBlock(nn.Module):
         )
 
         # attention
-        attn_hidden_states, attn_encoder_hidden_states = self.attn1(
-            hidden_states=norm_hidden_states,
-            encoder_hidden_states=norm_encoder_hidden_states,
-            image_rotary_emb=image_rotary_emb,
-        )
+        if self.cache is None:
+            attn_hidden_states, attn_encoder_hidden_states = self.attn1(
+                hidden_states=norm_hidden_states,
+                encoder_hidden_states=norm_encoder_hidden_states,
+                image_rotary_emb=image_rotary_emb,
+            )
+        else:
+            attn_hidden_states, attn_encoder_hidden_states = self.cache.apply(self.attn1.forward,
+                hidden_states=norm_hidden_states,
+                encoder_hidden_states=norm_encoder_hidden_states,
+                image_rotary_emb=image_rotary_emb,
+            )
 
         hidden_states = hidden_states + gate_msa * attn_hidden_states
         encoder_hidden_states = encoder_hidden_states + enc_gate_msa * attn_encoder_hidden_states

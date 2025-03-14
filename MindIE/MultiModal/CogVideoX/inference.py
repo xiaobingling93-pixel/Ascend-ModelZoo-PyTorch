@@ -16,6 +16,7 @@ from diffusers.utils import export_to_video
 
 from cogvideox_5b import CogVideoXPipeline, CogVideoXTransformer3DModel, get_rank, get_world_size, all_gather, set_parallel
 from mindiesd.pipeline.sampling_optm import AdaStep
+from mindiesd.runtime import CacheAgent, CacheConfig
 
 
 def generate_video(
@@ -35,10 +36,11 @@ def generate_video(
     generate_type: str = Literal["t2v", "i2v", "v2v"],  # i2v: image to video, v2v: video to video
     seed: int = 42,
     fps: int = 8,
-    enable_skip: bool = True
+    enable_offload: bool = False,
+    cache_algorithm: str = Literal["attention", "sampling"]
 ):
-    pipe = CogVideoXPipeline.from_pretrained(model_path, torch_dtype=dtype, local_files_only=True).to(f"npu:{get_rank()}")
-    transformer = CogVideoXTransformer3DModel.from_pretrained(os.path.join(model_path, 'transformer'), torch_dtype=dtype, local_files_only=True).to(f"npu:{get_rank()}")
+    pipe = CogVideoXPipeline.from_pretrained(model_path, torch_dtype=dtype, local_files_only=True) # .to(f"npu:{get_rank()}")
+    transformer = CogVideoXTransformer3DModel.from_pretrained(os.path.join(model_path, 'transformer'), torch_dtype=dtype, local_files_only=True) # .to(f"npu:{get_rank()}")
     if lora_path:
         pipe.load_lora_weights(lora_path, weight_name="pytorch_lora_weights.safetensors", adapter_name="test_1")
         pipe.fuse_lora(lora_scale=1 / lora_rank)
@@ -50,13 +52,36 @@ def generate_video(
     pipe.transformer.switch_to_qkvLinear()
     set_parallel(pipe)
 
+    # offload
+    if enable_offload:
+        pipe.enbale_offload(device=f"npu:{get_rank()}")
+    else:
+        pipe = pipe.to(f"npu:{get_rank()}")
+
     # sampling optm
-    if enable_skip and transformer.config.use_rotary_positional_embeddings:
+    if cache_algorithm == "sampling" and transformer.config.use_rotary_positional_embeddings:
         skip_strategy = AdaStep(skip_thr=0.006, max_skip_steps=1, decay_ratio=0.99, device="npu")
         pipe.skip_strategy = skip_strategy
-    elif enable_skip and not transformer.config.use_rotary_positional_embeddings:
+    elif cache_algorithm == "sampling" and not transformer.config.use_rotary_positional_embeddings:
         skip_strategy = AdaStep(skip_thr=0.009, max_skip_steps=1, decay_ratio=0.99, device="npu")
         pipe.skip_strategy = skip_strategy
+
+    # attention cache
+    if cache_algorithm == "attention":
+        steps_count = num_inference_steps
+        blocks_count = pipe.transformer.num_layers
+        config = CacheConfig(
+            method="attention_cache",
+            blocks_count=blocks_count,
+            steps_count=steps_count,
+            step_start=15,
+            step_end=45,
+            step_interval=3
+            )
+        agent = CacheAgent(config)
+        pipe.transformer.use_cache = True
+        for block in pipe.transformer.transformer_blocks:
+            block.cache = agent
 
     # warm up
     video_generate = pipe(
@@ -100,7 +125,7 @@ def generate_video(
         torch_npu.npu.synchronize()
         end = time.time()
         print(f"Time taken for inference: {end - start} seconds")
-        if enable_skip and not transformer.config.use_rotary_positional_embeddings:
+        if cache_algorithm == "sampling" and not transformer.config.use_rotary_positional_embeddings:
             skip_strategy = AdaStep(skip_thr=0.009, max_skip_steps=1, decay_ratio=0.99, device="npu")
             pipe.skip_strategy = skip_strategy
         
@@ -139,7 +164,8 @@ if __name__ == "__main__":
     parser.add_argument("--generate_type", type=str, default="t2v", help="The type of video generation")
     parser.add_argument("--dtype", type=str, default="bfloat16", help="The data type for computation")
     parser.add_argument("--seed", type=int, default=42, help="The seed for reproducibility")
-    parser.add_argument('--enable_skip', action='store_true', help='enable_skip')
+    parser.add_argument('--enable_offload', action='store_true', help='enable_offload')
+    parser.add_argument('--cache_algorithm', type=str, default="attention", help="The type of optimization algorithm")
 
     args = parser.parse_args()
     dtype = torch.float16 if args.dtype == "float16" else torch.bfloat16
@@ -161,5 +187,6 @@ if __name__ == "__main__":
         generate_type=args.generate_type,
         seed=args.seed,
         fps=args.fps,
-        enable_skip=args.enable_skip
+        enable_offload=args.enable_offload,
+        cache_algorithm=args.cache_algorithm
     )

@@ -152,7 +152,7 @@ TASK_QUEUE_ENABLE=2 ASCEND_RT_VISIBLE_DEVICES=0 torchrun --master_port=2002 --np
         --num_inference_steps 50 \
         --dtype bfloat16 \
         --seed 42 \
-        --enable_skip
+        --cache_algorithm attention
 ```
 参数说明：
 - CPU_AFFINITY_CONF=1：环境变量，绑核。
@@ -169,7 +169,8 @@ TASK_QUEUE_ENABLE=2 ASCEND_RT_VISIBLE_DEVICES=0 torchrun --master_port=2002 --np
 - num_inference_steps：推理迭代步数，默认值为50。
 - dtype：数据类型，默认值为bfloat16。CogVideoX-2b推荐设置为float16，需要在命令前加INF_NAN_MODE_FORCE_DISABLE=1，开启饱和模式避免数值溢出。
 - seed: 设置随机种子，默认值为42。
-- enable_skip：是否使用采样优化，注意是有损的加速算法。
+- cache_algorithm：可选择算法优化attention或sampling，默认和推荐设置为attention，注意是有损的加速算法。
+- enable_offload：遇到显存放不下的情况，可在命令后加此配置。
 
 推理结束后会在output_path视频保存路径下生成result.json，用于记录文本提示和生成视频的对应关系，便于测试视频精度。
 

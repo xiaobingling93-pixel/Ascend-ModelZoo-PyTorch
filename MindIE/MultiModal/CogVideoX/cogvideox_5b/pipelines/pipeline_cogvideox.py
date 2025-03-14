@@ -17,6 +17,7 @@ import inspect
 import math
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 import torch
+from accelerate import cpu_offload_with_hook
 from transformers import T5EncoderModel, T5Tokenizer
 from diffusers.callbacks import MultiPipelineCallbacks, PipelineCallback
 from diffusers.loaders import CogVideoXLoraLoaderMixin
@@ -192,7 +193,14 @@ class CogVideoXPipeline(DiffusionPipeline, CogVideoXLoraLoaderMixin):
         )
 
         self.video_processor = VideoProcessor(vae_scale_factor=self.vae_scale_factor_spatial)
+        self.use_offload = False
 
+    def enbale_offload(self, device):
+        self.text_encoder, self.hook_1 = cpu_offload_with_hook(self.text_encoder, device)
+        self.transformer, self.hook_2 = cpu_offload_with_hook(self.transformer, device)
+        self.vae, self.hook_3 = cpu_offload_with_hook(self.vae, device, prev_module_hook=self.hook_2)
+        self.use_offload = True
+    
     def _get_t5_prompt_embeds(
         self,
         prompt: Union[str, List[str]] = None,
@@ -749,7 +757,11 @@ class CogVideoXPipeline(DiffusionPipeline, CogVideoXLoraLoaderMixin):
             video = self.video_processor.postprocess_video(video=video, output_type=output_type)
         else:
             video = latents
-
+        
+        # offload
+        if self.use_offload:
+            self.hook_3.offload()
+        
         # Offload all models
         self.maybe_free_model_hooks()
 
