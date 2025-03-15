@@ -48,8 +48,7 @@ def deepspeed_config_from_args(args, global_batch_size):
 
     elif args.use_zero_stage == 3:
         deepspeed_config = {
-            "train_batch_size": args.global_batch_size,
-            # "train_micro_batch_size_per_gpu": args.batch_size,
+            "train_batch_size": global_batch_size,
             "gradient_accumulation_steps": args.grad_accu_steps,
             "steps_per_print": args.log_every,
 
@@ -68,45 +67,22 @@ def deepspeed_config_from_args(args, global_batch_size):
 
             "zero_optimization": {
                 "stage": 3,
-                "allgather_partitions": True,
-                "overlap_comm": True,
+                "reduce_bucket_size": 1e8,
                 "reduce_scatter": True,
-                "contiguous_gradients": True,
-                "stage3_prefetch_bucket_size": 5e8,
-                "stage3_max_live_parameters" : 6e8,
-                "reduce_bucket_size": 1.2e9,
-                "sub_group_size": 1e9,
-                "sub_group_buffer_num": 10,
-                "pipeline_optimizer": True,
-                "max_contigous_event_size": 0,
-                "cache_sub_group_rate": 0.0,
-                "prefetch_cache_sub_group_rate": 1.0,
-                "max_contigous_params_size": -1,
-                "max_param_reduce_events": 0,
-                "stage3_param_persistence_threshold": 9e9,
-                "is_communication_time_profiling": False,
-                "save_large_model_multi_slice": True,
-                "use_fused_op_with_grad_norm_overflow": False,
-                "offload_optimizer": {
-                    "device": "cpu",
-                    "pin_memory": True
-                },
-                "offload_param": {
-                    "device": "cpu",
-                    "pin_memory": True
-                }
+                "stage3_param_persistence_threshold": "auto",
+                "stage3_max_live_parameters": 1e9
             },
 
             "gradient_clipping": 1.0,
             "prescale_gradients": False,
 
             "fp16": {
-                "enabled": True,
+                "enabled": args.use_fp16,
                 "loss_scale": 0,
-                "loss_scale_window": 500,
+                "loss_scale_window": 1000,
                 "hysteresis": 2,
                 "min_loss_scale": 1,
-                "initial_scale_power": 15
+                "initial_scale_power": 16
             },
 
             "bf16": {
