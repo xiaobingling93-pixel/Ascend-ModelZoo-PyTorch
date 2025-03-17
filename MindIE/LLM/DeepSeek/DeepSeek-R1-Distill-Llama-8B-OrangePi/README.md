@@ -32,32 +32,6 @@ cd ${ATB_SPEED_HOME_PATH}
 python3 msit/msmodelslim/example/Llama/quant_llama.py --model_path $ORG --save_directory $MODEL --calib_file msit/msmodelslim/example/common/boolq.jsonl --w_bit 8 --a_bit 8 --device_type npu --disable_names "lm_head" --anti_method m4
 ```
 
-* 再执行以下python脚本把deq_scale转换成int64
-```python
-import os
-import numpy as np
-import torch
-from safetensors.torch import load_file
-from safetensors.torch import save_file
-
-def deqscale2int64(scale):
-    scale = scale.numpy()
-    scale = np.frombuffer(scale.tobytes(), dtype=np.int32).astype(np.int64)
-    scale = torch.tensor(scale)
-    return scale
-
-MODEL_PATH = "" # 在此处添加模型路径
-
-safetensor_path = os.path.join(MODEL_PATH, 'quant_model_weight_w8a8.safetensors')
-safetensor_weight = load_file(safetensor_path)
-
-for key in safetensor_weight.keys():
-    if 'deq_scale' in key:
-        safetensor_weight[key] = deqscale2int64(safetensor_weight[key])
-
-save_file(safetensor_weight, safetensor_path)
-```
-
 * 把转换成功的权重转移至香橙派
 
 ## 新建环境
