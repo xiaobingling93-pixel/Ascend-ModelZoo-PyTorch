@@ -282,7 +282,7 @@ export WORLD_SIZE=32
 export HCCL_EXEC_TIMEOUT=0
 ```
 
-## 纯模型推理
+## 纯模型推理：【使用场景】使用相同输入长度和相同输出长度，构造多Batch去测试纯模型性能
 
 #### 精度测试
 - 进入modeltest路径
@@ -382,7 +382,7 @@ bash run.sh pa_bf16 performance [[256,256]] 1 deepseekv2 {/path/to/weights/DeepS
 # 0 代表从0号卡开始推理，之后的机器依次从8，16，24。
 ```
 
-## 服务化推理
+## 服务化推理：【使用场景】对标真实客户上线场景，使用不同并发、不同发送频率、不同输入长度和输出长度分布，去测试服务化性能
 #### 配置服务化环境变量
 
 变量含义：expandable_segments-使能内存池扩展段功能，即虚拟内存特性。更多详情请查看[昇腾环境变量参考](https://www.hiascend.com/document/detail/zh/Pytorch/600/apiref/Envvariables/Envir_009.html)。
@@ -546,12 +546,37 @@ Daemon start success!
 ```
 则认为服务成功启动。
 
-
-
 #### 另起客户端
 进入相同容器，向服务端发送请求。
 
 更多信息可参考官网信息：[MindIE Service](https://www.hiascend.com/document/detail/zh/mindie/100/mindieservice/servicedev/mindie_service0285.html)。
+
+### 精度化测试样例
+
+需要开启确定性计算环境变量。
+```
+export LCCL_DETERMINISTIC=1
+export HCCL_DETERMINISTIC=true
+export ATB_MATMUL_SHUFFLE_K_ENABLE=0
+```
+-并发数需设置为1，确保模型推理时是1batch输入，这样才可以和纯模型比对精度。
+-使用MMLU比对精度时，MaxOutputLen应该设为20，MindIE Server的config.json文件中maxSeqLen需要设置为3600，该数据集中有约为1.4w条数据，推理耗时会比较长。
+```
+benchmark \
+--DatasetPath "/数据集路径/MMLU" \
+--DatasetType mmlu \
+--ModelName DeepSeek-V3 \
+--ModelPath "/模型权重路径/DeepSeek-V3" \
+--TestType client \
+--Http https://{ipAddress}:{port} \
+--ManagementHttp https://{managementIpAddress}:{managementPort} \
+--Concurrency 1 \
+--MaxOutputLen 20 \
+--TaskKind stream \
+--Tokenizer True \
+--TestAccuracy True
+```
+ModelName，ModelPath需要与mindie-service里的config.json里的一致，master_ip设置为主节点机器的ip。样例仅供参考，请根据实际情况调整参数。
 
 
 ### 常见问题
