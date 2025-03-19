@@ -323,16 +323,16 @@ class CogVideoXAttnProcessor2_0:
         query = torch.cat([query, pad], dim=-1)
         key = torch.cat([key, pad], dim=-1)
         value = torch.cat([value, pad], dim=-1)
-        hidden_states = torch_npu.npu_prompt_flash_attention(
+        hidden_states = torch_npu.npu_fusion_attention(
             query,
             key,
             value,
             input_layout='BNSD',
-            scale_value=D**-0.5,
-            pre_tokens=65535,
-            next_tokens=65535,
-            num_heads=N
-        )
+            scale=D**-0.5,
+            pre_tockens=65535,
+            next_tockens=65535,
+            head_num=N
+        )[0]
         hidden_states = hidden_states[:, :, :, :D]
 
         hidden_states = hidden_states.transpose(1, 2).reshape(batch_size, -1, attn.heads * head_dim)

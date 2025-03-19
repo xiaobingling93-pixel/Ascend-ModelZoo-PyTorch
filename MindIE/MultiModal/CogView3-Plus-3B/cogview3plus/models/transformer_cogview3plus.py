@@ -40,8 +40,24 @@ class CogView3PlusTransformerBlock(nn.Module):
         num_attention_heads: int = 64,
         attention_head_dim: int = 40,
         time_embed_dim: int = 512,
+        useagb: bool = True,
+        pab: int = 2,
+        total_step: int = 50
     ):
         super().__init__()
+        self.useagb = useagb
+        self.pab = pab
+        self.total_step = total_step
+
+        self.attn_count = 0
+        self.last_attn_x_image = None
+        self.last_attn_x_prompt = None
+        self.attn_alpha_image = 0
+        self.attn_alpha_prompt = 0
+        self.last_attn_image = None
+        self.last_attn_prompt = None
+        self.last_ff_image = None
+        self.last_ff_prompt = None
 
         self.norm1 = CogView3PlusAdaLayerNormZeroTextImage(embedding_dim=time_embed_dim, dim=dim)
 
@@ -69,46 +85,134 @@ class CogView3PlusTransformerBlock(nn.Module):
         emb: torch.Tensor,
     ) -> torch.Tensor:
         text_seq_length = encoder_hidden_states.size(1)
+        
+        if self.useagb:
+            if self.attn_count > 0:
+                diff_x_image = hidden_states - self.last_attn_x_image
+                diff_x_prompt = encoder_hidden_states - self.last_attn_x_prompt
+            
+            self.last_attn_x_image = hidden_states
+            self.last_attn_x_prompt = encoder_hidden_states
 
-        # norm & modulate
-        norm_hidden_states, chunk_params = self.norm1(hidden_states, encoder_hidden_states, emb)
+            lower_bound = int(self.total_step / 5) - 0.5
+            upper_bound = self.total_step - 1.5
+            if (self.attn_count % self.pab != 0) and (lower_bound < self.attn_count < upper_bound):
+                broadcast_attn = 1
+            else:
+                broadcast_attn = 0
+            
+            if broadcast_attn == 1:
+                attn_hidden_states = self.last_attn_image + self.attn_alpha_image * diff_x_image
+                attn_encoder_hidden_states = self.last_attn_prompt + self.attn_alpha_prompt * diff_x_prompt
+            else:
+                # norm & modulate
+                norm_hidden_states, chunk_params = self.norm1(hidden_states, encoder_hidden_states, emb)
 
-        gate_msa = chunk_params.gate_msa
-        shift_mlp = chunk_params.shift_mlp
-        scale_mlp = chunk_params.scale_mlp
-        gate_mlp = chunk_params.gate_mlp
-        norm_encoder_hidden_states = chunk_params.context
-        c_gate_msa = chunk_params.c_gate_msa
-        c_shift_mlp = chunk_params.c_shift_mlp
-        c_scale_mlp = chunk_params.c_scale_mlp
-        c_gate_mlp = chunk_params.c_gate_mlp
+                gate_msa = chunk_params.gate_msa
+                shift_mlp = chunk_params.shift_mlp
+                scale_mlp = chunk_params.scale_mlp
+                gate_mlp = chunk_params.gate_mlp
+                norm_encoder_hidden_states = chunk_params.context
+                c_gate_msa = chunk_params.c_gate_msa
+                c_shift_mlp = chunk_params.c_shift_mlp
+                c_scale_mlp = chunk_params.c_scale_mlp
+                c_gate_mlp = chunk_params.c_gate_mlp
 
-        # attention
-        attn_hidden_states, attn_encoder_hidden_states = self.attn1(
-            hidden_states=norm_hidden_states, encoder_hidden_states=norm_encoder_hidden_states
-        )
+                # attention
+                attn_hidden_states, attn_encoder_hidden_states = self.attn1(
+                    hidden_states=norm_hidden_states, encoder_hidden_states=norm_encoder_hidden_states
+                )
 
-        hidden_states = hidden_states + gate_msa.unsqueeze(1) * attn_hidden_states
-        encoder_hidden_states = encoder_hidden_states + c_gate_msa.unsqueeze(1) * attn_encoder_hidden_states
+                attn_hidden_states = gate_msa.unsqueeze(1) * attn_hidden_states
+                attn_encoder_hidden_states = c_gate_msa.unsqueeze(1) * attn_encoder_hidden_states
+                
+                # calculate alpha
+                if lower_bound < self.attn_count < upper_bound:
+                    diff_image = attn_hidden_states - self.last_attn_image
+                    diff_prompt = attn_encoder_hidden_states - self.last_attn_prompt
 
-        # norm & modulate
-        norm_hidden_states = self.norm2(hidden_states)
-        norm_hidden_states = norm_hidden_states * (1 + scale_mlp[:, None]) + shift_mlp[:, None]
+                    self.attn_alpha_image = ((diff_x_image / 100) * (diff_image / 100)).sum() / \
+                        ((diff_x_image / 100) ** 2).sum()
+                    self.attn_alpha_prompt = ((diff_x_prompt / 100) * (diff_prompt / 100)).sum() / \
+                        ((diff_x_prompt / 100) ** 2).sum()
+                else:
+                    self.attn_alpha_image = 0
+                    self.attn_alpha_prompt = 0
+                
+                self.last_attn_image = attn_hidden_states
+                self.last_attn_prompt = attn_encoder_hidden_states
+            
+            hidden_states = hidden_states + attn_hidden_states
+            encoder_hidden_states = encoder_hidden_states + attn_encoder_hidden_states
 
-        norm_encoder_hidden_states = self.norm2_context(encoder_hidden_states)
-        norm_encoder_hidden_states = norm_encoder_hidden_states * (1 + c_scale_mlp[:, None]) + c_shift_mlp[:, None]
+            if broadcast_attn == 1:
+                hidden_states = hidden_states + self.last_ff_image
+                encoder_hidden_states = encoder_hidden_states + self.last_ff_prompt
+            else:
+                # norm & modulate
+                norm_hidden_states = self.norm2(hidden_states)
+                norm_hidden_states = norm_hidden_states * (1 + scale_mlp[:, None]) + shift_mlp[:, None]
 
-        # feed-forward
-        norm_hidden_states = torch.cat([norm_encoder_hidden_states, norm_hidden_states], dim=1)
-        ff_output = self.ff(norm_hidden_states)
+                norm_encoder_hidden_states = self.norm2_context(encoder_hidden_states)
+                norm_encoder_hidden_states = norm_encoder_hidden_states * (1 + c_scale_mlp[:, None]) + \
+                    c_shift_mlp[:, None]
 
-        hidden_states = hidden_states + gate_mlp.unsqueeze(1) * ff_output[:, text_seq_length:]
-        encoder_hidden_states = encoder_hidden_states + c_gate_mlp.unsqueeze(1) * ff_output[:, :text_seq_length]
+                # feed-forward
+                norm_hidden_states = torch.cat([norm_encoder_hidden_states, norm_hidden_states], dim=1)
+                ff_output = self.ff(norm_hidden_states)
+
+                ff_image = gate_mlp.unsqueeze(1) * ff_output[:, text_seq_length:]
+                ff_prompt = c_gate_mlp.unsqueeze(1) * ff_output[:, :text_seq_length]
+
+                hidden_states = hidden_states + ff_image
+                encoder_hidden_states = encoder_hidden_states + ff_prompt
+
+                self.last_ff_image = ff_image
+                self.last_ff_prompt = ff_prompt
+            
+            # 更新self.attn_count
+            self.attn_count = (self.attn_count + 1) % self.total_step
+        else:
+            # norm & modulate
+            norm_hidden_states, chunk_params = self.norm1(hidden_states, encoder_hidden_states, emb)
+
+            gate_msa = chunk_params.gate_msa
+            shift_mlp = chunk_params.shift_mlp
+            scale_mlp = chunk_params.scale_mlp
+            gate_mlp = chunk_params.gate_mlp
+            norm_encoder_hidden_states = chunk_params.context
+            c_gate_msa = chunk_params.c_gate_msa
+            c_shift_mlp = chunk_params.c_shift_mlp
+            c_scale_mlp = chunk_params.c_scale_mlp
+            c_gate_mlp = chunk_params.c_gate_mlp
+
+            # attention
+            attn_hidden_states, attn_encoder_hidden_states = self.attn1(
+                hidden_states=norm_hidden_states, encoder_hidden_states=norm_encoder_hidden_states
+            )
+
+            hidden_states = hidden_states + gate_msa.unsqueeze(1) * attn_hidden_states
+            encoder_hidden_states = encoder_hidden_states + c_gate_msa.unsqueeze(1) * attn_encoder_hidden_states
+
+            # norm & modulate
+            norm_hidden_states = self.norm2(hidden_states)
+            norm_hidden_states = norm_hidden_states * (1 + scale_mlp[:, None]) + shift_mlp[:, None]
+
+            norm_encoder_hidden_states = self.norm2_context(encoder_hidden_states)
+            norm_encoder_hidden_states = norm_encoder_hidden_states * (1 + c_scale_mlp[:, None]) + c_shift_mlp[:, None]
+
+            # feed-forward
+            norm_hidden_states = torch.cat([norm_encoder_hidden_states, norm_hidden_states], dim=1)
+            ff_output = self.ff(norm_hidden_states)
+
+            hidden_states = hidden_states + gate_mlp.unsqueeze(1) * ff_output[:, text_seq_length:]
+            encoder_hidden_states = encoder_hidden_states + c_gate_mlp.unsqueeze(1) * ff_output[:, :text_seq_length]
 
         if hidden_states.dtype == torch.float16:
             hidden_states = hidden_states.clip(-65504, 65504)
         if encoder_hidden_states.dtype == torch.float16:
             encoder_hidden_states = encoder_hidden_states.clip(-65504, 65504)
+
         return hidden_states, encoder_hidden_states
 
 
@@ -128,11 +232,14 @@ class CogView3PlusTransformer2DModel(ModelMixin, ConfigMixin):
         time_embed_dim: int = 512,
         condition_dim: int = 256,
         pos_embed_max_size: int = 128,
-        use_cache: bool = True,
+        use_cache: bool = False,
         cache_interval: int = 2,
-        cache_start: int = 3,
-        num_cache_layer: int = 13,
-        cache_start_steps: int = 5,
+        cache_start: int = 1,
+        num_cache_layer: int = 11,
+        cache_start_steps: int = 10,
+        useagb: bool = True,
+        pab: int = 2,
+        total_step: int = 50,
     ):
         super().__init__()
         self.out_channels = out_channels
@@ -165,6 +272,9 @@ class CogView3PlusTransformer2DModel(ModelMixin, ConfigMixin):
                     num_attention_heads=num_attention_heads,
                     attention_head_dim=attention_head_dim,
                     time_embed_dim=time_embed_dim,
+                    useagb=useagb,
+                    pab=pab,
+                    total_step=total_step
                 )
                 for _ in range(num_layers)
             ]

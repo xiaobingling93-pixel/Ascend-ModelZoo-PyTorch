@@ -27,7 +27,6 @@ from diffusers import AutoencoderKL
 
 from ..models import CogView3PlusTransformer2DModel
 from ..schedulers import CogVideoXDDIMScheduler
-from .pipeline_output import CogView3PipelineOutput
 
 logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
 
@@ -224,7 +223,7 @@ class CogView3PlusPipeline(DiffusionPipeline):
         num_inference_steps: int = 50,
         guidance_scale: float = 5.0,
         num_images_per_prompt: int = 1,
-    ) -> Union[CogView3PipelineOutput, Tuple]:
+    ) -> Tuple:
         if image_size is None:
             height = self.transformer.config.sample_size * self.vae_scale_factor
             width = self.transformer.config.sample_size * self.vae_scale_factor
@@ -336,4 +335,4 @@ class CogView3PlusPipeline(DiffusionPipeline):
         # Offload all models
         self.maybe_free_model_hooks()
 
-        return CogView3PipelineOutput(images=image)
+        return (image,)

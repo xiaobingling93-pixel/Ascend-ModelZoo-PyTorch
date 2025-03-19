@@ -53,6 +53,7 @@ from diffusers.models.model_loading_utils import (
     load_state_dict,
 )
 
+from ..utils.file_utils import standardize_path
 
 logger = logging.get_logger(__name__)
 
@@ -519,6 +520,7 @@ class ModelMixin(torch.nn.Module, PushToHubMixin):
     @classmethod
     def _load_model(cls, model, weights_path, is_sharded):
         if not is_sharded:
+            weights_path = standardize_path(weights_path)
             state_dict = load_state_dict(weights_path)
             model.load_weights(state_dict)
         else:
@@ -526,6 +528,7 @@ class ModelMixin(torch.nn.Module, PushToHubMixin):
             state_dict = {}
             cache = {}
             for weight_file in weights_path:
+                weight_file = standardize_path(weight_file)
                 state_dict = load_state_dict(weight_file)
                 state_dict.update(cache)
                 loadkey_cache = model.load_weights(state_dict, is_sharded)
