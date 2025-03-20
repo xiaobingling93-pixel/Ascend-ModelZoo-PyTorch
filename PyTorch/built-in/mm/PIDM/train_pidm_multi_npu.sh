@@ -1,5 +1,8 @@
 source /path_to_cann/set_env.sh
 
+export COMBINED_ENABLE=1
+export OMP_NUM_THREADS=1
+
 # 不使用wandb
 export WANDB_DISABLED=true
 export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
