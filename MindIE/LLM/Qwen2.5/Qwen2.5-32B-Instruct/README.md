@@ -17,7 +17,7 @@
 
 | 模型及参数量      | 800I A2 Tensor Parallelism | 300I DUO Tensor Parallelism | FP16 | BF16 | Flash Attention | Paged Attention | W8A8量化 | W8A16量化 | KV cache量化 | 稀疏量化 | MOE量化 | MindIE Service | TGI | 长序列 | prefix_cache | FA3量化 | functioncall | Multi LoRA|
 | ----------------- |----------------------------|-----------------------------| ---- | ---- | --------------- | --------------- | -------- | --------- | ------------ | -------- | ------- | -------------- | --- | ------ | ---------- | --- | --- | --- |
-| Qwen2.5-32B       | 支持world size 4,8           | ×                           | √    | √    | ×               | √               | √        | ×         | ×            | ×        | ×       | ×              | ×   | ×      | x       | x | x | x |
+| Qwen2.5-32B      | 支持world size 4,8       | 支持world size 4,8       | √    | √    | √               | √               | √        | √        | ×            | ×        | ×       | √              | ×   | √      | √       | √ | √ | x |
 
 
 注：表中所示支持的world size为对话测试可跑通的配置，实际运行时还需考虑输入序列长度带来的显存占用。
@@ -68,40 +68,11 @@
 
 
 
-## 推理
-量化权重生成路径下可能缺少一些必要文件（与转换量化权重时使用的cann版本有关），若启动量化推理失败，请将config.json等相关文件复制到量化权重路径中，可执行以下指令进行复制：
-```shell
-cp ${浮点权重路径}/*.py ${量化权重路径}
-cp ${浮点权重路径}/*.json ${量化权重路径}
-cp ${浮点权重路径}/*.tiktoken ${量化权重路径}
-```
+## 纯模型推理：
+【使用场景】使用相同输入长度和相同输出长度，构造多Batch去测试纯模型性能
 
-启动推理时，请在权重路径的config.json文件中添加(或修改)`torch_dtype`字段，例如`"torch_dtype": "bfloat16"`。
 
-启动量化推理时，请在权重路径的config.json文件中添加(或修改)`quantize`字段，值为相应量化方式，例如`"quantize": "w8a8"`、`"quantize": "w8a16"`
-
-在`${llm_path}`目录执行以下指令
-
-```shell
-cd /usr/local/Ascend/atb-models
-bash examples/models/qwen/run_pa.sh -m ${weight_path} --trust_remote_code true
-```
-
-注：
-
-1.推理支持浮点和量化，若启动浮点推理则在`${weight_path}`中传入浮点权重路径，若启动量化则传入量化权重路径
-
-2.--trust_remote_code为可选参数代表是否信任本地的可执行文件，默认false。传入true，则代表信任本地可执行文件，-r为其缩写
-
-3.同时支持Qwen和Qwen1.5模型推理，若启动Qwen模型推理时在`${weight_path}`中传入Qwen路径路径，若启动Qwen1.5模型推理时则在`${weight_path}`中传入Qwen1.5权重路径
-
-4.启动qwen需要安装三方依赖tiktoken，若环境中没有该依赖可使用以下命令安装：
-
-```shell
-pip install tiktoken
-```
-
-### run_pa.sh 参数说明（需要到脚本中修改）
+#### 对话测试的run_pa.sh 参数说明（需要到脚本中修改）
 根据硬件设备不同请参考下表修改run_pa.sh再运行
 
 | 参数名称                  | 含义                                      | 800I A2推荐值    | 300I DUO推荐值   |
@@ -114,41 +85,104 @@ pip install tiktoken
 注：暂不支持奇数卡并行
     ```
 
-## 精度测试
-- 需要先下载数据集（git clone https://modelers.cn/MindIE/data.git），放到/usr/local/Ascend/atb-models/tests/modeltest/下
-
-示例：
-```shell
-cd /usr/local/Ascend/atb-models/tests/modeltest/
-bash run.sh pa_bf16 full_BoolQ 1 qwen ${Qwen2.5-32B-Instruct权重路径} 8
-```
-注：若权重torch_dtype为float16，则需要修改pa_bf16为 pa_fp16
-
-## 性能测试
-- 进入以下路径
-  ```shell
-  cd /usr/local/Ascend/atb-models/tests/modeltest/
-  ```
-- 运行指令
-  ```shell
-  bash run.sh pa_bf16 [performance|full_CEval|full_BoolQ] ([case_pair]) [batch_size] qwen [weight_dir] [chip_num] ([max_position_embedding/max_sequence_length])
-  ```
-
 - 环境变量释义
 
-1. HCCL_DETERMINISTIC=false          LCCL_DETERMINISTIC=0
+1. 
+```
+export HCCL_DETERMINISTIC=false          
+export LCCL_DETERMINISTIC=0
+```
 这两个会影响性能，开启了变慢，但是会变成确定性计算，不开会变快，所以设置为0。
-2. HCCL_BUFFSIZE=120
+2. 
+```
+export HCCL_BUFFSIZE=120
+```
 这个会影响hccl显存，需要设置，基本不影响性能。
-3. ATB_WORKSPACE_MEM_ALLOC_GLOBAL=1
+3. 
+```
+export ATB_WORKSPACE_MEM_ALLOC_GLOBAL=1
+```
 这个是显存优化，需要开，小batch、短序列场景不开更好。
 
-示例：
 
-  ```shell
-  HCCL_DETERMINISTIC=false LCCL_DETERMINISTIC=0 HCCL_BUFFSIZE=120 ATB_WORKSPACE_MEM_ALLOC_GLOBAL=1 bash run.sh pa_bf16 performance　[[2048,2048],[1024,1024],[512,512],[256,256]] 1 qwen ${Qwen2.5-32B-Instruct权重路径} 8
-  ```
-注：若权重torch_dtype为float16，则需要修改pa_bf16为 pa_fp16
+#### 对话测试
+- 进入atb-models路径
+```
+cd /usr/local/Ascend/atb-models
+```
+Step1.清理残余进程：
+```
+pkill -9 -f 'mindie|python'
+```
+Step2.执行命令：
+```
+bash examples/models/qwen/run_pa.sh -m ${weight_path} --trust_remote_code true
+```
+
+
+#### 精度测试
+- 进入modeltest路径
+```
+cd /usr/local/Ascend/atb-models/tests/modeltest/
+```
+- 运行测试脚本
+
+Step1.清理残余进程：
+```
+pkill -9 -f 'mindie|python'
+```
+Step2.执行命令：
+```
+bash run.sh pa_[data_type] [dataset] ([shots]) [batch_size] [model_name] ([is_chat_model]) [weight_dir] [world_size]
+```
+参数说明：
+1. `data_type`：为数据类型，根据权重目录下config.json的data_type选择bf16或者fp16，例如：pa_bf16。
+2. `dataset`：可选full_BoolQ、full_CEval等，相关数据集可至[魔乐社区MindIE](https://modelers.cn/MindIE)下载，（下载之前，需要申请加入组织，下载之后拷贝到/usr/local/Ascend/atb-models/tests/modeltest/路径下）CEval与MMLU等数据集需要设置`shots`（通常设为5）。
+3. `batch_size`：为`batch数`。
+4. `model_name`：为`qwen`。
+5. `is_chat_model`：为`是否支持对话模式，若传入此参数，则进入对话模式`。
+6. `weight_dir`：为模型权重路径。
+7. `world_size`：为总卡数。
+
+
+样例 -BoolQ
+```
+bash run.sh pa_bf16 full_BoolQ 1 qwen ${Qwen2.5-32B-Instruct权重路径} 4
+```
+
+样例 -CEval
+```
+bash run.sh pa_bf16 full_CEval 5 1 qwen ${Qwen2.5-32B-Instruct权重路径} 4
+```
+
+
+#### 性能测试
+- 进入modeltest路径：
+```
+cd /usr/local/Ascend/atb-models/tests/modeltest/
+```
+Step1.清理残余进程：
+```
+pkill -9 -f 'mindie|python'
+```
+Step2.执行命令：
+```
+bash run.sh pa_[data_type] performance [case_pair] [batch_size] ([prefill_batch_size]) [model_name] ([is_chat_model]) [weight_dir] [world_size]
+```
+参数说明：
+1. `data_type`：为数据类型，根据权重目录下config.json的data_type选择bf16或者fp16，例如：pa_bf16。
+2. `case_pair`：[最大输入长度,最大输出长度]。
+3. `batch_size`：为`batch数`。
+4. `prefill_batch_size`：为可选参数，设置后会固定prefill的batch size。
+5. `model_name`：为`qwen`。
+6. `is_chat_model`：为`是否支持对话模式，若传入此参数，则进入对话模式`。
+7. `weight_dir`：为模型权重路径。
+8. `world_size`：为总卡数。
+
+样例：
+```
+bash run.sh pa_bf16 performance [[256,256]] 1 qwen ${Qwen2.5-32B-Instruct权重路径} 4
+```
 
 ## FAQ
 
