@@ -1,3 +1,5 @@
+# 当前仓已不再维护，请跳转至https://gitee.com/ascend/DrivingSDK/tree/master/model_examples/MatrixVT
+
 # MatrixVT for PyTorch
 
 ## 目录
