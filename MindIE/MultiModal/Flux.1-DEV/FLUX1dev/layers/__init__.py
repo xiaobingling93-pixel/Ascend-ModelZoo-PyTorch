@@ -13,5 +13,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from .attention_processor import (FluxAttnProcessor2_0, FluxSingleAttnProcessor2_0)
+from .attention_processor import (Attention, FluxAttnProcessor2_0, FluxSingleAttnProcessor2_0)
 from .embedding import FluxPosEmbed
+from .activation import GELU

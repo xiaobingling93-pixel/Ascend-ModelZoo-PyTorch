@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 from typing import Union, List
-import torch
-import torch_npu
 import numpy as np
+
+import torch
 from torch import nn
+import torch_npu
 
 
 class FluxPosEmbed(nn.Module):
@@ -86,6 +86,7 @@ def get_1d_rotary_pos_embed(
     Returns:
         `torch.Tensor`: Precomputed frequency tensor with complex exponentials. [S, D/2]
     """
+    assert dim % 2 == 0
 
     if isinstance(pos, int):
         pos = torch.arange(pos)

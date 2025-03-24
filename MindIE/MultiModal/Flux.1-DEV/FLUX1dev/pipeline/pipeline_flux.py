@@ -23,9 +23,6 @@ from diffusers.image_processor import VaeImageProcessor
 from diffusers.loaders import FluxLoraLoaderMixin
 from diffusers.models.autoencoders import AutoencoderKL
 from diffusers.schedulers import FlowMatchEulerDiscreteScheduler
-from diffusers.utils.torch_utils import randn_tensor
-from diffusers.pipelines.pipeline_utils import DiffusionPipeline
-from diffusers.pipelines.flux.pipeline_output import FluxPipelineOutput
 from diffusers.utils import (
     USE_PEFT_BACKEND,
     is_torch_xla_available,
@@ -34,6 +31,9 @@ from diffusers.utils import (
     scale_lora_layers,
     unscale_lora_layers,
 )
+from diffusers.utils.torch_utils import randn_tensor
+from diffusers.pipelines.pipeline_utils import DiffusionPipeline
+from diffusers.pipelines.flux.pipeline_output import FluxPipelineOutput
 
 from ..models import FluxTransformer2DModel
 
@@ -526,6 +526,8 @@ class FluxPipeline(DiffusionPipeline, FluxLoraLoaderMixin):
         callback_on_step_end: Optional[Callable[[int, int, Dict], None]] = None,
         callback_on_step_end_tensor_inputs: List[str] = ["latents"],
         max_sequence_length: int = 512,
+        use_cache: bool = True,
+        cache_dict: list = None,
     ):
         r"""
         Function invoked when calling the pipeline for generation.
@@ -713,7 +715,10 @@ class FluxPipeline(DiffusionPipeline, FluxLoraLoaderMixin):
                     txt_ids=text_ids,
                     img_ids=latent_image_ids,
                     joint_attention_kwargs=self.joint_attention_kwargs,
+                    use_cache=use_cache,
+                    cache_dict=cache_dict,
                     return_dict=False,
+                    step_idx=i,
                 )[0]
 
                 # compute the previous noisy sample x_t -> x_t-1
