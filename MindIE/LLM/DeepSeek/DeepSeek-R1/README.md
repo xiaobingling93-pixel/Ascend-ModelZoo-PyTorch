@@ -663,14 +663,14 @@ pkill -9 -f 'mind|python'
 
 如果卡上有内存残留，但无进程，可以尝试以下指令：
 ```
-npu-sim set -t reset -i 0 -c 0 #重启npu卡
-npu-sim info -t health -i <card_idx> -c 0 #查询npu告警
+npu-smi set -t reset -i 0 -c 0 #重启npu卡
+npu-smi info -t health -i <card_idx> -c 0 #查询npu告警
 ```
 
 例：
 ```
-npu-sim set -t reset -i 0 -c 0 #重启npu卡0
-npu-sim info -t health -i 2 -c 0 #查询npu卡2告警
+npu-smi set -t reset -i 0 -c 0 #重启npu卡0
+npu-smi info -t health -i 2 -c 0 #查询npu卡2告警
 ```
 如果卡上有进程残留，无进程，且重启NPU卡无法消除残留内存，请尝试reboot重启机器
 
