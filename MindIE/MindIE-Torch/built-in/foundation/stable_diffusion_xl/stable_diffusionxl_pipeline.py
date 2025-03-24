@@ -610,7 +610,8 @@ class AIEStableDiffusionXLPipeline(StableDiffusionXLPipeline):
 
         # 5. Prepare latent variables
         num_channels_latents = self.unet.config.in_channels
-        generator=torch.Generator("cpu").manual_seed(1)
+        if use_lora_hotswitch:
+            generator = torch.Generator("cpu").manual_seed(1)
         latents = self.prepare_latents(
             batch_size * num_images_per_prompt,
             num_channels_latents,
