@@ -279,7 +279,8 @@ export WORLD_SIZE=32
 export HCCL_EXEC_TIMEOUT=0
 ```
 
-## 纯模型推理：【使用场景】使用相同输入长度和相同输出长度，构造多Batch去测试纯模型性能
+## 纯模型推理
+【使用场景】使用相同输入长度和相同输出长度，构造多Batch去测试纯模型性能
 
 #### 精度测试
 - 进入modeltest路径
@@ -379,7 +380,8 @@ bash run.sh pa_bf16 performance [[256,256]] 1 deepseekv2 {/path/to/weights/DeepS
 # 0 代表从0号卡开始推理，之后的机器依次从8，16，24。
 ```
 
-## 服务化推理：【使用场景】对标真实客户上线场景，使用不同并发、不同发送频率、不同输入长度和输出长度分布，去测试服务化性能
+## 服务化推理
+【使用场景】对标真实客户上线场景，使用不同并发、不同发送频率、不同输入长度和输出长度分布，去测试服务化性能
 #### 配置服务化环境变量
 
 变量含义：expandable_segments-使能内存池扩展段功能，即虚拟内存特性。更多详情请查看[昇腾环境变量参考](https://www.hiascend.com/document/detail/zh/Pytorch/600/apiref/Envvariables/Envir_009.html)
