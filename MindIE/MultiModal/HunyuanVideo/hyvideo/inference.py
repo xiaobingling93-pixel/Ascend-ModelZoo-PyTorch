@@ -1,18 +1,3 @@
-# Copyright 2024 The HuggingFace Team. All rights reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# ==============================================================================
-
 import os
 import time
 import random
@@ -214,6 +199,10 @@ def parallelize_transformer(pipe):
         vec,
         t_idx
     ):
+        seqlen = img.shape[1]
+        divisable = True
+        if seqlen % get_sequence_parallel_world_size() != 0:
+            divisable = False
         img = split_sequence(img)
         freqs_cos = split_sequence(freqs_cos, dim=0)
         freqs_sin = split_sequence(freqs_sin, dim=0)
@@ -221,7 +210,7 @@ def parallelize_transformer(pipe):
         from hyvideo.modules.attn_layer import xFuserLongContextAttention
         
         for block in transformer.double_blocks + transformer.single_blocks:
-            block.hybrid_seq_parallel_attn = xFuserLongContextAttention(self.args)
+            block.hybrid_seq_parallel_attn = xFuserLongContextAttention(divisable=divisable)
 
         output = original_forward(
             img,
@@ -340,7 +329,7 @@ class Inference(object):
             args.vae,
             args.vae_precision,
             logger=logger,
-            device=device if not args.use_cpu_offload else "cpu",
+            device=device,
             vae_path=args.vae_path
         )
         vae_kwargs = {"s_ratio": s_ratio, "t_ratio": t_ratio}
@@ -381,7 +370,7 @@ class Inference(object):
             apply_final_norm=args.apply_final_norm,
             reproduce=args.reproduce,
             logger=logger,
-            device=device if not args.use_cpu_offload else "cpu",
+            device=device,
             text_encoder_path=args.text_encoder_path
         )
         text_encoder_2 = None
@@ -393,7 +382,7 @@ class Inference(object):
                 tokenizer_type=args.tokenizer_2,
                 reproduce=args.reproduce,
                 logger=logger,
-                device=device if not args.use_cpu_offload else "cpu",
+                device=device,
                 text_encoder_path=args.text_encoder_2_path
             )
 
@@ -541,10 +530,11 @@ class HunyuanVideoSampler(Inference):
         if self.parallel_args['ulysses_degree'] > 1 or self.parallel_args['ring_degree'] > 1:
             parallelize_transformer(self.pipeline)
             if args.vae_parallel:
-                if get_sequence_parallel_world_size() > 8:
-                    parallel_vae_tile(self.pipeline.vae, "decode", "decoder.forward")
-                else:
-                    parallelize_vae_tiling(self.pipeline)
+                if get_sequence_parallel_world_size in [8, 16]:
+                    if get_sequence_parallel_world_size() > 8:
+                        parallel_vae_tile(self.pipeline.vae, "decode", "decoder.forward")
+                    else:
+                        parallelize_vae_tiling(self.pipeline)
             import deepspeed
             self.pipeline.text_encoder.model = deepspeed.init_inference(
                 self.pipeline.text_encoder.model,
@@ -584,7 +574,7 @@ class HunyuanVideoSampler(Inference):
             args=args,
         )
         if self.use_cpu_offload:
-            pipeline.enable_sequential_cpu_offload()
+            pipeline.enable_sequential_cpu_offload(device=f"npu:{args.device_id}")
         else:
             pipeline = pipeline.to(device)
 
@@ -602,17 +592,8 @@ class HunyuanVideoSampler(Inference):
             latents_size = [video_length, height // 8, width // 8]
 
         if isinstance(self.model.patch_size, int):
-            if not all(s % self.model.patch_size == 0 for s in latents_size):
-                raise ValueError(f"Latent size(last {ndim} dimensions) should be divisible by patch size({self.model.patch_size}), "
-                                 f"but got {latents_size}.")
             rope_sizes = [s // self.model.patch_size for s in latents_size]
         elif isinstance(self.model.patch_size, list):
-            if not all(
-                s % self.model.patch_size[idx] == 0
-                for idx, s in enumerate(latents_size)
-            ):
-                raise ValueError(f"Latent size(last {ndim} dimensions) should be divisible by patch size({self.model.patch_size}), "
-                                 f"but got {latents_size}.")
             rope_sizes = [
                 s // self.model.patch_size[idx] for idx, s in enumerate(latents_size)
             ]
@@ -624,8 +605,6 @@ class HunyuanVideoSampler(Inference):
         if rope_dim_list is None:
             rope_dim_list = [head_dim // target_ndim for _ in range(target_ndim)]
 
-        if sum(rope_dim_list) != head_dim:
-            raise ValueError("sum(rope_dim_list) should equal to head_dim of attention layer")
         freqs_cos, freqs_sin = get_nd_rotary_pos_embed(
             rope_dim_list,
             rope_sizes,

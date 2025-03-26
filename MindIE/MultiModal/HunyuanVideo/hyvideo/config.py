@@ -1,20 +1,5 @@
-# Copyright 2024 The HuggingFace Team. All rights reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# ==============================================================================
-
-import re
 import argparse
+import re
 from .constants import *
 from .modules.models import HUNYUAN_VIDEO_CONFIG
 
@@ -256,8 +241,7 @@ def add_denoise_schedule_args(parser: argparse.ArgumentParser):
     group.add_argument(
         "--use-linear-quadratic-schedule",
         action="store_true",
-        help="Use linear quadratic schedule for flow matching."
-        "Following MovieGen",
+        help="Use linear quadratic schedule for flow matching.",
     )
     group.add_argument(
         "--linear-schedule-end",
@@ -440,14 +424,15 @@ def add_ditcache_args(parser: argparse.ArgumentParser):
     # single cache related config
     group.add_argument("--use_cache", action='store_true')
     group.add_argument("--cache_interval", type=int, default=3)
-    group.add_argument("--cache_start", type=int, default=5)
-    group.add_argument("--num_cache_layer", type=int, default=30)
     group.add_argument("--cache_start_steps", type=int, default=10)
+
+    group.add_argument("--single_block_start", type=int, default=5)
+    group.add_argument("--single_block_end", type=int, default=35)
 
     ## double stream cache related config
     group.add_argument("--use_cache_double", action='store_true')
-    group.add_argument("--cache_start_double", type=int, default=3)
-    group.add_argument("--num_cache_layer_double", type=int, default=15)
+    group.add_argument("--double_block_start", type=int, default=3)
+    group.add_argument("--double_block_end", type=int, default=18)
 
     # cache searcher config
     group.add_argument("--search_single_cache", action='store_true')
