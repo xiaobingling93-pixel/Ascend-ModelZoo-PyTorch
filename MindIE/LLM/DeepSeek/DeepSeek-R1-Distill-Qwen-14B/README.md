@@ -95,7 +95,7 @@ W8A8量化权重可通过[msmodelslim](https://gitee.com/ascend/msit/blob/master
 - 进入到msit/msmodelslim的目录 `cd msit/msmodelslim`；并在进入的msmodelslim目录下，运行安装脚本 `bash install.sh`;
 - 进入到msit/msmodelslim/example/Qwen的目录 `cd msit/msmodelslim/example/Qwen`；并在进入的Qwen目录下，运行量化转换脚本
 ```bash
-python3 quant_qwen.py --model_path {浮点权重路径} --save_directory {W8A8量化权重路径} --calib_file ../common/boolq.jsonl --w_bit 8 --a_bit 8 --device_type npu  
+python3 quant_qwen.py --model_path {浮点权重路径} --save_directory {W8A8量化权重路径} --calib_file ../common/teacher_qualification.jsonl --w_bit 8 --a_bit 8 --device_type npu  --anti_method m4  
 ```
 - 请将{浮点权重路径}和{量化权重路径}替换为用户实际路径。
 - 如果需要使用npu多卡量化，请先配置环境变量，支持多卡量化,建议双卡执行量化：
