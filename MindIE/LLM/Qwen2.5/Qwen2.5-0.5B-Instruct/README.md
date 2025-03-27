@@ -1,14 +1,13 @@
 # README
 
-- 千问（Qwen2.5）大语言模型是阿容生成、问答系统等多个场景，助力企业智能化升级。处理能力，能够理解和生成文本，能够应用于智能客服、内容生成、问答系统等多个场景，助力企业智能化升级。
+- 千问（Qwen2.5）大语言模型能够理解和生成文本，应用于智能客服、内容生成、问答系统等多个场景，助力企业智能化升级。
 
 - 此代码仓中实现了一套基于NPU硬件的qwen2.5推理模型。配合加速库使用，旨在NPU上获得极致的推理性能。
 
 
 
 # 加载镜像
-前往昇腾社区/开发资源(panoptic_deeplab_R_52_os16_mg124_poly_200k_bs64_crop_640_640_coco_dsconv.yaml)
-下载适配Qwen2.5的镜像包：mindie:1.0.0-800I-A2-py311-openeuler24.03-lts、1.0.0-300I-Duo-py311-openeuler24.03-lts
+前往[昇腾社区/开发资源](https://www.hiascend.com/developer/ascendhub/detail/af85b724a7e5469ebd7ea13c3439d48f)下载适配，下载镜像前需要申请权限，耐心等待权限申请通过后，根据指南下载对应镜像文件。
 
 完成之后，请使用docker images命令确认查找具体镜像名称与标签。
 
@@ -18,7 +17,7 @@
 
 | 模型及参数量      | 800I A2 Tensor Parallelism | 300I DUO Tensor Parallelism | FP16 | BF16 | Flash Attention | Paged Attention | W8A8量化 | W8A16量化 | KV cache量化 | 稀疏量化 | MOE量化 | MindIE Service | TGI | 长序列 | prefix_cache | FA3量化 | functioncall | Multi LoRA|
 | ----------------- |----------------------------|-----------------------------| ---- | ---- | --------------- | --------------- | -------- | --------- | ------------ | -------- | ------- | -------------- | --- | ------ | ---------- | --- | --- | --- |
-| Qwen2.5-0.5B      | 支持world size 1,2,4,8       | 支持world size 1,2,4,8       | √    | √    | √               | √               | √        | √        | ×            | ×        | ×       | √              | ×   | √      | √       | √ | √ | x |
+| Qwen2.5-0.5B      | 支持world size 1,2,4,8       | 支持world size 1,2,4,8       | √    | √    |   ×             | √               | ×        | ×        | ×            | ×        | ×       | √              | ×   | √      | √       | × | √ | x |
 
 注：表中所示支持的world size为对话测试可跑通的配置，实际运行时还需考虑输入序列长度带来的显存占用。
 
@@ -159,6 +158,7 @@ bash run.sh pa_[data_type] performance [case_pair] [batch_size] ([prefill_batch_
 ```
 bash run.sh pa_bf16 performance [[256,256]] 1 qwen ${Qwen2.5-0.5B-Instruct权重路径} 1
 ```
+
 
 ## FAQ
 

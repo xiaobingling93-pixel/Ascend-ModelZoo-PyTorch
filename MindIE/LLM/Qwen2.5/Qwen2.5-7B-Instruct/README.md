@@ -1,13 +1,13 @@
 # README
 
-- 千问（Qwen2.5）大语言模型是阿容生成、问答系统等多个场景，助力企业智能化升级。处理能力，能够理解和生成文本，能够应用于智能客服、内容生成、问答系统等多个场景，助力企业智能化升级。
+- 千问（Qwen2.5）大语言模型能够理解和生成文本，应用于智能客服、内容生成、问答系统等多个场景，助力企业智能化升级。
 
 - 此代码仓中实现了一套基于NPU硬件的qwen2.5推理模型。配合加速库使用，旨在NPU上获得极致的推理性能。
 
 
 
 # 加载镜像
-前往昇腾社区/开发资源(panoptic_deeplab_R_52_os16_mg124_poly_200k_bs64_crop_640_640_coco_dsconv.yaml)下载适配Qwen2.5的镜像包：mindie:1.0.0-800I-A2-py311-openeuler24.03-lts、1.0.0-300I-Duo-py311-openeuler24.03-lts
+前往[昇腾社区/开发资源](https://www.hiascend.com/developer/ascendhub/detail/af85b724a7e5469ebd7ea13c3439d48f)下载适配，下载镜像前需要申请权限，耐心等待权限申请通过后，根据指南下载对应镜像文件。
 
 完成之后，请使用docker images命令确认查找具体镜像名称与标签。
 
@@ -17,7 +17,7 @@
 
 | 模型及参数量      | 800I A2 Tensor Parallelism | 300I DUO Tensor Parallelism | FP16 | BF16 | Flash Attention | Paged Attention | W8A8量化 | W8A16量化 | KV cache量化 | 稀疏量化 | MOE量化 | MindIE Service | TGI | 长序列 | prefix_cache | FA3量化 | functioncall | Multi LoRA|
 | ----------------- |----------------------------|-----------------------------| ---- | ---- | --------------- | --------------- | -------- | --------- | ------------ | -------- | ------- | -------------- | --- | ------ | ---------- | --- | --- | --- |
-| Qwen2.5-7B      | 支持world size 1,2,4,8       | 支持world size 1,2,4,8       | √    | √    | √               | √               | √        | √        | ×            | ×        | ×       | √              | ×   | √      | √       | √ | √ | x |
+| Qwen2.5-7B      | 支持world size 1,2,4,8       | 支持world size 1,2,4,8       | √    | √    | ×               | √               | √        | ×        | ×            | √        | ×       | √              | ×   | √      | √       | × | √ | x |
 
 注：表中所示支持的world size为对话测试可跑通的配置，实际运行时还需考虑输入序列长度带来的显存占用。
 
@@ -212,6 +212,198 @@ bash run.sh pa_[data_type] performance [case_pair] [batch_size] ([prefill_batch_
 ```
 bash run.sh pa_bf16 performance [[256,256]] 1 qwen ${Qwen2.5-7B-Instruct权重路径} 8
 ```
+
+
+## 服务化推理：
+【使用场景】对标真实客户上线场景，使用不同并发、不同发送频率、不同输入长度和输出长度分布，去测试服务化性能
+#### 配置服务化环境变量
+
+变量含义：expandable_segments-使能内存池扩展段功能，即虚拟内存特性。更多详情请查看[昇腾环境变量参考](https://www.hiascend.com/document/detail/zh/Pytorch/600/apiref/Envvariables/Envir_009.html)
+```
+export PYTORCH_NPU_ALLOC_CONF=expandable_segments:True
+```
+
+#### 修改服务化参数
+```
+cd /usr/local/Ascend/mindie/latest/mindie-service/
+vim conf/config.json
+```
+修改以下参数：
+```
+"httpsEnabled" : false, # 如果网络环境不安全，不开启HTTPS通信，即“httpsEnabled”=“false”时，会存在较高的网络安全风险
+...
+# 若不需要安全认证，则将以下两个参数设为false
+"interCommTLSEnabled" : false,
+"interNodeTLSEnabled" : false,
+...
+"npudeviceIds" : [[0,1,2,3,4,5,6,7]],
+...
+"modelName" : "qwen" # 不影响服务化拉起
+"modelWeightPath" : "权重路径",
+"worldSize":8,
+```
+Example：仅供参考，请根据实际情况修改。
+```
+{
+    "Version" : "1.0.0",
+    "LogConfig" :
+    {
+        "logLevel" : "Info",
+        "logFileSize" : 20,
+        "logFileNum" : 20,
+        "logPath" : "logs/mindie-server.log"
+    },
+
+    "ServerConfig" :
+    {
+        "ipAddress" : "127.0.0.1",
+        "managementIpAddress" : "127.0.0.2",
+        "port" : 1025,
+        "managementPort" : 1026,
+        "metricsPort" : 1027,
+        "allowAllZeroIpListening" : false,
+        "maxLinkNum" : 1000, 
+        "httpsEnabled" : false,
+        "fullTextEnabled" : false,
+        "tlsCaPath" : "security/ca/",
+        "tlsCaFile" : ["ca.pem"],
+        "tlsCert" : "security/certs/server.pem",
+        "tlsPk" : "security/keys/server.key.pem",
+        "tlsPkPwd" : "security/pass/key_pwd.txt",
+        "tlsCrlPath" : "security/certs/",
+        "tlsCrlFiles" : ["server_crl.pem"],
+        "managementTlsCaFile" : ["management_ca.pem"],
+        "managementTlsCert" : "security/certs/management/server.pem",
+        "managementTlsPk" : "security/keys/management/server.key.pem",
+        "managementTlsPkPwd" : "security/pass/management/key_pwd.txt",
+        "managementTlsCrlPath" : "security/management/certs/",
+        "managementTlsCrlFiles" : ["server_crl.pem"],
+        "kmcKsfMaster" : "tools/pmt/master/ksfa",
+        "kmcKsfStandby" : "tools/pmt/standby/ksfb",
+        "inferMode" : "standard",
+        "interCommTLSEnabled" : false,
+        "interCommPort" : 1121,
+        "interCommTlsCaPath" : "security/grpc/ca/",
+        "interCommTlsCaFiles" : ["ca.pem"],
+        "interCommTlsCert" : "security/grpc/certs/server.pem",
+        "interCommPk" : "security/grpc/keys/server.key.pem",
+        "interCommPkPwd" : "security/grpc/pass/key_pwd.txt",
+        "interCommTlsCrlPath" : "security/grpc/certs/",
+        "interCommTlsCrlFiles" : ["server_crl.pem"],
+        "openAiSupport" : "vllm"
+    },
+
+    "BackendConfig" : {
+        "backendName" : "mindieservice_llm_engine",
+        "modelInstanceNumber" : 1,
+        "npuDeviceIds" : [[0,1,2,3,4,5,6,7]],
+        "tokenizerProcessNumber" : 8,
+        "multiNodesInferEnabled" : false,
+        "multiNodesInferPort" : 1120,
+        "interNodeTLSEnabled" : true,
+        "interNodeTlsCaPath" : "security/grpc/ca/",
+        "interNodeTlsCaFiles" : ["ca.pem"],
+        "interNodeTlsCert" : "security/grpc/certs/server.pem",
+        "interNodeTlsPk" : "security/grpc/keys/server.key.pem",
+        "interNodeTlsPkPwd" : "security/grpc/pass/mindie_server_key_pwd.txt",
+        "interNodeTlsCrlPath" : "security/grpc/certs/",
+        "interNodeTlsCrlFiles" : ["server_crl.pem"],
+        "interNodeKmcKsfMaster" : "tools/pmt/master/ksfa",
+        "interNodeKmcKsfStandby" : "tools/pmt/standby/ksfb",
+        "ModelDeployConfig" :
+        {
+            "maxSeqLen" : 10000,
+            "maxInputTokenLen" : 2048,
+            "truncation" : true,
+            "ModelConfig" : [
+                {
+                    "modelInstanceType" : "Standard",
+                    "modelName" : "qwen",
+                    "modelWeightPath" : "/home/data/qwen2.5-7B-Instruct",
+                    "worldSize" : 8,
+                    "cpuMemSize" : 5,
+                    "npuMemSize" : -1,
+                    "backendType" : "atb",
+                    "trustRemoteCode" : false
+                }
+            ]
+        },
+
+        "ScheduleConfig" :
+        {
+            "templateType" : "Standard",
+            "templateName" : "Standard_LLM",
+            "cacheBlockSize" : 128,
+
+            "maxPrefillBatchSize" : 8,
+            "maxPrefillTokens" : 2048,
+            "prefillTimeMsPerReq" : 150,
+            "prefillPolicyType" : 0,
+
+            "decodeTimeMsPerReq" : 50,
+            "decodePolicyType" : 0,
+
+            "maxBatchSize" : 8,
+            "maxIterTimes" : 1024,
+            "maxPreemptCount" : 0,
+            "supportSelectBatch" : false,
+            "maxQueueDelayMicroseconds" : 5000
+        }
+    }
+}
+```
+
+#### 拉起服务化
+```
+# 以下命令需在所有机器上同时执行
+# 解决权重加载过慢问题
+export OMP_NUM_THREADS=1
+# 设置显存比
+export NPU_MEMORY_FRACTION=0.95
+# 拉起服务化
+cd /usr/local/Ascend/mindie/latest/mindie-service/
+./bin/mindieservice_daemon
+```
+执行命令后，首先会打印本次启动所用的所有参数，然后直到出现以下输出：
+```
+Daemon start success!
+```
+则认为服务成功启动。
+
+
+#### 另起客户端
+进入相同容器，向服务端发送请求。
+
+更多信息可参考官网信息：[MindIE Service](https://www.hiascend.com/document/detail/zh/mindie/100/mindieservice/servicedev/mindie_service0285.html)
+
+### 精度化测试样例
+
+需要开启确定性计算环境变量。
+```
+export LCCL_DETERMINISTIC=1
+export HCCL_DETERMINISTIC=true
+export ATB_MATMUL_SHUFFLE_K_ENABLE=0
+```
+-并发数需设置为1，确保模型推理时是1batch输入，这样才可以和纯模型比对精度。
+-使用MMLU比对精度时，MaxOutputLen应该设为20，MindIE Server的config.json文件中maxSeqLen需要设置为3600，该数据集中有约为1.4w条数据，推理耗时会比较长。
+```
+benchmark \
+--DatasetPath "/数据集路径/MMLU" \
+--DatasetType mmlu \
+--ModelName qwen \
+--ModelPath "/模型权重路径/Qwen2.5" \
+--TestType client \
+--Http https://{ipAddress}:{port} \
+--ManagementHttp https://{managementIpAddress}:{managementPort} \
+--Concurrency 1 \
+--MaxOutputLen 20 \
+--TaskKind stream \
+--Tokenizer True \
+--TestAccuracy True
+```
+ModelName，ModelPath需要与mindie-service里的config.json里的一致。样例仅供参考，请根据实际情况调整参数。
+
+
 
 ## FAQ
 
