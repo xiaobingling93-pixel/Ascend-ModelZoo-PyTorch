@@ -20,9 +20,9 @@ from typing import Tuple, List
 import torch
 import torch.nn as nn
 
-from mindiesd import ConfigMixin
+from mindiesd import ConfigMixin, get_activation_layer
 from .model_utils import DiffusionModel
-from ..layers import get_activation_fn, get_normalization_helper, timestep_embedding
+from ..layers import get_normalization_helper, timestep_embedding
 from ..layers import Mlp, PatchEmbed, TimestepEmbedder, Attention, AttentionPool
 
 
@@ -54,12 +54,12 @@ class HunyuanDiTBlock(nn.Module):
         # ========================= FFN =========================
         self.norm2 = get_normalization_helper(norm_type, hidden_size, eps=1e-6)
         self.mlp = Mlp(
-            features_in=hidden_size, features_hidden=int(hidden_size * mlp_ratio), act_layer="gelu-approximate")
+            features_in=hidden_size, features_hidden=int(hidden_size * mlp_ratio), act_layer="gelu-tanh")
 
         # ========================= Add =========================
         # Simply use add like SDXL.
         self.default_modulation = nn.Sequential(
-            get_activation_fn("silu"),
+            get_activation_layer("silu"),
             nn.Linear(c_emb_size, hidden_size, bias=True)
         )
 
@@ -111,7 +111,7 @@ class FinalLayer(nn.Module):
         self.norm_final = nn.LayerNorm(final_hidden_size, elementwise_affine=False, eps=1e-6)
         self.linear = nn.Linear(final_hidden_size, patch_size * patch_size * out_channels, bias=True)
         self.adaLN_modulation = nn.Sequential(
-            get_activation_fn("silu"),
+            get_activation_layer("silu"),
             nn.Linear(c_emb_size, 2 * final_hidden_size, bias=True)
         )
 

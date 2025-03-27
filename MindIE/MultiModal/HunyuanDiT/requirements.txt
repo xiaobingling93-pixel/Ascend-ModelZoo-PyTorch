@@ -1,5 +1,3 @@
-colossalai==0.4.0
-strenum==0.4.15
 accelerate==0.29.3
 diffusers==0.26.3
 einops==0.7.0
@@ -8,12 +6,14 @@ huggingface-hub==0.24.7
 Jinja2==3.1.4
 matplotlib==3.9.2
 numpy==1.26.4
+open_clip_torch==2.20.0
 peft==0.10.0
 safetensors==0.4.5
+sentencepiece==0.2.0
+strenum==0.4.15
 timm==0.9.5
 tqdm==4.66.5
 torch==2.1.0
 torchvision==0.16.0
 tokenizers==0.15.2
 transformers==4.39.3
-open_clip_torch==2.20.0

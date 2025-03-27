@@ -25,83 +25,7 @@ from typing import Union, Tuple
 import torch
 import torch.nn as nn
 import numpy as np
-torch.ops.load_library("./pta_plugin/build/libPTAExtensionOPS.so")
-
-
-def check_input_params(x, cos, sin, rotated_mode, head_first, fuse):
-    if not isinstance(x, torch.Tensor):
-        raise ValueError(f"The type of input x must be torch.Tensor, but got {type(x)}.")
-    if not isinstance(cos, torch.Tensor):
-        raise ValueError(f"The type of input cos must be torch.Tensor, but got {type(cos)}.")
-    if not isinstance(sin, torch.Tensor):
-        raise ValueError(f"The type of input sin must be torch.Tensor, but got {type(sin)}.")
-    if not isinstance(rotated_mode, str):
-        raise ValueError(f"The type of input rotated_mode must be str, but got {type(rotated_mode)}.")
-    if not isinstance(head_first, bool):
-        raise ValueError(f"The type of input head_first must be bool, but got {type(head_first)}.")
-    if not isinstance(fuse, bool):
-        raise ValueError(f"The type of input fuse must be bool, but got {type(fuse)}.")
-
-
-def reshape_for_broadcast(x: torch.Tensor, cos: torch.Tensor, sin: torch.Tensor, head_first: bool = False):
-    ndim = x.ndim
-    if head_first:
-        shape = [d if i == ndim - 2 or i == ndim - 1 else 1 for i, d in enumerate(x.shape)]
-    else:
-        shape = [d if i == 1 or i == ndim - 1 else 1 for i, d in enumerate(x.shape)]
-    return cos.view(*shape), sin.view(*shape)
-
-
-def rotary_position_embedding(x: torch.Tensor,
-                              cos: torch.Tensor,
-                              sin: torch.Tensor,
-                              rotated_mode: str = "rotated_half",
-                              head_first: bool = False,
-                              fuse: bool = True) -> torch.Tensor:
-    """
-    Apply rotary embeddings to input tensors using the given frequency tensor.
-
-    Args:
-        x (torch.Tensor): Query or key tensor to apply rotary embeddings. BSND or BNSD.
-                          x is represented as [x_0, x_1, ... , x_d/2-1, x_d/2, x_d/2+1, ... , x_d-1].
-        cos (torch.Tensor): Precomputed cos frequency tensor for complex exponentials.
-        sin (torch.Tensor): Precomputed sin frequency tensor for complex exponentials.
-        rotated_mode (str):
-            if `rotated_half`: rotate x to [-x_1, x_0, -x_3, x_2, ... , -x_d-1, x_d-2].
-            if `rotated_interleaved`: rotate x to [-x_d/2, -x_d/2+1, ... , -x_d-1, x_0, x_1, ... , x_d/2-1].
-        head_first (bool): When x is BNSD, set to True; When x is BSND, set to False.
-        fuse (bool): if True, using high-performance RoPE operator.
-
-    Returns:
-        (torch.Tensor): modified query or key tensor with rotary embeddings.
-    """
-
-    check_input_params(x, cos, sin, rotated_mode, head_first, fuse)
-    match rotated_mode:
-        case "rotated_half":
-            mode = 0
-        case "rotated_interleaved":
-            mode = 1
-        case _:
-            raise ValueError(f"Unsupported rotated_mode: {rotated_mode}.")
-
-    cos, sin = reshape_for_broadcast(x, cos, sin, head_first)
-    x_in = x.to(cos.dtype)
-
-    if fuse:
-        x_out = torch.ops.mindie.rope_mindie_sd(x_in, cos, sin, mode)
-    elif mode:
-        # Used for HunyuanDiT, OpenSora, Flux, CogVideox
-        x_real, x_imag = x_in.reshape(*x_in.shape[:-1], -1, 2).unbind(-1)  # [B, S, H, D//2]
-        x_rotated = torch.stack([-x_imag, x_real], dim=-1).flatten(3)
-        x_out = x_in * cos + x_rotated * sin
-    else:
-        # Used for OpenSoraPlan, Stable Audio
-        x_real, x_imag = x_in.reshape(*x_in.shape[:-1], 2, -1).unbind(-2)  # [B, S, H, D//2]
-        x_rotated = torch.cat([-x_imag, x_real], dim=-1)
-        x_out = x_in * cos + x_rotated * sin
-
-    return x_out.type_as(x)
+from mindiesd import rotary_position_embedding
 
 
 def timestep_embedding(t, dim, max_period=10000):
@@ -182,7 +106,6 @@ def cal_1d_sincos_embed(
     # (N, 1) * (1, embed_dim//(2*step)) -> (N, embed_dim//(2*step))
     freqs = items[:, None].float() * freqs[None, :]
     cos, sin = torch.cos(freqs), torch.sin(freqs)
-    # (N, embed_dim//step)
     if flip:
         embed = torch.cat([cos, sin], dim=-1)
     else:
@@ -221,7 +144,6 @@ class SinCosPositionEmbed1D(nn.Module):
         self.size = size
         if self.cache1d:
             items = torch.arange(self.size)
-            # (size, embed_dim//step)
             embed = cal_1d_sincos_embed(items, self.embed_dim, self.max_period, self.step, self.flip)
             self.register_buffer("embed", embed, persistent=False)
         else:
@@ -260,8 +182,8 @@ class SinCosPositionEmbed2D(SinCosPositionEmbed1D):
         grid_size: Union[Tuple[int, int], int] = (224, 224),
         base_size: Union[int, None] = None,
         interpolation_scale: float = 1.0,
-        persistent = False,
-    ):  
+        persistent: bool = False,
+    ):
         """
         Create 2d sinusoidal embeddings.
         Args:
@@ -324,7 +246,7 @@ class SinCosPositionEmbed2D(SinCosPositionEmbed1D):
 
         is_shape_same = grid_size[0] == self.grid_size[0] and grid_size[1] == self.grid_size[1] \
             and base_size == self.base_size
-        if self.cache2d and is_shape_same and interpolation_scale == self.interpolation_scale:
+        if self.cache2d and is_shape_same and math.isclose(interpolation_scale, self.interpolation_scale):
             embed = self.pos_embed
         else:
             embed = self._get_2d_sincos_embed(grid_size, base_size, interpolation_scale, device)
@@ -449,7 +371,7 @@ class PatchEmbed(SinCosPositionEmbed2D):
         top = (self.pos_embed_max_size - height) // 2
         left = (self.pos_embed_max_size - width) // 2
         spatial_pos_embed = self.pos_embed.reshape(1, self.pos_embed_max_size, self.pos_embed_max_size, -1)
-        spatial_pos_embed = spatial_pos_embed[:, top : top + height, left : left + width, :]
+        spatial_pos_embed = spatial_pos_embed[:, top:top + height, left:left + width, :]
         spatial_pos_embed = spatial_pos_embed.reshape(1, -1, spatial_pos_embed.shape[-1])
         return spatial_pos_embed
     
@@ -497,7 +419,7 @@ class RotaryCosSinEmbed:
         theta: float = 10000.0,
         linear_factor: float = 1.0,
         ntk_factor: float = 1.0,
-        freqs_dtype = torch.float32,
+        freqs_dtype=torch.float32,
     ):
         """
         Args:
@@ -701,7 +623,7 @@ class RotaryPositionEmbedding(RotaryCosSinEmbed, nn.Module):
                 freqs_cis: Union[torch.Tensor, Tuple[torch.Tensor]] = None,
                 rotated_mode: str = "rotated_half",
                 head_first: bool = False,
-                fuse: bool = True) -> torch.Tensor:
+                fused: bool = True) -> torch.Tensor:
         """
         The input tensors are reshaped as complex numbers, and the frequency tensor is reshaped for broadcasting
         compatibility. The resulting tensors contain rotary embeddings and are returned as real tensors.
@@ -717,7 +639,8 @@ class RotaryPositionEmbedding(RotaryCosSinEmbed, nn.Module):
 
         if self.use_real:
             cos, sin = freqs_cis  # [S, D]
-            x_out = rotary_position_embedding(x, cos, sin, rotated_mode=rotated_mode, head_first=head_first, fuse=fuse)
+            cos, sin = cos.to(x.device), sin.to(x.device)
+            x_out = rotary_position_embedding(x, cos, sin, rotated_mode, head_first, fused)
             return x_out
         else:
             # used for lumina

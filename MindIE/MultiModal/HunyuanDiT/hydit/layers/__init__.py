@@ -15,7 +15,6 @@
 # limitations under the License.
 
 
-from .activation import get_activation_fn
 from .attention import Attention
 from .embedding import timestep_embedding, TimestepEmbedder, PatchEmbed, RotaryPositionEmbedding
 from .mlp import Mlp

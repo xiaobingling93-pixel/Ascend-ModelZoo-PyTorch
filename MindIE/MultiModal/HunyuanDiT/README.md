@@ -82,6 +82,11 @@ pip install -e HPSv2
 
 ## 三、HunyuanDiT使用
 
+当前支持的分辨率
+| 比例（H:W） | 1:1 | 1:1 | 4:3 | 4:3 | 4:3 | 3:4 | 3:4 | 3:4 | 5:3 | 3:5 |
+| :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: |
+| 分辨率 | 1024×1024 | 1280×1280 | 1024×768 | 1152×864 | 1280×960 | 768×1024 | 864×1152 | 960×1280 | 1280×768 | 768×1280 |
+
 ### 3.1 模型权重及配置文件说明
 1. 权重链接:
 ```shell
@@ -124,21 +129,7 @@ https://huggingface.co/Tencent-Hunyuan/HunyuanDiT-v1.2/tree/main/t2i
 |    |    |    |---- tokenizer
 ```
 
-### 3.2 RoPE算子编译
-进入算子路径，执行编译命令
-```shell
-cd pta_plugin
-bash build.sh
-```
-编译成功后会在build文件夹下生成.so结尾的算子文件
-
-在hydit/layers/attention.py脚本中添加编译生成的算子路径
-```python
-torch.ops.load_library("./pta_plugin/build/libPTAExtensionOPS.so")
-```
-【注意】首次运行需要加载RoPE算子，请在正式推理前进行warmup
-
-### 3.3 模型单卡推理适配的测试
+### 3.2 模型单卡推理适配的测试
 设置权重路径
 ```shell
 path="ckpts/t2i"
@@ -167,7 +158,7 @@ python inference_hydit.py \
 
 执行完成后在`results`目录下生成一张推理图像。
 
-### 3.4 模型单卡等价优化的性能测试
+### 3.3 模型单卡等价优化的性能测试
 设置权重路径
 ```shell
 path="ckpts/hydit"
@@ -198,7 +189,7 @@ python inference_hydit.py \
 
 执行完成后在`results`目录下生成推理图像，图像生成顺序与prompt顺序保持一致，并在终端显示推理时间。
 
-### 3.5 模型单卡算法优化的性能测试
+### 3.4 模型单卡算法优化的性能测试
 设置权重路径
 ```shell
 path="ckpts/hydit"
@@ -231,7 +222,7 @@ python inference_hydit.py \
 
 执行完成后在`results`目录下生成推理图像，图像生成顺序与prompt顺序保持一致，并在终端显示推理时间。
 
-### 3.6 模型单卡多batch推理适配测试
+### 3.5 模型单卡多batch推理适配测试
 设置权重路径
 ```shell
 path="ckpts/hydit"
@@ -412,13 +403,19 @@ python hpsv2_score.py \
 
 hpsv2_score.py脚本可参考[SDXL](https://gitee.com/ascend/ModelZoo-PyTorch/blob/master/MindIE/MindIE-Torch/built-in/foundation/stable_diffusion_xl/hpsv2_score.py)，执行完成后会在屏幕打印出精度计算结果。
 
-## 五、模型推理性能结果参考
+## 五、模型推理性能精度结果参考
 ### HunyuanDiT
-| 硬件形态  | cpu规格 | batch size | 迭代次数 | 等价优化平均耗时 | 算法优化平均耗时  |
-| :------: | :------: | :------: |:----:| :------: |:-----:|
-| Atlas 800I A2(8*32G) | 64核(arm) |  1  |  100  | 43.404s | 29.208s |
+| 硬件形态 | cpu规格 | 分辨率 | batch size | 迭代次数 | 优化方式 | 平均耗时 | CLIP-score | HPSv2-score |
+| :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: |
+| Atlas 800I A2(8*32G) | 64核(arm) | 1024×1024 | 1 | 100 | 等价优化 | 43.404s | 0.339 | 0.2843779 |
+| Atlas 800I A2(8*32G) | 64核(arm) | 1024×1024 | 1 | 100 | 算法优化 | 29.208s | 0.340 | 0.2842429 |
 
-性能测试需要独占npu和cpu
+注意：性能测试需要独占npu和cpu
+
+## 优化指南
+本模型使用的优化手段如下：
+- 等价优化：FA、RoPE、Linear
+- 算法优化：FA、RoPE、Linear、Cache
 
 ## 声明
 - 本代码仓提到的数据集和模型仅作为示例，这些数据集和模型仅供您用于非商业目的，如您使用这些数据集和模型来完成示例，请您特别注意应遵守对应数据集和模型的License，如您因使用数据集或模型而产生侵权纠纷，华为不承担任何责任。

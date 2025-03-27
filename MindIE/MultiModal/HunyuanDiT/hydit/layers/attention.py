@@ -21,7 +21,7 @@ import torch
 import torch.nn as nn
 import torch_npu
 
-from .embedding import rotary_position_embedding
+from mindiesd import rotary_position_embedding
 from .norm import get_normalization_helper
 
 EPS_DEFAULT = 1e-6
