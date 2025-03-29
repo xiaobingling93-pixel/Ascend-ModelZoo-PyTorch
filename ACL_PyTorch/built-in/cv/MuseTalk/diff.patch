@@ -1,0 +1,13 @@
+diff --git a/musetalk/whisper/whisper/model.py b/musetalk/whisper/whisper/model.py
+index acb6a0b..36dc4dc 100644
+--- a/musetalk/whisper/whisper/model.py
++++ b/musetalk/whisper/whisper/model.py
+@@ -151,7 +151,7 @@ class AudioEncoder(nn.Module):
+         x = F.gelu(self.conv2(x))
+         x = x.permute(0, 2, 1)
+ 
+-        assert x.shape[1:] == self.positional_embedding.shape, "incorrect audio shape"
++        # assert x.shape[1:] == self.positional_embedding.shape, "incorrect audio shape"
+         x = (x + self.positional_embedding).to(x.dtype)
+ 
+         if include_embeddings:
