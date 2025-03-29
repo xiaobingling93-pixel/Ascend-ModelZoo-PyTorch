@@ -78,6 +78,7 @@
 - [Bert-Base-Squad_ID0470_for_PyTorch(FP16)](https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/built-in/nlp/Bert-Squad_ID0470_for_PyTorch)
 - [Bert-Large-Squad_ID0470_for_PyTorch(FP16)](https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/built-in/nlp/Bert-Squad_ID0470_for_PyTorch)
 - [Bert-Large-Squad_ID0470_for_PyTorch(FP32)](https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/built-in/nlp/Bert-Squad_ID0470_for_PyTorch)
+- [CLIP(FP16)](https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/built-in/mm/CLIP_for_PyTorch)
 - [Conformer(FP16)](https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/built-in/audio/Wenet_Conformer_for_Pytorch)
 - [CRNN_for_PyTorch(FP16)](https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/built-in/cv/classification/CRNN_for_PyTorch)
 - [DB_ID0706_for_PyTorch(FP16)](https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/built-in/cv/detection/DB_ID0706_for_PyTorch)
@@ -105,7 +106,6 @@
 - [roberta_for_PyTorch(FP16)](https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/contrib/nlp/roberta_for_PyTorch)
 - [ShuffleNetV2_iflytek_for_Pytorch(FP32)](https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/dev/perf/ShuffleNetV2_iflytek_for_Pytorch)
 - [wav2vec2.0(FP16)](https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/contrib/audio/wav2vec2.0)
-- [wav2vec2.0(FP32)](https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/contrib/audio/wav2vec2.0)
 - [Wenet(FP16)](https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/built-in/audio/Wenet_Conformer_for_Pytorch)
 - [whisper(FP16)](https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/built-in/audio/Wenet_Conformer_for_Pytorch)
 
