@@ -13,6 +13,7 @@
 
   目前提供模型权重下载脚本，支持HuggingFace，ModelScope以及Modelers来源的模型下载，用法如下：
 
+  鉴于DeepSeek-V2、V3、R1系列模型结构高度相似，模块化后组图代码差异较小。为提升代码复用率并降低冗余，三个模型的共享代码模块已统一整合至DeepSeek-V2文件夹中
   注意：以下引用的`atb_models`路径在`DeepSeek-V2`路径下：
   ```sh
   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
