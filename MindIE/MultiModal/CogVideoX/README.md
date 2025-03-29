@@ -111,22 +111,7 @@ pip3 install -r requirements.txt
 |    |    |---- 模型权重
 ```
 
-### 3.2 RoPE算子编译
-进入算子路径，执行编译命令
-```shell
-cd pta_plugin
-bash build.sh
-```
-编译成功后会在build文件夹下生成.so结尾的算子文件
-
-
-在cogvideox_5b/models/attention_processor.py脚本中添加编译生成的算子路径
-```python
-torch.ops.load_library("./pta_plugin/build/libPTAExtensionOPS.so")
-```
-注意：首次运行需要加载RoPE算子，请在正式推理前进行warmup
-
-### 3.3 单卡推理
+### 3.2 单卡推理
 1. 设置CogVideoX-5b权重路径：
 ```shell
 model_path='data/CogVideoX-5b'
