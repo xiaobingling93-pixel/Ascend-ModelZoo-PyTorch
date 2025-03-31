@@ -24,6 +24,7 @@ import torch_npu
 
 from torch_npu.contrib import transfer_to_npu
 
+from mindiesd import CacheAgent, CacheConfig
 from FLUX1dev import FluxPipeline
 from FLUX1dev import get_local_rank, get_world_size, initialize_torch_distributed
 from FLUX1dev.utils import check_prompts_valid, check_param_valid, check_dir_safety, check_file_safety
@@ -195,6 +196,45 @@ def infer(args):
         world_size = get_world_size()
         initialize_torch_distributed(local_rank, world_size)
         pipe.to(f"npu:{local_rank}")
+
+    if args.use_cache:
+        d_stream_config = CacheConfig(
+            method="dit_block_cache",
+            blocks_count=19,
+            steps_count=args.infer_steps,
+            step_start=18,
+            step_interval=2,
+            block_start=5,
+            block_end=13,
+        )
+        d_stream_agent = CacheAgent(d_stream_config)
+        pipe.transformer.d_stream_agent = d_stream_agent
+        s_stream_config = CacheConfig(
+            method="dit_block_cache",
+            blocks_count=38,
+            steps_count=args.infer_steps,
+            step_start=18,
+            step_interval=2,
+            block_start=1,
+            block_end=23,
+        )
+        s_stream_agent = CacheAgent(s_stream_config)
+        pipe.transformer.s_stream_agent = s_stream_agent
+    else:
+        d_stream_config = CacheConfig(
+            method="dit_block_cache",
+            blocks_count=19,
+            steps_count=args.infer_steps,
+        )
+        d_stream_agent = CacheAgent(d_stream_config)
+        pipe.transformer.d_stream_agent = d_stream_agent
+        s_stream_config = CacheConfig(
+            method="dit_block_cache",
+            blocks_count=38,
+            steps_count=args.infer_steps,
+        )
+        s_stream_agent = CacheAgent(s_stream_config)
+        pipe.transformer.s_stream_agent = s_stream_agent
 
     torch.manual_seed(args.seed)
     torch.npu.manual_seed(args.seed)
