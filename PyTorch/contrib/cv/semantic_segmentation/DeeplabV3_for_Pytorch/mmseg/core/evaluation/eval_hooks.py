@@ -16,6 +16,7 @@
 
 import os.path as osp
 
+import torch
 import torch.distributed as dist
 from mmcv.runner import DistEvalHook as _DistEvalHook
 from mmcv.runner import EvalHook as _EvalHook
@@ -86,11 +87,20 @@ class DistEvalHook(_DistEvalHook):
         # of rank 0 to other ranks to avoid this.
         if self.broadcast_bn_buffer:
             model = runner.model
-            for name, module in model.named_modules():
-                if isinstance(module,
-                              _BatchNorm) and module.track_running_stats:
-                    dist.broadcast(module.running_var, 0)
-                    dist.broadcast(module.running_mean, 0)
+            bn_modules = [
+                (name, module)
+                for name, module in model.named_modules()
+                if isinstance(module, _BatchNorm) and module.track_running_stats
+            ]
+            running_var = []
+            running_mean = []
+            for _, module in bn_modules:
+                running_var.append(module.running_var)
+                running_mean.append(module.running_mean)
+            merged_var = torch.cat([v.flatten() for v in running_var]).contiguous()
+            merged_mean = torch.cat([m.flatten() for m in running_mean]).contiguous()
+            dist.broadcast(merged_var, 0)
+            dist.broadcast(merged_mean, 0)
 
         if not self._should_evaluate(runner):
             return
