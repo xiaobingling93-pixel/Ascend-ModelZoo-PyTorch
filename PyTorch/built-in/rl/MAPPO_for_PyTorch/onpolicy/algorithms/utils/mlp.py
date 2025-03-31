@@ -1,4 +1,3 @@
-import torch
 import torch.nn as nn
 from .util import init, get_clones
 
@@ -50,7 +49,7 @@ class MLPBase(nn.Module):
 
     def forward(self, x):
         if self._use_feature_normalization:
-            x = torch.layer_norm(x, normalized_shape=(x.shape[-1],))
+            x = self.feature_norm(x)
 
         x = self.mlp(x)
 
