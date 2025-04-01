@@ -16,7 +16,7 @@ from diffusers.utils import export_to_video
 
 from cogvideox_5b import CogVideoXPipeline, CogVideoXTransformer3DModel, get_rank, get_world_size, all_gather, set_parallel
 from mindiesd.pipeline.sampling_optm import AdaStep
-from mindiesd.runtime import CacheAgent, CacheConfig
+from mindiesd import CacheAgent, CacheConfig
 
 
 def generate_video(
@@ -37,7 +37,7 @@ def generate_video(
     seed: int = 42,
     fps: int = 8,
     enable_offload: bool = False,
-    cache_algorithm: str = Literal["attention", "sampling"]
+    cache_algorithm: str = Literal["None", "attention", "sampling"]
 ):
     pipe = CogVideoXPipeline.from_pretrained(model_path, torch_dtype=dtype, local_files_only=True) # .to(f"npu:{get_rank()}")
     transformer = CogVideoXTransformer3DModel.from_pretrained(os.path.join(model_path, 'transformer'), torch_dtype=dtype, local_files_only=True) # .to(f"npu:{get_rank()}")
@@ -165,7 +165,7 @@ if __name__ == "__main__":
     parser.add_argument("--dtype", type=str, default="bfloat16", help="The data type for computation")
     parser.add_argument("--seed", type=int, default=42, help="The seed for reproducibility")
     parser.add_argument('--enable_offload', action='store_true', help='enable_offload')
-    parser.add_argument('--cache_algorithm', type=str, default="attention", help="The type of optimization algorithm")
+    parser.add_argument('--cache_algorithm', type=str, default="None", help="The type of optimization algorithm")
 
     args = parser.parse_args()
     dtype = torch.float16 if args.dtype == "float16" else torch.bfloat16

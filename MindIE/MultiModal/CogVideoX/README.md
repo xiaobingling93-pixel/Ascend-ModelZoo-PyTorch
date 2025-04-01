@@ -18,7 +18,7 @@ hardwares:
 
 ### 1.1 获取CANN&MindIE安装包&环境准备
 - 设备支持：
-Atlas 800I A2/Atlas 800T A2设备：支持的卡数最小为1
+Atlas 800I A2/Atlas 800T A2设备：CogVideoX-5b支持1、2、4、8卡推理，CogVideoX-2b支持1、2、4卡推理
 - [Atlas 800I A2/Atlas 800T A2](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann&product=4&model=32)
 - [环境准备指导](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/80RC2alpha002/softwareinst/instg/instg_0001.html)
 
@@ -154,7 +154,58 @@ TASK_QUEUE_ENABLE=2 ASCEND_RT_VISIBLE_DEVICES=0 torchrun --master_port=2002 --np
 - num_inference_steps：推理迭代步数，默认值为50。
 - dtype：数据类型，默认值为bfloat16。CogVideoX-2b推荐设置为float16，需要在命令前加INF_NAN_MODE_FORCE_DISABLE=1，开启饱和模式避免数值溢出。
 - seed: 设置随机种子，默认值为42。
-- cache_algorithm：可选择算法优化attention或sampling，默认和推荐设置为attention，注意是有损的加速算法。
+- cache_algorithm：默认为None，可选择算法优化attention或sampling，推荐设置为attention，注意是有损的加速算法。
+- enable_offload：遇到显存放不下的情况，可在命令后加此配置。
+
+推理结束后会在output_path视频保存路径下生成result.json，用于记录文本提示和生成视频的对应关系，便于测试视频精度。
+
+**注意**：prompt_file、model_path、output_path应皆为本地合法路径，视频分辨率、帧数、帧率、推理迭代步数、随机种子应皆为int类型正整数，否则会导致推理抛异常。
+
+### 3.3 多卡推理（CogVideoX-5b支持1、2、4、8卡推理，CogVideoX-2b支持1、2、4卡推理）
+1. 设置CogVideoX-5b权重路径：
+```shell
+model_path='data/CogVideoX-5b'
+```
+
+或者设置CogVideoX-2b权重路径：
+```shell
+model_path='data/CogVideoX-5b'
+```
+
+2. 执行命令：
+```shell
+export CPU_AFFINITY_CONF=1
+export HCCL_OP_EXPANSION_MODE="AIV"
+TASK_QUEUE_ENABLE=2 ASCEND_RT_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 torchrun --master_port=2002 --nproc_per_node=8 inference.py \
+        --prompt_file ./prompts.txt \
+        --model_path ${model_path} \
+        --output_path ./output \
+        --num_frames 48 \
+        --width 720 \
+        --height 480 \
+        --fps 8 \
+        --num_inference_steps 50 \
+        --dtype bfloat16 \
+        --seed 42 \
+        --cache_algorithm attention
+```
+参数说明：
+- CPU_AFFINITY_CONF=1：环境变量，绑核。
+- HCCL_OP_EXPANSION_MODE="AIV"：环境变量，通信算子编排。
+- TASK_QUEUE_ENABLE=2：开启二级流水。
+- ASCEND_RT_VISIBLE_DEVICES：device id，可设置其他卡数。ASCEND_RT_VISIBLE_DEVICES=0,1,2,3,4,5,6,7代表占用0-7卡进行8卡推理。
+- nproc_per_node：数值需要与卡数保持一致。
+- prompt_file：文本文件，用于视频生成的文字描述提示。
+- model_path：权重路径，包含scheduler、text_encoder、tokenizer、transformer、vae，5个模型的配置文件及权重。
+- output_path：生成视频的保存路径。
+- num_frames：生成视频的帧数，默认值为48。
+- width：生成视频的分辨率，宽，默认值为720。
+- height：生成视频的分辨率，高，默认值为480。
+- fps：生成视频的帧率，默认值为8。
+- num_inference_steps：推理迭代步数，默认值为50。
+- dtype：数据类型，默认值为bfloat16。CogVideoX-2b推荐设置为float16，需要在命令前加INF_NAN_MODE_FORCE_DISABLE=1，开启饱和模式避免数值溢出。
+- seed: 设置随机种子，默认值为42。
+- cache_algorithm：默认为None，可选择算法优化attention或sampling，推荐设置为attention，注意是有损的加速算法。
 - enable_offload：遇到显存放不下的情况，可在命令后加此配置。
 
 推理结束后会在output_path视频保存路径下生成result.json，用于记录文本提示和生成视频的对应关系，便于测试视频精度。
@@ -164,14 +215,16 @@ TASK_QUEUE_ENABLE=2 ASCEND_RT_VISIBLE_DEVICES=0 torchrun --master_port=2002 --np
 
 ## 四、推理性能结果参考
 ### CogVideoX-5b
-| 硬件形态  | cpu规格 | batch size | 迭代次数 | 数据类型 | 平均耗时 |
-| :------: | :------: | :------: |:----:| :------: | :------: |
-| Atlas 800I A2(8*64G) | 64核(arm) |  1  |  50  | bfloat16 | 240s |
+| 硬件形态  | cpu规格 | batch size | 迭代次数 | 数据类型 | 卡数 | 平均耗时 |
+| :------: | :------: | :------: |:----:| :------: | :------: | :------: |
+| Atlas 800I A2(8*64G) | 64核(arm) |  1  |  50  | bfloat16 | 1 | 210s |
+| Atlas 800I A2(8*64G) | 64核(arm) |  1  |  50  | bfloat16 | 8 | 58s |
 
 ### CogVideoX-2b
-| 硬件形态  | cpu规格 | batch size | 迭代次数 | 数据类型 | 平均耗时 |
-| :------: | :------: | :------: |:----:| :------: | :------: |
-| Atlas 800I A2(8*64G) | 64核(arm) |  1  |  50  | float16 | 100s |
+| 硬件形态  | cpu规格 | batch size | 迭代次数 | 数据类型 | 卡数 | 平均耗时 |
+| :------: | :------: | :------: |:----:| :------: | :------: | :------: |
+| Atlas 800I A2(8*64G) | 64核(arm) |  1  |  50  | float16 | 1 | 105s |
+| Atlas 800I A2(8*64G) | 64核(arm) |  1  |  50  | float16 | 4 | 65s |
 
 性能测试需要独占npu和cpu
 
