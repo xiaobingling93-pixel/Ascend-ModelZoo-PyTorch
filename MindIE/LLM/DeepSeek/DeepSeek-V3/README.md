@@ -9,6 +9,7 @@
 ### FP8原始权重下载
 - [DeepSeek-V3](https://huggingface.co/deepseek-ai/DeepSeek-V3/tree/main)
 - [DeepSeek-V3-Base](https://huggingface.co/deepseek-ai/DeepSeek-V3-Base/tree/main)
+- [DeepSeek-V3-0324](https://huggingface.co/deepseek-ai/DeepSeek-V3-0324/tree/main)
 
   目前提供模型权重下载脚本，支持HuggingFace，ModelScope以及Modelers来源的模型下载，用法如下：
 
@@ -70,6 +71,11 @@ python fp8_cast_bf16.py --input-fp8-hf-path {/path/to/DeepSeek-V3} --output-bf16
 | modelscope  | https://modelscope.cn/models/unsloth/deepseek-V3-bf16/  |
 | modelers| https://modelers.cn/models/State_Cloud/Deepseek-V3-BF16  |
 
+DeepSeek-V3-0324的BF16模型权重链接为：
+|  来源 |  链接 |
+|---|---|
+| huggingface  |  https://huggingface.co/unsloth/DeepSeek-V3-0324-BF16/ |
+| modelscope  | https://www.modelscope.cn/models/unsloth/DeepSeek-V3-0324-BF16/  |
 
 ### W8A8量化权重生成(BF16 to INT8)
 
@@ -83,6 +89,7 @@ python fp8_cast_bf16.py --input-fp8-hf-path {/path/to/DeepSeek-V3} --output-bf16
 
 也可以通过Modelers等开源社区直接下载昇腾原生量化W8A8模型权重：
 - [Deepseek-R1](https://modelers.cn/models/State_Cloud/Deepseek-R1-bf16-hfd-w8a8)
+- [Deepseek-V3-0324](https://modelers.cn/models/Modelers_Park/DeepSeek-V3-0324-w8a8)
 
 ## 推理前置准备
 
