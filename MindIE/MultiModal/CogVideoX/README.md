@@ -217,7 +217,7 @@ TASK_QUEUE_ENABLE=2 ASCEND_RT_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 torchrun --master_
 ### CogVideoX-5b
 | 硬件形态  | cpu规格 | batch size | 迭代次数 | 数据类型 | 卡数 | 平均耗时 |
 | :------: | :------: | :------: |:----:| :------: | :------: | :------: |
-| Atlas 800I A2(8*64G) | 64核(arm) |  1  |  50  | bfloat16 | 1 | 210s |
+| Atlas 800I A2(8*64G) | 64核(arm) |  1  |  50  | bfloat16 | 1 | 224s |
 | Atlas 800I A2(8*64G) | 64核(arm) |  1  |  50  | bfloat16 | 8 | 58s |
 
 ### CogVideoX-2b

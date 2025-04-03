@@ -129,6 +129,22 @@ def generate_video(
             skip_strategy = AdaStep(skip_thr=0.009, max_skip_steps=1, decay_ratio=0.99, device="npu")
             pipe.skip_strategy = skip_strategy
         
+        if cache_algorithm == "attention":
+            steps_count = num_inference_steps
+            blocks_count = pipe.transformer.num_layers
+            config = CacheConfig(
+                method="attention_cache",
+                blocks_count=blocks_count,
+                steps_count=steps_count,
+                step_start=15,
+                step_end=45,
+                step_interval=3
+                )
+            agent = CacheAgent(config)
+            pipe.transformer.use_cache = True
+            for block in pipe.transformer.transformer_blocks:
+                block.cache = agent
+
         video_path = f'{output_path}/generated_video_{i}_{prompt[:10]}.mp4'
         export_to_video(video_generate, video_path, fps=fps)
         result[os.path.abspath(video_path)] = prompt
