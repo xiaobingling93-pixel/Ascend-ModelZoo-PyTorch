@@ -205,7 +205,7 @@ python inference_hydit.py \
        --device_id 0 \
        --test_acc \
        --prompt_file "prompts/example_prompts.txt" \
-       --use_cache \
+       --use_attentioncache \
        --input_size 1024 1024 \
        --seed 42 \
        --infer_steps 100
@@ -215,7 +215,7 @@ python inference_hydit.py \
 - device_id：推理设备ID。
 - test_acc：使用 --test_acc 开启prompt_file列表中的图像生成，用于性能/精度测试。
 - prompt_file：用于图像生成的文字描述提示的列表文件路径。
-- use_cache：使用 --use_cache 开启算法策略优化的测试。
+- use_attentioncache：使用 --use_attentioncache 开启算法策略优化的测试。
 - input_size：生成的图像尺寸，宽高要求是8的倍数。
 - seed：设置随机种子，默认值为42。
 - infer_steps：推理迭代步数，默认值为100。
@@ -238,7 +238,7 @@ python inference_hydit.py \
        --device_id 0 \
        --test_acc \
        --prompt_file "prompts/example_prompts.txt" \
-       --use_cache \
+       --use_attentioncache \
        --input_size 1024 1024 \
        --batch_size 2 \
        --seed 42 \
@@ -249,7 +249,7 @@ python inference_hydit.py \
 - device_id：推理设备ID。
 - test_acc：使用 --test_acc 开启prompt_file列表中的图像生成，用于性能/精度测试。
 - prompt_file：用于图像生成的文字描述提示的列表文件路径。
-- use_cache：使用 --use_cache 开启算法策略优化的测试。
+- use_attentioncache：使用 --use_attentioncache 开启算法策略优化的测试。
 - input_size：生成的图像尺寸，宽高要求是8的倍数。
 - batch_size：每个prompt生成的图像数量，根据设备显存，batch_size最大设置为2。
 - seed：设置随机种子，默认值为42。
@@ -309,7 +309,7 @@ python inference_hydit.py \
        --max_num_prompts 0 \
        --info_file_save_path ./image_info_parti.json \
        --save_result_path ./results_parti \
-       --use_cache \
+       --use_attentioncache \
        --input_size 1024 1024 \
        --seed 42 \
        --infer_steps 100
@@ -323,7 +323,7 @@ python inference_hydit.py \
 - max_num_prompts：限制prompt数量为前X个，0表示不限制。
 - info_file_save_path：生成图像信息的json文件路径。
 - save_result_path：生成图像的存放目录。
-- use_cache：使用 --use_cache 开启算法策略优化的测试。
+- use_attentioncache：使用 --use_attentioncache 开启算法策略优化的测试。
 - input_size：生成的图像尺寸，宽高要求是8的倍数。
 - seed：设置随机种子，默认值为42。
 - infer_steps：推理迭代步数，默认值为100。
@@ -351,7 +351,7 @@ python inference_hydit.py \
        --max_num_prompts 0 \
        --info_file_save_path ./image_info_hpsv2.json \
        --save_result_path ./results_hpsv2 \
-       --use_cache \
+       --use_attentioncache \
        --input_size 1024 1024 \
        --seed 42 \
        --infer_steps 100
@@ -365,7 +365,7 @@ python inference_hydit.py \
 - max_num_prompts：限制prompt数量为前X个，0表示不限制。
 - info_file_save_path：生成图像信息的json文件路径。
 - save_result_path：生成图像的存放目录。
-- use_cache：使用 --use_cache 开启算法策略优化的测试。
+- use_attentioncache：使用 --use_attentioncache 开启算法策略优化的测试。
 - input_size：生成的图像尺寸，宽高要求是8的倍数。
 - seed：设置随机种子，默认值为42。
 - infer_steps：推理迭代步数，默认值为100。
@@ -407,8 +407,8 @@ hpsv2_score.py脚本可参考[SDXL](https://gitee.com/ascend/ModelZoo-PyTorch/bl
 ### HunyuanDiT
 | 硬件形态 | cpu规格 | 分辨率 | batch size | 迭代次数 | 优化方式 | 平均耗时 | CLIP-score | HPSv2-score |
 | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: |
-| Atlas 800I A2(8*32G) | 64核(arm) | 1024×1024 | 1 | 100 | 等价优化 | 43.404s | 0.339 | 0.2843779 |
-| Atlas 800I A2(8*32G) | 64核(arm) | 1024×1024 | 1 | 100 | 算法优化 | 29.208s | 0.340 | 0.2842429 |
+| Atlas 800I A2(8*32G) | 64核(arm) | 1024×1024 | 1 | 100 | 等价优化 | 42.413s | 0.339 | 0.2843779 |
+| Atlas 800I A2(8*32G) | 64核(arm) | 1024×1024 | 1 | 100 | 算法优化 | 25.373s | 0.340 | 0.2842429 |
 
 注意：性能测试需要独占npu和cpu
 

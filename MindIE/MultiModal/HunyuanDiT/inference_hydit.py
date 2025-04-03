@@ -29,6 +29,7 @@ from diffusers import AutoencoderKL
 from transformers import BertModel, BertTokenizer, T5EncoderModel, T5Tokenizer
 from transformers.modeling_utils import logger as tf_logger
 
+from mindiesd import CacheConfig, CacheAgent
 from hydit import HunyuanDiTPipeline, HunyuanDiT2DModel, DDPMScheduler, set_seeds_generator
 from hydit.utils import file_utils
 from lora import multi_lora
@@ -171,11 +172,22 @@ def parse_arguments():
     parser.add_argument("--block_start", type=int, default=5, help="The block start of cache")
     parser.add_argument("--num_blocks", type=int, default=30, help="The num blocks of cache")
 
-    parser.add_argument("--beta_end", type=float, default=0.02, help="Scheduler beta-end=0.03 if model<=1.1")
+    parser.add_argument("--beta_end", type=float, default=0.02, help="Scheduler beta_end=0.03 if model<=1.1")
     parser.add_argument("--use_style_cond", action="store_true", help="Use style condition. Only for model<=1.1")
     parser.add_argument("--size_cond", type=int, nargs="+", default=None,
                         help="Size condition used in sampling. Default=[1024, 1024]. Only for model<=1.1")
+
+    parser = add_attentioncache_args(parser)
     return parser.parse_args()
+
+
+def add_attentioncache_args(parser: argparse.ArgumentParser):
+    group = parser.add_argument_group(title="Attention Cache args")
+    group.add_argument("--use_attentioncache", action="store_true", help="Run or not using attention cache")
+    group.add_argument("--start_step", type=int, default=9, help="The start iteration steps of cache")
+    group.add_argument("--attentioncache_interval", type=int, default=6, help="The step interval of cache")
+    group.add_argument("--end_step", type=int, default=97, help="The end iteration steps of cache")
+    return parser
 
 
 def get_dtype(args):
@@ -263,6 +275,25 @@ def infer(args):
         merge_state_dict = multi_lora(args, pipeline)
         pipeline.transformer.load_state_dict(merge_state_dict)
 
+    if args.use_attentioncache:
+        config = CacheConfig(
+            method="attention_cache",
+            blocks_count=len(pipeline.transformer.blocks),
+            steps_count=args.infer_steps,
+            step_start=args.start_step,
+            step_interval=args.attentioncache_interval,
+            step_end=args.end_step
+        )
+    else:
+        config = CacheConfig(
+            method="attention_cache",
+            blocks_count=len(pipeline.transformer.blocks),
+            steps_count=args.infer_steps
+        )
+    cache_agent = CacheAgent(config)
+    for block in pipeline.transformer.blocks:
+        block.cache = cache_agent
+
     pipeline_total_time = 0.0
     infer_num = 0
     image_info = []
@@ -313,13 +344,18 @@ def infer(args):
     else:
         prompts = args.prompt
         prompts = [prompts.strip()]
+
+        start_time = time.time()
         result_images = pipeline(
             prompt=prompts[0],
             num_images_per_prompt=args.batch_size,
             num_inference_steps=args.infer_steps,
             seed_generator=seed_generator,
         )[0]
+        pipeline_time = time.time() - start_time
+        logger.info("HunyuanDiT pipeline_time: %.3f", pipeline_time)
         torch.npu.empty_cache()
+
         for i, img in enumerate(result_images):
             save_path = os.path.join(time_path, f"0_{i}.png")
             img.save(save_path)

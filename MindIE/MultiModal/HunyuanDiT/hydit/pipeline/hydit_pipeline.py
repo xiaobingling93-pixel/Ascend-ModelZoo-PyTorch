@@ -111,17 +111,6 @@ class HunyuanDiTPipeline:
         # Only for hydit <= 1.1
         self.image_meta_size, self.style = self._get_v1_params(args)
 
-        # Use DiT Cache
-        self.use_cache = args.use_cache
-        if self.use_cache:
-            self.step_start = args.step_start
-            self.step_interval = args.step_interval
-            self.block_start = args.block_start
-            self.num_blocks = args.num_blocks
-            self.step_contrast = 9 % 2
-            self.skip_flag_true = torch.ones([1], dtype=torch.int64).to(self.device)
-            self.skip_flag_false = torch.zeros([1], dtype=torch.int64).to(self.device)
-
     @torch.no_grad()
     def __call__(
         self,
@@ -310,13 +299,7 @@ class HunyuanDiTPipeline:
 
 
     def _sampling(self, latents, step, prompt_embeds, transformer_input, seed_generator):
-
         timesteps, num_inference_steps = step
-
-        if self.use_cache:
-            delta_cache = torch.zeros([2, 3840, 1408], dtype=torch.float16).to(self.device)
-            step_start = self.step_start
-
         num_warmup_steps = len(timesteps) - num_inference_steps
         with self._progress_bar(total=num_inference_steps) as progress_bar:
             for i, t in enumerate(timesteps):
@@ -330,19 +313,7 @@ class HunyuanDiTPipeline:
 
                 # predict the noise residual
                 tensor_input = (latent_model_input, t_expand, prompt_embeds, transformer_input, self.rotary_pos_emb)
-                if not self.use_cache:
-                    noise_pred = self.transformer(tensor_input)
-                else:
-                    cache_params = (self.block_start, self.num_blocks, delta_cache.half())
-                    inputs = [tensor_input, self.use_cache, cache_params, self.skip_flag_false]
-                    if i < step_start:
-                        noise_pred, delta_cache = self.transformer(*inputs)
-                    else:
-                        if i % self.step_interval == self.step_contrast:
-                            noise_pred, delta_cache = self.transformer(*inputs)
-                        else:
-                            inputs[-1] = self.skip_flag_true
-                            noise_pred, delta_cache = self.transformer(*inputs)
+                noise_pred = self.transformer(tensor_input)
 
                 # if learn_sigma
                 noise_pred, _ = noise_pred.chunk(2, dim=1)

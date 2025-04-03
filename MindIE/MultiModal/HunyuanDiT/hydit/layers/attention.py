@@ -15,13 +15,10 @@
 # limitations under the License.
 
 
-import math
-
 import torch
 import torch.nn as nn
-import torch_npu
 
-from mindiesd import rotary_position_embedding
+from mindiesd import rotary_position_embedding, attention_forward
 from .norm import get_normalization_helper
 
 EPS_DEFAULT = 1e-6
@@ -89,31 +86,15 @@ class Attention(nn.Module):
         key = self.k_norm(key)
 
         # position embedding q and k, and flash attention
+        query = rotary_position_embedding(query, cos, sin, rotated_mode=self.rotated_mode, head_first=False)
         if not self.is_cross_attention:
-            query = query.transpose(1, 2)
-            key = key.transpose(1, 2)
-            value = value.transpose(1, 2)
-
-            query = rotary_position_embedding(query, cos, sin, rotated_mode=self.rotated_mode, head_first=True)
-            key = rotary_position_embedding(key, cos, sin, rotated_mode=self.rotated_mode, head_first=True)
-
-            hidden_states = torch_npu.npu_fusion_attention(
-                query, key, value,
-                head_num=self.num_heads,
-                input_layout="BNSD",
-                scale=1.0 / math.sqrt(self.head_dim),
-            )[0]
-            hidden_states = hidden_states.transpose(1, 2).reshape(batch_size, -1, self.num_heads * self.head_dim)
+            key = rotary_position_embedding(key, cos, sin, rotated_mode=self.rotated_mode, head_first=False)
+            hidden_states = attention_forward(query, key, value, opt_mode="manual",
+                                              op_type="fused_attn_score", layout="BNSD")
         else:
-            query = rotary_position_embedding(query, cos, sin, rotated_mode=self.rotated_mode, head_first=False)
-
-            hidden_states = torch_npu.npu_fusion_attention(
-                query, key, value,
-                head_num=self.num_heads,
-                input_layout="BSND",
-                scale=1.0 / math.sqrt(self.head_dim),
-            )[0]
-            hidden_states = hidden_states.reshape(batch_size, -1, self.num_heads * self.head_dim)
+            hidden_states = attention_forward(query, key, value, opt_mode="manual",
+                                              op_type="fused_attn_score", layout="BSND")
+        hidden_states = hidden_states.reshape(batch_size, -1, self.num_heads * self.head_dim)
 
         hidden_states = self.out_proj(hidden_states)
         return hidden_states

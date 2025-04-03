@@ -15,39 +15,35 @@
 # limitations under the License.
 
 
-import collections.abc
-from itertools import repeat
-from functools import partial
-
 import torch.nn as nn
-from mindiesd import get_activation_layer
+from mindiesd import get_activation_layer, Linear
 
 
 class Mlp(nn.Module):
-    """ MLP as used in Vision Transformer, MLP-Mixer and related networks
-    """
 
-    def __init__(
-            self,
-            features_in,
-            features_hidden=None,
-            features_out=None,
-            act_layer="gelu",
-            norm_layer=None,
-            bias=True,
-            use_conv=False,
-    ):
+    def __init__(self,
+                 features_in,
+                 features_hidden=None,
+                 features_out=None,
+                 act_layer="gelu",
+                 norm_layer=None,
+                 bias=True,
+                 op_type=None):
         super().__init__()
+
         features_out = features_out or features_in
         features_hidden = features_hidden or features_in
-        to_2tuple = self._ntuple(2)
-        bias = to_2tuple(bias)
-        linear_layer = partial(nn.Conv2d, kernel_size=1) if use_conv else nn.Linear
 
-        self.fc1 = linear_layer(features_in, features_hidden, bias=bias[0])  
+        if op_type is None:
+            self.fc1 = nn.Linear(features_in, features_hidden, bias=bias)
+            self.fc2 = nn.Linear(features_hidden, features_out, bias=bias)
+        else:
+            self.fc1 = Linear(features_in, features_hidden, bias=bias, op_type=op_type)
+            self.fc2 = Linear(features_hidden, features_out, bias=bias, op_type=op_type)
+
         self.act = act_layer() if not isinstance(act_layer, str) else get_activation_layer(act_layer)
         self.norm = norm_layer(features_hidden) if norm_layer is not None else nn.Identity()
-        self.fc2 = linear_layer(features_hidden, features_out, bias=bias[1])
+        
 
     def forward(self, x):
         x = self.fc1(x)
@@ -55,10 +51,3 @@ class Mlp(nn.Module):
         x = self.norm(x)
         x = self.fc2(x)
         return x
-
-    def _ntuple(self, n):
-        def parse(x):
-            if isinstance(x, collections.abc.Iterable) and not isinstance(x, str):
-                return tuple(x)
-            return tuple(repeat(x, n))
-        return parse

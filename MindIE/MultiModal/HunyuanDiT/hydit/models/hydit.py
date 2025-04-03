@@ -53,8 +53,10 @@ class HunyuanDiTBlock(nn.Module):
 
         # ========================= FFN =========================
         self.norm2 = get_normalization_helper(norm_type, hidden_size, eps=1e-6)
-        self.mlp = Mlp(
-            features_in=hidden_size, features_hidden=int(hidden_size * mlp_ratio), act_layer="gelu-tanh")
+        self.mlp = Mlp(features_in=hidden_size,
+                       features_hidden=int(hidden_size * mlp_ratio),
+                       act_layer="gelu-tanh",
+                       op_type=None)
 
         # ========================= Add =========================
         # Simply use add like SDXL.
@@ -78,6 +80,9 @@ class HunyuanDiTBlock(nn.Module):
         else:
             self.skip_linear = None
 
+        # Attention Cache
+        self.cache = None
+
 
     def forward(self, x, tensor_input, skip=None, layer=0):
         c, text_states, freqs_cis_img = tensor_input
@@ -88,9 +93,12 @@ class HunyuanDiTBlock(nn.Module):
             x = self.skip_linear(cat)
         # Self-Attention
         shift_msa = self.default_modulation(c).unsqueeze(dim=1)
-        x = x + self.attn1(hidden_states=self.norm1(x) + shift_msa,
-                           freqs_cis_img=freqs_cis_img,
-                           layer=layer)
+        y = self.cache.apply(self.attn1,
+                             hidden_states=self.norm1(x) + shift_msa,
+                             freqs_cis_img=freqs_cis_img,
+                             layer=layer)
+        x = x + y
+
         # Cross-Attention
         x = x + self.attn2(hidden_states=self.norm3(x),
                            encoder_hidden_states=text_states,
@@ -241,28 +249,20 @@ class HunyuanDiT2DModel(DiffusionModel):
         self.unpatchify_channels = self.out_channels
 
 
-    def forward(self,
-                tensor_input=None,
-                use_cache: bool = False,
-                cache_params=None,
-                if_skip: int = 0):
-
+    def forward(self, tensor_input=None):
         x, t, encoder_hidden_states, embeds_and_mask_input, freqs_cis_img = tensor_input
-        if use_cache:
-            block_start, num_blocks, delta_cache = cache_params
 
         text_embedding_mask, encoder_hidden_states_t5, text_embedding_mask_t5, image_meta_size, style = \
             embeds_and_mask_input
-        text_states = encoder_hidden_states
-        text_states_t5 = encoder_hidden_states_t5
+        text_states = encoder_hidden_states  # [2, 77, 1024]
+        text_states_t5 = encoder_hidden_states_t5  # [2, 256, 1024]
         text_states_mask = text_embedding_mask.bool()
         text_states_t5_mask = text_embedding_mask_t5.bool()
         b_t5, l_t5, c_t5 = text_states_t5.shape
         text_states_t5 = self.mlp_t5(text_states_t5.view(-1, c_t5))
-        text_states = torch.cat([text_states, text_states_t5.view(b_t5, l_t5, -1)], dim=1)  # 2,205，1024
+        text_states = torch.cat([text_states, text_states_t5.view(b_t5, l_t5, -1)], dim=1)  # [2, 333, 1024]
         clip_t5_mask = torch.cat([text_states_mask, text_states_t5_mask], dim=-1)
 
-        clip_t5_mask = clip_t5_mask
         text_states = torch.where(clip_t5_mask.unsqueeze(2), text_states, self.text_embedding_padding.to(text_states))
 
         # The input x shape is [2, 4, 128, 128]
@@ -291,33 +291,9 @@ class HunyuanDiT2DModel(DiffusionModel):
 
         # Forward pass through HunYuanDiT blocks
         tensor_input = (c, text_states, freqs_cis_img)
-        if not use_cache:
-            skips = []
-            for layer, block in enumerate(self.blocks):
-                if layer > self.config.depth // 2:
-                    skip = skips.pop()
-                    x = block(x, tensor_input, skip=skip, layer=layer)         # (N, L, D)
-                else:
-                    x = block(x, tensor_input, skip=None, layer=layer)         # (N, L, D)
 
-                if layer < (self.config.depth // 2 - 1):
-                    skips.append(x)
-        else:
-            cache_params = (use_cache, if_skip, block_start, num_blocks)
-            x, delta_cache = self._forward_blocks(x, tensor_input, cache_params, delta_cache)
-
-        # Final layer
-        x = self.final_layer(x, c)                              # (N, L, patch_size ** 2 * out_channels)
-        x = self._unpatchify(x, th, tw)
-
-        if use_cache:
-            return x, delta_cache
-
-        return x
-
-
-    def _forward_blocks_range(self, x, tensor_input, skips, start_idx, end_idx):
-        for layer, block in zip(range(start_idx, end_idx), self.blocks[start_idx : end_idx]):
+        skips = []
+        for layer, block in enumerate(self.blocks):
             if layer > self.config.depth // 2:
                 skip = skips.pop()
                 x = block(x, tensor_input, skip=skip, layer=layer)         # (N, L, D)
@@ -326,27 +302,12 @@ class HunyuanDiT2DModel(DiffusionModel):
 
             if layer < (self.config.depth // 2 - 1):
                 skips.append(x)
-        return x, skips
 
+        # Final layer
+        x = self.final_layer(x, c)                              # (N, L, patch_size ** 2 * out_channels)
+        x = self._unpatchify(x, th, tw)
 
-    def _forward_blocks(self, x, tensor_input, cache_params, delta_cache):
-        use_cache, if_skip, block_start, num_blocks = cache_params
-        skips = []
-        if not use_cache:
-            x, skips = self._forward_blocks_range(x, tensor_input, skips, 0, len(self.blocks))
-        else:
-            x, skips = self._forward_blocks_range(x, tensor_input, skips, 0, block_start)
-
-            cache_end = block_start + num_blocks
-            x_before_cache = x.clone()
-            if not if_skip:
-                x, skips = self._forward_blocks_range(x, tensor_input, skips, block_start, cache_end)
-                delta_cache = x - x_before_cache
-            else:
-                x = x_before_cache + delta_cache
-            
-            x, skips = self._forward_blocks_range(x, tensor_input, skips, cache_end, len(self.blocks))
-        return x, delta_cache
+        return x
 
 
     def _load_weights(self, state_dict):
