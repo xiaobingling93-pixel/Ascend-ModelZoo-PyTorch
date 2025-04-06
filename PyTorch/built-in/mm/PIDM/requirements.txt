@@ -9,7 +9,7 @@ scipy==1.5.4
 tensorboard==2.6.0
 tqdm==4.62.3
 pydantic==1.10.14
-wandb
+wandb==0.17.5
 tensorfn
 attrs==24.2.0
 torchaudio==2.1.0
