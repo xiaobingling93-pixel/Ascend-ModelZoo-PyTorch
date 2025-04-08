@@ -78,9 +78,9 @@ docker exec -it ${容器名称} bash
 
 ## 量化权重生成
 ### Atlas 800I A2 w8a8量化
-* 生成量化权重依赖msModelSlim工具，安装方式见[此README](https://gitee.com/ascend/msit/tree/dev/msmodelslim)
+* 生成量化权重依赖msModelSlim工具，安装方式见[此README](https://gitee.com/ascend/msit/tree/master/msmodelslim)
 
-* 量化权重统一使用${ATB_SPEED_HOME_PATH}/examples/convert/model_slim/quantifier.py脚本生成，以下提供Llama模型量化权重生成快速启动命令
+* 进入到msit/msmodelslim/example/Llama的目录 `cd msit/msmodelslim/example/Llama`；
 
 * W8A8量化权重请使用以下指令生成
     * 注意该量化方式仅支持在Atlas 800I A2服务器上运行
@@ -90,11 +90,8 @@ docker exec -it ${容器名称} bash
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
 # 关闭虚拟内存
 export PYTORCH_NPU_ALLOC_CONF=expandable_segments:False
-# 进入atb-models目录
-cd ${ATB_SPEED_HOME_PATH}
-sed -i '167s/m3/m4/' examples/models/llama3/generate_quant_weight.sh
-# DeepSeek-R1-Distill-Llama-70B量化 bf16，有回退层，antioutlier使用m4算法配置，使用min-max量化方式，校准数据集使用50条BoolQ数据，在NPU上进行运算
-bash examples/models/llama3/generate_quant_weight.sh -src {浮点权重路径} -dst {W8A8量化权重路径} -type llama3.1_70b_instruct_bf16_w8a8
+# 运行量化转换脚本
+python3 quant_llama.py --model_path {浮点权重路径} --save_directory {W8A8量化权重路径} --calib_file ../common/boolq.jsonl  --device_type npu --disable_level L5 --anti_method m4 --act_method 3 
 ```
 
 ## 纯模型推理
@@ -109,7 +106,7 @@ cd $ATB_SPEED_HOME_PATH
 执行对话测试
 
 ```shell
-torchrun --nproc_per_node 2 \
+torchrun --nproc_per_node 8 \
          --master_port 20037 \
          -m examples.run_pa \
          --model_path ${权重路径} \
@@ -195,10 +192,8 @@ curl 127.0.0.1:1025/generate -d '{
 "max_tokens": 32,
 "stream": false,
 "do_sample":true,
-"repetition_penalty": 1.00,
-"temperature": 0.01,
-"top_p": 0.001,
-"top_k": 1,
+"temperature": 0.6,
+"top_p": 0.95,
 "model": "llama"
 }'
 ```
@@ -209,8 +204,8 @@ curl 127.0.0.1:1025/generate -d '{
 1. ImportError: cannot import name 'shard_checkpoint' from 'transformers.modeling_utils'. 降低transformers版本可解决。
 
 ```shell
-pip install transformers==4.46.3 --force-reinstall
-pip install numpy==1.26.4 --force-reinstall
+pip install transformers==4.46.3
+pip install numpy==1.26.4
 ```
 
 ## 声明
