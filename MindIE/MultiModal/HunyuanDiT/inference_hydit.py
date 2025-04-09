@@ -166,12 +166,6 @@ def parse_arguments():
     parser.add_argument("--use_lora", action="store_true", help="Use LoRA checkpoint")
     parser.add_argument("--lora_ckpt", type=str, default="ckpts/lora", help="LoRA checkpoint")
 
-    parser.add_argument("--use_cache", action="store_true", help="Run or not using cache")
-    parser.add_argument("--step_start", type=int, default=9, help="The start iteration steps of cache")
-    parser.add_argument("--step_interval", type=int, default=2, help="The step interval of cache")
-    parser.add_argument("--block_start", type=int, default=5, help="The block start of cache")
-    parser.add_argument("--num_blocks", type=int, default=30, help="The num blocks of cache")
-
     parser.add_argument("--beta_end", type=float, default=0.02, help="Scheduler beta_end=0.03 if model<=1.1")
     parser.add_argument("--use_style_cond", action="store_true", help="Use style condition. Only for model<=1.1")
     parser.add_argument("--size_cond", type=int, nargs="+", default=None,

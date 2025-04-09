@@ -65,7 +65,6 @@ class Attention(nn.Module):
             raise ValueError("Input hidden_states should not be none.")
         if freqs_cis_img is None:
             raise ValueError("Input freqs_cis_img should not be none.")
-        cos, sin = freqs_cis_img
 
         # only support BNC now.
         if hidden_states.ndim != 3: # 3: BNC
@@ -85,6 +84,9 @@ class Attention(nn.Module):
         query = self.q_norm(query)
         key = self.k_norm(key)
 
+        cos, sin = freqs_cis_img
+        cos, sin = reshape_for_broadcast(query, cos, sin, head_first=False)
+
         # position embedding q and k, and flash attention
         query = rotary_position_embedding(query, cos, sin, rotated_mode=self.rotated_mode, head_first=False)
         if not self.is_cross_attention:
@@ -98,3 +100,12 @@ class Attention(nn.Module):
 
         hidden_states = self.out_proj(hidden_states)
         return hidden_states
+
+
+def reshape_for_broadcast(x, cos, sin, head_first=False):
+    ndim = x.ndim
+    if head_first:
+        shape = [d if i == ndim - 2 or i == ndim - 1 else 1 for i, d in enumerate(x.shape)]
+    else:
+        shape = [d if i == 1 or i == ndim - 1 else 1 for i, d in enumerate(x.shape)]
+    return cos.view(*shape), sin.view(*shape)
