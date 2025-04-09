@@ -6,7 +6,7 @@ build
 dist
 
 # files from script downloads
-data
-openfold/resources/
+#data
+#openfold/resources/
 tests/test_data/
-cutlass/
+#cutlass/
