@@ -104,9 +104,9 @@ export ASCEND_RT_VISIBLE_DEVICES=0,1,2,3
 export PYTORCH_NPU_ALLOC_CONF=expandable_segments:False
 ```
 
-### Atlas 300I DUO/Atlas 300I Pro/Atlas 300V稀疏量化
+### Atlas 300I DUO稀疏量化
   - Step 1
-    - 注意该量化方式仅支持在Atlas 300I DUO/Atlas 300I Pro/Atlas 300V卡上运行
+    - 注意该量化方式仅支持在Atlas 300I DUO卡上运行
     - 修改模型权重config.json中`torch_dtype`字段为`float16`
     - 环境配置请参考[使用说明](https://gitee.com/ascend/msit/blob/master/msmodelslim/README.md)
     - git clone下载msit仓代码； `git clone https://gitee.com/ascend/msit.git`
@@ -127,11 +127,11 @@ export PYTORCH_NPU_ALLOC_CONF=expandable_segments:False
       python3 quant_qwen.py --model_path {浮点权重路径} --save_directory {W8A8S量化权重路径} --calib_file ../common/cn_en.jsonl --w_bit 4 --a_bit 8 --fraction 0.011 --co_sparse True --device_type npu --use_sigma True --is_lowbit True --sigma_factor 4.0 --anti_method m4
       ```
 
-    **Atlas 300I DUO/Atlas 300I Pro/Atlas 300V**使用以下方式生成W8A8S量化权重，机器内存需要至少350G, 否者可能会因为内存不足提前退出。
+    **Atlas 300I DUO**使用以下方式生成W8A8S量化权重，机器内存需要至少350G, 否者可能会因为内存不足提前退出。
       ```bash
       python3 quant_qwen.py --model_path {浮点权重路径} --save_directory {W8A8S量化权重路径} --calib_file ../common/cn_en.jsonl --w_bit 4 --a_bit 8 --fraction 0.011 --co_sparse True --device_type cpu --use_sigma True --is_lowbit True --sigma_factor 4.0 --anti_method m4
       ```
-    >  Atlas 300I DUO/Atlas 300I Pro/Atlas 300V量化过程耗时较长，预计10小时左右，可以在Atlas 800I A2上先生成W8A8S量化权重路径，再搬运到Atlas 300I DUO/Atlas 300I Pro/Atlas 300V执行后续步骤。
+    >  Atlas 300I DUO量化过程耗时较长，预计10小时左右，可以在Atlas 800I A2上先生成W8A8S量化权重路径，再搬运到Atlas 300I DUO执行后续步骤。
 
   - Step 2：量化权重切分及压缩
     ```shell

@@ -110,7 +110,7 @@ export PYTORCH_NPU_ALLOC_CONF=expandable_segments:False
 ```
 ### 稀疏量化
   - Step 1
-    - 注意该量化方式仅支持在Atlas 300I DUO/Atlas 300I Pro/Atlas 300V卡上运行
+    - 注意该量化方式仅支持在Atlas 300I DUO卡上运行
     - 修改模型权重config.json中`torch_dtype`字段为`float16`
     - 下载msmodelslim量化工具
     - 下载地址为https://gitee.com/ascend/msit/tree/master/msmodelslim
