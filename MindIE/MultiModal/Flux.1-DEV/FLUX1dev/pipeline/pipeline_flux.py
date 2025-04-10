@@ -527,7 +527,6 @@ class FluxPipeline(DiffusionPipeline, FluxLoraLoaderMixin):
         callback_on_step_end_tensor_inputs: List[str] = ["latents"],
         max_sequence_length: int = 512,
         use_cache: bool = True,
-        cache_dict: list = None,
     ):
         r"""
         Function invoked when calling the pipeline for generation.
@@ -716,7 +715,6 @@ class FluxPipeline(DiffusionPipeline, FluxLoraLoaderMixin):
                     img_ids=latent_image_ids,
                     joint_attention_kwargs=self.joint_attention_kwargs,
                     use_cache=use_cache,
-                    cache_dict=cache_dict,
                     return_dict=False,
                     step_idx=i,
                 )[0]

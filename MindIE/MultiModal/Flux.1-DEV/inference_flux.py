@@ -31,14 +31,6 @@ from FLUX1dev.utils import check_prompts_valid, check_param_valid, check_dir_saf
 
 torch_npu.npu.set_compile_mode(jit_compile=False)
 
-cache_dict = {}
-cache_dict['cache_start_block'] = 5
-cache_dict['num_cache_layer_block'] = 13
-cache_dict['cache_start_single_block'] = 1
-cache_dict['num_cache_layer_single_block'] = 23
-cache_dict['cache_start_steps'] = 18
-cache_dict['cache_interval'] = 2
-
 
 class PromptLoader:
     def __init__(
@@ -277,7 +269,6 @@ def infer(args):
             num_inference_steps=args.infer_steps,
             max_sequence_length=512,
             use_cache=args.use_cache,
-            cache_dict=cache_dict,
         )
 
         if infer_num > 3:

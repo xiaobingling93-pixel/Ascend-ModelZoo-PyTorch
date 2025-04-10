@@ -363,7 +363,6 @@ class FluxTransformer2DModel(ModelMixin, ConfigMixin, PeftAdapterMixin, FromOrig
         guidance: torch.Tensor = None,
         joint_attention_kwargs: Optional[Dict[str, Any]] = None,
         use_cache: bool = True,
-        cache_dict: list = None,
         return_dict: bool = True,
         step_idx: int = 0,
     ) -> Union[torch.FloatTensor, Transformer2DModelOutput]:

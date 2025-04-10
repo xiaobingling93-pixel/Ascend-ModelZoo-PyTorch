@@ -32,8 +32,8 @@ logger = logging.get_logger(__name__)
 
 def apply_rotary_emb_mindiesd(x, freqs_cis):
     cos, sin = freqs_cis
-    cos = cos[None, None]
-    sin = sin[None, None]
+    cos = cos.reshape(1, cos.shape[0], 1, cos.shape[1])
+    sin = sin.reshape(1, sin.shape[0], 1, sin.shape[1])
     cos, sin = cos.to(x.device), sin.to(x.device)
 
     return rotary_position_embedding(x, cos, sin, rotated_mode="rotated_interleaved", head_first=False, fused=True)
