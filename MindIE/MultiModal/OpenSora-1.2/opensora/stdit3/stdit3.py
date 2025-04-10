@@ -354,6 +354,15 @@ class STDiT3(DiffusionModel):
         # cast to float32 for better accuracy
         x = x.to(torch.float32)
         return x
+    
+    def load_weights(self, state_dict, shard=False):
+        with torch.no_grad():
+            if not shard:
+                self.load_state_dict(state_dict)
+                return {}
+            else:
+                self.load_state_dict(state_dict, strict=False)
+                return state_dict.keys()
 
     def _init_embedding(self, config):
         self.x_embedder = PatchEmbed3D(self.patch_size, config.in_channels, self.hidden_size)

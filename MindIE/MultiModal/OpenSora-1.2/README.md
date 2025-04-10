@@ -34,6 +34,10 @@ source /usr/local/Ascend/ascend-toolkit/set_env.sh
 pip3 install -r requirements.txt
 ```
 
+安装colossalai
+```shell
+pip3 install colossalai==0.4.4 --no-deps
+```
 ### 1.4 MindIE安装
 ```shell
 # 增加软件包可执行权限，{version}表示软件版本号，{arch}表示CPU架构。

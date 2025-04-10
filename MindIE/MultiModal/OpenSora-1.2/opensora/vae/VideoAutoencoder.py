@@ -197,3 +197,12 @@ class VideoAutoencoder(DiffusionModel):
             x = self.spatial_vae.decode(x_z)
 
         return x
+
+    def load_weights(self, state_dict, shard=False):
+        with torch.no_grad():
+            if not shard:
+                self.load_state_dict(state_dict)
+                return {}
+            else:
+                self.load_state_dict(state_dict, strict=False)
+                return state_dict.keys()
