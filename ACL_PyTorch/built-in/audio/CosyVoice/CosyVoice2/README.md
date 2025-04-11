@@ -8,7 +8,7 @@
   - [模型推理](#模型推理)
     - [1 模型转换](#1-模型转换)
     - [2 开始推理验证](#2-开始推理验证)
-    - [3 性能数据](#3-性能)
+    - [3 性能数据](#3-性能数据)
 
 ******
 
@@ -120,7 +120,7 @@
    ```
    atc --framework=5 --soc_version=${soc_version} --model ./${CosyVoice2-0.5B}/speech_token_md.onnx --output ./${CosyVoice2-0.5B}/speech --input_shape="feats:1,128,-1;feats_length:1"
    atc --framework=5 --soc_version=${soc_version} --model ./${CosyVoice2-0.5B}/flow.decoder.estimator.fp32.onnx --output ./${CosyVoice2-0.5B}/flow --input_shape="x:2,80,-1;mask:2,1,-1;mu:2,80,-1;t:2;spks:2,80;cond:2,80,-1"
-   atc --framework=5 --soc_version=${soc_version} --model ./${CosyVoice2-0.5B}/flow.decoder.estimator.fp32.onnx --output ./${CosyVoice2-0.5B}/flow_static --input_shape="x:2,80,-1;mask:2,1,-1;mu:2,80,-1;t:2;spks:2,80;cond:2,80,-1" --dynamic_dims="100,100,100,100;200,200,200,200;300,300,300,300;400,400,400,400;500,500,500,500;600,600,600,600;700,700,700,700"
+   atc --framework=5 --soc_version=${soc_version} --model ./${CosyVoice2-0.5B}/flow.decoder.estimator.fp32.onnx --output ./${CosyVoice2-0.5B}/flow_static --input_shape="x:2,80,-1;mask:2,1,-1;mu:2,80,-1;t:2;spks:2,80;cond:2,80,-1" --dynamic_dims="100,100,100,100;200,200,200,200;300,300,300,300;400,400,400,400;500,500,500,500;600,600,600,600;700,700,700,700" --input_format=ND
    ```
    在权重目录CosyVoice2-0.5B下会生成三个om模型, 分别为 speech_{arch}.om和flow_{arch}.om，flow_static.om。其中flow_static.om为分档模型，在流式输出中生效，档位设置为模型中默认流式输出token档位，如果在模型中修改token_hope_len，档位也需要对应修改。
 

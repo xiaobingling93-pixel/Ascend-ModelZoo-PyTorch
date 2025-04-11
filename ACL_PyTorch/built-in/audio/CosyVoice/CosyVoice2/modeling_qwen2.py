@@ -12,7 +12,6 @@ import inspect
 import math
 import warnings
 from typing import List, Optional, Tuple, Union
-import time
 import torch
 import torch_npu
 import torchair as tng
@@ -20,35 +19,21 @@ from torchair.configs.compiler_config import CompilerConfig
 import torch.nn.functional as F
 import torch.utils.checkpoint
 from torch import nn
-from torch.nn import BCEWithLogitsLoss, CrossEntropyLoss, MSELoss
+from torch.nn import CrossEntropyLoss
 from ...activations import ACT2FN
 from ...cache_utils import Cache, DynamicCache
-from ...modeling_attn_mask_utils import _prepare_4d_causal_attention_mask, _prepare_4d_causal_attention_mask_for_sdpa
-from ...modeling_outputs import BaseModelOutputWithPast, CausalLMOutputWithPast, SequenceClassifierOutputWithPast
+from ...modeling_outputs import BaseModelOutputWithPast, CausalLMOutputWithPast
 from ...modeling_utils import PreTrainedModel
 from ...utils import (
     add_start_docstrings,
-    add_start_docstrings_to_model_forward,
     is_flash_attn_2_available,
-    is_flash_attn_greater_or_equal_2_10,
-    logging,
-    replace_return_docstrings,
+    logging
 )
 from .configuration_qwen2 import Qwen2Config
 
 
-if is_flash_attn_2_available():
-    from flash_attn import flash_attn_func, flash_attn_varlen_func
-    from flash_attn.bert_padding import index_first_axis, pad_input, unpad_input  # noqa
-
-    _flash_supports_window_size = "window_size" in list(inspect.signature(flash_attn_func).parameters)
-
-
 logger = logging.get_logger(__name__)
 
-
-_CHECKPOINT_FOR_DOC = "Qwen/Qwen2-7B-beta"
-_CONFIG_FOR_DOC = "Qwen2Config"
 
 QWEN2_PRETRAINED_MODEL_ARCHIVE_LIST = [
     "Qwen/Qwen2-7B-beta",
@@ -273,8 +258,6 @@ class Qwen2SdpaAttention(Qwen2Attention):
 
 
 QWEN2_ATTENTION_CLASSES = {
-    "eager": Qwen2Attention,
-    "flash_attention_2": Qwen2FlashAttention2,
     "sdpa": Qwen2SdpaAttention,
 }
 
@@ -366,7 +349,6 @@ class Qwen2DecoderLayer(nn.Module):
 
 @add_start_docstrings(
     "The bare Qwen2 Model outputting raw hidden-states without any specific head on top.",
-    QWEN2_START_DOCSTRING,
 )
 class Qwen2PreTrainedModel(PreTrainedModel):
     config_class = Qwen2Config
@@ -393,7 +375,6 @@ class Qwen2PreTrainedModel(PreTrainedModel):
 # Ascend优化：forward函数利用torchair编译为图模式，利用cache接口避免重复编译
 @add_start_docstrings(
     "The bare Qwen2 Model outputting raw hidden-states without any specific head on top.",
-    QWEN2_START_DOCSTRING,
 )
 class Qwen2Model(Qwen2PreTrainedModel):
     """
@@ -468,7 +449,7 @@ class Qwen2Model(Qwen2PreTrainedModel):
         output_attentions: Optional[bool] = None,
         output_hidden_states: Optional[bool] = None,
         return_dict: Optional[bool] = None,
-        lm_head: Optional[function] = None
+        lm_head: Optional[object] = None
     ) -> Union[Tuple, BaseModelOutputWithPast]:
         # prefill和decode需要编译为两个不同的模型
         if inputs_embeds.size(1) > 1:
@@ -518,7 +499,7 @@ class Qwen2Model(Qwen2PreTrainedModel):
         output_attentions: Optional[bool] = None,
         output_hidden_states: Optional[bool] = None,
         return_dict: Optional[bool] = None,
-        lm_head: Optional[function] = None       
+        lm_head: Optional[object] = None       
     ):
         return self._forward(
             input_ids,
@@ -550,7 +531,7 @@ class Qwen2Model(Qwen2PreTrainedModel):
         output_attentions: Optional[bool] = None,
         output_hidden_states: Optional[bool] = None,
         return_dict: Optional[bool] = None,
-        lm_head: Optional[function] = None      
+        lm_head: Optional[object] = None      
     ):
         return self._forward(
             input_ids,
@@ -569,7 +550,6 @@ class Qwen2Model(Qwen2PreTrainedModel):
         )
 
 
-    @add_start_docstrings_to_model_forward(QWEN2_INPUTS_DOCSTRING)
     def _forward(
         self,
         input_ids: torch.LongTensor = None,
@@ -584,7 +564,7 @@ class Qwen2Model(Qwen2PreTrainedModel):
         output_attentions: Optional[bool] = None,
         output_hidden_states: Optional[bool] = None,
         return_dict: Optional[bool] = None,
-        lm_head: Optional[function] = None
+        lm_head: Optional[object] = None
     ) -> Union[Tuple, BaseModelOutputWithPast]:
         output_attentions = output_attentions if output_attentions is not None else self.config.output_attentions
         output_hidden_states = (
@@ -604,12 +584,6 @@ class Qwen2Model(Qwen2PreTrainedModel):
         else:
             raise ValueError("You have to specify either decoder_input_ids or decoder_inputs_embeds")
 
-        if self.gradient_checkpointing and self.training:
-            if use_cache:
-                logger.warning_once(
-                    "`use_cache=True` is incompatible with gradient checkpointing. Setting `use_cache=False`..."
-                )
-                use_cache = False
 
         # prefill阶段初始化kv cache，decode阶段对kv cache进行更新
         # 固定kv cache为最大shape，避免内存的重复申请和拷贝，也保证了模型的静态shape，可整图下发推理
@@ -640,15 +614,6 @@ class Qwen2Model(Qwen2PreTrainedModel):
 
         if inputs_embeds is None:
             inputs_embeds = self.embed_tokens(input_ids)
-
-        if attention_mask is not None and self._attn_implementation == "flash_attention_2" and use_cache:
-            is_padding_right = attention_mask[:, -1].sum().item() != batch_size
-            if is_padding_right:
-                raise ValueError(
-                    "You are attempting to perform batched generation with padding_side='right'"
-                    " this may lead to unexpected behaviour for Flash Attention version of Qwen2. Make sure to "
-                    " call `tokenizer.padding_side  = 'left'` before tokenizing the input. "
-                )
 
         hidden_states = inputs_embeds
 
@@ -754,8 +719,6 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel):
     def get_decoder(self):
         return self.model
 
-    @add_start_docstrings_to_model_forward(QWEN2_INPUTS_DOCSTRING)
-    @replace_return_docstrings(output_type=CausalLMOutputWithPast, config_class=_CONFIG_FOR_DOC)
     def forward(
         self,
         input_ids: torch.LongTensor = None,
@@ -770,7 +733,7 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel):
         output_hidden_states: Optional[bool] = None,
         return_dict: Optional[bool] = None
     ) -> Union[Tuple, CausalLMOutputWithPast]:
-        r"""
+        """
         对CosyVoice2模型中使用的Qwen模型进行昇腾适配优化，具体优化点有：
         1. 固定KV CACHE大小，避免重复申请内存和拷贝
         2. 替换部分算子为昇腾自定义算子
