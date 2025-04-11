@@ -1,0 +1,184 @@
+diff --git a/segmentation/configs/ade20k/upernet_internimage_h_896_160k_ade20k.py b/segmentation/configs/ade20k/upernet_internimage_h_896_160k_ade20k.py
+index 32f0f23..4b13761 100644
+--- a/segmentation/configs/ade20k/upernet_internimage_h_896_160k_ade20k.py
++++ b/segmentation/configs/ade20k/upernet_internimage_h_896_160k_ade20k.py
+@@ -52,16 +52,12 @@ test_pipeline = [
+     dict(type='LoadImageFromFile'),
+     dict(
+         type='MultiScaleFlipAug',
+-        img_scale=(3584, 896),
+         # img_ratios=[0.5, 0.75, 1.0, 1.25, 1.5, 1.75],
+-        flip=False,
+         transforms=[
+-            dict(type='Resize', keep_ratio=True),
+-            dict(type='ResizeToMultiple', size_divisor=32),
+-            dict(type='RandomFlip'),
++            dict(type='Resize', keep_ratio=True, scale=(3584, 896)),
++            dict(type='mmseg.ResizeToMultiple', size_divisor=32),
+             dict(type='Normalize', **img_norm_cfg),
+-            dict(type='ImageToTensor', keys=['img']),
+-            dict(type='Collect', keys=['img']),
++            dict(type='mmseg.PackSegInputs'),
+         ])
+ ]
+ optimizer = dict(
+diff --git a/segmentation/mmcv_custom/__init__.py b/segmentation/mmcv_custom/__init__.py
+index 22f0aee..43ab9c6 100644
+--- a/segmentation/mmcv_custom/__init__.py
++++ b/segmentation/mmcv_custom/__init__.py
+@@ -5,7 +5,4 @@
+ # --------------------------------------------------------
+ 
+ # -*- coding: utf-8 -*-
+-from .custom_layer_decay_optimizer_constructor import \
+-    CustomLayerDecayOptimizerConstructor
+ 
+-__all__ = ['CustomLayerDecayOptimizerConstructor',]
+diff --git a/segmentation/mmseg_custom/__init__.py b/segmentation/mmseg_custom/__init__.py
+index a25c0f2..56bfa61 100644
+--- a/segmentation/mmseg_custom/__init__.py
++++ b/segmentation/mmseg_custom/__init__.py
+@@ -4,6 +4,4 @@
+ # Licensed under The MIT License [see LICENSE for details]
+ # --------------------------------------------------------
+ 
+-from .core import *  # noqa: F401,F403
+-from .datasets import *  # noqa: F401,F403
+ from .models import *  # noqa: F401,F403
+diff --git a/segmentation/mmseg_custom/models/__init__.py b/segmentation/mmseg_custom/models/__init__.py
+index e80ff3f..1526e4d 100644
+--- a/segmentation/mmseg_custom/models/__init__.py
++++ b/segmentation/mmseg_custom/models/__init__.py
+@@ -5,8 +5,3 @@
+ # --------------------------------------------------------
+ 
+ from .backbones import *  # noqa: F401,F403
+-from .decode_heads import *  # noqa: F401,F403
+-from .losses import *  # noqa: F401,F403
+-from .plugins import *  # noqa: F401,F403
+-from .segmentors import *  # noqa: F401,F403
+-from .utils import *  # noqa: F401,F403
+diff --git a/segmentation/mmseg_custom/models/backbones/intern_image.py b/segmentation/mmseg_custom/models/backbones/intern_image.py
+index 3eaa621..140557d 100644
+--- a/segmentation/mmseg_custom/models/backbones/intern_image.py
++++ b/segmentation/mmseg_custom/models/backbones/intern_image.py
+@@ -10,10 +10,9 @@ import torch
+ import torch.nn as nn
+ import torch.nn.functional as F
+ import torch.utils.checkpoint as checkpoint
+-from mmcv.cnn import constant_init, trunc_normal_init
+-from mmcv.runner import _load_checkpoint
++from mmengine.model import constant_init, trunc_normal_init
++from mmengine.runner.checkpoint import _load_checkpoint
+ from mmseg.models.builder import BACKBONES
+-from mmseg.utils import get_root_logger
+ from ops_dcnv3 import modules as dcnv3
+ from timm.models.layers import DropPath, trunc_normal_
+ 
+@@ -591,15 +590,16 @@ class InternImage(nn.Module):
+         self.level2_post_norm_block_ids = level2_post_norm_block_ids
+         self.frozen_stages = frozen_stages
+ 
+-        logger = get_root_logger()
+-        logger.info(f'using core type: {core_op}')
+-        logger.info(f'using activation layer: {act_layer}')
+-        logger.info(f'using main norm layer: {norm_layer}')
+-        logger.info(f'using dpr: {drop_path_type}, {drop_path_rate}')
+-        logger.info(f'level2_post_norm: {level2_post_norm}')
+-        logger.info(f'level2_post_norm_block_ids: {level2_post_norm_block_ids}')
+-        logger.info(f'res_post_norm: {res_post_norm}')
+-        logger.info(f'use_dcn_v4_op: {use_dcn_v4_op}')
++        # remove get_root_logger method because it's no longer supported in mmseg v1
++        # logger = get_root_logger()
++        # logger.info(f'using core type: {core_op}')
++        # logger.info(f'using activation layer: {act_layer}')
++        # logger.info(f'using main norm layer: {norm_layer}')
++        # logger.info(f'using dpr: {drop_path_type}, {drop_path_rate}')
++        # logger.info(f'level2_post_norm: {level2_post_norm}')
++        # logger.info(f'level2_post_norm_block_ids: {level2_post_norm_block_ids}')
++        # logger.info(f'res_post_norm: {res_post_norm}')
++        # logger.info(f'use_dcn_v4_op: {use_dcn_v4_op}')
+ 
+         in_chans = 3
+         self.patch_embed = StemLayer(in_chans=in_chans,
+@@ -660,9 +660,8 @@ class InternImage(nn.Module):
+                     param.requires_grad = False
+ 
+     def init_weights(self):
+-        logger = get_root_logger()
+         if self.init_cfg is None:
+-            logger.warn(f'No pre-trained weights for '
++            print(f'No pre-trained weights for '
+                         f'{self.__class__.__name__}, '
+                         f'training start from scratch')
+             for m in self.modules():
+@@ -676,7 +675,6 @@ class InternImage(nn.Module):
+                                                   f'`init_cfg` in ' \
+                                                   f'{self.__class__.__name__} '
+             ckpt = _load_checkpoint(self.init_cfg.checkpoint,
+-                                    logger=logger,
+                                     map_location='cpu')
+             if 'state_dict' in ckpt:
+                 _state_dict = ckpt['state_dict']
+@@ -698,7 +696,7 @@ class InternImage(nn.Module):
+ 
+             # load state_dict
+             meg = self.load_state_dict(state_dict, False)
+-            logger.info(meg)
++            print(meg)
+ 
+     def _init_weights(self, m):
+         if isinstance(m, nn.Linear):
+diff --git a/segmentation/ops_dcnv3/functions/__init__.py b/segmentation/ops_dcnv3/functions/__init__.py
+index 0634879..fdbb29e 100644
+--- a/segmentation/ops_dcnv3/functions/__init__.py
++++ b/segmentation/ops_dcnv3/functions/__init__.py
+@@ -4,4 +4,4 @@
+ # Licensed under The MIT License [see LICENSE for details]
+ # --------------------------------------------------------
+ 
+-from .dcnv3_func import DCNv3Function, dcnv3_core_pytorch
++from .dcnv3_func import dcnv3_core_pytorch
+diff --git a/segmentation/ops_dcnv3/functions/dcnv3_func.py b/segmentation/ops_dcnv3/functions/dcnv3_func.py
+index 198e70c..e586cf7 100644
+--- a/segmentation/ops_dcnv3/functions/dcnv3_func.py
++++ b/segmentation/ops_dcnv3/functions/dcnv3_func.py
+@@ -6,7 +6,6 @@
+ 
+ from __future__ import absolute_import, division, print_function
+ 
+-import DCNv3
+ import torch
+ import torch.nn.functional as F
+ from torch.autograd import Function
+diff --git a/segmentation/ops_dcnv3/modules/__init__.py b/segmentation/ops_dcnv3/modules/__init__.py
+index acb73a8..2287382 100644
+--- a/segmentation/ops_dcnv3/modules/__init__.py
++++ b/segmentation/ops_dcnv3/modules/__init__.py
+@@ -4,4 +4,4 @@
+ # Licensed under The MIT License [see LICENSE for details]
+ # --------------------------------------------------------
+ 
+-from .dcnv3 import DCNv3, DCNv3_pytorch
++from .dcnv3 import DCNv3_pytorch as DCNv3
+diff --git a/segmentation/ops_dcnv3/modules/dcnv3.py b/segmentation/ops_dcnv3/modules/dcnv3.py
+index 788b211..4026212 100644
+--- a/segmentation/ops_dcnv3/modules/dcnv3.py
++++ b/segmentation/ops_dcnv3/modules/dcnv3.py
+@@ -13,7 +13,7 @@ import torch.nn.functional as F
+ from torch import nn
+ from torch.nn.init import constant_, xavier_uniform_
+ 
+-from ..functions import DCNv3Function, dcnv3_core_pytorch
++from ..functions import dcnv3_core_pytorch
+ 
+ try:
+     from DCNv4.functions import DCNv4Function
+@@ -107,6 +107,7 @@ class DCNv3_pytorch(nn.Module):
+             offset_scale=1.0,
+             act_layer='GELU',
+             norm_layer='LN',
++            use_dcn_v4_op=None,
+             center_feature_scale=False):
+         """
+         DCNv3 Module

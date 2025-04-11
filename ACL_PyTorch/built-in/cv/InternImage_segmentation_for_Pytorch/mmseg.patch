@@ -1,0 +1,63 @@
+diff --git a/mmseg/datasets/transforms/formatting.py b/mmseg/datasets/transforms/formatting.py
+index bd25055..8bcd7dd 100644
+--- a/mmseg/datasets/transforms/formatting.py
++++ b/mmseg/datasets/transforms/formatting.py
+@@ -102,7 +102,7 @@ class PackSegInputs(BaseTransform):
+             if key in results:
+                 img_meta[key] = results[key]
+         data_sample.set_metainfo(img_meta)
+-        packed_results['data_samples'] = data_sample
++        packed_results['data_sample'] = data_sample
+ 
+         return packed_results
+ 
+diff --git a/mmseg/models/decode_heads/psp_head.py b/mmseg/models/decode_heads/psp_head.py
+index a40ec41..0f2d3ce 100644
+--- a/mmseg/models/decode_heads/psp_head.py
++++ b/mmseg/models/decode_heads/psp_head.py
+@@ -8,6 +8,24 @@ from ..utils import resize
+ from .decode_head import BaseDecodeHead
+ 
+ 
++class AdaptiveAvgPoolOp(torch.autograd.Function):
++
++    @staticmethod
++    def forward(ctx, x, output_size):
++        if isinstance(output_size, int):
++            out = torch.randn(x.shape[0], x.shape[1], output_size, output_size).to(x.dtype)
++        else:
++            out = torch.randn(x.shape[0], x.shape[1], output_size[0], output_size[1]).to(x.dtype)
++        return out
++
++    @staticmethod
++    def symbolic(g, x, output_size):
++        return g.op('ascend::AdaptiveAvgPool2d', x, output_size_i = output_size)
++
++def adaptive_avg_pool_op(x, output_size):
++    out = AdaptiveAvgPoolOp.apply(x, output_size)
++    return out
++
+ class PPM(nn.ModuleList):
+     """Pooling Pyramid Module used in PSPNet.
+ 
+@@ -35,7 +53,7 @@ class PPM(nn.ModuleList):
+         for pool_scale in pool_scales:
+             self.append(
+                 nn.Sequential(
+-                    nn.AdaptiveAvgPool2d(pool_scale),
++                    nn.Identity(), # remove the original OP and move the operation downward
+                     ConvModule(
+                         self.in_channels,
+                         self.channels,
+@@ -48,8 +66,9 @@ class PPM(nn.ModuleList):
+     def forward(self, x):
+         """Forward function."""
+         ppm_outs = []
+-        for ppm in self:
+-            ppm_out = ppm(x)
++        for i, ppm in enumerate(self):
++            ppm_out = adaptive_avg_pool_op(x, (self.pool_scales[i], self.pool_scales[i])) # redo the operation
++            ppm_out = ppm(ppm_out)
+             upsampled_ppm_out = resize(
+                 ppm_out,
+                 size=x.size()[2:],
