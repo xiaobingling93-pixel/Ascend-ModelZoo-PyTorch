@@ -1,0 +1,229 @@
+diff --git a/detection/configs/_base_/datasets/coco_instance.py b/detection/configs/_base_/datasets/coco_instance.py
+index 91461aa..d667dee 100644
+--- a/detection/configs/_base_/datasets/coco_instance.py
++++ b/detection/configs/_base_/datasets/coco_instance.py
+@@ -17,15 +17,15 @@ test_pipeline = [
+     dict(type='LoadImageFromFile'),
+     dict(
+         type='MultiScaleFlipAug',
+-        img_scale=(1333, 800),
+-        flip=False,
++        scales=(1333, 800), # for adjusting mmdet v3
++        allow_flip=False,
+         transforms=[
+-            dict(type='Resize', keep_ratio=True),
+-            dict(type='RandomFlip'),
++            dict(type='Resize', keep_ratio=True, scale=(1333, 800)),
+             dict(type='Normalize', **img_norm_cfg),
+             dict(type='Pad', size_divisor=32),
+-            dict(type='ImageToTensor', keys=['img']),
+-            dict(type='Collect', keys=['img']),
++            dict(type='mmdet.PackDetInputs', # for adjusting mmdet v3
++            meta_keys=('img_id', 'img_path', 'ori_shape', 'img_shape',
++                   'scale_factor'))
+         ])
+ ]
+ data = dict(
+@@ -43,7 +43,20 @@ data = dict(
+         pipeline=test_pipeline),
+     test=dict(
+         type=dataset_type,
+-        ann_file=data_root + 'annotations/instances_val2017.json',
+-        img_prefix=data_root + 'val2017/',
++        data_root=data_root,
++        ann_file='annotations/instances_val2017.json',
++        data_prefix=dict(img='val2017/',),
+         pipeline=test_pipeline))
+ evaluation = dict(metric=['bbox', 'segm'], classwise=True)
++test_dataloader = dict( # for adjusting mmdet v3
++    dataset=dict(
++        type=dataset_type,
++        ann_file='annotations/instances_val2017.json',
++        data_prefix=dict(img='val2017/',),
++        pipeline=test_pipeline
++    ),
++    batch_size=1,
++    num_workers=1,
++    sampler=dict(type='DefaultSampler', shuffle=False),
++    drop_last=False,
++)
+diff --git a/detection/configs/coco/cascade_internimage_xl_fpn_3x_coco.py b/detection/configs/coco/cascade_internimage_xl_fpn_3x_coco.py
+index 37dd4c3..f519591 100644
+--- a/detection/configs/coco/cascade_internimage_xl_fpn_3x_coco.py
++++ b/detection/configs/coco/cascade_internimage_xl_fpn_3x_coco.py
+@@ -145,7 +145,6 @@ optimizer = dict(
+                        depths=[5, 5, 24, 5], offset_lr_scale=0.01))
+ optimizer_config = dict(grad_clip=None)
+ # fp16 = dict(loss_scale=dict(init_scale=512))
+-evaluation = dict(save_best='auto')
+ checkpoint_config = dict(
+     interval=1,
+     max_keep_ckpts=3,
+diff --git a/detection/mmcv_custom/__init__.py b/detection/mmcv_custom/__init__.py
+index b066460..5c5235f 100644
+--- a/detection/mmcv_custom/__init__.py
++++ b/detection/mmcv_custom/__init__.py
+@@ -5,7 +5,6 @@
+ # --------------------------------------------------------
+ 
+ # -*- coding: utf-8 -*-
+-from .custom_layer_decay_optimizer_constructor import \
+-    CustomLayerDecayOptimizerConstructor
+ 
+-__all__ = ['CustomLayerDecayOptimizerConstructor']
++
++
+diff --git a/detection/mmdet_custom/__init__.py b/detection/mmdet_custom/__init__.py
+index eebe73e..56bfa61 100644
+--- a/detection/mmdet_custom/__init__.py
++++ b/detection/mmdet_custom/__init__.py
+@@ -4,5 +4,4 @@
+ # Licensed under The MIT License [see LICENSE for details]
+ # --------------------------------------------------------
+ 
+-from .datasets import *
+ from .models import *  # noqa: F401,F403
+diff --git a/detection/mmdet_custom/models/__init__.py b/detection/mmdet_custom/models/__init__.py
+index 59d47d5..1526e4d 100644
+--- a/detection/mmdet_custom/models/__init__.py
++++ b/detection/mmdet_custom/models/__init__.py
+@@ -5,6 +5,3 @@
+ # --------------------------------------------------------
+ 
+ from .backbones import *  # noqa: F401,F403
+-from .dense_heads import *  # noqa: F401,F403
+-from .detectors import *  # noqa: F401,F403
+-from .utils import *  # noqa: F401,F403
+diff --git a/detection/mmdet_custom/models/backbones/intern_image.py b/detection/mmdet_custom/models/backbones/intern_image.py
+index 6deb823..c850086 100644
+--- a/detection/mmdet_custom/models/backbones/intern_image.py
++++ b/detection/mmdet_custom/models/backbones/intern_image.py
+@@ -10,12 +10,16 @@ import torch
+ import torch.nn as nn
+ import torch.nn.functional as F
+ import torch.utils.checkpoint as checkpoint
+-from mmcv.cnn import constant_init, trunc_normal_init
+-from mmcv.runner import _load_checkpoint
+-from mmdet.models.builder import BACKBONES
+-from mmdet.utils import get_root_logger
++
+ from ops_dcnv3 import modules as dcnv3
+-from timm.models.layers import DropPath, trunc_normal_
++
++from timm.models.layers import trunc_normal_, DropPath
++from mmengine.runner.checkpoint import _load_checkpoint
++from mmengine.model import constant_init, trunc_normal_init
++from mmengine.registry import MODELS
++BACKBONES = MODELS
++HEADS = MODELS
++LOSSES = MODELS
+ 
+ 
+ class to_channels_first(nn.Module):
+@@ -588,15 +592,16 @@ class InternImage(nn.Module):
+         self.init_cfg = init_cfg
+         self.out_indices = out_indices
+         self.level2_post_norm_block_ids = level2_post_norm_block_ids
+-        logger = get_root_logger()
+-        logger.info(f'using core type: {core_op}')
+-        logger.info(f'using activation layer: {act_layer}')
+-        logger.info(f'using main norm layer: {norm_layer}')
+-        logger.info(f'using dpr: {drop_path_type}, {drop_path_rate}')
+-        logger.info(f'level2_post_norm: {level2_post_norm}')
+-        logger.info(f'level2_post_norm_block_ids: {level2_post_norm_block_ids}')
+-        logger.info(f'res_post_norm: {res_post_norm}')
+-        logger.info(f'use_dcn_v4_op: {use_dcn_v4_op}')
++        # get_root_logger method is no longer supported in mmdet v3
++        # logger = get_root_logger()
++        # logger.info(f'using core type: {core_op}')
++        # logger.info(f'using activation layer: {act_layer}')
++        # logger.info(f'using main norm layer: {norm_layer}')
++        # logger.info(f'using dpr: {drop_path_type}, {drop_path_rate}')
++        # logger.info(f'level2_post_norm: {level2_post_norm}')
++        # logger.info(f'level2_post_norm_block_ids: {level2_post_norm_block_ids}')
++        # logger.info(f'res_post_norm: {res_post_norm}')
++        # logger.info(f'use_dcn_v4_op: {use_dcn_v4_op}')
+ 
+         in_chans = 3
+         self.patch_embed = StemLayer(in_chans=in_chans,
+@@ -644,9 +649,8 @@ class InternImage(nn.Module):
+         self.apply(self._init_deform_weights)
+ 
+     def init_weights(self):
+-        logger = get_root_logger()
+         if self.init_cfg is None:
+-            logger.warn(f'No pre-trained weights for '
++            print(f'No pre-trained weights for '
+                         f'{self.__class__.__name__}, '
+                         f'training start from scratch')
+             for m in self.modules():
+@@ -660,7 +664,6 @@ class InternImage(nn.Module):
+                                                   f'`init_cfg` in ' \
+                                                   f'{self.__class__.__name__} '
+             ckpt = _load_checkpoint(self.init_cfg.checkpoint,
+-                                    logger=logger,
+                                     map_location='cpu')
+             if 'state_dict' in ckpt:
+                 _state_dict = ckpt['state_dict']
+@@ -682,7 +685,7 @@ class InternImage(nn.Module):
+ 
+             # load state_dict
+             meg = self.load_state_dict(state_dict, False)
+-            logger.info(meg)
++            print(meg)
+ 
+     def _init_weights(self, m):
+         if isinstance(m, nn.Linear):
+diff --git a/detection/ops_dcnv3/functions/__init__.py b/detection/ops_dcnv3/functions/__init__.py
+index 0634879..fdbb29e 100644
+--- a/detection/ops_dcnv3/functions/__init__.py
++++ b/detection/ops_dcnv3/functions/__init__.py
+@@ -4,4 +4,4 @@
+ # Licensed under The MIT License [see LICENSE for details]
+ # --------------------------------------------------------
+ 
+-from .dcnv3_func import DCNv3Function, dcnv3_core_pytorch
++from .dcnv3_func import dcnv3_core_pytorch
+diff --git a/detection/ops_dcnv3/functions/dcnv3_func.py b/detection/ops_dcnv3/functions/dcnv3_func.py
+index 198e70c..e586cf7 100644
+--- a/detection/ops_dcnv3/functions/dcnv3_func.py
++++ b/detection/ops_dcnv3/functions/dcnv3_func.py
+@@ -6,7 +6,6 @@
+ 
+ from __future__ import absolute_import, division, print_function
+ 
+-import DCNv3
+ import torch
+ import torch.nn.functional as F
+ from torch.autograd import Function
+diff --git a/detection/ops_dcnv3/modules/__init__.py b/detection/ops_dcnv3/modules/__init__.py
+index acb73a8..2287382 100644
+--- a/detection/ops_dcnv3/modules/__init__.py
++++ b/detection/ops_dcnv3/modules/__init__.py
+@@ -4,4 +4,4 @@
+ # Licensed under The MIT License [see LICENSE for details]
+ # --------------------------------------------------------
+ 
+-from .dcnv3 import DCNv3, DCNv3_pytorch
++from .dcnv3 import DCNv3_pytorch as DCNv3
+diff --git a/detection/ops_dcnv3/modules/dcnv3.py b/detection/ops_dcnv3/modules/dcnv3.py
+index 788b211..4026212 100644
+--- a/detection/ops_dcnv3/modules/dcnv3.py
++++ b/detection/ops_dcnv3/modules/dcnv3.py
+@@ -13,7 +13,7 @@ import torch.nn.functional as F
+ from torch import nn
+ from torch.nn.init import constant_, xavier_uniform_
+ 
+-from ..functions import DCNv3Function, dcnv3_core_pytorch
++from ..functions import dcnv3_core_pytorch
+ 
+ try:
+     from DCNv4.functions import DCNv4Function
+@@ -107,6 +107,7 @@ class DCNv3_pytorch(nn.Module):
+             offset_scale=1.0,
+             act_layer='GELU',
+             norm_layer='LN',
++            use_dcn_v4_op=None,
+             center_feature_scale=False):
+         """
+         DCNv3 Module
