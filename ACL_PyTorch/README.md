@@ -790,6 +790,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <th rowspan=2>Dataset</th>
         <th align="center" colspan=3>精度</th>
     <th rowspan=2>300I Pro最优性能(对应bs)</th>
+    <th rowspan=2>800I A2最优性能(对应bs)</th>
     <th rowspan=2>输入shape</th>
     </tr>
     <tr>
@@ -807,6 +808,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td>5.515</td>
         <td></td>
     <td>7.74(bs32)</td>
+    <td></td>
     <td nowrap="nowrap">bs x 1 x 161 x 621 <br> bs x 1</td>
     </tr>
     <tr>
@@ -819,6 +821,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td></td>
         <td></td>
     <td>430(分档)</td>
+    <td></td>
     <td nowrap="nowrap">多尺度</td>
     </tr>
     <tr>
@@ -831,6 +834,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td></td>
         <td></td>
     <td>13.66(bs1)</td>
+    <td></td>
     <td nowrap="nowrap">多尺度</td>
     </tr>
     <tr>
@@ -843,6 +847,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td></td>
         <td></td>
     <td>637(bs8 mel_len:250)</td>
+    <td></td>
     <td nowrap="nowrap">多尺度</td>
     </tr>
     <tr>
@@ -855,6 +860,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td></td>
         <td></td>
     <td>33508(bs16)</td>
+    <td></td>
     <td nowrap="nowrap">多尺度</td>
     </tr>
     <tr>
@@ -867,6 +873,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td></td>
         <td>99.93%</td>
     <td>1358(bs4)</td>
+    <td></td>
     <td nowrap="nowrap">bs x 1800 x 24</td>
     </tr>
     <tr>
@@ -879,6 +886,31 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td></td>
         <td>95.04%</td>
     <td>60</td>
+    <td></td>
+    <td nowrap="nowrap">多尺度</td>
+    <tr>
+        <td> 100402
+        </td><td>
+        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/audio/SenseVoice">  SenseVoice </a>
+        </td>
+        <td>代码仓提供</td>
+    <td></td>
+        <td></td>
+        <td></td>
+    <td>80ms(bs1)</td>
+    <td>40ms(bs1)</td>
+    <td nowrap="nowrap">多尺度</td>
+    <tr>
+        <td> 100403
+        </td><td>
+        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/audio/CosyVoice">  CosyVoice </a>
+        </td>
+        <td>代码仓提供</td>
+    <td></td>
+        <td></td>
+        <td></td>
+    <td>2.0s(rtf)</td>
+    <td>0.3s(rtf)</td>
     <td nowrap="nowrap">多尺度</td>
 </table>
 
