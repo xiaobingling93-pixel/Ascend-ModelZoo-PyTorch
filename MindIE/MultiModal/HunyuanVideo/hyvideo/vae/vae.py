@@ -128,7 +128,7 @@ class EncoderCausal3D(nn.Module):
 
     def forward(self, sample: torch.FloatTensor) -> torch.FloatTensor:
         r"""The forward method of the `EncoderCausal3D` class."""
-        if len(sample.shape) == 5:
+        if len(sample.shape) != 5:
             raise ValueError("The input tensor should have 5 dimensions")
 
         sample = self.conv_in(sample)
@@ -245,7 +245,7 @@ class DecoderCausal3D(nn.Module):
         latent_embeds: Optional[torch.FloatTensor] = None,
     ) -> torch.FloatTensor:
         r"""The forward method of the `DecoderCausal3D` class."""
-        if len(sample.shape) == 5:
+        if len(sample.shape) != 5:
             raise ValueError("The input tensor should have 5 dimensions.")
 
         sample = self.conv_in(sample)

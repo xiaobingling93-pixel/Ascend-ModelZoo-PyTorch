@@ -529,7 +529,7 @@ class HunyuanVideoSampler(Inference):
         if self.parallel_args['ulysses_degree'] > 1 or self.parallel_args['ring_degree'] > 1:
             parallelize_transformer(self.pipeline)
             if args.vae_parallel:
-                if get_sequence_parallel_world_size in [8, 16]:
+                if get_sequence_parallel_world_size() in [8, 16]:
                     if get_sequence_parallel_world_size() > 8:
                         parallel_vae_tile(self.pipeline.vae, "decode", "decoder.forward")
                     else:
