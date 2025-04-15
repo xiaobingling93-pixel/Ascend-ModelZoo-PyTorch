@@ -539,6 +539,17 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td></td>
     <td>227.43ms(bs1)</td>
     <td>1 x 3 x 784 x 1344</td>
+    <tr>
+        <td> 100404
+        </td><td>
+        <a href=https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/InternImage_detection_for_Pytorch> InternImage_Detection </a>
+        </td>
+        <td>coco</td>
+    <td></td>
+        <td>box: 55.6%<br>seg: 48.6%</td>
+        <td></td>
+    <td>1614ms(bs1)</td>
+    <td>1 x 3 x 1216 x 1216</td>
 </table>
 
 <p>CV-segmentation</p>
@@ -553,7 +564,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     </tr>
     <tr>
         <td>Acc</td>
-        <td>mAP</td>
+        <td>mIoU</td>
     </tr>
     <tr>
         <td> 100016
@@ -587,6 +598,17 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td></td>
     <td>75(bs1)</td>
     <td>bs x 3 x 572 x 572</td>
+    <tr>
+        <td> 100405
+        </td><td>
+        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/InternImage_segmentation_for_Pytorch">  InternImage_Segmentation </a>
+        </td>
+        <td>ADE20K</td>
+        <td>aAcc: 86.55%<br>mAcc: 71.8%</td>
+        <td>59.54%</td>
+    <td>2067ms(bs1)</td>
+    <td>多尺度</td>
+    </tr>
 </table>
 
 <p>CV-gan</p>
@@ -1089,7 +1111,6 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <td>bs x 3 x 736 x 1280</td>
     </tr>
 </table>
-
 
 <h2>生态贡献模型</h2>
 <p>CV-classfication</p>

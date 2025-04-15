@@ -82,7 +82,6 @@ if __name__ == '__main__':
     parser.add_argument('--om_output', type=str, required=True, help='om output for post-process')
     parser.add_argument(
         '--force_img_shape', type=parse_shape, default=None, help='Rescale image to shape (e.g., "256,256")')
-    parser.add_argument('--batch_size', type=int, default=100, help='number of processed imgs at the same time')
     parser.add_argument('--eval', nargs='+', type=str, help='evaluation types, e.g., bbox, segm')
     args = parser.parse_args()
 

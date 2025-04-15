@@ -235,7 +235,7 @@ InternImage使用公共数据集COCO进行推理
       执行如下命令以开始数据后处理并获得OM模型的精度
       
       ```
-      python3 postprocess.py --config configs/coco/cascade_internimage_xl_fpn_3x_coco.py --ckpt ckpt/cascade_internimage_xl_fpn_3x_coco.pth --om_output om_output --eval bbox segm --batch_size 100 --force_img_shape 1216,1216
+      python3 postprocess.py --config configs/coco/cascade_internimage_xl_fpn_3x_coco.py --ckpt ckpt/cascade_internimage_xl_fpn_3x_coco.pth --om_output om_output --eval bbox segm --force_img_shape 1216,1216
       ```
       
       - 参数说明：
@@ -247,8 +247,6 @@ InternImage使用公共数据集COCO进行推理
         - --om_output：OM模型的输出路径，也即后处理脚本的输入数据路径
         
         - --eval：精度评估指标
-        
-        - --batch_size：后处理的时候每次加载的图片数量，取决于内存大小。每张图片大约需要120M的内存空间。默认为100
         
         - --force_img_shape：预处理时原图经强制缩放后的尺寸
       
