@@ -13,12 +13,12 @@ hardwares:
 
   | 配套  | 版本 | 环境准备指导 |
   | ----- | ----- |-----|
-  | Python | 3.10.2 | - |
+  | Python | 3.10 / 3.11 | - |
   | torch | 2.1.0 | - |
 
 ### 1.1 获取CANN&MindIE安装包&环境准备
 - 设备支持：
-Atlas 800I A2/Atlas 800T A2设备：CogVideoX-5b支持1、2、4、8卡推理，CogVideoX-2b支持1、2、4卡推理
+Atlas 800I A2 (64G) / Atlas 800T A2设备：CogVideoX-5b支持1、2、4、8卡推理，CogVideoX-2b支持1、2、4卡推理
 - [Atlas 800I A2/Atlas 800T A2](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann&product=4&model=32)
 - [环境准备指导](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/80RC2alpha002/softwareinst/instg/instg_0001.html)
 
@@ -50,7 +50,7 @@ chmod +x ./Ascend-mindie_${version}_linux-${arch}.run
 cd /usr/local/Ascend/mindie && source set_env.sh
 
 # 方式二：指定路径安装
-./Ascend-mindie_${version}_linux-${arch}.run --install-path=${AieInstallPath}
+./Ascend-mindie_${version}_linux-${arch}.run  --install --install-path=${AieInstallPath}
 # 设置环境变量
 cd ${AieInstallPath}/mindie && source set_env.sh
 ```
@@ -71,16 +71,16 @@ tar -xzvf pytorch_v{pytorchversion}_py{pythonversion}.tar.gz
 pip install torch_npu-{pytorchversion}.xxxx.{arch}.whl
 ```
 
-### 1.5 安装所需依赖。
-```shell
-pip3 install -r requirements.txt
-```
-
 ## 二、下载本仓库
 
 ### 2.1 下载到本地
 ```shell
    git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+```
+
+### 2.2 安装所需依赖
+```shell
+pip3 install -r requirements.txt
 ```
 
 ## 三、CogVideoX-5b / CogVideoX-2b使用
@@ -101,7 +101,7 @@ pip3 install -r requirements.txt
 |    |    |---- config.json
 |    |    |---- 模型权重
 |    |---- tokenizer
-|    |    |---- config.json
+|    |    |---- json文件
 |    |    |---- 模型权重
 |    |---- transformer
 |    |    |---- config.json

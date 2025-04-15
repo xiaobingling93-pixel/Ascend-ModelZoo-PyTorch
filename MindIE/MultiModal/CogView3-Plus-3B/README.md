@@ -170,7 +170,9 @@ path="/data/CogView3B"
 | :------: |:----:|:----:|
 | 不使用加速算法 |  false  |  false  |
 | DiT Cache |  true  |  false  |
-| AGB |  false  |  true   |
+| AGB Cache |  false  |  true   |
+
+**注意**：在32G的服务器上，可开启DiT Cache算法，开启AGB Cache算法可能会报显存不足的错误，因为AGB算法对显存要求更高。在64G机器上，两种Cache算法皆可开启。
 
 #### 4. 执行命令，进行推理：
 ```shell
@@ -191,6 +193,7 @@ python inference_cogview3plus.py \
 - num_inference_steps：推理迭代步数。
 - dtype: 数据类型。目前只支持bf16。
 - device_id：推理设备ID。
+
 **注意**：本仓库模型，是对开源模型进行优化。用户在使用时，应对开源代码函数的变量范围，类型进行校验，避免出现变量超出范围、除零等操作。
 
 
@@ -213,10 +216,9 @@ path="/data/CogView3B"
 | :------: |:----:|:----:|
 | 不使用加速算法 |  false  |  false  |
 | DiT Cache |  true  |  false  |
-| AGB |  false  |  true   |
+| AGB Cache |  false  |  true   |
 
-Tips: 在32G的服务器上，如果要开启AGB算法， batch_size需要等于1，否则会报显存不足的错误。
-因为AGB算法对显存要求更高。
+**注意**：在32G的服务器上，batch_size需要等于1，否则会报显存不足的错误；在64G机器上，batch_size可为2，可开启Cache算法。
 
 #### 4. 执行命令，进行推理：
 ```shell
