@@ -4,12 +4,13 @@
 
   | 配套  | 版本 | 环境准备指导 |
   | ----- | ----- |-----|
-  | Python | 3.10.2 | - |
+  | Python | 3.10/3.11 | - |
   | torch | 2.1.0 | - |
 
 ### 1.1 获取CANN&MindIE安装包&环境准备
 - 设备支持
-Atlas 800I A2(8*64G)推理设备：当前支持的卡数：1、2、3、4、6、8、16
+Atlas 800I A2(8*64G)推理设备：当前支持的卡数：1、2、3、4、6、8。
+Atlas 800I A3(16*64G)推理设备：当前支持的卡数：1、2、3、4、6、8、16。
 - [Atlas 800I A2(8*64G)](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann&product=4&model=32)
 - [环境准备指导](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/80RC2alpha002/softwareinst/instg/instg_0001.html)
 
@@ -29,12 +30,7 @@ chmod +x ./Ascend-cann-kernels-{soc}_{version}_linux.run
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
 ```
 
-### 1.3 环境依赖安装
-```shell
-pip3 install -r requirements.txt
-```
-
-### 1.4 MindIE安装
+### 1.3 MindIE安装
 ```shell
 # 增加软件包可执行权限，{version}表示软件版本号，{arch}表示CPU架构。
 chmod +x ./Ascend-mindie_${version}_linux-${arch}.run
@@ -46,18 +42,19 @@ chmod +x ./Ascend-mindie_${version}_linux-${arch}.run
 cd /usr/local/Ascend/mindie && source set_env.sh
 
 # 方式二：指定路径安装
-./Ascend-mindie_${version}_linux-${arch}.run --install-path=${AieInstallPath}
+./Ascend-mindie_${version}_linux-${arch}.run --install --install-path=${AieInstallPath}
 # 设置环境变量
 cd ${AieInstallPath}/mindie && source set_env.sh
 ```
 
-### 1.5 Torch_npu安装
+### 1.4 Torch_npu安装
 下载 pytorch_v{pytorchversion}_py{pythonversion}.tar.gz
 ```shell
 tar -xzvf pytorch_v{pytorchversion}_py{pythonversion}.tar.gz
 # 解压后，会有whl包
 pip install torch_npu-{pytorchversion}.xxxx.{arch}.whl
 ```
+pytorchversion即torch的版本
 
 ## 二、下载权重
 
@@ -93,10 +90,16 @@ HunyuanVideo
 当前支持的卡数：1、2、3、4、6、8、16
 ### 3.1 下载到本地
 ```shell
-   git clone https://modelers.cn/MindIE/hunyuan_video.git
-   cd hunyuan_video
+   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+   cd ModelZoo-PyTorch/MindIE/MultiModal/HunyuanVideo/
 ```
-### 3.2 修改text_encoder的权重
+
+### 3.2 环境依赖安装
+```shell
+pip3 install -r requirements.txt
+```
+
+### 3.3 修改text_encoder的权重
 ```shell
 python hyvideo/utils/preprocess_text_encoder_tokenizer_utils.py --input_dir llava-llama-3-8b-v1_1-transformers --output_dir text_encoder
 ```
@@ -110,8 +113,8 @@ HunyuanVideo
   ├──text_encoder
   ├──clip-vit-large-patch14
 ```
-### 3.3 单卡性能测试
-#### 3.3.1 等价优化
+### 3.4 单卡性能测试
+#### 3.4.1 等价优化
 执行命令：
 ```shell
 export TOKENIZERS_PARALLELISM=false
@@ -148,8 +151,9 @@ python sample_video.py \
 - num-videos: 每个prompt生成多少个视频，该参数和batch有关，800I A2(64G)机器上，该参数的大小受显存限制
 - device_id：单卡推理时，可设置NPU id
 - save-path: 生成的视频的保存路径
+- flow-reverse：是否进行反向采样
 
-#### 3.3.2 算法优化
+#### 3.4.2 算法优化
 执行命令：
 ```shell
 export TOKENIZERS_PARALLELISM=false
@@ -191,10 +195,12 @@ python sample_video.py \
 - use_cache: 使能单流block算法优化
 - use_cache_double: 使能双流block算法优化
 - save-path: 生成的视频的保存路径
+- flow-reverse：是否进行反向采样
+- use-cpu-offload：是否开启cpu负载均衡
 
-### 3.4 8卡性能测试
+### 3.5 8卡性能测试
 
-#### 3.4.1 等价优化
+#### 3.5.1 等价优化
 执行命令：
 ```shell
 export PYTORCH_NPU_ALLOC_CONF="expandable_segments:True"
@@ -218,7 +224,7 @@ torchrun --nproc_per_node=8 sample_video.py \
       --ulysses-degree 8 \
       --ring-degree 1 \
       --vae-parallel \
-      -- num-videos 1 \
+      --num-videos 1 \
       --save-path ./results
 ```
 参数说明： 
@@ -238,8 +244,11 @@ torchrun --nproc_per_node=8 sample_video.py \
 - vae-parallel: vae部分使能并行，目前只支持8卡、16卡并行时使用
 - num-videos: 每个prompt生成多少个视频，该参数和batch有关，800I A2(64G)机器上，该参数的大小受显存限制
 - save-path: 生成的视频的保存路径
+- flow-reverse：是否进行反向采样
+- ulysses-degree：ulysses并行使用的卡数
+- ring-degree: ring并行使用的卡数
 
-#### 3.4.2 算法优化
+#### 3.5.2 算法优化
 
 一、使用attentioncache
 执行命令：
@@ -287,8 +296,12 @@ torchrun --nproc_per_node=8 sample_video.py \
 - use_attentioncache: 使能attentioncache策略
 - num-videos: 每个prompt生成多少个视频，该参数和batch有关，800I A2(64G)机器上，该参数的大小受显存限制
 - save-path: 生成的视频的保存路径
+- flow-reverse：是否进行反向采样
+- ulysses-degree：ulysses并行使用的卡数
+- ring-degree: ring并行使用的卡数
 
-### 3.5 16卡性能测试
+### 3.6 16卡性能测试
+仅支持Atlas 800I A3
 执行命令：
 ```shell
 export PYTORCH_NPU_ALLOC_CONF="expandable_segments:True"
@@ -330,6 +343,9 @@ torchrun --nproc_per_node=16 sample_video.py \
 - seed: 随机种子
 - vae-parallel: vae部分使能并行，目前只支持8卡、16卡并行时使用
 - save-path: 生成的视频的保存路径
+- flow-reverse：是否进行反向采样
+- ulysses-degree：ulysses并行使用的卡数
+- ring-degree: ring并行使用的卡数
 
 ## 精度指标
 我们使用prompts.txt测试了seed42-46五组种子的视频，并测试了vbench并取平均值，6个指标如下：

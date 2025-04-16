@@ -29,7 +29,7 @@ try:
     from diffusers.loaders import FromOriginalVAEMixin
 except ImportError:
     # Use this to maintain compatibility with the original diffusers library.
-    # from diffusers.loaders.single_file_model import FromOriginalModelMixin as FromOriginalVAEMixin
+    from diffusers.loaders.single_file_model import FromOriginalModelMixin as FromOriginalVAEMixin
 from diffusers.utils.accelerate_utils import apply_forward_hook
 from diffusers.models.attention_processor import (
     ADDED_KV_ATTENTION_PROCESSORS,
