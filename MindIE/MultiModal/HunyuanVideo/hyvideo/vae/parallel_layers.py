@@ -225,7 +225,7 @@ class PatchCausalConv3d(BaseModule):
             for i in self.module.conv.dilation:
                 if i != 1:
                     raise ValueError(" dilation is not supported in PatchCausalConv3d ")
-        if self.module.conv.kernel_size[-2] != 3 or self.module.conv.kernel_size[-2] != 1:
+        if self.module.conv.kernel_size[-2] != 3 and self.module.conv.kernel_size[-2] != 1:
             raise ValueError(" PatchCausalConv3d only support kernel_size (3, 3, 3) or (1, 1, 1) ")
         if self.module.conv.stride != (1, 1, 1):
             raise ValueError(" PatchCausalConv3d only support stride (1, 1, 1) ")
