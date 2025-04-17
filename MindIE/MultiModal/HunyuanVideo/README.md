@@ -9,10 +9,9 @@
 
 ### 1.1 获取CANN&MindIE安装包&环境准备
 - 设备支持
-Atlas 800I A2(8*64G)推理设备：当前支持的卡数：1、2、3、4、6、8。
-Atlas 800I A3(16*64G)推理设备：当前支持的卡数：1、2、3、4、6、8、16。
-- [Atlas 800I A2(8*64G)](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann&product=4&model=32)
-- [环境准备指导](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/80RC2alpha002/softwareinst/instg/instg_0001.html)
+Atlas 800I A2(8\*64G)推理设备：当前支持的卡数：1、2、3、4、6、8。
+Atlas 800I A3(16\*64G)推理设备：当前支持的卡数：1、2、3、4、6、8、16。
+- [Atlas 800I A2(8*64G)环境准备指导](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann&product=4&model=32)
 
 ### 1.2 CANN安装
 ```shell
