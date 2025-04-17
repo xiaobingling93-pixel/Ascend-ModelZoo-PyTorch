@@ -283,6 +283,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <th rowspan=2>Dataset</th>
         <th align="center" colspan=3>精度</th>
     <th rowspan=2>300I Pro最优性能(对应bs)</th>
+    <th rowspan=2>800I A2最优性能(对应bs)</th>
     <th rowspan=2>输入shape</th>
     </tr>
     <tr>
@@ -300,6 +301,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td>43.8%</td>
         <td></td>
     <td>3.9(bs1)</td>
+    <td></td>
     <td>1 x 3 x 1216 x 1216</td>
     </tr>
     <tr>
@@ -312,6 +314,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td>hard:74.55%<br>easy:92.24%<br>Medium:91.02%</td>
         <td></td>
     <td>439.9(bs1)</td>
+    <td></td>
     <td>bs x 3 x 800 x 800</td>
     </tr>
     <tr>
@@ -324,6 +327,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td></td>
         <td></td>
     <td>34.1(bs4)</td>
+    <td></td>
     <td>bs x 3 x 512 x 512 <br> bs x 3 x 800 x 800</td>
     </tr>
     <tr>
@@ -336,6 +340,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td></td>
         <td></td>
     <td>17815(bs64)</td>
+    <td></td>
     <td>bs x 1 x 32 x 100</td>
     </tr>
     <tr>
@@ -348,6 +353,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td></td>
         <td>77.5%</td>
     <td>196(bs1)</td>
+    <td></td>
     <td>bs x 736 x 1280 x 3</td>
     </tr>
     <tr>
@@ -360,6 +366,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td></td>
         <td></td>
     <td>63.75(bs1)</td>
+    <td></td>
     <td>多尺度</td>
     </tr>
     <tr>
@@ -372,6 +379,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td></td>
         <td></td>
     <td>260(bs4)</td>
+    <td></td>
     <td>bs x 3 x 512 x 512</td>
     </tr>
     <tr>
@@ -384,6 +392,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td></td>
         <td>75.088%(top1)</td>
     <td>2489(bs8)</td>
+    <td></td>
     <td>bs x 3 x 224 x 224</td>
     </tr>
     <tr>
@@ -396,6 +405,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td></td>
         <td></td>
     <td>887.45(bs4)</td>
+    <td></td>
     <td>bs x 3 x 368 x 6406</td>
     </tr>
     <tr>
@@ -408,6 +418,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td></td>
         <td>acc:80.5%<br>recall:63.9%</td>
     <td>70(bs1)</td>
+    <td></td>
     <td>bs x 3 x 704 x 1216</td>
     </tr>
     <tr>
@@ -420,6 +431,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td>36.3%</td>
         <td></td>
     <td>15.48(bs1)</td>
+    <td></td>
     <td>1 x 3 x 1216 x 1216</td>
     </tr>
     <tr>
@@ -432,6 +444,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td>31.6%</td>
         <td></td>
     <td>50(bs1)</td>
+    <td></td>
     <td>1 x 3 x 1216 x 1216</td>
     </tr>
     <tr>
@@ -444,6 +457,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td>25.4%</td>
         <td></td>
     <td>337.01(bs4)</td>
+    <td></td>
     <td>bs x 3 x 300 x 300</td>
     </tr>
     <tr>
@@ -456,6 +470,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td>23%</td>
         <td></td>
     <td>1324(bs8)</td>
+    <td></td>
     <td>bs x 3 x 300 x 300</td>
     </tr>
     <tr>
@@ -468,6 +483,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td>63.30%</td>
         <td></td>
     <td>219(bs4)</td>
+    <td></td>
     <td>bs x 3 x 640 x 640</td>
     </tr>
     <tr>
@@ -480,6 +496,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td>60.3%</td>
         <td></td>
     <td>171.15(bs8)</td>
+    <td></td>
     <td>bs x 3 x 416 x 416</td>
     </tr>
     <tr>
@@ -492,6 +509,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td>55.3%</td>
         <td></td>
     <td>998.004(bs4)</td>
+    <td></td>
     <td>bs x 3 x 640 x 640</td>
     </tr>
     <tr>
@@ -504,6 +522,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td>55.9%</td>
         <td></td>
     <td>737.04(bs4)</td>
+    <td></td>
     <td>bs x 3 x 640 x 640</td>
     </tr>
     <tr>
@@ -516,6 +535,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td></td>
         <td></td>
     <td>77.4(bs64)</td>
+    <td></td>
     <td>bs x 3 x 640 x 640</td>
     <tr>
         <td> 100399
@@ -527,6 +547,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td></td>
         <td></td>
     <td>0.62(bs1)</td>
+    <td></td>
     <td>bs x 3 x H x W</td>
     <tr>
         <td> 100400
@@ -538,6 +559,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td></td>
         <td></td>
     <td>227.43ms(bs1)</td>
+    <td></td>
     <td>1 x 3 x 784 x 1344</td>
     <tr>
         <td> 100404
@@ -549,7 +571,20 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td>box: 55.6%<br>seg: 48.6%</td>
         <td></td>
     <td>1614ms(bs1)</td>
+    <td></td>
     <td>1 x 3 x 1216 x 1216</td>
+    <tr>
+        <td> 100406
+        </td><td>
+        <a href=https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/GroundingDINO> GroundingDINO </a>
+        </td>
+        <td>coco</td>
+    <td></td>
+        <td>52.4%</td>
+        <td></td>
+    <td>1378ms(bs1)</td>
+    <td>877ms(bs1)</td>
+    <td>多尺度</td>
 </table>
 
 <p>CV-segmentation</p>
@@ -682,6 +717,18 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td>53.74%</td>
     <td>381(bs1)</td>
     <td nowrap="nowrap">bs x 3 x 300 x 18 x 2</td>
+    </tr>
+    <tr>
+        <td> 100407
+        </td><td>
+        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/MuseTalk"> MuseTalk </a>
+        </td>
+        <td>代码仓提供</td>
+    <td></td>
+        <td></td>
+    <td>229s(8bs)</td>
+    <td nowrap="nowrap">多尺度</td>
+    </tr>
 </table>
 
 <p>CV-super_resolution</p>
