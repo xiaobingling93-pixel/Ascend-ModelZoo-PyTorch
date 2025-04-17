@@ -309,11 +309,13 @@ class CogView3PlusPipeline(DiffusionPipeline):
 
                 # predict noise model_output
                 noise_pred = self.transformer(
-                    states=(latent_model_input, prompt_embeds, i),
+                    hidden_states=latent_model_input,
+                    encoder_hidden_states=prompt_embeds,
                     timestep=timestep,
                     original_size=original_size,
                     target_size=target_size,
                     crop_coords=crops_coords_top_left,
+                    return_dict=False,
                 )[0]
                 noise_pred = noise_pred.float()
 

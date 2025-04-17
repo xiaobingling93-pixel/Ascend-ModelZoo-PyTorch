@@ -23,8 +23,9 @@ import json
 
 import torch
 
-from cogview3plus import CogView3PlusPipeline, set_random_seed
+from cogview3plus import CogView3PlusPipeline, set_random_seed, CogView3PlusTransformer2DModel
 from cogview3plus.utils.file_utils import standardize_path
+from mindiesd import CacheAgent, CacheConfig
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -190,6 +191,7 @@ def parse_arguments():
     parser.add_argument("--dtype", type=str, default="bf16", help="bf16 or fp16")
     parser.add_argument("--seed", type=int, default=None, help="Random seed")
     parser.add_argument("--device_id", type=int, default=0, help="NPU device id")
+    parser.add_argument('--cache_algorithm', type=str, default="None", help="The type of optimization algorithm")
 
     return parser.parse_args()
 
@@ -206,7 +208,27 @@ def infer(args):
 
     # Load the pre-trained model with the specified precision
     args.model_path = standardize_path(args.model_path)
-    pipe = CogView3PlusPipeline.from_pretrained(args.model_path, torch_dtype=dtype).to("npu")
+    pipe = CogView3PlusPipeline.from_pretrained(args.model_path, torch_dtype=dtype)
+    transformer = CogView3PlusTransformer2DModel.from_pretrained(os.path.join(args.model_path, 'transformer'), torch_dtype=dtype)
+    pipe.transformer = transformer
+    pipe = pipe.to("npu")
+
+    # attention cache
+    if args.cache_algorithm == "attention":
+        steps_count = args.num_inference_steps
+        blocks_count = pipe.transformer.config.num_layers
+        config = CacheConfig(
+            method="attention_cache",
+            blocks_count=blocks_count,
+            steps_count=steps_count,
+            step_start=15,
+            step_end=47,
+            step_interval=5
+            )
+        agent = CacheAgent(config)
+        pipe.transformer.use_cache = True
+        for block in pipe.transformer.transformer_blocks:
+            block.cache = agent
 
     use_time = 0
     prompt_loader = PromptLoader(args.prompt_file,

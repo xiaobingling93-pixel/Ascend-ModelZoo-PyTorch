@@ -25,7 +25,7 @@ Atlas 800I A2推理设备：支持的卡数最小为1
 Atlas 300I Duo推理卡：支持的卡数最小为1
 Atlas 300 V:支持的卡数最小为1
 - [Atlas 800I A2/Atlas 300I Duo/Atlas 300 V](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann)
-- [环境准备指导](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/80RC2alpha002/softwareinst/instg/instg_0001.html)
+- [环境准备指导](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/81RC1alpha001/softwareinst/instg/instg_0003.html)
 
 ### 1.2 CANN安装
 ```shell
@@ -55,7 +55,7 @@ chmod +x ./Ascend-mindie_${version}_linux-${arch}.run
 cd /usr/local/Ascend/mindie && source set_env.sh
 
 # 方式二：指定路径安装
-./Ascend-mindie_${version}_linux-${arch}.run --install-path=${AieInstallPath}
+./Ascend-mindie_${version}_linux-${arch}.run --install --install-path=${AieInstallPath}
 # 设置环境变量
 cd ${AieInstallPath}/mindie && source set_env.sh
 ```

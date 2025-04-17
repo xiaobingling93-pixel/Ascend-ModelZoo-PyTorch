@@ -19,8 +19,9 @@ hardwares:
 ### 1.1 获取CANN&MindIE安装包&环境准备
 - 设备支持：
 Atlas 800I A2 (64G) / Atlas 800T A2设备：CogVideoX-5b支持1、2、4、8卡推理，CogVideoX-2b支持1、2、4卡推理
-- [Atlas 800I A2/Atlas 800T A2](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann&product=4&model=32)
-- [环境准备指导](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/80RC2alpha002/softwareinst/instg/instg_0001.html)
+- [Atlas 800I A2](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann&product=4&model=32)
+- [Atlas 800T A2](https://www.hiascend.com/developer/download/community/result?module=pt+cann&product=4&model=26)
+- [环境准备指导](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/81RC1alpha001/softwareinst/instg/instg_0003.html)
 
 ### 1.2 CANN安装
 ```shell
@@ -50,7 +51,7 @@ chmod +x ./Ascend-mindie_${version}_linux-${arch}.run
 cd /usr/local/Ascend/mindie && source set_env.sh
 
 # 方式二：指定路径安装
-./Ascend-mindie_${version}_linux-${arch}.run  --install --install-path=${AieInstallPath}
+./Ascend-mindie_${version}_linux-${arch}.run --install --install-path=${AieInstallPath}
 # 设置环境变量
 cd ${AieInstallPath}/mindie && source set_env.sh
 ```

@@ -23,7 +23,7 @@ import torch_npu
 from diffusers.utils import logging
 from diffusers.utils.torch_utils import maybe_allow_in_graph
 
-from ..layers import QKVLinear
+from mindiesd.layers.linear import QKVLinear
 
 logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
 
@@ -304,11 +304,12 @@ class CogVideoXAttnProcessor2_0:
             attention_mask = attention_mask.view(batch_size, attn.heads, -1, attention_mask.shape[-1])
 
         B, S, _ = hidden_states.shape
-        qkv = attn.to_qkv(hidden_states)
-        inner_dim = qkv.shape[-1] // 3
+        query, key, value = attn.to_qkv(hidden_states)
+        inner_dim = key.shape[-1]
         head_dim = inner_dim // attn.heads
-        qkv_shape = (B, S, 3, attn.heads, head_dim)
-        query, key, value = qkv.view(qkv_shape).permute(2, 0, 3, 1, 4).contiguous().unbind(0)
+        query = query.view(batch_size, -1, attn.heads, head_dim).transpose(1, 2)
+        key = key.view(batch_size, -1, attn.heads, head_dim).transpose(1, 2)
+        value = value.view(batch_size, -1, attn.heads, head_dim).transpose(1, 2)
 
         if attn.norm_q is not None:
             query = attn.norm_q(query)

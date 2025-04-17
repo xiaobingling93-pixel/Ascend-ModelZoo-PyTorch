@@ -9,9 +9,8 @@
 
 ### 1.1 获取CANN&MindIE安装包&环境准备
 - 设备支持
-Atlas 800I A2(8\*64G)推理设备：当前支持的卡数：1、2、3、4、6、8。
-Atlas 800I A3(16\*64G)推理设备：当前支持的卡数：1、2、3、4、6、8、16。
-- [Atlas 800I A2(8*64G)环境准备指导](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann&product=4&model=32)
+- [Atlas 800I A2(8*64G)](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann&product=4&model=32)推理设备：当前支持的卡数：1、2、3、4、6、8、16
+- [环境准备指导](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/81RC1alpha001/softwareinst/instg/instg_0003.html)
 
 ### 1.2 CANN安装
 ```shell
@@ -249,7 +248,7 @@ torchrun --nproc_per_node=8 sample_video.py \
 
 #### 3.5.2 算法优化
 
-一、使用attentioncache
+使用attentioncache
 执行命令：
 ```shell
 export PYTORCH_NPU_ALLOC_CONF="expandable_segments:True"
@@ -299,52 +298,6 @@ torchrun --nproc_per_node=8 sample_video.py \
 - ulysses-degree：ulysses并行使用的卡数
 - ring-degree: ring并行使用的卡数
 
-### 3.6 16卡性能测试
-仅支持Atlas 800I A3
-执行命令：
-```shell
-export PYTORCH_NPU_ALLOC_CONF="expandable_segments:True"
-export TASK_QUEUE_ENABLE=2
-export CPU_AFFINITY_CONF=1
-export TOKENIZERS_PARALLELISM=false
-export ALGO=0
-torchrun --nproc_per_node=16 sample_video.py \
-      --model-base HunyuanVideo \
-      --dit-weight HunyuanVideo/hunyuan-video-t2v-720p/transformers/mp_rank_00_model_states.pt \
-      --vae-path HunyuanVideo/hunyuan-video-t2v-720p/vae \
-      --text-encoder-path HunyuanVideo/text_encoder \
-      --text-encoder-2-path HunyuanVideo/clip-vit-large-patch14 \
-      --model-resolution "720p" \
-      --video-size 720 1280 \
-      --video-length 129 \
-      --infer-steps 50 \
-      --prompt "A cat walks on the grass, realistic style." \
-      --seed 42 \
-      --flow-reverse \
-      --ulysses-degree 8 \
-      --ring-degree 2 \
-      --vae-parallel \
-      --save-path ./results
-```
-参数说明： 
-- ALGO: 为0表示默认FA算子；设置为1表示使用高性能FA算子
-- nproc_per_node: 并行推理的总卡数。
-- model-base: 权重路径，包含vae、text_encoder、Tokenizer、Transformer和Scheduler五个模型的配置文件及权重。
-- dit-weight: dit的权重路径
-- vae-path: VAE的权重路径
-- text-encoder-path: text_encoder的权重路径
-- text-encoder-2-path: text_encoder_2的权重路径
-- model-resolution: 分辨率
-- video-size: 生成视频的高和宽
-- video-length: 总帧数
-- infer-steps: 推理步数
-- prompt: 文本提示词
-- seed: 随机种子
-- vae-parallel: vae部分使能并行，目前只支持8卡、16卡并行时使用
-- save-path: 生成的视频的保存路径
-- flow-reverse：是否进行反向采样
-- ulysses-degree：ulysses并行使用的卡数
-- ring-degree: ring并行使用的卡数
 
 ## 精度指标
 我们使用prompts.txt测试了seed42-46五组种子的视频，并测试了vbench并取平均值，6个指标如下：

@@ -39,25 +39,9 @@ class CogView3PlusTransformerBlock(nn.Module):
         dim: int = 2560,
         num_attention_heads: int = 64,
         attention_head_dim: int = 40,
-        time_embed_dim: int = 512,
-        useagb: bool = True,
-        pab: int = 2,
-        total_step: int = 50
+        time_embed_dim: int = 512
     ):
         super().__init__()
-        self.useagb = useagb
-        self.pab = pab
-        self.total_step = total_step
-
-        self.attn_count = 0
-        self.last_attn_x_image = None
-        self.last_attn_x_prompt = None
-        self.attn_alpha_image = 0
-        self.attn_alpha_prompt = 0
-        self.last_attn_image = None
-        self.last_attn_prompt = None
-        self.last_ff_image = None
-        self.last_ff_prompt = None
 
         self.norm1 = CogView3PlusAdaLayerNormZeroTextImage(embedding_dim=time_embed_dim, dim=dim)
 
@@ -77,6 +61,7 @@ class CogView3PlusTransformerBlock(nn.Module):
         self.norm2_context = nn.LayerNorm(dim, elementwise_affine=False, eps=1e-5)
 
         self.ff = FeedForward(dim=dim, dim_out=dim, activation_fn="gelu-approximate")
+        self.cache = None
 
     def forward(
         self,
@@ -85,128 +70,46 @@ class CogView3PlusTransformerBlock(nn.Module):
         emb: torch.Tensor,
     ) -> torch.Tensor:
         text_seq_length = encoder_hidden_states.size(1)
-        
-        if self.useagb:
-            if self.attn_count > 0:
-                diff_x_image = hidden_states - self.last_attn_x_image
-                diff_x_prompt = encoder_hidden_states - self.last_attn_x_prompt
-            
-            self.last_attn_x_image = hidden_states
-            self.last_attn_x_prompt = encoder_hidden_states
 
-            lower_bound = int(self.total_step / 5) - 0.5
-            upper_bound = self.total_step - 1.5
-            if (self.attn_count % self.pab != 0) and (lower_bound < self.attn_count < upper_bound):
-                broadcast_attn = 1
-            else:
-                broadcast_attn = 0
-            
-            if broadcast_attn == 1:
-                attn_hidden_states = self.last_attn_image + self.attn_alpha_image * diff_x_image
-                attn_encoder_hidden_states = self.last_attn_prompt + self.attn_alpha_prompt * diff_x_prompt
-            else:
-                # norm & modulate
-                norm_hidden_states, chunk_params = self.norm1(hidden_states, encoder_hidden_states, emb)
+        # norm & modulate
+        norm_hidden_states, chunk_params = self.norm1(hidden_states, encoder_hidden_states, emb)
 
-                gate_msa = chunk_params.gate_msa
-                shift_mlp = chunk_params.shift_mlp
-                scale_mlp = chunk_params.scale_mlp
-                gate_mlp = chunk_params.gate_mlp
-                norm_encoder_hidden_states = chunk_params.context
-                c_gate_msa = chunk_params.c_gate_msa
-                c_shift_mlp = chunk_params.c_shift_mlp
-                c_scale_mlp = chunk_params.c_scale_mlp
-                c_gate_mlp = chunk_params.c_gate_mlp
+        gate_msa = chunk_params.gate_msa
+        shift_mlp = chunk_params.shift_mlp
+        scale_mlp = chunk_params.scale_mlp
+        gate_mlp = chunk_params.gate_mlp
+        norm_encoder_hidden_states = chunk_params.context
+        c_gate_msa = chunk_params.c_gate_msa
+        c_shift_mlp = chunk_params.c_shift_mlp
+        c_scale_mlp = chunk_params.c_scale_mlp
+        c_gate_mlp = chunk_params.c_gate_mlp
 
-                # attention
-                attn_hidden_states, attn_encoder_hidden_states = self.attn1(
-                    hidden_states=norm_hidden_states, encoder_hidden_states=norm_encoder_hidden_states
-                )
-
-                attn_hidden_states = gate_msa.unsqueeze(1) * attn_hidden_states
-                attn_encoder_hidden_states = c_gate_msa.unsqueeze(1) * attn_encoder_hidden_states
-                
-                # calculate alpha
-                if lower_bound < self.attn_count < upper_bound:
-                    diff_image = attn_hidden_states - self.last_attn_image
-                    diff_prompt = attn_encoder_hidden_states - self.last_attn_prompt
-
-                    self.attn_alpha_image = ((diff_x_image / 100) * (diff_image / 100)).sum() / \
-                        ((diff_x_image / 100) ** 2).sum()
-                    self.attn_alpha_prompt = ((diff_x_prompt / 100) * (diff_prompt / 100)).sum() / \
-                        ((diff_x_prompt / 100) ** 2).sum()
-                else:
-                    self.attn_alpha_image = 0
-                    self.attn_alpha_prompt = 0
-                
-                self.last_attn_image = attn_hidden_states
-                self.last_attn_prompt = attn_encoder_hidden_states
-            
-            hidden_states = hidden_states + attn_hidden_states
-            encoder_hidden_states = encoder_hidden_states + attn_encoder_hidden_states
-
-            if broadcast_attn == 1:
-                hidden_states = hidden_states + self.last_ff_image
-                encoder_hidden_states = encoder_hidden_states + self.last_ff_prompt
-            else:
-                # norm & modulate
-                norm_hidden_states = self.norm2(hidden_states)
-                norm_hidden_states = norm_hidden_states * (1 + scale_mlp[:, None]) + shift_mlp[:, None]
-
-                norm_encoder_hidden_states = self.norm2_context(encoder_hidden_states)
-                norm_encoder_hidden_states = norm_encoder_hidden_states * (1 + c_scale_mlp[:, None]) + \
-                    c_shift_mlp[:, None]
-
-                # feed-forward
-                norm_hidden_states = torch.cat([norm_encoder_hidden_states, norm_hidden_states], dim=1)
-                ff_output = self.ff(norm_hidden_states)
-
-                ff_image = gate_mlp.unsqueeze(1) * ff_output[:, text_seq_length:]
-                ff_prompt = c_gate_mlp.unsqueeze(1) * ff_output[:, :text_seq_length]
-
-                hidden_states = hidden_states + ff_image
-                encoder_hidden_states = encoder_hidden_states + ff_prompt
-
-                self.last_ff_image = ff_image
-                self.last_ff_prompt = ff_prompt
-            
-            # 更新self.attn_count
-            self.attn_count = (self.attn_count + 1) % self.total_step
-        else:
-            # norm & modulate
-            norm_hidden_states, chunk_params = self.norm1(hidden_states, encoder_hidden_states, emb)
-
-            gate_msa = chunk_params.gate_msa
-            shift_mlp = chunk_params.shift_mlp
-            scale_mlp = chunk_params.scale_mlp
-            gate_mlp = chunk_params.gate_mlp
-            norm_encoder_hidden_states = chunk_params.context
-            c_gate_msa = chunk_params.c_gate_msa
-            c_shift_mlp = chunk_params.c_shift_mlp
-            c_scale_mlp = chunk_params.c_scale_mlp
-            c_gate_mlp = chunk_params.c_gate_mlp
-
-            # attention
+        # attention
+        if self.cache is None:
             attn_hidden_states, attn_encoder_hidden_states = self.attn1(
                 hidden_states=norm_hidden_states, encoder_hidden_states=norm_encoder_hidden_states
             )
+        else:
+            attn_hidden_states, attn_encoder_hidden_states = self.cache.apply(self.attn1.forward,
+                hidden_states=norm_hidden_states, encoder_hidden_states=norm_encoder_hidden_states
+            )
 
-            hidden_states = hidden_states + gate_msa.unsqueeze(1) * attn_hidden_states
-            encoder_hidden_states = encoder_hidden_states + c_gate_msa.unsqueeze(1) * attn_encoder_hidden_states
+        hidden_states = hidden_states + gate_msa.unsqueeze(1) * attn_hidden_states
+        encoder_hidden_states = encoder_hidden_states + c_gate_msa.unsqueeze(1) * attn_encoder_hidden_states
 
-            # norm & modulate
-            norm_hidden_states = self.norm2(hidden_states)
-            norm_hidden_states = norm_hidden_states * (1 + scale_mlp[:, None]) + shift_mlp[:, None]
+        # norm & modulate
+        norm_hidden_states = self.norm2(hidden_states)
+        norm_hidden_states = norm_hidden_states * (1 + scale_mlp[:, None]) + shift_mlp[:, None]
 
-            norm_encoder_hidden_states = self.norm2_context(encoder_hidden_states)
-            norm_encoder_hidden_states = norm_encoder_hidden_states * (1 + c_scale_mlp[:, None]) + c_shift_mlp[:, None]
+        norm_encoder_hidden_states = self.norm2_context(encoder_hidden_states)
+        norm_encoder_hidden_states = norm_encoder_hidden_states * (1 + c_scale_mlp[:, None]) + c_shift_mlp[:, None]
 
-            # feed-forward
-            norm_hidden_states = torch.cat([norm_encoder_hidden_states, norm_hidden_states], dim=1)
-            ff_output = self.ff(norm_hidden_states)
+        # feed-forward
+        norm_hidden_states = torch.cat([norm_encoder_hidden_states, norm_hidden_states], dim=1)
+        ff_output = self.ff(norm_hidden_states)
 
-            hidden_states = hidden_states + gate_mlp.unsqueeze(1) * ff_output[:, text_seq_length:]
-            encoder_hidden_states = encoder_hidden_states + c_gate_mlp.unsqueeze(1) * ff_output[:, :text_seq_length]
+        hidden_states = hidden_states + gate_mlp.unsqueeze(1) * ff_output[:, text_seq_length:]
+        encoder_hidden_states = encoder_hidden_states + c_gate_mlp.unsqueeze(1) * ff_output[:, :text_seq_length]
 
         if hidden_states.dtype == torch.float16:
             hidden_states = hidden_states.clip(-65504, 65504)
@@ -232,14 +135,7 @@ class CogView3PlusTransformer2DModel(ModelMixin, ConfigMixin):
         time_embed_dim: int = 512,
         condition_dim: int = 256,
         pos_embed_max_size: int = 128,
-        use_cache: bool = False,
-        cache_interval: int = 2,
-        cache_start: int = 1,
-        num_cache_layer: int = 11,
-        cache_start_steps: int = 10,
-        useagb: bool = True,
-        pab: int = 2,
-        total_step: int = 50,
+        sample_size: int = 128,
     ):
         super().__init__()
         self.out_channels = out_channels
@@ -272,9 +168,6 @@ class CogView3PlusTransformer2DModel(ModelMixin, ConfigMixin):
                     num_attention_heads=num_attention_heads,
                     attention_head_dim=attention_head_dim,
                     time_embed_dim=time_embed_dim,
-                    useagb=useagb,
-                    pab=pab,
-                    total_step=total_step
                 )
                 for _ in range(num_layers)
             ]
@@ -297,14 +190,6 @@ class CogView3PlusTransformer2DModel(ModelMixin, ConfigMixin):
         self.v_weight_cache = None
         self.v_bias_cache = None
 
-        self.use_cache = use_cache
-        self.cache_interval = cache_interval
-        self.cache_start = cache_start
-        self.num_cache_layer = num_cache_layer
-        self.cache_start_steps = cache_start_steps
-
-        self.delta_cache = None
-        self.delta_encoder_cache = None
 
     @property
     def attn_processors(self) -> Dict[str, AttentionProcessor]:
@@ -358,14 +243,30 @@ class CogView3PlusTransformer2DModel(ModelMixin, ConfigMixin):
 
     def forward(
         self,
-        states,
+        hidden_states: torch.Tensor,
+        encoder_hidden_states: torch.Tensor,
         timestep: torch.LongTensor,
         original_size: torch.Tensor,
         target_size: torch.Tensor,
         crop_coords: torch.Tensor,
+        return_dict: bool = True,
     ) -> Union[torch.Tensor, Transformer2DModelOutput]:
-        hidden_states = states[0]
-        encoder_hidden_states = states[1]
+        """
+        The [`CogView3PlusTransformer2DModel`] forward method.
+
+        Args:
+            hidden_states (`torch.Tensor`):
+                Input `hidden_states` of shape `(batch size, channel, height, width)`.
+            encoder_hidden_states (`torch.Tensor`):
+                Conditional embeddings (embeddings computed from the input conditions such as prompts) of shape
+                `(batch_size, sequence_len, text_embed_dim)`
+            timestep (`torch.LongTensor`):
+                Used to indicate denoising step.
+
+        Returns:
+            `torch.Tensor` or [`~models.transformer_2d.Transformer2DModelOutput`]:
+                The denoised latents using provided inputs as conditioning.
+        """
         height, width = hidden_states.shape[-2:]
         text_seq_length = encoder_hidden_states.shape[1]
 
@@ -377,7 +278,28 @@ class CogView3PlusTransformer2DModel(ModelMixin, ConfigMixin):
         encoder_hidden_states = hidden_states[:, :text_seq_length]
         hidden_states = hidden_states[:, text_seq_length:]
 
-        hidden_states, encoder_hidden_states = self._forward_blocks(hidden_states, encoder_hidden_states, emb, states[2])
+        for _, block in enumerate(self.transformer_blocks):
+            if self.training and self.gradient_checkpointing:
+                def create_custom_forward(module):
+                    def custom_forward(*inputs):
+                        return module(*inputs)
+
+                    return custom_forward
+
+                ckpt_kwargs: Dict[str, Any] = {"use_reentrant": False} if is_torch_version(">=", "1.11.0") else {}
+                hidden_states, encoder_hidden_states = torch.utils.checkpoint.checkpoint(
+                    create_custom_forward(block),
+                    hidden_states,
+                    encoder_hidden_states,
+                    emb,
+                    **ckpt_kwargs,
+                )
+            else:
+                hidden_states, encoder_hidden_states = block(
+                    hidden_states=hidden_states,
+                    encoder_hidden_states=encoder_hidden_states,
+                    emb=emb,
+                )
 
         hidden_states = self.norm_out(hidden_states, emb)
         hidden_states = self.proj_out(hidden_states)  # (batch_size, height*width, patch_size*patch_size*out_channels)
@@ -395,66 +317,10 @@ class CogView3PlusTransformer2DModel(ModelMixin, ConfigMixin):
             shape=(hidden_states.shape[0], self.out_channels, height * patch_size, width * patch_size)
         )
 
+        if not return_dict:
+            return (output,)
+
         return Transformer2DModelOutput(sample=output)
-
-    # forward blocks in range [start_idx, end_idx), then return input and output
-    def _forward_blocks_range(self, hidden_states, encoder_hidden_states, emb, start_idx, end_idx, **kwargs):
-        for _, block in enumerate(self.transformer_blocks[start_idx: end_idx]):
-            hidden_states, encoder_hidden_states = block(
-                hidden_states=hidden_states,
-                encoder_hidden_states=encoder_hidden_states,
-                emb=emb,
-            )
-
-        return hidden_states, encoder_hidden_states
-
-    def _forward_blocks(self, hidden_states, encoder_hidden_states, emb, t_idx):
-        num_blocks = len(self.transformer_blocks)
-
-        if not self.use_cache or (t_idx < self.cache_start_steps):
-            hidden_states, encoder_hidden_states = self._forward_blocks_range(
-                hidden_states, 
-                encoder_hidden_states, 
-                emb, 
-                0, 
-                num_blocks
-            )
-        else:
-            # infer [0, cache_start)
-            hidden_states, encoder_hidden_states = self._forward_blocks_range(
-                hidden_states, 
-                encoder_hidden_states, 
-                emb, 
-                0, 
-                self.cache_start
-            )
-            # infer [cache_start, cache_end)
-            cache_end = np.minimum(self.cache_start + self.num_cache_layer, num_blocks)
-            hidden_states_before_cache = hidden_states.clone()
-            encoder_hidden_states_before_cache = encoder_hidden_states.clone()
-            if t_idx % self.cache_interval == (self.cache_start_steps % self.cache_interval):
-                hidden_states, encoder_hidden_states = self._forward_blocks_range(
-                    hidden_states, 
-                    encoder_hidden_states, 
-                    emb, 
-                    self.cache_start, 
-                    cache_end
-                )
-                self.delta_cache = hidden_states - hidden_states_before_cache
-                self.delta_encoder_cache = encoder_hidden_states - encoder_hidden_states_before_cache
-            else:
-                hidden_states = hidden_states_before_cache + self.delta_cache
-                encoder_hidden_states = encoder_hidden_states_before_cache + self.delta_encoder_cache
-            # infer [cache_end, num_blocks)
-            hidden_states, encoder_hidden_states = self._forward_blocks_range(
-                hidden_states, 
-                encoder_hidden_states, 
-                emb, 
-                cache_end, 
-                num_blocks
-            )
-
-        return hidden_states, encoder_hidden_states
 
     def load_weights(self, state_dict, shard=False):
         with torch.no_grad():
