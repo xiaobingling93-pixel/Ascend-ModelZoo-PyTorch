@@ -9,8 +9,9 @@
 
 ### 1.1 获取CANN&MindIE安装包&环境准备
 - 设备支持：
-Atlas 800I A2推理设备：支持的卡数为1
+Atlas 800I A2/Atlas 800T A2 推理设备：支持的卡数为1
 - [Atlas 800I A2](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann&product=4&model=32)
+- [Atlas 800T A2](https://www.hiascend.com/developer/download/community/result?module=pt+cann&product=4&model=26)
 - [环境准备指导](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/81RC1alpha001/softwareinst/instg/instg_0003.html)
 
 ### 1.2 CANN安装
@@ -72,7 +73,7 @@ git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
 ### 2.2 安装依赖
 使用pip安装
 ```shell
-pip install -r requirents.txt
+pip install -r requirements.txt
 ```
 若要使用hpsv2验证精度，则还需要按照以下步骤安装hpsv2
 ```shell
@@ -134,9 +135,10 @@ https://huggingface.co/Tencent-Hunyuan/HunyuanDiT-v1.2/tree/main/t2i
 ```shell
 path="ckpts/t2i"
 ```
-修改权重文件夹权限为安全权限
+修改权重和prompts文件夹的权限为安全权限
 ```shell
 chmod -R 640 ckpts/t2i/
+chmod -R 640 prompts/
 ```
 执行命令：
 ```shell
@@ -163,9 +165,10 @@ python inference_hydit.py \
 ```shell
 path="ckpts/hydit"
 ```
-修改权重文件夹权限为安全权限
+修改权重和prompts文件夹的权限为安全权限
 ```shell
 chmod -R 640 ckpts/t2i/
+chmod -R 640 prompts/
 ```
 执行命令：
 ```shell
@@ -194,9 +197,10 @@ python inference_hydit.py \
 ```shell
 path="ckpts/hydit"
 ```
-修改权重文件夹权限为安全权限
+修改权重和prompts文件夹的权限为安全权限
 ```shell
 chmod -R 640 ckpts/t2i/
+chmod -R 640 prompts/
 ```
 执行命令：
 ```shell
@@ -227,9 +231,10 @@ python inference_hydit.py \
 ```shell
 path="ckpts/hydit"
 ```
-修改权重文件夹权限为安全权限
+修改权重和prompts文件夹的权限为安全权限
 ```shell
 chmod -R 640 ckpts/t2i/
+chmod -R 640 prompts/
 ```
 执行命令：
 ```shell
@@ -293,9 +298,10 @@ wget https://huggingface.co/spaces/xswu/HPSv2/resolve/main/HPS_v2_compressed.pt 
 ```shell
 path="ckpts/hydit"
 ```
-修改权重文件夹权限为安全权限
+修改权重和prompts文件夹的权限为安全权限
 ```shell
 chmod -R 640 ckpts/t2i/
+chmod -R 640 prompts/
 ```
 执行命令：
 ```shell
@@ -335,9 +341,10 @@ python inference_hydit.py \
 ```shell
 path="ckpts/hydit"
 ```
-修改权重文件夹权限为安全权限
+修改权重和prompts文件夹的权限为安全权限
 ```shell
 chmod -R 640 ckpts/t2i/
+chmod -R 640 prompts/
 ```
 执行命令：
 ```shell
