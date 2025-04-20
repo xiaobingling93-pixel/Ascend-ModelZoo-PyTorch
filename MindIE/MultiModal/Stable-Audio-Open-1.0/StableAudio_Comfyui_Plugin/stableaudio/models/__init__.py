@@ -1,0 +1,1 @@
+from .stable_audio_transformer import StableAudioDiTModel, ModelMixin

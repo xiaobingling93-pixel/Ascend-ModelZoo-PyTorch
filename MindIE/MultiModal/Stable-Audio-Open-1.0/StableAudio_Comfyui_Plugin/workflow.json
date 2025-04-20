@@ -1,0 +1,455 @@
+{
+    "id": "88a40482-efa7-4609-a858-7f5f3bf9dc18",
+    "revision": 0,
+    "last_node_id": 21,
+    "last_link_id": 20,
+    "nodes": [
+      {
+        "id": 7,
+        "type": "CLIPTextEncode",
+        "pos": [
+          615.800048828125,
+          460
+        ],
+        "size": [
+          400,
+          200
+        ],
+        "flags": {},
+        "order": 5,
+        "mode": 0,
+        "inputs": [
+          {
+            "name": "clip",
+            "type": "CLIP",
+            "link": 15
+          }
+        ],
+        "outputs": [
+          {
+            "name": "CONDITIONING",
+            "type": "CONDITIONING",
+            "links": [
+              12
+            ]
+          }
+        ],
+        "properties": {
+          "Node name for S&R": "CLIPTextEncode",
+          "cnr_id": "comfy-core",
+          "ver": "0.3.26"
+        },
+        "widgets_values": [
+          "Low quality."
+        ]
+      },
+      {
+        "id": 11,
+        "type": "EmptyLatentAudio",
+        "pos": [
+          100,
+          570
+        ],
+        "size": [
+          315,
+          82
+        ],
+        "flags": {},
+        "order": 0,
+        "mode": 0,
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "LATENT",
+            "type": "LATENT",
+            "links": [
+              13
+            ]
+          }
+        ],
+        "properties": {
+          "Node name for S&R": "EmptyLatentAudio",
+          "cnr_id": "comfy-core",
+          "ver": "0.3.26"
+        },
+        "widgets_values": [
+          47.6,
+          1
+        ]
+      },
+      {
+        "id": 12,
+        "type": "VAEDecodeAudio",
+        "pos": [
+          1530.800048828125,
+          130
+        ],
+        "size": [
+          210,
+          46
+        ],
+        "flags": {},
+        "order": 7,
+        "mode": 0,
+        "inputs": [
+          {
+            "name": "samples",
+            "type": "LATENT",
+            "link": 16
+          },
+          {
+            "name": "vae",
+            "type": "VAE",
+            "link": 17
+          }
+        ],
+        "outputs": [
+          {
+            "name": "AUDIO",
+            "type": "AUDIO",
+            "links": [
+              18
+            ]
+          }
+        ],
+        "properties": {
+          "Node name for S&R": "VAEDecodeAudio",
+          "cnr_id": "comfy-core",
+          "ver": "0.3.26"
+        },
+        "widgets_values": []
+      },
+      {
+        "id": 10,
+        "type": "CLIPLoader",
+        "pos": [
+          100,
+          358
+        ],
+        "size": [
+          315,
+          106
+        ],
+        "flags": {},
+        "order": 1,
+        "mode": 0,
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "CLIP",
+            "type": "CLIP",
+            "links": [
+              14,
+              15
+            ]
+          }
+        ],
+        "properties": {
+          "Node name for S&R": "CLIPLoader",
+          "cnr_id": "comfy-core",
+          "ver": "0.3.26"
+        },
+        "widgets_values": [
+          "t5_base.safetensors",
+          "stable_audio",
+          "default"
+        ]
+      },
+      {
+        "id": 4,
+        "type": "CheckpointLoaderSimple",
+        "pos": [
+          108.26446533203125,
+          137.43801879882812
+        ],
+        "size": [
+          315,
+          98
+        ],
+        "flags": {},
+        "order": 2,
+        "mode": 0,
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "MODEL",
+            "type": "MODEL",
+            "links": []
+          },
+          {
+            "name": "CLIP",
+            "type": "CLIP",
+            "links": null
+          },
+          {
+            "name": "VAE",
+            "type": "VAE",
+            "links": [
+              17
+            ]
+          }
+        ],
+        "properties": {
+          "Node name for S&R": "CheckpointLoaderSimple",
+          "cnr_id": "comfy-core",
+          "ver": "0.3.26"
+        },
+        "widgets_values": [
+          "model.safetensors"
+        ]
+      },
+      {
+        "id": 6,
+        "type": "CLIPTextEncode",
+        "pos": [
+          615.800048828125,
+          130
+        ],
+        "size": [
+          400,
+          200
+        ],
+        "flags": {},
+        "order": 4,
+        "mode": 0,
+        "inputs": [
+          {
+            "name": "clip",
+            "type": "CLIP",
+            "link": 14
+          }
+        ],
+        "outputs": [
+          {
+            "name": "CONDITIONING",
+            "type": "CONDITIONING",
+            "links": [
+              11
+            ]
+          }
+        ],
+        "properties": {
+          "Node name for S&R": "CLIPTextEncode",
+          "cnr_id": "comfy-core",
+          "ver": "0.3.26"
+        },
+        "widgets_values": [
+          "Blackbird song, summer, dusk in the forest."
+        ]
+      },
+      {
+        "id": 3,
+        "type": "KSampler",
+        "pos": [
+          1114.8909912109375,
+          130
+        ],
+        "size": [
+          315,
+          262
+        ],
+        "flags": {},
+        "order": 6,
+        "mode": 0,
+        "inputs": [
+          {
+            "name": "model",
+            "type": "MODEL",
+            "link": 20
+          },
+          {
+            "name": "positive",
+            "type": "CONDITIONING",
+            "link": 11
+          },
+          {
+            "name": "negative",
+            "type": "CONDITIONING",
+            "link": 12
+          },
+          {
+            "name": "latent_image",
+            "type": "LATENT",
+            "link": 13
+          }
+        ],
+        "outputs": [
+          {
+            "name": "LATENT",
+            "type": "LATENT",
+            "links": [
+              16
+            ]
+          }
+        ],
+        "properties": {
+          "Node name for S&R": "KSampler",
+          "cnr_id": "comfy-core",
+          "ver": "0.3.26"
+        },
+        "widgets_values": [
+          1079882035996634,
+          "randomize",
+          100,
+          7,
+          "dpmpp_3m_sde_gpu",
+          "exponential",
+          1
+        ]
+      },
+      {
+        "id": 19,
+        "type": "SaveAudio",
+        "pos": [
+          1540.8001708984375,
+          250.90911865234375
+        ],
+        "size": [
+          315,
+          112
+        ],
+        "flags": {},
+        "order": 8,
+        "mode": 0,
+        "inputs": [
+          {
+            "name": "audio",
+            "type": "AUDIO",
+            "link": 18
+          }
+        ],
+        "outputs": [],
+        "properties": {
+          "Node name for S&R": "SaveAudio",
+          "cnr_id": "comfy-core",
+          "ver": "0.3.26"
+        },
+        "widgets_values": [
+          "audio/ComfyUI"
+        ]
+      },
+      {
+        "id": 21,
+        "type": "StableAudioUnetLoader",
+        "pos": [
+          105.08953857421875,
+          -117.90382385253906
+        ],
+        "size": [
+          415.8000183105469,
+          178
+        ],
+        "flags": {},
+        "order": 3,
+        "mode": 0,
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "MODEL",
+            "type": "MODEL",
+            "links": [
+              20
+            ]
+          }
+        ],
+        "properties": {
+          "Node name for S&R": "StableAudioUnetLoader"
+        },
+        "widgets_values": [
+          "stable-audio-open-1.0/transformer/diffusion_pytorch_model.safetensors",
+          true,
+          false,
+          60,
+          5,
+          97
+        ]
+      }
+    ],
+    "links": [
+      [
+        11,
+        6,
+        0,
+        3,
+        1,
+        "CONDITIONING"
+      ],
+      [
+        12,
+        7,
+        0,
+        3,
+        2,
+        "CONDITIONING"
+      ],
+      [
+        13,
+        11,
+        0,
+        3,
+        3,
+        "LATENT"
+      ],
+      [
+        14,
+        10,
+        0,
+        6,
+        0,
+        "CLIP"
+      ],
+      [
+        15,
+        10,
+        0,
+        7,
+        0,
+        "CLIP"
+      ],
+      [
+        16,
+        3,
+        0,
+        12,
+        0,
+        "LATENT"
+      ],
+      [
+        17,
+        4,
+        2,
+        12,
+        1,
+        "VAE"
+      ],
+      [
+        18,
+        12,
+        0,
+        19,
+        0,
+        "AUDIO"
+      ],
+      [
+        20,
+        21,
+        0,
+        3,
+        0,
+        "MODEL"
+      ]
+    ],
+    "groups": [],
+    "config": {},
+    "extra": {
+      "ds": {
+        "scale": 1.2100000000000002,
+        "offset": [
+          22.183320811419936,
+          211.29226145755052
+        ]
+      },
+      "frontendVersion": "1.16.8"
+    },
+    "version": 0.4
+}
