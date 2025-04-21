@@ -4848,6 +4848,37 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <td nowrap="nowrap">bs x 3 <br> bs x 14541</td>
 </table>
 
+<p>Embedding </p>
+<table align="center">
+    <tr>
+        <th rowspan=2>ID</th>
+        <th rowspan=2>Name</th>
+        <th align="center" colspan=2>最优性能（对应bs）</th>
+        <th rowspan=2>输入shape</th>
+    </tr>
+    <tr>
+        <td>300I DUO</td>
+        <td>800I A2</td>
+    </tr>
+    <tr>
+        <td>100410</td>
+        <td><a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/embedding/bge-m3"> bge-m3 </a>
+        </td>
+        <td>forward 23.23ms, e2e 137.59ms (bs2)</td>
+        <td>forward 14.71ms, e2e 103.88ms (bs2)</td>
+        <td>动态输入</td>
+    </tr>
+    <tr>
+        <td>100411</td>
+        <td><a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/embedding/bge-reranker-v2-m3"> bge-reranker-v2-m3 </a>
+        </td>
+        <td>forward 22.57ms, e2e 60.47ms (bs2)</td>
+        <td>forward 15.08ms, e2e 46.64ms (bs2)</td>
+        <td>动态输入</td>
+    </tr>
+    
+</table>
+
 <p>Nlp </p>
 <table align="center">
     <tr>
