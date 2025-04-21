@@ -32,7 +32,7 @@ from musetalk.utils.utils import get_file_type, get_video_fps, datagen
 from musetalk.utils.preprocessing import get_landmark_and_bbox, read_imgs, coord_placeholder
 from musetalk.utils.blending import get_image
 from musetalk.utils.utils import load_all_model
-
+from scripts.rewrite_models import rewirte_Unet, rewrite_VAE
 
 # load model weights
 audio_processor, vae, unet, pe = load_all_model()
@@ -44,13 +44,17 @@ def compile_model():
     config = CompilerConfig()
     config.experimental_config.frozen_parameter = True
     npu_backend = tng.get_npu_backend(compiler_config=config)
-    models = [{"model": audio_processor.model.encoder, "dynamic": False},
-              {"model": vae.vae.encoder, "dynamic": False},
-              {"model": unet.model, "dynamic": True},
-              {"model": vae.vae.decoder, "dynamic": True}]
+    models = [{"model": audio_processor.model, "target": "encoder", "dynamic": False},
+              {"model": vae.vae, "target": "encoder", "dynamic": False},
+              {"model": unet, "target": "model", "dynamic": True},
+              {"model": vae.vae, "target": "decoder", "dynamic": True}]
     for model in models:
-        model["model"] = torch.compile(model["model"], dynamic=model["dynamic"], fullgraph=True, backend=npu_backend)
-        tng.use_internal_format_weight(model["model"])
+        compiled_model = torch.compile(getattr(model["model"], model["target"]),
+                                       dynamic=model["dynamic"],
+                                       fullgraph=True,
+                                       backend=npu_backend)
+        setattr(model["model"], model["target"], compiled_model)
+        tng.use_internal_format_weight(getattr(model["model"], model["target"]))
 
 
 def extract_from_video_audio(video_path, audio_path, input_basename, args):
@@ -233,6 +237,9 @@ if __name__ == "__main__":
                         action="store_true",
                         help="Whether use float16 to speed up inference",
     )
+
+    rewirte_Unet(unet.model)
+    rewrite_VAE(vae.vae)
 
     args = parser.parse_args()
     if args.use_float16 is True:

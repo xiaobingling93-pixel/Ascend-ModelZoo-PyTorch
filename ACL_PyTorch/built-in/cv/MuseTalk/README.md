@@ -79,6 +79,7 @@
     ├── scripts
     │   ├── inference.py
     │   ├── infer_npu.py      // 本仓库提供的自定义推理脚本
+    |   ├── rewrite_models.py // 本仓库提供的文件
     │   ├── diff.patch        // 本仓库提供的patch文件
     │   ├── requirements.txt  // 本仓库提供的requirements文件
     │   ├── realtime_inference.py
@@ -131,10 +132,13 @@
 
    |模型|芯片|E2E|forward|
    |------|------|------|---|
-   |MuseTalk|Atlas 300I DUO|234s|33s|
+   |MuseTalk|Atlas 300I DUO|229s|26s|
 
-   - forward包含vae和unet模型的耗时
+   - forward包含vae decoder和unet模型的耗时
    - 将`config/inference/test.yaml`文件中的`task_0`注释掉
+   - 开启如下环境变量可提升性能：
+     - export ENABLE_TILING_CACHE=1
+     - export TASK_QUEUE_ENABLE=2
 
 ### 3 FAQ
 1. 首次推理会报依赖权重错误，将其下载后放到对应路径即可。
