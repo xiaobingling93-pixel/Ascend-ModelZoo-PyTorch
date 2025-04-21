@@ -26,8 +26,9 @@ python3 train_openfold.py  $data_path/pdb_data/mmcif_files \
                            $data_path/pdb_data/mmcif_files \
                            ./output \
                            "2021-10-10" \
-                           --train_chaintrain_mmcif_data_cache_path $data_path/pdb_data/data_caches/chain_data_cache.json \
+                           --train_chain_data_cache_path $data_path/pdb_data/data_caches/chain_data_cache.json \
                            --template_release_dates_cache_path $data_path/pdb_data/data_caches/mmcif_cache.json \ 
+                           --alignment_index_path $data_path/alignment_data/alignment_dbs/alignment_db.index \
                            --config_preset initial_training \
                            --seed 42 \
                            --obsolete_pdbs_file_path $data_path/pdb_data/obsolete.dat \

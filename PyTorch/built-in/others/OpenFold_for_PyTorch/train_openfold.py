@@ -4,6 +4,15 @@ import os
 import sys
 import json
 
+import lightning_fabric.accelerators.cuda as cuda_module
+
+
+def _check_cuda_matmul_precision_npu(device):
+    # Patch the function which is not supported by NPU
+    pass
+
+cuda_module._check_cuda_matmul_precision = _check_cuda_matmul_precision_npu
+
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks.lr_monitor import LearningRateMonitor
 from pytorch_lightning.callbacks import DeviceStatsMonitor

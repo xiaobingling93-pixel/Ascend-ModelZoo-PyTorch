@@ -68,7 +68,7 @@
   pip install torch==2.1.0
 
   conda install -c bioconda -c conda-forge hhsuite
-  conda install -c bioconda -c kalign2
+  conda install -c bioconda kalign2
   conda install -c bioconda -c conda-forge mmseqs2
   ```
 
@@ -153,7 +153,7 @@
      启动8卡训练。
 
      ```
-     bash test/train_openfold_8p.sh --data_path xxxx  # openfold 8p training
+     bash test/train_openfold_8p.sh --data_path=xxxx  # openfold 8p training
      ```
 
    - 8卡验证精度
@@ -161,7 +161,7 @@
      启动8卡验证（需跑完训练后进行验证）。
 
      ```
-     bash test/val_openfold_8p.sh --data_path xxxx --val_alignment_dir xxxx --val_data_dir xxxx  # openfold 8p validation
+     bash test/val_openfold_8p.sh --data_path=xxxx --val_alignment_dir=xxxx --val_data_dir=xxxx  # openfold 8p validation
      ```
 
 
