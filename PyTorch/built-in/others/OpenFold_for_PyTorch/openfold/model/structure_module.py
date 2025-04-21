@@ -20,6 +20,7 @@ from operator import mul
 
 import torch
 import torch.nn as nn
+import torch_npu
 from typing import Optional, Tuple, Sequence, Union
 
 from openfold.model.primitives import Linear, LayerNorm, ipa_point_weights_init_
@@ -43,8 +44,6 @@ from openfold.utils.tensor_utils import (
     permute_final_dims,
     flatten_final_dims,
 )
-
-attn_core_inplace_cuda = importlib.import_module("attn_core_inplace_cuda")
 
 
 class AngleResnetBlock(nn.Module):
@@ -437,11 +436,7 @@ class InvariantPointAttention(nn.Module):
             del pt_att
             a += square_mask.unsqueeze(-3)
             # in-place softmax
-            attn_core_inplace_cuda.forward_(
-                a,
-                reduce(mul, a.shape[:-1]),
-                a.shape[-1],
-            )
+            torch_npu.npu_attn_softmax_(a)
         else:
             a = a + pt_att
             a = a + square_mask.unsqueeze(-3)

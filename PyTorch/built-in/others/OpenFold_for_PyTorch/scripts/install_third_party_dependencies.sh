@@ -11,12 +11,6 @@ ln -rs openfold/resources/stereo_chemical_props.txt tests/test_data/alphafold/co
 # Decompress test data
 gunzip -c tests/test_data/sample_feats.pickle.gz > tests/test_data/sample_feats.pickle
 
-python setup.py install
-
-echo "Download CUTLASS, required for Deepspeed Evoformer attention kernel"
-git clone https://github.com/NVIDIA/cutlass --depth 1
-conda env config vars set CUTLASS_PATH=$PWD/cutlass
-
 # This setting is used to fix a worker assignment issue during data loading
 conda env config vars set KMP_AFFINITY=none
 

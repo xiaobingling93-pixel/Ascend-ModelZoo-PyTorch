@@ -13,6 +13,8 @@ from pytorch_lightning.strategies import DDPStrategy, DeepSpeedStrategy
 from pytorch_lightning.plugins.environments import MPIEnvironment
 from pytorch_lightning import seed_everything
 import torch
+import torch_npu
+from torch_npu.contrib import transfer_to_npu
 import wandb
 from deepspeed.utils import zero_to_fp32 
 
@@ -91,8 +93,8 @@ class OpenFoldWrapper(pl.LightningModule):
             self.log(
                 f"{phase}/{k}",
                 torch.mean(v),
-                prog_bar = (k == 'loss'),
-                on_step=False, on_epoch=True, logger=True, sync_dist=False,
+                prog_bar=True,
+                on_step=False, on_epoch=True, logger=True, sync_dist=True,
             )
 
     def training_step(self, batch, batch_idx):
@@ -423,7 +425,7 @@ def main(args):
         strategy = DDPStrategy(find_unused_parameters=False,
                                cluster_environment=cluster_environment)
     else:
-        strategy = None
+        strategy = "auto"
  
     if(args.wandb and is_rank_zero):
         freeze_path = f"{wdb_logger.experiment.dir}/package_versions.txt"
@@ -447,11 +449,25 @@ def main(args):
     else:
         ckpt_path = args.resume_from_ckpt
 
-    trainer.fit(
-        model_module, 
-        datamodule=data_module,
-        ckpt_path=ckpt_path,
-    )
+    if args.openfold_run_stage == "val":
+        openfold_run_stage = "val"
+    elif args.openfold_run_stage == "train":
+        openfold_run_stage = "train"
+    else:
+        raise ValueError("Invalid stage input.")
+
+    if openfold_run_stage == "train":
+        trainer.fit(
+            model_module, 
+            datamodule=data_module,
+            ckpt_path=ckpt_path,
+        )
+    else:
+        trainer.validate(
+            model_module, 
+            datamodule=data_module,
+            ckpt_path=ckpt_path,
+        )
 
 
 def bool_type(bool_str: str):
@@ -515,6 +531,10 @@ if __name__ == "__main__":
     parser.add_argument(
         "--val_mmcif_data_cache_path", type=str, default=None,
         help="path to the json file which records all the information of mmcif structures used during validation"
+    )
+    parser.add_argument(
+        "--openfold_run_stage", type=str, default="train",
+        help="whether to train or validate only"
     )
     parser.add_argument(
         "--kalign_binary_path", type=str, default='/usr/bin/kalign',

@@ -628,12 +628,15 @@ class OpenFoldDataset(torch.utils.data.Dataset):
                 weights.append([1. - p, p])
                 idx.append(candidate_idx)
 
+            if len(weights) == 0:
+                continue
+
             samples = torch.multinomial(
                 torch.tensor(weights),
                 num_samples=1,
                 generator=self.generator,
             )
-            samples = samples.squeeze()
+            samples = samples.squeeze() if samples.numel() > 1 else samples
 
             cache = [i for i, s in zip(idx, samples) if s]
 
