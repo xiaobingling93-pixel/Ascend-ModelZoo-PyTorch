@@ -1,0 +1,6 @@
+torch==2.1.0
+diffusers==0.30.3
+transformers==4.39.3
+opencv-python
+opencv-python-headless
+open_clip_torch==2.20.0
