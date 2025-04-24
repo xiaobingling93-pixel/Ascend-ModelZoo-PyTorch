@@ -1,0 +1,6 @@
+torch==2.1.0
+diffusers>=0.31.0
+transformers==4.46.0
+numpy==1.26.4
+accelerate
+sentencepiece>=0.1.99
