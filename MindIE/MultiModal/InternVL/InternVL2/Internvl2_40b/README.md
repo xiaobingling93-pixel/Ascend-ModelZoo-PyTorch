@@ -22,7 +22,7 @@ InternVL2-40B 是一种多模态大模型，具有强大的图像和文本处理
 完成之后，请使用`docker images`命令确认查找具体镜像名称与标签。 
 
 ## 硬件要求
-部署InternVL2-40B模型至少需要1台Atlas 800I A2 推理服务器 32GB
+Atlas 800I A2 64GB 推理服务器
 
 ## 新建容器
 
@@ -33,8 +33,7 @@ docker run -dit -u root \
 --name ${容器名} \
 -e ASCEND_RUNTIME_OPTIONS=NODRV \
 --privileged=true \
--v /home/路径:/home/路径 \
--v /data:/data \
+-v ${所需映射目录}:${所需映射目录} \
 -v /usr/local/Ascend/driver/:/usr/local/Ascend/driver/ \
 -v /usr/local/Ascend/firmware/:/usr/local/Ascend/firmware/ \
 -v /usr/local/sbin/:/usr/local/sbin \
@@ -47,6 +46,7 @@ docker run -dit -u root \
 ${MindIE 1.0.0 镜像} \
 /bin/bash
 ```
+
 ## 进入容器
 ```shell
 docker exec -it ${容器名} bash
@@ -59,18 +59,28 @@ cd /usr/local/Ascend/atb-models
 pip install -r requirements/models/requirements_internvl.txt
 ```
 
-# 纯模型推理
+## 调试建议
+若在运行过程中遇到未知报错或异常现象，建议开启日志打印开关以辅助排查问题。
+在终端中执行以下命令设置环境变量：
 
+```shell
+export MINDIE_LOG_TO_STDOUT=1
+export MINDIE_LOG_TO_FILE=1
+export MINDIE_LOG_LEVEL=info
+```
+
+启用该环境变量后，系统日志将输出至终端（标准输出），并同步保存在`/root/mindie`目录下，方便后续定位和分析问题
+
+# 纯模型推理
 
 - 修改`/usr/local/Ascend/atb-models/examples/models/internvl/run_pa.sh`脚本
 
 ```shell
-# 设置卡数，Atlas 800I A2 推理服务器 32GB上必须八卡，Atlas 800I A2 推理服务器 64GB上四卡八卡均可
 export ASCEND_RT_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
 ```
 
-- 运行脚本
-可参考run_pa.sh同级目录下的README.md。
+- 运行启动脚本（更多环境变量说明可参考run_pa.sh同级目录下的README.md）
+
 ```shell
 bash /usr/local/Ascend/atb-models/examples/models/internvl/run_pa.sh --run --trust_remote_code ${权重路径} ${图片或视频所在文件夹路径}
 ```
@@ -84,111 +94,86 @@ bash /usr/local/Ascend/atb-models/examples/models/internvl/run_pa.sh --run --tru
 vim /usr/local/Ascend/mindie/latest/mindie-service/conf/config.json
 ```
 
-- 更改配置文件
+- 修改`MindIE-Service`配置文件`config.json`，在Atlas 800I A2 64GB环境下，推荐使用以下配置，请自行修改`modelWeightPath`为实际权重路径：
 
 ```json
 {
-...
-"ServerConfig" :
-{
-...
-"port" : 1040, #自定义
-"managementPort" : 1041, #自定义
-"metricsPort" : 1042, #自定义
-...
-"httpsEnabled" : false,
-...
-},
-
-"BackendConfig": {
-...
-"npuDeviceIds" : [[0,1,2,3,4,5,6,7]],
-...
-"ModelDeployConfig":
-{
-"maxSeqLen" : 50000,
-"maxInputTokenLen" : 50000,
-"truncation" : false,
-"ModelConfig" : [
-{
-"modelInstanceType": "Standard",
-"modelName" : "internvl", # 为了方便使用benchmark测试，modelname建议使用internvl
-"modelWeightPath" : "/data/datasets/InternVL2-40B",
-"worldSize" : 8,
-...
-"npuMemSize" : 8, #kvcache分配，可自行调整，单位是GB，切勿设置为-1，需要给vit预留显存空间
-...
-"trustRemoteCode" : false #默认为false，若设为true，则信任本地代码，用户需自行承担风险
-}
-]
-},
-"ScheduleConfig" :
-{
-...
-"maxPrefillTokens" : 50000,
-"maxIterTimes": 4096,
-...
-}
-}
+    "ServerConfig": {
+        "port" : 1025,
+        "managementPort" : 1026,
+        "httpsEnabled": false,
+    },
+    "BackendConfig": {
+        "npuDeviceIds": [
+            [0,1,2,3,4,5,6,7]
+        ],
+        "ModelDeployConfig": {
+            "maxSeqLen": 50000,
+            "maxInputTokenLen": 50000,
+            "ModelConfig": [
+                {
+                    "modelInstanceType": "Standard",
+                    "modelName": "internvl",
+                    "modelWeightPath": "/absolute/path/to/model/weights",
+                    "worldSize": 8,
+                    "npuMemSize": 8, #kvcache分配，可自行调整，单位是GB
+                    "trustRemoteCode": true #默认为false，该模型需要设为true，信任本地代码，若使用该推荐配置，用户需自行承担风险
+                }
+            ]
+        },
+        "ScheduleConfig": {
+            "maxPrefillTokens": 50000,
+            "maxIterTimes": 4096,
+        }
+    }
 }
 ```
 
-- 设置运行多卡环境变量
-
-```shell
-export MASTER_ADDR=localhost 
-export MASTER_PORT=7896
-```
-
-- 拉起服务化
+- 部署服务化
 
 ```shell
 cd /usr/local/Ascend/mindie/latest/mindie-service/bin
 ./mindieservice_daemon
 ```
 
-- 容器内新端口测试 VLLM接口
+- 新建同一个Docker容器的终端会话，在任意路径下发送curl请求完成推理，以下分别以OpenAI接口与vLLM接口为例，请自行修改`image_url`的路径为实际图片路径：
+  
+  - **OpenAI接口**
+  ```shell
+  curl http://localhost:1025/v1/chat/completions -d '{
+    "model": "internvl",
+    "messages": [{
+      "role": "user",
+      "content": [
+                  {
+                      "type": "text",
+                      "text": "Describe the contents of the image."
+                  },
+                  {"type": "image_url", "image_url": "/absolute/path/to/image"}                        
+              ]
+    }],
+    "max_tokens": 512,
+    "stream": false
+  }'
+  ```
 
-```shell
-curl 127.0.0.1:1040/generate -d '{
-"prompt": [
-{
-"type": "image_url",
-"image_url": ${图片路径}
-},
-{"type": "text", "text": "Explain the details in the image."}
-],
-"max_tokens": 512,
-"stream": false,
-"do_sample":true,
-"repetition_penalty": 1.00,
-"temperature": 0.01,
-"top_p": 0.001,
-"top_k": 1,
-"model": "internvl"
-}'
-```
+  - **vLLM接口**
+  ```shell
+  curl http://localhost:1025/generate -d '{
+      "prompt": [
+          {"type": "text", "text": "Describe the contents of the image."},
+          {
+              "type": "image_url",
+              "image_url": "/absolute/path/to/image"
+          }
+      ],
+      "max_tokens": 512,
+      "do_sample": false,
+      "stream": false,
+      "model": "internvl"
+  }'
+  ```
 
-- 容器内新端口测试 OpenAI 接口
-
-```shell
-curl 127.0.0.1:1040/v1/chat/completions -d ' {
-"model": "internvl",
-"messages": [{
-"role": "user",
-"content": [
-{"type": "image_url", "image_url": ${图片路径}},
-{"type": "text", "text": "Explain the details in the image."}
-]
-}],
-"max_tokens": 512,
-"do_sample": true,
-"repetition_penalty": 1.00,
-"temperature": 0.01,
-"top_p": 0.001,
-"top_k": 1
-}'
-```
 ## 声明
 - 本代码仓提到的数据集和模型仅作为示例，这些数据集和模型仅供您用于非商业目的，如您使用这些数据集和模型来完成示例，请您特别注意应遵守对应数据集和模型的License，如您因使用数据集或模型而产生侵权纠纷，华为不承担任何责任。
 - 如您在使用本代码仓的过程中，发现任何问题（包括但不限于功能问题、合规问题），请在本代码仓提交issue，我们将及时审视并解答。
