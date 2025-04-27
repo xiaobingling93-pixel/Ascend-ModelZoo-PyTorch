@@ -95,7 +95,7 @@ do
     fi
 
      # 绑核，不需要的绑核的模型删除，需要模型审视修改
-    if [ $(uname -m) = "aarch64"]
+    if [ $(uname -m) = "aarch64" ]
     then
         PID_START=$((KERNEL_NUM * RANK_ID))
         PID_END=$((PID_START + KERNEL_NUM - 1))

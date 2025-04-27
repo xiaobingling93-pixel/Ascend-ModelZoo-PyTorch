@@ -97,7 +97,7 @@ do
     #let a=RANK_ID*12
     #let b=RANK_ID+1
     #let c=b*12-1
-    if [ $(uname -m) = "aarch64"]
+    if [ $(uname -m) = "aarch64" ]
     then
         PID_START=$((KERNEL_NUM * RANK_ID))
         PID_END=$((PID_START + KERNEL_NUM - 1))
