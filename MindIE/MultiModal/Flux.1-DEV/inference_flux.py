@@ -28,6 +28,7 @@ from mindiesd import CacheAgent, CacheConfig
 from FLUX1dev import FluxPipeline
 from FLUX1dev import get_local_rank, get_world_size, initialize_torch_distributed
 from FLUX1dev.utils import check_prompts_valid, check_param_valid, check_dir_safety, check_file_safety
+from transformers import T5EncoderModel
 
 torch_npu.npu.set_compile_mode(jit_compile=False)
 
@@ -175,7 +176,19 @@ def infer(args):
         FluxPipeline.extract_init_dict = classmethod(replace_tp_extract_init_dict)
     
     check_dir_safety(args.path)
-    pipe = FluxPipeline.from_pretrained(args.path, torch_dtype=torch.bfloat16, local_files_only=True)
+    T5_model_path = os.path.join(args.path, "text_encoder_2")
+    T5_model = T5EncoderModel.from_pretrained(T5_model_path).to(torch.bfloat16)
+    if args.device_type == "A2-32g-dual":
+        local_rank = get_local_rank()
+        world_size = get_world_size()
+        initialize_torch_distributed(local_rank, world_size)
+        import deepspeed
+        T5_model = deepspeed.init_inference(
+            T5_model,
+            tensor_parallel={"tp_size": get_world_size()},
+        )
+
+    pipe = FluxPipeline.from_pretrained(args.path, text_encoder_2=T5_model, torch_dtype=torch.bfloat16, local_files_only=True)
 
     if args.device_type == "A2-32g-single":
         torch.npu.set_device(args.device_id)
@@ -184,9 +197,6 @@ def infer(args):
         torch.npu.set_device(args.device_id)
         pipe.to(f"npu:{args.device_id}")
     else:
-        local_rank = get_local_rank()
-        world_size = get_world_size()
-        initialize_torch_distributed(local_rank, world_size)
         pipe.to(f"npu:{local_rank}")
 
     if args.use_cache:

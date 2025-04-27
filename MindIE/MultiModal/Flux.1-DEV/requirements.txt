@@ -7,3 +7,4 @@ transformers==4.46.3
 tensorboard
 Jinja2
 peft==0.11.1
+deepspeed

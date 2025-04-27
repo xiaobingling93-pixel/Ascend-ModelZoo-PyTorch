@@ -197,7 +197,7 @@ python3 tpsplit_weight.py --path ${model_path}
 ```
 3.执行命令运行Flux：
 ```shell
-export ASCEND_LAUNCH_BLOCKING = 1
+export PYTORCH_NPU_ALLOC_CONF=expandable_segments:True
 ASCEND_RT_VISIBLE_DEVICES=0,1 torchrun --master_port=2002 --nproc_per_node=2 inference_flux.py --device_type "A2-32g-dual" --path ${model_path} --prompt_path "./prompts.txt" --width 1024 --height 1024 --infer_steps 50 --seed 42 --use_cache
 ```
 参数说明：
