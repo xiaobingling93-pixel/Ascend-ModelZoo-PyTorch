@@ -1,4 +1,14 @@
-## 一、准备运行环境
+# 模型推理指导  
+
+## 一、模型简介
+
+Flux.1-DEV是一种文本到图像的扩散模型，能够在给定文本输入的情况下生成相符的图像。
+
+本模型使用的优化手段如下：
+等价优化：FA、ROPE、RMSnorm、TP并行（32G机器可选）
+算法优化：FA、ROPE、RMSnorm、DiTCache、TP并行（32G机器可选）
+
+## 二、环境准备
 
   **表 1**  版本配套表
 
@@ -7,13 +17,12 @@
   | Python | 3.10.2 | - |
   | torch | 2.1.0 | - |
 
-### 1.1 获取CANN&MindIE安装包&环境准备
-- 设备支持：
-Atlas 800I A2推理设备：支持的卡数为1或2
-- [Atlas 800I A2](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann&product=4&model=32)
+### 2.1 获取安装包
+- 支持设备：[Atlas 800I A2](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann&product=4&model=32)
+- 支持卡数：支持的卡数为1或2
 - [环境准备指导](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/81RC1alpha001/softwareinst/instg/instg_0003.html)
 
-### 1.2 CANN安装
+### 2.2 CANN安装
 ```shell
 # 增加软件包可执行权限，{version}表示软件版本号，{arch}表示CPU架构，{soc}表示昇腾AI处理器的版本。
 chmod +x ./Ascend-cann-toolkit_{version}_linux-{arch}.run
@@ -29,12 +38,7 @@ chmod +x ./Ascend-cann-kernels-{soc}_{version}_linux.run
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
 ```
 
-### 1.3 环境依赖安装
-```shell
-pip3 install -r requirements.txt
-```
-
-### 1.4 MindIE安装
+### 2.3 MindIE安装
 ```shell
 # 增加软件包可执行权限，{version}表示软件版本号，{arch}表示CPU架构。
 chmod +x ./Ascend-mindie_${version}_linux-${arch}.run
@@ -51,7 +55,15 @@ cd /usr/local/Ascend/mindie && source set_env.sh
 cd ${AieInstallPath}/mindie && source set_env.sh
 ```
 
-### 1.5 Torch_npu安装
+### 2.4 Torch_npu安装
+安装pytorch框架 版本2.1.0
+[安装包下载](https://download.pytorch.org/whl/cpu/torch/)
+
+使用pip安装
+```shell
+# {version}表示软件版本号，{arch}表示CPU架构。
+pip install torch-${version}-cp310-cp310-linux_${arch}.whl
+```
 下载 pytorch_v{pytorchversion}_py{pythonversion}.tar.gz
 ```shell
 tar -xzvf pytorch_v{pytorchversion}_py{pythonversion}.tar.gz
@@ -59,24 +71,25 @@ tar -xzvf pytorch_v{pytorchversion}_py{pythonversion}.tar.gz
 pip install torch_npu-{pytorchversion}.xxxx.{arch}.whl
 ```
 
-## 二、下载本仓库
-
-### 2.1 下载到本地
+### 2.5 下载本仓库
 ```shell
-git clone https://modelers.cn/MindIE/FLUX.1-dev.git
+   git clone https://modelers.cn/MindIE/FLUX.1-dev.git
 ```
-## 三、Flux.1-DEV使用
 
-### 3.1 准备权重
+### 2.6 安装所需依赖
+```shell
+pip install -r requirements.txt
+```
+
+## 三、模型权重
+
+### 3.1 权重下载
 Flux.1-DEV权重下载地址
 ```shell
 https://huggingface.co/black-forest-labs/FLUX.1-dev/tree/main
 ```
 
-设置模型权重路径环境变量：
-```bash
-export model_path="your local flux model path"
-```
+### 3.2 配置文件说明
 修改权重配置文件：
 ```bash
 vi ${model_path}/model_index.json
@@ -116,14 +129,21 @@ vi ${model_path}/model_index.json
   ]
 }
 ```
-### 3.2 运行Flux
-可以在环境中导入以下环境变量提高推理性能：
+
+## 四、模型推理
+
+### 4.1 Atlas-800I-A2-64g单卡推理性能测试
+1. 设置权重路径：
+```bash
+export model_path="your local flux model path"
+```
+
+2. 执行命令：
 ```shell
+# 在环境中导入以下环境变量提高推理性能
 export CPU_AFFINITY_CONF=2
 export TASK_QUEUE_ENABLE=2
-```
-#### 3.2.1 Atlas-800I-A2-64g机器运行Flux
-```shell
+
 python inference_flux.py \
        --path ${model_path} \
        --save_path "./res" \
@@ -151,9 +171,19 @@ python inference_flux.py \
 - use_cache: 是否开启dit cache近似优化
 - device_type: device类型，有A2-32g-single、A2-32g-dual、A2-64g三个选项
 - batch_size: 指定prompt的batch size，默认为1，大于1时以list形式送入pipeline
-#### 3.2.2 Atlas-800I-A2-32g机器运行Flux
-- 单卡运行Flux
+
+### 4.2 Atlas-800I-A2-32g单卡推理性能测试
+1. 设置权重路径：
+```bash
+export model_path="your local flux model path"
+```
+
+2. 执行命令：
 ```shell
+# 在环境中导入以下环境变量提高推理性能
+export CPU_AFFINITY_CONF=2
+export TASK_QUEUE_ENABLE=2
+
 python inference_flux.py \
        --path ${model_path} \
        --save_path "./res" \
@@ -169,15 +199,19 @@ python inference_flux.py \
 ```
 参数说明参照Atlas-800I-A2-64g参数说明
 
-- 双卡运行Flux
+### 4.3 Atlas-800I-A2-32g双卡推理性能测试
+1. 设置权重路径：
+```bash
+export model_path="your local flux model path"
+```
 
-1.执行如下命令进行权重切分
+2.执行命令进行权重切分
 ```shell
 python3 tpsplit_weight.py --path ${model_path}
 ```
 备注：权重切分成功后，会在模型权重目录生成'transformer_0'与'transformer_1'两个文件夹，两个文件夹下内容与初始transformer文件夹文件相同，但大小不同，执行du -sh，大小应为15G
 
-2.修改transformer_0与transformer_1下的config文件，添加is_tp变量：
+3.修改transformer_0与transformer_1下的config文件，添加is_tp变量：
 ```json
 {
   "_class_name": "FluxTransformer2DModel",
@@ -195,7 +229,8 @@ python3 tpsplit_weight.py --path ${model_path}
   "is_tp": true
 }
 ```
-3.执行命令运行Flux：
+
+4. 执行命令：
 ```shell
 export PYTORCH_NPU_ALLOC_CONF=expandable_segments:True
 ASCEND_RT_VISIBLE_DEVICES=0,1 torchrun --master_port=2002 --nproc_per_node=2 inference_flux.py --device_type "A2-32g-dual" --path ${model_path} --prompt_path "./prompts.txt" --width 1024 --height 1024 --infer_steps 50 --seed 42 --use_cache
@@ -206,8 +241,8 @@ ASCEND_RT_VISIBLE_DEVICES=0,1 torchrun --master_port=2002 --nproc_per_node=2 inf
 - nproc_per_node:分布式推理使用的NPU数量，设置为2
 其余参数说明参照Atlas-800I-A2-64g参数说明
 
-### 3.3 Flux推理精度测试
-#### 3.3.1 ClipScore测试
+### 4.4 精度测试
+#### 4.4.1 ClipScore测试
 1.准备模型与数据集
 ```shell
 # 下载Parti数据集
@@ -280,7 +315,8 @@ python clipscore.py \
 - image_info: 上一步生成的json文件。
 - model_name: Clip模型名称。
 - model_weights_path: Clip模型权重文件路径。
-### Hpsv2精度测试
+
+#### 4.4.2 Hpsv2精度测试
 1.准备模型与数据集
 
 [hpsv2数据集获取](https://gitee.com/ascend/ModelZoo-PyTorch/blob/master/MindIE/MindIE-Torch/built-in/foundation/stable_diffusion_xl/hpsv2_benchmark_prompts.json)
@@ -335,18 +371,9 @@ python hpsv2_score.py \
 - HPSv2_checkpoint: HPSv2模型权重文件路径。
 - clip_checkpointh: Clip模型权重文件路径。
 
-### 优化指南
-本模型使用的优化手段如下：
-
-等价优化：FA、ROPE、RMSnorm、TP并行（32G机器可选）
-
-算法优化：FA、ROPE、RMSnorm、DiTCache、TP并行（32G机器可选）
-
-性能参考下列数据。
-
-### Flux.1-DEV
-
-| 硬件形态  | cpu规格 | batch size | 分辨率 |迭代次数 | 优化手段 | 平均耗时 | 采样器 | 备注 |
+## 五、推理结果参考
+### Flux.1-DEV性能数据
+| 硬件形态  | cpu规格 | batch size | 分辨率 |迭代次数 | 优化手段 | 性能 | 采样器 | 备注 |
 | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
 | Atlas 800I A2(8*64G) | 64核(arm) |  1  | 1024*1024 |  50  | with DiTCache |  20.4s   | FlowMatchEuler | 单卡运行 |
 | Atlas 800I A2(8*32G) | 64核(arm) |  1  | 1024*1024 |  50  | with DiTCache |  24.6s   | FlowMatchEuler | 双卡运行 |

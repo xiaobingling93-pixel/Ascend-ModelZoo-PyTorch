@@ -1,4 +1,24 @@
-## 一、准备运行环境
+---
+license: apache-2.0
+frameworks:
+  - PyTorch
+language:
+  - en
+hardwares:
+  - NPU
+---
+
+# 模型推理指导
+
+## 一、模型简介
+
+CogView是一种文本到图像的扩散模型，能够在给定文本输入的情况下生成相符的图像。
+
+本模型使用的优化手段如下：
+- 等价优化：FA、Linear
+- 算法优化：FA、Linear、cache
+
+## 二、环境准备
 
   **表 1**  版本配套表
 
@@ -7,14 +27,12 @@
   | Python | 3.10 / 3.11 | - |
   | torch | 2.1.0 | - |
 
-### 1.1 获取CANN&MindIE安装包&环境准备
-- 设备支持
-Atlas 800I A2/Atlas 800T A2设备：支持的卡数为1
-- [Atlas 800I A2](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann&product=4&model=32)
-- [Atlas 800T A2](https://www.hiascend.com/developer/download/community/result?module=pt+cann&product=4&model=26)
+### 2.1 获取安装包
+- 支持设备：[Atlas 800I A2](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann&product=4&model=32) / [Atlas 800T A2](https://www.hiascend.com/developer/download/community/result?module=pt+cann&product=4&model=26)
+- 支持卡数：支持的卡数为1
 - [环境准备指导](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/81RC1alpha001/softwareinst/instg/instg_0003.html)
 
-### 1.2 CANN安装
+### 2.2 CANN安装
 ```shell
 # 增加软件包可执行权限，{version}表示软件版本号，{arch}表示CPU架构，{soc}表示昇腾AI处理器的版本。
 chmod +x ./Ascend-cann-toolkit_{version}_linux-{arch}.run
@@ -30,7 +48,7 @@ chmod +x ./Ascend-cann-kernels-{soc}_{version}_linux.run
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
 ```
 
-### 1.3 MindIE安装
+### 2.3 MindIE安装
 ```shell
 # 增加软件包可执行权限，{version}表示软件版本号，{arch}表示CPU架构。
 chmod +x ./Ascend-mindie_${version}_linux-${arch}.run
@@ -47,7 +65,7 @@ cd /usr/local/Ascend/mindie && source set_env.sh
 cd ${AieInstallPath}/mindie && source set_env.sh
 ```
 
-### 1.4 Torch_npu安装
+### 2.4 Torch_npu安装
 安装pytorch框架 版本2.4.0
 [安装包下载](https://download.pytorch.org/whl/cpu/torch/)
 
@@ -62,27 +80,26 @@ tar -xzvf pytorch_v{pytorchversion}_py{pythonversion}.tar.gz
 # 解压后，会有whl包
 pip install torch_npu-{pytorchversion}.xxxx.{arch}.whl
 ```
-## 二、下载本仓库
 
-### 2.1 下载到本地
+### 2.5 下载本仓库
 ```shell
-git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
 ```
 
-### 2.2 安装依赖
+### 2.6 安装所需依赖
 ```shell
 pip install -r requirements.txt
 ```
 
-## 三、CogView3使用
+## 三、模型权重
 
-### 3.1 权重及配置文件说明
-#### 1. 权重链接:
+### 3.1 权重下载
+下载CogView权重:
 ```shell
-https://huggingface.co/THUDM/CogView3-Plus-3B/tree/main
+   git clone https://huggingface.co/THUDM/CogView3-Plus-3B/tree/main
 ```
 
-#### 2. 各模型的配置文件、权重文件的层级样例如下所示:
+### 3.2 配置文件说明
 ```commandline
 |----main
 |    |---- configuration.json
@@ -96,18 +113,15 @@ https://huggingface.co/THUDM/CogView3-Plus-3B/tree/main
 |    |---- vae
 ```
 
-### 3.2 单卡单batch推理性能测试
-#### 1. 进入主目录
-```shell
-cd cogview3
-```
+## 四、模型推理
 
-#### 2. 设置权重路径
+### 4.1 单卡单batch性能测试
+1. 设置权重路径：
 ```shell
 path="/data/CogView3B"
 ```
 
-#### 3. 执行命令，进行推理：
+2. 执行命令：
 ```shell
 python inference_cogview3plus.py \
        --model_path ${path} \
@@ -133,18 +147,13 @@ python inference_cogview3plus.py \
 **注意**：本仓库模型，是对开源模型进行优化。用户在使用时，应对开源代码函数的变量范围，类型进行校验，避免出现变量超出范围、除零等操作。
 
 
-### 3.3 单卡多batch推理功能测试
-#### 1. 进入主目录
-```shell
-cd cogview3
-```
-
-#### 2. 设置权重路径
+### 4.2 单卡多batch性能测试
+1. 设置权重路径
 ```shell
 path="/data/CogView3B"
 ```
 
-#### 3. 执行命令，进行推理：
+2. 执行命令：
 ```shell
 python inference_cogview3plus.py \
        --model_path ${path} \
@@ -171,15 +180,15 @@ python inference_cogview3plus.py \
 **注意**：在32G的服务器上，batch_size需要等于1，否则会报显存不足的错误；在64G机器上，batch_size可为2，可开启cache算法。
 
 
-### 3.4 精度验证
+### 4.3 精度测试
+由于生成的图片存在随机性，提供两种精度验证方法：
+- CLIP-score（文图匹配度量）：评估图片和输入文本的相关性，分数的取值范围为[-1, 1]，越高越好。使用Parti数据集进行验证。
+- HPSv2（图片美学度量）：评估生成图片的人类偏好评分，分数的取值范围为[0, 1]，越高越好。使用HPSv2数据集进行验证
 
-#### 1. 由于生成的图片存在随机性，提供两种精度验证方法：
-1. CLIP-score（文图匹配度量）：评估图片和输入文本的相关性，分数的取值范围为[-1, 1]，越高越好。使用Parti数据集进行验证。
-2. HPSv2（图片美学度量）：评估生成图片的人类偏好评分，分数的取值范围为[0, 1]，越高越好。使用HPSv2数据集进行验证
+**注意**：由于要生成的图片数量较多，进行完整的精度验证需要耗费很长的时间。
 
-注意，由于要生成的图片数量较多，进行完整的精度验证需要耗费很长的时间。
-
-#### 2. 下载Parti数据集和hpsv2数据集
+##### 1. 读取数据集生成图像
+1. 下载Parti数据集和hpsv2数据集
 所有数据集放到`cogview3/prompts`目录下
 ```bash
 # 下载Parti数据集
@@ -187,12 +196,12 @@ wget https://raw.githubusercontent.com/google-research/parti/main/PartiPrompts.t
 ```
 hpsv2数据集下载链接：https://gitee.com/ascend/ModelZoo-PyTorch/blob/master/MindIE/MindIE-Torch/built-in/foundation/stable_diffusion_xl/hpsv2_benchmark_prompts.json
 
-#### 3. 设置模型权重路径
+2. 设置模型权重路径
 ```shell
 path="/data/CogView3B"
 ```
 
-#### 4. 使用推理脚本读取Parti数据集，生成图片
+3. 使用推理脚本读取Parti数据集，生成图片
 ```bash
 python3 inference_cogview3plus.py \
         --model_path ${path} \
@@ -224,7 +233,7 @@ python3 inference_cogview3plus.py \
 
 执行完成后在`./results_PartiPrompts`目录下生成推理图片，在当前目录生成一个`image_info_PartiPrompts.json`文件，记录着图片和prompt的对应关系，并在终端显示推理时间。
 
-#### 5. 使用推理脚本读取hpsv2数据集，生成图片
+4. 使用推理脚本读取hpsv2数据集，生成图片
 ```bash
 python3 inference_cogview3plus.py \
         --model_path ${path} \
@@ -256,8 +265,8 @@ python3 inference_cogview3plus.py \
 
 执行完成后在`./results_hpsv2`目录下生成推理图片，在当前目录生成一个`image_info_hpsv2.json`文件，记录着图片和prompt的对应关系，并在终端显示推理时间。
 
-#### 6. 计算精度指标(GPU)
-##### 1. 下载模型权重
+##### 2. 计算精度指标(GPU)
+1. 下载模型权重
 所有权重下载到`cogview3/`目录下
 ```bash
 # Clip Score和HPSv2均需要使用的权重
@@ -273,7 +282,7 @@ wget https://huggingface.co/spaces/xswu/HPSv2/resolve/main/HPS_v2_compressed.pt 
 ```
 也可手动下载[CLIP权重](https://huggingface.co/laion/CLIP-ViT-H-14-laion2B-s32B-b79K/blob/main/open_clip_pytorch_model.bin)将权重放到`CLIP-ViT-H-14-laion2B-s32B-b79K`目录下，手动下载[HPSv2权重](https://huggingface.co/spaces/xswu/HPSv2/resolve/main/HPS_v2_compressed.pt)放到当前路径
 
-##### 2. CLIP-score精度指标计算
+2. CLIP-score精度指标计算
 ```bash
 python3 clip_score.py \
       --device=cuda \
@@ -289,7 +298,7 @@ python3 clip_score.py \
 
 执行完成后会在屏幕打印出精度计算结果。
 
-##### 3. HPSv2精度指标计算
+3. HPSv2精度指标计算
 ```bash
 python3 hpsv2_score.py \
       --image_info="image_info_hpsv2.json" \
@@ -304,18 +313,12 @@ python3 hpsv2_score.py \
 
 执行完成后会在屏幕打印出精度计算结果。
 
-### CogView3plus
-
-| 硬件形态 | 迭代次数 | 加速算法 | 平均耗时 | CLIP_score | HPSV2_score |
+## 五、推理结果参考
+### CogView3plus性能 & 精度数据
+| 硬件形态 | 迭代次数 | 加速算法 | 性能 | CLIP_score | HPSV2_score |
 | :------: |:----:|:----:|:----:|:----:|:----:|
 | Atlas 800T A2 (8*64G) 单卡 |  50  |  无  |  27.588s  |  0.367  |  0.2879729  |
 | Atlas 800T A2 (8*64G) 单卡 |  50  |  AGBCache   | 17.219s  |  0.367  |  0.2879835  |
-
-
-## 四、优化指南
-本模型使用的优化手段如下：
-- 等价优化：FA、Linear
-- 算法优化：FA、Linear、cache
 
 
 ## 声明

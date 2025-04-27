@@ -1,18 +1,34 @@
-## 一、准备运行环境
+# 模型推理指导  
 
-  **表 1**  版本配套表
+## 一、模型简介
+
+HunyuanVideo是一种文本到视频的扩散模型，能够在给定文本输入的情况下生成相符的视频。
+
+  **表 1**  本模型当前支持的分辨率
+
+  | 分辨率 | h/w=9:16 | h/w=9:16 | h/w=4:3 | h/w=3:4 | h/w=1:1 |
+  | ---- | ---- | ---- | ---- | ---- | ---- |
+  | 720P | 720x1280 | 1280x720 | 1104x832 | 832x1104 | 960x960 |
+
+- 本模型使用的优化手段如下：
+等价优化：FA、ROPE、RmsNorm、SP并行
+算法优化：FA、ROPE、RmsNorm、SP并行、cache
+
+## 二、环境准备
+
+  **表 2**  版本配套表
 
   | 配套  | 版本 | 环境准备指导 |
   | ----- | ----- |-----|
   | Python | 3.10/3.11 | - |
   | torch | 2.1.0 | - |
 
-### 1.1 获取CANN&MindIE安装包&环境准备
-- 设备支持
-- [Atlas 800I A2(8*64G)](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann&product=4&model=32)推理设备：当前支持的卡数：1、2、3、4、6、8、16
+### 2.1 获取安装包
+- 支持设备：[Atlas 800I A2](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann&product=4&model=32)
+- 支持卡数：支持的卡数：1、2、3、4、6、8、16
 - [环境准备指导](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/81RC1alpha001/softwareinst/instg/instg_0003.html)
 
-### 1.2 CANN安装
+### 2.2 CANN安装
 ```shell
 # 增加软件包可执行权限，{version}表示软件版本号，{arch}表示CPU架构，{soc}表示昇腾AI处理器的版本。
 chmod +x ./Ascend-cann-toolkit_{version}_linux-{arch}.run
@@ -28,7 +44,7 @@ chmod +x ./Ascend-cann-kernels-{soc}_{version}_linux.run
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
 ```
 
-### 1.3 MindIE安装
+### 2.3 MindIE安装
 ```shell
 # 增加软件包可执行权限，{version}表示软件版本号，{arch}表示CPU架构。
 chmod +x ./Ascend-mindie_${version}_linux-${arch}.run
@@ -45,7 +61,15 @@ cd /usr/local/Ascend/mindie && source set_env.sh
 cd ${AieInstallPath}/mindie && source set_env.sh
 ```
 
-### 1.4 Torch_npu安装
+### 2.4 Torch_npu安装
+安装pytorch框架 版本2.1.0
+[安装包下载](https://download.pytorch.org/whl/cpu/torch/)
+
+使用pip安装
+```shell
+# {version}表示软件版本号，{arch}表示CPU架构。
+pip install torch-${version}-cp310-cp310-linux_${arch}.whl
+```
 下载 pytorch_v{pytorchversion}_py{pythonversion}.tar.gz
 ```shell
 tar -xzvf pytorch_v{pytorchversion}_py{pythonversion}.tar.gz
@@ -54,22 +78,33 @@ pip install torch_npu-{pytorchversion}.xxxx.{arch}.whl
 ```
 pytorchversion即torch的版本
 
-## 二、下载权重
+### 2.5 下载本仓库
+```shell
+git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+cd ModelZoo-PyTorch/MindIE/MultiModal/HunyuanVideo/
+```
 
-### 2.1 权重及配置文件说明
-1. text_encoder权重链接:
+### 2.6 安装所需依赖
 ```shell
-   https://huggingface.co/xtuner/llava-llama-3-8b-v1_1-transformers
+pip install -r requirements.txt
 ```
-2. text_encoder_2权重链接
+
+## 三、模型权重
+
+### 3.1 权重下载
+1. 权重链接
 ```shell
-   https://huggingface.co/openai/clip-vit-large-patch14
+# text_encoder权重链接
+https://huggingface.co/xtuner/llava-llama-3-8b-v1_1-transformers
+
+# text_encoder_2权重链接
+https://huggingface.co/openai/clip-vit-large-patch14
+
+# hunyuan-model权重链接
+https://huggingface.co/tencent/HunyuanVideo
 ```
-3. hunyuan-model权重链接：
-```shell
-   https://huggingface.co/tencent/HunyuanVideo
-```
-4. 权重目录如下所示
+
+权重目录如下所示：
 ```shell
 HunyuanVideo
   ├──README.md
@@ -79,25 +114,9 @@ HunyuanVideo
   ├──llava-llama-3-8b-v1_1-transformers
   ├──clip-vit-large-patch14
 ```
-## 三、HunYuanVideo使用
-当前支持的分辨率：
-| 分辨率 | h/w=9:16 | h/w=9:16 | h/w=4:3 | h/w=3:4 | h/w=1:1 |
-| ---- | ---- | ---- | ---- | ---- | ---- |
-| 720P | 720x1280 | 1280x720 | 1104x832 | 832x1104 | 960x960 |
 
-当前支持的卡数：1、2、3、4、6、8、16
-### 3.1 下载到本地
-```shell
-   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
-   cd ModelZoo-PyTorch/MindIE/MultiModal/HunyuanVideo/
-```
-
-### 3.2 环境依赖安装
-```shell
-pip3 install -r requirements.txt
-```
-
-### 3.3 修改text_encoder的权重
+2. 权重修改
+修改text_encoder的权重
 ```shell
 python hyvideo/utils/preprocess_text_encoder_tokenizer_utils.py --input_dir llava-llama-3-8b-v1_1-transformers --output_dir text_encoder
 ```
@@ -111,8 +130,10 @@ HunyuanVideo
   ├──text_encoder
   ├──clip-vit-large-patch14
 ```
-### 3.4 单卡性能测试
-#### 3.4.1 等价优化
+
+## 四、模型推理
+
+### 4.1 单卡等价优化推理性能测试
 执行命令：
 ```shell
 export TOKENIZERS_PARALLELISM=false
@@ -151,7 +172,7 @@ python sample_video.py \
 - save-path: 生成的视频的保存路径
 - flow-reverse：是否进行反向采样
 
-#### 3.4.2 算法优化
+### 4.2 单卡算法优化推理性能测试
 执行命令：
 ```shell
 export TOKENIZERS_PARALLELISM=false
@@ -196,9 +217,7 @@ python sample_video.py \
 - flow-reverse：是否进行反向采样
 - use-cpu-offload：是否开启cpu负载均衡
 
-### 3.5 8卡性能测试
-
-#### 3.5.1 等价优化
+### 4.3 8卡等价优化推理性能测试
 执行命令：
 ```shell
 export PYTORCH_NPU_ALLOC_CONF="expandable_segments:True"
@@ -246,7 +265,7 @@ torchrun --nproc_per_node=8 sample_video.py \
 - ulysses-degree：ulysses并行使用的卡数
 - ring-degree: ring并行使用的卡数
 
-#### 3.5.2 算法优化
+### 4.4 8卡算法优化推理性能测试
 
 使用attentioncache
 执行命令：
@@ -299,8 +318,9 @@ torchrun --nproc_per_node=8 sample_video.py \
 - ring-degree: ring并行使用的卡数
 
 
-## 精度指标
-我们使用prompts.txt测试了seed42-46五组种子的视频，并测试了vbench并取平均值，6个指标如下：
+## 五、推理结果参考
+### HunyuanVideo精度数据
+使用prompts.txt测试了seed42-46五组种子的视频，并测试了vbench并取平均值，6个指标如下：
 | 分辨率h*w | dynamic_degree | subject_consistency | imaging_quality | aesthetic_quality | overall_consistency |  motion_smoothness |
 | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
 | 720*1280 | 0.1516 | 0.9774 | 0.5283 | 0.6048 | 0.291 | 0.9931 |
@@ -315,10 +335,6 @@ torchrun --nproc_per_node=8 sample_video.py \
 | 8    | --use_attentioncache |
 | 16   | --use_attentioncache |
 
-## 优化指南
-本模型使用的优化手段如下：
-等价优化：FA、ROPE、RmsNorm、SP并行
-算法优化：FA、ROPE、RmsNorm、SP并行、cache
 
 ## 声明
 - 本代码仓提到的数据集和模型仅作为示例，这些数据集和模型仅供您用于非商业目的，如您使用这些数据集和模型来完成示例，请您特别注意应遵守对应数据集和模型的License，如您因使用数据集或模型而产生侵权纠纷，华为不承担任何责任。

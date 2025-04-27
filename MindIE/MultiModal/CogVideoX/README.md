@@ -7,7 +7,18 @@ language:
 hardwares:
   - NPU
 ---
-## 一、准备运行环境
+
+# 模型推理指导
+
+## 一、模型简介
+
+CogVideoX是一种文本到视频的扩散模型，能够在给定文本输入的情况下生成相符的视频。
+
+本模型使用的优化手段如下：
+- 等价优化：FA、RoPE、Linear、DP+SP并行
+- 算法优化：FA、RoPE、Linear、DP+SP并行、cache
+
+## 二、环境准备
 
   **表 1**  版本配套表
 
@@ -16,14 +27,12 @@ hardwares:
   | Python | 3.10 / 3.11 | - |
   | torch | 2.1.0 | - |
 
-### 1.1 获取CANN&MindIE安装包&环境准备
-- 设备支持：
-Atlas 800I A2 (64G) / Atlas 800T A2设备：CogVideoX-5b支持1、2、4、8卡推理，CogVideoX-2b支持1、2、4卡推理
-- [Atlas 800I A2](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann&product=4&model=32)
-- [Atlas 800T A2](https://www.hiascend.com/developer/download/community/result?module=pt+cann&product=4&model=26)
+### 2.1 获取安装包
+- 支持设备：[Atlas 800I A2 (64G)](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann&product=4&model=32) / [Atlas 800T A2](https://www.hiascend.com/developer/download/community/result?module=pt+cann&product=4&model=26)
+- 支持卡数：CogVideoX-5b支持1、2、4、8卡推理，CogVideoX-2b支持1、2、4卡推理
 - [环境准备指导](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/81RC1alpha001/softwareinst/instg/instg_0003.html)
 
-### 1.2 CANN安装
+### 2.2 CANN安装
 ```shell
 # 增加软件包可执行权限，{version}表示软件版本号，{arch}表示CPU架构，{soc}表示昇腾AI处理器的版本。
 chmod +x ./Ascend-cann-toolkit_{version}_linux-{arch}.run
@@ -39,7 +48,7 @@ chmod +x ./Ascend-cann-kernels-{soc}_{version}_linux.run
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
 ```
 
-### 1.3 MindIE安装
+### 2.3 MindIE安装
 ```shell
 # 增加软件包可执行权限，{version}表示软件版本号，{arch}表示CPU架构。
 chmod +x ./Ascend-mindie_${version}_linux-${arch}.run
@@ -56,7 +65,7 @@ cd /usr/local/Ascend/mindie && source set_env.sh
 cd ${AieInstallPath}/mindie && source set_env.sh
 ```
 
-### 1.4 Torch_npu安装
+### 2.4 Torch_npu安装
 安装pytorch框架 版本2.1.0
 [安装包下载](https://download.pytorch.org/whl/cpu/torch/)
 
@@ -72,27 +81,26 @@ tar -xzvf pytorch_v{pytorchversion}_py{pythonversion}.tar.gz
 pip install torch_npu-{pytorchversion}.xxxx.{arch}.whl
 ```
 
-## 二、下载本仓库
-
-### 2.1 下载到本地
+### 2.5 下载本仓库
 ```shell
    git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
 ```
 
-### 2.2 安装所需依赖
+### 2.6 安装所需依赖
 ```shell
-pip3 install -r requirements.txt
+pip install -r requirements.txt
 ```
 
-## 三、CogVideoX-5b / CogVideoX-2b使用
+## 三、模型权重
 
-### 3.1 权重及配置文件说明
-1. 下载CogVideoX-5b / CogVideoX-2b权重:（scheduler、text_encoder、tokenizer、transformer、vae，5个模型的配置文件及权重）
+### 3.1 权重下载
+下载CogVideoX-5b / CogVideoX-2b权重:（scheduler、text_encoder、tokenizer、transformer、vae，5个模型的配置文件及权重）
 ```shell
    git clone https://huggingface.co/THUDM/CogVideoX-5b
    git clone https://huggingface.co/THUDM/CogVideoX-2b
 ```
-2. 各模型的配置文件、权重文件的层级样例如下所示。
+### 3.2 配置文件说明
+各模型的配置文件、权重文件的层级样例如下所示。
 ```commandline
 |----CogVideoX-5b / CogVideoX-2b
 |    |---- model_index.json
@@ -112,7 +120,9 @@ pip3 install -r requirements.txt
 |    |    |---- 模型权重
 ```
 
-### 3.2 单卡推理
+## 四、模型推理
+
+### 4.1 单卡性能测试
 1. 设置CogVideoX-5b权重路径：
 ```shell
 model_path='data/CogVideoX-5b'
@@ -120,7 +130,7 @@ model_path='data/CogVideoX-5b'
 
 或者设置CogVideoX-2b权重路径：
 ```shell
-model_path='data/CogVideoX-5b'
+model_path='data/CogVideoX-2b'
 ```
 
 2. 执行命令：
@@ -162,7 +172,7 @@ TASK_QUEUE_ENABLE=2 ASCEND_RT_VISIBLE_DEVICES=0 torchrun --master_port=2002 --np
 
 **注意**：prompt_file、model_path、output_path应皆为本地合法路径，视频分辨率、帧数、帧率、推理迭代步数、随机种子应皆为int类型正整数，否则会导致推理抛异常。
 
-### 3.3 多卡推理（CogVideoX-5b支持1、2、4、8卡推理，CogVideoX-2b支持1、2、4卡推理）
+### 4.2 多卡性能测试
 1. 设置CogVideoX-5b权重路径：
 ```shell
 model_path='data/CogVideoX-5b'
@@ -170,7 +180,7 @@ model_path='data/CogVideoX-5b'
 
 或者设置CogVideoX-2b权重路径：
 ```shell
-model_path='data/CogVideoX-5b'
+model_path='data/CogVideoX-2b'
 ```
 
 2. 执行命令：
@@ -214,26 +224,32 @@ TASK_QUEUE_ENABLE=2 ASCEND_RT_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 torchrun --master_
 **注意**：prompt_file、model_path、output_path应皆为本地合法路径，视频分辨率、帧数、帧率、推理迭代步数、随机种子应皆为int类型正整数，否则会导致推理抛异常。
 
 
-## 四、推理性能结果参考
-### CogVideoX-5b
-| 硬件形态  | cpu规格 | batch size | 迭代次数 | 数据类型 | 卡数 | 平均耗时 |
+## 五、推理结果参考
+### CogVideoX-5b性能数据
+| 硬件形态  | cpu规格 | batch size | 迭代次数 | 数据类型 | 卡数 | 性能 |
 | :------: | :------: | :------: |:----:| :------: | :------: | :------: |
 | Atlas 800I A2(8*64G) | 64核(arm) |  1  |  50  | bfloat16 | 1 | 224s |
 | Atlas 800I A2(8*64G) | 64核(arm) |  1  |  50  | bfloat16 | 8 | 58s |
 
-### CogVideoX-2b
-| 硬件形态  | cpu规格 | batch size | 迭代次数 | 数据类型 | 卡数 | 平均耗时 |
+### CogVideoX-5b精度数据
+| 优化策略 | dynamic_degree | subject_consistency | imaging_quality | aesthetic_quality | overall_consistency |  motion_smoothness |
+| ---- | ---- | ---- | ---- | ---- | ---- | ---- |
+| 等价优化 | 0.45 | 0.9422 | 0.6046 | 0.6327 | 0.2456 | 0.9842 |
+| 算法优化 | 0.425 | 0.9358 | 0.5964 | 0.6247 | 0.2423 | 0.9832 |
+
+### CogVideoX-2b性能数据
+| 硬件形态  | cpu规格 | batch size | 迭代次数 | 数据类型 | 卡数 | 性能 |
 | :------: | :------: | :------: |:----:| :------: | :------: | :------: |
 | Atlas 800I A2(8*64G) | 64核(arm) |  1  |  50  | float16 | 1 | 105s |
 | Atlas 800I A2(8*64G) | 64核(arm) |  1  |  50  | float16 | 4 | 65s |
 
+### CogVideoX-2b精度数据
+| 优化策略 | dynamic_degree | subject_consistency | imaging_quality | aesthetic_quality | overall_consistency |  motion_smoothness |
+| ---- | ---- | ---- | ---- | ---- | ---- | ---- |
+| 等价优化 | 0.575 | 0.9295 | 0.6094 | 0.5994 | 0.2388 | 0.9773 |
+| 算法优化 | 0.55 | 0.9238 | 0.5778 | 0.5939 | 0.2413 | 0.9767 |
+
 性能测试需要独占npu和cpu
-
-
-## 五、优化指南
-本模型使用的优化手段如下：
-- 等价优化：FA、RoPE、Linear、DP+SP并行
-- 算法优化：FA、RoPE、Linear、DP+SP并行、cache
 
 
 ## 声明

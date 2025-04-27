@@ -1,4 +1,14 @@
-## 一、准备运行环境
+# 模型推理指导  
+
+## 一、模型简介
+
+Stable-Audio-Open-1.0是一种文本到语音的扩散模型，能够在给定任何文本输入的情况下生成相符的语音。参考实现请查看[stable-audio-open-1.0 blog](https://huggingface.co/stabilityai/stable-audio-open-1.0)。
+
+本模型使用的优化手段如下：
+- 等价优化：FA、RoPE、Linear
+- 算法优化：DiTcache、Attentioncache
+
+## 二、环境准备
 
   **表 1**  版本配套表
 
@@ -7,15 +17,12 @@
   | Python | 3.10.2 | - |
   | torch | 2.1.0 | - |
 
-### 1.1 获取CANN&MindIE安装包&环境准备
-- 设备支持
-Atlas 800I A2推理设备：支持的卡数为1
-Atlas 300I Duo推理卡：支持的卡数为1
-- [Atlas 800I A2](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann&product=4&model=32)
-- [Atlas 300I Duo](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann&product=2&model=17)
-- [环境准备指导](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/80RC2alpha002/softwareinst/instg/instg_0001.html)
+### 2.1 获取安装包
+- 支持设备：[Atlas 800I A2](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann&product=4&model=32) / [Atlas 300I Duo](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann&product=2&model=17)
+- 支持卡数：Atlas 800I A2支持的卡数为1；Atlas 300I Duo支持的卡数为1
+- [环境准备指导](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/81RC1alpha001/softwareinst/instg/instg_0003.html)
 
-### 1.2 CANN安装
+### 2.2 CANN安装
 ```shell
 # 增加软件包可执行权限，{version}表示软件版本号，{arch}表示CPU架构，{soc}表示昇腾AI处理器的版本。
 chmod +x ./Ascend-cann-toolkit_{version}_linux-{arch}.run
@@ -32,7 +39,7 @@ source /usr/local/Ascend/ascend-toolkit/set_env.sh
 ```
 
 
-### 1.3 MindIE安装
+### 2.3 MindIE安装
 ```shell
 # 增加软件包可执行权限，{version}表示软件版本号，{arch}表示CPU架构。
 chmod +x ./Ascend-mindie_${version}_linux-${arch}.run
@@ -44,12 +51,12 @@ chmod +x ./Ascend-mindie_${version}_linux-${arch}.run
 cd /usr/local/Ascend/mindie && source set_env.sh
 
 # 方式二：指定路径安装
-./Ascend-mindie_${version}_linux-${arch}.run --install-path=${AieInstallPath}
+./Ascend-mindie_${version}_linux-${arch}.run --install --install-path=${AieInstallPath}
 # 设置环境变量
 cd ${AieInstallPath}/mindie && source set_env.sh
 ```
 
-### 1.4 Torch_npu安装
+### 2.4 Torch_npu安装
 安装pytorch框架 版本2.1.0
 [安装包下载](https://download.pytorch.org/whl/cpu/torch/)
 
@@ -65,29 +72,26 @@ tar -xzvf pytorch_v{pytorchversion}_py{pythonversion}.tar.gz
 pip install torch_npu-{pytorchversion}.xxxx.{arch}.whl
 ```
 
-## 二、下载本仓库
-
-### 2.1 下载到本地
+### 2.5 下载本仓库
 ```shell
-git clone https://modelers.cn/MindIE/stable_audio_open_1.0.git
+   git clone https://modelers.cn/MindIE/stable_audio_open_1.0.git
 ```
 
-### 2.2 依赖安装
+### 2.6 安装所需依赖
 ```bash
 pip3 install -r requirements.txt
 apt-get update
 apt-get install libsndfile1
 ```
 
-## 三、Stable-Audio-Open-1.0 使用
-
-### 3.1 权重及配置文件说明
-stable-audio-open-1.0权重链接:
+## 三、模型权重
 ```shell
 https://huggingface.co/stabilityai/stable-audio-open-1.0/tree/main
 ```
 
-### 3.2 单卡功能测试
+## 四、模型推理
+
+### 4.1 单卡性能测试
 设置权重路径
 ```shell
 model_base='./stable-audio-open-1.0'
@@ -139,18 +143,12 @@ python3 inference_stableaudio.py \
 
 执行完成后在`./results`目录下生成推理语音，语音生成顺序与文本中prompt顺序保持一致，并在终端显示推理时间。
 
-### 3.2 模型推理性能
+## 五、推理结果参考
+### Stable-Audio-Open-1.0性能数据
 
-性能参考下列数据。
-
-| 硬件形态 | 迭代次数 | 平均耗时（w/o Cache）| 平均耗时（with DiTCache）| 平均耗时（with AttentionCache）|
+| 硬件形态 | 迭代次数 | 性能（w/o Cache）| 性能（with DiTCache）| 性能（with AttentionCache）|
 | :------: |:----:|:----:|:----:|:----:|
 | Atlas 800I A2(8*32G) |  100  | 5.846s  | 4.847s | 5.282s |
-
-## 五、优化指南
-本模型使用的优化手段如下：
-- 等价优化：FA、RoPE、Linear
-- 算法优化：DiTcache、Attentioncache
 
 
 ## 声明

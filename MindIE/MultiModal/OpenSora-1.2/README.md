@@ -1,4 +1,14 @@
-## 一、准备运行环境
+# 模型推理指导  
+
+## 一、模型简介
+
+OpenSora1.2是一种文本到视频的扩散模型，能够在给定文本输入的情况下生成相符的视频。
+
+本模型使用的优化手段如下：
+- 等价优化：FA、LayerNorm、DSP
+- 算法优化：DitCache
+
+## 二、环境准备
 
   **表 1**  版本配套表
 
@@ -7,13 +17,12 @@
   | Python | 3.10.2 | - |
   | torch | 2.1.0 | - |
 
-### 1.1 获取CANN&MindIE安装包&环境准备
-- 设备支持：
-Atlas 800I A2推理设备：支持的卡数最小为1
-- [Atlas 800I A2](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann&product=4&model=32)
+### 2.1 获取安装包
+- 支持设备：[Atlas 800I A2](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann&product=4&model=32)
+- 支持卡数：支持的卡数为1、2、4、8
 - [环境准备指导](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/81RC1alpha001/softwareinst/instg/instg_0003.html)
 
-### 1.2 CANN安装
+### 2.2 CANN安装
 ```shell
 # 增加软件包可执行权限，{version}表示软件版本号，{arch}表示CPU架构，{soc}表示昇腾AI处理器的版本。
 chmod +x ./Ascend-cann-toolkit_{version}_linux-{arch}.run
@@ -29,16 +38,7 @@ chmod +x ./Ascend-cann-kernels-{soc}_{version}_linux.run
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
 ```
 
-### 1.3 环境依赖安装
-```shell
-pip3 install -r requirements.txt
-```
-
-安装colossalai
-```shell
-pip3 install colossalai==0.4.4 --no-deps
-```
-### 1.4 MindIE安装
+### 2.3 MindIE安装
 ```shell
 # 增加软件包可执行权限，{version}表示软件版本号，{arch}表示CPU架构。
 chmod +x ./Ascend-mindie_${version}_linux-${arch}.run
@@ -55,21 +55,39 @@ cd /usr/local/Ascend/mindie && source set_env.sh
 cd ${AieInstallPath}/mindie && source set_env.sh
 ```
 
-### 1.5 Torch_npu安装
+### 2.4 Torch_npu安装
+安装pytorch框架 版本2.1.0
+[安装包下载](https://download.pytorch.org/whl/cpu/torch/)
+
+使用pip安装
+```shell
+# {version}表示软件版本号，{arch}表示CPU架构。
+pip install torch-${version}-cp310-cp310-linux_${arch}.whl
+```
 下载 pytorch_v{pytorchversion}_py{pythonversion}.tar.gz
 ```shell
 tar -xzvf pytorch_v{pytorchversion}_py{pythonversion}.tar.gz
 # 解压后，会有whl包
 pip install torch_npu-{pytorchversion}.xxxx.{arch}.whl
 ```
-## 二、下载本仓库
+pytorchversion即torch的版本
 
-### 2.1 下载到本地
+### 2.5 下载本仓库
 ```shell
-   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
 ```
 
-## 三、OpenSora1.2使用
+### 2.6 安装所需依赖
+```shell
+pip install -r requirements.txt
+```
+
+安装colossalai
+```shell
+pip3 install colossalai==0.4.4 --no-deps
+```
+
+## 三、模型权重
 
 ### 3.1 权重及配置文件说明
 1. text_encoder权重链接:
@@ -141,7 +159,8 @@ https://huggingface.co/PixArt-alpha/pixart_sigma_sdxlvae_T5_diffusers/tree/main
     ]
 }
 ```
-8.各模型的配置文件、权重文件的层级样例如下所示。
+
+### 3.2 权重文件的层级
 ```commandline
 |----open-sora
 |    |---- model_index.json
@@ -165,12 +184,14 @@ https://huggingface.co/PixArt-alpha/pixart_sigma_sdxlvae_T5_diffusers/tree/main
 |    |    |    |    |---- 模型权重
 ```
 
-### 3.2 单卡性能测试
-设置权重路径
+## 四、模型推理
+
+### 4.1 单卡性能测试
+1. 设置权重路径
 ```shell
 path = './path'
 ```
-执行命令：
+2. 执行命令：
 ```shell
 python inference_opensora12.py \
        --path ${path} \
@@ -189,13 +210,13 @@ python inference_opensora12.py \
 - fps: 每秒帧数：8。
 - test_acc: 使用--test_acc开启全量视频生成，用于精度测试。性能测试时，不开启该参数。
 
-### 3.3 多卡性能测试
-设置权重路径
+### 4.2 多卡性能测试
+1. 设置权重路径
 ```shell
 path = './path'
 ```
 
-执行命令：
+2. 执行命令：
 ```shell
 torchrun --nproc_per_node=4 inference_opensora12.py \
        --path ${path} \
@@ -213,12 +234,6 @@ torchrun --nproc_per_node=4 inference_opensora12.py \
 - num_frames:总帧数，范围：32, 128。
 - image_size：(720, 1280)、(512, 512)。
 - fps: 每秒帧数：8。
-
-
-## 四、优化指南
-本模型使用的优化手段如下：
-- 等价优化：FA、LayerNorm、DSP
-- 算法优化：DitCache
 
 
 ## 声明
