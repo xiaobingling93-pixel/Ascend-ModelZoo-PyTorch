@@ -1,15 +1,8 @@
-# README
+# 简介
 
 - 千问（Qwen2.5）大语言模型能够理解和生成文本，应用于智能客服、内容生成、问答系统等多个场景，助力企业智能化升级。
 
 - 此代码仓中实现了一套基于NPU硬件的qwen2.5推理模型。配合加速库使用，旨在NPU上获得极致的推理性能。
-
-
-
-# 加载镜像
-前往[昇腾社区/开发资源](https://www.hiascend.com/developer/ascendhub/detail/af85b724a7e5469ebd7ea13c3439d48f)下载适配，下载镜像前需要申请权限，耐心等待权限申请通过后，根据指南下载对应镜像文件。
-
-完成之后，请使用docker images命令确认查找具体镜像名称与标签。
 
 
 # 特性矩阵
@@ -17,11 +10,11 @@
 
 | 模型及参数量      | 800I A2 Tensor Parallelism | 300I DUO Tensor Parallelism | FP16 | BF16 | Flash Attention | Paged Attention | W8A8量化 | W8A16量化 | KV cache量化 | 稀疏量化 | MOE量化 | MindIE Service | TGI | 长序列 | prefix_cache | FA3量化 | functioncall | Multi LoRA|
 | ----------------- |----------------------------|-----------------------------| ---- | ---- | --------------- | --------------- | -------- | --------- | ------------ | -------- | ------- | -------------- | --- | ------ | ---------- | --- | --- | --- |
-| Qwen2.5-7B      | 支持world size 1,2,4,8       | 支持world size 1,2,4,8       | √    | √    | ×               | √               | √        | ×        | ×            | √        | ×       | √              | ×   | √      | √       | × | √ | x |
+| Qwen2.5-7B      | 支持world size 1,2,4,8       | 支持world size 1,2,4,8       | √    | √(800I A2/32G/64G)    | ×               | √               | √(800I A2/32G/64G)        | ×        | ×            | √(300I DUO)        | ×       | √              | ×   | √      | √       | × | √ | x |
 
 注：表中所示支持的world size为对话测试可跑通的配置，实际运行时还需考虑输入序列长度带来的显存占用。
 
-- 部署Qwen2.5-7B-Instruct模型至少需要1台Atlas 800I A2服务器或者1台插1张Atlas 300I DUO卡的服务器
+- 部署Qwen2.5-7B-Instruct模型至少需要1台Atlas 800I A2服务器或者1台配置一张Atlas 300I DUO推理卡的服务器。
 
 ## 路径变量解释
 
@@ -33,7 +26,7 @@
 | weight_path     | 模型权重路径                                                                                                                                             |
 | rank_table_path | Rank table文件路径                                                                                                                                              |
 
-## 权重
+## 模型权重
 
 **权重下载**
 
@@ -42,43 +35,43 @@
 ## 版本配套
 | 模型版本 | transformers版本 |
 | -------- | ---------------- |
-| Qwen2.5  | 4.43.1           |
+| Qwen2.5  | 4.46.3           |
 
 
 ## 生成量化权重
 #### qwen2.5-7b W8A8量化
 - W8A8量化权重请使用以下指令生成
     - 当前支持NPU分布式W8A8量化
-    - 执行量化脚本
-    ```shell
     - 下载msmodelslim量化工具
     - 下载地址为https://gitee.com/ascend/msit/tree/master/msmodelslim
     - 根据msmodelslim量化工具readme进行相关操作
-    注： 安装完cann后 需要执行source set_env.sh 声明ASCEND_HOME_PATH值 后续安装msmodelslim前需保证其不为空
-    # 执行"jq --version"查看是否安装jq，若返回"bash：jq：command not found"，则依次执行"apt-get update"和"apt install jq"
+    - 执行量化脚本
+    ```shell
+    注： 安装完cann后，需要执行source set_env.sh，声明ASCEND_HOME_PATH值，后续安装msmodelslim前需保证其不为空。
+    # 执行"jq --version"查看是否安装jq，若返回"bash：jq：command not found"，则依次执行"yum update"和"yum install jq"
     jq --version
     cd ${llm_path}
-    # 指定当前机器上可用的逻辑NPU核心 通过修改convert_quant_weight.sh文件中export ASCEND_RT_VISIBLE_DEVICES值 指定使用卡号及数量 
+    # 指定当前机器上可用的逻辑NPU核心，通过修改convert_quant_weight.sh文件中export ASCEND_RT_VISIBLE_DEVICES值，指定使用卡号及数量。
     # 7b系列使用单卡  eg: ASCEND_RT_VISIBLE_DEVICES=0
     vi examples/models/qwen/convert_quant_weight.sh
     # 生成w8a8量化权重
     bash examples/models/qwen/convert_quant_weight.sh -src {浮点权重路径} -dst {W8A8量化权重路径} -type qwen_w8a8
     ```
 
-#### qwen2.5-7b 稀疏量化
+#### qwen2.5-7b 稀疏量化 (仅300I DUO卡支持)
 - Step 1
     - 修改模型权重config.json中`torch_dtype`字段为`float16`
     - 下载msmodelslim量化工具
     - 下载地址为https://gitee.com/ascend/msit/tree/master/msmodelslim
     - 根据msmodelslim量化工具readme进行相关操作
-    注： 安装完cann后 需要执行source set_env.sh 声明ASCEND_HOME_PATH值 后续安装msmodelslim前需保证其不为空
     ```shell
-    # 执行"jq --version"查看是否安装jq，若返回"bash：jq：command not found"，则依次执行"apt-get update"和"apt install jq"
+    注： 安装完cann后，需要执行source set_env.sh，声明ASCEND_HOME_PATH值，后续安装msmodelslim前需保证其不为空.
+    # 执行"jq --version"查看是否安装jq，若返回"bash：jq：command not found"，则依次执行"yum update"和"yum install jq"
     jq --version
     # 设置CANN包的环境变量
     source /usr/local/Ascend/ascend-toolkit/set_env.sh
     cd ${llm_path}
-    # 指定当前机器上可用的逻辑NPU核心 通过修改convert_quant_weight.sh文件中export ASCEND_RT_VISIBLE_DEVICES值 指定使用卡号及数量 
+    # 指定当前机器上可用的逻辑NPU核心，通过修改convert_quant_weight.sh文件中export ASCEND_RT_VISIBLE_DEVICES值，指定使用卡号及数量 
     # 7b系列使用单卡 eg: ASCEND_RT_VISIBLE_DEVICES=0
     vi examples/models/qwen/convert_quant_weight.sh
     bash examples/models/qwen/convert_quant_weight.sh -src {浮点权重路径} -dst {W8A8量化权重路径} -type qwen_w4a8
@@ -89,19 +82,63 @@
     export IGNORE_INFER_ERROR=1
     torchrun --nproc_per_node {TP数} -m examples.convert.model_slim.sparse_compressor --model_path {W8A8S量化权重路径} --save_directory {W8A8SC量化权重路径} --multiprocess_num 4
     ```
-- TP数为tensor parallel并行个数
-- 注意：若权重生成时以TP=4进行切分，则运行时也需以TP=4运行
-- 示例
+    TP数为tensor parallel并行个数
+    > 注意：若权重生成时以TP=4进行切分，则运行时也需以TP=4运行
+    
+    示例:
     ```shell
-    torchrun --nproc_per_node 2 -m examples.convert.model_slim.sparse_compressor --model_path /data1/weights/model_slim/Qwen-7b_w8a8s --save_directory /data1/weights/model_slim/Qwen-14b_w8a8sc
+    torchrun --nproc_per_node 2 -m examples.convert.model_slim.sparse_compressor --model_path /data1/weights/model_slim/Qwen-7b_w8a8s --save_directory /data1/weights/model_slim/Qwen-7b_w8a8sc
     ```
 
+## 加载镜像
+前往[昇腾社区/开发资源](https://www.hiascend.com/developer/ascendhub/detail/af85b724a7e5469ebd7ea13c3439d48f)下载`1.0.0-300I-Duo-py311-openeuler24.03-lts`或`1.0.0-800I-A2-py311-openeuler24.03-lts`镜像，下载镜像前需要申请权限，耐心等待权限申请通过后，根据指南下载对应镜像文件。
+
+完成之后，请使用docker images命令确认查找具体镜像名称与标签。
+
+## 启动容器
+- 执行以下命令启动容器（参考）：
+```sh
+docker run -itd --privileged  --name= {容器名称}  --net=host \
+   --shm-size 500g \
+   --device=/dev/davinci0 \
+   --device=/dev/davinci1 \
+   --device=/dev/davinci2 \
+   --device=/dev/davinci3 \
+   --device=/dev/davinci4 \
+   --device=/dev/davinci5 \
+   --device=/dev/davinci6 \
+   --device=/dev/davinci7 \
+   --device=/dev/davinci_manager \
+   --device=/dev/hisi_hdc \
+   --device /dev/devmm_svm \
+   -v /usr/local/Ascend/driver:/usr/local/Ascend/driver \
+   -v /usr/local/Ascend/firmware:/usr/local/Ascend/firmware \
+   -v /usr/local/sbin/npu-smi:/usr/local/sbin/npu-smi \
+   -v /usr/local/sbin:/usr/local/sbin \
+   -v /etc/hccn.conf:/etc/hccn.conf \
+   -v  {/权重路径:/权重路径}  \
+   -v  {swr.cn-south-1.myhuaweicloud.com/ascendhub/mindie:1.0.0-XXX-800I-A2-arm64-py3.11（根据加载的镜像名称修改）}  \
+   bash
+```
+#### 进入容器
+- 执行以下命令进入容器（参考）：
+```sh
+docker exec -it {容器名称} bash
+```
+
+#### 设置基础环境变量
+```
+source /usr/local/Ascend/ascend-toolkit/set_env.sh
+source /usr/local/Ascend/nnal/atb/set_env.sh
+source /usr/local/Ascend/atb-models/set_env.sh
+source /usr/local/Ascend/mindie/set_env.sh
+```
 
 ## 纯模型推理：
 【使用场景】使用相同输入长度和相同输出长度，构造多Batch去测试纯模型性能
 
 
-#### 对话测试的run_pa.sh 参数说明（需要到脚本中修改）
+#### 参数说明（需要到脚本中修改）
 根据硬件设备不同请参考下表修改run_pa.sh再运行
 
 | 参数名称                  | 含义                                      | 800I A2推荐值    | 300I DUO推荐值   |
@@ -109,64 +146,58 @@
 | BIND_CPU                  | 绑定CPU核心开关,默认进行绑核              | 1                | 1                |
 | ASCEND_RT_VISIBLE_DEVICES | 使用的硬件卡号，多个卡间使用逗号相连      | 根据实际情况设置 | 根据实际情况设置 |
 | RESERVED_MEMORY_GB        | 保留内存，通常未加速库需要的内存+通信内存 | 3                | 3                |
-| MASTER_PORT               | 卡间通信端口,通常不用修改，有冲突时再改   |                  |                  |
+| MASTER_PORT               | 卡间通信端口,通常不用修改，有冲突时再改   |       /        |         /        |
 
-注：暂不支持奇数卡并行
-    ```
+> 注：暂不支持奇数卡并行
 
 - 环境变量释义
 
-1. 
 ```
 export HCCL_DETERMINISTIC=false          
 export LCCL_DETERMINISTIC=0
-```
-这两个会影响性能，开启了变慢，但是会变成确定性计算，不开会变快，所以设置为0。
-2. 
-```
 export HCCL_BUFFSIZE=120
-```
-这个会影响hccl显存，需要设置，基本不影响性能。
-3. 
-```
 export ATB_WORKSPACE_MEM_ALLOC_GLOBAL=1
 ```
-这个是显存优化，需要开，小batch、短序列场景不开更好。
+1. `HCCL_DETERMINISTIC`和`LCCL_DETERMINISTIC`这两个会影响性能，开启了变慢，但是会变成确定性计算，不开会变快，所以设置为0。
+2. `HCCL_BUFFSIZE`会影响hccl显存，需要设置，基本不影响性能。
+3. `ATB_WORKSPACE_MEM_ALLOC_GLOBAL`是显存优化，需要开，小batch、短序列场景不开更好。
 
 
 #### 对话测试
-- 进入atb-models路径
+1. 进入atb-models路径
 ```
 cd /usr/local/Ascend/atb-models
 ```
-Step1.清理残余进程：
+2. 清理残余进程：
 ```
 pkill -9 -f 'mindie|python'
 ```
-Step2.执行命令：
+3. 执行命令：
 ```
+export MINDIE_LOG_TO_STDOUT=1
 bash examples/models/qwen/run_pa.sh -m ${weight_path} --trust_remote_code true
 ```
 
 
 #### 精度测试
-- 进入modeltest路径
+1. 进入modeltest路径
 ```
 cd /usr/local/Ascend/atb-models/tests/modeltest/
 ```
-- 运行测试脚本
 
-Step1.清理残余进程：
+2. 清理残余进程：
 ```
 pkill -9 -f 'mindie|python'
 ```
-Step2.执行命令：
+
+3. 执行命令：
 ```
+export MINDIE_LOG_TO_STDOUT=1
 bash run.sh pa_[data_type] [dataset] ([shots]) [batch_size] [model_name] ([is_chat_model]) [weight_dir] [world_size]
 ```
 参数说明：
 1. `data_type`：为数据类型，根据权重目录下config.json的data_type选择bf16或者fp16，例如：pa_bf16。
-2. `dataset`：可选full_BoolQ、full_CEval等，相关数据集可至[魔乐社区MindIE](https://modelers.cn/MindIE)下载，（下载之前，需要申请加入组织，下载之后拷贝到/usr/local/Ascend/atb-models/tests/modeltest/路径下）CEval与MMLU等数据集需要设置`shots`（通常设为5）。
+2. `dataset`：可选full_BoolQ、full_CEval等，相关数据集可至[魔乐社区MindIE](https://modelers.cn/MindIE/data.git)下载，（下载之前，需要申请加入组织，下载之后拷贝到/usr/local/Ascend/atb-models/tests/modeltest/路径下）CEval与MMLU等数据集需要设置`shots`（通常设为5）。
 3. `batch_size`：为`batch数`。
 4. `model_name`：为`qwen`。
 5. `is_chat_model`：为`是否支持对话模式，若传入此参数，则进入对话模式`。
@@ -186,15 +217,15 @@ bash run.sh pa_bf16 full_CEval 5 1 qwen ${Qwen2.5-7B-Instruct权重路径} 8
 
 
 #### 性能测试
-- 进入modeltest路径：
+1. 进入modeltest路径：
 ```
 cd /usr/local/Ascend/atb-models/tests/modeltest/
 ```
-Step1.清理残余进程：
+2. 清理残余进程：
 ```
 pkill -9 -f 'mindie|python'
 ```
-Step2.执行命令：
+3. 执行命令：
 ```
 bash run.sh pa_[data_type] performance [case_pair] [batch_size] ([prefill_batch_size]) [model_name] ([is_chat_model]) [weight_dir] [world_size]
 ```
@@ -378,6 +409,15 @@ Daemon start success!
 
 ### 精度化测试样例
 
+```
+source /usr/local/Ascend/ascend-toolkit/set_env.sh
+source /usr/local/Ascend/nnal/atb/set_env.sh
+source /usr/local/Ascend/atb-models/set_env.sh
+source /usr/local/Ascend/mindie/set_env.sh
+
+chmod 640 /usr/local/lib/python3.11/site-packages/mindiebenchmark/config/config.json
+```
+
 需要开启确定性计算环境变量。
 ```
 export LCCL_DETERMINISTIC=1
@@ -393,8 +433,8 @@ benchmark \
 --ModelName qwen \
 --ModelPath "/模型权重路径/Qwen2.5" \
 --TestType client \
---Http https://{ipAddress}:{port} \
---ManagementHttp https://{managementIpAddress}:{managementPort} \
+--Http http://{ipAddress}:{port} \
+--ManagementHttp http://{managementIpAddress}:{managementPort} \
 --Concurrency 1 \
 --MaxOutputLen 20 \
 --TaskKind stream \
