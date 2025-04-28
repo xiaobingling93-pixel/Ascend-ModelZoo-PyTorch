@@ -2,7 +2,7 @@
 
 - 千问（Qwen2.5）大语言模型能够理解和生成文本，应用于智能客服、内容生成、问答系统等多个场景，助力企业智能化升级。
 
-- 此代码仓中实现了一套基于NPU硬件的qwen2.5推理模型。配合加速库使用，旨在NPU上获得极致的推理性能。
+- 此代码仓中实现了一套基于NPU硬件的Qwen2.5推理模型。配合加速库使用，旨在NPU上获得极致的推理性能。
 
 
 # 特性矩阵
@@ -10,7 +10,7 @@
 
 | 模型及参数量      | 800I A2 Tensor Parallelism | 300I DUO Tensor Parallelism | FP16 | BF16 | Flash Attention | Paged Attention | W8A8量化 | W8A16量化 | KV cache量化 | 稀疏量化 | MOE量化 | MindIE Service | TGI | 长序列 | prefix_cache | FA3量化 | functioncall | Multi LoRA|
 | ----------------- |----------------------------|-----------------------------| ---- | ---- | --------------- | --------------- | -------- | --------- | ------------ | -------- | ------- | -------------- | --- | ------ | ---------- | --- | --- | --- |
-| Qwen2.5-14B      | 支持world size ,2,4,8       | 支持world size 1,2,4,8       | √    | √(800I A2/32G/64G)    | ×               | √               | √(800I A2/32G/64G)        | ×        | ×            | √(300I DUO)        | ×       | √              | ×   | √      | √       | × | √ | x |
+| Qwen2.5-14B      | 支持world size ,2,4,8       | 支持world size 1,2,4,8       | √    | √(800I A2/32G/64G)    | ×               | √               | √(800I A2/32G/64G)        | ×        | ×            | √(300I DUO)        | ×       | √              | ×   | ×      | √       | × | √ | x |
 
 注：表中所示支持的world size为对话测试可跑通的配置，实际运行时还需考虑输入序列长度带来的显存占用。
 
@@ -22,9 +22,53 @@
 | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | working_dir     | 加速库及模型库下载后放置的目录                                                                                                                           |
 | llm_path        | 模型仓所在路径。若使用编译好的包，则路径为`/usr/local/Ascend/atb-models`；若使用 gitee 下载的代码，则路径为`${working_dir}/MindIE-LLM/examples/atb_models` |
-| script_path     | 脚本所在路径；qwen2.5 的工作脚本所在路径为`${llm_path}/examples/models/qwen`                                                                    |
+| script_path     | 脚本所在路径；Qwen2.5 的工作脚本所在路径为`${llm_path}/examples/models/qwen`                                                                    |
 | weight_path     | 模型权重路径                                                                                                                                             |
 | rank_table_path | Rank table文件路径                                                                                                                                              |
+
+## 加载镜像
+前往[昇腾社区/开发资源](https://www.hiascend.com/developer/ascendhub/detail/af85b724a7e5469ebd7ea13c3439d48f)下载`1.0.0-300I-Duo-py311-openeuler24.03-lts`或`1.0.0-800I-A2-py311-openeuler24.03-lts`镜像，下载镜像前需要申请权限，耐心等待权限申请通过后，根据指南下载对应镜像文件。
+
+完成之后，请使用docker images命令确认查找具体镜像名称与标签。
+
+## 启动容器
+- 执行以下命令启动容器（参考）：
+```sh
+docker run -itd --privileged  --name= {容器名称}  --net=host \
+   --shm-size 500g \
+   --device=/dev/davinci0 \
+   --device=/dev/davinci1 \
+   --device=/dev/davinci2 \
+   --device=/dev/davinci3 \
+   --device=/dev/davinci4 \
+   --device=/dev/davinci5 \
+   --device=/dev/davinci6 \
+   --device=/dev/davinci7 \
+   --device=/dev/davinci_manager \
+   --device=/dev/hisi_hdc \
+   --device /dev/devmm_svm \
+   -v /usr/local/Ascend/driver:/usr/local/Ascend/driver \
+   -v /usr/local/Ascend/firmware:/usr/local/Ascend/firmware \
+   -v /usr/local/sbin/npu-smi:/usr/local/sbin/npu-smi \
+   -v /usr/local/sbin:/usr/local/sbin \
+   -v /etc/hccn.conf:/etc/hccn.conf \
+   -v  {/权重路径:/权重路径}  \
+   -v  {swr.cn-south-1.myhuaweicloud.com/ascendhub/mindie:1.0.0-XXX-800I-A2-arm64-py3.11（根据加载的镜像名称修改）}  \
+   bash
+```
+#### 进入容器
+- 执行以下命令进入容器（参考）：
+```sh
+docker exec -it {容器名称} bash
+```
+
+#### 设置基础环境变量
+```
+source /usr/local/Ascend/ascend-toolkit/set_env.sh
+source /usr/local/Ascend/nnal/atb/set_env.sh
+source /usr/local/Ascend/atb-models/set_env.sh
+source /usr/local/Ascend/mindie/set_env.sh
+```
 
 ## 模型权重
 
@@ -90,56 +134,12 @@
     torchrun --nproc_per_node 2 -m examples.convert.model_slim.sparse_compressor --model_path /data1/weights/model_slim/Qwen-14b_w8a8s --save_directory /data1/weights/model_slim/Qwen-14b_w8a8sc
     ```
 
-## 加载镜像
-前往[昇腾社区/开发资源](https://www.hiascend.com/developer/ascendhub/detail/af85b724a7e5469ebd7ea13c3439d48f)下载`1.0.0-300I-Duo-py311-openeuler24.03-lts`或`1.0.0-800I-A2-py311-openeuler24.03-lts`镜像，下载镜像前需要申请权限，耐心等待权限申请通过后，根据指南下载对应镜像文件。
-
-完成之后，请使用docker images命令确认查找具体镜像名称与标签。
-
-## 启动容器
-- 执行以下命令启动容器（参考）：
-```sh
-docker run -itd --privileged  --name= {容器名称}  --net=host \
-   --shm-size 500g \
-   --device=/dev/davinci0 \
-   --device=/dev/davinci1 \
-   --device=/dev/davinci2 \
-   --device=/dev/davinci3 \
-   --device=/dev/davinci4 \
-   --device=/dev/davinci5 \
-   --device=/dev/davinci6 \
-   --device=/dev/davinci7 \
-   --device=/dev/davinci_manager \
-   --device=/dev/hisi_hdc \
-   --device /dev/devmm_svm \
-   -v /usr/local/Ascend/driver:/usr/local/Ascend/driver \
-   -v /usr/local/Ascend/firmware:/usr/local/Ascend/firmware \
-   -v /usr/local/sbin/npu-smi:/usr/local/sbin/npu-smi \
-   -v /usr/local/sbin:/usr/local/sbin \
-   -v /etc/hccn.conf:/etc/hccn.conf \
-   -v  {/权重路径:/权重路径}  \
-   -v  {swr.cn-south-1.myhuaweicloud.com/ascendhub/mindie:1.0.0-XXX-800I-A2-arm64-py3.11（根据加载的镜像名称修改）}  \
-   bash
-```
-#### 进入容器
-- 执行以下命令进入容器（参考）：
-```sh
-docker exec -it {容器名称} bash
-```
-
-#### 设置基础环境变量
-```
-source /usr/local/Ascend/ascend-toolkit/set_env.sh
-source /usr/local/Ascend/nnal/atb/set_env.sh
-source /usr/local/Ascend/atb-models/set_env.sh
-source /usr/local/Ascend/mindie/set_env.sh
-```
-
 ## 纯模型推理：
 【使用场景】使用相同输入长度和相同输出长度，构造多Batch去测试纯模型性能
 
 
 #### 参数说明（需要到脚本中修改）
-根据硬件设备不同请参考下表修改run_pa.sh再运行
+根据硬件设备不同请参考下表修改`/usr/local/Ascend/atb-models/examples/models/qwen/run_pa.sh`再运行
 
 | 参数名称                  | 含义                                      | 800I A2推荐值    | 300I DUO推荐值   |
 | ------------------------- | ----------------------------------------- | ---------------- | ---------------- |
@@ -197,7 +197,7 @@ bash run.sh pa_[data_type] [dataset] ([shots]) [batch_size] [model_name] ([is_ch
 ```
 参数说明：
 1. `data_type`：为数据类型，根据权重目录下config.json的data_type选择bf16或者fp16，例如：pa_bf16。
-2. `dataset`：可选full_BoolQ、full_CEval等，相关数据集可至[魔乐社区MindIE](https://modelers.cn/MindIE/data.git)下载，（下载之前，需要申请加入组织，下载之后拷贝到/usr/local/Ascend/atb-models/tests/modeltest/路径下）CEval与MMLU等数据集需要设置`shots`（通常设为5）。
+2. `dataset`：可选full_BoolQ、full_CEval等，相关数据集需要自行下载，（参考[附录]，下载之后拷贝到/usr/local/Ascend/atb-models/tests/modeltest/路径下）CEval与MMLU等数据集需要设置`shots`（通常设为5）。
 3. `batch_size`：为`batch数`。
 4. `model_name`：为`qwen`。
 5. `is_chat_model`：为`是否支持对话模式，若传入此参数，则进入对话模式`。
@@ -227,6 +227,7 @@ pkill -9 -f 'mindie|python'
 ```
 3. 执行命令：
 ```
+export MINDIE_LOG_TO_STDOUT=1
 bash run.sh pa_[data_type] performance [case_pair] [batch_size] ([prefill_batch_size]) [model_name] ([is_chat_model]) [weight_dir] [world_size]
 ```
 参数说明：
@@ -414,7 +415,7 @@ source /usr/local/Ascend/ascend-toolkit/set_env.sh
 source /usr/local/Ascend/nnal/atb/set_env.sh
 source /usr/local/Ascend/atb-models/set_env.sh
 source /usr/local/Ascend/mindie/set_env.sh
-
+export MINDIE_LOG_TO_STDOUT=1
 chmod 640 /usr/local/lib/python3.11/site-packages/mindiebenchmark/config/config.json
 ```
 
@@ -443,7 +444,52 @@ benchmark \
 ```
 ModelName，ModelPath需要与mindie-service里的config.json里的一致。样例仅供参考，请根据实际情况调整参数。
 
+## 附录
 
+#### 数据集下载
+
+- 首先，需要在test/modeltest路径下新建名为temp_data的文件目录，然后在temp_data文件目录下新建对应数据集文件目录:
+
+|    支持数据集  |     目录名称   |
+|---------------|---------------|
+|      BoolQ    |     boolq     |
+|    HumanEval  |   humaneval   |
+|   HumanEval_X |  humaneval_x  |
+|      GSM8K    |     gsm8k     |
+|   LongBench   |   longbench   |
+|       MMLU    |     mmlu      |
+|  NeedleBench  |   needlebench |
+|  VideoBench   |   VideoBench  |
+|  Vocalsound   |   Vocalsound  |
+|   TextVQA     |   TextVQA     |
+|   TruthfulQA  |   truthfulqa  |
+
+- 获取数据集：需要访问huggingface和github的对应网址，手动下载对应数据集
+
+|    支持数据集   |         下载地址            |
+|----------------|-----------------------------|
+|   BoolQ   |[dev.jsonl](https://storage.cloud.google.com/boolq/dev.jsonl)|
+| HumanEval |[humaneval](https://github.com/openai/human-eval/raw/refs/heads/master/data/HumanEval.jsonl.gz)|
+|HumanEval_X|[cpp](https://huggingface.co/datasets/THUDM/humaneval-x/tree/main/data/cpp/data)<br>[java](https://huggingface.co/datasets/THUDM/humaneval-x/tree/main/data/java/data)<br>[go](https://huggingface.co/datasets/THUDM/humaneval-x/tree/main/data/go/data)<br>[js](https://huggingface.co/datasets/THUDM/humaneval-x/tree/main/data/js/data)<br>[python](https://huggingface.co/datasets/THUDM/humaneval-x/tree/main/data/python/data)|
+|  GSM8K    |[gsm8k](https://github.com/openai/grade-school-math/blob/master/grade_school_math/data/test.jsonl)|
+| LongBench |[longbench](https://huggingface.co/datasets/THUDM/LongBench/resolve/main/data.zip)|
+|    MMLU   |[mmlu](https://people.eecs.berkeley.edu/~hendrycks/data.tar)|
+|NeedleBench|[PaulGrahamEssays](https://huggingface.co/datasets/opencompass/NeedleBench/tree/main)<br>[multi_needle_reasoning_en](https://huggingface.co/datasets/opencompass/NeedleBench/tree/main)<br>[multi_needle_reasoning_zh](https://huggingface.co/datasets/opencompass/NeedleBench/tree/main)<br>[names](https://huggingface.co/datasets/opencompass/NeedleBench/tree/main)<br>[needles](https://huggingface.co/datasets/opencompass/NeedleBench/tree/main)<br>[zh_finance](https://huggingface.co/datasets/opencompass/NeedleBench/tree/main)<br>[zh_game](https://huggingface.co/datasets/opencompass/NeedleBench/tree/main)<br>[zh_general](https://huggingface.co/datasets/opencompass/NeedleBench/tree/main)<br>[zh_government](https://huggingface.co/datasets/opencompass/NeedleBench/tree/main)<br>[zh_movie](https://huggingface.co/datasets/opencompass/NeedleBench/tree/main)<br>[zh_tech](https://huggingface.co/datasets/opencompass/NeedleBench/tree/main)|
+|TextVQA|[train_val_images.zip](https://dl.fbaipublicfiles.com/textvqa/images/train_val_images.zip)<br>[textvqa_val.jsonl](https://ofasys-wlcb.oss-cn-wulanchabu.aliyuncs.com/Qwen-VL/evaluation/textvqa/textvqa_val.jsonl)<br>[textvqa_val_annotations.json](https://ofasys-wlcb.oss-cn-wulanchabu.aliyuncs.com/Qwen-VL/evaluation/textvqa/textvqa_val_annotations.json)<br>|
+|VideoBench|[Eval_QA/](https://github.com/PKU-YuanGroup/Video-Bench)<br>[Video-Bench](https://huggingface.co/datasets/LanguageBind/Video-Bench/tree/main)<br>|
+|VocalSound|[VocalSound 16kHz Version](https://www.dropbox.com/s/c5ace70qh1vbyzb/vs_release_16k.zip?dl=1)<br>|
+|TruthfulQA|[truthfulqa](https://huggingface.co/datasets/domenicrosati/TruthfulQA/tree/main)|
+
+- 将对应下载的数据集文件放置在对应的数据集目录下，并在modeltest根目录`MindIE-LLM/examples/atb_models/tests/modeltest`下执行：
+
+```bash
+python3 scripts/data_prepare.py [可选参数]
+```
+
+| 参数名  | 含义                     |
+|--------|------------------------------|
+| dataset_name | 可选，需要下载的数据集名称，支持的数据集列表参见[**功能**]章节，多个名称以','隔开                 |
+| remove_cache | 可选，是否在下载前清除数据集缓存    |
 
 ## FAQ
 
