@@ -229,9 +229,9 @@ class BasicTransformerBlock(nn.Module):
         self.cross_alpha_max = -float('inf')
         self.last_cross = None
 
-        self.bound = [10, 2]
-        self.forcefresh = 6
-        self.totalstep = 50
+        self.bound = [6, 0]
+        self.forcefresh = 4
+        self.totalstep = 12
 
     def set_chunk_feed_forward(self, chunk_size: Optional[int], dim: int = 0):
         # Sets chunk feed-forward
