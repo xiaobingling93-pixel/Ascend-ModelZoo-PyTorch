@@ -25,6 +25,7 @@ docker load -i mindie_2.0.T17.B010-800I-A2-py3.11-openeuler24.03-lts-aarch64.tar
 
 ## 约束条件
 - 当前支持TP=1/2/4/8推理
+- /usr/local/Ascend/mindie/latest/mindie-service/conf/config.json 的权限默认为640, 请不要更改该文件权限。
 
 ## 新建容器
 
@@ -77,7 +78,7 @@ docker run -it -d --net=host --shm-size=1g \
 > 4. 设定权重挂载的路径，`-v /path-to-weights:/path-to-weights:ro`，注意，如果使用普通用户镜像，权重路径所属应为镜像内默认的1000用户，且权限可设置为750。可使用以下命令进行修改：
 >       ```sh
 >       chown -R 1000:1000 /path-to-weights
->       chmod -R 755 /path-to-weights
+>       chmod -R 750 /path-to-weights
 >       ```
 > 5. **在普通用户镜像中，注意所有文件均在 `/home/mindieuser` 下，请勿直接挂载 `/home` 目录，以免宿主机上存在相同目录，将容器内文件覆盖清除。**
 

@@ -57,6 +57,7 @@ docker run -it -d --net=host --shm-size=1g \
 如果您希望使用自行构建的普通用户镜像，并且规避容器相关权限风险，可以使用以下命令指定用户与设备：
 ```sh
 docker run -it -d --net=host --shm-size=1g \
+    --user mindieuser:<HDK-user-group> \
     --name <container-name> \
     --device=/dev/davinci_manager \
     --device=/dev/hisi_hdc \
@@ -74,6 +75,20 @@ docker run -it -d --net=host --shm-size=1g \
     -v /path-to-weights:/path-to-weights:ro \
     mindie:1.0.0-800I-A2-py311-openeuler24.03-lts bash
 ```
+> 注意，以上启动命令仅供参考，请根据需求自行修改再启动容器，尤其需要注意：
+>
+> 1. `--user`，如果您的环境中HDK是通过普通用户安装（例如默认的`HwHiAiUser`，可以通过`id HwHiAiUser`命令查看该用户组ID），请设置好对应的用户组，例如用户组1001可以使用HDK，则`--user mindieuser:1001`，镜像中默认使用的是用户组1000。如果您的HDK是由root用户安装，且指定了`--install-for-all`参数，则无需指定`--user`参数。
+>
+> 2. 设定容器名称`--name`与镜像名称，例如800I A2服务器使用`mindie:1.0.0-800I-A2-py311-openeuler24.03-lts`。
+>
+> 3. 设定想要使用的卡号`--device`。
+>
+> 4. 设定权重挂载的路径，`-v /path-to-weights:/path-to-weights:ro`，注意，如果使用普通用户镜像，权重路径所属应为镜像内默认的1000用户，且权限可设置为750。可使用以下命令进行修改：
+>       ```sh
+>       chown -R 1000:1000 /path-to-weights
+>       chmod -R 750 /path-to-weights
+>       ```
+> 5. **在普通用户镜像中，注意所有文件均在 `/home/mindieuser` 下，请勿直接挂载 `/home` 目录，以免宿主机上存在相同目录，将容器内文件覆盖清除。**
 更多镜像使用信息请参考[官方镜像仓库文档](https://gitee.com/ascend/ascend-docker-image/tree/dev/mindie#%E5%90%AF%E5%8A%A8%E5%AE%B9%E5%99%A8)。
 
 ## 进入容器
@@ -211,6 +226,7 @@ curl 127.0.0.1:1040/generate -d '{
 pip install transformers==4.46.3 --force-reinstall
 pip install numpy==1.26.4 --force-reinstall
 ```
+2. /usr/local/Ascend/mindie/latest/mindie-service/conf/config.json 的权限默认为640, 请不要更改该文件权限。
 
 ## 声明
 - 本代码仓提到的数据集和模型仅作为示例，这些数据集和模型仅供您用于非商业目的，如您使用这些数据集和模型来完成示例，请您特别注意应遵守对应数据集和模型的License，如您因使用数据集或模型而产生侵权纠纷，华为不承担任何责任。
