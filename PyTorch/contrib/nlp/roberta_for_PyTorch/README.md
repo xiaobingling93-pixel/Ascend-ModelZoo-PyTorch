@@ -104,7 +104,7 @@ RoBERTa 在模型规模、算力和数据上，都比 BERT 有一定的提升。
               │──train.idx
               │──valid.bin
               │——valid.idx                    
-         ├──lable
+         ├──label
               ├──dict.txt
               │──preprocess.log 
               ├──train.bin

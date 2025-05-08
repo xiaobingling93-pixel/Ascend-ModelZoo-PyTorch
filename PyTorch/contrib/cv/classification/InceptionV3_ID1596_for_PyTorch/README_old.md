@@ -22,10 +22,10 @@ To train a model, run `main.py`or `main-8p.py` with the desired model architectu
 
 
 
-# 1p prefomance training 1p
+# 1p performance training 1p
 bash test/train_performance_1p.sh  --data_path=/data/imagenet
 
-# 8p prefomance training 8p
+# 8p performance training 8p
 bash test/train_performance_8p.sh --data_path=/data/imagenet
 
 # 1p full training 1p

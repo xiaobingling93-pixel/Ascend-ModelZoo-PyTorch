@@ -47,7 +47,7 @@ example:
 |  |  └── config.json
 |  |  └── 30k-clean.model
 ```
-2．convert albert tf checkpoint to pytorch
+2．Convert albert tf checkpoint to pytorch
 ```python
 python convert_albert_tf_checkpoint_to_pytorch.py \
     --tf_checkpoint_path=./prev_trained_model/albert_base_tf_v2 \
@@ -58,7 +58,7 @@ The [General Language Understanding Evaluation (GLUE) benchmark](https://glueben
 
 Before running anyone of these GLUE tasks you should download the [GLUE data](https://gluebenchmark.com/tasks) by running [this script](https://gist.github.com/W4ngatang/60c2bdb54d156a41194446737ce03e2e) and unpack it to some directory $DATA_DIR.
 
-3．run `sh scripts/run_classifier_sst2.sh`to fine tuning albert model
+3．Run `sh scripts/run_classifier_sst2.sh`to fine tuning albert model
 
 ## Result
 

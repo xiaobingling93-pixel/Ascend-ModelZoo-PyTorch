@@ -58,7 +58,7 @@
 - eval default 8p， should support 1p
     - bash ./test/train_eval_8p.sh --data_path=xxx   --device_id=xxx
 
-- Traing log
+- Training log
     - test/output/devie_id/train_${device_id}.log # training detail log
     
     - test/output/devie_id/HRNe_ID1780${device_id}_bs_8p_perf.log # 8p training performance result

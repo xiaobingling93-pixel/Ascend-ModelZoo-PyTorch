@@ -21,11 +21,11 @@ the JAX/Flax backend and the [`pjit`](https://jax.readthedocs.io/en/latest/jax.e
 
 > Note: The example is experimental and might have bugs. Also currently it only supports single V3-8.
 
-The `partition.py` file defines the `PyTree` of `ParitionSpec` for the GPTNeo model which describes how the model will be sharded.
-The actual sharding is auto-matically handled by `pjit`. The weights are sharded accross all local devices.
-To adapt the script for other models, we need to also change the `ParitionSpec` accordingly.
+The `partition.py` file defines the `PyTree` of `PartitionSpec` for the GPTNeo model which describes how the model will be sharded.
+The actual sharding is auto-matically handled by `pjit`. The weights are sharded across all local devices.
+To adapt the script for other models, we need to also change the `PartitionSpec` accordingly.
 
-TODO: Add more explantion.
+TODO: Add more explanation.
 
 Before training, let's prepare our model first. To be able to shard the model, the sharded dimention needs to be a multiple of devices it'll be sharded on. But GPTNeo's vocab size is 50257, so we need to resize the embeddings accordingly. 
 

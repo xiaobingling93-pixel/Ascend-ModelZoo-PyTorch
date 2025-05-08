@@ -79,8 +79,8 @@ The following example fine-tunes RoBERTa on WikiText-2. Here too, we're using th
 as BERT/RoBERTa have a bidirectional mechanism; we're therefore using the same loss that was used during their
 pre-training: masked language modeling.
 
-In accordance to the RoBERTa paper, we use dynamic masking rather than static masking. The model may, therefore,
-converge slightly slower (over-fitting takes more epochs).
+In accordance with the RoBERTa paper, we use dynamic masking rather than static masking. The model may, therefore,
+converge slightly slower (overfitting takes more epochs).
 
 ```bash
 python run_mlm.py \

@@ -339,7 +339,7 @@ python tools/test_grounding_net.py --config-file configs/pretrain/glip_A_Swin_T_
 
 #### Submit Your Results to ODinw Leaderboard
 
-The participant teams are encouraged to upload their results to [ODinW leaderboard](https://eval.ai/web/challenges/challenge-page/1839/overview) on EvalAI. From the perspective od data labeling cost, lowering the requirement of data requirement enables more scenarios, a varied number of tracks are considered in the challenge: zero-shot, few-shot, and full-shot. Please see the ODinW website for more details about each phase. 
+The participant teams are encouraged to upload their results to [ODinW leaderboard](https://eval.ai/web/challenges/challenge-page/1839/overview) on EvalAI. From the perspective of data labeling cost, lowering the requirement of data requirement enables more scenarios, a varied number of tracks are considered in the challenge: zero-shot, few-shot, and full-shot. Please see the ODinW website for more details about each phase. 
 
 1. For zero/full shot setting, the required format for prediction json file is
 ```

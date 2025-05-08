@@ -69,7 +69,7 @@ We release 2 models that are finetuned on data from 2 different phonemizers. Alt
 
 ## Training a new model with the CLI tools
 
-Given a directory containing wav files to be used for pretraining (we recommend splitting each file into separate file 10 to 30 seconds in length)
+Given a directory containing wav files to be used for pretraining (we recommend splitting each file into separate files 10 to 30 seconds in length)
 
 ### Prepare training data manifest
 

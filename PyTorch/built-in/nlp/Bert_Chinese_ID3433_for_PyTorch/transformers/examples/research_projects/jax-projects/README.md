@@ -826,7 +826,7 @@ for i in range(10):
    params, opt_state, loss = train_step(params, opt_state, input_ids, labels)
 ```
 
-Note how we always pass the `params` and `opt_state` to the `train_step` which then returns the updated `params` and `opt_state`. This is because of the staless nature of JAX/Flax models, all the state
+Note how we always pass the `params` and `opt_state` to the `train_step` which then returns the updated `params` and `opt_state`. This is because of the stateless nature of JAX/Flax models, all the state
 like parameters, optimizer state is kept external.
 
 We can now save the model with the trained parameters using
@@ -1153,7 +1153,7 @@ In the following, we will describe how to do so using a standard console, but yo
 2. Once you've installed the google cloud sdk, you should set your account by running the following command. Make sure that `<your-email-address>` corresponds to the gmail address you used to sign up for this event.
 
 ```bash
-$ gcloud config set account <your-email-adress>
+$ gcloud config set account <your-email-address>
 ```
 
 3. Let's also make sure the correct project is set in case your email is used for multiple gcloud projects:

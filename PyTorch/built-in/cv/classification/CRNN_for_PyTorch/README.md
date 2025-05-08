@@ -271,7 +271,7 @@ CRNN (Convolutional Recurrent Neural Network) 于2015年由华中科技大学的
 
    ```
    cd infer
-   pip3 install -r requirments.txt
+   pip3 install -r requirements.txt
    ```
 
 ## 准备数据集<a name="section183221994411"></a>

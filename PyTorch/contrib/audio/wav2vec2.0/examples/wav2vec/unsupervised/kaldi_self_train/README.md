@@ -22,8 +22,8 @@ INFO:root:./out/exp/mono/decode_valid/scoring/14.0.0.tra.txt: score 0.9178 wer 2
 INFO:root:./out/exp/tri1/decode_valid/scoring/17.1.0.tra.txt: score 0.9257 wer 26.99% lm_ppl 30.8494 gt_wer 21.90%
 INFO:root:./out/exp/tri2b/decode_valid/scoring/8.0.0.tra.txt: score 0.7506 wer 23.15% lm_ppl 25.5944 gt_wer 15.78%
 ```
-where `wer` is the word eror rate with respect to the pseudo label, `gt_wer` to
-the ground truth label, `lm_ppl` the language model perplexity of HMM prediced
+where `wer` is the word error rate with respect to the pseudo label, `gt_wer` to
+the ground truth label, `lm_ppl` the language model perplexity of HMM predicted
 transcripts, and `score` is the unsupervised metric for model selection. We
 choose the model and the LM parameter of the one with the lowest score. In the
 example above, it is `tri2b`, `8.0.0`.
