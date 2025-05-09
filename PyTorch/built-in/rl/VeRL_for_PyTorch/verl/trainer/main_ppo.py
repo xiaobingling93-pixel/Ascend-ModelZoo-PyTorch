@@ -19,6 +19,7 @@ from verl.trainer.ppo.ray_trainer import RayPPOTrainer
 import os
 import ray
 import hydra
+from verl.utils.device import is_npu_available
 
 
 def get_custom_reward_fn(config):
@@ -181,7 +182,8 @@ class TaskRunner:
                                            compute_score=compute_score,
                                            reward_fn_key=config.data.reward_fn_key)
         resource_pool_manager = ResourcePoolManager(resource_pool_spec=resource_pool_spec, mapping=mapping)
-
+        # Non CUDA device compatibility
+        device_name = "npu" if is_npu_available else "cuda"
         trainer = RayPPOTrainer(config=config,
                                 tokenizer=tokenizer,
                                 processor=processor,
@@ -189,7 +191,8 @@ class TaskRunner:
                                 resource_pool_manager=resource_pool_manager,
                                 ray_worker_group_cls=ray_worker_group_cls,
                                 reward_fn=reward_fn,
-                                val_reward_fn=val_reward_fn)
+                                val_reward_fn=val_reward_fn,
+                                device_name=device_name)
         trainer.init_workers()
         trainer.fit()
 

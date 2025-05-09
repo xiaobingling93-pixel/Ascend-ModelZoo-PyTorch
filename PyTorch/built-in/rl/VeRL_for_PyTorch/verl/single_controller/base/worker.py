@@ -17,6 +17,7 @@ the class for Worker
 import os
 import socket
 from dataclasses import dataclass
+from ...utils.device import get_device_name
 from .decorator import register, Dispatch, Execute
 
 
@@ -123,10 +124,10 @@ class Worker(WorkerHelper):
         # [SUPPORT AMD: torch]
         import torch
         ###
-
+        device_name = get_device_name()
         ###
         # [SUPPORT AMD: torch]
-        if "AMD" in torch.cuda.get_device_name():
+        if "AMD" in device_name:
             os.environ['CUDA_VISIBLE_DEVICES'] = os.environ.get('ROCR_VISIBLE_DEVICES')
             os.environ['LOCAL_RANK'] = os.environ.get('RAY_LOCAL_RANK')
         ###
@@ -144,13 +145,13 @@ class Worker(WorkerHelper):
 
         ###
         # [SUPPORT AMD: torch]
-        if "AMD" in torch.cuda.get_device_name():
+        if "AMD" in device_name:
             self.local_rank = int(os.environ['LOCAL_RANK'])
         ###
 
         ###
         # [SUPPORT AMD: torch]
-        if "AMD" in torch.cuda.get_device_name():
+        if "AMD" in device_name:
             cuda_visible_devices = str(local_rank)
         ###
 
@@ -171,7 +172,7 @@ class Worker(WorkerHelper):
         ###
         # [SUPPORT AMD: torch]
         # torch.cuda.set_device(local_rank)
-        if "AMD" in torch.cuda.get_device_name():
+        if "AMD" in device_name:
             torch.cuda.set_device(int(cuda_visible_devices))
         ###
 

@@ -23,6 +23,7 @@ from torch.distributed.fsdp import FullyShardedDataParallel as FSDP, StateDictTy
 from torch.distributed.fsdp import ShardedStateDictConfig, ShardedOptimStateDictConfig
 
 from verl.utils.fs import copy_to_local, is_non_local
+from verl.utils.device import is_cuda_available
 
 from transformers import PreTrainedTokenizer, ProcessorMixin
 
@@ -96,8 +97,8 @@ class FSDPCheckpointManager(BaseCheckpointManager):
 
         lr_scheduler_state_dict = extra_state_dict['lr_scheduler']
 
-        state_dict_cfg = ShardedStateDictConfig(offload_to_cpu=True)
-        optim_cfg = ShardedOptimStateDictConfig(offload_to_cpu=True)
+        state_dict_cfg = ShardedStateDictConfig(offload_to_cpu=True if is_cuda_available else False)
+        optim_cfg = ShardedOptimStateDictConfig(offload_to_cpu=True if is_cuda_available else False)
         with FSDP.state_dict_type(self.model, StateDictType.SHARDED_STATE_DICT, state_dict_cfg, optim_cfg):
             self.model.load_state_dict(model_state_dict)
             if self.optimizer is not None:
@@ -128,8 +129,8 @@ class FSDPCheckpointManager(BaseCheckpointManager):
         torch.distributed.barrier()
 
         # every rank will save its own model and optim shard
-        state_dict_cfg = ShardedStateDictConfig(offload_to_cpu=True)
-        optim_cfg = ShardedOptimStateDictConfig(offload_to_cpu=True)
+        state_dict_cfg = ShardedStateDictConfig(offload_to_cpu=True if is_cuda_available else False)
+        optim_cfg = ShardedOptimStateDictConfig(offload_to_cpu=True if is_cuda_available else False)
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             with FSDP.state_dict_type(self.model, StateDictType.SHARDED_STATE_DICT, state_dict_cfg, optim_cfg):

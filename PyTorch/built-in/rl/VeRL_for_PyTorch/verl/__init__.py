@@ -14,7 +14,10 @@
 
 import os
 import math
-
+import pkg_resources
+from pkg_resources import DistributionNotFound
+from packaging.version import parse as parse_version
+from .utils.device import is_npu_available
 version_folder = os.path.dirname(os.path.join(os.path.abspath(__file__)))
 
 with open(os.path.join(version_folder, 'version/version')) as f:
@@ -24,12 +27,27 @@ from .protocol import DataProto
 
 from .utils.logging_utils import set_basic_config
 import logging
+if is_npu_available:
+    from .utils import npu_patch
 
 set_basic_config(level=logging.WARNING)
 
 from . import single_controller
 
 __all__ = ['DataProto', "__version__"]
+
+package_name = 'transformers'
+required_version_spec = '4.51.0'
+try:
+    installed_version = pkg_resources.get_distribution(package_name).version
+    installed = parse_version(installed_version)
+    required = parse_version(required_version_spec)
+
+    if not installed >= required:
+        raise ValueError(f"{package_name} version required >= {required_version_spec}, current version is {installed}.")
+except DistributionNotFound as e:
+    raise ImportError(
+        f"{package_name} not installed。please run pip install {package_name}=={required_version_spec}") from e
 
 if os.getenv('VERL_USE_MODELSCOPE', 'False').lower() == 'true':
     import importlib

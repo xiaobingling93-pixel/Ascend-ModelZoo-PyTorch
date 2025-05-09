@@ -22,7 +22,7 @@ from verl.utils.ulysses import gather_heads_scatter_seq, gather_seq_scatter_head
     get_ulysses_sequence_parallel_world_size, validate_ulysses_config
 
 try:
-    from flash_attn import flash_attn_func, flash_attn_varlen_func
+    from transformers.modeling_flash_attention_utils import flash_attn_func, flash_attn_varlen_func
 
     _flash_supports_window_size = "window_size" in list(inspect.signature(flash_attn_func).parameters)
 except ImportError:

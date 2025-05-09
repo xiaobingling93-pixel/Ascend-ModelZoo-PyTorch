@@ -14,6 +14,7 @@
 
 import torch
 from transformers import PretrainedConfig
+from verl.utils.device import get_torch_device
 
 VALID_CONFIG_TYPE = {"llama", "qwen2", "qwen2_vl", "qwen2_5_vl", "deepseek_v3"}
 
@@ -30,7 +31,7 @@ def get_device_flops(unit="T"):
             ptr += 1
         return number
 
-    device_name = torch.cuda.get_device_name()
+    device_name = get_torch_device().get_device_name()
     flops = float("inf")  # INF flops for unkown gpu type
 
     if "MI300X" in device_name:

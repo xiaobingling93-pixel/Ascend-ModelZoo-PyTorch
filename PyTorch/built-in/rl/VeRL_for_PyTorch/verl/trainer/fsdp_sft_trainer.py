@@ -20,9 +20,6 @@ TODO(zhangchi.usc1992)
 
 import os
 
-os.environ['NCCL_DEBUG'] = 'WARN'
-os.environ['TOKENIZERS_PARALLELISM'] = 'true'
-
 import logging
 import re
 from contextlib import nullcontext
@@ -35,8 +32,8 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, PreTrainedModel, A
 from verl.utils.torch_functional import get_cosine_schedule_with_warmup
 from tensordict import TensorDict
 from torch.utils.data import DataLoader, DistributedSampler
-from flash_attn.bert_padding import pad_input, unpad_input, rearrange, index_first_axis
 
+from verl.utils.device import get_device_name, is_cuda_available, get_torch_device, is_npu_available
 from verl.utils.fsdp_utils import get_fsdp_wrap_policy, init_fn, get_init_weight_context_manager
 from verl.utils.dataset import SFTDataset
 from verl.utils.dataset.multiturn_sft_dataset import MultiTurnSFTDataset
@@ -52,6 +49,15 @@ from peft import LoraConfig, TaskType, get_peft_model
 from verl.workers.sharding_manager import FSDPUlyssesShardingManager
 from verl.utils.ulysses import ulysses_pad_and_slice_inputs, gather_outpus_and_unpad
 from verl import DataProto
+
+if is_cuda_available:
+    from flash_attn.bert_padding import pad_input, unpad_input, rearrange, index_first_axis
+elif is_npu_available:
+    from transformers.integrations.npu_flash_attention import pad_input, unpad_input, rearrange, \
+        index_first_axis
+
+os.environ['NCCL_DEBUG'] = 'WARN'
+os.environ['TOKENIZERS_PARALLELISM'] = 'true'
 
 logger = logging.getLogger(__file__)
 logger.setLevel(os.getenv('VERL_SFT_LOGGING_LEVEL', 'WARN'))
@@ -107,6 +113,7 @@ class FSDPSFTTrainer(object):
         # TODO: add checkpoint manager
         if self.device_mesh.get_rank() == 0:
             print(self.config)
+        self.device_name = get_device_name()
 
     def _normalize_config_bsz(self):
         dp_size = self.device_mesh.size(0) if not self.ulysses_device_mesh else self.ulysses_device_mesh.size(0)
@@ -260,7 +267,7 @@ class FSDPSFTTrainer(object):
                                mixed_precision=mixed_precision,
                                device_mesh=self.device_mesh,
                                sync_module_states=True,
-                               device_id=torch.cuda.current_device(),
+                               device_id=get_torch_device().current_device(),
                                cpu_offload=cpu_offload,
                                use_orig_params=False)
 
@@ -292,16 +299,16 @@ class FSDPSFTTrainer(object):
         use_sp = self.use_remove_padding and self.config.ulysses_sequence_parallel_size > 1
 
         # Move inputs to GPU and prepare loss mask
-        input_ids = batch['input_ids'].cuda()
-        attention_mask = batch['attention_mask'].cuda()
-        position_ids = batch['position_ids'].cuda()
-        loss_mask = batch.pop('loss_mask')[:, :-1].reshape(-1).cuda()
+        input_ids = batch['input_ids'].to(self.device_name)
+        attention_mask = batch['attention_mask'].to(self.device_name)
+        position_ids = batch['position_ids'].to(self.device_name)
+        loss_mask = batch.pop('loss_mask')[:, :-1].reshape(-1).to(self.device_name)
         loss_fct = nn.CrossEntropyLoss(reduction='none')
 
         # Context manager for sequence parallel if needed
         context = self.sharding_manager if use_sp else nullcontext()
         with context:
-            with torch.autocast(device_type='cuda', dtype=torch.bfloat16):
+            with torch.autocast(device_type=self.device_name, dtype=torch.bfloat16):
                 if not use_sp:
                     # Standard forward pass without sequence parallel
                     labels = input_ids[:, 1:].contiguous()
@@ -420,15 +427,23 @@ class FSDPSFTTrainer(object):
 
         log_gpu_memory_usage('After offload weights', logger=logger)
 
-        step_loss = torch.tensor(step_loss).cuda()
-        torch.distributed.all_reduce(step_loss, op=torch.distributed.ReduceOp.AVG)
+        step_loss = torch.tensor(step_loss).to(self.device_name)
+        if is_cuda_available:
+            torch.distributed.all_reduce(step_loss, op=torch.distributed.ReduceOp.AVG)
+        elif is_npu_available:
+            torch.distributed.all_reduce(step_loss)
+            step_loss /= self.ulysses_device_mesh.size(0)
         return {'train/loss': step_loss.detach().item(), 'train/lr(1e-3)': lr * 1e3}
 
     def validation_step(self, batch: TensorDict):
         self.fsdp_model.eval()
         with torch.no_grad():
             loss = self._compute_loss_and_backward(batch, do_backward=False)
-            torch.distributed.all_reduce(loss, op=torch.distributed.ReduceOp.AVG)
+            if is_cuda_available:
+                torch.distributed.all_reduce(loss, op=torch.distributed.ReduceOp.AVG)
+            elif is_npu_available:
+                torch.distributed.all_reduce(loss)
+                loss /= self.ulysses_device_mesh.size(0)
         return loss
 
     def save_checkpoint(self, step):
@@ -477,7 +492,7 @@ class FSDPSFTTrainer(object):
                              total=self.steps_per_epoch,
                              desc=f"Epoch {epoch+1}/{self.config.trainer.total_epochs}"):
                 global_step += 1
-                data = TensorDict(data, batch_size=self.config.data.train_batch_size).cuda()
+                data = TensorDict(data, batch_size=self.config.data.train_batch_size).to(self.device_name)
                 metric = self.training_step(data)
                 if rank == 0:
                     tracking.log(data=metric, step=global_step)
@@ -487,7 +502,8 @@ class FSDPSFTTrainer(object):
                     # Perform final validation
                     val_losses = []
                     for val_data in self.val_dataloader:
-                        val_data = TensorDict(val_data, batch_size=self.config.data.micro_batch_size_per_gpu).cuda()
+                        val_data = TensorDict(val_data,
+                                              batch_size=self.config.data.micro_batch_size_per_gpu).to(self.device_name)
                         val_loss = self.validation_step(val_data)
                         val_losses.append(val_loss)
                     if rank == 0:
@@ -503,7 +519,7 @@ class FSDPSFTTrainer(object):
             # validation
             val_losses = []
             for data in self.val_dataloader:
-                data = TensorDict(data, batch_size=self.config.data.micro_batch_size_per_gpu).cuda()
+                data = TensorDict(data, batch_size=self.config.data.micro_batch_size_per_gpu).to(self.device_name)
                 val_loss = self.validation_step(data)
                 val_losses.append(val_loss)
             if rank == 0:
@@ -526,11 +542,12 @@ from verl.utils.distributed import initialize_global_process_group
 
 @hydra.main(config_path='config', config_name='sft_trainer', version_base=None)
 def main(config):
+    device_name = get_device_name()
     local_rank, rank, world_size = initialize_global_process_group()
 
-    device_mesh = init_device_mesh(device_type='cuda', mesh_shape=(world_size,), mesh_dim_names=('fsdp',))
+    device_mesh = init_device_mesh(device_type=device_name, mesh_shape=(world_size,), mesh_dim_names=('fsdp',))
     dp_size = world_size // config.ulysses_sequence_parallel_size
-    ulysses_device_mesh = init_device_mesh(device_type='cuda',
+    ulysses_device_mesh = init_device_mesh(device_type=device_name,
                                            mesh_shape=(dp_size, config.ulysses_sequence_parallel_size),
                                            mesh_dim_names=('dp', 'sp'))
     trainer = FSDPSFTTrainer(config=config, device_mesh=device_mesh, ulysses_device_mesh=ulysses_device_mesh)
