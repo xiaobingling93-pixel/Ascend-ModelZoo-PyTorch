@@ -1,0 +1,12 @@
+diff --git a/mmengine/model/utils.py b/mmengine/model/utils.py
+index c78ea31..2b31555 100644
+--- a/mmengine/model/utils.py
++++ b/mmengine/model/utils.py
+@@ -33,7 +33,6 @@ def stack_batch(tensor_list: List[torch.Tensor],
+     assert isinstance(
+         tensor_list,
+         list), (f'Expected input type to be list, but got {type(tensor_list)}')
+-    assert tensor_list, '`tensor_list` could not be an empty list'
+     assert len({
+         tensor.ndim
+         for tensor in tensor_list

@@ -1,0 +1,6 @@
+torch==2.4.0
+torch-npu==2.4.0.post2
+mmcv==2.2.0
+einops
+tensorboard
+decorator

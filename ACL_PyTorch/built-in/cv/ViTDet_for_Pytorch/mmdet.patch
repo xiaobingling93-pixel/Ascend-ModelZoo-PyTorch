@@ -1,0 +1,223 @@
+diff --git a/mmdet/__init__.py b/mmdet/__init__.py
+index 3ac884ac..0fa18eee 100644
+--- a/mmdet/__init__.py
++++ b/mmdet/__init__.py
+@@ -14,7 +14,8 @@ mmengine_maximum_version = '1.0.0'
+ mmengine_version = digit_version(mmengine.__version__)
+ 
+ assert (mmcv_version >= digit_version(mmcv_minimum_version)
+-        and mmcv_version < digit_version(mmcv_maximum_version)), \
++        # avoid version check to use torch 2.4 (only mmcv 2.2 is available in torch 2.4)
++        and mmcv_version <= digit_version(mmcv_maximum_version)), \
+     f'MMCV=={mmcv.__version__} is used but incompatible. ' \
+     f'Please install mmcv>={mmcv_minimum_version}, <{mmcv_maximum_version}.'
+ 
+diff --git a/mmdet/models/dense_heads/rpn_head.py b/mmdet/models/dense_heads/rpn_head.py
+index 6b544009..e5d5de47 100644
+--- a/mmdet/models/dense_heads/rpn_head.py
++++ b/mmdet/models/dense_heads/rpn_head.py
+@@ -3,6 +3,7 @@ import copy
+ from typing import List, Optional, Tuple
+ 
+ import torch
++import torch_npu
+ import torch.nn as nn
+ import torch.nn.functional as F
+ from mmcv.cnn import ConvModule
+@@ -281,16 +282,18 @@ class RPNHead(AnchorHead):
+ 
+         if results.bboxes.numel() > 0:
+             bboxes = get_box_tensor(results.bboxes)
+-            det_bboxes, keep_idxs = batched_nms(bboxes, results.scores,
+-                                                results.level_ids, cfg.nms)
+-            results = results[keep_idxs]
+-            # some nms would reweight the score, such as softnms
+-            results.scores = det_bboxes[:, -1]
++            # use torch_npu.npu_batch_nms to avoid compile error, 
++            # and use batch_nms_op to warp the method to format the input and output of torch_npu.npu_batch_nms
++            dets, labels = batch_nms_op(bboxes, results.scores, 0.0, 
++                                                                cfg.nms.iou_threshold, 
++                                                                cfg.max_per_img, 
++                                                                cfg.max_per_img)
+             results = results[:cfg.max_per_img]
++            results.bboxes = dets[:, :4]
++            results.scores = dets[:, -1]
++            results.labels = labels
+             # TODO: This would unreasonably show the 0th class label
+             #  in visualization
+-            results.labels = results.scores.new_zeros(
+-                len(results), dtype=torch.long)
+             del results.level_ids
+         else:
+             # To avoid some potential error
+@@ -300,3 +303,25 @@ class RPNHead(AnchorHead):
+             results_.labels = results.scores.new_zeros(0)
+             results = results_
+         return results
++
++def batch_nms_op(bboxes, scores, score_threshold, iou_threshold, max_size_per_class, max_total_size):
++    """
++    boxes (torch.Tensor): boxes in shape (N, 4).
++    scores (torch.Tensor): scores in shape (N, ).
++    """
++    coord_dim = 4
++    if bboxes.dtype == torch.float32:
++        bboxes = bboxes.reshape(1, bboxes.shape[0], -1, 4).half()
++        scores = scores.reshape(1, scores.shape[0], -1).half()
++    else:
++        bboxes = bboxes.reshape(1, bboxes.shape[0], -1, 4)
++        scores = scores.reshape(1, scores.shape[0], -1)
++
++    nmsed_boxes, nmsed_scores, nmsed_classes, nmsed_num = torch_npu.npu_batch_nms(bboxes, scores,
++        score_threshold, iou_threshold, max_size_per_class, max_total_size) # max_total_size num_bbox
++    nmsed_boxes = nmsed_boxes.float()
++    nmsed_scores = nmsed_scores.float()
++    nmsed_classes = nmsed_classes.long()
++    dets = torch.cat((nmsed_boxes.reshape((max_total_size, 4)), nmsed_scores.reshape((max_total_size, 1))), -1)
++    labels = nmsed_classes.reshape((max_total_size, ))
++    return dets, labels
+\ No newline at end of file
+diff --git a/mmdet/models/roi_heads/bbox_heads/bbox_head.py b/mmdet/models/roi_heads/bbox_heads/bbox_head.py
+index 3b2e8aae..cfa3c0a0 100644
+--- a/mmdet/models/roi_heads/bbox_heads/bbox_head.py
++++ b/mmdet/models/roi_heads/bbox_heads/bbox_head.py
+@@ -2,6 +2,7 @@
+ from typing import List, Optional, Tuple, Union
+ 
+ import torch
++import torch_npu
+ import torch.nn as nn
+ import torch.nn.functional as F
+ from mmengine.config import ConfigDict
+@@ -532,7 +533,8 @@ class BBoxHead(BaseModule):
+         # e.g. Grid R-CNN.
+         if bbox_pred is not None:
+             num_classes = 1 if self.reg_class_agnostic else self.num_classes
+-            roi = roi.repeat_interleave(num_classes, dim=0)
++            # for performance improvement
++            roi = torch.permute(roi, (1,0)).repeat_interleave(num_classes, dim=1).permute(1,0).contiguous()
+             bbox_pred = bbox_pred.view(-1, self.bbox_coder.encode_size)
+             bboxes = self.bbox_coder.decode(
+                 roi[..., 1:], bbox_pred, max_shape=img_shape)
+@@ -558,16 +560,17 @@ class BBoxHead(BaseModule):
+             results.bboxes = bboxes
+             results.scores = scores
+         else:
+-            det_bboxes, det_labels = multiclass_nms(
++            # use torch_npu.contrib.function.npu_multiclass_nms to avoid compile error
++            det_bboxes, det_labels = torch_npu.contrib.function.npu_multiclass_nms(
+                 bboxes,
+                 scores,
+                 rcnn_test_cfg.score_thr,
+-                rcnn_test_cfg.nms,
++                rcnn_test_cfg.nms.iou_threshold,
+                 rcnn_test_cfg.max_per_img,
+-                box_dim=box_dim)
++            )
+             results.bboxes = det_bboxes[:, :-1]
+             results.scores = det_bboxes[:, -1]
+-            results.labels = det_labels
++            results.labels = det_labels.int() # original float dtype is illegal in following steps
+         return results
+ 
+     def refine_bboxes(self, sampling_results: Union[List[SamplingResult],
+diff --git a/mmdet/models/roi_heads/roi_extractors/single_level_roi_extractor.py b/mmdet/models/roi_heads/roi_extractors/single_level_roi_extractor.py
+index 59229e0b..0c0a2deb 100644
+--- a/mmdet/models/roi_heads/roi_extractors/single_level_roi_extractor.py
++++ b/mmdet/models/roi_heads/roi_extractors/single_level_roi_extractor.py
+@@ -2,6 +2,7 @@
+ from typing import List, Optional, Tuple
+ 
+ import torch
++import torch_npu
+ from torch import Tensor
+ 
+ from mmdet.registry import MODELS
+@@ -104,7 +105,14 @@ class SingleRoIExtractor(BaseRoIExtractor):
+             inds = mask.nonzero(as_tuple=False).squeeze(1)
+             if inds.numel() > 0:
+                 rois_ = rois[inds]
+-                roi_feats_t = self.roi_layers[i](feats[i], rois_)
++                # use torch_npu.npu_roi_align to avoid compile error
++                roi_feats_t = torch_npu.npu_roi_align(feats[i], 
++                                                      rois_, 
++                                                      self.roi_layers[i].spatial_scale,
++                                                      self.roi_layers[i].output_size[0],
++                                                      self.roi_layers[i].output_size[1],
++                                                      0,
++                                                      2)
+                 roi_feats[inds] = roi_feats_t
+             else:
+                 # Sometimes some pyramid levels will not be used for RoI
+diff --git a/projects/ViTDet/vitdet/vit.py b/projects/ViTDet/vitdet/vit.py
+index 96bf9bbd..6acbf168 100644
+--- a/projects/ViTDet/vitdet/vit.py
++++ b/projects/ViTDet/vitdet/vit.py
+@@ -9,6 +9,7 @@ from mmcv.cnn.bricks import DropPath
+ from mmengine.logging import MMLogger
+ from mmengine.model import BaseModule
+ from mmengine.runner.checkpoint import CheckpointLoader
++import torch_npu
+ 
+ from mmdet.registry import MODELS
+ 
+@@ -44,10 +45,9 @@ def get_abs_pos(abs_pos, has_cls_token, hw):
+ 
+     if size != h or size != w:
+         new_abs_pos = F.interpolate(
+-            abs_pos.reshape(1, size, size, -1).permute(0, 3, 1, 2),
++            abs_pos.reshape(1, size, size, -1).permute(0, 3, 1, 2).contiguous(),
+             size=(h, w),
+-            mode='bicubic',
+-            align_corners=False,
++            mode='area', # for performance improvement
+         )
+ 
+         return new_abs_pos.permute(0, 2, 3, 1)
+@@ -202,19 +202,36 @@ class Attention(nn.Module):
+         B, H, W, _ = x.shape
+         # qkv with shape (3, B, nHead, H * W, C)
+         qkv = self.qkv(x).reshape(B, H * W, 3, self.num_heads,
+-                                  -1).permute(2, 0, 3, 1, 4)
+-        # q, k, v with shape (B * nHead, H * W, C)
+-        q, k, v = qkv.reshape(3, B * self.num_heads, H * W, -1).unbind(0)
+-
+-        attn = (q * self.scale) @ k.transpose(-2, -1)
++                                -1).permute(2, 0, 3, 1, 4).half()
++        q, k, v = qkv.unbind(0)  # use 'BNSD' layout
+ 
++        # replace the naive attention with Flash Attention
++        # Construct relative position embedding as rel_pos_bias
+         if self.use_rel_pos:
+-            attn = add_decomposed_rel_pos(attn, q, self.rel_pos_h,
+-                                          self.rel_pos_w, (H, W), (H, W))
++            q_h, q_w = H, W
++            k_h, k_w = H, W
++            Rh = get_rel_pos(q_h, k_h, self.rel_pos_h)
++            Rw = get_rel_pos(q_w, k_w, self.rel_pos_w)
++            B, N, S, D = q.shape
++            r_q = q.reshape(B*N, q_h, q_w, D)
++            rel_h = torch.einsum('bhwc,hkc->bhwk', r_q, Rh)
++            rel_w = torch.einsum('bhwc,wkc->bhwk', r_q, Rw)
++            rel_pos_bias = rel_h[:, :, :, :, None] + rel_w[:, :, :, None, :]
++            rel_pos_bias = rel_pos_bias.half().contiguous().view(B, N, q_h * q_w, k_h * k_w)
++        else:
++            rel_pos_bias = None
++
++        # Pass shape directly as (B, num_heads, S, head_dim), and specify input_layout='BNSD'
++        x = torch_npu.npu_prompt_flash_attention(
++            q, k, v,
++            pse_shift=rel_pos_bias,
++            num_heads=self.num_heads,
++            scale_value=self.scale,
++            input_layout='BNSD'
++        )
+ 
+-        attn = attn.softmax(dim=-1)
+-        x = (attn @ v).view(B, self.num_heads, H, W,
+-                            -1).permute(0, 2, 3, 1, 4).reshape(B, H, W, -1)
++        # Reshape output back to original shape
++        x = x.contiguous().view(B, self.num_heads, H, W, -1).permute(0, 2, 3, 1, 4).reshape(B, H, W, -1)
+         x = self.proj(x)
+ 
+         return x
