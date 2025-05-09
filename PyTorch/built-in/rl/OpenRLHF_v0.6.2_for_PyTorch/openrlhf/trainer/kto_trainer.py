@@ -1,4 +1,5 @@
 import os
+import time
 from abc import ABC
 
 import torch
@@ -129,6 +130,7 @@ class KTOTrainer(ABC):
 
             # train
             for input_ids, attention_mask, labels, prompt_ids_lens in self.train_dataloader:
+                start_time = time.time()
                 input_ids = input_ids.squeeze(1).to(torch.cuda.current_device())
                 attention_mask = attention_mask.squeeze(1).to(torch.cuda.current_device())
 
@@ -169,8 +171,9 @@ class KTOTrainer(ABC):
                 }
                 logs_dict["kl"] = KL.item()
                 logs_dict = self.strategy.all_reduce(logs_dict)
-                step_bar.set_postfix(logs_dict)
                 step_bar.update()
+                end_time = time.time()
+                step_time = end_time - start_time
 
                 # logs/checkpoints/evaluation
                 if step % self.strategy.accumulated_gradient == 0:
@@ -178,6 +181,7 @@ class KTOTrainer(ABC):
                     loss_sum = 0
                     global_step = step // self.strategy.accumulated_gradient
                     client_states = {"consumed_samples": global_step * args.train_batch_size}
+                    logs_dict["step_time"] = f"{step_time:.3f}s"
                     self.save_logs_and_checkpoints(args, global_step, step_bar, logs_dict, client_states)
 
                 step += 1
@@ -192,9 +196,11 @@ class KTOTrainer(ABC):
     def save_logs_and_checkpoints(self, args, global_step, step_bar, logs_dict={}, client_states={}):
         # logs
         if global_step % args.logging_steps == 0:
+            logs = {"train/%s" % k: v for k, v in {**logs_dict, "global_step": global_step}.items()}
+            if self.strategy.is_rank_0():
+                step_bar.write(str(logs))
             # wandb
             if self._wandb is not None and self.strategy.is_rank_0():
-                logs = {"train/%s" % k: v for k, v in {**logs_dict, "global_step": global_step}.items()}
                 self._wandb.log(logs)
             # TensorBoard
             elif self._tensorboard is not None and self.strategy.is_rank_0():

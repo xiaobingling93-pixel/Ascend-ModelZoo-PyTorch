@@ -60,6 +60,8 @@ target_device = os.getenv("TARGET_DEVICE", "GPU").upper()
 
 if target_device == "NPU":
     requirements_file = "requirements-npu.txt"
+elif target_device == "NPU_2_6":
+    requirements_file = "requirements-npu-2_6.txt"
 else:
     requirements_file = "requirements.txt"
 
