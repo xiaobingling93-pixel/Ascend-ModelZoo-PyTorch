@@ -35,11 +35,7 @@ class LLMRayActor:
         else:
             # RayGPUExecutor
             # See the patch https://github.com/vllm-project/vllm/commit/479d69fad0538f04cb22bf13e76ff91cfeb8a4e5
-            if vllm.__version__ >= "0.4.3":
-                # https://github.com/vllm-project/vllm/commit/676a99982fe9aabe72fd52a91e08988a653a7359
-                kwargs["distributed_executor_backend"] = "ray"
-            else:
-                kwargs["worker_use_ray"] = True
+            kwargs["worker_use_ray"] = True
 
             if vllm.__version__ > "0.6.4.post1":
                 # https://github.com/vllm-project/vllm/pull/10555
@@ -60,14 +56,14 @@ class LLMRayActor:
     def generate(self, *args, **kwargs):
         return self.llm.generate(*args, **kwargs)
 
-    def init_process_group(self, master_address, master_port, rank_offset, world_size, group_name, backend, use_ray):
+    def init_process_group(self, master_address, master_port, rank_offset, world_size, group_name, backend):
         if self.use_gpu_executor:
             return self.llm.llm_engine.model_executor.driver_worker.init_process_group(
-                master_address, master_port, rank_offset, world_size, group_name, backend, use_ray
+                master_address, master_port, rank_offset, world_size, group_name, backend
             )
         else:
             return self.llm.llm_engine.model_executor._run_workers(
-                "init_process_group", master_address, master_port, rank_offset, world_size, group_name, backend, use_ray
+                "init_process_group", master_address, master_port, rank_offset, world_size, group_name, backend
             )
 
     def update_weight(self, name, dtype, shape, empty_cache=False):
@@ -77,14 +73,6 @@ class LLMRayActor:
             return self.llm.llm_engine.model_executor.driver_worker.update_weight(name, dtype, shape, empty_cache)
         else:
             return self.llm.llm_engine.model_executor._run_workers("update_weight", name, dtype, shape, empty_cache)
-
-    def reset_prefix_cache(self):
-        import vllm
-        if vllm.__version__ < "0.7.0":
-            # https://github.com/vllm-project/vllm/commit/7206ce4ce112ed117796a59045c968a6d353f691
-            logger.warning("Reset prefix cache API is available only from vLLM 0.7.0!")
-            return
-        self.llm.llm_engine.reset_prefix_cache()
 
     def stop_remote_worker_execution_loop(self):
         # Fix error for using 2 communication group

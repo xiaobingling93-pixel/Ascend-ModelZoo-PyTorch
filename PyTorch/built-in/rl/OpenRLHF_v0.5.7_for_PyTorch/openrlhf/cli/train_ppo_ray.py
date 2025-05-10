@@ -213,7 +213,6 @@ if __name__ == "__main__":
         help="tensor parallel size of vLLM Engine for multi-GPU inference",
     )
     parser.add_argument("--vllm_sync_backend", type=str, default="nccl", help="DeepSpeed -> vLLM weight sync backend")
-    parser.add_argument("--vllm_sync_with_ray", action="store_true", default=False)
     parser.add_argument("--enable_prefix_caching", action="store_true", default=False)
     parser.add_argument("--enforce_eager", action="store_true", default=False, help="Disable CUDA graph in vLLM")
 
@@ -269,7 +268,7 @@ if __name__ == "__main__":
     parser.add_argument("--ptx_coef", type=float, default=0.05, help="PPO-ptx loss coef")
     parser.add_argument("--eps_clip", type=float, default=0.2, help="PPO clip range")
     parser.add_argument("--value_clip", type=float, default=0.2, help="PPO value clip range")
-    parser.add_argument("--lambd", type=float, default=1.0, help="PPO GAE lambd")
+    parser.add_argument("--lambd", type=float, default=0.95, help="PPO GAE lambd")
     parser.add_argument("--gamma", type=float, default=1, help="PPO GAE gamma")
     parser.add_argument("--micro_train_batch_size", type=int, default=4, help="batch size per GPU")
     parser.add_argument("--train_batch_size", type=int, default=128, help="Global training batch size")
@@ -375,10 +374,8 @@ if __name__ == "__main__":
         args.remote_rm_url = args.remote_rm_url.split(",")
 
     if args.vllm_num_engines >= 1 and args.enable_prefix_caching:
-        import vllm
-        if vllm.__version__ < "0.7.0":
-            args.enable_prefix_caching = False
-            print("[Warning] Disable prefix cache because vLLM updates weights without updating the old KV Cache for vLLM version below 0.7.0.")
+        args.enable_prefix_caching = False
+        print("[Warning] Disable prefix cache because vLLM updates weights without updating the old KV Cache.")
 
     if args.input_template and "{}" not in args.input_template:
         print("[Warning] {} not in args.input_template, set to None")
