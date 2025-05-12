@@ -106,6 +106,8 @@ def generate_video(
         prompts = file.readlines()
 
     os.makedirs(output_path, exist_ok=True)
+    pipeline_total_time = 0.0
+    infer_num = 0
     for i, prompt in enumerate(prompts):
         prompt = prompt.strip()  # 去掉可能的空格和换行符
         torch_npu.npu.synchronize()
@@ -124,7 +126,10 @@ def generate_video(
         ).frames[0]
         torch_npu.npu.synchronize()
         end = time.time()
-        print(f"Time taken for inference: {end - start} seconds")
+        pipeline_time = end - start
+        print(f"Time taken for inference: {pipeline_time} seconds")
+        pipeline_total_time += pipeline_time
+        infer_num += 1
         if cache_algorithm == "sampling" and not transformer.config.use_rotary_positional_embeddings:
             skip_strategy = AdaStep(skip_thr=0.009, max_skip_steps=1, decay_ratio=0.99, device="npu")
             pipe.skip_strategy = skip_strategy
@@ -151,8 +156,10 @@ def generate_video(
 
     with open(f'{output_path}/result.json', 'w', encoding='utf-8') as json_file:
         json.dump(result, json_file, ensure_ascii=False, indent=4)
-    
     print(f"Result saved to result.json.")
+
+    pipeline_average_time = pipeline_total_time / infer_num
+    print(f"Average time taken for inference: {pipeline_average_time:.3f} seconds")
 
 
 if __name__ == "__main__":
