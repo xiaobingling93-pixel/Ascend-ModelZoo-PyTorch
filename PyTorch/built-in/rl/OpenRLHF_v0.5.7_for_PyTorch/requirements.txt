@@ -14,7 +14,7 @@ peft
 pillow
 ray[default]==2.42.0
 tensorboard
-torch
+torch==2.6.0
 torchmetrics
 tqdm
 transformers_stream_generator
