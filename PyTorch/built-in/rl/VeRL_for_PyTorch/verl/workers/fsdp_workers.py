@@ -461,8 +461,8 @@ class ActorRolloutRefWorker(Worker):
             estimated_flops, promised_flops = self.flops_counter.estimate_flops(global_num_tokens, delta_time)
             metrics[
                 'perf/mfu/actor'] = estimated_flops * self.config.actor.ppo_epochs / promised_flops / self.world_size
-            metrics['perf/max_memory_allocated_gb'] = torch.cuda.max_memory_allocated() / (1024**3)
-            metrics['perf/max_memory_reserved_gb'] = torch.cuda.max_memory_reserved() / (1024**3)
+            metrics['perf/max_memory_allocated_gb'] = get_torch_device().max_memory_allocated() / (1024**3)
+            metrics['perf/max_memory_reserved_gb'] = get_torch_device().max_memory_reserved() / (1024**3)
             metrics['perf/cpu_memory_used_gb'] = psutil.virtual_memory().used / (1024**3)
 
             self.actor_lr_scheduler.step()
