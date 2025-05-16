@@ -10,7 +10,7 @@
 
 | 模型及参数量      | 800I A2 Tensor Parallelism | 300I DUO Tensor Parallelism | FP16 | BF16 | Flash Attention | Paged Attention | W8A8量化 | W8A16量化 | KV cache量化 | 稀疏量化 | MOE量化 | MindIE Service | TGI | 长序列 | prefix_cache | FA3量化 | functioncall | Multi LoRA|
 | ----------------- |----------------------------|-----------------------------| ---- | ---- | --------------- | --------------- | -------- | --------- | ------------ | -------- | ------- | -------------- | --- | ------ | ---------- | --- | --- | --- |
-| Qwen2.5-14B      | 支持world size ,2,4,8       | 支持world size 1,2,4,8       | √    | √(800I A2/32G/64G)    | ×               | √               | √(800I A2/32G/64G)        | ×        | ×            | √(300I DUO)        | ×       | √              | ×   | ×      | √       | × | √ | x |
+| Qwen2.5-14B      | 支持world size 2,4,8       | 支持world size 1,2,4,8       | √    | √(800I A2/32G/64G)    | ×               | √               | √(800I A2/32G/64G)        | ×        | ×            | √(300I DUO)        | ×       | √              | ×   | ×      | √       | × | √ | x |
 
 注：表中所示支持的world size为对话测试可跑通的配置，实际运行时还需考虑输入序列长度带来的显存占用。
 
@@ -453,6 +453,8 @@ ModelName，ModelPath需要与mindie-service里的config.json里的一致。样�
 |    支持数据集  |     目录名称   |
 |---------------|---------------|
 |      BoolQ    |     boolq     |
+|     CEval     |     ceval     |
+|      CMMLU    |     cmmlu     |
 |    HumanEval  |   humaneval   |
 |   HumanEval_X |  humaneval_x  |
 |      GSM8K    |     gsm8k     |
@@ -469,6 +471,8 @@ ModelName，ModelPath需要与mindie-service里的config.json里的一致。样�
 |    支持数据集   |         下载地址            |
 |----------------|-----------------------------|
 |   BoolQ   |[dev.jsonl](https://storage.cloud.google.com/boolq/dev.jsonl)|
+|   CEval   |[ceval-exam](https://huggingface.co/datasets/ceval/ceval-exam/resolve/main/ceval-exam.zip)|
+|   CMMLU   |[cmmlu](https://huggingface.co/datasets/haonan-li/cmmlu/resolve/main/cmmlu_v1_0_1.zip)|
 | HumanEval |[humaneval](https://github.com/openai/human-eval/raw/refs/heads/master/data/HumanEval.jsonl.gz)|
 |HumanEval_X|[cpp](https://huggingface.co/datasets/THUDM/humaneval-x/tree/main/data/cpp/data)<br>[java](https://huggingface.co/datasets/THUDM/humaneval-x/tree/main/data/java/data)<br>[go](https://huggingface.co/datasets/THUDM/humaneval-x/tree/main/data/go/data)<br>[js](https://huggingface.co/datasets/THUDM/humaneval-x/tree/main/data/js/data)<br>[python](https://huggingface.co/datasets/THUDM/humaneval-x/tree/main/data/python/data)|
 |  GSM8K    |[gsm8k](https://github.com/openai/grade-school-math/blob/master/grade_school_math/data/test.jsonl)|
@@ -488,7 +492,7 @@ python3 scripts/data_prepare.py [可选参数]
 
 | 参数名  | 含义                     |
 |--------|------------------------------|
-| dataset_name | 可选，需要下载的数据集名称，支持的数据集列表参见[**功能**]章节，多个名称以','隔开                 |
+| dataset_name | 可选，需要下载的数据集名称，多个名称以','隔开                 |
 | remove_cache | 可选，是否在下载前清除数据集缓存    |
 
 ## FAQ
