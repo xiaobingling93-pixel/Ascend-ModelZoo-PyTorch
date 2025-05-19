@@ -133,7 +133,7 @@ echo "Final Performance words/sec : $WPS"
 echo "train_wall : $TRAIN_WALL"
 
 #输出训练精度,需要模型审视修改
-train_accuracy=`grep 'valid ' ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log|awk -F "best_bleu" '{print $NF}'|awk -F "best_bleu" '{print $1}'|awk -F "," '{print $1}'|awk 'END {print}'`
+train_accuracy=`grep 'best_bleu' ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log | tail -n1 | awk -F 'best_bleu ' '{print $2}'`
 #打印，不需要修改
 echo "Final Train Accuracy : ${train_accuracy}"
 echo "E2E Training Duration sec : $e2e_time"
