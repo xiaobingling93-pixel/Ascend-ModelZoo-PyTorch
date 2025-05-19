@@ -33,7 +33,7 @@
 
 ## 准备环境
 
-- 推荐参考[配套资源文档](https://www.hiascend.com/developer/download/commercial)使用最新的配套版本。
+- 推荐使用最新的版本准备训练环境。
 
   **表 1**  版本配套表
     
@@ -45,26 +45,26 @@
     </tr>
     <tr>
       <td> Driver </td>
-      <td> AscendHDK 24.1.RC3 </td>
-      <td rowspan="2">《<a href="https://www.hiascend.com/document/detail/zh/canncommercial/80RC3/softwareinst/instg/instg_0003.html?Mode=PmIns&OS=Ubuntu&Software=cannToolKit">驱动固件安装指南</a> 》</td>
+      <td> AscendHDK 25.0.RC1.1 </td>
+      <td rowspan="2">《<a href="https://www.hiascend.com/document/detail/zh/canncommercial/81RC1/softwareinst/instg/instg_0005.html">驱动固件安装指南</a> 》</td>
     </tr>
     <tr>
       <td> Firmware </td>
-      <td> AscendHDK 24.1.RC3 </td>
+      <td> AscendHDK 25.0.RC1.1 </td>
     </tr>
     <tr>
       <td> CANN </td>
-      <td> CANN 8.0.RC3 </td>
-      <td>《<a href="https://www.hiascend.com/document/detail/zh/canncommercial/80RC3/softwareinst/instg/instg_0000.html">CANN 软件安装指南</a> 》</td>
+      <td> CANN 8.1.RC1 </td>
+      <td>《<a href="https://www.hiascend.com/document/detail/zh/canncommercial/81RC1/softwareinst/instg/instg_0000.html">CANN 软件安装指南</a> 》</td>
     </tr>
     <tr>
       <td> PyTorch </td>
       <td> 2.1.0 </td>
-      <td rowspan="2">《<a href="https://www.hiascend.com/document/detail/zh/Pytorch/60RC3/configandinstg/instg/insg_0001.html">Ascend Extension for PyTorch 配置与安装</a> 》</td>
+      <td rowspan="2">《<a href="https://www.hiascend.com/document/detail/zh/Pytorch/700/configandinstg/instg/insg_0004.html">Ascend Extension for PyTorch 配置与安装</a> 》</td>
     </tr>
     <tr>
       <td> torch_npu </td>
-      <td> release v6.0.rc3 </td>
+      <td> release v7.0.0-pytorch2.1.0 </td>
     </tr>
   </table>
 
@@ -75,10 +75,6 @@
   | Torch_Version      | 三方库依赖版本                                 |
   | :--------: | :----------------------------------------------------------: |
   |  PyTorch 2.1  | Box2D==2.3.2 Box2D-kengz==2.3.3 gym==0.15.4 |
-  
-- 环境准备指导。
-
-  请参考《[Pytorch框架训练环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/ptes)》搭建torch环境。
   
 - 安装依赖。
 

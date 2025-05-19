@@ -9,7 +9,7 @@
 
 ## 安装依赖
 
-使用ModelZoo-PyTorch之前，请参考[软件版本配套表](#软件版本配套表)，安装最新昇腾软件栈。
+使用ModelZoo-PyTorch之前，推荐使用最新的版本准备训练环境。
 
 <table border="0">
   <tr>
@@ -19,14 +19,14 @@
 
   <tr>
     <td>昇腾NPU驱动</td>
-    <td rowspan="2">《 <a href="https://www.hiascend.com/document/detail/zh/canncommercial/800/softwareinst/instg/instg_0003.html?Mode=PmIns&OS=Ubuntu&Software=cannToolKit">驱动固件安装指南</a> 》</td>
+    <td rowspan="2">《 <a href="https://www.hiascend.com/document/detail/zh/canncommercial/81RC1/softwareinst/instg/instg_0005.html">驱动固件安装指南</a> 》</td>
   </tr>
   <tr>
     <td>昇腾NPU固件</td>
   </tr>
   <tr>
     <td>Toolkit（开发套件）</td>
-    <td rowspan="3">《 <a href="https://www.hiascend.com/document/detail/zh/canncommercial/800/softwareinst/instg/instg_0000.html?Mode=PmIns&OS=Ubuntu&Software=cannToolKit">CANN 软件安装指南</a> 》</td>
+    <td rowspan="3">《 <a href="https://www.hiascend.com/document/detail/zh/canncommercial/81RC1/softwareinst/instg/instg_0000.html">CANN 软件安装指南</a> 》</td>
   </tr>
   <tr>
     <td>Kernel（算子包）</td>
@@ -36,7 +36,7 @@
   </tr>
   <tr>
     <td>PyTorch</td>
-    <td rowspan="3">《 <a href="https://www.hiascend.com/document/detail/zh/Pytorch/600/configandinstg/instg/insg_0001.html">Ascend Extension for PyTorch 配置与安装</a> 》</td>
+    <td rowspan="3">《 <a href="https://www.hiascend.com/document/detail/zh/Pytorch/700/configandinstg/instg/insg_0004.html">Ascend Extension for PyTorch 配置与安装</a> 》</td>
   </tr>
   <tr>
     <td>torch_npu插件</td>
