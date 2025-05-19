@@ -16,9 +16,10 @@ from typing import Optional, Tuple
 
 import torch
 import torch.nn.functional as F
+import torch_npu
 from torch_npu import npu_rotary_mul as apply_rotary_emb
 from transformers.models.qwen2_5_vl.modeling_qwen2_5_vl import apply_rotary_pos_emb_vision, \
-    Qwen2_5_VLVisionSdpaAttention
+    Qwen2_5_VLVisionSdpaAttention, Qwen2RMSNorm
 from transformers.models.qwen2_5_vl import modeling_qwen2_5_vl
 from transformers.utils import logging
 
@@ -74,5 +75,10 @@ def sdpa_forward(
     return attn_output
 
 
+def rms_norm_forward(self, x):
+    return torch_npu.npu_rms_norm(x, self.weight, epsilon=self.variance_epsilon)[0]
+
+
+Qwen2RMSNorm.forward = rms_norm_forward
 Qwen2_5_VLVisionSdpaAttention.forward = sdpa_forward
 modeling_qwen2_5_vl.apply_rotary_pos_emb_flashatt = apply_rotary_pos_emb_flashatt_npu
