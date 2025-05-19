@@ -72,6 +72,7 @@
 
 ### 随版本演进模型
 
+随版本演进模型的最新性能数据均在OpenEuler操作系统下实测获得。如您使用的是其他操作系统，则展示的数据仅作为参考。
 - [albert_ID0335_for_PyTorch(FP16)](https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/contrib/nlp/albert_ID0335_for_PyTorch)
 - [Bert_Chinese_ID3433_for_PyTorch(FP16)](https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/built-in/nlp/Bert_Chinese_ID3433_for_PyTorch)
 - [BERT-NER-Pytorch(FP32)](https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/contrib/nlp/BERT-NER-Pytorch)

@@ -217,6 +217,11 @@ CLIP (Contrastive Language-Image Pre-Training，以下简称 CLIP) 模型是 Ope
 | 1p-NPU | - | 396.208 |    O2    |    3    |     64     |      2.1      |
 | 8p-NPU |  1.5812 | 2924.63 |    O2   |   3    |     64     |      2.1      |
 
+说明：上表为历史数据，仅供参考。2025年5月10日更新的性能数据如下：
+| NAME | 精度类型 | FPS |
+| :------ |:-------:|:------:|
+| CLIP 8p-竞品 | FP32 | 2924.63 |
+| CLIP 8p-Atlas 900 A2 PoDc | FP32 | 3116.2 |
 
 # 版本说明
 

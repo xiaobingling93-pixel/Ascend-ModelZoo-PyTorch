@@ -193,13 +193,13 @@ Wenet是一款开源的、面向工业落地应用的语音识别工具包，主
 |:------:|:----:|
 | ctc greedy search        | 4.96 |
 
-说明：上表为历史数据，仅供参考。2024年12月31日更新的性能数据如下：
+说明：上表为历史数据，仅供参考。2025年5月10日更新的性能数据如下：
 | NAME | 精度类型 | FPS |
 | :------ |:-------:|:------:|
 | Conformer 8p-竞品 | FP32 | 958.98 |
-| Conformer 8p-Atlas 900 A2 PoDc | FP32 | 1435.9 |
+| Conformer 8p-Atlas 900 A2 PoDc | FP32 | 1166.96 |
 | whisper 8p-竞品 | FP16 | 748.85 |
-| whisper 8p-Atlas 900 A2 PoDc | FP16 | 1936.71 |
+| whisper 8p-Atlas 900 A2 PoDc | FP16 | 1532.5 |
 
 # 公网地址说明
 
