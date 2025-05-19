@@ -18,11 +18,11 @@ model_path=""
 
 #基础参数，需要模型审视修改
 #网络名称，同目录名称
-Network="Qwen2_5_vl_3b_for_PyTorch"
+Network="Qwen2_5_32b_instruct_for_PyTorch"
 
 # 帮助信息，不需要修改
 if [[ $1 == --help || $1 == -h ]];then
-    echo"usage:./test/train_qwen2_5_vl_3b_performance_8p.sh <args>"
+    echo"usage:./test/train_qwen2_5_32b_instruct_GRPO_performance_32p.sh <args>"
     echo " "
     echo "parameter explain:
     --data_path		           source data of training
@@ -78,45 +78,41 @@ nohup python3 -m verl.trainer.main_ppo \
     algorithm.adv_estimator=grpo \
     data.train_files=$data_path/train.parquet \
     data.val_files=$data_path/test.parquet \
-    data.train_batch_size=512 \
+    data.train_batch_size=1024 \
     data.max_prompt_length=1024 \
-    data.max_response_length=2048 \
+    data.max_response_length=1024 \
     data.filter_overlong_prompts=True \
     data.truncation='error' \
-    data.image_key=images \
     actor_rollout_ref.model.path=$model_path \
+    actor_rollout_ref.actor.use_torch_compile=False \
     actor_rollout_ref.actor.optim.lr=1e-6 \
-    actor_rollout_ref.model.use_remove_padding=True \
-    actor_rollout_ref.actor.ppo_mini_batch_size=16 \
+    actor_rollout_ref.model.use_remove_padding=False \
+    actor_rollout_ref.actor.ppo_mini_batch_size=128 \
     actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=2 \
     actor_rollout_ref.actor.use_kl_loss=True \
-    actor_rollout_ref.actor.kl_loss_coef=0.01 \
+    actor_rollout_ref.actor.kl_loss_coef=0.001 \
     actor_rollout_ref.actor.kl_loss_type=low_var_kl \
     actor_rollout_ref.actor.entropy_coeff=0 \
-    actor_rollout_ref.actor.use_torch_compile=False \
     actor_rollout_ref.model.enable_gradient_checkpointing=True \
     actor_rollout_ref.actor.fsdp_config.param_offload=False \
     actor_rollout_ref.actor.fsdp_config.optimizer_offload=False \
-    actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=4 \
-    actor_rollout_ref.rollout.tensor_model_parallel_size=2 \
+    actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=2 \
+    actor_rollout_ref.rollout.tensor_model_parallel_size=8 \
     actor_rollout_ref.rollout.name=$ENGINE \
-    actor_rollout_ref.rollout.gpu_memory_utilization=0.6 \
-    actor_rollout_ref.rollout.enable_chunked_prefill=False \
-    actor_rollout_ref.rollout.enforce_eager=False \
-    actor_rollout_ref.rollout.free_cache_engine=False \
+    actor_rollout_ref.rollout.gpu_memory_utilization=0.4 \
     actor_rollout_ref.rollout.n=5 \
-    actor_rollout_ref.ref.log_prob_micro_batch_size_per_gpu=4 \
+    actor_rollout_ref.ref.log_prob_micro_batch_size_per_gpu=2 \
     actor_rollout_ref.ref.fsdp_config.param_offload=True \
     algorithm.use_kl_in_reward=False \
     trainer.critic_warmup=0 \
     trainer.logger=['console'] \
-    trainer.project_name='verl_grpo_example_geo3k' \
-    trainer.experiment_name='qwen2_5_vl_3b_function_rm' \
-    trainer.n_gpus_per_node=8 \
-    trainer.nnodes=1 \
+    trainer.project_name='verl_grpo_example_gsm8k' \
+    trainer.experiment_name='qwen2_5_32b_function_rm' \
+    trainer.n_gpus_per_node=16 \
+    trainer.nnodes=2 \
     trainer.save_freq=-1 \
-    trainer.test_freq=-1 \
-    trainer.total_epochs=1 > ${test_path_dir}/output/train_verl_qwen2_5_vl_3b.log 2>&1 &
+    trainer.test_freq=10 \
+    trainer.total_epochs=1 > ${test_path_dir}/output/train_verl_qwen2_5_32b_instruct_grpo_perf.log 2>&1 &
 wait
 
 #训练结束时间，不需要修改
@@ -125,7 +121,7 @@ e2e_time=$(( $end_time - $start_time ))
 #结果打印，不需要修改
 echo "------------------ Final result ------------------"
 #输出性能FPS，需要模型审视修改
-FPS=`grep 'perf/throughput:' $test_path_dir/output/train_verl_qwen2_5_vl_3b.log | awk -F 'perf/throughput:' '{print$2}' | awk -F ' ' '{print$1}' | head -n 4 | awk '{sum+=$1} END {print"",sum/NR}'`
+FPS=`grep 'perf/throughput:' $test_path_dir/output/train_verl_qwen2_5_32b_instruct_grpo_perf.log | awk -F 'perf/throughput:' '{print$2}' | awk -F ' ' '{print$1}' | head -n 4 | awk '{sum+=$1} END {print"",sum/NR}'`
 
 #排除功能问题导致计算溢出的异常，增加健壮性
 if [ x"${FPS}" == x"2147483647" ] || [ x"${FPS}" == x"-2147483647" ];then
@@ -140,7 +136,7 @@ echo "E2E Training Duration sec : $e2e_time"
 #性能看护结果汇总
 #训练用例信息，不需要修改
 DeviceType=`uname -m`
-CaseName=${Network}_'8p'_'perf'
+CaseName=${Network}_'32p'_'perf'
 
 ##获取性能数据，不需要修改
 #吞吐量
