@@ -9,6 +9,7 @@ fi
 
 if [ -d ${CANN_INSTALL_PATH}/ascend-toolkit/latest ]; then
     source ${CANN_INSTALL_PATH}/ascend-toolkit/set_env.sh
+    source ${CANN_INSTALL_PATH}/nnal/atb/set_env.sh
 else
     source ${CANN_INSTALL_PATH}/nnae/set_env.sh
 fi
