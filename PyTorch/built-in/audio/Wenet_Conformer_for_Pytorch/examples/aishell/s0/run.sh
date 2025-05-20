@@ -119,6 +119,7 @@ if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
   # You have to rm `INIT_FILE` manually when you resume or restart a
   # multi-machine training.
   INIT_FILE=$dir/ddp_init
+  rm -rf ${INIT_FILE}
   init_method=file://$(readlink -f $INIT_FILE)
   echo "$0: init method is $init_method"
   num_gpus=$(echo $CUDA_VISIBLE_DEVICES | awk -F "," '{print NF}')

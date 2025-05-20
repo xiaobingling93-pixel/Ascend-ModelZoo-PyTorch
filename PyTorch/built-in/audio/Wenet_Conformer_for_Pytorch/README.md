@@ -104,6 +104,7 @@ Wenet是一款开源的、面向工业落地应用的语音识别工具包，主
   在官网根据PyTorch版本获取torchaudio对应版本，解压至torchaudio文件夹，运行以下命令
   ```
   cd torchaudio
+  pip install -r requirements.txt
   python setup.py develop
   ```
 
@@ -136,6 +137,8 @@ Wenet是一款开源的、面向工业落地应用的语音识别工具包，主
    ```
 
 2. 运行训练脚本。
+
+   Pytorch2.1版本，运行时可能出现段错误，如出现请参照[FAQ](#faq)对模型内部分相关代码进行修改。
 
    该模型支持单机8卡训练。
    - 单机8卡训练
