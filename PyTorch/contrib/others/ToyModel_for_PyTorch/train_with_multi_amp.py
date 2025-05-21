@@ -10,9 +10,9 @@ from torchvision import datasets, transforms
 from torch_npu.npu import amp
 
 
-class ToyModel(nn.Module):
+class ToyModel1(nn.Module):
     def __init__(self):
-        super(ToyModel, self).__init__()
+        super(ToyModel1, self).__init__()
         self.net1 = nn.Linear(10, 10)
         self.relu = nn.ReLU()
         self.net2 = nn.Linear(10, 5)
@@ -21,9 +21,9 @@ class ToyModel(nn.Module):
         return self.net2(self.relu(self.net1(x)))
 
 
-class ToyModel_2(nn.Module):
+class ToyModel2(nn.Module):
     def __init__(self):
-        super(ToyModel_2, self).__init__()
+        super(ToyModel2, self).__init__()
         self.net1 = nn.Linear(10, 10)
         self.relu1 = nn.ReLU()
         self.net2 = nn.Linear(10, 10)
@@ -60,45 +60,47 @@ def main():
 
     device = torch.device("npu")
 
-    model = ToyModel().to(device)
-    model_2 = ToyModel_2().to(device)
+    model1 = ToyModel1().to(device)
+    model2 = ToyModel2().to(device)
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
-    optimizer_2 = optim.Adam(model_2.parameters(), lr=args.learning_rate)
+    optimizer1 = optim.Adam(model1.parameters(), lr=args.learning_rate)
+    optimizer2 = optim.Adam(model2.parameters(), lr=args.learning_rate)
     scaler = amp.GradScaler()
     step = 0
 
     for epoch in range(args.epochs):
-        model.train()
+        model1.train()
+        model2.train()
         for inputs, labels in train_dataloader:
             inputs, labels = data_process(inputs, labels)
             inputs, labels = inputs.to(device), labels.to(device)
 
             with amp.autocast():
-                outputs = model(inputs)
-                outputs_2 = model_2(inputs)
-                loss = criterion(outputs, labels).to(device)
-                loss_2 = criterion(outputs_2, labels).to(device)
+                outputs1 = model1(inputs)
+                outputs2 = model2(inputs)
+                loss1 = criterion(outputs1, labels).to(device)
+                loss2 = criterion(outputs2, labels).to(device)
 
-            optimizer.zero_grad()
-            optimizer_2.zero_grad()
-            scaler.scale(loss).backward(retain_graph=True)
-            scaler.scale(loss_2).backward()
-            scaler.step(optimizer)
-            scaler.step(optimizer_2)
+            optimizer1.zero_grad()
+            optimizer2.zero_grad()
+            scaler.scale(loss1).backward(retain_graph=True)
+            scaler.scale(loss2).backward()
+            scaler.step(optimizer1)
+            scaler.step(optimizer2)
             scaler.update()
             print(f"step = {step}")
             step += 1
         checkpoint_path = "checkpoint.pth.tar"
         torch.save({
             'epoch': epoch,
-            'loss': loss,
-            'state_dict': model.state_dict(),
-            'optimizer': optimizer.state_dict(),
+            'loss': loss1,
+            'state_dict': model1.state_dict(),
+            'optimizer': optimizer1.state_dict(),
         }, checkpoint_path)
-    
+
     save_pt_path = "state_dict_model.pt"
-    torch.save(model.state_dict(), save_pt_path)
+    torch.save(model1.state_dict(), save_pt_path)
+
 
 if __name__ == "__main__":
     main()
