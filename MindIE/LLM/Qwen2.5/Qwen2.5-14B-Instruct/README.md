@@ -53,7 +53,7 @@ docker run -itd --privileged  --name= {容器名称}  --net=host \
    -v /usr/local/sbin:/usr/local/sbin \
    -v /etc/hccn.conf:/etc/hccn.conf \
    -v  {/权重路径:/权重路径}  \
-   -v  {swr.cn-south-1.myhuaweicloud.com/ascendhub/mindie:1.0.0-XXX-800I-A2-arm64-py3.11（根据加载的镜像名称修改）}  \
+   {swr.cn-south-1.myhuaweicloud.com/ascendhub/mindie:1.0.0-XXX-800I-A2-arm64-py3.11（根据加载的镜像名称修改）}  \
    bash
 ```
 #### 进入容器
