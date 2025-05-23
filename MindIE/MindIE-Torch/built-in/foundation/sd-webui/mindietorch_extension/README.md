@@ -68,7 +68,7 @@ git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui-assets
 2. 下载clip-vit-large-patch14，放在自定义路径下
 ```bash
 git lfs install
-git clone https://huggingface.co/openai/clip--vit-large-patch14
+git clone https://huggingface.co/openai/clip-vit-large-patch14
 ```
 
 修改webui的源码：

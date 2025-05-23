@@ -1,5 +1,9 @@
 # 模型推理指导  
 
+- ## 注意
+本模型仓代码，是针对此开源链接进行的适配
+https://github.com/Tencent-Hunyuan/HunyuanVideo
+
 ## 一、模型简介
 
 HunyuanVideo是一种文本到视频的扩散模型，能够在给定文本输入的情况下生成相符的视频。
