@@ -1,11 +1,11 @@
 accelerate
-datasets == 2.7.1
+datasets == 3.1.0
 tokenizers
-sentencepiece == 0.1.96
-protobuf == 3.14
+sentencepiece
+protobuf
 wikiextractor
-sklearn
-torchvision == 0.9.1
+scikit-learn
+torchvision == 0.16.0
 Pillow
 decorator
 sympy
