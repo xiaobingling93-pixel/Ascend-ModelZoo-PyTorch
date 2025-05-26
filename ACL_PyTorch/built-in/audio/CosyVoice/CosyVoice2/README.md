@@ -79,15 +79,23 @@
 
 4. 获取权重数据
 
-   本案例以CosyVoice2-0.5B为例，其他权重请自行适配
+   本案例以CosyVoice2-0.5B为例，其他权重请自行适配。将下载下来的权重**放在CosyVoice目录下**。
+   
+    因cosyvoice2在2025年4月底更新过一次代码权重，因此需要使用`snapshot_download`下载指定commit id的权重。
+    ```python
+    from modelscope.hub.snapshot_download import snapshot_download
+   
+    model_id = "模型名称"   # 例如 "iic/CosyVoice2-0.5B"
+    commit_id = "9bd5b08fc085bd93d3f8edb16b67295606290350"
+   
+    model_dir = snapshot_download(
+        model_id,
+        revision=commit_id, # 关键，传入commit_id
+        cache_dir="./my_model"
+    )
+    print(f"模型下载至：{model_dir}")
+    ```    
 
-   获取 https://www.modelscope.cn/iic/CosyVoice2-0.5B 权重文件夹，放在CosyVoice目录下
-
-   或者通过git方式获取
-   ```
-   # git模型下载，请确保已安装git lfs
-   git clone https://www.modelscope.cn/iic/CosyVoice2-0.5B.git CosyVoice/CosyVoice2-0.5B
-   ```
    本用例采用sft预训练音色推理，请额外下载spk权重放到权重目录下
    ```
    wget https://www.modelscope.cn/models/iic/CosyVoice-300M-SFT/resolve/master/spk2info.pt
