@@ -23,7 +23,7 @@ from omegaconf import OmegaConf, open_dict
 logger = logging.getLogger("fairseq_cli.hydra_train")
 
 
-@hydra.main(config_path=os.path.join("..", "fairseq", "config"), config_name="config")
+@hydra.main(config_path=os.path.join("..", "fairseq", "config"), config_name="config", version_base="1.1")
 def hydra_main(cfg: FairseqConfig) -> float:
     _hydra_main(cfg)
 

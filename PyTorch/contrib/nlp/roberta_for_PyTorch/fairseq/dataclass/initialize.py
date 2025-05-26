@@ -5,6 +5,7 @@
 """isort:skip_file"""
 
 import logging
+from dataclasses import _MISSING_TYPE
 from hydra.core.config_store import ConfigStore
 from fairseq.dataclass.configs import FairseqConfig
 from omegaconf import DictConfig, OmegaConf
@@ -20,6 +21,8 @@ def hydra_init(cfg_name="config") -> None:
 
     for k in FairseqConfig.__dataclass_fields__:
         v = FairseqConfig.__dataclass_fields__[k].default
+        if isinstance(v, _MISSING_TYPE):
+            continue
         try:
             cs.store(name=k, node=v)
         except BaseException:
