@@ -19,7 +19,7 @@ def _fetch_requirements(path):
 
 
 def _fetch_readme():
-    with open("README.md", encoding="utf-8") as f:
+    with open("README.osc.md", encoding="utf-8") as f:
         return f.read()
 
 

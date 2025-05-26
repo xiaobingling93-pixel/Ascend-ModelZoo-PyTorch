@@ -151,6 +151,7 @@ bash test/train_grpo_performance_16p.sh --model_path=./models/xxx --dataset_path
 # FAQ
 
 * 使用--adam_offload参数可能存在长时间卡顿的情况，解决方法是删除torch_extensions的缓存文件，参考[issue](https://github.com/deepspeedai/DeepSpeed/issues/2816#issuecomment-1450095538)。
+* 在 Atlas 200T A2 Box16 机器中，如果使用了跨平面的卡，需要使能环境变量 `export HCCL_INTRA_ROCE_ENABLE=1`，使用RoCE环路进行多卡间的通信。
 
 # 公网地址说明
 
