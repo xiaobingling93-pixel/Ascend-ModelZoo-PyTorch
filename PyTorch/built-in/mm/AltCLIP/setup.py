@@ -40,6 +40,6 @@ setup(
         'accelerate',
         'PyYAML>=5.4.1',
         'safetensors',
-        'timm',
+        'timm==1.0.11',
     ]
 )
