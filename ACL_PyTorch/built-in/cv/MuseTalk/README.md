@@ -99,7 +99,7 @@
 
 2. 安装依赖  
    ```
-   pip3 install scripts/requirements.txt
+   pip3 install -r scripts/requirements.txt
    ```
 
 
