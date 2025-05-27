@@ -139,13 +139,13 @@ def rewrite_JinaBertGLUMLP_forward(model):
 
 
 class JinaBertEncoder(JinaEncoder):
-    def init(self, config: JinaBertConfig, layers, device):
+    def __init__(self, config: JinaBertConfig, layers, device):
         """
         torch.dynamo暂不支持math/numpy/python内置函数(如range)，经分析，
         alibi矩阵生成输入由config.json中 num_attention_heads 字段控制，
         因此可以将该矩阵生成逻辑移动到初始化函数中
         """
-        super().init(config)
+        super().__init__(config)
         self.layer = layers
 
         def _get_alibi_head_slopes(n_heads: int) -> List[float]:
@@ -197,7 +197,7 @@ def modify_model(model):
     model.npu().eval().half()
 
 
-if name == '__main__':
+if __name__ == '__main__':
     args = parse_args()
 
     torch_npu.npu.set_compile_mode(jit_compile=False)
