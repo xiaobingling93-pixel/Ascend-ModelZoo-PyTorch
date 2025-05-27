@@ -254,7 +254,7 @@ def process_validation_metrics(data_sources: list[str],
                     # Majority voting
                     if var2vals.get("pred", None) is not None:
                         vote_data = [{"val": val, "pred": pred} for val, pred in zip(var_vals, var2vals["pred"])]
-                        (maj_n_mean, maj_n_std) = bootstrap_metric(
+                        [(maj_n_mean, maj_n_std)] = bootstrap_metric(
                             data=vote_data,
                             subset_size=n,
                             reduce_fns=[partial(calc_maj_val, vote_key="pred", val_key="val")],

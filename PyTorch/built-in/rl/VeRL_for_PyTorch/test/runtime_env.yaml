@@ -1,0 +1,6 @@
+working_dir: ./
+excludes: ["/.git/"]
+env_vars:
+  TASK_QUEUE_ENABLE: "2"
+  HCCL_CONNECT_TIMEOUT: "1500"
+  HCCL_EXEC_TIMEOUT: "1500"

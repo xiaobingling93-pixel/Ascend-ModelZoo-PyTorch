@@ -254,6 +254,13 @@ class ActorRolloutRefWorker(Worker):
         # We force reference policy to use CPUOffload to save memory.
         # We force turn off CPUOffload for actor because it causes incorrect results when using grad accumulation
         cpu_offload = None if role == 'actor' else CPUOffload(offload_params=True)
+        if self.config.actor.fsdp_config.backward_prefetch == "BACKWARD_PRE":
+            backward_prefetch = torch.distributed.fsdp.BackwardPrefetch.BACKWARD_PRE
+        elif self.config.actor.fsdp_config.backward_prefetch == "BACKWARD_POST":
+            backward_prefetch = torch.distributed.fsdp.BackwardPrefetch.BACKWARD_POST
+        else:
+            backward_prefetch = None
+
         actor_module_fsdp = FSDP(
             actor_module,
             cpu_offload=cpu_offload,
@@ -265,7 +272,9 @@ class ActorRolloutRefWorker(Worker):
             mixed_precision=mixed_precision,
             sync_module_states=True,
             device_mesh=self.device_mesh,
-            forward_prefetch=False)
+            forward_prefetch=self.config.actor.fsdp_config.forward_prefetch,
+            backward_prefetch=backward_prefetch
+        )
 
         log_gpu_memory_usage('After Actor FSDP init', logger=logger)
 

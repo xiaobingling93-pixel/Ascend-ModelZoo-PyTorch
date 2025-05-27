@@ -59,10 +59,14 @@ class DataParallelPPOActor(BasePPOActor):
         self.ulysses_sequence_parallel_size = self.config.ulysses_sequence_parallel_size
         self.use_ulysses_sp = self.ulysses_sequence_parallel_size > 1
 
+        entropy_from_logits = verl_F.entropy_from_logits
+        if self.config.use_entropy_from_logits_with_chunking:
+            entropy_from_logits = verl_F.entropy_from_logits_with_chunking
+
         self.compute_entropy_from_logits = (
-            torch.compile(verl_F.entropy_from_logits, dynamic=True)
+            torch.compile(entropy_from_logits, dynamic=True)
             if self.config.get('use_torch_compile', True)  #  use torch compile by default
-            else verl_F.entropy_from_logits)
+            else entropy_from_logits)
         self.device_name = get_device_name()
 
     def _forward_micro_batch(self, micro_batch, temperature) -> Tuple[torch.Tensor, torch.Tensor]:
@@ -73,7 +77,7 @@ class DataParallelPPOActor(BasePPOActor):
         """
         response_length = micro_batch['responses'].size(-1)
         multi_modal_inputs = {}
-        if 'multi_modal_inputs' in micro_batch:
+        if 'multi_modal_inputs' in micro_batch.keys():
             for key in micro_batch['multi_modal_inputs'][0].keys():
                 multi_modal_inputs[key] = torch.cat([inputs[key] for inputs in micro_batch['multi_modal_inputs']],
                                                     dim=0)
@@ -124,7 +128,10 @@ class DataParallelPPOActor(BasePPOActor):
                 logits_rmpad.div_(temperature)
 
                 # compute entropy
-                entropy_rmpad = self.compute_entropy_from_logits(logits_rmpad)  # ((total_nnz / sp) + pad)
+                if not self.config.entropy_checkpointing:
+                    entropy_rmpad = self.compute_entropy_from_logits(logits_rmpad)  # ((total_nnz / sp) + pad)
+                else:
+                    entropy_rmpad = torch.utils.checkpoint.checkpoint(self.compute_entropy_from_logits, logits_rmpad)
 
                 # if use_sp: ((total_nnz / sp) + pad) ; if not use_sp: (batch, seqlen)
                 log_probs = logprobs_from_logits(logits=logits_rmpad, labels=input_ids_rmpad_rolled)
