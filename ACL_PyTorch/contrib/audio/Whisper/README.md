@@ -70,7 +70,7 @@ Whisper 是一个通用的语音识别模型。它在一个大型多样化音频
   | ------------------------------------------------------------ | ------- | ------------------------------------------------------------ |
   | 固件与驱动                                                   | 22.0.3  | [Pytorch框架推理环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies) |
   | CANN                                                         | 7.0.RC1 | -                                                            |
-  | Python                                                       | 3.7.5   | -                                                            |
+  | Python                                                       | 3.9.0   | -                                                            |
   | PyTorch                                                      | 1.10.1  | -                                                            |
   | 说明：Atlas 300I Duo 推理卡请以CANN版本选择实际固件与驱动版本。 | \       | \                                                            |
 
@@ -83,7 +83,7 @@ Whisper 是一个通用的语音识别模型。它在一个大型多样化音频
 1. 获取本仓库`OM`推理代码
 ```shell
    git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
-   cd ModelZoo-Pytorch/ACL_Pytorch/contrib/audio/Whisper
+   cd ModelZoo-PyTorch/ACL_PyTorch/contrib/audio/Whisper/
 ```
 
 2. 安装依赖
@@ -105,9 +105,9 @@ sudo apt-get install ffmpeg
 本模型使用一段音频文件作为输入，[测试数据地址](链接: https://pan.baidu.com/s/1xiHW7tmJe3lfAdQABWqsFA?pwd=gya6 提取码: gya6)如下，下载音频文件并存放在项目`data`目录下：
 
 ```	
-Whisper_for_PyTorch
+Whisper
     ├── data      
-    		└── test.wav
+    	└── test.wav
 ```
 
 
@@ -124,12 +124,12 @@ Whisper_for_PyTorch
 
 2. 导出`ONNX`模型
 
-   运行`pth2onnx.py`导出ONNX模型，并将原始模型中的配置信息与对应的`tokenizer`分别保存至`model_cfg.josn`和`tokens.txt `方便后续`om`模型推理时能读取对应的信息。由于whisper模型由`encoder`和`decoder`组成，且`encoder`和`decoder`需要进行`Cross Attention`操作，所以需要对模型进行修改，从而该脚本将会导出两个`ONNX `模型，即`encoder.onnx`和`decoder.onnx`。
+   运行`pth2onnx.py`导出ONNX模型。原始模型中的配置信息与对应的`tokenizer`分别保存至`model_cfg.josn`和`tokens.txt `方便后续`om`模型推理时能读取对应的信息。由于whisper模型由`encoder`和`decoder`组成，且`encoder`和`decoder`需要进行`Cross Attention`操作，所以需要对模型进行修改，从而该脚本将会导出两个`ONNX `模型，即`encoder.onnx`和`decoder.onnx`。
 
    执行完这一步项目目录如下：
 
    ```
-   Whisper_for_PyTorch
+   Whisper
        ├── pth2onnx.py        
        ├── om_val.py             
        ├── encoder.onnx

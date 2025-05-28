@@ -36,7 +36,7 @@ def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model",
                         type=str,
-                        default="/root/zhanggj/whisper-onnx/base.en.pt")
+                        default="./base.en.pt")
     return parser.parse_args()
 
 
