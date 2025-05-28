@@ -61,13 +61,21 @@
    wget https://www.openfst.org/twiki/pub/FST/FstDownload/openfst-1.8.3.tar.gz
    # 进入目录后编译安装
    ./configure --enable-far --enable-mpdt --enable-pdt
+   make -j$(nproc)
    make install
+   # 确认动态库文件存在：
+   ls /usr/local/lib/libfstmpdtscript.so.26
+   # 配置动态库路径
+   export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+   sudo ldconfig
+   # 安装WeTextProcessing
    pip3 install WeTextProcessing==1.0.4.1
    ```
    
+
 3. 安装msit工具
    
-   参考[msit](https://gitee.com/ascend/msit)安装工具中的benchmark和surgen组件。
+   参考[msit](https://gitee.com/ascend/msit)安装工具中的benchmark和surgen组件。（未安装会提示 ais_bench 导入失败报错）
    
 
 4. 获取权重数据
@@ -81,6 +89,19 @@
    # git模型下载，请确保已安装git lfs
    git clone https://www.modelscope.cn/iic/CosyVoice-300M.git CosyVoice/CosyVoice-300M
    ```
+
+5. 文件结构如下：
+    ```text
+    📁 CosyVoice/
+    ├── 📁 CosyVoice/
+    |   |── 📁 CosyVoice的源码文件    # CosyVoice其他的源码文件，此处不一一列举
+    │   ├── 📁 CosyVoice-300M/  # 权重文件
+    │   ├── 📄 infer.py        # 推理脚本
+    │   └── 📄 modify_onnx.py  # 模型转换脚本
+    ├── 📄 diff_300I.patch
+    └── 📄 diff_800I.patch
+    ```
+
 
 ## 模型推理
 
@@ -116,15 +137,17 @@
 
 ### 2 开始推理验证
 
-   1. 首先移动infer.py文件到CosyVoice目录下
+   1. **首先移动infer.py文件到CosyVoice目录下**
 
 
    2. 设置环境变量，执行推理命令
 
       ```
-      # 指定使用NPU ID，默认为0
+      # 1. 指定使用NPU ID，默认为0
       export ASCEND_RT_VISIBLE_DEVICES=0
+      # 2. 设置环境变量
       export PYTHONPATH=third_party/Matcha-TTS:$PYTHONPATH
+      # 3. 执行推理脚本
       python3 infer.py --model_path=${CosyVoice-300M} 
       ```
       - --model_path: 权重路径
