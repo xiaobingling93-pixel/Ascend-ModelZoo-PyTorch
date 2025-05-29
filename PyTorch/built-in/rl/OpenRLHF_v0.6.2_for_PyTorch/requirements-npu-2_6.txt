@@ -1,11 +1,13 @@
 torch==2.6.0
 accelerate
 datasets
+decorator
 deepspeed==0.16.4
 einops
 isort
 jsonlines
 loralib
+numpy==1.26.4
 optimum
 packaging
 peft
@@ -16,3 +18,4 @@ tqdm
 transformers_stream_generator
 wandb
 wheel
+scipy
