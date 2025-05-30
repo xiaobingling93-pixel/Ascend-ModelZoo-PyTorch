@@ -88,7 +88,38 @@ apt-get install libsndfile1
 ```shell
 https://huggingface.co/stabilityai/stable-audio-open-1.0/tree/main
 ```
+将model_index.json的内容修改为如下：
 
+```
+{
+  "_class_name": "StableAudioPipeline",
+  "_diffusers_version": "0.30.0.dev0",
+  "projection_model": [
+    "stable_audio",
+    "StableAudioProjectionModel"
+  ],
+  "scheduler": [
+    "stableaudio",
+    "CosineDPMSolverMultistepScheduler"
+  ],
+  "text_encoder": [
+    "transformers",
+    "T5EncoderModel"
+  ],
+  "tokenizer": [
+    "transformers",
+    "T5TokenizerFast"
+  ],
+  "transformer": [
+    "stableaudio",
+    "StableAudioDiTModel"
+  ],
+  "vae": [
+    "stableaudio",
+    "AutoencoderOobleck"
+  ]
+}
+```
 ## 四、模型推理
 
 ### 4.1 单卡性能测试
