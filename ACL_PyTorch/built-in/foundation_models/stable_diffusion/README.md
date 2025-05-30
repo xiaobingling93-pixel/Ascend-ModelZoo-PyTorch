@@ -371,6 +371,11 @@
       ```
       [info] infer number: 16; use time: 292.648s; average time: 18.290s
       ```
+      *注意*：
+
+         如果使用arm机器，出现`*torch*.so*: cannot allocate memory in static TLS block`报错，则增加环境变量指向报错路径
+         ```bash
+         export LD_PRELOAD=报错.so路径:$LD_PRELOAD
    
    3. 测试推理图片展示在`./test_results`目录下，注：每次生成的图像不同。部分测试结果如下：
 
