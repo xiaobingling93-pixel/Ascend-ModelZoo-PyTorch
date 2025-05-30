@@ -96,11 +96,11 @@ pip install -r requirements.txt
 git lfs install
 
 # v1.5，将该权重放在stable-diffusion-webui/extensions/mindietorch_extension/models路径下
-cd stable-diffusion-webui/extensions/torch_aie_extension/models
-git clone https://huggingface.co/runwayml/stable-diffusion-v1-5
+cd stable-diffusion-webui/extensions/mindietorch_extension/models
+git clone https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5
 
 # v2.1，将该权重放在stable-diffusion-webui/extensions/mindietorch_extension/models路径下
-git clone https://huggingface.co/runwayml/stable-diffusion-2-1-base
+git clone https://huggingface.co/stabilityai/stable-diffusion-2-1-base
 
 # sdxl，将该权重放在stable-diffusion-webui/extensions/mindietorch_extension/models路径下
 git clone https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0
