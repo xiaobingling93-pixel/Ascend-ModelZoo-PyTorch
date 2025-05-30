@@ -127,14 +127,15 @@ def rewrite_JinaBertGLUMLP_forward(model):
     def forward(hidden_states: torch.Tensor) -> torch.Tensor:
         residual_connection = hidden_states
         # compute the activation
-        hidden_states = self.gated_layers(hidden_states)
+        hidden_states = model.gated_layers(hidden_states)
         gated, non_gated = hidden_states.chunk(2, dim=2)
-        hidden_states = self.act(gated) * non_gated
-        hidden_states = self.dropout(hidden_states)
+        hidden_states = model.act(gated) * non_gated
+        hidden_states = model.dropout(hidden_states)
         # multiply by the second matrix
-        hidden_states = self.wo(hidden_states)
+        hidden_states = model.wo(hidden_states)
         # add the residual connection and post-LN
-        hidden_states = self.layernorm(hidden_states + residual_connection)
+        hidden_states = model.layernorm(hidden_states + residual_connection)
+        return hidden_states
     model.forward = forward
 
 
@@ -147,7 +148,7 @@ def modify_model(model):
     model.npu().eval().half()
 
 
-if name == '__main__':
+if __name__ == '__main__':
     args = parse_args()
 
     torch_npu.npu.set_compile_mode(jit_compile=False)

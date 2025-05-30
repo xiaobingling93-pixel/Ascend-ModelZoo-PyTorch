@@ -31,7 +31,7 @@
   | CANN                                                            |  8.1.RC1 | 包含kernels包和toolkit包                                                                                                   |
   | Python                                                          |  3.10 | -                                                                                                     |
   | PyTorch                                                         | 2.5.1 | -                                                                                                     |
-  | Ascend Extension PyTorch                                        | 2.5.1.post2 | -                                                                                                     |
+  | Ascend Extension PyTorch                                        | 2.5.1 | -                                                                                                     |
   | 说明：Atlas 800I A2 推理卡和Atlas 300I DUO 推理卡请以CANN版本选择实际固件与驱动版本。 |      \ | \                                                                                                     |
 
 
@@ -80,7 +80,7 @@
 
 2. 安装依赖  
    ```
-   pip3 install transformers==4.35.2
+   pip3 install transformers==4.35.2 torch==2.5.1 torch_npu==2.5.1 protobuf numpy==1.26.4 decorator attrs psutil scipy
 
    ```
 
