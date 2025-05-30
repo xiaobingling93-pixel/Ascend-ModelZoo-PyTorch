@@ -109,7 +109,7 @@ torchrun --nproc_per_node 1 \
          --master_port 20037 \
          -m examples.run_pa \
          --model_path {权重路径} \
-         --trust_remote_code
+         --trust_remote_code \
          --max_output_length 256
 ```
 

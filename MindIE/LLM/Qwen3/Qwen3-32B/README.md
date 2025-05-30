@@ -105,11 +105,11 @@ export MINDIE_LOG_TO_STDOUT=1
 执行对话测试
 
 ```shell
-torchrun --nproc_per_node 2 \
+torchrun --nproc_per_node 4 \
          --master_port 20037 \
          -m examples.run_pa \
          --model_path {权重路径} \
-         --trust_remote_code
+         --trust_remote_code \
          --max_output_length 256
 ```
 
@@ -122,9 +122,9 @@ cd $ATB_SPEED_HOME_PATH/tests/modeltest/
 ```shell
 bash run.sh pa_[data_type] performance [case_pair] [batch_size] ([prefill_batch_size]) [model_name] ([is_chat_model]) (lora [lora_data_path]) [weight_dir] ([trust_remote_code]) [chip_num] ([parallel_params]) ([max_position_embedding/max_sequence_length])
 ```
-具体执行batch=1, 输入长度256, 输出长度256用例的2卡并行性能测试命令为：
+具体执行batch=1, 输入长度256, 输出长度256用例的4卡并行性能测试命令为：
 ```shell
-bash run.sh pa_bf16 performance [[256,256]] 1 qwen ${weight_path} 2
+bash run.sh pa_bf16 performance [[256,256]] 1 qwen ${weight_path} 4
 ```
 
 > 注：ModelTest为大模型的性能和精度提供测试功能。使用文档请参考`${ATB_SPEED_HOME_PATH}/tests/modeltest/README.md`
@@ -157,7 +157,7 @@ vim /usr/local/Ascend/mindie/latest/mindie-service/conf/config.json
 
 "BackendConfig": {
 ...
-"npuDeviceIds" : [[0,1]],
+"npuDeviceIds" : [[0,1,2,3]],
 ...
 "ModelDeployConfig":
 {
@@ -167,7 +167,7 @@ vim /usr/local/Ascend/mindie/latest/mindie-service/conf/config.json
 ...
 "modelName" : "qwen3",
 "modelWeightPath" : "/data/datasets/Qwen3-32B",
-"worldSize" : 2,
+"worldSize" : 4,
 ...
 }
 ]
