@@ -202,7 +202,7 @@ BLIP模型为一种新的Vision-Language Pre-training框架，它可以灵活地
       1. 配置环境变量。
 
          ```
-          source /usr/local/Ascend/......
+          source /usr/local/Ascend/ascend-toolkit/set_env.sh
          ```
 
       2. 执行命令查看芯片名称（$\{chip\_name\}）。
