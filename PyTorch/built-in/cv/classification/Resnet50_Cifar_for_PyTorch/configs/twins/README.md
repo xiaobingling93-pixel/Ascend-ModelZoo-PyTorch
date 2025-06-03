@@ -34,6 +34,6 @@ Very recently, a variety of vision transformer architectures for dense predictio
   title={Twins: Revisiting spatial attention design in vision transformers},
   author={Chu, Xiangxiang and Tian, Zhi and Wang, Yuqing and Zhang, Bo and Ren, Haibing and Wei, Xiaolin and Xia, Huaxia and Shen, Chunhua},
   journal={arXiv preprint arXiv:2104.13840},
-  year={2021}altgvt
+  year={2021}
 }
 ```

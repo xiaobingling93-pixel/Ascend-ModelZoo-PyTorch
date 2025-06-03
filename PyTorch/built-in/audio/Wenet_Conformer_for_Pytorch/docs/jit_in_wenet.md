@@ -19,7 +19,7 @@ script_model = torch.jit.script(model)
 script_model.save(os.path.join(args.model_dir, 'init.zip'))
 ```
 
-Two principles should be taken into consideration when we contribute our python code
+Two principles should be taken into consideration when we contribute our Python code
 to WeNet, especially for the subclass of torch.nn.Module, and for the forward function.
 
 1. Know what is allowed and what is disallowed.

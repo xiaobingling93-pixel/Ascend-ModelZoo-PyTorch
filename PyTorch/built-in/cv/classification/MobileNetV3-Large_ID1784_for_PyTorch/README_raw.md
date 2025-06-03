@@ -20,7 +20,7 @@ the following parameters:
 ### AlexNet and VGG
 
 Since `AlexNet` and the original `VGG` architectures do not include batch 
-normalization, the default initial learning rate `--lr 0.1` is to high.
+normalization, the default initial learning rate `--lr 0.1` is too high.
 
 ```
 python -m torch.distributed.launch --nproc_per_node=8 --use_env train.py\
@@ -31,16 +31,16 @@ Here `$MODEL` is one of `alexnet`, `vgg11`, `vgg13`, `vgg16` or `vgg19`. Note
 that `vgg11_bn`, `vgg13_bn`, `vgg16_bn`, and `vgg19_bn` include batch
 normalization and thus are trained with the default parameters.
 
-### ResNext-50 32x4d
+### ResNeXt-50 32x4d
 ```
 python -m torch.distributed.launch --nproc_per_node=8 --use_env train.py\
     --model resnext50_32x4d --epochs 100
 ```
 
 
-### ResNext-101 32x8d
+### ResNeXt-101 32x8d
 
-On 8 nodes, each with 8 GPUs (for a total of 64 GPUS)
+On 8 nodes, each with 8 GPUs (for a total of 64 GPUs)
 ```
 python -m torch.distributed.launch --nproc_per_node=8 --use_env train.py\
     --model resnext101_32x8d --epochs 100

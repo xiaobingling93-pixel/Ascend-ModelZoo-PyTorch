@@ -14,7 +14,7 @@ But we try to reduce users' disruption by the following ways:
   otherwise noted in the documentation.
   They are less likely to be broken, but if needed, will trigger a deprecation warning for a reasonable period
   before getting broken, and will be documented in release logs.
-* Others functions/classses/attributes are considered internal, and are more likely to change.
+* Others functions/classes/attributes are considered internal, and are more likely to change.
   However, we're aware that some of them may be already used by other projects, and in particular we may
   use them for convenience among projects under `detectron2/projects`.
   For such APIs, we may treat them as stable APIs and also apply the above strategies.

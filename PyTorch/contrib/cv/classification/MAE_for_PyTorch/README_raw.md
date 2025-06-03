@@ -111,21 +111,21 @@ By fine-tuning these pre-trained models, we rank #1 in these classification task
 </tr>
 <td colspan="5"><font size="1"><em>following are transfer learning by fine-tuning the pre-trained MAE on the target dataset:</em></font></td>
 </tr>
-<tr><td align="left">iNaturalists 2017</td>
+<tr><td align="left">iNaturalist 2017</td>
 <td align="center">70.5</td>
 <td align="center">75.7</td>
 <td align="center">79.3</td>
 <td align="center"><b>83.4</b></td>
 <td align="center" style="color:#C0C0C0">75.4</td>
 </tr>
-<tr><td align="left">iNaturalists 2018</td>
+<tr><td align="left">iNaturalist 2018</td>
 <td align="center">75.4</td>
 <td align="center">80.1</td>
 <td align="center">83.0</td>
 <td align="center"><b>86.8</b></td>
 <td align="center" style="color:#C0C0C0">81.2</td>
 </tr>
-<tr><td align="left">iNaturalists 2019</td>
+<tr><td align="left">iNaturalist 2019</td>
 <td align="center">80.5</td>
 <td align="center">83.4</td>
 <td align="center">85.7</td>

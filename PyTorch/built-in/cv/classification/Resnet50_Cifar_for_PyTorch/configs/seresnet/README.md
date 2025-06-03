@@ -25,7 +25,7 @@ The central building block of convolutional neural networks (CNNs) is the convol
 
 ```
 @inproceedings{hu2018squeeze,
-  title={Squeeze-and-excitation networks},
+  title={Squeeze-and-Excitation Networks},
   author={Hu, Jie and Shen, Li and Sun, Gang},
   booktitle={Proceedings of the IEEE conference on computer vision and pattern recognition},
   pages={7132--7141},

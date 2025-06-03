@@ -4,7 +4,7 @@ This document explains how the dataset APIs
 ([DatasetCatalog](../modules/data.html#detectron2.data.DatasetCatalog), or [MetadataCatalog](../modules/data.html#detectron2.data.MetadataCatalog))
 work, and how to use them to add custom datasets.
 
-Datasets that have builtin support in detectron2 are listed in [builtin datasets](builtin_datasets.md).
+Datasets that have built-in support in detectron2 are listed in [built-in datasets](builtin_datasets.md).
 If you want to use a custom dataset while also reusing detectron2's data loaders,
 you will need to:
 
@@ -37,7 +37,7 @@ The function must return the same data if called multiple times.
 The registration stays effective until the process exits.
 
 The function can do arbitrary things and should returns the data in either of the following formats:
-1. Detectron2's standard dataset dict, described below. This will make it work with many other builtin
+1. Detectron2's standard dataset dict, described below. This will make it work with many other built-in
 	 features in detectron2, so it's recommended to use it when it's sufficient.
 2. Any custom format. You can also return arbitrary dicts in your own format,
 	 such as adding extra keys for new tasks.
@@ -142,7 +142,7 @@ from detectron2.data import MetadataCatalog
 MetadataCatalog.get("my_dataset").thing_classes = ["person", "dog"]
 ```
 
-Here is a list of metadata keys that are used by builtin features in detectron2.
+Here is a list of metadata keys that are used by built-in features in detectron2.
 If you add your own dataset without these metadata, some features may be
 unavailable to you:
 
@@ -180,7 +180,7 @@ Some additional metadata that are specific to the evaluation of certain datasets
 
 * `json_file`: The COCO annotation json file. Used by COCO evaluation for COCO-format datasets.
 * `panoptic_root`, `panoptic_json`: Used by panoptic evaluation.
-* `evaluator_type`: Used by the builtin main training script to select
+* `evaluator_type`: Used by the built-in main training script to select
    evaluator. Don't use it in a new training script.
    You can just provide the [DatasetEvaluator](../modules/evaluation.html#detectron2.evaluation.DatasetEvaluator)
    for your dataset directly in your main script.

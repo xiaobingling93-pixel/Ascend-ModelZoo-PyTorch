@@ -1,4 +1,4 @@
-# Finetuning RoBERTa on a custom classification task
+# Fine-tuning RoBERTa on a custom classification task
 
 This example shows how to finetune RoBERTa on the IMDB dataset, but should illustrate the process for most classification tasks.
 
@@ -12,7 +12,7 @@ tar zxvf aclImdb_v1.tar.gz
 
 ### 2) Format data
 
-`IMDB` data has one data-sample in each file, below python code-snippet converts it one file for train and valid each for ease of processing.  
+`IMDB` data has one data sample in each file, below python code snippet converts it one file for train and valid each for ease of processing.  
 ```python
 import argparse
 import os

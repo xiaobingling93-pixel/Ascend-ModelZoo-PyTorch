@@ -8,7 +8,7 @@ $ cd docker
 $ ./run.sh --docker-gpu 0 --docker-egs chime4/asr1 --docker-folders /export/corpora4/CHiME4/CHiME3 --dlayers 1 --ngpu 1
 ```
 Optionally, you can set the CUDA version with the arguments `--docker-cuda` respectively (default version set at CUDA=9.1). The docker container can be built based on the CUDA installed in your computer if you empty this arguments.
-By default, all GPU-based images are built with NCCL v2 and CUDNN v7.
+By default, all GPU-based images are built with NCCL v2 and cuDNN v7.
 The arguments required for the docker configuration have a prefix "--docker" (e.g., `--docker-gpu`, `--docker-egs`, `--docker-folders`). `run.sh` accept all normal ESPnet arguments, which must be followed by these docker arguments.
 All docker containers are executed using the same user as your login account. If you want to run the docker in root access, add the flag `--is-root` to command line. In addition, you can pass any environment variable using `--docker-env` (e.g., `--docker-env "foo=path"`)
 
@@ -43,7 +43,7 @@ $ cd docker
 $ ./run.sh --docker-gpu 0 --docker-egs chime4/asr1 --docker-folders /export/corpus/CHiME4,/export/corpus/LDC/LDC93S6B,/export/corpus/LDC/LDC94S13B --docker-env "CHIME4_CORPUS=/export/corpus/CHiME4/CHiME3,WSJ0_CORPUS=/export/corpus/LDC/LDC93S6B,WSJ1_CORPUS=/export/corpus/LDC/LDC94S13B" --ngpu 1
 ```
 
-Remember that for some recipes, you first need to download the Corpus before running the experiments, such as CHiME, WSJ, and LDC corporas. You will need to set the directories where these were downloaded and replace them in the recipe (e.g.: `CHIME4_CORPUS=/<dir_where_chime4_was_downloaded>/CHiME4/CHiME3`)
+Remember that for some recipes, you first need to download the Corpus before running the experiments, such as CHiME, WSJ, and LDC corpora. You will need to set the directories where these were downloaded and replace them in the recipe (e.g.: `CHIME4_CORPUS=/<dir_where_chime4_was_downloaded>/CHiME4/CHiME3`)
 
 ### Using CPU-based container
 
@@ -68,7 +68,7 @@ However, in some cases, "local" builds are preferable, that are built based on t
 
 The script `build.sh` supports making local builds for this purpose. During the docker build process, the local espnet source code is imported through a git archive based on git HEAD (the previous commit), and copied over within a file.
 
-For example, a local build that the base image from Docker Hub (`espnet/espnet:runtime`, based on Ubuntu 16), that already contains a kaldi installation, using Cuda 10.0:
+For example, a local build that the base image from Docker Hub (`espnet/espnet:runtime`, based on Ubuntu 16), that already contains a kaldi installation, using CUDA 10.0:
 ```
 ./build.sh local 10.0
 ```
@@ -78,7 +78,7 @@ Also, docker images can also be built based on the Ubuntu version specified in `
 ./build.sh fully_local cpu
 ```
 
-Local container builds then are started by adding the flag `--is-local` when using `run.sh`, e.g., for the Cuda 10.0 image:
+Local container builds then are started by adding the flag `--is-local` when using `run.sh`, e.g., for the CUDA 10.0 image:
 ```
 $ ./run.sh --is-local --docker_cuda 10.0 --docker_gpu 0 ...
 ```

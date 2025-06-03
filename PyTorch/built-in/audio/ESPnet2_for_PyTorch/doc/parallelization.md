@@ -2,7 +2,7 @@
 
 Our recipes support some Job scheduling systems, SGE, PBS/Torque, 
 and Slurm, according to [Parallelization in Kaldi](https://kaldi-asr.org/doc/queue.html). 
-By default, the job runs at local machine. If there are any Job scheduling systems in your environment, 
+By default, the Job runs at local machine. If there are any Job scheduling systems in your environment, 
 you can submit more number of Jobs with multiple machines. 
 
 Please ask the administrator to install it if you have multiple machines.
@@ -31,9 +31,9 @@ nj=4
 ${cmd} JOB=1:${nj} JOB.log echo JOB
 ```
 
-`JOB=1:${nj}` indicates the parallelization, which is known as "array-job", with `${nj}` number of jobs. 
-`JOB.log` is a destination of the stdout and stderr from jobs. 
-The string of `JOB` will be changed to the job number 
+`JOB=1:${nj}` indicates the parallelization, which is known as "array-job", with `${nj}` number of Jobs. 
+`JOB.log` is a destination of the stdout and stderr from Jobs. 
+The string of `JOB` will be changed to the Job number 
 if it's included in the log file name or command line arguments. 
 i.e. The following commands are almost equivalent to the above:
 
@@ -46,7 +46,7 @@ wait
 ```
 
 ## Configuration
-You also need to modify the configuration file for a specific job scheduler to change command-line options to submit jobs e.g. queue setting, resource request, etc.
+You also need to modify the configuration file for a specific Job scheduler to change command-line options to submit Jobs e.g. queue setting, resource request, etc.
 
 The following text is an example of `conf/queue.conf`.
 

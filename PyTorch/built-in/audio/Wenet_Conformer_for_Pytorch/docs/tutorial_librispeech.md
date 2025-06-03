@@ -79,7 +79,7 @@ In this stage, `local/data_prep_torchaudio.sh` organizes the original data into 
 If you want to train using your customized data, just organize the data into two files `wav.scp` and `text`, and start from `stage 1`.
 
 
-#### Stage 1: Extract optinal cmvn features
+#### Stage 1: Extract optional cmvn features
 
 ``` sh
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
@@ -194,7 +194,7 @@ Here is an example of the `data.list`, and please see the generated training fea
 {"key": "1455-134435-0002", "wav": "/mnt/nfs/ptm1/open-data/LibriSpeech/train-clean-100/1455/134435/1455-134435-0002.flac", "txt": "BUT LOUISE COULD NOT BE MADE HAPPY SHE FLEW INTO HALF INSANE FITS OF TEMPER DURING WHICH SHE WAS SOMETIMES SILENT SOMETIMES NOISY AND QUARRELSOME SHE SWORE AND CRIED OUT IN HER ANGER SHE GOT A KNIFE FROM THE KITCHEN AND THREATENED HER HUSBAND'S LIFE"}
 ```
 
-We aslo design another format for `data.list` named `shard` which is for big data training.
+We also design another format for `data.list` named `shard` which is for big data training.
 Please see [gigaspeech](https://github.com/wenet-e2e/wenet/tree/main/examples/gigaspeech/s0)(10k hours) or
 [wenetspeech](https://github.com/wenet-e2e/wenet/tree/main/examples/wenetspeech/s0)(10k hours)
 for how to use `shard` style `data.list` if you want to apply WeNet on big data set(more than 5k).

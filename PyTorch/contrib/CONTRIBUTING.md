@@ -12,7 +12,7 @@ Ascend ModelZoo，欢迎各位开发者
 
  **一、源码**
 
-1、训练及在线推理请使用python代码实现，Ascend平台离线推理请使用C++或python代码，符合第四部分编码规范
+1、训练及在线推理请使用Python代码实现，Ascend平台离线推理请使用C++或Python代码，符合第四部分编码规范
 
 2、参考[sample](https://gitee.com/ascend/modelzoo/tree/master/built-in/TensorFlow/Official/nlp/Transformer_for_TensorFlow)
 
@@ -287,7 +287,7 @@ PerfStatus:PERFECT/OK/POK/NOK
 
 - 规范标准
 
-1、C++代码遵循google编程规范：Google C++ Coding Guidelines；单元测测试遵循规范： Googletest Primer。
+1、C++代码遵循Google编程规范：Google C++ Coding Guidelines；单元测试遵循规范： Google Test Primer。
 
 2、Python代码遵循PEP8规范：Python PEP 8 Coding Style；单元测试遵循规范： pytest
 

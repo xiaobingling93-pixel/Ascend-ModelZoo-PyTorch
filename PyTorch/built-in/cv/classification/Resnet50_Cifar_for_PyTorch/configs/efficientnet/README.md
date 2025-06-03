@@ -52,7 +52,7 @@ Note: In MMClassification, we support training with AutoAugment, don't support A
 
 ```
 @inproceedings{tan2019efficientnet,
-  title={Efficientnet: Rethinking model scaling for convolutional neural networks},
+  title={EfficientNet: Rethinking model scaling for convolutional neural networks},
   author={Tan, Mingxing and Le, Quoc},
   booktitle={International Conference on Machine Learning},
   pages={6105--6114},

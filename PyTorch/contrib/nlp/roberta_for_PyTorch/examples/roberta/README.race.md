@@ -1,4 +1,4 @@
-# Finetuning RoBERTa on RACE tasks
+# Fine-tuning RoBERTa on RACE tasks
 
 ### 1) Download the data from RACE website (http://www.cs.cmu.edu/~glai1/data/race/)
 
@@ -46,9 +46,9 @@ CUDA_VISIBLE_DEVICES=0,1 fairseq-train $DATA_DIR --ddp-backend=legacy_ddp \
 
 a) As contexts in RACE are relatively long, we are using smaller batch size per GPU while increasing update-freq to achieve larger effective batch size.
 
-b) Above cmd-args and hyperparams are tested on one Nvidia `V100` GPU with `32gb` of memory for each task. Depending on the GPU memory resources available to you, you can use increase `--update-freq` and reduce `--batch-size`.
+b) Above cmd-args and hyperparameters are tested on one Nvidia `V100` GPU with `32GB` of memory for each task. Depending on the GPU memory resources available to you, you can use increase `--update-freq` and reduce `--batch-size`.
 
-c) The setting in above command is based on our hyperparam search within a fixed search space (for careful comparison across models). You might be able to find better metrics with wider hyperparam search.  
+c) The setting in above command is based on our hyperparameter search within a fixed search space (for careful comparison across models). You might be able to find better metrics with wider hyperparameter search.  
 
 ### 4) Evaluation:
 

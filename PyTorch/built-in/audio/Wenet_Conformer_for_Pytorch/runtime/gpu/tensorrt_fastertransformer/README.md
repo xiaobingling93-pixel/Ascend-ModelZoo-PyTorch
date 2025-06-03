@@ -23,7 +23,7 @@ With help of FasterTransformer wenet tensorrt plugins, the overall throughput co
 
 #### Performance of Small Model for AIShell2
 
-The following benchmakr shows the performance on T4 of a small Conformer model for AIShell2 case as defined in [WeNet AIShell2 Example](https://github.com/wenet-e2e/wenet/tree/main/examples/aishell2/s0).
+The following benchmark shows the performance on T4 of a small Conformer model for AIShell2 case as defined in [WeNet AIShell2 Example](https://github.com/wenet-e2e/wenet/tree/main/examples/aishell2/s0).
 
 <table>
  <col span='11'>

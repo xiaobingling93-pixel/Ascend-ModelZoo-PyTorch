@@ -1,6 +1,6 @@
 ## Unit Tests
 
-To run the unittests, do:
+To run the unittest, do:
 ```
 cd detectron2
 python -m unittest discover -v -s ./tests

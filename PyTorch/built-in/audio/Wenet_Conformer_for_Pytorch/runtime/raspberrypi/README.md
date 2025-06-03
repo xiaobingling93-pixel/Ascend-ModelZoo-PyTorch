@@ -1,4 +1,4 @@
-# WeNet & Raspberry PI (Cross Compile)
+# WeNet & Raspberry pi (Cross Compile)
 
 * Step 1. Install cross compile tools in the PC.
 
@@ -25,7 +25,7 @@ python -m wenet.bin.export_onnx_cpu \
 # We use the quantified to speed up the inference, so rename it without the suffix `.quant`
 ```
 
-* Step 3. Build. The build requires cmake 3.14 or above. and Send the binary and libraries to Raspberry PI.
+* Step 3. Build. The build requires cmake 3.14 or above. and Send the binary and libraries to Raspberry pi.
 
 ``` sh
 cmake -B build -DONNX=ON -DTORCH=OFF -DWEBSOCKET=OFF -DGRPC=OFF -DCMAKE_TOOLCHAIN_FILE=toolchains/aarch64-linux-gnu.toolchain.cmake
@@ -34,7 +34,7 @@ scp build/bin/decoder_main pi@xxx.xxx.xxx:/path/to/wenet
 scp fc_base/onnxruntime-src/lib/libonnxruntime.so* pi@xxx.xxx.xxx:/path/to/wenet
 ```
 
-* Step 4. Testing, the RTF(real time factor) is shown in Raspberry PI's console.
+* Step 4. Testing, the RTF(real time factor) is shown in Raspberry pi's console.
 
 ``` sh
 cd /path/to/wenet

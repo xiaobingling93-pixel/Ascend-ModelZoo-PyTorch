@@ -1,4 +1,4 @@
-# Finetuning RoBERTa on GLUE tasks
+# Fine-tuning RoBERTa on GLUE tasks
 
 ### 1) Download the data from GLUE website (https://github.com/pytorch/fairseq) using following commands:
 ```bash
@@ -27,9 +27,9 @@ There are additional config files for each of the GLUE tasks in the examples/rob
 
 **Note:**
 
-a) Above cmd-args and hyperparams are tested on one Nvidia `V100` GPU with `32gb` of memory for each task. Depending on the GPU memory resources available to you, you can use increase `--update-freq` and reduce `--batch-size`.
+a) Above cmd-args and hyperparameters are tested on one Nvidia `V100` GPU with `32gb` of memory for each task. Depending on the GPU memory resources available to you, you can use increase `--update-freq` and reduce `--batch-size`.
 
-b) All the settings in above table are suggested settings based on our hyperparam search within a fixed search space (for careful comparison across models). You might be able to find better metrics with wider hyperparam search.
+b) All the settings in above table are suggested settings based on our hyperparameter search within a fixed search space (for careful comparison across models). You might be able to find better metrics with wider hyperparameter search.
 
 ### Inference on GLUE task
 After training the model as mentioned in previous step, you can perform inference with checkpoints in `checkpoints/` directory using following python code snippet:

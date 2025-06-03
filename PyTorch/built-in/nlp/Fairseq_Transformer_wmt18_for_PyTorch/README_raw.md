@@ -7,7 +7,7 @@
   <a href="https://github.com/pytorch/fairseq/releases"><img alt="Latest Release" src="https://img.shields.io/github/release/pytorch/fairseq.svg" /></a>
   <a href="https://github.com/pytorch/fairseq/actions?query=workflow:build"><img alt="Build Status" src="https://github.com/pytorch/fairseq/workflows/build/badge.svg" /></a>
   <a href="https://fairseq.readthedocs.io/en/latest/?badge=latest"><img alt="Documentation Status" src="https://readthedocs.org/projects/fairseq/badge/?version=latest" /></a>
-  <a href="https://app.circleci.com/pipelines/github/facebookresearch/fairseq/"><img alt="CicleCI Status" src="https://circleci.com/gh/facebookresearch/fairseq.svg?style=shield" /></a>
+  <a href="https://app.circleci.com/pipelines/github/facebookresearch/fairseq/"><img alt="CircleCI Status" src="https://circleci.com/gh/facebookresearch/fairseq.svg?style=shield" /></a>
 </p>
 
 --------------------------------------------------------------------------------
@@ -42,7 +42,7 @@ We provide reference implementations of various sequence modeling papers:
   + [RoBERTa: A Robustly Optimized BERT Pretraining Approach (Liu et al., 2019)](examples/roberta/README.md)
   + [Facebook FAIR's WMT19 News Translation Task Submission (Ng et al., 2019)](examples/wmt19/README.md)
   + [Jointly Learning to Align and Translate with Transformer Models (Garg et al., 2019)](examples/joint_alignment_translation/README.md )
-  + [Multilingual Denoising Pre-training for Neural Machine Translation (Liu et at., 2020)](examples/mbart/README.md)
+  + [Multilingual Denoising Pre-training for Neural Machine Translation (Liu et al., 2020)](examples/mbart/README.md)
   + [Neural Machine Translation with Byte-Level Subwords (Wang et al., 2020)](examples/byte_level_bpe/README.md)
   + [Unsupervised Quality Estimation for Neural Machine Translation (Fomicheva et al., 2020)](examples/unsupervised_quality_estimation/README.md)
   + [wav2vec 2.0: A Framework for Self-Supervised Learning of Speech Representations (Baevski et al., 2020)](examples/wav2vec/README.md)
@@ -55,9 +55,9 @@ We provide reference implementations of various sequence modeling papers:
   + [Robust wav2vec 2.0: Analyzing Domain Shift in Self-Supervised Pre-Training (Hsu, et al., 2021)](https://arxiv.org/abs/2104.01027)
   + [Unsupervised Speech Recognition (Baevski, et al., 2021)](https://arxiv.org/abs/2105.11084)
   + [Simple and Effective Zero-shot Cross-lingual Phoneme Recognition (Xu et al., 2021)](https://arxiv.org/abs/2109.11680)
-  + [VideoCLIP: Contrastive Pre-training for Zero-shot Video-Text Understanding (Xu et. al., 2021)](https://arxiv.org/pdf/2109.14084.pdf)
-  + [VLM: Task-agnostic Video-Language Model Pre-training for Video Understanding (Xu et. al., 2021)](https://aclanthology.org/2021.findings-acl.370.pdf)
-  + [NormFormer: Improved Transformer Pretraining with Extra Normalization (Shleifer et. al, 2021)](examples/normformer/README.md)
+  + [VideoCLIP: Contrastive Pre-training for Zero-shot Video-Text Understanding (Xu et al., 2021)](https://arxiv.org/pdf/2109.14084.pdf)
+  + [VLM: Task-agnostic Video-Language Model Pre-training for Video Understanding (Xu et al., 2021)](https://aclanthology.org/2021.findings-acl.370.pdf)
+  + [NormFormer: Improved Transformer Pretraining with Extra Normalization (Shleifer et al., 2021)](examples/normformer/README.md)
 * **Non-autoregressive Transformers**
   + Non-Autoregressive Neural Machine Translation (Gu et al., 2017)
   + Deterministic Non-Autoregressive Neural Sequence Modeling by Iterative Refinement (Lee et al. 2018)

@@ -15,7 +15,7 @@ Shell脚本中，访问时用提供变量即可
 | CV  | COCO_val      | $COCO_val      |
 | CV  | SBD      | $SBD      |
 | CV  | VOC2012      | $VOC2012      |
-| CV  | Cityscape      | $cityscapes_dataset   |
+| CV  | Cityscapes      | $cityscapes_dataset   |
 | CV  | icdar2015      | $icdar2015_train   |
 | NLP | Wikipedia_CN | $Wikipedia_CN |
 | NLP | WMT_ENDE     | $WMT_ENDE      |

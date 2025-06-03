@@ -12,7 +12,7 @@ where, $\lambda$ is a tunable hyperparameter controlling how much the contextual
 
 ### Context Graph
 
-If we want to improve the score of the word "cat", and the biasing score $\lambda\,\mathrm{log}\,P_C(\mathbf y)$ of each character is 0.25. The context graph can be constructed as follow:
+If we want to improve the score of the word "cat", and the biasing score $\lambda\,\mathrm{log}\,P_C(\mathbf y)$ of each character is 0.25. The context graph can be constructed as follows:
 
 ![context graph](images/context_graph.png)
 
@@ -57,7 +57,7 @@ In the process of CTC prefix beam search, each prefix needs to record the hot wo
 
 WeNet adopts the Lattice Faster Online Decoder from Kaldi for WFST beam search. We have to modify the `lattice-faster-decoder.cc` to support context biasing.
 
-WFST beam search decodes in the TLG graph according to the CTC outputs. If we bias the input label of the TLG, we need to compose the context graph with the Token graph. Finally, we decide to bias TLG's output towards the contextual fst. We need to modify the `ProcessEmitting` and `ProcessNonemitting` functions as follow:
+WFST beam search decodes in the TLG graph according to the CTC outputs. If we bias the input label of the TLG, we need to compose the context graph with the Token graph. Finally, we decide to bias TLG's output towards the contextual fst. We need to modify the `ProcessEmitting` and `ProcessNonemitting` functions as follows:
 
 ```c++
 Elem *e_next =

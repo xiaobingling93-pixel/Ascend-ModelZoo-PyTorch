@@ -85,7 +85,7 @@ classifier.backbone.switch_to_deploy()
 
 ```
 @article{ding2021repmlp,
-  title={Repmlp: Re-parameterizing convolutions into fully-connected layers for image recognition},
+  title={RepMLP: Re-parameterizing convolutions into fully-connected layers for image recognition},
   author={Ding, Xiaohan and Xia, Chunlong and Zhang, Xiangyu and Chu, Xiaojie and Han, Jungong and Ding, Guiguang},
   journal={arXiv preprint arXiv:2105.01883},
   year={2021}

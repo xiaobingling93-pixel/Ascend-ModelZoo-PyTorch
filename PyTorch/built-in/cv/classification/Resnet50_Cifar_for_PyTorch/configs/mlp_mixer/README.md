@@ -1,4 +1,4 @@
-# Mlp-Mixer
+# MLP-Mixer
 
 > [MLP-Mixer: An all-MLP Architecture for Vision](https://arxiv.org/abs/2105.01601)
 

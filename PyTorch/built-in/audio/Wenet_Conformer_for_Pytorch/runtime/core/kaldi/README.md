@@ -2,7 +2,7 @@ We use Kaldi decoder to implement TLG based language model integration,
 so we copied related files to this directory.
 The main changes are:
 
-1. To minimize the change, we use the same directories tree as Kaldi.
+1. To minimize the change, we use the same directory tree as Kaldi.
 
 2. We replace Kaldi log system with glog in the following way.
 

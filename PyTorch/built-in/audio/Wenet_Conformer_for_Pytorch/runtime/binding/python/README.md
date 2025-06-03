@@ -1,6 +1,6 @@
 # Python Binding
 
-This is a python binding of WeNet.
+This is a Python binding of WeNet.
 
 WeNet is a production first and production ready end-to-end speech recognition toolkit.
 

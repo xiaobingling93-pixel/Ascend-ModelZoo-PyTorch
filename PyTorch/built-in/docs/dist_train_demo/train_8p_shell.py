@@ -99,7 +99,7 @@ def train(local_rank, world_size, args):
 
 def main():
     args = get_train_args()
-    world_size = int(os.environ("WORLD_SIZE"))
+    world_size = int(os.environ["WORLD_SIZE"])
     local_rank = int(os.environ["LOCAL_RANK"])
     train(local_rank, world_size, args)
 

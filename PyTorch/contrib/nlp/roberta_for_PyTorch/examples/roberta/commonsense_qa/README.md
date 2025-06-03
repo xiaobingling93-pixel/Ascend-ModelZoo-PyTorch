@@ -1,6 +1,6 @@
-# Finetuning RoBERTa on Commonsense QA
+# Fine-tuning RoBERTa on Commonsense QA
 
-We follow a similar approach to [finetuning RACE](../README.race.md). Specifically
+We follow a similar approach to [fine-tuning RACE](../README.race.md). Specifically
 for each question we construct five inputs, one for each of the five candidate
 answer choices. Each input is constructed by concatenating the question and
 candidate answer. We then encode each input and pass the resulting "[CLS]"
@@ -23,7 +23,7 @@ development set after 100 trials.
 bash examples/roberta/commonsense_qa/download_cqa_data.sh
 ```
 
-### 2) Finetune
+### 2) Fine-tune
 
 ```bash
 MAX_UPDATES=3000      # Number of training steps.

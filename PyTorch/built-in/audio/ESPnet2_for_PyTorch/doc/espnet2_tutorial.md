@@ -2,7 +2,7 @@
 We are planning a super major update, called `ESPnet2`. The developing status is still **under construction** yet, so please be very careful to use with understanding following cautions:
 
 - There might be fatal bugs related to essential parts.
-- We haven't achieved comparable results to espnet1 on each task yet.
+- We haven't achieved comparable results to ESPnet1 on each task yet.
 
 ## Main changing from ESPnet1
 

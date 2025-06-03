@@ -6,9 +6,9 @@ We are going to support the following platforms:
 
 1. Various deep learning inference engines, such as LibTorch, ONNX, OpenVINO, TVM, and so on.
 2. Various OS, such as android, iOS, Harmony, and so on.
-3. Various AI chips, such as GPU, Horzion BPU, and so on.
-4. Various hardware platforms, such as Raspberry Pi.
-5. Various language binding, such as python and go.
+3. Various AI chips, such as GPU, Horizion BPU, and so on.
+4. Various hardware platforms, such as Raspberry pi.
+5. Various language binding, such as Python and Go.
 
 Feel free to volunteer yourself if you are interested in trying out some items(they do not have to be on the list).
 

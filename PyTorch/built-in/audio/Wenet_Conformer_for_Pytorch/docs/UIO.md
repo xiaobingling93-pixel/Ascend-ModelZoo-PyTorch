@@ -2,9 +2,9 @@
 
 In order to support the model training of industrial tens of millions of hours of speech dataset, the data processing
 method UIO (Unified IO) has been updated in WeNet. The document will introduce UIO from the following sections:
-Necessity of upgrading IO mothod, System design of UIO, Validation experiments, Usage of UIO, Q&A.
+Necessity of upgrading IO method, System design of UIO, Validation experiments, Usage of UIO, Q&A.
 
-## Necessity of upgrading IO mothod
+## Necessity of upgrading IO method
 The old IO method in WeNet is based on Pytorch's native Dataset. During training, it need to load all training audio
 paths and correspondingly labels into the memory at one time, then randomly read data. In the case of industrial-grade
 ultra-large-scale data (egs: more than 50,000 hours or 50 million or more audio), this method will cause the training

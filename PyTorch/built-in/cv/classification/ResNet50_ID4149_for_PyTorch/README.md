@@ -1,4 +1,4 @@
-# Resnet50 for PyTorch
+# ResNet50 for PyTorch
 
 -   [概述](#概述)
 -   [准备训练环境](#准备训练环境)

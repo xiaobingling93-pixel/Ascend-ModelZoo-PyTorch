@@ -201,7 +201,7 @@ MMClassification 是一款基于 PyTorch 的开源图像分类工具箱，是 Op
 - 挂载vNPU，并声明shm内存（避免容器内存不足无法拉起训练）
    ```
    docker run -it \
-  --device=/dev/vdavinci100:/dev/davinci100 \          # 挂载切分好的vNPU
+  --device=/dev/davinci100:/dev/davinci100 \          # 挂载切分好的vNPU
   --device=/dev/davinci_manager \
   --device=/dev/devmm_svm \
   --device=/dev/hisi_hdc \

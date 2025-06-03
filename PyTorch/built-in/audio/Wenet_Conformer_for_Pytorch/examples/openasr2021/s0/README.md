@@ -1,6 +1,6 @@
 # w2v-conformer based end-to-end model for Openasr2021 challenge
 
-This is a example to use unsupervised pretrained w2v-conformer model to fintune [OpenASR2021](https://www.nist.gov/itl/iad/mig/openasr-challenge) constrained-plus tasks.
+This is a example to use unsupervised pretrained w2v-conformer model to fine-tune [OpenASR2021](https://www.nist.gov/itl/iad/mig/openasr-challenge) constrained-plus tasks.
 
 We pretrain conformer encoders using wav2vec 2.0 pre-training method , which we called ch-w2v-conformer. The original pre-training works take raw waveforms
 as input. Unlike these works, we use MFCC features as inputs.

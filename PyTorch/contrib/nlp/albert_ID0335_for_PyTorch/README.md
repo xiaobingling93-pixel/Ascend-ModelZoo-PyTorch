@@ -436,7 +436,7 @@ https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/al
 
         ```
         # 以bs32为例
-        python3 -m ais_bench --model outputs/albert_seq128_bs32.om --input ./preprocessed_data_seq128/input_ids,./preprocessed_data_seq128/attention_mask,./preprocessed_data_seq128/token_type_ids --output results --output_dirname seq128_bs32 --outfmt NPY --batchsize 32
+        python3 -m ais_bench --model outputs/albert_seq128_bs32.om --input ./preprocessed_data_seq128/input_ids,./preprocessed_data_seq128/attention_mask,./preprocessed_data_seq128/token_type_ids --output results --output_dirname seq128_bs32 --outfmt NPY --batch_size 32
         ```
         -   参数说明：
 
