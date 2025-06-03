@@ -80,7 +80,8 @@
 
   在模型根目录下执行命令，安装模型对应PyTorch版本需要的依赖。
   ```shell
-  pip install -r requirements.txt  
+  pip install -r requirements.txt
+  pip install gym[box2d]==0.15.4
   ```
 
 
