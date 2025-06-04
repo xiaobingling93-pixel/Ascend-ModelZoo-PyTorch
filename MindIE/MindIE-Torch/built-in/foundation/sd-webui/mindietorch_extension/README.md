@@ -10,8 +10,10 @@ mindietorch_extension实现了一个SDWebUI界面的插件，用优化后的diff
 
   | 配套                                 | 版本    | 环境准备指导 |
   | ------------------------------------ | ------- | ------------ |
-  | Python                               | 3.10    | -            |
+  | Python                               | 3.10 / 3.11 | -            |
   | PyTorch                              | 2.1.0   | -            |
+
+**注意**：创建容器时，端口号7860要映射出去，因后续打开webui网址（http://服务器IP:容器端口号/）需要用到此端口号。例如，服务器IP为1.1.1.1，起容器的命令加 -p 12345:7860，webui网址即为http://1.1.1.1:12345/
 
 ### 2.1 获取安装包
 - 支持设备：[Atlas 800I A2](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann&product=4&model=32) / [Atlas 300I Duo](https://www.hiascend.com/developer/download/community/result?module=pt+ie+cann&product=2&model=17)
@@ -75,11 +77,11 @@ git clone https://huggingface.co/openai/clip-vit-large-patch14
 
 ①文件：stable-diffusion-webui/repositories/stable-diffusion-stability-ai/ldm/modules/encoders/modules.py
 
-将该文件中涉及到的version="open/clip-vit-large-patch14"改为vesion=“下载的clip-vit-large-patch14路径”
+将该文件中涉及到的version="openai/clip-vit-large-patch14"改为vesion=“下载的clip-vit-large-patch14路径”
 
 ②文件：stable-diffusion-webui/repositories/generative-models/sgm/modules/encoders/modules.py
 
-将该文件中涉及到的version="open/clip-vit-large-patch14"改为vesion=“下载的clip-vit-large-patch14路径”
+将该文件中涉及到的version="openai/clip-vit-large-patch14"改为vesion=“下载的clip-vit-large-patch14路径”
 
 3. 拉取本仓库mindietorch_extension工程，放在stable-diffusion-webui/extensions路径下
 
@@ -89,14 +91,17 @@ git clone https://huggingface.co/openai/clip-vit-large-patch14
 pip install -r requirements.txt
 ```
 
+**注意**：本README中的StableDiffusion v1.5、v2.1、SDXL模型推理方式与torch_npu冲突，需卸载torch_npu包。
+
 ## 三、模型权重
 1. 获取权重
 ```bash
 # 需要使用 git-lfs (https://git-lfs.com)
 git lfs install
 
-# v1.5，将该权重放在stable-diffusion-webui/extensions/mindietorch_extension/models路径下
-cd stable-diffusion-webui/extensions/mindietorch_extension/models
+# v1.5，在stable-diffusion-webui/extensions/mindietorch_extension路径下新建models文件夹，将模型权重放在models路径下
+cd stable-diffusion-webui/extensions/mindietorch_extension
+mkdir models && cd models
 git clone https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5
 
 # v2.1，将该权重放在stable-diffusion-webui/extensions/mindietorch_extension/models路径下
@@ -133,6 +138,7 @@ python sd_webui_patch.py
 
 # 将mindietorch_extension工程的diff1.patch放到stable-diffusion-webui路径下
 mv diff_1.patch ../..
+cd ../..
 patch -p0 < diff_1.patch
 ```
 
@@ -142,7 +148,7 @@ cd /……/stable-diffusion-webui
 python launch.py --skip-torch-cuda-test --enable-insecure-extension-access --listen --log-startup --disable-safe-unpickle --no-half --skip-prepare-environment
 ```
 
-界面启动后，请先选择硬件配置，Duo或A2。然后选择MindIE_torch按钮，第一次启动服务时，点击MindIE_torch按钮后，会对于原始模型做一些处理，请耐心等待，直到服务端显示"You can generate image now!"字样后，再根据上述参数配置，点击generate生成结果。
+打开网页http://服务器IP:容器端口号/（例如http://1.1.1.1:12345/）界面启动后，请先选择硬件配置，Duo或A2，然后选择MindIE_torch按钮。第一次启动服务，点击MindIE_torch按钮后，会对于原始模型做一些处理，请耐心等待，直到服务端显示"You can generate image now!"字样后，再根据上述参数配置，输入prompt，点击generate生成结果。
 
 **注意**：使用该插件后，原始的webui界面中的某些配置受到限制，可配置参数：
 ```
