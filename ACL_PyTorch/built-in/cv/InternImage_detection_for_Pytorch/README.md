@@ -65,7 +65,7 @@ InternImage使用公共数据集COCO进行推理
 2. 获取模型仓**InternImage**源码和依赖仓**mmdet**源码
    
    ```
-   git clone https://github.com/open-mmlab/mmdet.git
+   git clone https://github.com/open-mmlab/mmdetection.git
    git clone https://github.com/OpenGVLab/InternImage.git
    cd mmdetection
    git reset --hard cfd5d3a985b0249de009b67d04f37263e11cdf3d

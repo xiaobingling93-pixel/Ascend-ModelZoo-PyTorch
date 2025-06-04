@@ -109,6 +109,12 @@ BLIP模型为一种新的Vision-Language Pre-training框架，它可以灵活地
 # 快速上手<a name="ZH-CN_TOPIC_0000001126281700"></a>
 
 ## 获取源码<a name="section4622531142816"></a>
+1. 获取本仓源码
+   
+   ```
+   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+   cd ModelZoo-PyTorch/ACL_PyTorch/contrib/cv/image_retrieval/BLIP
+   ```
 
 1. 获取源码。
 
@@ -173,7 +179,7 @@ BLIP模型为一种新的Vision-Language Pre-training框架，它可以灵活地
 
    1. 获取权重文件。
 
-       训练权重链接为：https://storage.googleapis.com/sfr-vision-language-research/BLIP/models/model_base_retrieval_coco.pth。
+       训练权重链接为：https://storage.googleapis.com/sfr-vision-language-research/BLIP/models/model_base_retrieval_coco.pth
        在`BLIP`工作目录下可通过以下命令获取训练权重并转为推理模型。
 
          
@@ -248,7 +254,7 @@ BLIP模型为一种新的Vision-Language Pre-training框架，它可以灵活地
                --input_format=ND \
                --input_shape="text_ids:${batchsize},35;text_atten_mask:${batchsize},35" \
                --log=error \
-               --soc_version=Ascend${chip_name}
+               --soc_version=Ascend${chip_name} \
                --op_precision_mode=op_precision.ini
          ```
 

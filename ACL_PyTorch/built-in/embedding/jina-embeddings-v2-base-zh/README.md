@@ -38,6 +38,12 @@
 # 快速上手
 
 ## 获取源码
+1. 获取本仓源码
+   
+   ```
+   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+   cd ModelZoo-PyTorch/ACL_PyTorch/built-in/embedding/jina-embeddings-v2-base-zh
+   ```
 
 1. 获取开源模型源码和权重（可选）
    > 如果您的设备可以方便的直接从hugging-hub下载权重和代码，则不需要执行这一步

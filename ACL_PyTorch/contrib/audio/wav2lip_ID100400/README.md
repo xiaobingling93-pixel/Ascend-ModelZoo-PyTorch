@@ -68,6 +68,12 @@
 # 快速上手<a name="ZH-CN_TOPIC_0000001126281700"></a>
 
 ## 获取源码<a name="section4622531142816"></a>
+1. 获取本仓源码
+   
+   ```
+   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+   cd ModelZoo-PyTorch/ACL_PyTorch/contrib/audio/wav2lip_ID100400
+   ```
 
 1. 获取源码。
 
@@ -142,17 +148,17 @@
 
    1. 获取权重文件。
 
-      [wav2lip模型预训练pth权重文件](https://iiitaphyd-my.sharepoint.com/:u:/g/personal/radrabha_m_research_iiit_ac_in/Eb3LEzbfuKlJiR600lQWRxgBIY27JZg80f7V9jtMfbNDaQ?e=TBFBVW)，将获取的权重文件放在当前工作路径下。
+      [wav2lip模型预训练pth权重文件](https://huggingface.co/numz/wav2lip_studio/blob/main/Wav2lip/wav2lip.pth)，将获取的权重文件放在当前工作路径下。
 
    2. 导出onnx文件。
 
-      1. 使用pth2onnx.py脚本。
+      1. 使用wav2lip_pth2onnx.py脚本。
 
-         运行pth2onnx.py脚本。
+         运行wav2lip_pth2onnx.py脚本。
 
          ```
          batch_size=72
-         python3 pth2onnx.py --checkpoint_path ./wav2lip.pth --onnx_dir ./ -batch_size ${batch_size}
+         python3 wav2lip_pth2onnx.py --checkpoint_path ./wav2lip.pth --onnx_dir ./ --batch_size ${batch_size}
          ```
 
          获得wav2lip.onnx文件。
@@ -186,7 +192,7 @@
       3. 执行ATC命令。
 
          ```
-         atc --model=./wav2lip_bs72.onnx --framework=5 --output=./wav2lip_bs72--input_format=ND --input_shape="input1:72,1,80,16;input2:72,6,96,96" --log=debug  --soc_version=Ascend${chip_name}
+         atc --model=./wav2lip_bs72.onnx --framework=5 --output=./wav2lip_bs72 --input_format=ND --input_shape="input1:72,1,80,16;input2:72,6,96,96" --log=debug  --soc_version=Ascend${chip_name}
          ```
 
          - 参数说明：
@@ -231,7 +237,7 @@
       调用wav2lip_postprocess.py脚本合成完整视频的文件。
 
       ```
-       python3 wav2lip_postprocess.py --om_pred mels_0.bin --frames ./inputs/frames.bin --coords ./inputs/coords.bin --outfile ./results/result_voice.mp4 --audio ./testdata/audio.mp3
+       python3 wav2lip_postprocess.py --om_pred ${om_output_path} --frames ./inputs/frames.bin --coords ./inputs/coords.bin --outfile ./results/result_voice.mp4 --audio ./testdata/audio.mp3
       ```
 
       - 参数说明：

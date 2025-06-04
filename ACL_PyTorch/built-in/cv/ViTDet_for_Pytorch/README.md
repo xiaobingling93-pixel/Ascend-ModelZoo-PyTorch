@@ -83,9 +83,9 @@ ViTDet使用公共数据集COCO进行推理
 3. 转移文件位置
    
    ```
-   mv mmengine.patch mmengine/mmengine/
-   mv mmdet.patch mmdetection/mmdet/
-   mv infer.py mmdetection/
+   cp mmengine.patch mmengine/mmengine/
+   cp mmdet.patch mmdetection/
+   cp infer.py mmdetection/
    ```
 
 4. 更换当前路径并打补丁，修改完mmseg源码后进行安装

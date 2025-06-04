@@ -4,7 +4,6 @@ tqdm
 torchvision==0.13.0
 mmcv==2.1.0
 timm==0.6.11
-mmdet==3.0.0
 mmengine==0.10.6
 opencv-python
 termcolor

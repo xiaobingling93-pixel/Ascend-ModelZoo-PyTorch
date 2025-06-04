@@ -71,6 +71,12 @@ latent_size = image_size // 8
 # 快速上手<a name="ZH-CN_TOPIC_0000001126281700"></a>
 
 ## 获取源码<a name="section4622531142816"></a>
+1. 获取本仓源码
+   
+   ```
+   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+   cd ModelZoo-PyTorch/ACL_PyTorch/built-in/foundation_models/DiT
+   ```
 
 1. 获取源码。
 

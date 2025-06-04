@@ -35,6 +35,12 @@
 # 快速上手
 
 ## 获取源码
+1. 获取本仓源码
+   
+   ```
+   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+   cd ModelZoo-PyTorch/ACL_PyTorch/built-in/cv/MuseTalk
+   ```
 
 1. 获取开源模型源码
    ```
