@@ -13,7 +13,9 @@
 ******
 
 # 概述
-&emsp;&emsp;‌Co‌syVoice是一款基于语音量化编码的语音生成大模型，能够深度融合文本理解和语音生成，实现自然流畅的语音体验。它通过离散化编码和依托大模型技术，能够精准解析并诠释各类文本内容，将其转化为宛如真人般的自然语音‌。CosyVoice2在原始1的基础上，把QWEN2模型接入CosyVoice的LLM部分，实现了推理加速
+‌Co‌syVoice是一款基于语音量化编码的语音生成大模型，能够深度融合文本理解和语音生成，实现自然流畅的语音体验。它通过离散化编码和依托大模型技术，能够精准解析并诠释各类文本内容，将其转化为宛如真人般的自然语音‌。CosyVoice2在原始1的基础上，把QWEN2模型接入CosyVoice的LLM部分，实现了推理加速
+
+还可以通过参数 `--in_stream`设置模型为 **流式输入模式**，支持逐字符或分块输入文本，显著降低长文本生成延迟，提升实时交互体验。
 
 - 版本说明：
   ```
@@ -38,6 +40,12 @@
 
 # 快速上手
 
+## 获取本仓源码
+```
+git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+cd ModelZoo-PyTorch/ACL_PyTorch/built-in/audio/CosyVoice/CosyVoice2
+```
+
 ## 获取源码
 
 1. 获取`PyTorch`源码
@@ -57,6 +65,20 @@
    mv ../modeling_qwen2.py ./transformers/src/transformers/models/qwen2
    ```
    
+    文件目录结构大致如下：
+    ```text
+    📁 CosyVoice/
+    ├── 📁 CosyVoice2/
+    |   |── 📄 diff_CosyVoice.patch
+    |   |── 📄 modeling_qwen2.py
+    |   |── 📁 CosyVoice
+    |       |── 📁 cosyVoice源码文件    # cosyVoice的源码文件，此处不一一列举
+    │       ├── 📁 CosyVoice-0.5B/     # 权重文件
+    │       ├── 📁 transformers/   # transformers文件，里面有修改过的modeling_qwen2.py文件
+    │       ├── 📄 infer.py        # 推理脚本
+    │       └── 📄 modify_onnx.py  # 模型转换脚本
+    ```
+   
 2. 安装依赖  
    ```
    pip3 install -r ../requirements.txt
@@ -64,37 +86,42 @@
    ```
    注：如果遇到无法安装WeTextProcessing的场景，可以参考以下方法手动安装编译
    ```bash
-   # 下载安装包并解压
-   wget https://www.openfst.org/twiki/pub/FST/FstDownload/openfst-1.8.3.tar.gz
-   # 进入目录后编译安装
-   ./configure --enable-far --enable-mpdt --enable-pdt
-   make install
-   pip3 install WeTextProcessing==1.0.4.1
+    # 下载安装包并解压
+    wget https://www.openfst.org/twiki/pub/FST/FstDownload/openfst-1.8.3.tar.gz
+    # 进入目录后编译安装
+    ./configure --enable-far --enable-mpdt --enable-pdt
+    make -j$(nproc)
+    make install
+    # 确认动态库文件存在：
+    ls /usr/local/lib/libfstmpdtscript.so.26
+    # 配置动态库路径
+    export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+    sudo ldconfig
+    # 安装WeTextProcessing
+    pip3 install WeTextProcessing==1.0.4.1
    ```
    
 3. 安装msit工具
    
-   参考[msit](https://gitee.com/ascend/msit)安装工具中的benchmark和surgen组件。
-   
+   参考[msit](https://gitee.com/ascend/msit)安装工具中的benchmark和surgen组件。（未安装会提示 ais_bench 导入失败报错）
+
 
 4. 获取权重数据
 
    本案例以CosyVoice2-0.5B为例，其他权重请自行适配。将下载下来的权重**放在CosyVoice目录下**。
    
-    因cosyvoice2在2025年4月底更新过一次代码权重，因此需要使用`snapshot_download`下载指定commit id的权重。
-    ```python
-    from modelscope.hub.snapshot_download import snapshot_download
-   
-    model_id = "模型名称"   # 例如 "iic/CosyVoice2-0.5B"
-    commit_id = "9bd5b08fc085bd93d3f8edb16b67295606290350"
-   
-    model_dir = snapshot_download(
-        model_id,
-        revision=commit_id, # 关键，传入commit_id
-        cache_dir="./my_model"
-    )
-    print(f"模型下载至：{model_dir}")
-    ```    
+    因cosyvoice2在2025年4月底更新过一次代码权重，因此下载时需要指定commit id，下载之前的权重。
+    ```git
+    # 1. 克隆
+    git clone https://www.modelscope.cn/iic/CosyVoice2-0.5B.git
+    cd CosyVoice2-0.5B
+    
+    # 2. 切换到目标 commit
+    git checkout 9bd5b08fc085bd93d3f8edb16b67295606290350
+    
+    # 3. 拉取 LFS 大文件（如模型权重）
+    git lfs pull
+    ```       
 
    本用例采用sft预训练音色推理，请额外下载spk权重放到权重目录下
    ```
@@ -105,7 +132,7 @@
 
 ### 1 模型转换
 
-&emsp;&emsp;&emsp;模型权重中提供了 flow.decoder.estimator.fp32.onnx和speech_tokenizer_v2.onnx两个onnx模型，对其进行结构修改后使用`ATC`工具将`.onnx`文件转为离线推理模型`.om`文件。
+模型权重中提供了 `flow.decoder.estimator.fp32.onnx`和`speech_tokenizer_v2.onnx`两个onnx模型，对其进行结构修改后使用`ATC`工具将`.onnx`文件转为离线推理模型`.om`文件。
 
 1. 修改onnx模型结构
 
@@ -142,22 +169,27 @@
    2. 设置环境变量，执行推理命令
 
       ```
-      # 指定使用NPU ID，默认为0
+      # 1. 指定使用NPU ID，默认为0
       export ASCEND_RT_VISIBLE_DEVICES=0
+      # 2. 设置环境变量
       export PYTHONPATH=third_party/Matcha-TTS:$PYTHONPATH
       export PYTHONPATH=transformers/src:$PYTHONPATH
-      python3 infer.py --model_path=${CosyVoice2-0.5B} --stream
+      # 3. 执行推理脚本
+      python3 infer.py --model_path=${CosyVoice2-0.5B} --stream_out
       ```
       - --model_path: 权重路径
       - --warm_up_times：warm up次数，默认为2
       - --infer_count：循环推理次数，默认为20
-      - --stream：是否执行流式推理
+      - --stream_in：是否执行流式输入推理
+      - --stream_out：是否执行流式输出推理
 
-      在推理开始后，首先会默认执行warm_up，目的是执行首次编译，首次编译时间较长，首次编译结束后，会在当前目录下生成.torchair_cache文件，后续推理无需重复编译，在warm_up结束后，会执行推理操作，并将推理结果保存在'sft_i.wav'中，并打屏性能数据：实时率(rtf)，指的是平均1s时长的音频需要多少时间处理。
+      在推理开始后，首先会默认执行warm_up，目的是执行首次编译，首次编译时间较长，首次编译结束后，会在当前目录下生成.torchair_cache文件，后续推理无需重复编译，在warm_up结束后，会执行推理操作：
+      * 非流式输入：将推理结果保存在`sft_i.wav`中，并打屏性能数据：实时率(rtf)，指的是平均1s时长的音频需要多少时间处理。
+      * 流式输入：将推理结果保存在`stream_input_out_i.wav`文件中，并打屏性能数据：实时率(rtf)
 
 ### 3 性能数据
 
-   |模型|芯片|rtf(实时率)|
-   |------|------|------|
-   |cosyvoice|800I A2|0.28s|
+   | 模型        |芯片|rtf(实时率)|
+   |-----------|------|------|
+   | cosyvoice |800I A2|0.28s|
 

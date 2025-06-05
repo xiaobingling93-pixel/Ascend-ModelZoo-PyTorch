@@ -225,24 +225,39 @@ class Qwen2SdpaAttention(Qwen2Attention):
             tmp_ids = updated_kv_positions.reshape(-1)
             torch_npu.scatter_update_(past_key_value.key_cache[self.layer_idx], tmp_ids, key_states, 1)
             torch_npu.scatter_update_(past_key_value.value_cache[self.layer_idx], tmp_ids, value_states, 1)
-            kv_states = past_key_value[self.layer_idx] if q_len == 1 else (key_states, value_states)
-            key_states = kv_states[0]
-            value_states = kv_states[1]
-
+            # 流式输入场景，decode阶段
+            if q_len == 1:
+                key_states = past_key_value[self.layer_idx][0]
+                value_states = past_key_value[self.layer_idx][1]
+            # 流式输入场景，首次prefill阶段
+            elif q_len == actual_seq_len[0]:
+                key_states = key_states
+                value_states = value_states
+            # 流式输入场景，后续prefill阶段
+            elif q_len < actual_seq_len[0]:
+                key_states = past_key_value.key_cache[self.layer_idx][:, :actual_seq_len[0]]
+                value_states = past_key_value.value_cache[self.layer_idx][:, :actual_seq_len[0]]
+            else:
+                raise ValueError(f"Unexpected q_len: {q_len}, actual_seq_len[0]: {actual_seq_len[0]}")
 
         if q_len > 1:
             # prefill阶段利用PFA自定义算子执行计算，因为bs为1，mask固定为下三角全为0上三角全为负无穷的倒三角mask矩阵
-            attn_output = torch_npu.npu_prompt_flash_attention(query_states, key_states.contiguous(),
-                                                               value_states.contiguous(), num_heads=self.num_heads,
+            attn_output = torch_npu.npu_prompt_flash_attention(query_states,
+                                                               key_states.contiguous(),
+                                                               value_states.contiguous(),
+                                                               num_heads=self.num_heads,
                                                                input_layout="BSND",
                                                                scale_value=1 / math.sqrt(self.head_dim),
                                                                pre_tokens=65535, next_tokens=0,
                                                                atten_mask=attention_mask,
+                                                               sparse_mode=1,
                                                                num_key_value_heads=self.num_key_value_heads)
         else:
             # decode阶段利用IFA自定义算子执行计算，qkv的sequence都为1，该算子采用tiling下沉，视为静态算子，支持整图下发 
-            attn_output = torch_npu.npu_incre_flash_attention(query_states, key_states.contiguous(),
-                                                              value_states.contiguous(), num_heads=self.num_heads,
+            attn_output = torch_npu.npu_incre_flash_attention(query_states,
+                                                              key_states.contiguous(),
+                                                              value_states.contiguous(),
+                                                              num_heads=self.num_heads,
                                                               input_layout="BSND",
                                                               scale_value=1 / math.sqrt(self.head_dim),
                                                               atten_mask=None,
@@ -416,9 +431,11 @@ class Qwen2Model(Qwen2PreTrainedModel):
         config.experimental_config.frozen_parameter = True
         # tiling下沉，主要针对IFA算子，使其算子tiling操作在AICPU上执行
         config.experimental_config.tiling_schedule_optimize = True
+
         # torchair的cache编译，保证模型编译cache文件，避免重复推理
         self.cached_decode = tng.inference.cache_compile(self.decode, config=config)
-        self.cached_prefill = tng.inference.cache_compile(self.prefill, config=config)
+        self.cached_first_prefill = tng.inference.cache_compile(self.first_prefill, config=config)  # 用于首次prefill，无kv_cache
+        self.cached_next_prefill = tng.inference.cache_compile(self.next_prefill, config=config)  # 用于后续prefill，有kv_cache
 
     def get_input_embeddings(self):
         return self.embed_tokens
@@ -451,9 +468,12 @@ class Qwen2Model(Qwen2PreTrainedModel):
         return_dict: Optional[bool] = None,
         lm_head: Optional[object] = None
     ) -> Union[Tuple, BaseModelOutputWithPast]:
-        # prefill和decode需要编译为两个不同的模型
-        if inputs_embeds.size(1) > 1:
-            return self.cached_prefill(
+        # prefill_1, prefill_2和decode需要编译为3个不同的模型
+        seq_len = inputs_embeds.size(1)
+
+        # 流式输入场景，首次prefill
+        if seq_len > 1 and seq_len == actual_seq_len[0]:
+            return self.cached_first_prefill(
                 input_ids,
                 attention_mask,
                 position_ids,
@@ -468,6 +488,26 @@ class Qwen2Model(Qwen2PreTrainedModel):
                 return_dict,
                 lm_head        
             )
+
+        # 流式输入场景，后续prefill
+        elif 1 < seq_len < actual_seq_len[0]:
+            return self.cached_next_prefill(
+                input_ids,
+                attention_mask,
+                position_ids,
+                past_key_values,
+                updated_kv_positions,
+                kv_padding_size,
+                actual_seq_len,
+                inputs_embeds,
+                use_cache,
+                output_attentions,
+                output_hidden_states,
+                return_dict,
+                lm_head
+            )
+
+        # 流式输入场景，decode
         else:
             return self.cached_decode(
                 input_ids,
@@ -517,7 +557,7 @@ class Qwen2Model(Qwen2PreTrainedModel):
             lm_head             
         )
 
-    def prefill(
+    def first_prefill(
         self,
         input_ids: torch.LongTensor = None,
         attention_mask: Optional[torch.Tensor] = None,
@@ -547,6 +587,38 @@ class Qwen2Model(Qwen2PreTrainedModel):
             output_hidden_states,
             return_dict,
             lm_head             
+        )
+
+    def next_prefill(
+        self,
+        input_ids: torch.LongTensor = None,
+        attention_mask: Optional[torch.Tensor] = None,
+        position_ids: Optional[torch.LongTensor] = None,
+        past_key_values: Optional[List[torch.FloatTensor]] = None,
+        updated_kv_positions: Optional[torch.LongTensor] = None,
+        kv_padding_size: Optional[torch.LongTensor] = None,
+        actual_seq_len: Optional[list] = None,
+        inputs_embeds: Optional[torch.FloatTensor] = None,
+        use_cache: Optional[bool] = None,
+        output_attentions: Optional[bool] = None,
+        output_hidden_states: Optional[bool] = None,
+        return_dict: Optional[bool] = None,
+        lm_head: Optional[object] = None
+    ):
+        return self._forward(
+            input_ids,
+            attention_mask,
+            position_ids,
+            past_key_values,
+            updated_kv_positions,
+            kv_padding_size,
+            actual_seq_len,
+            inputs_embeds,
+            use_cache,
+            output_attentions,
+            output_hidden_states,
+            return_dict,
+            lm_head
         )
 
 
@@ -593,7 +665,7 @@ class Qwen2Model(Qwen2PreTrainedModel):
                 kv_shape = (
                     batch_size, self.config.max_position_embeddings,
                     self.config.num_key_value_heads,
-                    self.config.hidden_size // self.config.num_attention_heads)
+                    self.config.hidden_size // self.config.num_attention_heads)     # (1, 32768, 2, 64)
                 past_key_values = ()
                 for _ in range(self.config.num_hidden_layers):
                     k_cache = torch.zeros(kv_shape, dtype=inputs_embeds.dtype, device=inputs_embeds.device)
@@ -601,14 +673,14 @@ class Qwen2Model(Qwen2PreTrainedModel):
                     past_key_values += ((k_cache, v_cache),)
                 past_key_values = DynamicCache.from_legacy_cache(past_key_values)
 
-        past_key_values_length = self.max_position_embeddings if seq_length == 1 else 0
+        past_key_values_length = self.max_position_embeddings if actual_seq_len[0] > inputs_embeds.shape[1] else 0
 
         if position_ids is None:
             device = input_ids.device if input_ids is not None else inputs_embeds.device
             position_ids = torch.arange(
                 past_key_values_length, seq_length + past_key_values_length, dtype=torch.long, device=device
             )
-            position_ids = position_ids.unsqueeze(0).view(-1, seq_length)
+            position_ids = position_ids.unsqueeze(0).view(-1, seq_length)   # tensor([0, 1, 2, 3, 4, 5], device='npu:0')
         else:
             position_ids = position_ids.view(-1, seq_length).long()
 
@@ -818,12 +890,22 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel):
         seq_length = inputs_embeds.shape[1]
         if past_key_values:
             past_key_values = DynamicCache.from_legacy_cache(past_key_values)
-        if seq_length > 1:
+
+        # 流式输入场景，首次prefill
+        if seq_length > 1 and prompt_length == inputs_embeds.shape[1]:
             updated_kv_positions = torch.zeros(bsz, dtype=torch.long, device=inputs_embeds.device)
             position_ids = None
+        # 流式输入场景，后续prefill
+        elif seq_length > 1 and prompt_length > inputs_embeds.shape[1]:
+            # updated_kv_positions，kv_cache需要更新的起始位置
+            updated_kv_positions = torch.ones(bsz, dtype=torch.long, device=inputs_embeds.device) * (prompt_length - inputs_embeds.shape[1])
+            tmp_head = prompt_length - inputs_embeds.shape[1]
+            tmp_tail = prompt_length
+            position_ids = torch.arange(tmp_head, tmp_tail, dtype=torch.long, device=inputs_embeds.device)
+        # 流式输入场景，decode
         else:
             updated_kv_positions = torch.ones(bsz, dtype=torch.long, device=inputs_embeds.device) * (prompt_length - 1)
-            position_ids = torch.tensor([prompt_length], device=inputs_embeds.device)
+            position_ids = torch.tensor([prompt_length - 1], device=inputs_embeds.device)
 
         # ifa Computational optimization inputs
         kv_padding_size = torch.tensor(self.config.max_position_embeddings - prompt_length, device=inputs_embeds.device)

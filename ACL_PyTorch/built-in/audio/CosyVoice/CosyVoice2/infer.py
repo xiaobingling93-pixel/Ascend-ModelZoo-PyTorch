@@ -9,6 +9,7 @@
 # See the Mulan PSL v2 for more details.
 
 import argparse
+from tqdm import tqdm
 import torch
 import torchaudio
 import torch_npu
@@ -19,14 +20,64 @@ from cosyvoice.cli.cosyvoice import CosyVoice2
 from cosyvoice.utils.file_utils import load_wav
 
 
+def no_stream_input_inference(args, cosyvoice, prompt_txt):
+    with torch.no_grad():
+        print('warm up start')
+        for _ in range(args.warm_up_times):
+            for _ in enumerate(cosyvoice.inference_sft(prompt_txt[0], '中文女', stream=args.stream_out)):
+                pass
+        print('warm up end')
+        for _ in range(args.infer_count):
+            for i, j in enumerate(cosyvoice.inference_sft(prompt_txt[0], '中文女', stream=args.stream_out)):
+                torchaudio.save('sft_{}.wav'.format(i), j['tts_speech'], cosyvoice.sample_rate)
+
+
+def stream_input_inference(args, cosyvoice, prompt_txt):
+
+    def inference_step(step, mode):
+        times = args.warm_up_times if mode == "warmup" else args.infer_count
+        print(f"第{step + 1}/{times}轮 {mode}：↓↓↓")
+        print(f"curr prompt text：{prompt_txt[step % len(prompt_txt)]}")
+        for char_idx, char in enumerate(prompt_txt[step % len(prompt_txt)]):
+            if char_idx == len(prompt_txt[step % len(prompt_txt)]) - 1:
+                for _, j in enumerate(cosyvoice.inference_sft_streaming_input(char, char_idx, "中文女", user_id="AscendUser", input_end=True, stream=args.stream_out)):
+                    if mode == "warmup":
+                        pass
+                    else:
+                        infer_res[i_step] = torch.cat((infer_res[i_step], j['tts_speech']), dim=1)
+            else:
+                for _, j in enumerate(cosyvoice.inference_sft_streaming_input(char, char_idx, "中文女", user_id="AscendUser", input_end=False, stream=args.stream_out)):
+                    if mode == "warmup":
+                        pass
+                    else:
+                        infer_res[i_step] = torch.cat((infer_res[i_step], j['tts_speech']), dim=1)
+
+    infer_res = [torch.tensor([]) for _ in range(args.infer_count)]
+
+    with torch.no_grad():
+        print("warm up start")
+        for w_step in range(args.warm_up_times):
+            inference_step(w_step, mode="warmup")
+        print("warm up end")
+
+        print("inference start")
+        for i_step in range(args.infer_count):
+            inference_step(i_step, mode="inference")
+        print("inference end")
+
+    print(f"save out wav file ...")
+    for i_step in tqdm(range(args.infer_count)):
+        torchaudio.save(f"stream_input_out_{i_step+1}.wav", infer_res[i_step], 24000)
+
 if __name__ == '__main__':
     torch_npu.npu.set_compile_mode(jit_compile=False)
 
-    parser = argparse.ArgumentParser(description="CosyVoice infer")
+    parser = argparse.ArgumentParser(description="CosyVoice2 infer")
     parser.add_argument("--model_path", type=str, help="model path")
     parser.add_argument('--warm_up_times', default=2, type=int, help='warm up times')
     parser.add_argument('--infer_count', default=20, type=int, help='infer loop count')
-    parser.add_argument('--stream', action="store_true", help='stream infer')
+    parser.add_argument('--stream_in', action="store_true", help='stream input infer')
+    parser.add_argument('--stream_out', action="store_true", help='stream output infer')
     args = parser.parse_args()
 
     cosyvoice = CosyVoice2(args.model_path, load_om=True, fp16=True)
@@ -41,15 +92,15 @@ if __name__ == '__main__':
     npu_backend = tng.get_npu_backend(compiler_config=config)
     cosyvoice.model.hift.decode = torch.compile(cosyvoice.model.hift.decode, dynamic=True, fullgraph=True, backend=npu_backend)
 
-
     # 输入数据加载
-    prompt_txt = '收到好友从远方寄来的生日礼物，那份意外的惊喜和深深的祝福，让我心中充满了甜蜜的快乐，笑容如花儿般绽放。'
+    prompt_txt = [
+        '收到好友从远方寄来的生日礼物，那份意外的惊喜和深深的祝福，让我心中充满了甜蜜的快乐，笑容如花儿般绽放。',
+        '全球每年有超过一百三十五万人，因吸烟而死亡'
+    ]
 
-    with torch.no_grad():
-        print('warm up start')
-        for _ in range(args.warm_up_times):
-            next(cosyvoice.inference_sft(prompt_txt, '中文女', stream=args.stream))
-        print('warm up end')
-        for _ in range(args.infer_count):
-            for i, j in enumerate(cosyvoice.inference_sft(prompt_txt, '中文女', stream=args.stream)):
-                torchaudio.save('sft_{}.wav'.format(i), j['tts_speech'], cosyvoice.sample_rate)
+    # 普通输入（非流式输入）
+    if not args.stream_in:
+        no_stream_input_inference(args, cosyvoice, prompt_txt)
+    # 流式输入
+    else:
+        stream_input_inference(args, cosyvoice, prompt_txt)
