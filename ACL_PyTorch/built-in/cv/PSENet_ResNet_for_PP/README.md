@@ -64,6 +64,13 @@ PSENet([Shape Robust Text Detection with Progressive Scale Expansion Network](ht
 # 快速上手<a name="ZH-CN_TOPIC_0000001126281700"></a>
 
 ## 获取源码<a name="section4622531142816"></a>
+1. 获取本仓源码
+   
+   ```
+   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+   cd ModelZoo-PyTorch/ACL_PyTorch/built-in/cv/PSENet_ResNet_for_PP
+   ```
+
 
 1. 获取源码。
 
@@ -89,12 +96,12 @@ PSENet([Shape Robust Text Detection with Progressive Scale Expansion Network](ht
 
 1. 获取原始数据集。（解压命令参考tar –xvf  \*.tar与 unzip \*.zip）
 
-   IICDAR 2015 数据集包含1000张训练图像和500张测试图像。参考PaddleOCR数据集数据处理方式，ICDAR 2015 数据集可以点击链接进行下载，本模型需下载Test Set Images(43.3MB)。
+   ICDAR 2015 数据集包含1000张训练图像和500张测试图像。参考PaddleOCR数据集数据处理方式，ICDAR 2015 数据集可以点击[链接](https://aistudio.baidu.com/datasetdetail/46088)进行下载，本模型需下载Test Set Images(43.3MB)。
 
    将数据集`ch4_test_images.zip`放在工作目录下，通过以下命令创建`train_data/icdar2015/ch4_test_images`路径，并通过以下命令进行解压保存并获取标签文件。
    ```
    mkdir -p ./train_data/icdar2015/ch4_test_images/
-   unzip -d ./train_data/icdar2015/ch4_test_images/ ch4_test_images.zip
+   unzip -d ch4_test_images.zip ./train_data/icdar2015/ch4_test_images/
    wget -P ./train_data/icdar2015/ https://paddleocr.bj.bcebos.com/dataset/test_icdar2015_label.txt
    ```
 
@@ -166,12 +173,12 @@ PSENet([Shape Robust Text Detection with Progressive Scale Expansion Network](ht
          运行后获得PSENet_ResNet.onnx文件。
 
       2. 优化onnx模型。
-         请访问[auto-optimizer优化工具](https://gitee.com/ascend/msadvisor/tree/master/auto-optimizer)代码仓，根据readme文档进行工具安装。
+         请访问[auto-optimizer优化工具](https://gitee.com/ascend/msit/blob/master/msit/README.md)代码仓，根据readme文档进行benchmark和surgeon工具安装。
 
          运行modify_onnx.py脚本优化onnx模型，优化点为：Resize算子按Paddle定义参数导出的onnx模型有精度问题，因此将按PyTorch定义重新构造Resize参数。
 
          ```
-         python3 modify_onnx.py PSENet_ResNet PSENet_ResNet_md_dybs.onnx
+         python3 modify_onnx.py PSENet_ResNet.onnx PSENet_ResNet_md_dybs.onnx
          ```
 
          参数说明:第一个为输入onnx，第二个为输出onnx。

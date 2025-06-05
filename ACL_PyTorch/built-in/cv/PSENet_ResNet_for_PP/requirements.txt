@@ -20,3 +20,5 @@ premailer
 openpyxl
 attrdict
 sympy
+onnxsim
+protobuf==3.20.3
