@@ -68,7 +68,7 @@ openrlhf.cli.train_prm \
    --eval_steps 100 \
    --train_batch_size 64 \
    --micro_train_batch_size 8 \
-   --max_samples 64000 \   
+   --max_samples 64000 \
    --pretrain $pretrain_path \
    --bf16 \
    --max_epochs $max_epochs \

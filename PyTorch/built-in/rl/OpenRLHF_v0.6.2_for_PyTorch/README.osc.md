@@ -219,9 +219,9 @@ bash test/train_grpo_performance_16p.sh --model_path=./models/xxx --dataset_path
 
 ```shell
 # 8卡训练
-bash test/train_kto_full_8p.sh --model_path=./models/Llama-3-8b-sft-mixture --dataset_path=./data/ultrafeedback-unpaired-preferences
+bash test/train_kto_full_8p.sh --pretrain_path=./models/Llama-3-8b-sft-mixture --dataset_path=./data/ultrafeedback-unpaired-preferences
 # 8卡性能
-bash test/train_kto_performance_8p.sh --model_path=./models/Llama-3-8b-sft-mixture --dataset_path=./data/ultrafeedback-unpaired-preferences
+bash test/train_kto_performance_8p.sh --pretrain_path=./models/Llama-3-8b-sft-mixture --dataset_path=./data/ultrafeedback-unpaired-preferences
 ```
 
 #### RM算法
@@ -230,9 +230,9 @@ bash test/train_kto_performance_8p.sh --model_path=./models/Llama-3-8b-sft-mixtu
 
 ```shell
 # 8卡训练
-bash test/train_rm_full_8p.sh --model_path=./models/Llama-3-8b-sft-mixture --dataset_path=./data/preference_dataset_mixture2_and_safe_pku
+bash test/train_rm_full_8p.sh --pretrain_path=./models/Llama-3-8b-sft-mixture --dataset_path=./data/preference_dataset_mixture2_and_safe_pku
 # 8卡性能
-bash test/train_rm_performance_8p.sh --model_path=./models/Llama-3-8b-sft-mixture --dataset_path=./data/preference_dataset_mixture2_and_safe_pku
+bash test/train_rm_performance_8p.sh --pretrain_path=./models/Llama-3-8b-sft-mixture --dataset_path=./data/preference_dataset_mixture2_and_safe_pku
 ```
 
 #### PRM算法
@@ -241,9 +241,9 @@ bash test/train_rm_performance_8p.sh --model_path=./models/Llama-3-8b-sft-mixtur
 
 ```shell
 # 8卡训练
-bash test/train_prm_full_8p.sh --model_path=./models/Mistral-7B-v0.1 --dataset_path=./data/Math-Shepherd/data
+bash test/train_prm_full_8p.sh --pretrain_path=./models/Mistral-7B-v0.1 --dataset_path=./data/Math-Shepherd/data
 # 8卡性能
-bash test/train_prm_performance_8p.sh --model_path=./models/Mistral-7B-v0.1 --dataset_path=./data/Math-Shepherd/data
+bash test/train_prm_performance_8p.sh --pretrain_path=./models/Mistral-7B-v0.1 --dataset_path=./data/Math-Shepherd/data
 ```
 
 #### 训练结果展示
