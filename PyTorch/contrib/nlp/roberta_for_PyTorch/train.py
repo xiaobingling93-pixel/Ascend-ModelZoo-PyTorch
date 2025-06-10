@@ -7,6 +7,10 @@
 Legacy entry point. Use fairseq_cli/train.py or fairseq-train instead.
 """
 
+import torch
+if torch.__version__ >= "2.6":
+    torch._C._set_math_sdp_allow_fp16_bf16_reduction(True)
+
 from fairseq_cli.train import cli_main
 
 

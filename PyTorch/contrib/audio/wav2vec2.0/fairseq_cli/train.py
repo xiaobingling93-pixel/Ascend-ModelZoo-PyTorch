@@ -16,6 +16,9 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import numpy as np
 import torch
+if torch.__version__ >= "2.6":
+    torch._C._set_math_sdp_allow_fp16_bf16_reduction(True)
+
 from omegaconf import DictConfig, OmegaConf
 
 # We need to setup root logger before importing any fairseq libraries.

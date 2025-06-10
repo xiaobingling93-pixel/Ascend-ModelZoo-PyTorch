@@ -30,7 +30,8 @@ if torch.__version__ >= "1.8":
     import torch_npu
     torch.npu.config.allow_internal_format = True
 
-
+if torch.__version__ >= "2.6":
+    torch._C._set_math_sdp_allow_fp16_bf16_reduction(True)
 
 import torch.nn.parallel
 import torch.backends.cudnn as cudnn

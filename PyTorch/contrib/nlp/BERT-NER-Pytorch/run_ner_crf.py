@@ -37,6 +37,9 @@ import json
 import time
 
 import torch
+if torch.__version__ >= "2.6":
+    torch._C._set_math_sdp_allow_fp16_bf16_reduction(True)
+
 import torch.nn as nn
 import torch_npu 
 from torch_npu.contrib import transfer_to_npu 
