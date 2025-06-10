@@ -4822,6 +4822,21 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <td>154.8(bs1)</td>
         <td></td>
     <td nowrap="nowrap">多尺度</td>
+    </tr>
+    <tr>
+        <td> 100321
+        </td><td>
+        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/audio/whisper"> whisper </a>
+        </td>
+        <td>librispeech_asr_dummy</td>
+        <td></td>
+        <td>8.21%</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>67.32(bs1)</td>
+    <td nowrap="nowrap">bs x 80 x 3000</td>
+    </tr>
 </table>
 
 <p>Knowledge</p>
