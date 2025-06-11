@@ -40,6 +40,7 @@ from verl.utils.flops_counter import FlopsCounter
 from verl.utils.checkpoint.fsdp_checkpoint_manager import FSDPCheckpointManager
 from verl.workers.sharding_manager.fsdp_ulysses import FSDPUlyssesShardingManager
 from verl.utils.device import get_device_name, is_cuda_available, get_torch_device, is_npu_available
+from verl.utils.profiler import mstx_timer_decorator, profiler_start, profiler_step
 
 from codetiming import Timer
 
@@ -76,9 +77,10 @@ class ActorRolloutRefWorker(Worker):
     or a hybrid engine based on the config.rollout
     """
 
-    def __init__(self, config: DictConfig, role: str):
+    def __init__(self, config: DictConfig, profiler_config: DictConfig, role: str):
         super().__init__()
         self.config = config
+        self.profiler_config = profiler_config
         import torch.distributed
         if not torch.distributed.is_initialized():
             torch.distributed.init_process_group(backend="nccl" if is_cuda_available else "hccl")
@@ -140,6 +142,9 @@ class ActorRolloutRefWorker(Worker):
             self.config.ref.log_prob_micro_batch_size //= (self.device_mesh.size() //
                                                            self.ulysses_sequence_parallel_size)
             self.config.ref.log_prob_micro_batch_size_per_gpu = self.config.ref.log_prob_micro_batch_size
+
+        self.actor_rollout_ref_profiler = profiler_start(self.profiler_config.actor_rollout_ref, "actor_rollout_ref")
+        self.prof_iteration = 1
 
     def _build_model_optimizer(self,
                                model_path,
@@ -447,9 +452,13 @@ class ActorRolloutRefWorker(Worker):
                 processing_class=self.processor if self.processor is not None else self.tokenizer,
                 checkpoint_contents=self.config.actor.checkpoint.contents)
 
+    @mstx_timer_decorator
     @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
     def update_actor(self, data: DataProto):
         # Support all hardwares
+        update_actor_profiler = profiler_start(self.profiler_config.actor_rollout_ref, role="actor_update",
+                                               profiler_iteration=self.prof_iteration)
+
         data = data.to(get_torch_device().current_device())
 
         assert self._is_actor
@@ -491,11 +500,18 @@ class ActorRolloutRefWorker(Worker):
         if self._is_offload_optimizer:
             offload_fsdp_optimizer(optimizer=self.actor_optimizer)
 
+        profiler_step(update_actor_profiler)
+        profiler_step(self.actor_rollout_ref_profiler)
+        self.prof_iteration += 1
+
         return output
 
+    @mstx_timer_decorator
     @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
     def generate_sequences(self, prompts: DataProto):
         # Support all hardwares
+        generate_sequences_profiler = profiler_start(self.profiler_config.actor_rollout_ref, role="actor_generate",
+                                                     profiler_iteration=self.prof_iteration)
         prompts = prompts.to(get_torch_device().current_device())
 
         assert self._is_rollout
@@ -531,11 +547,15 @@ class ActorRolloutRefWorker(Worker):
 
         # clear kv cache
         log_gpu_memory_usage('After generate_sequences', logger=logger)
+        profiler_step(generate_sequences_profiler)
         return output
 
+    @mstx_timer_decorator
     @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
     def compute_log_prob(self, data: DataProto):
         assert self._is_actor
+        compute_log_prob_profiler = profiler_start(self.profiler_config.actor_rollout_ref, role="actor_compute_log_prob",
+                                                   profiler_iteration=self.prof_iteration)
         if self._is_offload_param:
             load_fsdp_model_to_gpu(self.actor_module_fsdp)
 
@@ -565,12 +585,17 @@ class ActorRolloutRefWorker(Worker):
             offload_fsdp_model_to_cpu(self.actor_module_fsdp)
 
         log_gpu_memory_usage('After compute_log_prob', logger=logger)
+        profiler_step(compute_log_prob_profiler)
         return output
 
+    @mstx_timer_decorator
     @register(dispatch_mode=Dispatch.DP_COMPUTE_PROTO)
     def compute_ref_log_prob(self, data: DataProto):
         assert self._is_ref
 
+        compute_ref_log_prob_profiler = profiler_start(self.profiler_config.actor_rollout_ref,
+                                                       role="ref_compute_log_prob",
+                                                       profiler_iteration=self.prof_iteration)
         # Support all hardwares
         data = data.to(get_torch_device().current_device())
 
@@ -592,6 +617,8 @@ class ActorRolloutRefWorker(Worker):
         if self.world_size > 1:
             self.ref_policy.actor_module._handle.reshard(True)
 
+        profiler_step(compute_ref_log_prob_profiler)
+        self.prof_iteration += 1
         return output
 
     @register(dispatch_mode=Dispatch.ONE_TO_ALL)

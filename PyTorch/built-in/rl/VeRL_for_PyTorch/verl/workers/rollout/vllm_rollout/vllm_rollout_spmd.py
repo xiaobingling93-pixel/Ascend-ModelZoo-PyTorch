@@ -39,6 +39,7 @@ from verl.workers.rollout.base import BaseRollout
 from vllm.distributed import parallel_state as vllm_ps
 from vllm import LLM, SamplingParams
 from verl.third_party.vllm import vllm_version
+from verl.utils.profiler import mstx_timer_decorator
 
 # TODO
 # 1. support pp in vllm
@@ -152,6 +153,7 @@ class vLLMRollout(BaseRollout):
 
         self.pad_token_id = tokenizer.pad_token_id
 
+    @mstx_timer_decorator
     @contextmanager
     def update_sampling_params(self, **kwargs):
         # update sampling params
@@ -168,6 +170,7 @@ class vLLMRollout(BaseRollout):
         for key, value in old_sampling_params_args.items():
             setattr(self.sampling_params, key, value)
 
+    @mstx_timer_decorator
     @torch.no_grad()
     def generate_sequences(self, prompts: DataProto, **kwargs) -> DataProto:
         # rebuild vllm cache engine

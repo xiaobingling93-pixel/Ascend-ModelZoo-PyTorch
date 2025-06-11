@@ -29,6 +29,7 @@ from verl.utils.py_functional import append_to_dict
 from verl.utils.torch_functional import logprobs_from_logits, masked_mean
 from verl.utils.ulysses import ulysses_pad_and_slice_inputs, gather_outpus_and_unpad
 from verl.utils.seqlen_balancing import rearrange_micro_batches, get_reverse_idx
+from verl.utils.profiler import mstx_timer_decorator
 import verl.utils.torch_functional as verl_F
 
 from verl.utils.device import get_device_name, get_torch_device, is_cuda_available, is_npu_available
@@ -69,6 +70,7 @@ class DataParallelPPOActor(BasePPOActor):
             else entropy_from_logits)
         self.device_name = get_device_name()
 
+    @mstx_timer_decorator
     def _forward_micro_batch(self, micro_batch, temperature) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Returns: 
@@ -172,6 +174,7 @@ class DataParallelPPOActor(BasePPOActor):
 
             return entropy, log_probs
 
+    @mstx_timer_decorator
     def _optimizer_step(self):
         assert self.config.grad_clip is not None
 
@@ -188,6 +191,7 @@ class DataParallelPPOActor(BasePPOActor):
             self.actor_optimizer.step()
         return grad_norm
 
+    @mstx_timer_decorator
     def compute_log_prob(self, data: DataProto) -> torch.Tensor:
         """Compute the log probability of the responses given input_ids, attention_mask and position_ids
 
@@ -246,6 +250,7 @@ class DataParallelPPOActor(BasePPOActor):
 
         return log_probs
 
+    @mstx_timer_decorator
     def update_policy(self, data: DataProto):
         # make sure we are in training mode
         self.actor_module.train()

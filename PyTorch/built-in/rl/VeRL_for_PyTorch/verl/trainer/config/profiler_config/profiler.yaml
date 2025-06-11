@@ -1,0 +1,17 @@
+actor_rollout_ref:
+  profile: false
+  mstx: false
+  role: actor_rollout_ref
+  stage: actor_update
+  profile_save_path: ./profiler_data
+  profile_export_type: text
+  profile_step_start: 1
+  profile_step_end: 2
+  profile_level: level1
+  profile_with_memory: false
+  profile_record_shapes: false
+  profile_with_npu: true
+  profile_with_cpu: true
+  profile_with_module: false
+  profile_analysis: false
+  profile_ranks: all

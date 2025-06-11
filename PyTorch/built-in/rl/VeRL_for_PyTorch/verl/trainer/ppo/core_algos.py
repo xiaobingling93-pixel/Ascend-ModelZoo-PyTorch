@@ -23,6 +23,7 @@ import torch
 from collections import defaultdict
 
 import verl.utils.torch_functional as verl_F
+from verl.utils.profiler import mstx_timer_decorator
 
 
 class AdaptiveKLController:
@@ -306,6 +307,7 @@ def compute_rewards(token_level_scores, old_log_prob, ref_log_prob, kl_ratio):
     return token_level_scores - kl * kl_ratio
 
 
+@mstx_timer_decorator
 def agg_loss(loss_mat: torch.Tensor, loss_mask: torch.Tensor, loss_agg_mode: str):
     """
     Aggregate the loss matrix into a scalar.
@@ -334,6 +336,7 @@ def agg_loss(loss_mat: torch.Tensor, loss_mask: torch.Tensor, loss_agg_mode: str
     return loss
 
 
+@mstx_timer_decorator
 def compute_policy_loss(old_log_prob,
                         log_prob,
                         advantages,
@@ -447,6 +450,7 @@ def compute_value_loss(vpreds, returns, values, response_mask, cliprange_value):
     return vf_loss, vf_clipfrac
 
 
+@mstx_timer_decorator
 def kl_penalty(logprob: torch.FloatTensor, ref_logprob: torch.FloatTensor, kl_penalty) -> torch.FloatTensor:
     """Compute KL divergence given logprob and ref_logprob.
     Copied from https://github.com/huggingface/trl/blob/main/trl/trainer/ppo_trainer.py#L1104
