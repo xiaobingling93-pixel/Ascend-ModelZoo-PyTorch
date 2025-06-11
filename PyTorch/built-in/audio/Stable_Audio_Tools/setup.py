@@ -8,6 +8,7 @@ setup(
     description='Training and inference tools for generative audio models from Stability AI',
     packages=find_packages(),  
     install_requires=[
+        'accelerate==0.33.0',
         'aeiou==0.0.20',
         'alias-free-torch==0.0.6',
         'auraloss==0.4.0',
@@ -34,7 +35,7 @@ setup(
         'torchaudio==2.1.0',
         'torchmetrics==0.11.4',
         'tqdm',
-        'transformers==4.51.3',
+        'transformers==4.43.2',
         'v-diffusion-pytorch==0.0.2',
         'vector-quantize-pytorch==1.9.14',
         'wandb==0.15.4',
