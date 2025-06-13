@@ -1,3 +1,4 @@
+import os
 from stepvideo.diffusion.video_pipeline import StepVideoPipeline
 import torch.distributed as dist
 import torch
@@ -30,14 +31,16 @@ if __name__ == "__main__":
     pipeline.transformer = pipeline.transformer.to(device)
 
     if args.use_dit_cache:
-        from mindiesd.layers.cache_mgr import CacheManager, DitCacheConfig
-        config = DitCacheConfig(step_start=6, step_interval=2, block_start=11, num_blocks=31)
-        cache = CacheManager(config)
+        from mindiesd import CacheAgent, CacheConfig
+        config = CacheConfig(method='dit_block_cache', steps_count=10, blocks_count=10, step_start=6, step_interval=2, block_start=7)
+        cache = CacheAgent(config)
         pipeline.transformer.cache = cache
 
     def patch_encode_prompt():
         enable_llm_tensor_model_parallel()
-        caption_pipeline = CaptionPipeline(llm_dir="/home/data/stepvideo-ti2v/step_llm", clip_dir="/home/data/stepvideo-ti2v/hunyuan_clip", device='cpu')
+        llm_path = os.path.join(args.model_dir, "step_llm")
+        clip_path = os.path.join(args.model_dir, "hunyuan_clip")
+        caption_pipeline = CaptionPipeline(llm_dir=llm_path, clip_dir=clip_path, device='cpu')
         if args.tensor_parallel_degree > 1:
             llm_tp_applicator = TensorParallelApplicator(get_llm_tensor_model_parallel_world_size(), get_llm_tensor_model_parallel_rank(), tp_group=get_llm_tensor_model_parallel_group())
             llm_tp_applicator.apply_to_llm_model(caption_pipeline.text_encoder)
@@ -63,7 +66,8 @@ if __name__ == "__main__":
         pipeline.encode_prompt = encode_prompt
 
     def patch_vae():
-        vae_pipeline = StepVaePipeline(vae_dir="/home/data/stepvideo-ti2v/vae", device='cpu')
+        vae_path = os.path.join(args.model_dir, "vae")
+        vae_pipeline = StepVaePipeline(vae_dir=vae_path, device='cpu')
         vae_pipeline.vae = vae_pipeline.vae.to(device)
 
         def encode_vae(img):

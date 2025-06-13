@@ -326,7 +326,7 @@ class StepVideoPipeline(DiffusionPipeline):
 
         # 7. Denoising loop
         with self.progress_bar(total=num_inference_steps) as progress_bar:
-            for i, t in enumerate(self.scheduler.timesteps):
+            for _, t in enumerate(self.scheduler.timesteps):
                 latent_model_input = torch.cat([latents] * 2) if do_classifier_free_guidance else latents
                 latent_model_input = latent_model_input.to(transformer_dtype)
                 # broadcast to batch dimension in a way that's compatible with ONNX/Core ML
@@ -340,8 +340,7 @@ class StepVideoPipeline(DiffusionPipeline):
                     encoder_hidden_states_2=prompt_embeds_2,
                     condition_hidden_states=condition_hidden_states,
                     motion_score=motion_score,
-                    return_dict=False,
-                    step_id=i,
+                    return_dict=False
                 )
                 # perform guidance
                 if do_classifier_free_guidance:
@@ -363,7 +362,7 @@ class StepVideoPipeline(DiffusionPipeline):
             video = self.decode_vae(latents)
             torch.npu.synchronize()
             print(f"VAE time: {time.time() - start_time1}s")
-        if num_inference_steps > 1 and (not torch.distributed.is_initialized() or int(torch.distributed.get_rank()) == 0):
+        if num_inference_steps > 2 and (not torch.distributed.is_initialized() or int(torch.distributed.get_rank()) == 0):
             video = self.video_processor.postprocess_video(video, output_file_name=output_file_name,
                                                             output_type=output_type)
         else:

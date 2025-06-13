@@ -102,7 +102,7 @@ ASCEND_RT_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 torchrun --nproc_per_node 8 run_parall
 --ulysses_degree 1 \
 --tensor_parallel_degree 8 \
 --prompt="带翅膀的小老鼠先用爪子挠了挠脑袋，随后扑扇着翅膀飞了起来。"  \
---first_image_path './benchmark/Step-Video-TI2V-Eval/ti2v_eval_real/S/061.png' \
+--first_image_path './benchmark/Step-Video-TI2V-Eval/ti2v_eval_real/S/061.png' \ # 修改图片路径
 --save_path './results'
 ```
 
@@ -143,7 +143,7 @@ ASCEND_RT_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 torchrun --nproc_per_node 8 run_parall
 --ulysses_degree 1 \
 --tensor_parallel_degree 8 \
 --prompt="带翅膀的小老鼠先用爪子挠了挠脑袋，随后扑扇着翅膀飞了起来。"  \
---first_image_path './benchmark/Step-Video-TI2V-Eval/ti2v_eval_real/S/061.png' \
+--first_image_path './benchmark/Step-Video-TI2V-Eval/ti2v_eval_real/S/061.png' \ # 修改图片路径
 --save_path './results' \
 --use_dit_cache
 ```

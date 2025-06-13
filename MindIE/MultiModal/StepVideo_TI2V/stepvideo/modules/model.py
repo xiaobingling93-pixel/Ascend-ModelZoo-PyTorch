@@ -126,15 +126,14 @@ class StepVideoModel(ModelMixin, ConfigMixin):
         timestep=None,
         rope_positions=None,
         attn_mask=None,
-        parallel=True,
-        step_id=0
+        parallel=True
     ):
 
-        for i, block in enumerate(self.transformer_blocks):
+        for _, block in enumerate(self.transformer_blocks):
             if self.cache:
-                hidden_states = self.cache(block, step_id, i,
-                                           hidden_states,
+                hidden_states = self.cache(block,
                                            encoder_hidden_states,
+                                           hidden_states=hidden_states,
                                            timestep=timestep,
                                            attn_mask=attn_mask,
                                            rope_positions=rope_positions
@@ -163,8 +162,7 @@ class StepVideoModel(ModelMixin, ConfigMixin):
         fps: torch.Tensor = None,
         condition_hidden_states: torch.Tensor = None,
         motion_score: torch.Tensor = None,
-        return_dict: bool = True,
-        step_id: int = 0,
+        return_dict: bool = True
     ):
         assert hidden_states.ndim == 5; # "hidden_states's shape should be (bsz, f, ch, h ,w)"
 
@@ -200,8 +198,7 @@ class StepVideoModel(ModelMixin, ConfigMixin):
             timestep=timestep,
             rope_positions=[frame, height, width],
             attn_mask=attn_mask,
-            parallel=self.parallel,
-            step_id=step_id
+            parallel=self.parallel
         )
         
         hidden_states = rearrange(hidden_states, 'b (f l) d -> (b f) l d', b=bsz, f=frame, l=len_frame)
