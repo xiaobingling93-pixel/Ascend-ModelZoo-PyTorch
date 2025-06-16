@@ -1,6 +1,6 @@
-# jina-embeddings-v2-base-code-推理指导
+# jina-embeddings-v2-base-code(TorchAir)-推理指导
 
-- [jina-embeddings-v2-base-code-推理指导](#jina-embeddings-v2-base-code-推理指导)
+- [jina-embeddings-v2-base-code-推理指导](#jina-embeddings-v2-base-code(TorchAir)-推理指导)
 - [概述](#概述)
 - [推理环境准备](#推理环境准备)
 - [快速上手](#快速上手)

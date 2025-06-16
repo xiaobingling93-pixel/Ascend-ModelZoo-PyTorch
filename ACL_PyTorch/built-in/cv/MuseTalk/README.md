@@ -1,6 +1,6 @@
-# MuseTalk-推理指导
+# MuseTalk(TorchAir)-推理指导
 
-- [MuseTalk-推理指导](#musetalk-推理指导)
+- [MuseTalk-推理指导](#musetalk(TorchAir)-推理指导)
 - [概述](#概述)
 - [推理环境准备](#推理环境准备)
 - [快速上手](#快速上手)

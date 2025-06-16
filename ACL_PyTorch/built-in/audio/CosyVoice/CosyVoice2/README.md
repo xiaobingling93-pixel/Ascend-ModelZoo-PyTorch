@@ -1,6 +1,6 @@
-# CosyVoice-推理指导
+# CosyVoice(TorchAir)-推理指导
 
-- [CosyVoice-推理指导](#cosyvoice-推理指导)
+- [CosyVoice-推理指导](#cosyvoice(TorchAir)-推理指导)
 - [概述](#概述)
 - [推理环境准备](#推理环境准备)
 - [快速上手](#快速上手)

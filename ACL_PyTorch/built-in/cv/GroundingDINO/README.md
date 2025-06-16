@@ -1,6 +1,6 @@
-# GroundingDINO-推理指导
+# GroundingDINO(TorchAir)-推理指导
 
-- [GroundingDINO-推理指导](#groundingdino-推理指导)
+- [GroundingDINO-推理指导](#GroundingDINO(TorchAir)-推理指导)
 - [概述](#概述)
 - [推理环境准备](#推理环境准备)
 - [快速上手](#快速上手)
