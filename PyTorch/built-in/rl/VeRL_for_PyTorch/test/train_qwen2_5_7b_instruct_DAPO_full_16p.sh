@@ -22,7 +22,7 @@ Network="Qwen2_5_7b_instruct_dapo_for_PyTorch"
 
 # 帮助信息，不需要修改
 if [[ $1 == --help || $1 == -h ]];then
-    echo"usage:./test/train_qwen2_5_7b_instruct_DAPO_performance_16p.sh <args>"
+    echo"usage:./test/train_qwen2_5_7b_instruct_DAPO_full_16p.sh <args>"
     echo " "
     echo "parameter explain:
     --data_path		           source data of training
@@ -200,7 +200,7 @@ nohup ray job submit --runtime-env="${RUNTIME_ENV}" \
     trainer.test_freq=5 \
     trainer.save_freq=-1 \
     trainer.total_epochs=1 \
-    trainer.total_training_steps=10 \
+    trainer.total_training_steps=100 \
     trainer.default_local_dir="${CKPTS_DIR}" \
     trainer.resume_mode=auto \
     data.shuffle=False \
@@ -214,7 +214,7 @@ nohup ray job submit --runtime-env="${RUNTIME_ENV}" \
     actor_rollout_ref.ref.fsdp_config.backward_prefetch=BACKWARD_PRE \
     actor_rollout_ref.actor.use_entropy_from_logits_with_chunking=True \
     actor_rollout_ref.ref.use_entropy_from_logits_with_chunking=True \
-    actor_rollout_ref.rollout.seed=1234 > ${test_path_dir}/output/train_verl_qwen2_5_7b_instruct_dapo_perf.log 2>&1 &
+    actor_rollout_ref.rollout.seed=1234 > ${test_path_dir}/output/train_verl_qwen2_5_7b_instruct_dapo_full.log 2>&1 &
 
 wait
 
@@ -224,7 +224,7 @@ e2e_time=$(( $end_time - $start_time ))
 #结果打印，不需要修改
 echo "------------------ Final result ------------------"
 #输出性能FPS，需要模型审视修改
-FPS=`grep 'perf/throughput:' $test_path_dir/output/train_verl_qwen2_5_7b_instruct_dapo_perf.log | awk -F 'perf/throughput:' '{print$2}' | awk -F ' ' '{print$1}' | head -n 4 | awk '{sum+=$1} END {print"",sum/NR}'`
+FPS=`grep 'perf/throughput:' $test_path_dir/output/train_verl_qwen2_5_7b_instruct_dapo_full.log | awk -F 'perf/throughput:' '{print$2}' | awk -F ' ' '{print$1}' | head -n 4 | awk '{sum+=$1} END {print"",sum/NR}'`
 
 #排除功能问题导致计算溢出的异常，增加健壮性
 if [ x"${FPS}" == x"2147483647" ] || [ x"${FPS}" == x"-2147483647" ];then
@@ -239,7 +239,7 @@ echo "E2E Training Duration sec : $e2e_time"
 #性能看护结果汇总
 #训练用例信息，不需要修改
 DeviceType=`uname -m`
-CaseName=${Network}_'16p'_'perf'
+CaseName=${Network}_'16p'_'full'
 
 ##获取性能数据，不需要修改
 #吞吐量
