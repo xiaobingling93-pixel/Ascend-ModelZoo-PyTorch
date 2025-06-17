@@ -1,8 +1,39 @@
-6c6
-< # from opt import opt
----
-> from opt import opt
-12c12
-<     def __init__(self, opt):
----
->     def __init__(self):
+diff --git a/opt.py b/opt.py
+index e9f70b5..16f4b11 100644
+--- a/opt.py
++++ b/opt.py
+@@ -18,9 +18,17 @@ parser.add_argument('--freeze',
+                     default=False,
+                     help='freeze backbone or not ')
+
+-parser.add_argument('--weight',
+-                    default='weights/model.pt',
+-                    help='load weights ')
++parser.add_argument('--model_path',
++                    default='./model',
++                    help='model weights path')
++
++parser.add_argument('--model_weight_file',
++                    default='model.pt',
++                    help='model weights file name')
++
++parser.add_argument("--onnx_file",
++                    default="model_mkt1501_bs1.onnx",
++                    help='onnx file name')
+
+ parser.add_argument('--epoch',
+                     default=500,
+@@ -46,4 +54,13 @@ parser.add_argument("--batchtest",
+                     default=8,
+                     help='the batch size for test')
+
++parser.add_argument("--batchonnx",
++                    type=int,
++                    default=1,
++                    help='the batch size for convert onnx')
++
++parser.add_argument("--result",
++                    default="./result",
++                    help='inference result path')
++
+ opt = parser.parse_args()
