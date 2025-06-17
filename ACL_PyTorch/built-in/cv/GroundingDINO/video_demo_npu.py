@@ -119,7 +119,7 @@ def preprocess(model, batch_frame, text_prompt):
             batch_data['inputs'].append(data_['inputs'])
             batch_data['data_samples'].append(data_['data_samples'])
 
-        return batch_data
+    return batch_data
 
 
 def infer(model, batch_data, tokenized, attention_mask, position_ids):
