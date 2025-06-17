@@ -144,11 +144,17 @@ export PYTORCH_NPU_ALLOC_CONF=expandable_segments:False
 
 ```shell
 cd $ATB_SPEED_HOME_PATH
+# 如果是单独安装分包，请手动source环境变量，路径为安装路径
+source /usr/local/Ascend/ascend-toolkit/set_env.sh
+source /usr/local/Ascend/nnal/atb/set_env.sh
+source /usr/local/Ascend/atb-models/set_env.sh
+source /usr/local/Ascend/mindie/set_env.sh
 ```
 
 执行对话测试
 
 ```shell
+export MINDIE_LOG_TO_STDOUT=1
 torchrun --nproc_per_node 2 \
          --master_port 20037 \
          -m examples.run_pa \
@@ -160,6 +166,7 @@ torchrun --nproc_per_node 2 \
 进入ModelTest路径
 ```shell
 cd $ATB_SPEED_HOME_PATH/tests/modeltest/
+export MINDIE_LOG_TO_STDOUT=1
 ```
 运行测试脚本
 ```shell
@@ -182,6 +189,7 @@ vim /usr/local/Ascend/mindie/latest/mindie-service/conf/config.json
 
 - 更改配置文件
 
+具体配置信息请参考[MindIE Service用户指南](https://www.hiascend.com/document/detail/zh/mindie/20RC2/mindieservice/servicedev/mindie_service0285.html)
 ```json
 {
 ...
