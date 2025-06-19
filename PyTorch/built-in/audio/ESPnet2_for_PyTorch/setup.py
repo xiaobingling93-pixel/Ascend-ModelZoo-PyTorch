@@ -40,7 +40,7 @@ requirements = {
     "train": [
         "matplotlib==3.1.0",
         "pillow>=6.1.0",
-        "editdistance==0.5.2",
+        "editdistance==0.6.2",
         "wandb",
         "tensorboard>=1.14",
     ],
