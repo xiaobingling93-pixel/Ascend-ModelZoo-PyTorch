@@ -35,6 +35,10 @@ from maskrcnn_benchmark.data.datasets.evaluation import evaluate
 from maskrcnn_benchmark.modeling.rpn.anchor_generator import make_anchor_generator_complex
 
 
+if not hasattr(np, 'float'):
+    np.float = np.float64
+
+
 class postprocess(nn.Module):
     def __init__(self, cfg):
         super(postprocess, self).__init__()

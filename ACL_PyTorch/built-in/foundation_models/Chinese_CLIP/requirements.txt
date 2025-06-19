@@ -3,4 +3,6 @@ onnxsim==0.4.33
 onnxmltools==1.11.1
 torch==1.11.0
 torchvision==0.14.1
-
+decorator
+attrs
+psutil

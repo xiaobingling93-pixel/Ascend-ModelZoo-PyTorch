@@ -29,6 +29,10 @@ from maskrcnn_benchmark.modeling.language_backbone import build_language_backbon
 from transformers import AutoTokenizer
 
 
+if not hasattr(np, 'float'):
+    np.float = np.float64
+
+
 class lang(nn.Module):
     def __init__(self, cfg):
         super(lang, self).__init__()
