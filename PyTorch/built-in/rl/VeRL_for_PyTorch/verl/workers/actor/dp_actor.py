@@ -29,7 +29,7 @@ from verl.utils.py_functional import append_to_dict
 from verl.utils.torch_functional import logprobs_from_logits, masked_mean
 from verl.utils.ulysses import ulysses_pad_and_slice_inputs, gather_outpus_and_unpad
 from verl.utils.seqlen_balancing import rearrange_micro_batches, get_reverse_idx
-from verl.utils.profiler import mstx_timer_decorator
+from verl.utils.profiler import mstx_timer_decorator, profiler_start, profiler_step
 import verl.utils.torch_functional as verl_F
 
 from verl.utils.device import get_device_name, get_torch_device, is_cuda_available, is_npu_available
@@ -69,6 +69,7 @@ class DataParallelPPOActor(BasePPOActor):
             if self.config.get('use_torch_compile', True)  #  use torch compile by default
             else entropy_from_logits)
         self.device_name = get_device_name()
+        self.prof_iteration = 1
 
     @mstx_timer_decorator
     def _forward_micro_batch(self, micro_batch, temperature) -> Tuple[torch.Tensor, torch.Tensor]:
@@ -251,7 +252,7 @@ class DataParallelPPOActor(BasePPOActor):
         return log_probs
 
     @mstx_timer_decorator
-    def update_policy(self, data: DataProto):
+    def update_policy(self, data: DataProto, profiler_config=None):
         # make sure we are in training mode
         self.actor_module.train()
 
@@ -272,6 +273,9 @@ class DataParallelPPOActor(BasePPOActor):
         else:
             dataloader = batch.split(self.config.ppo_mini_batch_size)
 
+        update_actor_micro_profiler = profiler_start(profiler_config,
+                                                     role="actor_update_micro",
+                                                     profiler_iteration=self.prof_iteration)
         metrics = {}
         for epoch in range(self.config.ppo_epochs):
             for batch_idx, data in enumerate(dataloader):
@@ -360,9 +364,11 @@ class DataParallelPPOActor(BasePPOActor):
                         'actor/pg_clipfrac_lower': pg_clipfrac_lower.detach().item(),
                     }
                     append_to_dict(metrics, data)
+                    profiler_step(update_actor_micro_profiler)
 
                 grad_norm = self._optimizer_step()
                 data = {'actor/grad_norm': grad_norm.detach().item()}
             append_to_dict(metrics, data)
         self.actor_optimizer.zero_grad()
+        self.prof_iteration += 1
         return metrics
