@@ -78,9 +78,9 @@ cd ModelZoo-PyTorch/ACL_PyTorch/built-in/cv/SAM
 git clone https://github.com/facebookresearch/segment-anything.git
 cd segment-anything
 git reset --hard 6fdee8f2727f4506cfbbe553e23b895e27956588
+patch -p2 < segment_anything_diff.patch
 pip3 install -e .
 cd ..
-patch -p1 < segment_anything_diff.patch
 ```
 
 ### 3.2 安装依赖。
@@ -236,7 +236,7 @@ python3 encoder_onnx_modify.py \
 
 ### 3.5 推理验证
 
-1. 端到端推理。
+1. 端到端推理。成功执行下述命令后会在save-path参数指定的目录生成离线推理的结果。
 
    ```bash
    python3 sam_end2end_infer.py \
@@ -256,6 +256,12 @@ python3 encoder_onnx_modify.py \
    - decoder-model-path：decoder模型路径。
    - input-point：分割目标上的坐标（坐标数量根据带分割目标物体分割效果确定，不同的图片数据，不同的待分割目标坐标不一样）
    - device-id：NPU卡ID
+    
+
+    ```
+    若出现类似"OSError: .../python3.10/site-packages/torch/lib/libgomp-d22c30c5.so.1: cannot allocate memory in static TLS block"错误，可以使用export LD_PRELOAD=$LD_PRELOAD:<报错路径>解决。
+    例子：export LD_PRELOAD=$LD_PRELOAD:/root/anaconda3/envs/sam/lib/python3.10/site-packages/torch/lib/libgomp-d22c30c5.so.1
+    ```
 
    在线模型推理结果：
 
