@@ -99,10 +99,31 @@ index 6e10f00..25ad767 100644
          speech_token_len = torch.tensor([speech_token.shape[1]], dtype=torch.int32).to(self.device)
          return speech_token, speech_token_len
 diff --git a/cosyvoice/cli/model.py b/cosyvoice/cli/model.py
-index 9ebf8cb..dc8b4d2 100644
+index 9ebf8cb..a8775a1 100644
 --- a/cosyvoice/cli/model.py
 +++ b/cosyvoice/cli/model.py
-@@ -314,6 +314,14 @@ class CosyVoice2Model(CosyVoiceModel):
+@@ -99,7 +99,7 @@ class CosyVoiceModel:
+         self.flow.decoder.estimator = self.flow.decoder.estimator_engine.create_execution_context()
+
+     def llm_job(self, text, prompt_text, llm_prompt_speech_token, llm_embedding, uuid):
+-        with self.llm_context:
++        with self.llm_context():
+             if isinstance(text, Generator):
+                 assert isinstance(self, CosyVoice2Model), 'streaming input text is only implemented for CosyVoice2!'
+                 for i in self.llm.inference_bistream(text=text,
+@@ -307,13 +307,25 @@ class CosyVoice2Model(CosyVoiceModel):
+         self.speech_window = np.hamming(2 * self.source_cache_len)
+         # rtf and decoding related
+         self.stream_scale_factor = 1
+-        self.llm_context = torch.cuda.stream(torch.cuda.Stream(self.device)) if torch.cuda.is_available() else nullcontext()
++        if torch.cuda.is_available():
++            stream = torch.cuda.Stream(device=self.device)
++            self.llm_context = lambda: torch.cuda.stream(stream)
++        else:
++            self.llm_context = lambda: contextlib.nullcontext()
+         self.lock = threading.Lock()
+         # dict used to store session related variable
+         self.tts_speech_token_dict = {}
          self.llm_end_dict = {}
          self.hift_cache_dict = {}
 
@@ -117,7 +138,7 @@ index 9ebf8cb..dc8b4d2 100644
      def load_jit(self, flow_encoder_model):
          flow_encoder = torch.jit.load(flow_encoder_model, map_location=self.device)
          self.flow.encoder = flow_encoder
-@@ -362,12 +370,17 @@ class CosyVoice2Model(CosyVoiceModel):
+@@ -362,12 +374,17 @@ class CosyVoice2Model(CosyVoiceModel):
          with self.lock:
              self.tts_speech_token_dict[this_uuid], self.llm_end_dict[this_uuid] = [], False
              self.hift_cache_dict[this_uuid] = None
@@ -139,7 +160,7 @@ index 9ebf8cb..dc8b4d2 100644
                  if len(self.tts_speech_token_dict[this_uuid]) - token_offset >= self.token_hop_len + self.flow.pre_lookahead_len:
                      this_tts_speech_token = torch.tensor(self.tts_speech_token_dict[this_uuid][:token_offset + self.token_hop_len + self.flow.pre_lookahead_len]).unsqueeze(dim=0)
                      this_tts_speech = self.token2wav(token=this_tts_speech_token,
-@@ -379,10 +392,6 @@ class CosyVoice2Model(CosyVoiceModel):
+@@ -379,10 +396,6 @@ class CosyVoice2Model(CosyVoiceModel):
                                                       finalize=False)
                      token_offset += self.token_hop_len
                      yield {'tts_speech': this_tts_speech.cpu()}
@@ -150,7 +171,7 @@ index 9ebf8cb..dc8b4d2 100644
              this_tts_speech_token = torch.tensor(self.tts_speech_token_dict[this_uuid]).unsqueeze(dim=0)
              this_tts_speech = self.token2wav(token=this_tts_speech_token,
                                               prompt_token=flow_prompt_speech_token,
-@@ -393,6 +402,8 @@ class CosyVoice2Model(CosyVoiceModel):
+@@ -393,6 +406,8 @@ class CosyVoice2Model(CosyVoiceModel):
                                               finalize=True)
              yield {'tts_speech': this_tts_speech.cpu()}
          else:
@@ -159,7 +180,7 @@ index 9ebf8cb..dc8b4d2 100644
              # deal with all tokens
              p.join()
              this_tts_speech_token = torch.tensor(self.tts_speech_token_dict[this_uuid]).unsqueeze(dim=0)
-@@ -409,3 +420,83 @@ class CosyVoice2Model(CosyVoiceModel):
+@@ -409,3 +424,83 @@ class CosyVoice2Model(CosyVoiceModel):
              self.tts_speech_token_dict.pop(this_uuid)
              self.llm_end_dict.pop(this_uuid)
          torch.cuda.empty_cache()
@@ -243,7 +264,6 @@ index 9ebf8cb..dc8b4d2 100644
 +            self.prompt_speech_token_dict.pop(this_uuid)
 +            self.speech_feat_dict.pop(this_uuid)
 +            self.embedding_dict.pop(this_uuid)
-\ No newline at end of file
 diff --git a/cosyvoice/flow/flow_matching.py b/cosyvoice/flow/flow_matching.py
 index 6a60f6d..fbe7545 100644
 --- a/cosyvoice/flow/flow_matching.py
