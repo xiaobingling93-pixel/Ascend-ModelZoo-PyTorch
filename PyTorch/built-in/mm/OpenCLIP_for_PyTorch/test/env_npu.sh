@@ -21,7 +21,9 @@ export ASCEND_SLOG_PRINT_TO_STDOUT=0
 export ASCEND_GLOBAL_LOG_LEVEL=3
 #设置Event日志开启标志,0-关闭/1-开启
 export ASCEND_GLOBAL_EVENT_ENABLE=0
-
+# 绑核性能优化
+export CPU_AFFINITY_CONF=1
+export OMP_NUM_THREADS=1
 
 #设置device侧日志登记为error
 msnpureport -g error -d 0
