@@ -5,7 +5,7 @@
     - [支持特性](#支持特性)
     - [代码实现](#代码实现)
 -   [Wenet-Conformer](#Wenet-Conformer)
-    - [准备训练环境](#准备训练环境)
+    - [准备环境](#准备环境)
     - [准备数据集](#准备数据集)
     - [开始训练](#开始训练)
     - [训练结果展示](#训练结果展示)
@@ -43,7 +43,7 @@ Wenet是一款开源的、面向工业落地应用的语音识别工具包，主
   code_path=PyTorch/built-in/audio
   ```
 
-
+<a id="Wenet-Conformer"></a>
 # Wenet-Conformer
 
 ## 准备环境
@@ -214,6 +214,7 @@ Wenet是一款开源的、面向工业落地应用的语音识别工具包，主
 
 2024.03.16: 增加PyTorch2.1基线，增加FAQ。
 
+<a id="FAQ"></a>
 # FAQ
 
 Q1：Pytorch2.1版本，运行时可能出现段错误

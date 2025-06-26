@@ -62,6 +62,8 @@ BERT-CRF 是用于自然语言处理中实体识别任务的模型
   | PyTorch 2.1   | transformers 4.29.2 |
 
 - 安装依赖
+
+  在模型根目录下执行命令，安装模型需要的依赖。
   ```
   pip install -r requirements.txt
   ```
