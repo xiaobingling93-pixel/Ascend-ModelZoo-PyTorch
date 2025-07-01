@@ -113,7 +113,7 @@ class VideoAutoencoderKL(nn.Module):
 class VideoAutoencoder(DiffusionModel):
     config_class = VideoAutoencoderConfig
 
-    weigths_name = 'model.safetensors'
+    weights_name = 'model.safetensors'
 
     def __init__(self, config: VideoAutoencoderConfig):
         super().__init__(config=config)

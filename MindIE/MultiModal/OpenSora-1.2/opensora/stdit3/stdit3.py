@@ -261,7 +261,7 @@ class STDiT3Block(nn.Module):
 
 class STDiT3(DiffusionModel):
     config_class = STDiT3Config
-    weigths_name = 'model.safetensors'
+    weights_name = 'model.safetensors'
 
     def __init__(self, config):
         super().__init__(config)
