@@ -1,0 +1,6 @@
+working_dir: ./
+excludes: ["/.git/"]
+env_vars:
+  HCCL_CONNECT_TIMEOUT: "1500"
+  HCCL_EXEC_TIMEOUT: "1500"
+  TORCH_NCCL_AVOID_RECORD_STREAMS: "1"

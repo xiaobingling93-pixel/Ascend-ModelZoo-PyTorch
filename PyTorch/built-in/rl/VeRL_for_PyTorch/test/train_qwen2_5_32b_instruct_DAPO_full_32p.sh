@@ -105,7 +105,7 @@ train_prompt_mini_bsz=1
 # Ray
 RAY_ADDRESS=${RAY_ADDRESS:-"http://localhost:8265"}
 WORKING_DIR=${WORKING_DIR:-"${PWD}"}
-RUNTIME_ENV=${RUNTIME_ENV:-"${WORKING_DIR}/test/runtime_env.yaml"}
+RUNTIME_ENV=${RUNTIME_ENV:-"${WORKING_DIR}/test/runtime_env32.yaml"}
 NNODES=${NNODES:-2}
 # Paths
 RAY_DATA_HOME=${RAY_DATA_HOME:-"${HOME}/verl"}
@@ -200,7 +200,7 @@ nohup ray job submit --runtime-env="${RUNTIME_ENV}" \
     trainer.test_freq=5 \
     trainer.save_freq=-1 \
     trainer.total_epochs=1 \
-    trainer.total_training_steps=100 \
+    trainer.total_training_steps=90 \
     trainer.default_local_dir="${CKPTS_DIR}" \
     trainer.resume_mode=auto \
     data.shuffle=False \
