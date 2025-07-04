@@ -47,6 +47,8 @@ from codetiming import Timer
 logger = logging.getLogger(__file__)
 logger.setLevel(os.getenv('VERL_PPO_LOGGING_LEVEL', 'WARN'))
 
+torch.npu.config.allow_internal_format = False
+
 device_name = get_device_name()
 
 

@@ -30,6 +30,14 @@ except ImportError:
     FLAH_ATTN_CROSS_ENTROPY_LOSS_AVAILABLE = False
 
 
+try:
+    import torch_npu
+
+    NPU_CROSS_ENTROPY_LOSS_AVAILABLE = hasattr(torch_npu, "npu_cross_entropy_loss")
+except ImportError:
+    NPU_CROSS_ENTROPY_LOSS_AVAILABLE = False
+
+
 def gather_from_labels(data, label):
     """Gather the label from data. The value in label should be [0, vocab_size)
 
@@ -56,6 +64,8 @@ def logprobs_from_logits(logits, labels):
         labels = labels.reshape(-1)
         output = logprobs_from_logits_flash_attn(logits, labels)
         output = output.view(*batch_dim)
+    elif NPU_CROSS_ENTROPY_LOSS_AVAILABLE:
+        output = logprobs_from_logits_torch_npu(logits, labels)
     else:
         output = logprobs_from_logits_v2(logits, labels)
     return output
@@ -69,9 +79,9 @@ def logprobs_from_logits_flash_attn(logits, labels):
 
 
 def logprobs_from_logits_torch_npu(logits, labels):
-    import torch_npu
     batch_dim = logits.shape[:-1]
-    loss, _, _, _ = torch_npu.npu_cross_entropy_loss(logits, labels, reduction="none")
+    logits = logits.reshape(-1, logits.shape[-1])
+    loss, _, _, _ = torch_npu.npu_cross_entropy_loss(logits, labels.reshape(-1), reduction="none")
     return -loss.view(*batch_dim)
 
 

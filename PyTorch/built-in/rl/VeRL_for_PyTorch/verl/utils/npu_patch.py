@@ -19,8 +19,9 @@ import torch.nn.functional as F
 import torch_npu
 from torch_npu import npu_rotary_mul as apply_rotary_emb
 from transformers.models.qwen2_5_vl.modeling_qwen2_5_vl import apply_rotary_pos_emb_vision, \
-    Qwen2_5_VLVisionSdpaAttention, Qwen2RMSNorm
+    Qwen2_5_VLVisionSdpaAttention, Qwen2RMSNorm, Qwen2_5_VLMLP, Qwen2MLP
 from transformers.models.qwen2_5_vl import modeling_qwen2_5_vl
+from transformers.models.qwen2_vl import modeling_qwen2_vl
 from transformers.utils import logging
 
 
@@ -83,6 +84,25 @@ def rms_norm_forward(self, x):
     return torch_npu.npu_rms_norm(x, self.weight, epsilon=self.variance_epsilon)[0]
 
 
+def silu_forward(self, hidden_state):
+    return self.down_proj(
+        torch_npu.npu_swiglu(torch.cat((self.gate_proj(hidden_state), self.up_proj(hidden_state)), dim=-1), dim=-1)
+    )
+
+
+def apply_multimodal_rotary_pos_emb_npu(q, k, cos, sin, mrope_section, unsqueeze_dim=1):
+    mrope_section = mrope_section * 2
+    cos = torch.cat([m[i % 3] for i, m in enumerate(cos.split(mrope_section, dim=-1))], dim=-1).unsqueeze(unsqueeze_dim)
+    sin = torch.cat([m[i % 3] for i, m in enumerate(sin.split(mrope_section, dim=-1))], dim=-1).unsqueeze(unsqueeze_dim)
+
+    q_embed = torch_npu.npu_rotary_mul(q, cos, sin)
+    k_embed = torch_npu.npu_rotary_mul(k, cos, sin)
+    return q_embed, k_embed
+
+
 Qwen2RMSNorm.forward = rms_norm_forward
 Qwen2_5_VLVisionSdpaAttention.forward = sdpa_forward
 modeling_qwen2_5_vl.apply_rotary_pos_emb_flashatt = apply_rotary_pos_emb_flashatt_npu
+Qwen2_5_VLMLP.forward = silu_forward
+Qwen2MLP.forward = silu_forward
+modeling_qwen2_vl.apply_multimodal_rotary_pos_emb = apply_multimodal_rotary_pos_emb_npu

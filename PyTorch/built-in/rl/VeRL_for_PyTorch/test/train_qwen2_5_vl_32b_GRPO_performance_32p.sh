@@ -116,6 +116,12 @@ nohup python3 -m verl.trainer.main_ppo \
     trainer.nnodes=2 \
     trainer.save_freq=-1 \
     trainer.test_freq=-1 \
+    actor_rollout_ref.actor.fsdp_config.forward_prefetch=True \
+    actor_rollout_ref.ref.fsdp_config.forward_prefetch=True \
+    actor_rollout_ref.actor.fsdp_config.backward_prefetch=BACKWARD_PRE \
+    actor_rollout_ref.ref.fsdp_config.backward_prefetch=BACKWARD_PRE \
+    actor_rollout_ref.actor.use_entropy_from_logits_with_chunking=True \
+    actor_rollout_ref.ref.use_entropy_from_logits_with_chunking=True \
     trainer.total_epochs=1 > ${test_path_dir}/output/train_verl_qwen2_5_vl_32b.log 2>&1 &
 wait
 
