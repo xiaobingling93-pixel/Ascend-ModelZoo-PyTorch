@@ -71,12 +71,22 @@ tar -xzvf pytorch_v{pytorchversion}_py{pythonversion}.tar.gz
 pip install torch_npu-{pytorchversion}.xxxx.{arch}.whl
 ```
 
-### 2.5 下载本仓库
+### 2.5 安装gcc、g++
+```shell
+# 若环境镜像中没有gcc、g++，请用户自行安装
+yum install gcc
+yum install g++
+
+# 导入头文件路径
+export CPLUS_INCLUDE_PATH=/usr/include/c++/12/:/usr/include/c++/12/aarch64-openEuler-linux/:$CPLUS_INCLUDE_PATH
+```
+
+### 2.6 下载本仓库
 ```shell
    git clone https://modelers.cn/MindIE/FLUX.1-dev.git
 ```
 
-### 2.6 安装所需依赖
+### 2.7 安装所需依赖
 ```shell
 pip install -r requirements.txt
 ```

@@ -75,6 +75,16 @@ https://huggingface.co/Rundiffusion/Juggernaut-XI-Lightning
    source /usr/local/Ascend/mindie/set_env.sh
    ```
 
+3. 安装gcc、g++
+
+   ```shell
+   # 若环境镜像中没有gcc、g++，请用户自行安装
+   yum install gcc
+   yum install g++
+   # 导入头文件路径
+   export CPLUS_INCLUDE_PATH=/usr/include/c++/12/:/usr/include/c++/12/aarch64-openEuler-linux/:$CPLUS_INCLUDE_PATH
+   ```
+
 ## 准备数据集<a name="section183221994411"></a>
 
 1. 获取原始数据集。

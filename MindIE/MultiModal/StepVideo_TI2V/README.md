@@ -47,6 +47,16 @@ tar -xzvf pytorch_v{pytorchversion}_py{pythonversion}.tar.gz
 pip install torch_npu-{pytorchversion}.xxxx.{arch}.whl
 ```
 
+### 1.5 安装gcc、g++
+```shell
+# 若环境镜像中没有gcc、g++，请用户自行安装
+yum install gcc
+yum install g++
+
+# 导入头文件路径
+export CPLUS_INCLUDE_PATH=/usr/include/c++/12/:/usr/include/c++/12/aarch64-openEuler-linux/:$CPLUS_INCLUDE_PATH
+```
+
 ## 二、下载权重
 
 ### 2.1 权重及配置文件说明
