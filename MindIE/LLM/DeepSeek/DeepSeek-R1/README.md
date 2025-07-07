@@ -2,7 +2,7 @@
 # DeepSeek-R1
 
 ## 硬件要求
-部署DeepSeek-R1模型用BF16权重进行推理至少需要4台Atlas 800I A2（8\*64G）服务器，用W8A8量化权重进行推理则至少需要2台Atlas 800I A2 (8\*64G)。
+部署DeepSeek-R1模型用W8A8量化权重进行推理则至少需要2台Atlas 800I A2 (8\*64G)。
 
 ## 权重
 
