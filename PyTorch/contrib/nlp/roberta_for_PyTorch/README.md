@@ -86,7 +86,7 @@ RoBERTa 在模型规模、算力和数据上，都比 BERT 有一定的提升。
 
 1. 获取数据集。
 
-   下载 `SST-2` 数据集，请参考 `examples/roberta/preprocess_GLUE_tasks.sh` 。
+   用户自行下载 `SST-2` 数据集，请参考 `examples/roberta/preprocess_GLUE_tasks.sh` 。
 
    `SST-2` 数据集目录结构参考如下所示。
 
@@ -114,7 +114,7 @@ RoBERTa 在模型规模、算力和数据上，都比 BERT 有一定的提升。
 
 2. 获取预训练模型
 
-    下载预训练模型 `RoBERTa.base` , 解压至源码包路径下：“./pre_train_model/RoBERTa.base/model.pt”。
+   用户自行下载预训练模型 `RoBERTa.base` , 解压至源码包路径下：“./pre_train_model/RoBERTa.base/model.pt”。
 
 
 # 开始训练

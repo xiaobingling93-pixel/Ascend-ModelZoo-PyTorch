@@ -21,6 +21,9 @@ import numpy as np
 from pathlib import Path
 import torch
 import torch_npu
+if torch_npu.npu.utils.get_soc_version() == 251:
+    torch_npu.npu.config.allow_internal_format = True
+
 from torch_npu.contrib import transfer_to_npu
 from onpolicy.config import get_config
 from onpolicy.envs.mpe.MPE_env import MPEEnv
