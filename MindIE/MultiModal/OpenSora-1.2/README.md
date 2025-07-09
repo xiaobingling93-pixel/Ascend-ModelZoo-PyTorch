@@ -95,6 +95,7 @@ pip install -r requirements.txt
 安装colossalai
 ```shell
 pip3 install colossalai==0.4.4 --no-deps
+pip3 install mmengine==0.10.4 --no-deps
 ```
 
 ## 三、模型权重
