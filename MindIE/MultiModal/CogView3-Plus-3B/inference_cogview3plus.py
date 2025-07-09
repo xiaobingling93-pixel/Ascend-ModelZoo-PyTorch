@@ -222,8 +222,8 @@ def infer(args):
             blocks_count=blocks_count,
             steps_count=steps_count,
             step_start=15,
-            step_end=47,
-            step_interval=5
+            step_end=37,
+            step_interval=2
             )
         agent = CacheAgent(config)
         pipe.transformer.use_cache = True
