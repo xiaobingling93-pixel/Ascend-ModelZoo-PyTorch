@@ -84,6 +84,7 @@ docker exec -it ${容器名称} bash
 
 * W8A8量化权重请使用以下指令生成
     * 注意该量化方式仅支持在Atlas 800I A2服务器上运行
+    * 注意推荐在使用w8a8量化时，对float16的数据类型进行量化能取得较好的性能收益。可以在平衡精度和性能的选择后，酌情考虑将模型config.json的torch.dtype改为float16
 
 ```shell
 # 设置CANN包的环境变量
