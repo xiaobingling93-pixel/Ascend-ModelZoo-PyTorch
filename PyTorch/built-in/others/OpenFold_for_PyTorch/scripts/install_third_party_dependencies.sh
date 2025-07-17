@@ -12,7 +12,4 @@ ln -rs openfold/resources/stereo_chemical_props.txt tests/test_data/alphafold/co
 gunzip -c tests/test_data/sample_feats.pickle.gz > tests/test_data/sample_feats.pickle
 
 # This setting is used to fix a worker assignment issue during data loading
-conda env config vars set KMP_AFFINITY=none
-
-export LIBRARY_PATH=$CONDA_PREFIX/lib:$LIBRARY_PATH
-export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
+export KMP_AFFINITY=none

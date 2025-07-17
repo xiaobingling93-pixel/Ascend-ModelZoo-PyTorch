@@ -49,12 +49,6 @@
   
 - 安装依赖。
 
-  创建python3.9的conda并激活
-  ```
-  conda create -n openfold_env python=3.9
-  conda activate openfold_env
-  ```
-
   在模型源码包根目录下执行命令，安装模型对应PyTorch版本需要的依赖。
   ```
   pip install -r 2.1_requirements.txt  # PyTorch2.1版本
@@ -67,9 +61,15 @@
   pip install git+https://github.com/NVIDIA/dllogger.git
   pip install torch==2.1.0
 
-  conda install -c bioconda -c conda-forge hhsuite
-  conda install -c bioconda kalign2
-  conda install -c bioconda -c conda-forge mmseqs2
+  wget https://github.com/soedinglab/hh-suite/releases/download/v3.3.0/hhsuite-3.3.0-AVX2-Linux.tar.gz
+  tar xvfz hhsuite-3.3.0-AVX2-Linux.tar.gz
+  export PATH="$(pwd)/bin:$(pwd)/scripts:$PATH"
+
+  pip install git+https://github.com/TimoLassmann/kalign.git
+
+  wget https://mmseqs.com/latest/mmseqs-linux-avx2.tar.gz
+  tar xvfz mmseqs-linux-avx2.tar.gz
+  export PATH=$(pwd)/mmseqs/bin/:$PATH
   ```
 
 - 构建安装openfold。
