@@ -30,7 +30,7 @@ setup(
     'opencv-python',
     'pillow',
     'pytorch-custom-utils>=0.0.9',
-    'numpy',
+    'numpy==1.26.4',
     'vector-quantize-pytorch==1.20.9',
     'taylor-series-linear-attention>=0.1.5',
     'torch',
