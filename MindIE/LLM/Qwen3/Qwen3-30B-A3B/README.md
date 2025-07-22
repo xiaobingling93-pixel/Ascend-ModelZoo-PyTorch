@@ -21,10 +21,10 @@ chmod -R 750 {/path-to-weights/Qwen3-30B-A3B}
 
 ## 加载镜像
 
-前往[昇腾社区/开发资源](https://support.huawei.com/enterprise/zh/ascend-computing/mindie-pid-261803968/software/265263249?idAbsPath=fixnode01|23710424|251366513|254884019|261408772|261803968)下载适配本模型的镜像包mindie:2.0.T18.B010-800I-A2-py3.11-openeuler24.03-lts-aarch64.tar.gz
+前往[昇腾社区/开发资源](https://support.huawei.com/enterprise/zh/ascend-computing/mindie-pid-261803968/software/265528880?idAbsPath=fixnode01|23710424|251366513|254884019|261408772|261803968)下载适配本模型的镜像包mindie:2.0.T10.B060-800I-A2-py3.11-openeuler24.03-lts-aarch64.tar.gz
 
 ```shell
-docker load -i mindie_2.0.T18.B010-800I-A2-py3.11-openeuler24.03-lts-aarch64.tar.gz(下载的镜像名称与标签)
+docker load -i mindie_2.0.T10.B060-800I-A2-py3.11-openeuler24.03-lts-aarch64.tar.gz(下载的镜像名称与标签)
 ```
 
 完成之后，请使用`docker images`命令确认查找具体镜像名称与标签。
@@ -57,7 +57,7 @@ docker run -itd --privileged  --name= {容器名称}  --net=host \
    -v /usr/local/sbin:/usr/local/sbin \
    -v /etc/hccn.conf:/etc/hccn.conf \
    -v  {/权重路径:/权重路径}  \
-    {mindie:2.0.T18.B010-800I-A2-py3.11-openeuler24.03-lts-aarch64（根据加载的镜像名称修改）}  \
+    {mindie:2.0.T10.B060-800I-A2-py3.11-openeuler24.03-lts-aarch64（根据加载的镜像名称修改）}  \
    bash
 ```
 #### 进入容器
