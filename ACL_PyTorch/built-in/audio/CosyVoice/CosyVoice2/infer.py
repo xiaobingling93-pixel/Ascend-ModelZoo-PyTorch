@@ -9,7 +9,7 @@
 # See the Mulan PSL v2 for more details.
 
 import argparse
-from tqdm import tqdm
+import time
 import torch
 import torchaudio
 import torch_npu
@@ -17,7 +17,6 @@ from torch_npu.contrib import transfer_to_npu
 import torchair as tng
 from torchair.configs.compiler_config import CompilerConfig
 from cosyvoice.cli.cosyvoice import CosyVoice2
-from cosyvoice.utils.file_utils import load_wav
 
 
 def no_stream_input_inference(args, cosyvoice, prompt_txt):
@@ -27,9 +26,19 @@ def no_stream_input_inference(args, cosyvoice, prompt_txt):
             for _ in enumerate(cosyvoice.inference_sft(prompt_txt[0], '中文女', stream=args.stream_out)):
                 pass
         print('warm up end')
-        for _ in range(args.infer_count):
-            for i, j in enumerate(cosyvoice.inference_sft(prompt_txt[0], '中文女', stream=args.stream_out)):
-                torchaudio.save('sft_{}.wav'.format(i), j['tts_speech'], cosyvoice.sample_rate)
+        infer_res = [torch.tensor([]) for _ in range(args.infer_count)]
+        rtf = []
+        for i_step in range(args.infer_count):
+            start_time = time.time()
+            for _, j in enumerate(cosyvoice.inference_sft(prompt_txt[0], '中文女', stream=args.stream_out)):
+                infer_res[i_step] = torch.cat((infer_res[i_step], j['tts_speech']), dim=1)
+            end_time = time.time()
+            speech_len = infer_res[i_step].shape[1] / cosyvoice.sample_rate
+            print(f"singe infer RTF: {(end_time - start_time) / speech_len}")
+            rtf.append((end_time - start_time) / speech_len)
+            print(f"save out wav file to sft_out_{i_step+1}.wav")
+            torchaudio.save(f"sft_out_{i_step+1}.wav", infer_res[i_step], cosyvoice.sample_rate)
+        print(f"avg RTF: {sum(rtf) / len(rtf)}")
 
 
 def stream_input_inference(args, cosyvoice, prompt_txt):
@@ -44,13 +53,13 @@ def stream_input_inference(args, cosyvoice, prompt_txt):
                     if mode == "warmup":
                         pass
                     else:
-                        infer_res[i_step] = torch.cat((infer_res[i_step], j['tts_speech']), dim=1)
+                        infer_res[step] = torch.cat((infer_res[step], j['tts_speech']), dim=1)
             else:
                 for _, j in enumerate(cosyvoice.inference_sft_streaming_input(char, char_idx, "中文女", user_id="AscendUser", input_end=False, stream=args.stream_out)):
                     if mode == "warmup":
                         pass
                     else:
-                        infer_res[i_step] = torch.cat((infer_res[i_step], j['tts_speech']), dim=1)
+                        infer_res[step] = torch.cat((infer_res[step], j['tts_speech']), dim=1)
 
     infer_res = [torch.tensor([]) for _ in range(args.infer_count)]
 
@@ -61,13 +70,19 @@ def stream_input_inference(args, cosyvoice, prompt_txt):
         print("warm up end")
 
         print("inference start")
+        rtf = []
         for i_step in range(args.infer_count):
+            start_time = time.time()
             inference_step(i_step, mode="inference")
+            end_time = time.time()
+            speech_len = infer_res[i_step].shape[1] / cosyvoice.sample_rate
+            print(f"avg RTF: {(end_time - start_time) / speech_len}")
+            rtf.append((end_time - start_time) / speech_len)
+            print(f"save out wav file to stream_input_out_{i_step+1}.wav")
+            torchaudio.save(f"stream_input_out_{i_step+1}.wav", infer_res[i_step], cosyvoice.sample_rate)
+        print(f"avg RTF: {sum(rtf) / len(rtf)}")
         print("inference end")
 
-    print(f"save out wav file ...")
-    for i_step in tqdm(range(args.infer_count)):
-        torchaudio.save(f"stream_input_out_{i_step+1}.wav", infer_res[i_step], 24000)
 
 if __name__ == '__main__':
     torch_npu.npu.set_compile_mode(jit_compile=False)

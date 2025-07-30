@@ -55,28 +55,36 @@ cd ModelZoo-PyTorch/ACL_PyTorch/built-in/audio/CosyVoice/CosyVoice2
    cd CosyVoice
    git reset --hard fd45708
    git submodule update --init --recursive
-   git apply ../diff_CosyVoice.patch
+   git apply ../${platform}/diff_CosyVoice_${platform}.patch
+   # 将infer.py复制到CosyVoice中
+   cp ../infer.py ./
    # 获取Transformer源码
+   cd ..
    git clone https://github.com/huggingface/transformers.git
    cd transformers
    git checkout v4.37.0
    cd ..
    # 将modeling_qwen模型文件替换到transformers仓内
-   mv ../modeling_qwen2.py ./transformers/src/transformers/models/qwen2
+   mv ../${platform}/modeling_qwen2.py ./transformers/src/transformers/models/qwen2
    ```
    
     文件目录结构大致如下：
     ```text
     📁 CosyVoice/
     ├── 📁 CosyVoice2/
-    |   |── 📄 diff_CosyVoice.patch
-    |   |── 📄 modeling_qwen2.py
+    |   |── 📁 300I
+    |       |── 📄 diff_CosyVoice_300I.patch
+    |       |── 📄 modeling_qwen2.py
+    |   |── 📁 800I
+    |       |── 📄 diff_CosyVoice_800I.patch
+    |       |── 📄 modeling_qwen2.py
     |   |── 📁 CosyVoice
     |       |── 📁 cosyVoice源码文件    # cosyVoice的源码文件，此处不一一列举
-    │       ├── 📁 CosyVoice-0.5B/     # 权重文件
-    │       ├── 📁 transformers/   # transformers文件，里面有修改过的modeling_qwen2.py文件
-    │       ├── 📄 infer.py        # 推理脚本
-    │       └── 📄 modify_onnx.py  # 模型转换脚本
+    │       ├── 📁 CosyVoice-0.5B/    # 权重文件
+    │       ├── 📁 transformers/    # transformers库，里面修改modeling_qwen2.py文件
+    │── 📄 requirements.txt    # 依赖库
+    |── 📄 infer.py    # 推理脚本
+    └── 📄 modify_onnx.py    # 模型转换脚本
     ```
    
 2. 安装依赖  
@@ -103,7 +111,7 @@ cd ModelZoo-PyTorch/ACL_PyTorch/built-in/audio/CosyVoice/CosyVoice2
    
 3. 安装msit工具
    
-   参考[msit](https://gitee.com/ascend/msit)安装工具中的benchmark和surgen组件。（未安装会提示 ais_bench 导入失败报错）
+   参考[msit](https://gitee.com/ascend/msit)安装工具中的benchmark和surgeon组件。（未安装会提示 ais_bench 导入失败报错）
 
 
 4. 获取权重数据
@@ -153,7 +161,7 @@ cd ModelZoo-PyTorch/ACL_PyTorch/built-in/audio/CosyVoice/CosyVoice2
    执行ATC命令，将利用npu-smi info命令获取的芯片型号填入${soc_version}中
 
    ```
-   atc --framework=5 --soc_version=${soc_version} --model ./${CosyVoice2-0.5B}/speech_token_md.onnx --output ./${CosyVoice2-0.5B}/speech --input_shape="feats:1,128,-1;feats_length:1"
+   atc --framework=5 --soc_version=${soc_version} --model ./${CosyVoice2-0.5B}/speech_token_md.onnx --output ./${CosyVoice2-0.5B}/speech --input_shape="feats:1,128,-1;feats_length:1" --precision_mode allow_fp32_to_fp16
    atc --framework=5 --soc_version=${soc_version} --model ./${CosyVoice2-0.5B}/flow.decoder.estimator.fp32.onnx --output ./${CosyVoice2-0.5B}/flow --input_shape="x:2,80,-1;mask:2,1,-1;mu:2,80,-1;t:2;spks:2,80;cond:2,80,-1"
    atc --framework=5 --soc_version=${soc_version} --model ./${CosyVoice2-0.5B}/flow.decoder.estimator.fp32.onnx --output ./${CosyVoice2-0.5B}/flow_static --input_shape="x:2,80,-1;mask:2,1,-1;mu:2,80,-1;t:2;spks:2,80;cond:2,80,-1" --dynamic_dims="100,100,100,100;200,200,200,200;300,300,300,300;400,400,400,400;500,500,500,500;600,600,600,600;700,700,700,700" --input_format=ND
    ```
@@ -163,10 +171,7 @@ cd ModelZoo-PyTorch/ACL_PyTorch/built-in/audio/CosyVoice/CosyVoice2
 
 ### 2 开始推理验证
 
-   1. 首先移动infer.py文件到CosyVoice目录下
-
-
-   2. 设置环境变量，执行推理命令
+   1. 设置环境变量，执行推理命令
 
       ```
       # 1. 指定使用NPU ID，默认为0
@@ -187,9 +192,12 @@ cd ModelZoo-PyTorch/ACL_PyTorch/built-in/audio/CosyVoice/CosyVoice2
       * 非流式输入：将推理结果保存在`sft_i.wav`中，并打屏性能数据：实时率(rtf)，指的是平均1s时长的音频需要多少时间处理。
       * 流式输入：将推理结果保存在`stream_input_out_i.wav`文件中，并打屏性能数据：实时率(rtf)
 
+   3. 如因为意外操作导致torchair编译失败，需将已生成的.torchair_cache路径删除，避免使用编译错误的图导致的前向出错。
+
 ### 3 性能数据
 
    | 模型        |芯片|rtf(实时率)|
    |-----------|------|------|
-   | cosyvoice |800I A2|0.28s|
+   | cosyvoice |800I A2|0.28|
+   | cosyvoice |300I DUO|0.75|
 
