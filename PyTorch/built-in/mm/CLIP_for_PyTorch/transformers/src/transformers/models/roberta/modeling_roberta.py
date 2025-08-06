@@ -867,7 +867,7 @@ class RobertaModel(RobertaPreTrainedModel):
             output_hidden_states=output_hidden_states,
             return_dict=return_dict,
         )
-        sequence_output = encoder_outputs[0].view(bs, from_seq_len, -1)
+        sequence_output = encoder_outputs[0].view(bs, from_seq_len, -1).clone()
         pooled_output = self.pooler(sequence_output) if self.pooler is not None else None
 
         if not return_dict:
