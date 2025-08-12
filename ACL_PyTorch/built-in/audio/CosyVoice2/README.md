@@ -30,11 +30,11 @@
 
   | 配套                                                            |   版本 | 环境准备指导                                                                                          |
   | ------------------------------------------------------------    | ------ | ------------------------------------------------------------                                          |
-  | 固件与驱动                                                       | 24.0.RC3 | [Pytorch框架推理环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies) |
-  | CANN                                                            |  8.0.RC3 | 包含kernels包和toolkit包                                                                                                   |
-  | Python                                                          |  3.8 | -                                                                                                     |
-  | PyTorch                                                         | 2.4.0 | -                                                                                                     |
-  | Ascend Extension PyTorch                                        | 2.4.0.post2 | -                                                                                                     |
+  | 固件与驱动                                                       | 25.2.0 | [Pytorch框架推理环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies) |
+  | CANN                                                            |  8.2.RC1 | 包含kernels包和toolkit包                                                                                                   |
+  | Python                                                          |  3.11 | -                                                                                                     |
+  | PyTorch                                                         | 2.3.1 | -                                                                                                     |
+  | Ascend Extension PyTorch                                        | 2.3.1.post6 | -                                                                                                     |
   | 说明：Atlas 800I A2 推理卡和Atlas 300I DUO 推理卡请以CANN版本选择实际固件与驱动版本。 |      \ | \                                                                                                     |
 
 
@@ -59,7 +59,6 @@ cd ModelZoo-PyTorch/ACL_PyTorch/built-in/audio/CosyVoice/CosyVoice2
    # 将infer.py复制到CosyVoice中
    cp ../infer.py ./
    # 获取Transformer源码
-   cd ..
    git clone https://github.com/huggingface/transformers.git
    cd transformers
    git checkout v4.37.0
@@ -192,9 +191,9 @@ cd ModelZoo-PyTorch/ACL_PyTorch/built-in/audio/CosyVoice/CosyVoice2
       * 非流式输入：将推理结果保存在`sft_i.wav`中，并打屏性能数据：实时率(rtf)，指的是平均1s时长的音频需要多少时间处理。
       * 流式输入：将推理结果保存在`stream_input_out_i.wav`文件中，并打屏性能数据：实时率(rtf)
 
-   3. 如因为意外操作导致torchair编译失败，需将已生成的.torchair_cache路径删除，避免使用编译错误的图导致的前向出错。
+   2. 如因为意外操作导致torchair编译失败，需将已生成的.torchair_cache路径删除，避免使用编译错误的图导致的前向出错。
 
-### 3 性能数据
+### 3 性能数据(SFT场景)
 
    | 模型        |芯片|rtf(实时率)|
    |-----------|------|------|
