@@ -120,7 +120,7 @@
       python demo/image_demo_npu.py images/animals.png configs/mm_grounding_dino/grounding_dino_swin-b_pretrain_obj365_goldg_v3det.py --weight weights/grounding_dino_swin-b_pretrain_obj365_goldg_v3de-f83eef00.pth --texts '$: coco' --device npu (--loop 10)
 
       # 执行视频推理命令
-      python demo/video_demo_npu.py demo/demo_mot.mp4 configs/mm_grounding_dino/grounding_dino_swin-b_pretrain_obj365_goldg_v3det.py weights/grounding_dino_swin-b_pretrain_obj365_goldg_v3de-f83eef00.pth (--batch_size 16)
+      python demo/video_demo_npu.py demo/demo.mp4 configs/mm_grounding_dino/grounding_dino_swin-b_pretrain_obj365_goldg_v3det.py weights/grounding_dino_swin-b_pretrain_obj365_goldg_v3de-f83eef00.pth (--batch_size 16)
       ```
       在推理开始后，首先会默认执行warm_up，目的是执行首次编译，首次编译时间较长，在warm_up结束后，会执行推理操作，并打屏计算结果和性能数据。
 

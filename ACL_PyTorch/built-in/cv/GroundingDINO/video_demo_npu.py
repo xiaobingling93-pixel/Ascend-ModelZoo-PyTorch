@@ -207,7 +207,7 @@ def main():
     video_tools = init_video_tools(args, model)
     video_reader = video_tools.get("video_reader")
     if len(video_reader) < batch_size:
-        raise AssertionError(f"batch_size must be greater than video frame len, "
+        raise AssertionError(f"video frame len cannot be less than batch_size, "
                              f"now frame len: {len(video_reader)}, batch_size: {batch_size}")
 
     # tokenizer
