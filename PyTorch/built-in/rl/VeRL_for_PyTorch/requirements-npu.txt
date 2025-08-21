@@ -16,3 +16,4 @@ transformers>=4.51.0
 mathruler
 torchdata
 wandb
+pybind11==2.13.6
