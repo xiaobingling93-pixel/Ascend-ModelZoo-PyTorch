@@ -95,27 +95,10 @@ infer.py推理参数：
 
 warmup结束之后，开始推理librispeech_asr_dummy数据集，推理过程中会打屏输出E2E性能，推理结束后会输出WER精度得分。
 
-**如果你想推理过程中打印encode和decode的耗时，你可以执行以下命令：**
-```SHELL
-# 1. 找到当前的环境路径（简称${location}），Location后面的那一串就是当前环境路径
-pip show openai-whisper | grep Location
-# 2. 记录当前whisper库decoding.py的文件路径
-${decoding_path} = ${location}/whisper/decoding.py
-# 3. 执行patch文件
-patch -p1 < whisper_decoding.patch
-# 可能会提示你
-# cant find file to patch at input line 3
-# ...
-# File to patch:
-# 这时候需要你手动指定文件路径，输入之前得到的
-${decoding_path}
-# 按回车，提示 patching file ${decoding_path} 即成功
-```
-
 ## 性能数据
   在librispeech_asr_dummy/clean数据集上的性能如下：
 
-   | 模型      | 芯片         | 平均encode | 平均decode |平均E2E   |
-   |---------|------------|----------|-----------------|---------|
-   | whisper | 800I A2    | 0.90ms   | 3.25ms          | 67.32ms |
-    注：平均decode 指在decode阶段，生成单个token的平均耗时。
+   | 模型      | 芯片         | 转录倍率QPS |
+   |---------|------------|----------|
+   | whisper | 800I A2 64G | 42.34 |
+    注：QPS表示音频实际长度与转录音频所需的时间的比值，多次运行取平均

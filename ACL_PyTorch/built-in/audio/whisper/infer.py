@@ -17,6 +17,7 @@ import jiwer
 import numpy as np
 import pandas as pd
 from datasets import load_dataset
+import librosa
 
 import torch
 from torch import nn, Tensor
@@ -279,6 +280,12 @@ if __name__ == '__main__':
     npu_backend = tng.get_npu_backend(compiler_config=config)
 
     dataset = LibriSpeechDataset(wsp_args.speech_path, device=device)
+    audios = load_dataset(wsp_args.speech_path, split="validation")
+    duration_seconds = 0
+    for audio in audios:
+        y, audio_sr = audio["audio"]["array"], audio["audio"]["sampling_rate"]
+        duration_seconds += librosa.get_duration(y=y, sr=audio_sr)
+
     loader = torch.utils.data.DataLoader(dataset, batch_size=wsp_args.batch_size)
     options = whisper.DecodingOptions(language='en', without_timestamps=True, fp16=True)
 
@@ -300,5 +307,7 @@ if __name__ == '__main__':
                 print("{}/{} - {}".format(_step, wsp_args.warmup, result[bs].text))
 
         print("LibriSpeech infer, English to English TRANSCRIBE ...")
+        start_time = time.time()
         p_wer = libri_speech_infer(wsp_model, options, loader)
+        print(f"QPS: {duration_seconds/(time.time()-start_time):.2f}")
         print(f"LibriSpeech infer WER score =  {p_wer * 100:.2f} %")
