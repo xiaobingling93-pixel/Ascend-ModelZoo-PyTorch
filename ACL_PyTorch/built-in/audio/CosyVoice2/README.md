@@ -43,7 +43,7 @@
 ## 获取本仓源码
 ```
 git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
-cd ModelZoo-PyTorch/ACL_PyTorch/built-in/audio/CosyVoice/CosyVoice2
+cd ModelZoo-PyTorch/ACL_PyTorch/built-in/audio/CosyVoice2
 ```
 
 ## 获取源码
@@ -55,6 +55,7 @@ cd ModelZoo-PyTorch/ACL_PyTorch/built-in/audio/CosyVoice/CosyVoice2
    cd CosyVoice
    git reset --hard fd45708
    git submodule update --init --recursive
+   # 根据当前使用机型，叠加patch。如果当前使用机型为313T 800T A2，和800I共用patch文件
    git apply ../${platform}/diff_CosyVoice_${platform}.patch
    # 将infer.py复制到CosyVoice中
    cp ../infer.py ./
@@ -63,24 +64,23 @@ cd ModelZoo-PyTorch/ACL_PyTorch/built-in/audio/CosyVoice/CosyVoice2
    cd transformers
    git checkout v4.37.0
    cd ..
-   # 将modeling_qwen模型文件替换到transformers仓内
-   mv ../${platform}/modeling_qwen2.py ./transformers/src/transformers/models/qwen2
+   # 将modeling_qwen模型文件替换到transformers仓内。800T A2和800I A2共用modeling_qwen2.py。
+   cp ../${platform}/modeling_qwen2.py ./transformers/src/transformers/models/qwen2
    ```
    
     文件目录结构大致如下：
     ```text
-    📁 CosyVoice/
-    ├── 📁 CosyVoice2/
-    |   |── 📁 300I
-    |       |── 📄 diff_CosyVoice_300I.patch
-    |       |── 📄 modeling_qwen2.py
-    |   |── 📁 800I
-    |       |── 📄 diff_CosyVoice_800I.patch
-    |       |── 📄 modeling_qwen2.py
-    |   |── 📁 CosyVoice
-    |       |── 📁 cosyVoice源码文件    # cosyVoice的源码文件，此处不一一列举
-    │       ├── 📁 CosyVoice-0.5B/    # 权重文件
-    │       ├── 📁 transformers/    # transformers库，里面修改modeling_qwen2.py文件
+    📁 CosyVoice2/
+    |── 📁 300I
+        |── 📄 diff_CosyVoice_300I.patch
+        |── 📄 modeling_qwen2.py
+    |── 📁 800I
+        |── 📄 diff_CosyVoice_800I.patch
+        |── 📄 modeling_qwen2.py
+    |── 📁 CosyVoice
+        |── 📁 cosyVoice源码文件    # cosyVoice的源码文件，此处不一一列举
+        ├── 📁 CosyVoice-0.5B/    # 权重文件
+        ├── 📁 transformers/    # transformers库，里面修改modeling_qwen2.py文件
     │── 📄 requirements.txt    # 依赖库
     |── 📄 infer.py    # 推理脚本
     └── 📄 modify_onnx.py    # 模型转换脚本
@@ -91,7 +91,7 @@ cd ModelZoo-PyTorch/ACL_PyTorch/built-in/audio/CosyVoice/CosyVoice2
    pip3 install -r ../requirements.txt
    apt-get install sox # centos版本 yum install sox
    ```
-   注：如果遇到无法安装WeTextProcessing的场景，可以参考以下方法手动安装编译
+   注：如果遇到无法安装WeTextProcessing的场景，例如提示安装pyinit报错，可以参考以下方法手动安装编译
    ```bash
     # 下载安装包并解压
     wget https://www.openfst.org/twiki/pub/FST/FstDownload/openfst-1.8.3.tar.gz
@@ -110,7 +110,8 @@ cd ModelZoo-PyTorch/ACL_PyTorch/built-in/audio/CosyVoice/CosyVoice2
    
 3. 安装msit工具
    
-   参考[msit](https://gitee.com/ascend/msit)安装工具中的benchmark和surgeon组件。（未安装会提示 ais_bench 导入失败报错）
+   参考[msit](https://gitee.com/ascend/msit/blob/master/msit/docs/install/README.md)安装工具中的benchmark和surgeon组件。（未安装会提示 ais_bench 导入失败报错）
+   推荐使用git clone源码方式安装msit组件，否则推理过程中易出现报错The stream is not in the current context.
 
 
 4. 获取权重数据
@@ -200,3 +201,27 @@ cd ModelZoo-PyTorch/ACL_PyTorch/built-in/audio/CosyVoice/CosyVoice2
    | cosyvoice |800I A2|0.28|
    | cosyvoice |300I DUO|0.75|
 
+
+# FAQ
+   1. 环境安装依赖
+
+      (1)安装requirements.txt中的python库时，提示pynini编译失败：
+      pynini是WeTextProcessing的安装依赖项，编译报错时，需要按照获取源码章节，第2小节，手动编译安装WeTextProcessing。
+
+      (2)如提示未安装tokenizers库或版本冲突，可使用0.15.1版本tokenizers。
+
+   2. 如在Openeular系统运行模型推理的过程中提示，fatal error: 'cstdint' file not found：
+
+      确保gcc，g++已安装成功
+      导入如下环境变量
+      export CPLUS_INCLUDE_PATH=/usr/include/c++/12:/usr/include/c++/12/aarch64-openEuler-linux:$CPLUS_INCLUDE_PATH
+
+   3. 推理过程需确保ATC转换生成OM文件的过程，和推理过程的CANN版本保持一致。
+
+   4. ATC转换时，提示Soc version ins invalid.
+
+      atc命令--soc_version，需加入Ascend前缀，如--soc_version=Ascend310P3，具体型号以npu-smi info查询结果为准。
+
+   5. 运行modify_onnx.py时，如提示ModuleNotFoundError: No module named 'auto_optimizer'：
+
+      需先安装[msit](https://gitee.com/ascend/msit)工具。

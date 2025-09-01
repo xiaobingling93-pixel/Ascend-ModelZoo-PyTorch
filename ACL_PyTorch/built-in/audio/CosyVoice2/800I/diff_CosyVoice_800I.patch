@@ -1,8 +1,8 @@
 diff --git a/cosyvoice/cli/cosyvoice.py b/cosyvoice/cli/cosyvoice.py
-index e2d62e2..dccea41 100644
+index e2d62e2..a0512a4 100644
 --- a/cosyvoice/cli/cosyvoice.py
 +++ b/cosyvoice/cli/cosyvoice.py
-@@ -13,11 +13,14 @@
+@@ -13,11 +13,15 @@
  # limitations under the License.
  import os
  import time
@@ -13,37 +13,48 @@ index e2d62e2..dccea41 100644
  from hyperpyyaml import load_hyperpyyaml
  from modelscope import snapshot_download
  import torch
++import acl
 +from ais_bench.infer.interface import InferSession
  from cosyvoice.cli.frontend import CosyVoiceFrontEnd
  from cosyvoice.cli.model import CosyVoiceModel, CosyVoice2Model
  from cosyvoice.utils.file_utils import logging
-@@ -126,7 +129,7 @@ class CosyVoice:
-
+@@ -126,7 +130,7 @@ class CosyVoice:
+ 
  class CosyVoice2(CosyVoice):
-
+ 
 -    def __init__(self, model_dir, load_jit=False, load_trt=False, fp16=False):
 +    def __init__(self, model_dir, load_jit=False, load_trt=False, fp16=False, load_om=False):
          self.instruct = True if '-Instruct' in model_dir else False
          self.model_dir = model_dir
          self.fp16 = fp16
-@@ -155,6 +158,16 @@ class CosyVoice2(CosyVoice):
+@@ -155,6 +159,26 @@ class CosyVoice2(CosyVoice):
              self.model.load_trt('{}/flow.decoder.estimator.{}.mygpu.plan'.format(model_dir, 'fp16' if self.fp16 is True else 'fp32'),
                                  '{}/flow.decoder.estimator.fp32.onnx'.format(model_dir),
                                  self.fp16)
 +        if load_om:
++            soc_version = acl.get_soc_name()
++            context = None
++            if '910B3' in soc_version:
++                context, ret = acl.rt.get_context()
++                if ret:
++                    raise RuntimeError(f"Get context failed, retcode is {ret}.")
 +            arch = platform.machine()
 +            system = platform.system().lower()
 +            flow_om = InferSession(0, '{}/flow_{}_{}.om'.format(model_dir, system ,arch))
 +            flow_om_static = InferSession(0, '{}/flow_static.om'.format(model_dir))
 +            speech_om = InferSession(0, '{}/speech_{}_{}.om'.format(model_dir, system ,arch))
++            if '910B3' in soc_version:
++                ret = acl.rt.set_context(context)
++                if ret:
++                    raise RuntimeError(f"Set context failed, retcode is {ret}.")
 +            self.frontend.speech_om = speech_om
 +            self.frontend.flow_om = flow_om
 +            self.model.flow.decoder.flow_om_static = flow_om_static
 +            self.model.flow.decoder.flow_om = flow_om
          del configs
-
+ 
      def inference_instruct(self, *args, **kwargs):
-@@ -171,3 +184,19 @@ class CosyVoice2(CosyVoice):
+@@ -171,3 +195,19 @@ class CosyVoice2(CosyVoice):
                  logging.info('yield speech len {}, rtf {}'.format(speech_len, (time.time() - start_time) / speech_len))
                  yield model_output
                  start_time = time.time()
@@ -73,7 +84,7 @@ index 6e10f00..25ad767 100644
              self.inflect_parser = inflect.engine()
 +        self.speech_om = None
 +        self.flow_om = None
-
+ 
      def _extract_text_token(self, text):
          if isinstance(text, Generator):
 @@ -92,11 +94,16 @@ class CosyVoiceFrontEnd:
@@ -104,7 +115,7 @@ index 9ebf8cb..a8775a1 100644
 +++ b/cosyvoice/cli/model.py
 @@ -99,7 +99,7 @@ class CosyVoiceModel:
          self.flow.decoder.estimator = self.flow.decoder.estimator_engine.create_execution_context()
-
+ 
      def llm_job(self, text, prompt_text, llm_prompt_speech_token, llm_embedding, uuid):
 -        with self.llm_context:
 +        with self.llm_context():
@@ -126,7 +137,7 @@ index 9ebf8cb..a8775a1 100644
          self.tts_speech_token_dict = {}
          self.llm_end_dict = {}
          self.hift_cache_dict = {}
-
+ 
 +        # add for support streaming input
 +        self.first_chunk_size = 20
 +        self.token_offset_dict = {}
@@ -274,15 +285,15 @@ index 6a60f6d..fbe7545 100644
  import torch.nn.functional as F
 +import numpy as np
  from matcha.models.components.flow_matching import BASECFM
-
-
+ 
+ 
 @@ -32,6 +33,8 @@ class ConditionalCFM(BASECFM):
          # Just change the architecture of the estimator here
          self.estimator = estimator
          self.lock = threading.Lock()
 +        self.flow_om = None
 +        self.flow_om_static = None
-
+ 
      @torch.inference_mode()
      def forward(self, mu, mask, n_timesteps, temperature=1.0, spks=None, cond=None, prompt_len=0, flow_cache=torch.zeros(1, 80, 0, 2)):
 @@ -105,12 +108,26 @@ class ConditionalCFM(BASECFM):
@@ -329,17 +340,17 @@ index c47bf05..7f3e4ae 100644
 +from torch.nn.utils.parametrize import remove_parametrizations
  from torch.nn.utils.parametrizations import weight_norm
  from torch.distributions.uniform import Uniform
-
+ 
 @@ -99,8 +100,8 @@ class ResBlock(torch.nn.Module):
-
+ 
      def remove_weight_norm(self):
          for idx in range(len(self.convs1)):
 -            remove_weight_norm(self.convs1[idx])
 -            remove_weight_norm(self.convs2[idx])
 +            remove_parametrizations(self.convs1[idx], "weight")
 +            remove_parametrizations(self.convs2[idx], "weight")
-
-
+ 
+ 
  class SineGen(torch.nn.Module):
 @@ -319,14 +320,11 @@ class HiFTGenerator(nn.Module):
      def remove_weight_norm(self):
@@ -358,41 +369,41 @@ index c47bf05..7f3e4ae 100644
 +        remove_parametrizations(self.conv_post, 'weight')
          for l in self.source_resblocks:
              l.remove_weight_norm()
-
+ 
 @@ -346,9 +344,7 @@ class HiFTGenerator(nn.Module):
                                          self.istft_params["n_fft"], window=self.stft_window.to(magnitude.device))
          return inverse_transform
-
+ 
 -    def decode(self, x: torch.Tensor, s: torch.Tensor = torch.zeros(1, 1, 0)) -> torch.Tensor:
 -        s_stft_real, s_stft_imag = self._stft(s.squeeze(1))
 -        s_stft = torch.cat([s_stft_real, s_stft_imag], dim=1)
 +    def decode(self, x: torch.Tensor, s_stft: torch.Tensor, index: torch.int) -> torch.Tensor:
-
+ 
          x = self.conv_pre(x)
          for i in range(self.num_upsamples):
 @@ -356,7 +352,7 @@ class HiFTGenerator(nn.Module):
              x = self.ups[i](x)
-
+ 
              if i == self.num_upsamples - 1:
 -                x = self.reflection_pad(x)
 +                x = torch.cat((x, x[:,:,-2:-1]), -1)
-
+ 
              # fusion
              si = self.source_downs[i](s_stft)
 @@ -373,12 +369,10 @@ class HiFTGenerator(nn.Module):
-
+ 
          x = F.leaky_relu(x)
          x = self.conv_post(x)
 -        magnitude = torch.exp(x[:, :self.istft_params["n_fft"] // 2 + 1, :])
 -        phase = torch.sin(x[:, self.istft_params["n_fft"] // 2 + 1:, :])  # actually, sin is redundancy
 +        magnitude = torch.exp(x[:, :index, :])
 +        phase = torch.sin(x[:, index:, :])  # actually, sin is redundancy
-
+ 
 -        x = self._istft(magnitude, phase)
 -        x = torch.clamp(x, -self.audio_limit, self.audio_limit)
 -        return x
 +        return magnitude, phase
-
+ 
      def forward(
              self,
 @@ -407,5 +401,12 @@ class HiFTGenerator(nn.Module):
@@ -416,7 +427,7 @@ index bbd3305..7eb32ad 100644
 @@ -229,16 +229,17 @@ class Qwen2Encoder(torch.nn.Module):
          super().__init__()
          self.model = Qwen2ForCausalLM.from_pretrained(pretrain_path)
-
+ 
 -    def forward_one_step(self, xs, masks, cache=None):
 -        input_masks = masks[:, -1, :]
 -        outs = self.model(
@@ -444,7 +455,7 @@ index bbd3305..7eb32ad 100644
 @@ -283,6 +284,15 @@ class Qwen2LM(TransformerLM):
          self.sampling = sampling
          self.mix_ratio = mix_ratio
-
+ 
 +        # 5. added for support streaming input
 +        self.prompt_speech_token_emb_dict = {}
 +        self.lm_input_dict = {}
@@ -481,7 +492,7 @@ index bbd3305..7eb32ad 100644
              out_tokens.append(top_ids)
 -            lm_input = self.speech_embedding.weight[top_ids].reshape(1, 1, -1)
 +            lm_input = self.speech_embedding.weight[top_ids].reshape(1, 1, -1).detach().clone()
-
+ 
      @torch.inference_mode()
      def inference_bistream(
 @@ -432,3 +449,144 @@ class Qwen2LM(TransformerLM):
@@ -635,7 +646,7 @@ index 3e61a8c..d316b92 100644
 --- a/cosyvoice/utils/common.py
 +++ b/cosyvoice/utils/common.py
 @@ -107,12 +107,33 @@ def init_weights(m, mean=0.0, std=0.01):
-
+ 
  # Repetition Aware Sampling in VALL-E 2
  def ras_sampling(weighted_scores, decoded_tokens, sampling, top_p=0.8, top_k=25, win_size=10, tau_r=0.1):
 -    top_ids = nucleus_sampling(weighted_scores, top_p=top_p, top_k=top_k)
@@ -644,7 +655,7 @@ index 3e61a8c..d316b92 100644
      if rep_num >= win_size * tau_r:
          top_ids = random_sampling(weighted_scores, decoded_tokens, sampling)
      return top_ids
-
+ 
 +def dst_sampling(weighted_scores, top_p=0.8, top_k=25):
 +
 +    sorted_value, sorted_idx = weighted_scores.softmax(dim=0).sort(descending=True, stable=True)
@@ -666,6 +677,6 @@ index 3e61a8c..d316b92 100644
 +    top_ids = selected_indices[selected_prob.multinomial(1, replacement=True)]
 +
 +    return top_ids
-
+ 
  def nucleus_sampling(weighted_scores, top_p=0.8, top_k=25):
      prob, indices = [], []
