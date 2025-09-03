@@ -12,5 +12,6 @@ html2text
 nltk
 progressbar
 #Others
+huggingface-hub==0.30.2
 onnxruntime
 git+https://github.com/NVIDIA/dllogger
