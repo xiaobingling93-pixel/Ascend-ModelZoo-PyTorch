@@ -12,6 +12,7 @@ optimum
 packaging
 peft
 pillow
+pybind11==2.13.6
 ray[default]==2.42.0
 tensorboard
 torch==2.6.0

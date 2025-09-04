@@ -11,6 +11,7 @@ optimum
 packaging
 peft
 pynvml>=12.0.0
+pybind11==2.13.6
 ray[default]==2.42.0
 tensorboard
 torch

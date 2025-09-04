@@ -11,6 +11,7 @@ numpy==1.26.4
 optimum
 packaging
 peft
+pybind11==2.13.6
 ray[default]==2.42.0
 tensorboard
 torchmetrics
