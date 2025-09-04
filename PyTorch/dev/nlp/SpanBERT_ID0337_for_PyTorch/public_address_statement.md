@@ -1,0 +1,16 @@
+| 文件位置                                                                                                      | 公网地址                                                                             | 公网地址用途  |
+|-----------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|---------|
+| ModelZoo-PyTorch/PyTorch/dev/nlp/SpanBERT_ID0337_for_PyTorch/code/download_finetuned.sh                   | http://dl.fbaipublicfiles.com/fairseq/models/spanbert_$model.tar.gz              | 模型相关说明  |
+| ModelZoo-PyTorch/PyTorch/dev/nlp/SpanBERT_ID0337_for_PyTorch/code/pytorch_pretrained_bert/modeling.py     | https://s3.amazonaws.com/models.huggingface.co/bert/bert-large-uncased.tar.gz    | 模型相关说明  |
+| ModelZoo-PyTorch/PyTorch/dev/nlp/SpanBERT_ID0337_for_PyTorch/code/pytorch_pretrained_bert/modeling.py     | https://s3.amazonaws.com/models.huggingface.co/bert/bert-large-cased.tar.gz      | 模型相关说明  |
+| ModelZoo-PyTorch/PyTorch/dev/nlp/SpanBERT_ID0337_for_PyTorch/code/pytorch_pretrained_bert/modeling.py     | https://s3.amazonaws.com/models.huggingface.co/bert/bert-base-uncased.tar.gz     | 模型相关说明  |
+| ModelZoo-PyTorch/PyTorch/dev/nlp/SpanBERT_ID0337_for_PyTorch/code/pytorch_pretrained_bert/modeling.py     | https://s3.amazonaws.com/models.huggingface.co/bert/bert-base-cased.tar.gz       | 模型相关说明  |
+| ModelZoo-PyTorch/PyTorch/dev/nlp/SpanBERT_ID0337_for_PyTorch/code/pytorch_pretrained_bert/modeling.py     | https://dl.fbaipublicfiles.com/fairseq/models/spanbert_hf.tar.gz                 | 模型相关说明  |
+| ModelZoo-PyTorch/PyTorch/dev/nlp/SpanBERT_ID0337_for_PyTorch/code/pytorch_pretrained_bert/modeling.py     | https://dl.fbaipublicfiles.com/fairseq/models/spanbert_hf_base.tar.gz            | 模型相关说明  |
+| ModelZoo-PyTorch/PyTorch/dev/nlp/SpanBERT_ID0337_for_PyTorch/code/pytorch_pretrained_bert/modeling.py     | https://www.tensorflow.org/install/                                              | 三方库链接   |
+| ModelZoo-PyTorch/PyTorch/dev/nlp/SpanBERT_ID0337_for_PyTorch/code/pytorch_pretrained_bert/tokenization.py | https://s3.amazonaws.com/models.huggingface.co/bert/bert-large-cased-vocab.txt   | 模型相关说明  |
+| ModelZoo-PyTorch/PyTorch/dev/nlp/SpanBERT_ID0337_for_PyTorch/code/pytorch_pretrained_bert/tokenization.py | https://s3.amazonaws.com/models.huggingface.co/bert/bert-base-cased-vocab.txt    | 模型相关说明  |
+| ModelZoo-PyTorch/PyTorch/dev/nlp/SpanBERT_ID0337_for_PyTorch/code/pytorch_pretrained_bert/tokenization.py | https://s3.amazonaws.com/models.huggingface.co/bert/bert-large-uncased-vocab.txt | 模型相关说明  |
+| ModelZoo-PyTorch/PyTorch/dev/nlp/SpanBERT_ID0337_for_PyTorch/code/pytorch_pretrained_bert/tokenization.py | https://s3.amazonaws.com/models.huggingface.co/bert/bert-large-cased-vocab.txt   | 模型相关说明  |
+| ModelZoo-PyTorch/PyTorch/dev/nlp/SpanBERT_ID0337_for_PyTorch/code/pytorch_pretrained_bert/tokenization.py | https://s3.amazonaws.com/models.huggingface.co/bert/bert-base-uncased-vocab.txt  | 模型相关说明  |
+| ModelZoo-PyTorch/PyTorch/dev/nlp/SpanBERT_ID0337_for_PyTorch/code/pytorch_pretrained_bert/tokenization.py | https://s3.amazonaws.com/models.huggingface.co/bert/bert-base-cased-vocab.txt    | 模型相关说明  |

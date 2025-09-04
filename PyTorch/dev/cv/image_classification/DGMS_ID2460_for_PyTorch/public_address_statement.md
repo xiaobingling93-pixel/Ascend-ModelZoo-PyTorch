@@ -1,0 +1,4 @@
+| 文件位置                                                                                                        | 公网地址                                                     | 公网地址用途  |
+|-------------------------------------------------------------------------------------------------------------|----------------------------------------------------------|---------|
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/DGMS_ID2460_for_PyTorch/dataloader/datasets/cifar10.py | https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz  | 模型相关说明  |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/DGMS_ID2460_for_PyTorch/dataloader/datasets/cifar10.py | https://www.cs.toronto.edu/~kriz/cifar-100-python.tar.gz | 模型相关说明  |

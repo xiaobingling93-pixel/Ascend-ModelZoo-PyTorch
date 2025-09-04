@@ -1,0 +1,3 @@
+| 文件位置                                                              | 公网地址                                                                                   | 公网地址用途  |
+|-------------------------------------------------------------------|----------------------------------------------------------------------------------------|---------|
+| ModelZoo-PyTorch/PyTorch/built-in/mm/VisualGLM/model/visualglm.py | https://cloud.tsinghua.edu.cn/d/dd80f9d39d454bc29ce4/files/?p=%2Fvisualglm-6b.zip&dl=1 | 权重地址    |

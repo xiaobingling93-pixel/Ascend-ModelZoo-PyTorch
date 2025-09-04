@@ -1,0 +1,4 @@
+| 文件位置                                                                                        | 公网地址                                                                         | 公网地址用途  |
+|---------------------------------------------------------------------------------------------|------------------------------------------------------------------------------|---------|
+| ModelZoo-PyTorch/PyTorch/dev/cv/multimodality/st-gcn_ID2967_for_PyTorch/tools/get_models.sh | http://posefs1.perception.cs.cmu.edu/OpenPose/models/                        | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/dev/cv/multimodality/st-gcn_ID2967_for_PyTorch/tools/get_models.sh | https://open-mmlab.s3.ap-northeast-2.amazonaws.com/mmskeleton/models/st-gcn/ | 权重地址    |

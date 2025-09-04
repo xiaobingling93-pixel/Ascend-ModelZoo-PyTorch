@@ -1,0 +1,18 @@
+| 文件位置                                                                                                             | 公网地址                                                                       | 公网地址用途   |
+|------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|----------|
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/DeepLabV3+_ID0458_for_PyTorch/datasets/voc.py                 | http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar | 数据集链接    |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/DeepLabV3+_ID0458_for_PyTorch/datasets/voc.py                 | http://host.robots.ox.ac.uk/pascal/VOC/voc2011/VOCtrainval_25-May-2011.tar | 数据集链接    |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/DeepLabV3+_ID0458_for_PyTorch/datasets/voc.py                 | http://host.robots.ox.ac.uk/pascal/VOC/voc2010/VOCtrainval_03-May-2010.tar | 数据集链接    |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/DeepLabV3+_ID0458_for_PyTorch/datasets/voc.py                 | http://host.robots.ox.ac.uk/pascal/VOC/voc2009/VOCtrainval_11-May-2009.tar | 数据集链接    |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/DeepLabV3+_ID0458_for_PyTorch/datasets/voc.py                 | http://host.robots.ox.ac.uk/pascal/VOC/voc2008/VOCtrainval_14-Jul-2008.tar | 数据集链接    |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/DeepLabV3+_ID0458_for_PyTorch/datasets/voc.py                 | http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtrainval_06-Nov-2007.tar | 数据集链接    |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/DeepLabV3+_ID0458_for_PyTorch/network/backbone/mobilenetv2.py | https://download.pytorch.org/models/mobilenet_v2-b0353104.pth              | 权重地址     |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/DeepLabV3+_ID0458_for_PyTorch/network/backbone/resnet.py      | https://download.pytorch.org/models/resnext50_32x4d-7cdf4587.pth           | 模型权重     |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/DeepLabV3+_ID0458_for_PyTorch/network/backbone/resnet.py      | https://download.pytorch.org/models/resnet50-19c8e357.pth                  | 权重地址     |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/DeepLabV3+_ID0458_for_PyTorch/network/backbone/resnet.py      | https://download.pytorch.org/models/resnet152-b121ed2d.pth                 | 权重地址     |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/DeepLabV3+_ID0458_for_PyTorch/network/backbone/resnet.py      | https://download.pytorch.org/models/resnet101-5d3b4d8f.pth                 | 权重地址     |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/DeepLabV3+_ID0458_for_PyTorch/network/backbone/resnet.py      | https://download.pytorch.org/models/resnext101_32x8d-8ba56ff5.pth          | 权重地址     |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/DeepLabV3+_ID0458_for_PyTorch/network/backbone/resnet.py      | https://download.pytorch.org/models/resnet34-333f7ec4.pth                  | 权重地址     |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/DeepLabV3+_ID0458_for_PyTorch/network/backbone/resnet.py      | https://download.pytorch.org/models/resnet18-5c106cde.pth                  | 权重地址     |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/DeepLabV3+_ID0458_for_PyTorch/network/backbone/resnet.py      | https://download.pytorch.org/models/wide_resnet50_2-95faca4d.pth           | 下载预训练模型  |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/DeepLabV3+_ID0458_for_PyTorch/network/backbone/resnet.py      | https://download.pytorch.org/models/wide_resnet101_2-32ee1156.pth          | 下载预训练模型  |

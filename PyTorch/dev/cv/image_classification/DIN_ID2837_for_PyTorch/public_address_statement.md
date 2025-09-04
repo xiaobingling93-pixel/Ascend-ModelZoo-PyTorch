@@ -1,0 +1,3 @@
+| 文件位置                                                                                        | 公网地址                                | 公网地址用途       |
+|---------------------------------------------------------------------------------------------|-------------------------------------|--------------|
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/DIN_ID2837_for_PyTorch/environment.yml | https://conda.anaconda.org/anaconda | miniconda链接  |

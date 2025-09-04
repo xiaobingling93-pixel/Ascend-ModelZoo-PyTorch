@@ -1,0 +1,4 @@
+| 文件位置                                                                         | 公网地址                                                                                         | 公网地址用途  |
+|------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------|---------|
+| ModelZoo-PyTorch/ACL_PyTorch/built-in/foundation_models/blip/ascend_infer.py | https://storage.googleapis.com/sfr-vision-language-research/datasets/coco_karpathy_val.json  | 数据集网址   |
+| ModelZoo-PyTorch/ACL_PyTorch/built-in/foundation_models/blip/ascend_infer.py | https://storage.googleapis.com/sfr-vision-language-research/datasets/coco_karpathy_test.json | 数据集网址   |

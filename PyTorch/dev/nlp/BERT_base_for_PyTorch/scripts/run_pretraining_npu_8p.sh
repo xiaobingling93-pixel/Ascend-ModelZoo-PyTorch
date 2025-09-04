@@ -152,7 +152,7 @@ CMD+=" $INIT_CHECKPOINT"
 CMD+=" --do_train"
 CMD+=" --use_npu"
 CMD+=" --loss_scale=16384.0"
-CMD+=" --addr=90.90.176.102"
+CMD+=" --addr=x.x.x.x"  # change to your address 
 CMD+=" --json-summary ${RESULTS_DIR}/dllogger.json "
 
 CMD="python3.7 -u $CMD"

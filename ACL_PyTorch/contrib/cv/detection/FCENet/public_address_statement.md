@@ -1,5 +1,4 @@
-
-| 类型 | 开源代码地址 | 文件名 | 公网IP地址/公网URL地址/域名/邮箱地址 | 用途说明 |
-| ---- | ------------ | ------ | ------------------------------------ | -------- |
-|开发引入|/|FCENet/url.ini|https://download.openmmlab.com/mmocr/textdet/|下载数据集|
-|开发引入|/|FCENet/url.ini|https://github.com/open-mmlab/mmdeploy|下载数据集|
+| 文件位置                                                             | 公网地址                                          | 公网地址用途  |
+|------------------------------------------------------------------|-----------------------------------------------|---------|
+| ModelZoo-PyTorch/ACL_PyTorch/contrib/cv/detection/FCENet/url.ini | https://download.openmmlab.com/mmocr/textdet/ | 数据集网址   |
+| ModelZoo-PyTorch/ACL_PyTorch/contrib/cv/detection/FCENet/url.ini | https://github.com/open-mmlab/mmdeploy        | 代码仓网址   |

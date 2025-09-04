@@ -1,3 +1,6 @@
-| 类型     | 开源代码地址                                                                                                                           | 文件名                                                | 公网IP地址/公网URL地址/域名/邮箱地址 | 用途说明   |
-|--------|----------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------|-----------------------|--------|
-| 开发引入 | / | DLRM/requirements.txt | https://github.com/NVIDIA/dllogger#egg=dllogger | 相关依赖 |
+| 文件位置                                                                       | 公网地址                                                                                              | 公网地址用途      |
+|----------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|-------------|
+| ModelZoo-PyTorch/PyTorch/dev/perf/DLRM/Dockerfile_preprocessing            | https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/3bf863cc.pub           | ubuntu镜像地址  |
+| ModelZoo-PyTorch/PyTorch/dev/perf/DLRM/Dockerfile_preprocessing            | https://repo1.maven.org/maven2/com/nvidia/rapids-4-spark_2.12/0.4.0/rapids-4-spark_2.12-0.4.0.jar | 三方库链接       |
+| ModelZoo-PyTorch/PyTorch/dev/perf/DLRM/Dockerfile_preprocessing            | https://repo1.maven.org/maven2/ai/rapids/cudf/0.18.1/cudf-0.18.1-cuda11.jar                       | 三方库链接       |
+| ModelZoo-PyTorch/PyTorch/dev/perf/DLRM/preproc/verify_criteo_downloaded.sh | http://labs.criteo.com/2013/12/download-terabyte-click-logs/                                      | 下载链接        |

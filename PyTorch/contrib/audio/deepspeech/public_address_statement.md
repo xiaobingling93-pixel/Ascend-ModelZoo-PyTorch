@@ -1,28 +1,12 @@
-| 类型     | 开源代码地址                                                       | 文件名                                          | 公网IP地址/公网URL地址/域名/邮箱地址 | 用途说明  |
-|--------|--------------------------------------------------------------|----------------------------------------------|------------------------|-------|
-| 开源代码引入 | https://github.com/SeanNaren/deepspeech.pytorch/blob/master/data/an4.py | deepspeech/data/an4.py | https://github.com/SeanNaren/deepspeech.pytorch/releases/download/V3.0/an4.tar.gz | 下载数据集 |
-| 开发引入   | /                                                            | url.ini                                      | https://common-voice-data-download.s3.amazonaws.com/cv_corpus_v1.tar.gz | 下载数据集 |
-| 开源代码引入 | https://github.com/SeanNaren/deepspeech.pytorch/blob/master/data/librispeech.py | deepspeech/data/librispeech.py | http://www.openslr.org/resources/12/train-clean-100.tar.gz | 下载数据集 |
-| 开源代码引入 | https://github.com/SeanNaren/deepspeech.pytorch/blob/master/data/librispeech.py | deepspeech/data/librispeech.py | http://www.openslr.org/resources/12/train-clean-360.tar.gz | 下载数据集 |
-| 开源代码引入 | https://github.com/SeanNaren/deepspeech.pytorch/blob/master/data/librispeech.py | deepspeech/data/librispeech.py | http://www.openslr.org/resources/12/train-other-500.tar.gz | 下载数据集 |
-| 开源代码引入 | https://github.com/SeanNaren/deepspeech.pytorch/blob/master/data/librispeech.py | deepspeech/data/librispeech.py | http://www.openslr.org/resources/12/dev-clean.tar.gz | 下载数据集 |
-| 开源代码引入 | https://github.com/SeanNaren/deepspeech.pytorch/blob/master/data/librispeech.py | deepspeech/data/librispeech.py | http://www.openslr.org/resources/12/dev-other.tar.gz | 下载数据集 |
-| 开源代码引入 | https://github.com/SeanNaren/deepspeech.pytorch/blob/master/data/librispeech.py | deepspeech/data/librispeech.py | http://www.openslr.org/resources/12/test-clean.tar.gz | 下载数据集 |
-| 开源代码引入 | https://github.com/SeanNaren/deepspeech.pytorch/blob/master/data/librispeech.py | deepspeech/data/librispeech.py | http://www.openslr.org/resources/12/test-other.tar.gz | 下载数据集 |
-| 开源代码引入 | https://github.com/SeanNaren/deepspeech.pytorch/blob/master/data/ted.py | deepspeech/data/ted.py | http://www.openslr.org/resources/19/TEDLIUM_release2.tar.gz | 下载数据集 |
-| 开源代码引入 | https://github.com/SeanNaren/deepspeech.pytorch/blob/master/data/voxforge.py | deepspeech/data/voxforge.py | http://www.repository.voxforge1.org/downloads/SpeechCorpus/Trunk/Audio/Main/16kHz_16bit/ | 下载数据集 |
-| 开发引入 | /                                                            | url.ini | https://github.com/SeanNaren/warp-ctc.git | 下载三方库 |
-| 开源代码引入 | https://github.com/SeanNaren/deepspeech.pytorch/blob/master/Dockerfile | deepspeech/Dockerfile | https://github.com/parlance/ctcdecode.git | 下载三方库 |
-| 开发引入 | /                                                            | url.ini | https://github.com/NVIDIA/apex.git | 下载三方库 |
-| 开发引入 | /                                                            | url.ini | https://github.com/SeanNaren/deepspeech.pytorch/releases/latest/download/an4_pretrained_v2.pth | 下载权重文件 |
-| 开发引入 | /                                                            | url.ini | https://github.com/SeanNaren/deepspeech.pytorch/releases/latest/download/librispeech_pretrained_v2.pth | 下载权重文件 |
-| 开发引入 | /                                                            | url.ini | https://github.com/SeanNaren/deepspeech.pytorch/releases/latest/download/ted_pretrained_v2.pth | 下载权重文件 |
-| 开源代码引入 | https://github.com/SeanNaren/deepspeech.pytorch/blob/master/tests/pretrained_smoke_test.py | deepspeech/tests/pretrained_smoke_test.py | http://www.openslr.org/resources/11/3-gram.pruned.3e-7.arpa.gz | 下载数据集 |
-| 开源代码引入 | https://github.com/SeanNaren/deepspeech.pytorch/blob/master/deepspeech_pytorch/loader/sparse_image_warp.py | deepspeech/deepspeech_pytorch/loader/spec_augment.py | https://arxiv.org/pdf/1904.08779.pdf | 参考论文地址公网来源说明 |
-| 开源代码引入 | https://github.com/SeanNaren/deepspeech.pytorch/blob/master/deepspeech_pytorch/loader/sparse_image_warp.py | deepspeech/deepspeech_pytorch/loader/sparse_image_warp.py | https://en.wikipedia.org/wiki/Polyharmonic_spline | Polyharmonic_spline在en.wikipedia.org网页的公网来源说明 |
-| 开源代码引入 | https://github.com/SeanNaren/deepspeech.pytorch/blob/master/deepspeech_pytorch/loader/sparse_image_warp.py | deepspeech/deepspeech_pytorch/loader/sparse_image_warp.py | https://en.wikipedia.org/wiki/Polyharmonic_spline | Polyharmonic_spline在en.wikipedia.org网页的公网来源说明 | 
-| 开源代码引入 | https://github.com/SeanNaren/deepspeech.pytorch/blob/master/deepspeech_pytorch/loader/data_loader.py | deepspeech/deepspeech_pytorch/loader/data_loader.py | https://github.com/willfrey/audio/blob/master/torchaudio/transforms.py | transforms.py在github.com/willfrey上的公网来源说明 | 
-| 开源代码引入 | https://github.com/SeanNaren/deepspeech.pytorch/blob/master/deepspeech_pytorch/configs/train_config.py | deepspeech/deepspeech_pytorch/configs/train_config.py | https://github.com/willfrey/audio/blob/master/torchaudio/transforms.py | transforms.py在github.com/willfrey上的公网来源说明 |
-| 开源代码引入 | https://github.com/SeanNaren/deepspeech.pytorch/blob/master/deepspeech_pytorch/bidirectional_lstm.py | deepspeech/deepspeech_pytorch/bidirectional_lstm.py | https://ieeexplore.ieee.org/document/650093 | ieeexplore.ieee.org公网来源说明 |
-| 开源代码引入 | https://github.com/SeanNaren/deepspeech.pytorch/blob/master/deepspeech_pytorch/data/an4.py | deepspeech/deepspeech_pytorch/data/an4.py | http://www.speech.cs.cmu.edu/databases/an4/an4_raw.bigendian.tar.gz | 下载数据集 |
-| 开源代码引入 | https://github.com/SeanNaren/deepspeech.pytorch/blob/master/deepspeech_pytorch/benchmark.py | deepspeech/deepspeech_pytorch/benchmark.py | https://nvidia.github.io/apex/amp.html for more information | nvidia.github.io信息引用的公网来源说明 |
+| 文件位置                                                                  | 公网地址                                                                                     | 公网地址用途  |
+|-----------------------------------------------------------------------|------------------------------------------------------------------------------------------|---------|
+| ModelZoo-PyTorch/PyTorch/contrib/audio/deepspeech/data/librispeech.py | http://www.openslr.org/resources/12/dev-clean.tar.gz                                     | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/contrib/audio/deepspeech/data/librispeech.py | http://www.openslr.org/resources/12/train-clean-100.tar.gz                               | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/contrib/audio/deepspeech/data/librispeech.py | http://www.openslr.org/resources/12/test-other.tar.gz                                    | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/contrib/audio/deepspeech/data/librispeech.py | http://www.openslr.org/resources/12/test-clean.tar.gz                                    | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/contrib/audio/deepspeech/data/librispeech.py | http://www.openslr.org/resources/12/dev-other.tar.gz                                     | 模型相关说明  |
+| ModelZoo-PyTorch/PyTorch/contrib/audio/deepspeech/data/librispeech.py | http://www.openslr.org/resources/12/train-other-500.tar.gz                               | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/contrib/audio/deepspeech/data/librispeech.py | http://www.openslr.org/resources/12/train-clean-360.tar.gz                               | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/contrib/audio/deepspeech/data/ted.py         | http://www.openslr.org/resources/19/TEDLIUM_release2.tar.gz                              | 数据集地址   |
+| ModelZoo-PyTorch/PyTorch/contrib/audio/deepspeech/data/voxforge.py    | http://www.repository.voxforge1.org/downloads/SpeechCorpus/Trunk/Audio/Main/16kHz_16bit/ | 数据集地址   |
+| ModelZoo-PyTorch/PyTorch/contrib/audio/deepspeech/url.ini             | https://common-voice-data-download.s3.amazonaws.com/cv_corpus_v1.tar.gz                  | 数据集链接   |

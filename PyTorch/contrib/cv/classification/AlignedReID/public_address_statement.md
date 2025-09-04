@@ -1,17 +1,7 @@
-| 类型     | 开源代码地址 | 文件名     | 公网IP地址/公网URL地址/域名/邮箱地址 | 用途说明   |
-|--------|--------|---------|------------------------|--------|
-| 开源代码引入 | https://github.com/huanghoujing/AlignedReID-Re-Production-Pytorch/blob/2e2d45450d69a3a81e15d18fe85c2eebbde742e4/aligned_reid/model/resnet.py | AlignedReID/aligned_reid/model/resnet.py | https://download.pytorch.org/models/resnet18-5c106cde.pth | 下载权重文件 |
-| 开源代码引入 | https://github.com/huanghoujing/AlignedReID-Re-Production-Pytorch/blob/2e2d45450d69a3a81e15d18fe85c2eebbde742e4/aligned_reid/model/resnet.py | AlignedReID/aligned_reid/model/resnet.py | https://download.pytorch.org/models/resnet34-333f7ec4.pth | 下载权重文件 |
-| 开源代码引入 | https://github.com/huanghoujing/AlignedReID-Re-Production-Pytorch/blob/2e2d45450d69a3a81e15d18fe85c2eebbde742e4/aligned_reid/model/resnet.py | AlignedReID/aligned_reid/model/resnet.py | https://download.pytorch.org/models/resnet50-19c8e357.pth | 下载权重文件 |
-| 开源代码引入 | https://github.com/huanghoujing/AlignedReID-Re-Production-Pytorch/blob/2e2d45450d69a3a81e15d18fe85c2eebbde742e4/aligned_reid/model/resnet.py | AlignedReID/aligned_reid/model/resnet.py | https://download.pytorch.org/models/resnet101-5d3b4d8f.pth | 下载权重文件 |
-| 开源代码引入 | https://github.com/huanghoujing/AlignedReID-Re-Production-Pytorch/blob/2e2d45450d69a3a81e15d18fe85c2eebbde742e4/aligned_reid/model/resnet.py | AlignedReID/aligned_reid/model/resnet.py | https://download.pytorch.org/models/resnet152-b121ed2d.pth | 下载权重文件 |
-| 开发引入 | / | AlignedReID/aligned_reid/utils/utils.py | https://stackoverflow.com/a/41733927 | 相关说明 |
-| 开源代码引入 | https://github.com/huanghoujing/AlignedReID-Re-Production-Pytorch/blob/2e2d45450d69a3a81e15d18fe85c2eebbde742e4/README.md | AlignedReID/aligned_reid/utils/metric.py | https://github.com/Cysu/open-reid | 源码实现 |
-| 开源代码引入 | https://github.com/huanghoujing/AlignedReID-Re-Production-Pytorch/blob/2e2d45450d69a3a81e15d18fe85c2eebbde742e4/aligned_reid/utils/utils.py | AlignedReID/aligned_reid/utils/utils.py | https://github.com/amdegroot/ssd.pytorch | 源码实现 |
-| 开源代码引入 | https://github.com/huanghoujing/AlignedReID-Re-Production-Pytorch/blob/2e2d45450d69a3a81e15d18fe85c2eebbde742e4/aligned_reid/utils/metric.py | AlignedReID/aligned_reid/utils/metric.py | https://github.com/zhunzhong07/person-re-ranking/ | 源码实现 |
-| 开源代码引入 | https://github.com/huanghoujing/AlignedReID-Re-Production-Pytorch/blob/2e2d45450d69a3a81e15d18fe85c2eebbde742e4/README.md | AlignedReID/aligned_reid/utils/metric.py | http://www.liangzheng.org/Project/project_reid.html | 相关说明 |
-| 开源代码引入 | https://github.com/huanghoujing/AlignedReID-Re-Production-Pytorch/blob/2e2d45450d69a3a81e15d18fe85c2eebbde742e4/README.md | AlignedReID/aligned_reid/utils/re_ranking.py | https://github.com/zhunzhong07/person-re-ranking | 源码实现 |
-| 开源代码引入 | https://github.com/huanghoujing/AlignedReID-Re-Production-Pytorch/blob/2e2d45450d69a3a81e15d18fe85c2eebbde742e4/aligned_reid/utils/re_ranking.py | AlignedReID/aligned_reid/utils/re_ranking.py | http://openaccess.thecvf.com/content_cvpr_2017/papers/Zhong_Re-Ranking_Person_Re-Identification_CVPR_2017_paper.pdf | 论文地址 |
-| 开源代码引入 | https://github.com/huanghoujing/AlignedReID-Re-Production-Pytorch/blob/2e2d45450d69a3a81e15d18fe85c2eebbde742e4/aligned_reid/utils/utils.py | AlignedReID/aligned_reid/utils/utilsn1.py | https://github.com/amdegroot/ssd.pytorch | 源码实现 |
-| 开源代码引入 | https://github.com/huanghoujing/AlignedReID-Re-Production-Pytorch/blob/2e2d45450d69a3a81e15d18fe85c2eebbde742e4/README.md | AlignedReID/aligned_reid/model/TripletLoss.py | https://github.com/Cysu/open-reid | 源码实现 |
-| 开发引入 | / | AlignedReID/aligned_reid/utils/utilsn1.py | https://stackoverflow.com/a/41733927 | 相关说明 |
+| 文件位置                                                                                        | 公网地址                                                       | 公网地址用途  |
+|---------------------------------------------------------------------------------------------|------------------------------------------------------------|---------|
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/AlignedReID/aligned_reid/model/resnet.py | https://download.pytorch.org/models/resnet18-5c106cde.pth  | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/AlignedReID/aligned_reid/model/resnet.py | https://download.pytorch.org/models/resnet34-333f7ec4.pth  | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/AlignedReID/aligned_reid/model/resnet.py | https://download.pytorch.org/models/resnet50-19c8e357.pth  | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/AlignedReID/aligned_reid/model/resnet.py | https://download.pytorch.org/models/resnet101-5d3b4d8f.pth | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/AlignedReID/aligned_reid/model/resnet.py | https://download.pytorch.org/models/resnet152-b121ed2d.pth | 权重地址    |

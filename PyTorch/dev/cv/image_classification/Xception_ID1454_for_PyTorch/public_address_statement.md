@@ -1,0 +1,3 @@
+| 文件位置                                                                                         | 公网地址                                                                   | 公网地址用途  |
+|----------------------------------------------------------------------------------------------|------------------------------------------------------------------------|---------|
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/Xception_ID1454_for_PyTorch/xception.py | http//www.dropbox.com/s/1hplpzet9d7dv29/xception-c0a72b38.pth.tar?dl=1 | 权重地址    |

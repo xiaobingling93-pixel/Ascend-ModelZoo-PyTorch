@@ -1,5 +1,5 @@
-| 类型 | 开源代码地址 | 文件名 | 公网IP地址/公网URL地址/域名/邮箱地址 | 用途说明 |
-| ---- | ------------ | ------ | ------------------------------------ | -------- |
-|开发引入|/|NonLocal/url.ini|http://s3.amazonaws.com/kinetics/400/readme.md|下载公开数据集|
-|开发引入|/|NonLocal/url.ini|https://s3.amazonaws.com/kinetics/400/annotations/val.csv|下载公开数据集|
-|开发引入|/|NonLocal/url.ini|https://s3.amazonaws.com/kinetics/400/val/k400_val_path.txt|下载公开数据集|
+| 文件位置                                                                         | 公网地址                                                        | 公网地址用途  |
+|------------------------------------------------------------------------------|-------------------------------------------------------------|---------|
+| ModelZoo-PyTorch/ACL_PyTorch/contrib/cv/video_understanding/NonLocal/url.ini | https://s3.amazonaws.com/kinetics/400/val/k400_val_path.txt | 数据集网址   |
+| ModelZoo-PyTorch/ACL_PyTorch/contrib/cv/video_understanding/NonLocal/url.ini | https://s3.amazonaws.com/kinetics/400/annotations/val.csv   | 数据集网址   |
+| ModelZoo-PyTorch/ACL_PyTorch/contrib/cv/video_understanding/NonLocal/url.ini | http://s3.amazonaws.com/kinetics/400/readme.md              | 数据集网址   |

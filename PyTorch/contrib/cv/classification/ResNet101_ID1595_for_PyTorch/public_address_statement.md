@@ -1,12 +1,9 @@
-| 类型     | 开源代码地址                                                       | 文件名                                          | 公网IP地址/公网URL地址/域名/邮箱地址 | 用途说明 |
-|--------|--------------------------------------------------------------|----------------------------------------------|------------------------|----|
-| 开发引入 | / | url.ini | https://bbs-img.huaweicloud.com/blogs/img/thumb/1591951315139_8989_1363.png | 下载测试图片 |
-| 开发引入 | / | url.ini | https://download.pytorch.org/models/resnet18-5c106cde.pth | 下载权重文件 |
-| 开发引入 | / | url.ini | https://download.pytorch.org/models/resnet34-333f7ec4.pth | 下载权重文件 |
-| 开发引入 | / | url.ini | https://download.pytorch.org/models/resnet50-19c8e357.pth | 下载权重文件 |
-| 开发引入 | / | url.ini | https://download.pytorch.org/models/resnet101-5d3b4d8f.pth | 下载权重文件 |
-| 开发引入 | / | url.ini | https://download.pytorch.org/models/resnet152-b121ed2d.pth | 下载权重文件 |
-| 开发引入 | / | ResNet101_ID1595_for_PyTorch/resnet.py | https://arxiv.org/pdf/1605.07146.pdf | 论文地址 |
-| 开发引入 | / | ResNet101_ID1595_for_PyTorch/resnet.py | https://arxiv.org/pdf/1611.05431.pdf | 论文地址 |
-| 开发引入 | / | ResNet101_ID1595_for_PyTorch/resnet.py | https://arxiv.org/abs/1706.02677 | 论文地址 |
-| 开发引入 | / | ResNet101_ID1595_for_PyTorch/resnet.py | https://arxiv.org/pdf/1512.03385.pdf | 论文地址 |
+| 文件位置                                                                                    | 公网地址                                                                        | 公网地址用途       |
+|-----------------------------------------------------------------------------------------|-----------------------------------------------------------------------------|--------------|
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/ResNet101_ID1595_for_PyTorch/main.py | tcp://224.66.41.62:23456                                                    | 分布式配置ip默认入参  |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/ResNet101_ID1595_for_PyTorch/url.ini | https://bbs-img.huaweicloud.com/blogs/img/thumb/1591951315139_8989_1363.png | 数据集地址        |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/ResNet101_ID1595_for_PyTorch/url.ini | https://download.pytorch.org/models/resnet101-5d3b4d8f.pth                  | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/ResNet101_ID1595_for_PyTorch/url.ini | https://download.pytorch.org/models/resnet152-b121ed2d.pth                  | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/ResNet101_ID1595_for_PyTorch/url.ini | https://download.pytorch.org/models/resnet50-19c8e357.pth                   | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/ResNet101_ID1595_for_PyTorch/url.ini | https://download.pytorch.org/models/resnet34-333f7ec4.pth                   | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/ResNet101_ID1595_for_PyTorch/url.ini | https://download.pytorch.org/models/resnet18-5c106cde.pth                   | 权重地址         |

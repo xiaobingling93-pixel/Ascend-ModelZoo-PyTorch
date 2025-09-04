@@ -1,10 +1,5 @@
-| 类型     | 开源代码地址                                          | 文件名                                               | 公网IP地址/公网URL地址/域名/邮箱地址                                                                                | 用途说明    |
-|--------|-------------------------------------------------|---------------------------------------------------|-------------------------------------------------------------------------------------------------------|---------|
-| 开源代码引入 | https://github.com/timesler/facenet-pytorch.git | FaceNet_for_PyTorch/.github/FUNDING.yml           | https://xscode.com/timesler/facenet-pytorch                                                           | 下载源码    |
-| 开源代码引入 | https://github.com/timesler/facenet-pytorch.git | FaceNet_for_PyTorch/.gitmodules                   | https://github.com/davidsandberg/facenet.git                                                          | 下载源码    |
-| 开源代码引入 | https://github.com/timesler/facenet-pytorch.git | FaceNet_for_PyTorch/models/inception_resnet_v1.py | https://github.com/timesler/facenet-pytorch/releases/download/v2.2.9/20180402-114759-vggface2.pt      | 下载预训练模型 |
-| 开源代码引入 | https://github.com/timesler/facenet-pytorch.git | FaceNet_for_PyTorch/models/inception_resnet_v1.py | https://github.com/timesler/facenet-pytorch/releases/download/v2.2.9/20180408-102900-casia-webface.pt | 下载预训练模型 |
-| 开源代码引入 | https://github.com/timesler/facenet-pytorch.git | FaceNet_for_PyTorch/setup.py                      | tim.esler@gmail.com                                                                                   | 邮箱      |
-| 开源代码引入 | https://github.com/timesler/facenet-pytorch.git | FaceNet_for_PyTorch/setup.py                      | https://github.com/timesler/facenet-pytorch                                                           | 下载源码    |
-| 开发引入   | /                                               | FaceNet_for_PyTorch/constant.py                   | 127.0.0.1                                                                                             | 本机IP地址  |
-| 开发引入 | / | FaceNet_for_PyTorch/models/utils/download.py | https://s3.amazonaws.com/pytorch/models/resnet18-5c106cde.pth | 预训练模型 |
+| 文件位置                                                                                        | 公网地址                                        | 公网地址用途       |
+|---------------------------------------------------------------------------------------------|---------------------------------------------|--------------|
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/FaceNet_for_PyTorch/.github/FUNDING.yml | https://xscode.com/timesler/facenet-pytorch | 源码地址         |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/FaceNet_for_PyTorch/fine_tune_new_8p.py | tcp://224.66.41.62:23456                    | 分布式配置ip默认入参  |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/FaceNet_for_PyTorch/setup.py            | tim.esler@gmail.com                         | 作者邮箱         |

@@ -15,9 +15,7 @@ conda env create -f enviroment.yaml
 ```
 
 ## 数据集准备
-1. download the pretrained model from [Baidu](https://pan.baidu.com/s/1sU3pRBTFebbsMDac-1HsQA) password: etdi
-2. download the validation set of [WIDER_FACE](https://pan.baidu.com/s/1b5Uku0Bb13Zk9mf7mkZ3FA) password: y4wg
-3. the annotation file and train data can download for [Baidu](https://pan.baidu.com/s/1j_2wggZ3bvCuOAfZvjWqTg) password: f9hh
+用户自行准备数据集
 
 1)本机解压WIDER_FACE_DATA_ALL.zip文件里面有annotations.zip、labels、WIDER_train.zip、WIDER_val.zip、groud_truth文件。
 2）annotations.zip、labels、WIDER_train.zip、WIDER_val.zip复制到服务器的$project/data/wider_face目录下。groud_truth复制到$project下。

@@ -1,3 +1,3 @@
-| 类型 | 开源代码地址 | 文件名 | 公网IP地址/公网URL地址/域名/邮箱地址 | 用途说明 |
-| ---- | ------------ | ------ | ------------------------------------ | -------- |
-| 开源代码引入 | https://github.com/CoinCheung/BiSeNet/blob/master/lib/models/bisenetv2.py | BiSeNet_v2/lib/models/bisenetv2.py | https://github.com/CoinCheung/BiSeNet/releases/download/0.0.0/backbone_v2.pth | 模型bakcbone地址 |
+| 文件位置                                                                                 | 公网地址                                                      | 公网地址用途  |
+|--------------------------------------------------------------------------------------|-----------------------------------------------------------|---------|
+| ModelZoo-PyTorch/PyTorch/contrib/autonoumous_driving/BiSeNet_v2/lib/models/resnet.py | https://download.pytorch.org/models/resnet18-5c106cde.pth | 权重地址    |

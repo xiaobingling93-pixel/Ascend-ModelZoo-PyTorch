@@ -1,0 +1,3 @@
+| 文件位置                                                                                                                | 公网地址                                             | 公网地址用途  |
+|---------------------------------------------------------------------------------------------------------------------|--------------------------------------------------|---------|
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/Multigrain_ID3664_for_PyTorch/multigrain/datasets/retrieval.py | https://archive.org/download/ukbench/ukbench.zip | 数据集链接   |

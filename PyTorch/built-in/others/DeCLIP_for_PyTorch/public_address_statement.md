@@ -1,5 +1,6 @@
-
-| 类型         | 开源代码地址                                           | 文件名            | 公网IP地址/公网URL地址/域名/邮箱地址                           | 用途说明                         |
-| ------------ | ------------------------------------------------------ | ----------------- | -------------------------------------------------------------- | -------------------------------- |
-| 开源代码引入 | https://github.com/Sense-GVT/DeCLIP/blob/main/setup.py | ./DeCLIP/setup.py | yuankun@sensetime.com                                          | setuptools的author_email配置选项 |
-| 开源代码引入 | https://github.com/Sense-GVT/DeCLIP/blob/main/setup.py | ./DeCLIP/setup.py | http://gitlab.bj.sensetime.com/spring-ce/element/prototype.git | setuptools的url配置选项          |
+| 文件位置                                                                                              | 公网地址                                                            | 公网地址用途  |
+|---------------------------------------------------------------------------------------------------|-----------------------------------------------------------------|---------|
+| ModelZoo-PyTorch/PyTorch/built-in/others/DeCLIP_for_PyTorch/DeCLIP/prototype/tools/inference.py   | https://arxiv.org/abs/1610.02391                                | 论文地址    |
+| ModelZoo-PyTorch/PyTorch/built-in/others/DeCLIP_for_PyTorch/DeCLIP/prototype/utils/nnie_helper.py | http://spring.sensetime.com/docs/nart/tutorial/switch/nnie.html | 相关说明    |
+| ModelZoo-PyTorch/PyTorch/built-in/others/DeCLIP_for_PyTorch/DeCLIP/setup.py                       | yuankun@sensetime.com                                           | 作者邮箱    |
+| ModelZoo-PyTorch/PyTorch/built-in/others/DeCLIP_for_PyTorch/DeCLIP/setup.py                       | http://gitlab.bj.sensetime.com/spring-ce/element/prototype.git  | 配置相关说明  |

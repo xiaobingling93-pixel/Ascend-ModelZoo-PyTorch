@@ -1,6 +1,4 @@
-| 类型   | 开源代码地址 | 文件名     | 公网IP地址/公网URL地址/域名/邮箱地址                                               | 用途说明   |
-|------|--------|---------|----------------------------------------------------------------------|--------|
-| 开发引入 | / | url.ini | https://download.pytorch.org/models/mobilenet_v2-b0353104.pth | 下载权重文件 |
-| 开发引入 | / | MobileNetV2_for_PyTorch/train/mobilenet.py | https://github.com/tensorflow/models/blob/master/research/slim/nets/mobilenet/mobilenet.py | 源码实现 |
-| 开发引入 | / | MobileNetV2_for_PyTorch/train/mobilenet.py | https://arxiv.org/abs/1801.04381 | 论文地址 |
-| 开发引入 | / | MobileNetV2_for_PyTorch/infer/sdk/models/mobilenet/imagenet1000_clsidx_to_labels.names | https://gist.github.com/yrevar/942d3a0ac09ec9e5eb3a | 源码实现 |
+| 文件位置                                                                                                             | 公网地址                                                          | 公网地址用途       |
+|------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------|--------------|
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/MobileNetV2_for_PyTorch/train/mobilenetv2_8p_main_anycard.py | tcp://224.66.41.62:23456                                      | 分布式配置ip默认入参  |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/MobileNetV2_for_PyTorch/url.ini                              | https://download.pytorch.org/models/mobilenet_v2-b0353104.pth | 权重地址         |

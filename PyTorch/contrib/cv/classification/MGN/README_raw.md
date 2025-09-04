@@ -50,7 +50,7 @@ NOTICE:You need to change num_classes in network depend on how many people in yo
 ## Weights
 
 Pretrained weight download from [google drive](https://drive.google.com/open?id=16V7ZsflBbINHPjh_UVYGBVO6NuSxEMTi)
-or [baidu drive](https://pan.baidu.com/s/12AkumLX10hLx9vh_SQwdyw) password:mrl5
+
 ## Train
 
 You can specify more parameters in opt.py

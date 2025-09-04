@@ -1,0 +1,8 @@
+| 文件位置                                                                                             | 公网地址                                                                                           | 公网地址用途  |
+|--------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------|---------|
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/TransformerXL_ID0699_for_PyTorch/getdata.sh | https://s3.amazonaws.com/research.metamind.io/wikitext/wikitext-2-v1.zip                       | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/TransformerXL_ID0699_for_PyTorch/getdata.sh | http://www.statmt.org/lm-benchmark/1-billion-word-language-modeling-benchmark-r13output.tar.gz | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/TransformerXL_ID0699_for_PyTorch/getdata.sh | https://raw.githubusercontent.com/salesforce/awd-lstm-lm/master/data/enwik8/prep_enwik8.py     | 源码实现    |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/TransformerXL_ID0699_for_PyTorch/getdata.sh | https://s3.amazonaws.com/research.metamind.io/wikitext/wikitext-103-v1.zip                     | 相关说明    |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/TransformerXL_ID0699_for_PyTorch/getdata.sh | http://mattmahoney.net/dc/text8.zip                                                            | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/TransformerXL_ID0699_for_PyTorch/getdata.sh | http://mattmahoney.net/dc/enwik8.zip                                                           | 数据集链接   |

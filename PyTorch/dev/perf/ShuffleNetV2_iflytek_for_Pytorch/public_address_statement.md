@@ -1,0 +1,5 @@
+| 文件位置                                                                                      | 公网地址                                                                 | 公网地址用途       |
+|-------------------------------------------------------------------------------------------|----------------------------------------------------------------------|--------------|
+| ModelZoo-PyTorch/PyTorch/dev/perf/ShuffleNetV2_iflytek_for_Pytorch/main.py                | tcp://224.66.41.62:23456                                             | 分布式配置ip默认入参  |
+| ModelZoo-PyTorch/PyTorch/dev/perf/ShuffleNetV2_iflytek_for_Pytorch/models/shufflenetv2.py | https://download.pytorch.org/models/shufflenetv2_x1-5666bf0f80.pth   | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/dev/perf/ShuffleNetV2_iflytek_for_Pytorch/models/shufflenetv2.py | https://download.pytorch.org/models/shufflenetv2_x0.5-f707e7126e.pth | 权重地址         |

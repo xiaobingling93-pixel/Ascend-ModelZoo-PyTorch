@@ -1,0 +1,7 @@
+| 文件位置                                                                                                   | 公网地址                                                                                                 | 公网地址用途  |
+|--------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|---------|
+| ModelZoo-PyTorch/PyTorch/dev/cv/detection/MobileNetV3-SSD_ID0408_for_PyTorch/open_images_downloader.py | https://storage.googleapis.com/openimages/2018_04/{dataset_type}/{dataset_type}-annotations-bbox.csv | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/dev/cv/detection/MobileNetV3-SSD_ID0408_for_PyTorch/open_images_downloader.py | https://storage.googleapis.com/openimages/2018_04/class-descriptions-boxable.csv                     | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/dev/cv/detection/MobileNetV3-SSD_ID0408_for_PyTorch/vision/nn/alexnet.py      | https://download.pytorch.org/models/alexnet-owt-4df8aa71.pth                                         | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/dev/cv/detection/MobileNetV3-SSD_ID0408_for_PyTorch/vision/nn/squeezenet.py   | https://download.pytorch.org/models/squeezenet1_1-f364aa15.pth                                       | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/dev/cv/detection/MobileNetV3-SSD_ID0408_for_PyTorch/vision/nn/squeezenet.py   | https://download.pytorch.org/models/squeezenet1_0-a815701f.pth                                       | 权重地址    |

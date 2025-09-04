@@ -1,0 +1,5 @@
+| 文件位置                                                                                                     | 公网地址                                                                | 公网地址用途  |
+|----------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------|---------|
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/MobileNetV3-Small_ID1785_for_PyTorch/mobilenetv2.py | https://download.pytorch.org/models/mobilenet_v2-b0353104.pth       | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/MobileNetV3-Small_ID1785_for_PyTorch/mobilenetv3.py | https://download.pytorch.org/models/mobilenet_v3_small-047dcff4.pth | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/MobileNetV3-Small_ID1785_for_PyTorch/mobilenetv3.py | https://download.pytorch.org/models/mobilenet_v3_large-8738ca79.pth | 权重地址    |

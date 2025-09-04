@@ -1,0 +1,4 @@
+| 文件位置                                                                                             | 公网地址                                                                          | 公网地址用途  |
+|--------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|---------|
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/BigGAN_ID0522_for_PyTorch/datasets.py       | http://www.cs.toronto.edu/~kriz/cifar-100-python.tar.gz                       | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/BigGAN_ID0522_for_PyTorch/inception_tf13.py | http://download.tensorflow.org/models/image/imagenet/inception-2015-12-05.tgz | 数据集链接   |

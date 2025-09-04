@@ -1,3 +1,3 @@
-| 类型 | 开源代码地址 | 文件名 | 公网IP地址/公网URL地址/域名/邮箱地址 | 用途说明 |
-| ---- | ------------ | ------ | ------------------------------------ | -------- |
-|开发引入|/|Deit_Small/url.ini|https://dl.fbaipublicfiles.com/deit/deit_small_patch16_224-cd65a155.pth|下载权重|
+| 文件位置                                                                     | 公网地址                                                                    | 公网地址用途  |
+|--------------------------------------------------------------------------|-------------------------------------------------------------------------|---------|
+| ModelZoo-PyTorch/ACL_PyTorch/contrib/cv/classfication/Deit_Small/url.ini | https://dl.fbaipublicfiles.com/deit/deit_small_patch16_224-cd65a155.pth | 模型网址    |

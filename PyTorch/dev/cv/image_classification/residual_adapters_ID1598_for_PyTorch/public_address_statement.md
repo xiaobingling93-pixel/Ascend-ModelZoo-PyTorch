@@ -1,0 +1,6 @@
+| 文件位置                                                                                                             | 公网地址                                                              | 公网地址用途  |
+|------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------|---------|
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/residual_adapters_ID1598_for_PyTorch/download_data.sh       | http://www.robots.ox.ac.uk/~vgg/share/decathlon-1.0-devkit.tar.gz | 模型相关说明  |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/residual_adapters_ID1598_for_PyTorch/download_data.sh       | http://www.robots.ox.ac.uk/~vgg/share/decathlon-1.0-data.tar.gz   | 模型相关说明  |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/residual_adapters_ID1598_for_PyTorch/matconvnet/cnn_cifar.m | http://www.cs.toronto.edu/~kriz/cifar-10-matlab.tar.gz            | 模型相关说明  |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/residual_adapters_ID1598_for_PyTorch/matconvnet/cnn_cifar.m | http://www.cs.toronto.edu/~kriz/cifar-100-matlab.tar.gz           | 模型相关说明  |

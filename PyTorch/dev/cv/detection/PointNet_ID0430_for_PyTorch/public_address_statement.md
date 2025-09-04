@@ -1,0 +1,3 @@
+| 文件位置                                                                                      | 公网地址                                                                                        | 公网地址用途  |
+|-------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------|---------|
+| ModelZoo-PyTorch/PyTorch/dev/cv/detection/PointNet_ID0430_for_PyTorch/scripts/download.sh | https://shapenet.cs.stanford.edu/ericyi/shapenetcore_partanno_segmentation_benchmark_v0.zip | 数据集链接   |

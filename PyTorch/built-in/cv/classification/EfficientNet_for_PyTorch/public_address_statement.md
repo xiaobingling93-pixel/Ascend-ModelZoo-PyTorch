@@ -1,34 +1,5 @@
-| 类型     | 开源代码地址                                                | 文件名                                                    | 公网IP地址/公网URL地址/域名/邮箱地址                                                                                   | 用途说明    |
-|--------|-------------------------------------------------------|--------------------------------------------------------|----------------------------------------------------------------------------------------------------------|---------|
-| 开源代码引入 | https://github.com/lukemelas/EfficientNet-PyTorch.git | EfficientNet_for_PyTorch/efficientnet_pytorch/utils.py | https://github.com/lukemelas/EfficientNet-PyTorch/releases/download/1.0/efficientnet-b0-355c32eb.pth     | 下载预训练模型 |
-| 开源代码引入 | https://github.com/lukemelas/EfficientNet-PyTorch.git | EfficientNet_for_PyTorch/efficientnet_pytorch/utils.py | https://github.com/lukemelas/EfficientNet-PyTorch/releases/download/1.0/efficientnet-b1-f1951068.pth     | 下载预训练模型 |
-| 开源代码引入 | https://github.com/lukemelas/EfficientNet-PyTorch.git | EfficientNet_for_PyTorch/efficientnet_pytorch/utils.py | https://github.com/lukemelas/EfficientNet-PyTorch/releases/download/1.0/efficientnet-b2-8bb594d6.pth     | 下载预训练模型 |
-| 开源代码引入 | https://github.com/lukemelas/EfficientNet-PyTorch.git | EfficientNet_for_PyTorch/efficientnet_pytorch/utils.py | https://github.com/lukemelas/EfficientNet-PyTorch/releases/download/1.0/efficientnet-b3-5fb5a3c3.pth     | 下载预训练模型 |
-| 开源代码引入 | https://github.com/lukemelas/EfficientNet-PyTorch.git | EfficientNet_for_PyTorch/efficientnet_pytorch/utils.py | https://github.com/lukemelas/EfficientNet-PyTorch/releases/download/1.0/efficientnet-b4-6ed6700e.pth     | 下载预训练模型 |
-| 开源代码引入 | https://github.com/lukemelas/EfficientNet-PyTorch.git | EfficientNet_for_PyTorch/efficientnet_pytorch/utils.py | https://github.com/lukemelas/EfficientNet-PyTorch/releases/download/1.0/efficientnet-b5-b6417697.pth     | 下载预训练模型 |
-| 开源代码引入 | https://github.com/lukemelas/EfficientNet-PyTorch.git | EfficientNet_for_PyTorch/efficientnet_pytorch/utils.py | https://github.com/lukemelas/EfficientNet-PyTorch/releases/download/1.0/efficientnet-b6-c76e70fd.pth     | 下载预训练模型 |
-| 开源代码引入 | https://github.com/lukemelas/EfficientNet-PyTorch.git | EfficientNet_for_PyTorch/efficientnet_pytorch/utils.py | https://github.com/lukemelas/EfficientNet-PyTorch/releases/download/1.0/efficientnet-b7-dcc49843.pth     | 下载预训练模型 |
-| 开源代码引入 | https://github.com/lukemelas/EfficientNet-PyTorch.git | EfficientNet_for_PyTorch/efficientnet_pytorch/utils.py | https://github.com/lukemelas/EfficientNet-PyTorch/releases/download/1.0/adv-efficientnet-b0-b64d5a18.pth | 下载预训练模型 |
-| 开源代码引入 | https://github.com/lukemelas/EfficientNet-PyTorch.git | EfficientNet_for_PyTorch/efficientnet_pytorch/utils.py | https://github.com/lukemelas/EfficientNet-PyTorch/releases/download/1.0/adv-efficientnet-b1-0f3ce85a.pth | 下载预训练模型 |
-| 开源代码引入 | https://github.com/lukemelas/EfficientNet-PyTorch.git | EfficientNet_for_PyTorch/efficientnet_pytorch/utils.py | https://github.com/lukemelas/EfficientNet-PyTorch/releases/download/1.0/adv-efficientnet-b2-6e9d97e5.pth | 下载预训练模型 |
-| 开源代码引入 | https://github.com/lukemelas/EfficientNet-PyTorch.git | EfficientNet_for_PyTorch/efficientnet_pytorch/utils.py | https://github.com/lukemelas/EfficientNet-PyTorch/releases/download/1.0/adv-efficientnet-b3-cdd7c0f4.pth | 下载预训练模型 |
-| 开源代码引入 | https://github.com/lukemelas/EfficientNet-PyTorch.git | EfficientNet_for_PyTorch/efficientnet_pytorch/utils.py | https://github.com/lukemelas/EfficientNet-PyTorch/releases/download/1.0/adv-efficientnet-b4-44fb3a87.pth | 下载预训练模型 |
-| 开源代码引入 | https://github.com/lukemelas/EfficientNet-PyTorch.git | EfficientNet_for_PyTorch/efficientnet_pytorch/utils.py | https://github.com/lukemelas/EfficientNet-PyTorch/releases/download/1.0/adv-efficientnet-b5-86493f6b.pth | 下载预训练模型 |
-| 开源代码引入 | https://github.com/lukemelas/EfficientNet-PyTorch.git | EfficientNet_for_PyTorch/efficientnet_pytorch/utils.py | https://github.com/lukemelas/EfficientNet-PyTorch/releases/download/1.0/adv-efficientnet-b6-ac80338e.pth | 下载预训练模型 |
-| 开源代码引入 | https://github.com/lukemelas/EfficientNet-PyTorch.git | EfficientNet_for_PyTorch/efficientnet_pytorch/utils.py | https://github.com/lukemelas/EfficientNet-PyTorch/releases/download/1.0/adv-efficientnet-b7-4652b6dd.pth | 下载预训练模型 |
-| 开源代码引入 | https://github.com/lukemelas/EfficientNet-PyTorch.git | EfficientNet_for_PyTorch/efficientnet_pytorch/utils.py | https://github.com/lukemelas/EfficientNet-PyTorch/releases/download/1.0/adv-efficientnet-b8-22a8fe65.pth | 下载预训练模型 |
-| 开源代码引入 | https://github.com/lukemelas/EfficientNet-PyTorch.git | EfficientNet_for_PyTorch/setup.py                      | https://github.com/lukemelas/EfficientNet-PyTorch                                                        | 下载源码    |
-| 开源代码引入 | https://github.com/lukemelas/EfficientNet-PyTorch.git | EfficientNet_for_PyTorch/setup.py                      | lmelaskyriazi@college.harvard.edu                                                                        | 邮箱      |
-| 开发引入 | / | EfficientNet_for_PyTorch/efficientnet_pytorch/auto_augment.py | https://arxiv.org/abs/1912.02781 | 论文地址 |
-| 开发引入 | / | EfficientNet_for_PyTorch/efficientnet_pytorch/auto_augment.py | https://arxiv.org/abs/1805.09501 | 论文地址 |
-| 开发引入 | / | EfficientNet_for_PyTorch/efficientnet_pytorch/rmsprop_tf.py | https://arxiv.org/abs/1711.05101 | 论文地址 |
-| 开发引入 | / | EfficientNet_for_PyTorch/efficientnet_pytorch/model.py | https://arxiv.org/abs/1905.02244 | 论文地址 |
-| 开发引入 | / | EfficientNet_for_PyTorch/efficientnet_pytorch/auto_augment.py | https://github.com/google-research/augmix/blob/master/imagenet.py | 源码实现 |
-| 开源代码引入 | https://github.com/lukemelas/EfficientNet-PyTorch.git/setup.py | EfficientNet_for_PyTorch/setup.py | https://pypi.python.org/pypi?%3Aaction=list_classifiers | 相关依赖 |
-| 开发引入 | / | EfficientNet_for_PyTorch/efficientnet_pytorch/model.py | https://arxiv.org/abs/1704.04861 | 论文地址 |
-| 开发引入 | / | EfficientNet_for_PyTorch/efficientnet_pytorch/rmsprop_tf.py | https://arxiv.org/pdf/1308.0850v5.pdf | 论文地址 |
-| 开源代码引入 | https://github.com/lukemelas/EfficientNet-PyTorch.git/tf_to_pytorch/convert_tf_to_pt/original_tf/efficientnet_model.py | EfficientNet_for_PyTorch/efficientnet_pytorch/model.py | https://arxiv.org/abs/1905.11946 | 论文地址 |
-| 开发引入 | / | EfficientNet_for_PyTorch/efficientnet_pytorch/rmsprop_tf.py | http://www.cs.toronto.edu/~tijmen/csc321/slides/lecture_slides_lec6.pdf | 论文地址 |
-| 开源代码引入 | https://github.com/lukemelas/EfficientNet-PyTorch.git/tf_to_pytorch/convert_tf_to_pt/original_tf/efficientnet_model.py | EfficientNet_for_PyTorch/hubconf.py | https://arxiv.org/abs/1905.11946 | 论文地址 |
-| 开发引入 | / | EfficientNet_for_PyTorch/infer/sdk/models/efficientnet/imagenet1000_clsidx_to_labels.names | https://gist.github.com/yrevar/942d3a0ac09ec9e5eb3a | 源码实现 |
-| 开发引入 | / | EfficientNet_for_PyTorch/efficientnet_pytorch/model.py | https://arxiv.org/abs/1801.04381 | 论文地址 |
+| 文件位置                                                                                                   | 公网地址                              | 公网地址用途       |
+|--------------------------------------------------------------------------------------------------------|-----------------------------------|--------------|
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/EfficientNet_for_PyTorch/examples/imagenet/main.py | tcp://224.66.41.62:23456          | 分布式配置ip默认入参  |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/EfficientNet_for_PyTorch/modelarts/train_start.py  | tcp://224.66.41.62:23456          | 分布式配置ip默认入参  |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/EfficientNet_for_PyTorch/setup.py                  | lmelaskyriazi@college.harvard.edu | 作者邮箱         |

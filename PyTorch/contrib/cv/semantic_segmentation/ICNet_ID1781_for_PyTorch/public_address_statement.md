@@ -1,11 +1,11 @@
-| 类型     | 开源代码地址                                                          | 文件名                                                      | 公网IP地址/公网URL地址/域名/邮箱地址                                     | 用途说明    |
-|--------|-----------------------------------------------------------------|----------------------------------------------------------|------------------------------------------------------------|---------|
-| 开源代码引入 | https://github.com/Tramac/awesome-semantic-segmentation-pytorch | ICNet_ID1781_for_PyTorch/models/base_models/resnetv1b.py | https://download.pytorch.org/models/resnet18-5c106cde.pth  | 下载预训练模型 |
-| 开源代码引入 | https://github.com/Tramac/awesome-semantic-segmentation-pytorch | ICNet_ID1781_for_PyTorch/models/base_models/resnetv1b.py | https://download.pytorch.org/models/resnet34-333f7ec4.pth  | 下载预训练模型 |
-| 开源代码引入 | https://github.com/Tramac/awesome-semantic-segmentation-pytorch | ICNet_ID1781_for_PyTorch/models/base_models/resnetv1b.py | https://download.pytorch.org/models/resnet50-19c8e357.pth  | 下载预训练模型 |
-| 开源代码引入 | https://github.com/Tramac/awesome-semantic-segmentation-pytorch | ICNet_ID1781_for_PyTorch/models/base_models/resnetv1b.py | https://download.pytorch.org/models/resnet101-5d3b4d8f.pth | 下载预训练模型 |
-| 开源代码引入 | https://github.com/Tramac/awesome-semantic-segmentation-pytorch | ICNet_ID1781_for_PyTorch/models/base_models/resnetv1b.py | https://download.pytorch.org/models/resnet152-b121ed2d.pth | 下载预训练模型 |
-| 开源代码引入 | https://github.com/Tramac/awesome-semantic-segmentation-pytorch | ICNet_ID1781_for_PyTorch/models/model_store.py           | https://hangzh.s3.amazonaws.com/                           | 仓库地址    |
-| 开源代码引入 | https://github.com/Tramac/awesome-semantic-segmentation-pytorch | ICNet_ID1781_for_PyTorch/utils/logger.py | https://github.com/facebookresearch/maskrcnn-benchmark/blob/master/maskrcnn_benchmark/utils/logger.py | 源码实现 |
-| 开源代码引入 | https://github.com/Tramac/awesome-semantic-segmentation-pytorch | ICNet_ID1781_for_PyTorch/utils/lr_scheduler.py | https://blog.csdn.net/mieleizhi0522/article/details/83113824 | 论文地址 |
-| 开源代码引入 | https://github.com/Tramac/awesome-semantic-segmentation-pytorch | ICNet_ID1781_for_PyTorch/dataset/cityscapes.py | https://github.com/mcordts/cityscapesScripts/blob/master/cityscapesscripts/helpers/labels.py | 源码实现 |
+| 文件位置                                                                                                               | 公网地址                                                       | 公网地址用途  |
+|--------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------|---------|
+| ModelZoo-PyTorch/PyTorch/contrib/cv/semantic_segmentation/ICNet_ID1781_for_PyTorch/models/base_models/resnetv1b.py | https://download.pytorch.org/models/resnet18-5c106cde.pth  | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/semantic_segmentation/ICNet_ID1781_for_PyTorch/models/base_models/resnetv1b.py | https://download.pytorch.org/models/resnet34-333f7ec4.pth  | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/semantic_segmentation/ICNet_ID1781_for_PyTorch/models/base_models/resnetv1b.py | https://download.pytorch.org/models/resnet50-19c8e357.pth  | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/semantic_segmentation/ICNet_ID1781_for_PyTorch/models/base_models/resnetv1b.py | https://download.pytorch.org/models/resnet101-5d3b4d8f.pth | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/semantic_segmentation/ICNet_ID1781_for_PyTorch/models/base_models/resnetv1b.py | https://download.pytorch.org/models/resnet152-b121ed2d.pth | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/semantic_segmentation/ICNet_ID1781_for_PyTorch/models/base_models/resnetv1b.py | https://download.pytorch.org/models/resnet50-19c8e357.pth  | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/semantic_segmentation/ICNet_ID1781_for_PyTorch/models/base_models/resnetv1b.py | https://download.pytorch.org/models/resnet101-5d3b4d8f.pth | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/semantic_segmentation/ICNet_ID1781_for_PyTorch/models/base_models/resnetv1b.py | https://download.pytorch.org/models/resnet152-b121ed2d.pth | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/semantic_segmentation/ICNet_ID1781_for_PyTorch/models/model_store.py           | https://hangzh.s3.amazonaws.com/                           | 相关说明    |

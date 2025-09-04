@@ -1,26 +1,7 @@
-| 类型     | 开源代码地址                                     | 文件名                    | 公网IP地址/公网URL地址/域名/邮箱地址 | 用途说明    |
-|--------|--------------------------------------------|------------------------| ------------------------------------ |---------|
-| 开源代码引入 | https://github.com/qijiezhao/M2Det  | M2Det/layers/resnet.py | https://download.pytorch.org/models/resnet18-5c106cde.pth | 下载预训练权重    |
-| 开源代码引入 | https://github.com/qijiezhao/M2Det  | M2Det/layers/resnet.py | https://download.pytorch.org/models/resnet34-333f7ec4.pth | 下载预训练权重    |
-| 开源代码引入 | https://github.com/qijiezhao/M2Det  | M2Det/layers/resnet.py | https://download.pytorch.org/models/resnet50-19c8e357.pth | 下载预训练权重    |
-| 开源代码引入 | https://github.com/qijiezhao/M2Det  | M2Det/layers/resnet.py | https://download.pytorch.org/models/resnet101-5d3b4d8f.pth | 下载预训练权重      |
-| 开源代码引入 | https://github.com/qijiezhao/M2Det  | M2Det/layers/resnet.py | https://download.pytorch.org/models/resnet152-b121ed2d.pth | 下载预训练权重    |
-| 开源代码引入 | https://github.com/qijiezhao/M2Det  | M2Det/layers/senet.py | http://data.lip6.fr/cadene/pretrainedmodels/senet154-c7b49a05.pth | 下载预训练权重 |
-| 开源代码引入 | https://github.com/qijiezhao/M2Det  | M2Det/layers/senet.py | http://data.lip6.fr/cadene/pretrainedmodels/se_resnet50-ce0d4300.pth | 下载预训练权重 |
-| 开源代码引入 | https://github.com/qijiezhao/M2Det  | M2Det/layers/senet.py | http://data.lip6.fr/cadene/pretrainedmodels/se_resnet101-7e38fcc6.pth | 下载预训练权重 |
-| 开源代码引入 | https://github.com/qijiezhao/M2Det  | M2Det/layers/senet.py | http://data.lip6.fr/cadene/pretrainedmodels/se_resnet152-d17c99b7.pth | 下载预训练权重 |
-| 开源代码引入 | https://github.com/qijiezhao/M2Det  | M2Det/layers/senet.py | http://data.lip6.fr/cadene/pretrainedmodels/se_resnext50_32x4d-a260b3a4.pth | 下载预训练权重 |
-| 开源代码引入 | https://github.com/qijiezhao/M2Det  | M2Det/layers/senet.py | http://data.lip6.fr/cadene/pretrainedmodels/se_resnext101_32x4d-3b2fe3d8.pth | 下载预训练权重 |
-| 开发引入 | / | M2Det/layers/modules/multibox_loss.py | https://arxiv.org/pdf/1512.02325.pdf | 论文地址 |
-| 开源代码引入 | https://github.com/qijiezhao/M2Det/logger.py | M2Det/logger.py | https://gist.github.com/gyglim/1f8dfb1b5c82627ae3efcfbbadb9f514 | 源码实现 |
-| 开源代码引入 | https://github.com/qijiezhao/M2Det/data/voc0712.py | M2Det/data/coco.py | https://github.com/fmassa/vision/blob/voc_dataset/torchvision/datasets/voc.py | 源码实现 |
-| 开源代码引入 | https://github.com/qijiezhao/M2Det/data/voc0712.py | M2Det/data/voc0712.py | https://github.com/pytorch/vision/issues/9 | 相关说明 |
-| 开源代码引入 | https://github.com/qijiezhao/M2Det/utils/box_utils.py | M2Det/utils/box_utils.py | https://github.com/fmassa/object-detection.torch | 源码实现 |
-| 开发引入 | / | M2Det/finetune.py | https://www.github.com/nvidia/apex | 相关依赖 |
-| 开源代码引入 | https://github.com/qijiezhao/M2Det/README.md | M2Det/m2det.py | zhaoqijie@pku.edu.cn | 邮箱地址 |
-| 开源代码引入 | https://github.com/qijiezhao/M2Det/utils/build.py | M2Det/utils/build.py | http://code.activestate.com/recipes/52224-find-a-file-given-a-search-path/ | 源码实现 |
-| 开源代码引入 | https://github.com/qijiezhao/M2Det/utils/box_utils.py | M2Det/utils/box_utils.py | https://github.com/Hakuyume/chainer-ssd | 源码实现 |
-| 开源代码引入 | https://github.com/qijiezhao/M2Det/data/voc0712.py | M2Det/data/voc0712.py | https://github.com/fmassa/vision/blob/voc_dataset/torchvision/datasets/voc.py | 源码实现 |
-| 开源代码引入 | https://github.com/qijiezhao/M2Det/layers/senet.py | M2Det/layers/senet.py | https://github.com/pytorch/vision/blob/master/torchvision/models/resnet.py | 源码实现 |
-| 开发引入 | / | M2Det/train_8p.py | https://www.github.com/nvidia/apex | 相关依赖 |
-| 开源代码引入 | https://github.com/qijiezhao/M2Det/data/data_augment.py | M2Det/data/data_augment.py | http://arxiv.org/abs/1512.02325 | 论文地址 |
+| 文件位置                                                                 | 公网地址                                                       | 公网地址用途  |
+|----------------------------------------------------------------------|------------------------------------------------------------|---------|
+| ModelZoo-PyTorch/PyTorch/contrib/cv/detection/M2Det/layers/resnet.py | https://download.pytorch.org/models/resnet18-5c106cde.pth  | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/detection/M2Det/layers/resnet.py | https://download.pytorch.org/models/resnet34-333f7ec4.pth  | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/detection/M2Det/layers/resnet.py | https://download.pytorch.org/models/resnet50-19c8e357.pth  | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/detection/M2Det/layers/resnet.py | https://download.pytorch.org/models/resnet101-5d3b4d8f.pth | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/detection/M2Det/layers/resnet.py | https://download.pytorch.org/models/resnet152-b121ed2d.pth | 权重地址    |

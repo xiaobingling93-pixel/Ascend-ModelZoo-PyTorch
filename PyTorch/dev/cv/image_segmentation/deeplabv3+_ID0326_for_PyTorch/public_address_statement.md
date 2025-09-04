@@ -1,0 +1,6 @@
+| 文件位置                                                                                                         | 公网地址                                                       | 公网地址用途  |
+|--------------------------------------------------------------------------------------------------------------|------------------------------------------------------------|---------|
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/deeplabv3+_ID0326_for_PyTorch/modeling/backbone/drn.py    | https://download.pytorch.org/models/resnet50-19c8e357.pth  | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/deeplabv3+_ID0326_for_PyTorch/modeling/backbone/drn.py    | http://dl.yf.io/drn/                                       | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/deeplabv3+_ID0326_for_PyTorch/modeling/backbone/drn.py    | http://dl.yf.io/drn/                                       | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/deeplabv3+_ID0326_for_PyTorch/modeling/backbone/resnet.py | https://download.pytorch.org/models/resnet101-5d3b4d8f.pth | 权重地址    |

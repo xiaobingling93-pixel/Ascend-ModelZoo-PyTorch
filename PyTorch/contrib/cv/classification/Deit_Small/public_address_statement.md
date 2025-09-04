@@ -1,47 +1,21 @@
-| 类型     | 开源代码地址                                                                                                                           | 文件名                                                | 公网IP地址/公网URL地址/域名/邮箱地址 | 用途说明  |
-|--------|----------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------|-----------------------|-------|
-| 开发引入 | / | url.ini | https://bbs-img.huaweicloud.com/blogs/img/thumb/1591951315139_8989_1363.png | 下载测试图片 |
-| 开源代码引入 | https://github.com/facebookresearch/deit/blob/ae4dba9b453b9e18faa781edbc13039aaeca9b68/models.py | Deit_Small/models.py | https://dl.fbaipublicfiles.com/deit/deit_tiny_patch16_224-a1311bcf.pth | 下载权重文件 |
-| 开源代码引入 | https://github.com/facebookresearch/deit/blob/ae4dba9b453b9e18faa781edbc13039aaeca9b68/models.py | Deit_Small/models.py | https://dl.fbaipublicfiles.com/deit/deit_small_patch16_224-cd65a155.pth | 下载权重文件 |
-| 开源代码引入 | https://github.com/facebookresearch/deit/blob/ae4dba9b453b9e18faa781edbc13039aaeca9b68/models.py | Deit_Small/models.py | https://dl.fbaipublicfiles.com/deit/deit_base_patch16_224-b5f2ef4d.pth | 下载权重文件 |
-| 开源代码引入 | https://github.com/facebookresearch/deit/blob/ae4dba9b453b9e18faa781edbc13039aaeca9b68/models.py | Deit_Small/models.py | https://dl.fbaipublicfiles.com/deit/deit_tiny_distilled_patch16_224-b40b3cf7.pth | 下载权重文件 |
-| 开源代码引入 | https://github.com/facebookresearch/deit/blob/ae4dba9b453b9e18faa781edbc13039aaeca9b68/models.py | Deit_Small/models.py | https://dl.fbaipublicfiles.com/deit/deit_small_distilled_patch16_224-649709d9.pth | 下载权重文件 |
-| 开源代码引入 | https://github.com/facebookresearch/deit/blob/ae4dba9b453b9e18faa781edbc13039aaeca9b68/models.py | Deit_Small/models.py | https://dl.fbaipublicfiles.com/deit/deit_base_distilled_patch16_224-df68dfff.pth | 下载权重文件 |
-| 开源代码引入 | https://github.com/facebookresearch/deit/blob/ae4dba9b453b9e18faa781edbc13039aaeca9b68/models.py | Deit_Small/models.py | https://dl.fbaipublicfiles.com/deit/deit_base_patch16_384-8de9b5d1.pth | 下载权重文件 |
-| 开源代码引入 | https://github.com/facebookresearch/deit/blob/ae4dba9b453b9e18faa781edbc13039aaeca9b68/models.py | Deit_Small/models.py | https://dl.fbaipublicfiles.com/deit/deit_base_distilled_patch16_384-d0272ac0.pth | 下载权重文件 |
-| 开发引入 | / | url.ini | https://github.com/rwightman/pytorch-image-models/releases/download/v0.1-weights/vit_small_p16_224-15ec54c9.pth | 下载权重文件 |
-| 开发引入 | / | url.ini | https://github.com/rwightman/pytorch-image-models/releases/download/v0.1-vitjx/jx_vit_base_p16_224-80ecf9dd.pth | 下载权重文件 |
-| 开发引入 | / | url.ini | https://github.com/rwightman/pytorch-image-models/releases/download/v0.1-vitjx/jx_vit_base_p16_384-83fb41ba.pth | 下载权重文件 |
-| 开发引入 | / | url.ini | https://github.com/rwightman/pytorch-image-models/releases/download/v0.1-vitjx/jx_vit_base_p32_384-830016f5.pth | 下载权重文件 |
-| 开发引入 | / | url.ini | https://github.com/rwightman/pytorch-image-models/releases/download/v0.1-vitjx/jx_vit_large_p16_224-4ee7a4dc.pth | 下载权重文件 |
-| 开发引入 | / | url.ini | https://github.com/rwightman/pytorch-image-models/releases/download/v0.1-vitjx/jx_vit_large_p16_384-b3be5167.pth | 下载权重文件 |
-| 开发引入 | / | url.ini | https://github.com/rwightman/pytorch-image-models/releases/download/v0.1-vitjx/jx_vit_large_p32_384-9b920ba8.pth | 下载权重文件 |
-| 开发引入 | / | url.ini | https://github.com/rwightman/pytorch-image-models/releases/download/v0.1-vitjx/jx_vit_base_patch16_224_in21k-e5005f0a.pth | 下载权重文件 |
-| 开发引入 | / | url.ini | https://github.com/rwightman/pytorch-image-models/releases/download/v0.1-vitjx/jx_vit_base_patch32_224_in21k-8db57226.pth | 下载权重文件 |
-| 开发引入 | / | url.ini | https://github.com/rwightman/pytorch-image-models/releases/download/v0.1-vitjx/jx_vit_large_patch16_224_in21k-606da67d.pth | 下载权重文件 |
-| 开发引入 | / | url.ini | https://github.com/rwightman/pytorch-image-models/releases/download/v0.1-vitjx/jx_vit_large_patch32_224_in21k-9046d2e7.pth | 下载权重文件 |
-| 开发引入 | / | url.ini | https://dl.fbaipublicfiles.com/deit/deit_tiny_patch16_224-a1311bcf.pth | 下载权重文件 |
-| 开发引入 | / | url.ini | https://dl.fbaipublicfiles.com/deit/deit_small_patch16_224-cd65a155.pth | 下载权重文件 |
-| 开发引入 | / | url.ini | https://dl.fbaipublicfiles.com/deit/deit_base_patch16_224-b5f2ef4d.pth | 下载权重文件 |
-| 开发引入 | / | url.ini | https://dl.fbaipublicfiles.com/deit/deit_base_patch16_384-8de9b5d1.pth | 下载权重文件 |
-| 开发引入 | / | url.ini | https://dl.fbaipublicfiles.com/deit/deit_tiny_distilled_patch16_224-b40b3cf7.pth | 下载权重文件 |
-| 开发引入 | / | url.ini | https://dl.fbaipublicfiles.com/deit/deit_small_distilled_patch16_224-649709d9.pth | 下载权重文件 |
-| 开发引入 | / | url.ini | https://dl.fbaipublicfiles.com/deit/deit_base_distilled_patch16_224-df68dfff.pth | 下载权重文件 |
-| 开发引入 | / | url.ini | https://dl.fbaipublicfiles.com/deit/deit_base_distilled_patch16_384-d0272ac0.pth | 下载权重文件 |
-| 开发引入 | / | url.ini | https://miil-public-eu.oss-eu-central-1.aliyuncs.com/model-zoo/ImageNet_21K_P/models/timm/vit_base_patch16_224_in21k_miil.pth | 下载权重文件 |
-| 开发引入 | / | url.ini | https://miil-public-eu.oss-eu-central-1.aliyuncs.com/model-zoo/ImageNet_21K_P/models/timm/vit_base_patch16_224_1k_miil_84_4.pth | 下载权重文件 |
-| 开发引入 | / | Deit_Small/vision_transformer.py | https://github.com/google-research/vision_transformer/blob/00883dd691c63a6830751563748663526e811cee/vit_jax/checkpoint.py#L224 | 源码实现 |
-| 开源代码引入 | https://github.com/Facebookresearch/deit.git/models_v2.py | Deit_Small/models.py | https://github.com/rwightman/pytorch-image-models/blob/master/timm/models/vision_transformer.py | 源码实现 |
-| 开发引入 | / | Deit_Small/vision_transformer.py | https://github.com/lucidrains/vit-pytorch | 源码实现 |
-| 开发引入 | / | Deit_Small/vision_transformer.py | https://github.com/karpathy/minGPT | 源码实现 |
-| 开发引入 | / | Deit_Small/vision_transformer.py | https://github.com/Alibaba-MIIL/ImageNet21K | 源码实现 |
-| 开发引入 | / | Deit_Small/npu_fused_adamw.py | https://openreview.net/forum?id=ryQu7f-RZ | 相关说明 |
-| 开发引入 | / | Deit_Small/vision_transformer.py | https://github.com/google-research/vision_transformer | 源码实现 |
-| 开发引入 | / | Deit_Small/mixup.py | https://github.com/clovaai/CutMix-PyTorch | 源码实现 |
-| 开发引入 | / | Deit_Small/vision_transformer.py | https://arxiv.org/abs/2010.11929 | 论文地址 |
-| 开发引入 | / | Deit_Small/npu_fused_adamw.py | https://arxiv.org/abs/1412.6980 | 论文地址 |
-| 开发引入 | / | Deit_Small/mixup.py | https://arxiv.org/abs/1905.04899 | 论文地址 |
-| 开发引入 | / | Deit_Small/npu_fused_adamw.py | https://arxiv.org/abs/1711.05101 | 论文地址 |
-| 开源代码引入 | https://github.com/Facebookresearch/deit.git/losses.py | Deit_Small/losses.py | https://github.com/peterliht/knowledge-distillation-pytorch/blob/master/model/net.py#L100 | 源码实现 |
-| 开发引入 | / | Deit_Small/vision_transformer.py | https://arxiv.org/abs/2012.12877 | 论文地址 |
-| 开发引入 | / | Deit_Small/mixup.py | https://arxiv.org/abs/1710.09412 | 论文地址 |
+| 文件位置                                                                    | 公网地址                                                                                                                            | 公网地址用途  |
+|-------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------|---------|
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/Deit_Small/models.py | https://dl.fbaipublicfiles.com/deit/deit_base_distilled_patch16_384-d0272ac0.pth                                                | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/Deit_Small/models.py | https://dl.fbaipublicfiles.com/deit/deit_tiny_patch16_224-a1311bcf.pth                                                          | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/Deit_Small/models.py | https://dl.fbaipublicfiles.com/deit/deit_tiny_distilled_patch16_224-b40b3cf7.pth                                                | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/Deit_Small/models.py | https://dl.fbaipublicfiles.com/deit/deit_small_patch16_224-cd65a155.pth                                                         | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/Deit_Small/models.py | https://dl.fbaipublicfiles.com/deit/deit_small_distilled_patch16_224-649709d9.pth                                               | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/Deit_Small/models.py | https://dl.fbaipublicfiles.com/deit/deit_base_patch16_384-8de9b5d1.pth                                                          | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/Deit_Small/models.py | https://dl.fbaipublicfiles.com/deit/deit_base_patch16_224-b5f2ef4d.pth                                                          | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/Deit_Small/models.py | https://dl.fbaipublicfiles.com/deit/deit_base_distilled_patch16_224-df68dfff.pth                                                | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/Deit_Small/url.ini   | https://bbs-img.huaweicloud.com/blogs/img/thumb/1591951315139_8989_1363.png                                                     | 数据集地址   |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/Deit_Small/url.ini   | https://dl.fbaipublicfiles.com/deit/deit_base_distilled_patch16_384-d0272ac0.pth                                                | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/Deit_Small/url.ini   | https://dl.fbaipublicfiles.com/deit/deit_tiny_patch16_224-a1311bcf.pth                                                          | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/Deit_Small/url.ini   | https://dl.fbaipublicfiles.com/deit/deit_tiny_distilled_patch16_224-b40b3cf7.pth                                                | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/Deit_Small/url.ini   | https://dl.fbaipublicfiles.com/deit/deit_small_patch16_224-cd65a155.pth                                                         | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/Deit_Small/url.ini   | https://dl.fbaipublicfiles.com/deit/deit_small_distilled_patch16_224-649709d9.pth                                               | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/Deit_Small/url.ini   | https://dl.fbaipublicfiles.com/deit/deit_base_patch16_384-8de9b5d1.pth                                                          | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/Deit_Small/url.ini   | https://dl.fbaipublicfiles.com/deit/deit_base_patch16_224-b5f2ef4d.pth                                                          | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/Deit_Small/url.ini   | https://dl.fbaipublicfiles.com/deit/deit_base_distilled_patch16_224-df68dfff.pth                                                | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/Deit_Small/url.ini   | https://miil-public-eu.oss-eu-central-1.aliyuncs.com/model-zoo/ImageNet_21K_P/models/timm/vit_base_patch16_224_in21k_miil.pth   | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/Deit_Small/url.ini   | https://miil-public-eu.oss-eu-central-1.aliyuncs.com/model-zoo/ImageNet_21K_P/models/timm/vit_base_patch16_224_1k_miil_84_4.pth | 权重地址    |

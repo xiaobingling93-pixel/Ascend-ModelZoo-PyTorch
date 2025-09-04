@@ -1,23 +1,5 @@
- | 类型     | 开源代码地址 | 文件名                      | 公网IP地址/公网URL地址/域名/邮箱地址 | 用途说明  |
-|--------|--------|--------------------------| ------------------------------------ |-------|
-| 开源代码引入 | https://github.com/ajbrock/BigGAN-PyTorch    | BigGAN/datasets.py       | http://www.cs.toronto.edu/~kriz/cifar-100-python.tar.gz | 下载数据集 |
- | 开源代码引入 | https://github.com/ajbrock/BigGAN-PyTorch    | BigGAN/inception_tf13.py | http://download.tensorflow.org/models/image/imagenet/inception-2015-12-05.tgz | 下载数据集 |
- | 开源代码引入 | https://github.com/ajbrock/BigGAN-PyTorch/sync_batchnorm/__init__.py | BigGAN/sync_batchnorm/batchnorm.py | maojiayuan@gmail.com | 邮箱地址 |
-| 开源代码引入 | https://github.com/ajbrock/BigGAN-PyTorch/sync_batchnorm/batchnorm.py | BigGAN/sync_batchnorm/batchnorm.py | http://tetexiao.com/ | 相关说明 |
-| 开源代码引入 | https://github.com/ajbrock/BigGAN-PyTorch/sync_batchnorm/__init__.py | BigGAN/sync_batchnorm/__init__.py | https://github.com/vacancy/Synchronized-BatchNorm-PyTorch | 源码实现 |
-| 开源代码引入 | https://github.com/ajbrock/BigGAN-PyTorch/inception_utils.py | BigGAN/inception_utils.py | https://github.com/msubhransu/matrix-sqrt | 源码实现 |
-| 开源代码引入 | https://github.com/ajbrock/BigGAN-PyTorch/sync_batchnorm/__init__.py | BigGAN/sync_batchnorm/comm.py | https://github.com/vacancy/Synchronized-BatchNorm-PyTorch | 源码实现 |
-| 开源代码引入 | https://github.com/ajbrock/BigGAN-PyTorch/utils.py | BigGAN/utils.py | https://discuss.pytorch.org/t/subclassing-torch-tensor/23754/2 | 相关说明 |
-| 开源代码引入 | https://github.com/ajbrock/BigGAN-PyTorch/inception_utils.py | BigGAN/inception_utils.py | https://github.com/bioinf-jku/TTUR | 源码实现 |
-| 开源代码引入 | https://github.com/ajbrock/BigGAN-PyTorch/sync_batchnorm/__init__.py | BigGAN/sync_batchnorm/unittest.py | maojiayuan@gmail.com | 邮箱地址 |
-| 开源代码引入 | https://github.com/ajbrock/BigGAN-PyTorch/sync_batchnorm/__init__.py | BigGAN/sync_batchnorm/__init__.py | maojiayuan@gmail.com | 邮箱地址 |
-| 开源代码引入 | https://github.com/ajbrock/BigGAN-PyTorch/sync_batchnorm/batchnorm_reimpl.py | BigGAN/sync_batchnorm/batchnorm_reimpl.py | https://github.com/vacancy/Synchronized-BatchNorm-PyTorch/issues/14 | 源码实现 |
-| 开源代码引入 | https://github.com/ajbrock/BigGAN-PyTorch/sync_batchnorm/__init__.py | BigGAN/sync_batchnorm/comm.py | maojiayuan@gmail.com | 邮箱地址 |
-| 开源代码引入 | https://github.com/ajbrock/BigGAN-PyTorch/sync_batchnorm/__init__.py | BigGAN/sync_batchnorm/replicate.py | https://github.com/vacancy/Synchronized-BatchNorm-PyTorch | 源码实现 |
-| 开源代码引入 | https://github.com/ajbrock/BigGAN-PyTorch/README.md | BigGAN/inception_tf13.py | https://github.com/openai/improved-gan | 源码实现 |
-| 开源代码引入 | https://github.com/ajbrock/BigGAN-PyTorch/sync_batchnorm/__init__.py | BigGAN/sync_batchnorm/batchnorm.py | https://github.com/vacancy/Synchronized-BatchNorm-PyTorch | 源码实现 |
-| 开源代码引入 | https://github.com/ajbrock/BigGAN-PyTorch/sync_batchnorm/__init__.py | BigGAN/sync_batchnorm/unittest.py | https://github.com/vacancy/Synchronized-BatchNorm-PyTorch | 源码实现 |
-| 开源代码引入 | https://github.com/ajbrock/BigGAN-PyTorch/inception_utils.py | BigGAN/inception_utils.py | https://discuss.pytorch.org/t/covariance-and-gradient-support/16217/2 | 相关说明 |
-| 开源代码引入 | https://github.com/ajbrock/BigGAN-PyTorch/sync_batchnorm/__init__.py | BigGAN/sync_batchnorm/batchnorm_reimpl.py | https://github.com/vacancy/Synchronized-BatchNorm-PyTorch | 源码实现 |
-| 开源代码引入 | https://github.com/ajbrock/BigGAN-PyTorch/sync_batchnorm/__init__.py | BigGAN/sync_batchnorm/replicate.py | maojiayuan@gmail.com | 邮箱地址 |
-| 开源代码引入 | https://github.com/ajbrock/BigGAN-PyTorch/datasets.py | BigGAN/datasets.py | https://github.com/python-pillow/Pillow/issues/835 | 相关说明 |
+| 文件位置                                                                | 公网地址                                                                          | 公网地址用途       |
+|---------------------------------------------------------------------|-------------------------------------------------------------------------------|--------------|
+| ModelZoo-PyTorch/PyTorch/contrib/cv/others/BigGAN/datasets.py       | http://www.cs.toronto.edu/~kriz/cifar-100-python.tar.gz                       | 数据集链接        |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/others/BigGAN/inception_tf13.py | http://download.tensorflow.org/models/image/imagenet/inception-2015-12-05.tgz | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/others/BigGAN/utils.py          | tcp://224.66.41.62:23456                                                      | 分布式配置ip默认入参  |

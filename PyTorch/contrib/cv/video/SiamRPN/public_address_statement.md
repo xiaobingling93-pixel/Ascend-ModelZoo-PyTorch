@@ -1,7 +1,3 @@
-﻿| 类型     | 开源代码地址                                       | 文件名                                              | 公网IP地址/公网URL地址/域名/邮箱地址                                                                                                                                                                                                          | 用途说明    |
-|--------|----------------------------------------------|--------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|
-| 开源代码引入 | https://github.com/STVIR/pysot/toolkit/utils/statistics.py | SiamRPN/pysot-master/toolkit/utils/statistics.py | fangyi.zhang@vipl.ict.ac.cn | 邮箱地址 |
-| 开源代码引入 | https://github.com/STVIR/pysot/pysot/core/config.py | SiamRPN/pysot-master/pysot/core/config.py | https://arxiv.org/pdf/1812.11703 | 论文地址 |
-| 开源代码引入 | https://github.com/STVIR/pysot/pysot/core/config.py | SiamRPN/pysot-master/pysot/core/config.py | https://arxiv.org/pdf/1808.06048 | 论文地址 |
-| 开源代码引入 | https://github.com/STVIR/pysot/toolkit/utils/statistics.py | SiamRPN/pysot-master/toolkit/utils/misc.py | fangyi.zhang@vipl.ict.ac.cn | 邮箱地址 |
-| 开源代码引入 | https://github.com/STVIR/pysot/toolkit/utils/statistics.py | SiamRPN/pysot-master/toolkit/utils/region.pyx | fangyi.zhang@vipl.ict.ac.cn | 邮箱地址 |
+﻿| 文件位置                                                                                      | 公网地址    | 公网地址用途  |
+|-------------------------------------------------------------------------------------------|---------|---------|
+| ModelZoo-PyTorch/PyTorch/contrib/cv/video/SiamRPN/pysot-master/pysot/utils/distributed.py | 8.8.8.8 | ip地址    |

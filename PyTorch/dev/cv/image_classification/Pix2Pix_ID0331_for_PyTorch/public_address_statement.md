@@ -1,0 +1,4 @@
+| 文件位置                                                                                                              | 公网地址                                                                              | 公网地址用途  |
+|-------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------|---------|
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/Pix2Pix_ID0331_for_PyTorch/data/download_cyclegan_dataset.sh | https://people.eecs.berkeley.edu/~taesung_park/CycleGAN/datasets/$FILE.zip        | 数据集地址   |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/Pix2Pix_ID0331_for_PyTorch/data/download_pix2pix_dataset.sh  | https://people.eecs.berkeley.edu/~tinghuiz/projects/pix2pix/datasets/$FILE.tar.gz | 模型相关说明  |

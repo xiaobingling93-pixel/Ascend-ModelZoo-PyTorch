@@ -1,0 +1,3 @@
+| 文件位置                                                                                                       | 公网地址                                                             | 公网地址用途  |
+|------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------|---------|
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/Keyword-MLP_ID2441_for_PyTorch/download_gspeech_v2.sh | http://download.tensorflow.org/data/speech_commands_v0.02.tar.gz | 模型相关说明  |

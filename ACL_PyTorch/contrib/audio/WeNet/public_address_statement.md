@@ -1,4 +1,3 @@
-| 类型 | 开源代码地址 | 文件名 | 公网IP地址/公网URL地址/域名/邮箱地址 | 用途说明 |
-| ---- | ------------ | ------ | ------------------------------------ | -------- |
-|开发引入|/|WeNet/url.ini|www.openslr.org/resources/33|下载数据集|
-|开发引入|/|ACL_PyTorch/contrib/audio/WeNet/run_static.sh|https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/env.html|引用环境配置说明|
+| 文件位置                                                     | 公网地址                         | 公网地址用途  |
+|----------------------------------------------------------|------------------------------|---------|
+| ModelZoo-PyTorch/ACL_PyTorch/contrib/audio/WeNet/url.ini | www.openslr.org/resources/33 | 数据集网址   |

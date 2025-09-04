@@ -1,0 +1,4 @@
+| 文件位置                                                                                                               | 公网地址                     | 公网地址用途  |
+|--------------------------------------------------------------------------------------------------------------------|--------------------------|---------|
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/ResNet50_for_PyTorch/DistributedResnet50/main_apex_d76_npu.py | tcp://224.66.41.62:23456 | ip地址    |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/ResNet50_for_PyTorch/pytorch_resnet50_apex.py                 | tcp://224.66.41.62:23456 | ip地址    |

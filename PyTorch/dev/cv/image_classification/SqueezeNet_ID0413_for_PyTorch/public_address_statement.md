@@ -1,0 +1,4 @@
+| 文件位置                                                                                             | 公网地址                                                           | 公网地址用途  |
+|--------------------------------------------------------------------------------------------------|----------------------------------------------------------------|---------|
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/SqueezeNet_ID0413_for_PyTorch/squeezenet.py | https://download.pytorch.org/models/squeezenet1_1-f364aa15.pth | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/SqueezeNet_ID0413_for_PyTorch/squeezenet.py | https://download.pytorch.org/models/squeezenet1_0-a815701f.pth | 权重地址    |

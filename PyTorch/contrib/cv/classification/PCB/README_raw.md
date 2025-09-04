@@ -12,9 +12,8 @@ Code for the paper [Beyond Part Models: Person Retrieval with Refined Part Pooli
 1. Install [Pytorch](https://pytorch.org/)
 
 2. Download dataset
-	a. Market-1501 [BaiduYun](https://pan.baidu.com/s/1ntIi2Op?errno=0&errmsg=Auth%20Login%20Sucess&&bduss=&ssnerror=0&traceid=)
-	b. DukeMTMC-reID[BaiduYun](https://pan.baidu.com/share/init?surl=jS0XM7Var5nQGcbf9xUztw) (password:bhbh)
-	c. Move them to ```~/datasets/Market-1501/(DukeMTMC-reID)```
+  a. Prepare `Market-1501` and `DukeMTMC-reID`
+	b. Move them to ```~/datasets/Market-1501/(DukeMTMC-reID)```
 </font>
 
 ## train PCB

@@ -1,53 +1,11 @@
-| 类型     | 开源代码地址                                                            | 文件名                                             | 公网IP地址/公网URL地址/域名/邮箱地址                                               | 用途说明   |
-|--------|-------------------------------------------------------------------|-------------------------------------------------|----------------------------------------------------------------------|--------|
-| 开发引入 | / | YOLOV9_for_PyTorch/utils/loggers/__init__.py | http://localhost:6006/ | 本机IP地址 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/utils/loggers/wandb/sweep.yaml | YOLOV9_for_PyTorch/utils/loggers/wandb/sweep.yaml | https://docs.wandb.ai/guides/sweeps/configuration | 开源代码链接 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/scripts/get_coco.sh | YOLOV9_for_PyTorch/scripts/get_coco.sh | http://cocodataset.org | 下载数据集   |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/scripts/get_coco.sh | YOLOV9_for_PyTorch/scripts/get_coco.sh | http://images.cocodataset.org/zips/ | 下载数据集   |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/scripts/get_coco.sh | YOLOV9_for_PyTorch/scripts/get_coco.sh | https://github.com/ultralytics/yolov5/releases/download/v1.0 | 下载数据集 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/LICENSE.md | YOLOV9_for_PyTorch/LICENSE.md | https://fsf.org/ | 开源代码链接 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/hubconf.py | YOLOV9_for_PyTorch/hubconf.py | https://ultralytics.com/images/zidane.jpg | 开源代码链接 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/export.py | YOLOV9_for_PyTorch/export.py | https://pypi.ngc.nvidia.com | 开源代码链接 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/export.py | YOLOV9_for_PyTorch/export.py | https://coral.ai/docs/edgetpu/compiler/ | 开源代码链接 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/export.py | YOLOV9_for_PyTorch/export.py | https://packages.cloud.google.com/apt/doc/apt-key.gpg | 开源代码链接 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/export.py | YOLOV9_for_PyTorch/export.py | https://packages.cloud.google.com/apt | 开源代码链接 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/export.py | YOLOV9_for_PyTorch/export.py | https://netron.app | 开源代码链接 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/classify/train.py | YOLOV9_for_PyTorch/classify/train.py | https://github.com/ultralytics/yolov5/releases/download/v1.0 | 下载数据集 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/classify/train.py | YOLOV9_for_PyTorch/classify/train.py | https://pytorch.org/vision/stable/models.html | 开源代码链接 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/classify/train.py | YOLOV9_for_PyTorch/classify/train.py | https://netron.app | 开源代码链接 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/utils/coco_utils.py | YOLOV9_for_PyTorch/utils/coco_utils.py | https://tech.amikelive.com/node-718/what-object-categories-labels-are-in-coco-dataset/ | 开源代码链接 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/utils/coco_utils.py | YOLOV9_for_PyTorch/utils/coco_utils.py | https://github.com/cocodataset/panopticapi/blob/master/panoptic_coco_categories.json | 开源代码链接 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/utils/dataloaders.py | YOLOV9_for_PyTorch/utils/dataloaders.py | https://github.com/ultralytics/yolov5/wiki/Train-Custom-Data | 开源代码链接 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/utils/downloads.py | YOLOV9_for_PyTorch/utils/downloads.py | https://api.github.com/repos/ultralytics/yolov5/releases/latest | 开源代码链接 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/utils/downloads.py | YOLOV9_for_PyTorch/utils/downloads.py | https://github.com/ultralytics/yolov5/releases/download/tags/v7.0/efficientnet_b0.pt | 下载数据集 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/utils/downloads.py | YOLOV9_for_PyTorch/utils/downloads.py | https://url.com/file.txt?auth | 开源代码链接 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/utils/general.py | YOLOV9_for_PyTorch/utils/general.py | https://github.com/WongKinYiu/yolov9 | 开源代码链接 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/utils/general.py | YOLOV9_for_PyTorch/utils/general.py | https://ultralytics.com/assets/Arial.ttf | 下载字符集 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/utils/general.py | YOLOV9_for_PyTorch/utils/general.py | https://url.com/file.txt?auth | 开源代码链接 |
-| 开发引入 | - | YOLOV9_for_PyTorch/README.md | https://github.com/WongKinYiu/yolov9.git | 模型源代码链接 |
-| 开发引入 | - | YOLOV9_for_PyTorch/README.md | https://ultralytics.com/assets/Arial.ttf | 下载字符集 |
-| 开发引入 | - | YOLOV9_for_PyTorch/README.md | https://github.com/ultralytics/yolov5/releases/download/v1.0/coco2017labels-segments.zip | 下载数据集 |
-| 开发引入 | - | YOLOV9_for_PyTorch/README.md | http://images.cocodataset.org/zips/val2017.zip | 下载数据集 |
-| 开发引入 | - | YOLOV9_for_PyTorch/README.md | http://images.cocodataset.org/zips/test2017.zip | 下载数据集 |
-| 开发引入 | - | YOLOV9_for_PyTorch/README.md | http://images.cocodataset.org/zips/train2017.zip | 下载数据集 |
-| 开发引入 | - | YOLOV9_for_PyTorch/README_en.md | https://github.com/WongKinYiu/yolov9.git | 模型源代码链接 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/README.md | YOLOV9_for_PyTorch/README_en.md | http://images.cocodataset.org/zips/train2017.zip | 下载数据集 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/README.md | YOLOV9_for_PyTorch/README_en.md | http://images.cocodataset.org/zips/val2017.zip | 下载数据集 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/README.md | YOLOV9_for_PyTorch/README_en.md | http://images.cocodataset.org/zips/test2017.zip | 下载数据集 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/README.md | YOLOV9_for_PyTorch/README_en.md | https://github.com/WongKinYiu/yolov7/releases/download/v0.1/coco2017labels-segments.zip | 下载数据集 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/README.md | YOLOV9_for_PyTorch/README_en.md | https://github.com/WongKinYiu/yolov9/releases/download/v0.1/yolov9-t-converted.pt | 下载数据集 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/README.md | YOLOV9_for_PyTorch/README_en.md | https://github.com/WongKinYiu/yolov9/releases/download/v0.1/yolov9-s-converted.pt | 下载数据集 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/README.md | YOLOV9_for_PyTorch/README_en.md | https://github.com/WongKinYiu/yolov9/releases/download/v0.1/yolov9-m-converted.pt | 下载数据集 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/README.md | YOLOV9_for_PyTorch/README_en.md | https://github.com/WongKinYiu/yolov9/releases/download/v0.1/yolov9-c-converted.pt | 下载数据集 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/README.md | YOLOV9_for_PyTorch/README_en.md | https://github.com/WongKinYiu/yolov9/releases/download/v0.1/yolov9-e-converted.pt | 下载数据集 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/README.md | YOLOV9_for_PyTorch/README_en.md | https://github.com/WongKinYiu/yolov9/releases/download/v0.1/yolov9-s.pt | 下载数据集 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/README.md | YOLOV9_for_PyTorch/README_en.md | https://github.com/WongKinYiu/yolov9/releases/download/v0.1/yolov9-m.pt | 下载数据集 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/README.md | YOLOV9_for_PyTorch/README_en.md | https://github.com/WongKinYiu/yolov9/releases/download/v0.1/yolov9-c.pt | 下载数据集 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/README.md | YOLOV9_for_PyTorch/README_en.md | https://github.com/WongKinYiu/yolov9/releases/download/v0.1/yolov9-e.pt | 下载数据集 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/README.md | YOLOV9_for_PyTorch/README_en.md | https://github.com/WongKinYiu/yolov9/releases/download/v0.1/gelan-s.pt | 下载数据集 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/README.md | YOLOV9_for_PyTorch/README_en.md | https://github.com/WongKinYiu/yolov9/releases/download/v0.1/gelan-m.pt | 下载数据集 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/README.md | YOLOV9_for_PyTorch/README_en.md | https://github.com/WongKinYiu/yolov9/releases/download/v0.1/gelan-c.pt | 下载数据集 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/README.md | YOLOV9_for_PyTorch/README_en.md | https://github.com/WongKinYiu/yolov9/releases/download/v0.1/gelan-e.pt | 下载数据集 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/README.md | YOLOV9_for_PyTorch/README_en.md | https://github.com/WongKinYiu/yolov9/releases/download/v0.1/gelan-c-det.pt | 下载数据集 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/README.md | YOLOV9_for_PyTorch/README_en.md | https://github.com/WongKinYiu/yolov9/releases/download/v0.1/gelan-c-seg.pt | 下载数据集 |
-| 开源代码引入 | https://github.com/WongKinYiu/yolov9/blob/main/README.md | YOLOV9_for_PyTorch/README_en.md | https://github.com/WongKinYiu/yolov9/releases/download/v0.1/gelan-c-pan.pt | 下载数据集 |
+| 文件位置                                                                                  | 公网地址                                          | 公网地址用途           |
+|---------------------------------------------------------------------------------------|-----------------------------------------------|------------------|
+| ModelZoo-PyTorch/PyTorch/built-in/cv/detection/YOLOV9_for_PyTorch/classify/train.py   | https://pytorch.org/vision/stable/models.html | torchvision官网精度  |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/detection/YOLOV9_for_PyTorch/classify/train.py   | https://netron.app                            | 相关说明             |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/detection/YOLOV9_for_PyTorch/export.py           | https://pypi.ngc.nvidia.com                   | 三方库链接            |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/detection/YOLOV9_for_PyTorch/export.py           | https://netron.app                            | 相关说明             |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/detection/YOLOV9_for_PyTorch/export.py           | https://netron.app                            | 相关说明             |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/detection/YOLOV9_for_PyTorch/hubconf.py          | https://ultralytics.com/images/zidane.jpg     | 数据集链接            |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/detection/YOLOV9_for_PyTorch/scripts/get_coco.sh | http://images.cocodataset.org/zips/           | 数据集地址            |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/detection/YOLOV9_for_PyTorch/utils/general.py    | https://url.com/file.txt?auth                 | 开源代码链接           |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/detection/YOLOV9_for_PyTorch/utils/general.py    | https://ultralytics.com/assets/{font.name}    | 下载相关配置           |

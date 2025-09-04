@@ -1,0 +1,4 @@
+| 文件位置                                                                                                 | 公网地址                                                                         | 公网地址用途       |
+|------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------|--------------|
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/CycleGAN_ID0521_for_PyTorch/data/get_dataset.sh | https://people.eecs.berkeley.edu/~taesung_park/CycleGAN/datasets/${FILE}.zip | 数据集链接        |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/CycleGAN_ID0521_for_PyTorch/train.py            | tcp://224.66.41.62:23456                                                     | 分布式配置ip默认入参  |

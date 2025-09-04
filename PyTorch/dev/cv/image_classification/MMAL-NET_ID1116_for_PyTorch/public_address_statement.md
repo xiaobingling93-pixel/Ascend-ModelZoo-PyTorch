@@ -1,0 +1,15 @@
+| 文件位置                                                                                                    | 公网地址                                                              | 公网地址用途   |
+|---------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------|----------|
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/MMAL-NET_ID1116_for_PyTorch/envconfig/env_list.yml | https://mirrors.ustc.edu.cn/anaconda/pkgs/main/                   | 镜像地址     |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/MMAL-NET_ID1116_for_PyTorch/envconfig/env_list.yml | https://mirrors.ustc.edu.cn/anaconda/pkgs/main                    | 镜像地址     |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/MMAL-NET_ID1116_for_PyTorch/envconfig/env_list.yml | https://mirrors.ustc.edu.cn/anaconda/cloud/conda-forge/           | 镜像地址     |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/MMAL-NET_ID1116_for_PyTorch/envconfig/env_list.yml | https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/          | 镜像地址     |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/MMAL-NET_ID1116_for_PyTorch/networks/resnet.py     | https://download.pytorch.org/models/resnext50_32x4d-7cdf4587.pth  | 模型权重     |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/MMAL-NET_ID1116_for_PyTorch/networks/resnet.py     | https://download.pytorch.org/models/resnet50-19c8e357.pth         | 权重地址     |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/MMAL-NET_ID1116_for_PyTorch/networks/resnet.py     | https://download.pytorch.org/models/resnet152-b121ed2d.pth        | 权重地址     |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/MMAL-NET_ID1116_for_PyTorch/networks/resnet.py     | https://download.pytorch.org/models/resnet101-5d3b4d8f.pth        | 权重地址     |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/MMAL-NET_ID1116_for_PyTorch/networks/resnet.py     | https://download.pytorch.org/models/resnext101_32x8d-8ba56ff5.pth | 权重地址     |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/MMAL-NET_ID1116_for_PyTorch/networks/resnet.py     | https://download.pytorch.org/models/resnet34-333f7ec4.pth         | 权重地址     |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/MMAL-NET_ID1116_for_PyTorch/networks/resnet.py     | https://download.pytorch.org/models/resnet18-5c106cde.pth         | 权重地址     |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/MMAL-NET_ID1116_for_PyTorch/networks/resnet.py     | https://download.pytorch.org/models/wide_resnet50_2-95faca4d.pth  | 下载预训练模型  |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/MMAL-NET_ID1116_for_PyTorch/networks/resnet.py     | https://download.pytorch.org/models/wide_resnet101_2-32ee1156.pth | 下载预训练模型  |

@@ -1,0 +1,4 @@
+| 文件位置                                                                                          | 公网地址                                                                    | 公网地址用途  |
+|-----------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|---------|
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/TabNet_ID2862_for_PyTorch/Dockerfile     | https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | ssl配置   |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/TabNet_ID2862_for_PyTorch/Dockerfile_gpu | https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | ssl配置   |

@@ -1,0 +1,3 @@
+| 文件位置                                                                                             | 公网地址                                                                 | 公网地址用途  |
+|--------------------------------------------------------------------------------------------------|----------------------------------------------------------------------|---------|
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/InceptionV3_ID0445_for_PyTorch/inception.py | https://download.pytorch.org/models/inception_v3_google-1a9a5a14.pth | 权重地址    |

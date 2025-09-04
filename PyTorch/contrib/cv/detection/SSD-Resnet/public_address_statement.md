@@ -1,34 +1,11 @@
-| 类型     | 开源代码地址                                     | 文件名                                  | 公网IP地址/公网URL地址/域名/邮箱地址 | 用途说明    |
-|--------|--------------------------------------------|--------------------------------------| ------------------------------------ |---------|
-| 开源代码引入 | https://github.com/mlcommons/training_results_v0.7/tree/master/NVIDIA/benchmarks/ssd/implementations/pytorch  | SSD-Resnet/bz2.py     | nadeem.vawda@gmail.com | 邮箱      |
-| 开源代码引入 | https://github.com/mlcommons/training_results_v0.7/tree/master/NVIDIA/benchmarks/ssd/implementations/pytorch  | SSD-Resnet/Dockerfile     | https://github.com/mlperf/logging/archive/9ea0afa.zip | 下载依赖    |
-| 开源代码引入 | https://github.com/mlcommons/training_results_v0.7/tree/master/NVIDIA/benchmarks/ssd/implementations/pytorch  | SSD-Resnet/download_dataset.sh     | http://images.cocodataset.org/zips/train2017.zip | 下载数据集   |
-| 开源代码引入 | https://github.com/mlcommons/training_results_v0.7/tree/master/NVIDIA/benchmarks/ssd/implementations/pytorch  | SSD-Resnet/download_dataset.sh     | http://images.cocodataset.org/zips/val2017.zip | 下载数据集   |
-| 开源代码引入 | https://github.com/mlcommons/training_results_v0.7/tree/master/NVIDIA/benchmarks/ssd/implementations/pytorch  | SSD-Resnet/download_dataset.sh     | http://images.cocodataset.org/annotations/annotations_trainval2017.zip | 下载数据集   |
-| 开源代码引入 | https://github.com/mlcommons/training_results_v0.7/tree/master/NVIDIA/benchmarks/ssd/implementations/pytorch  | SSD-Resnet/mlperf_logging/result_summarizer/result_summarizer.py     | https://github.com/mlperf/training_results_v | 下载依赖    |
-| 开源代码引入 | https://github.com/mlcommons/training_results_v0.7/tree/master/NVIDIA/benchmarks/ssd/implementations/pytorch  | SSD-Resnet/mlperf_logging/system_desc_checker/system_desc_checker.py     | https://github.com/mlperf/training_results_v | 下载依赖    |
-| 开源代码引入 | https://github.com/mlcommons/training_results_v0.7/tree/master/NVIDIA/benchmarks/ssd/implementations/pytorch  | SSD-Resnet/resnet.py     | https://download.pytorch.org/models/resnet18-5c106cde.pth | 下载预训练权重 |
-| 开源代码引入 | https://github.com/mlcommons/training_results_v0.7/tree/master/NVIDIA/benchmarks/ssd/implementations/pytorch  | SSD-Resnet/resnet.py     | https://download.pytorch.org/models/resnet34-333f7ec4.pth | 下载预训练权重    |
-| 开源代码引入 | https://github.com/mlcommons/training_results_v0.7/tree/master/NVIDIA/benchmarks/ssd/implementations/pytorch  | SSD-Resnet/resnet.py     | https://download.pytorch.org/models/resnet50-19c8e357.pth | 下载预训练权重    |
-| 开源代码引入 | https://github.com/mlcommons/training_results_v0.7/tree/master/NVIDIA/benchmarks/ssd/implementations/pytorch  | SSD-Resnet/resnet.py     | https://download.pytorch.org/models/resnet101-5d3b4d8f.pth | 下载预训练权重    |
-| 开源代码引入 | https://github.com/mlcommons/training_results_v0.7/tree/master/NVIDIA/benchmarks/ssd/implementations/pytorch  | SSD-Resnet/resnet.py     | https://download.pytorch.org/models/resnet152-b121ed2d.pth | 下载预训练权重    |
-| 开源代码引入 | https://github.com/mlcommons/training_results_v0.7/tree/master/NVIDIA/benchmarks/ssd/implementations/pytorch/test.py | SSD-Resnet/box_coder.py | https://github.com/amdegroot/ssd.pytorch/blob/master/data/config.py | 源码实现 |
-| 开发引入 | / | SSD-Resnet/box_coder.py | https://github.com/open-mmlab/mmdetection/blob/master/mmdet/core/post_processing/bbox_nms.py#L7 | 源码实现 |
-| 开源代码引入 | https://github.com/mlcommons/training_results_v0.7/tree/master/NVIDIA/benchmarks/ssd/implementations/pytorch/utils.py | SSD-Resnet/utils.py | https://github.com/kuangliu/pytorch-ssd | 源码实现 |
-| 开源代码引入 | https://github.com/mlcommons/training_results_v0.7/tree/master/NVIDIA/benchmarks/ssd/implementations/pytorch/utils.py | SSD-Resnet/utils.py | https://discuss.pytorch.org/t/how-to-preprocess-input-for-pre-trained-networks/683 | 预训练模型 |
-| 开源代码引入 | https://github.com/mlcommons/training_results_v0.7/tree/master/NVIDIA/benchmarks/ssd/implementations/pytorch/parse_config.py | SSD-Resnet/parse_config.py | https://stackoverflow.com/a/31347222/2209313 | 相关说明 |
-| 开源代码引入 | https://github.com/mlcommons/training_results_v0.7/tree/master/NVIDIA/benchmarks/ssd/implementations/pytorch/fused_color_jitter.py | SSD-Resnet/fused_color_jitter.py | https://pytorch.org/docs/stable/torchvision/transforms.html#torchvision.transforms.ColorJitter | 相关依赖 |
-| 开源代码引入 | https://github.com/mlcommons/training_results_v0.7/tree/master/NVIDIA/benchmarks/ssd/implementations/pytorch/train.py | SSD-Resnet/demo.py | https://github.com/nvidia/apex | 相关依赖 |
-| 开源代码引入 | https://github.com/mlcommons/training_results_v0.7/tree/master/NVIDIA/benchmarks/ssd/implementations/pytorch/opt_loss.py | SSD-Resnet/base_model.py | http://jany.st/post/2017-11-05-single-shot-detector-ssd-from-scratch-in-tensorflow.html | 相关依赖 |
-| 开源代码引入 | https://github.com/mlcommons/training_results_v0.7/tree/master/NVIDIA/benchmarks/ssd/implementations/pytorch/train.py | SSD-Resnet/eval.py | https://github.com/nvidia/apex | 相关依赖 |
-| 开发引入 | / | SSD-Resnet/nms.py | https://github.com/open-mmlab/mmdetection/blob/master/mmdet/core/post_processing/bbox_nms.py#L7 | 源码实现 |
-| 开发引入 | / | SSD-Resnet/Dockerfile | https://download.pytorch.org/whl/torch_stable.html | 相关依赖 |
-| 开源代码引入 | https://github.com/mlcommons/training_results_v0.7/tree/master/NVIDIA/benchmarks/ssd/implementations/pytorch/utils.py | SSD-Resnet/box_coder.py | https://github.com/kuangliu/pytorch-ssd | 源码实现 |
-| 开源代码引入 | https://github.com/mlcommons/training_results_v0.7/tree/master/NVIDIA/benchmarks/ssd/implementations/pytorch/train.py | SSD-Resnet/train.py | https://github.com/nvidia/apex | 相关依赖 |
-| 开源代码引入 | https://github.com/mlcommons/training_results_v0.7/tree/master/NVIDIA/benchmarks/ssd/implementations/pytorch/box_coder.py | SSD-Resnet/box_coder.py | https://github.com/weiliu89/caffe | 源码实现 |
-| 开源代码引入 | https://github.com/mlcommons/training_results_v0.7/tree/master/NVIDIA/benchmarks/ssd/implementations/pytorch/box_coder.py | SSD-Resnet/box_coder.py | https://github.com/amdegroot/ssd.pytorch | 源码实现 |
-| 开源代码引入 | https://github.com/mlcommons/training_results_v0.7/tree/master/NVIDIA/benchmarks/ssd/implementations/pytorch/train.py | SSD-Resnet/eval8p.py | https://github.com/nvidia/apex | 源码实现 |
-| 开源代码引入 | https://github.com/mlcommons/training_results_v0.7/tree/master/NVIDIA/benchmarks/ssd/implementations/pytorch/csrc/nhwc/ParamsHash.h | SSD-Resnet/csrc/nhwc/ParamsHash.h | https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function | 相关说明 |
-| 开源代码引入 | https://github.com/mlcommons/training_results_v0.7/tree/master/NVIDIA/benchmarks/ssd/implementations/pytorch/utils.py | SSD-Resnet/utils.py | https://github.com/chauhan-utk/ssd.DomainAdaptation | 源码实现 |
-| 开源代码引入 | https://github.com/mlcommons/training_results_v0.7/tree/master/NVIDIA/benchmarks/ssd/implementations/pytorch/opt_loss.py | SSD-Resnet/opt_loss.py | http://jany.st/post/2017-11-05-single-shot-detector-ssd-from-scratch-in-tensorflow.html | 相关依赖 |
-| 开源代码引入 | https://github.com/mlcommons/training_results_v0.7/tree/master/NVIDIA/benchmarks/ssd/implementations/pytorch/csrc/nhwc/conv.cpp | SSD-Resnet/csrc/nhwc/conv.cpp | https://blog.yani.io/filter-group-tutorial/ | 相关说明 |
+| 文件位置                                                                         | 公网地址                                                                   | 公网地址用途  |
+|------------------------------------------------------------------------------|------------------------------------------------------------------------|---------|
+| ModelZoo-PyTorch/PyTorch/contrib/cv/detection/SSD-Resnet/bz2.py              | nadeem.vawda@gmail.com                                                 | 作者邮箱    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/detection/SSD-Resnet/download_dataset.sh | http://images.cocodataset.org/zips/train2017.zip                       | 数据集地址   |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/detection/SSD-Resnet/download_dataset.sh | http://images.cocodataset.org/annotations/annotations_trainval2017.zip | 数据集地址   |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/detection/SSD-Resnet/download_dataset.sh | http://images.cocodataset.org/zips/val2017.zip                         | 数据集地址   |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/detection/SSD-Resnet/resnet.py           | https://download.pytorch.org/models/resnet18-5c106cde.pth              | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/detection/SSD-Resnet/resnet.py           | https://download.pytorch.org/models/resnet34-333f7ec4.pth              | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/detection/SSD-Resnet/resnet.py           | https://download.pytorch.org/models/resnet50-19c8e357.pth              | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/detection/SSD-Resnet/resnet.py           | https://download.pytorch.org/models/resnet101-5d3b4d8f.pth             | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/detection/SSD-Resnet/resnet.py           | https://download.pytorch.org/models/resnet152-b121ed2d.pth             | 权重地址    |

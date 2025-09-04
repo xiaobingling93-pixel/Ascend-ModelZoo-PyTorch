@@ -1,9 +1,8 @@
-| 类型     | 开源代码地址                                                                    | 文件名                                          | 公网IP地址/公网URL地址/域名/邮箱地址                                     | 用途说明    |
-|--------|---------------------------------------------------------------------------|----------------------------------------------|------------------------------------------------------------|---------|
-| 开源代码引入 | https://github.com/dangweili/pedestrian-attribute-recognition-pytorch.git | DeepMar_for_PyTorch/baseline/model/resnet.py | https://download.pytorch.org/models/resnet18-5c106cde.pth  | 下载预训练模型 |
-| 开源代码引入 | https://github.com/dangweili/pedestrian-attribute-recognition-pytorch.git | DeepMar_for_PyTorch/baseline/model/resnet.py | https://download.pytorch.org/models/resnet34-333f7ec4.pth  | 下载预训练模型 |
-| 开源代码引入 | https://github.com/dangweili/pedestrian-attribute-recognition-pytorch.git | DeepMar_for_PyTorch/baseline/model/resnet.py | https://download.pytorch.org/models/resnet50-19c8e357.pth  | 下载预训练模型 |
-| 开源代码引入 | https://github.com/dangweili/pedestrian-attribute-recognition-pytorch.git | DeepMar_for_PyTorch/baseline/model/resnet.py | https://download.pytorch.org/models/resnet101-5d3b4d8f.pth | 下载预训练模型 |
-| 开源代码引入 | https://github.com/dangweili/pedestrian-attribute-recognition-pytorch.git | DeepMar_for_PyTorch/baseline/model/resnet.py | https://download.pytorch.org/models/resnet152-b121ed2d.pth | 下载预训练模型 |
-| 开源代码引入 | https://github.com/dangweili/pedestrian-attribute-recognition-pytorch.git | DeepMar_for_PyTorch/baseline/model/resnet.py | https://download.pytorch.org/models/resnet152-b121ed2d.pth | 下载预训练模型 |
-| 开发引入   | /                                                                         | DeepMar_for_PyTorch/constant.py              | 127.0.0.1                                                  | 本机IP地址  |
+| 文件位置                                                                                                 | 公网地址                                                       | 公网地址用途       |
+|------------------------------------------------------------------------------------------------------|------------------------------------------------------------|--------------|
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DeepMar_for_PyTorch/baseline/model/resnet.py     | https://download.pytorch.org/models/resnet50-19c8e357.pth  | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DeepMar_for_PyTorch/baseline/model/resnet.py     | https://download.pytorch.org/models/resnet18-5c106cde.pth  | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DeepMar_for_PyTorch/baseline/model/resnet.py     | https://download.pytorch.org/models/resnet34-333f7ec4.pth  | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DeepMar_for_PyTorch/baseline/model/resnet.py     | https://download.pytorch.org/models/resnet152-b121ed2d.pth | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DeepMar_for_PyTorch/baseline/model/resnet.py     | https://download.pytorch.org/models/resnet101-5d3b4d8f.pth | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DeepMar_for_PyTorch/train_deepmar_resnet50_8p.py | tcp://224.66.41.62:23456                                   | 分布式配置ip默认入参  |

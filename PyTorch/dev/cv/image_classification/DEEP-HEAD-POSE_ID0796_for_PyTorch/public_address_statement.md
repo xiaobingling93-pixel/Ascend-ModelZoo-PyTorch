@@ -1,0 +1,5 @@
+| 文件位置                                                                                                                     | 公网地址                                                         | 公网地址用途  |
+|--------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------|---------|
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/DEEP-HEAD-POSE_ID0796_for_PyTorch/code/train_alexnet.py             | https://download.pytorch.org/models/alexnet-owt-4df8aa71.pth | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/DEEP-HEAD-POSE_ID0796_for_PyTorch/code/train_hopenet.py             | https://download.pytorch.org/models/resnet50-19c8e357.pth    | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/DEEP-HEAD-POSE_ID0796_for_PyTorch/code/train_resnet50_regression.py | https://download.pytorch.org/models/resnet50-19c8e357.pth    | 权重地址    |

@@ -1,0 +1,4 @@
+| 文件位置                                                                                           | 公网地址                                                                      | 公网地址用途  |
+|------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------|---------|
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/Mnasnet0_75_ID0439_for_PyTorch/mnasnet.py | https://download.pytorch.org/models/mnasnet1.0_top1_73.512-f206786ef8.pth | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/Mnasnet0_75_ID0439_for_PyTorch/mnasnet.py | https://download.pytorch.org/models/mnasnet0.5_top1_67.592-7c6cb539b9.pth | 权重地址    |

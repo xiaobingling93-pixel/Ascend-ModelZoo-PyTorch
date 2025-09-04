@@ -1,23 +1,10 @@
-| 类型     | 开源代码地址                                     | 文件名                    | 公网IP地址/公网URL地址/域名/邮箱地址 | 用途说明 |
-|--------|--------------------------------------------|------------------------| ------------------------------------ |--|
-| 开源代码引入 | https://github.com/pytorch/vision   | RefineDet/data/scripts/COCO2014.sh | http://images.cocodataset.org/zips/train2014.zip | 下载数据集 |
-| 开源代码引入 | https://github.com/pytorch/vision   | RefineDet/data/scripts/COCO2014.sh | http://images.cocodataset.org/zips/val2014.zip | 下载数据集 |
-| 开源代码引入 | https://github.com/pytorch/vision   | RefineDet/data/scripts/COCO2014.sh | http://images.cocodataset.org/annotations/annotations_trainval2014.zip | 下载依赖 |
-| 开源代码引入 | https://github.com/pytorch/vision   | RefineDet/data/scripts/COCO2014.sh | https://s3.amazonaws.com/amdegroot-datasets/instances_trainval35k.json.zip | 下载依赖 |
-| 开源代码引入 | https://github.com/pytorch/vision   | RefineDet/data/scripts/VOC2007.sh | http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtrainval_06-Nov-2007.tar | 下载数据集 |
-| 开源代码引入 | https://github.com/pytorch/vision   | RefineDet/data/scripts/VOC2007.sh | http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtest_06-Nov-2007.tar | 下载数据集 |
-| 开源代码引入 | https://github.com/pytorch/vision   | RefineDet/data/scripts/VOC2012.sh | http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar | 下载数据集 |
-| 开发引入 | /   | RefineDet/url.ini | https://download.pytorch.org/models/vgg16_bn-6c64b313.pth | 下载预训练权重 |
-| 开发引入 | / | RefineDet/models/refinedet.py | https://github.com/pytorch/vision/blob/master/torchvision/models/vgg.py | 源码实现 |
-| 开发引入 | / | RefineDet/data/coco.py | http://mscoco.org/dataset/#detections-challenge2016 | 数据集地址 |
-| 开发引入 | / | RefineDet/data/voc0712.py | https://github.com/fmassa/vision/blob/voc_dataset/torchvision/datasets/voc.py | 源码实现 |
-| 开发引入 | / | RefineDet/layers/box_utils.py | https://github.com/Hakuyume/chainer-ssd | 源码实现 |
-| 开发引入 | / | RefineDet/models/refinedet.py | https://arxiv.org/pdf/1512.02325.pdf | 论文地址 |
-| 开发引入 | / | RefineDet/layers/modules/refinedet_multibox_loss.py | https://arxiv.org/pdf/1512.02325.pdf | 论文地址 |
-| 开发引入 | / | RefineDet/layers/functions/detection_refinedet.py | https://github.com/open-mmlab/mmdetection/blob/master/mmdet/core/post_processing/bbox_nms.py#L7 | 源码实现 |
-| 开发引入 | / | RefineDet/eval_refinedet.py | https://github.com/longcw/faster_rcnn_pytorch | 源码实现 |
-| 开发引入 | / | RefineDet/layers/modules/multibox_loss.py | https://arxiv.org/pdf/1512.02325.pdf | 论文地址 |
-| 开发引入 | / | RefineDet/layers/box_utils.py | https://github.com/fmassa/object-detection.torch | 源码实现 |
-| 开发引入 | / | RefineDet/train_1p.py | https://github.com/pytorch/examples/blob/master/imagenet/main.py | 源码实现 |
-| 开发引入 | / | RefineDet/eval_refinedet.py | https://github.com/rbgirshick/py-faster-rcnn | 源码实现 |
-| 开发引入 | / | RefineDet/train_8p.py | https://github.com/pytorch/examples/blob/master/imagenet/main.py | 源码实现 |
+| 文件位置                                                                             | 公网地址                                                                       | 公网地址用途  |
+|----------------------------------------------------------------------------------|----------------------------------------------------------------------------|---------|
+| ModelZoo-PyTorch/PyTorch/contrib/cv/detection/RefineDet/data/scripts/COCO2014.sh | http://images.cocodataset.org/zips/train2014.zip                           | 数据集地址   |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/detection/RefineDet/data/scripts/COCO2014.sh | http://images.cocodataset.org/zips/val2014.zip                             | 数据集地址   |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/detection/RefineDet/data/scripts/COCO2014.sh | http://images.cocodataset.org/annotations/annotations_trainval2014.zip     | 数据集地址   |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/detection/RefineDet/data/scripts/COCO2014.sh | https://s3.amazonaws.com/amdegroot-datasets/instances_trainval35k.json.zip | 下载依赖    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/detection/RefineDet/data/scripts/VOC2007.sh  | http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtrainval_06-Nov-2007.tar | 数据集地址   |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/detection/RefineDet/data/scripts/VOC2007.sh  | http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtest_06-Nov-2007.tar     | 数据集地址   |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/detection/RefineDet/data/scripts/VOC2012.sh  | http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar | 数据集地址   |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/detection/RefineDet/url.ini                  | https://download.pytorch.org/models/vgg16_bn-6c64b313.pth                  | 权重地址    |

@@ -1,0 +1,4 @@
+| 文件位置                                                                                                        | 公网地址                                                  | 公网地址用途  |
+|-------------------------------------------------------------------------------------------------------------|-------------------------------------------------------|---------|
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/RAFT_for_PyTorch/00-access/RAFT/core/utils/flow_viz.py | http://vision.middlebury.edu/flow/flowEval-iccv07.pdf | 论文地址    |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/RAFT_for_PyTorch/00-access/RAFT/download_models.sh     | https://www.dropbox.com/s/4j4z58wuv8o0mfz/models.zip  | 数据集链接   |

@@ -1,47 +1,26 @@
-| 类型   | 开源代码地址 | 文件名                                                            | 公网IP地址/公网URL地址/域名/邮箱地址                                                       | 用途说明   |
-|------|--------|----------------------------------------------------------------|------------------------------------------------------------------------------|--------|
-| 开发引入 | /      | DenseNet161_ID0455_for_PyTorch/.circleci/config.yml            | https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh       | 下载依赖   |
-| 开发引入 | /      | DenseNet161_ID0455_for_PyTorch/.circleci/config.yml.in         | https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh       | 下载依赖   |
-| 开发引入 | /      | DenseNet161_ID0455_for_PyTorch/.travis.yml                     | https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh        | 下载依赖   |
-| 开发引入 | /      | DenseNet161_ID0455_for_PyTorch/docs/Makefile                   | http://pytorch.org/vision/                                                   | 下载依赖   |
-| 开发引入 | /      | DenseNet161_ID0455_for_PyTorch/url.ini                         | https://docs.python.org/                                                     | 下载依赖   |
-| 开发引入 | /      | DenseNet161_ID0455_for_PyTorch/url.ini                         | http://docs.scipy.org/doc/numpy/                                             | 下载依赖   |
-| 开发引入 | /      | DenseNet161_ID0455_for_PyTorch/url.ini                         | https://fonts.googleapis.com/css?family=Lato                                 | 下载配置   |
-| 开发引入 | /      | DenseNet161_ID0455_for_PyTorch/url.ini                         | https://repo.continuum.io/miniconda/Miniconda3-latest-Windows-x86_64.exe     | 下载依赖   |
-| 开发引入 | /      | DenseNet161_ID0455_for_PyTorch/url.ini                         | https://download.pytorch.org/whl/torch_stable.html                           | 下载依赖   |
-| 开发引入 | /      | DenseNet161_ID0455_for_PyTorch/url.ini                         | https://download.pytorch.org/whl/nightly/torch_nightly.html                  | 下载依赖   |
-| 开发引入 | /      | DenseNet161_ID0455_for_PyTorch/packaging/torchvision/meta.yaml | https://github.com/pytorch/vision                                            | 下载依赖   |
-| 开发引入 | /      | DenseNet161_ID0455_for_PyTorch/url.ini                         | https://download.pytorch.org/whl/nightly/                                    | 下载依赖   |
-| 开发引入 | /      | DenseNet161_ID0455_for_PyTorch/url.ini                         | https://github.com/pytorch/vision                                            | 下载依赖   |
-| 开发引入 | /      | DenseNet161_ID0455_for_PyTorch/url.ini                         | https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh       | 下载依赖   |
-| 开发引入 | /      | DenseNet161_ID0455_for_PyTorch/url.ini                         | https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html              | 下载依赖   |
-| 开发引入 | /      | DenseNet161_ID0455_for_PyTorch/url.ini                         | https://download.pytorch.org/whl/                                            | 下载依赖   |
-| 开发引入 | /      | DenseNet161_ID0455_for_PyTorch/url.ini                         | https://www.7-zip.org/a/7z1805-x64.exe                                       | 下载依赖   |
-| 开发引入 | /      | DenseNet161_ID0455_for_PyTorch/url.ini                         | https://dev.azure.com/pytorch                                                | 下载依赖   |
-| 开发引入 | /      | DenseNet161_ID0455_for_PyTorch/url.ini                         | https://www.dropbox.com/s/z5b7ryz0zrimntl/cuda_9.0.176_windows.7z?dl=1       | 下载依赖   |
-| 开发引入 | /      | DenseNet161_ID0455_for_PyTorch/url.ini                         | https://www.dropbox.com/s/6p0xyqh472nu8m1/cudnn-9.0-windows7-x64-v7.zip?dl=1 | 下载依赖   |
-| 开发引入 | /      | DenseNet161_ID0455_for_PyTorch/url.ini                         | https://www.dropbox.com/s/7a4sbq0dln6v7t2/cuda_9.1.85_windows.7z?dl=1        | 下载依赖   |
-| 开发引入 | /      | DenseNet161_ID0455_for_PyTorch/url.ini                         | https://www.dropbox.com/s/e0prhgsrbyfi4ov/cudnn-9.1-windows7-x64-v7.zip?dl=1 | 下载依赖   |
-| 开发引入 | /      | DenseNet161_ID0455_for_PyTorch/url.ini                         | https://www.dropbox.com/s/9mcolalfdj4n979/NvToolsExt.7z?dl=1                 | 下载依赖   |
-| 开发引入 | /      | DenseNet161_ID0455_for_PyTorch/url.ini                         | https://aka.ms/vs/15/release/vs_buildtools.exe                               | 下载工具脚本 |
-| 开发引入 | /      | DenseNet161_ID0455_for_PyTorch/url.ini                         | soumith@pytorch.org                                                          | 邮箱     |
-| 开发引入 | /      | DenseNet161_ID0455_for_PyTorch/url.ini                         | http://github.com/pytorch/vision/archive/master.zip                          | 下载依赖   |
-| 开发引入 | /      | DenseNet161_ID0455_for_PyTorch/url.ini                         | https://github.com/pytorch/vision/archive/master.zip                         | 下载依赖   |
-| 开发引入 | /      | DenseNet161_ID0455_for_PyTorch/url.ini                         | http://github.com/pytorch/vision/archive/this_doesnt_exist.zip               | 下载配置   |
-| 开发引入 | /      | DenseNet161_ID0455_for_PyTorch/url.ini                         | https://download.pytorch.org/vision_tests/io/                                | 下载配置   |
-| 开发引入 | / | DenseNet161_ID0455_for_PyTorch/modelarts/train_start.py | https://www.github.com/nvidia/apex | 相关说明 |
-| 开发引入 | / | DenseNet161_ID0455_for_PyTorch/docs/make.bat | http://sphinx-doc.org/ | 相关说明 |
-| 开发引入 | / | DenseNet161_ID0455_for_PyTorch/test/test_cpp_models.py | https://github.com/pytorch/vision/issues/1191 | 相关说明 |
-| 开发引入 | / | DenseNet161_ID0455_for_PyTorch/packaging/pkg_helpers.bash | https://github.com/pytorch/pytorch/pull/23408 | 源码实现 |
-| 开发引入 | / | DenseNet161_ID0455_for_PyTorch/references/similarity/loss.py | https://github.com/omoindrot/tensorflow-triplet-loss | 源码实现 |
-| 开发引入 | / | DenseNet161_ID0455_for_PyTorch/packaging/windows/internal/auth.bat | https://docs.microsoft.com/en-us/azure/devops/pipelines/build/triggers?tabs=yaml&view=vsts#my-build-didnt-run-what-happened | 相关说明 |
-| 开发引入 | / | DenseNet161_ID0455_for_PyTorch/packaging/conda/build_vision.sh | https://github.com/conda/conda-build/issues/3285 | 相关说明 |
-| 开发引入 | / | DenseNet161_ID0455_for_PyTorch/references/classification/train.py | https://www.github.com/nvidia/apex | 相关说明 |
-| 开发引入 | / | DenseNet161_ID0455_for_PyTorch/modelarts/train_start.py | https://github.com/NVIDIA/apex/tree/master/examples/imagenet | 源码实现 |
-| 开发引入 | / | DenseNet161_ID0455_for_PyTorch/references/video_classification/sampler.py | https://github.com/pytorch/pytorch/issues/23430 | 相关说明 |
-| 开发引入 | / | DenseNet161_ID0455_for_PyTorch/references/video_classification/train.py | https://www.github.com/nvidia/apex | 相关说明 |
-| 开发引入 | / | DenseNet161_ID0455_for_PyTorch/references/similarity/loss.py | https://omoindrot.github.io/triplet-loss | 相关说明 |
-| 开发引入 | / | DenseNet161_ID0455_for_PyTorch/packaging/windows/internal/clone.bat | https://github.com/%PYTORCH_REPO%/%MODULE_NAME% | 源码实现 |
-| 开发引入 | / | DenseNet161_ID0455_for_PyTorch/references/video_classification/train.py | https://github.com/NVIDIA/apex/tree/master/examples/imagenet | 源码实现 |
-| 开发引入 | / | DenseNet161_ID0455_for_PyTorch/docs/source/conf.py | http://stackoverflow.com/a/41184353/3343043 | 相关说明 |
-| 开发引入 | / | DenseNet161_ID0455_for_PyTorch/references/classification/train.py | https://github.com/NVIDIA/apex/tree/master/examples/imagenet | 源码实现 |
+| 文件位置                                                                                                               | 公网地址                                                                                  | 公网地址用途         |
+|--------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|----------------|
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DenseNet161_ID0455_for_PyTorch/.circleci/config.yml            | https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh                | miniconda下载链接  |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DenseNet161_ID0455_for_PyTorch/.circleci/config.yml            | https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh                | miniconda下载链接  |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DenseNet161_ID0455_for_PyTorch/.circleci/config.yml.in         | https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh                | miniconda下载链接  |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DenseNet161_ID0455_for_PyTorch/.circleci/config.yml.in         | https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh                | miniconda下载链接  |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DenseNet161_ID0455_for_PyTorch/.travis.yml                     | https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh | miniconda链接    |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DenseNet161_ID0455_for_PyTorch/packaging/conda/build_vision.sh | https://repo.continuum.io/miniconda/Miniconda3-latest-Windows-x86_64.exe              | miniconda下载链接  |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DenseNet161_ID0455_for_PyTorch/url.ini                         | soumith@pytorch.org                                                                   | 邮箱地址           |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DenseNet161_ID0455_for_PyTorch/url.ini                         | https://download.pytorch.org/whl/torch_stable.html                                    | 三方库地址          |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DenseNet161_ID0455_for_PyTorch/url.ini                         | https://download.pytorch.org/whl/nightly/torch_nightly.html                           | 三方库地址          |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DenseNet161_ID0455_for_PyTorch/url.ini                         | https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html                       | 权重地址           |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DenseNet161_ID0455_for_PyTorch/url.ini                         | https://www.7-zip.org/a/7z1805-x64.exe                                                | 依赖地址           |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DenseNet161_ID0455_for_PyTorch/url.ini                         | http://docs.scipy.org/doc/numpy/                                                      | 相关依赖           |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DenseNet161_ID0455_for_PyTorch/url.ini                         | https://download.pytorch.org/whl/                                                     | 三方库连接          |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DenseNet161_ID0455_for_PyTorch/url.ini                         | https://www.dropbox.com/s/9mcolalfdj4n979/NvToolsExt.7z?dl=1                          | 下载依赖           |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DenseNet161_ID0455_for_PyTorch/url.ini                         | https://download.pytorch.org/whl/nightly/                                             | 三方库连接          |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DenseNet161_ID0455_for_PyTorch/url.ini                         | https://repo.continuum.io/miniconda/Miniconda3-latest-Windows-x86_64.exe              | miniconda下载链接  |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DenseNet161_ID0455_for_PyTorch/url.ini                         | https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh                | miniconda下载链接  |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DenseNet161_ID0455_for_PyTorch/url.ini                         | https://dev.azure.com/pytorch                                                         | 下载依赖           |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DenseNet161_ID0455_for_PyTorch/url.ini                         | https://www.dropbox.com/s/e0prhgsrbyfi4ov/cudnn-9.1-windows7-x64-v7.zip?dl=1          | 下载依赖           |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DenseNet161_ID0455_for_PyTorch/url.ini                         | https://www.dropbox.com/s/6p0xyqh472nu8m1/cudnn-9.0-windows7-x64-v7.zip?dl=1          | 下载依赖           |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DenseNet161_ID0455_for_PyTorch/url.ini                         | https://download.pytorch.org/vision_tests/io/                                         | 下载配置           |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DenseNet161_ID0455_for_PyTorch/url.ini                         | https://www.dropbox.com/s/7a4sbq0dln6v7t2/cuda_9.1.85_windows.7z?dl=1                 | cuda下载链接       |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DenseNet161_ID0455_for_PyTorch/url.ini                         | https://www.dropbox.com/s/z5b7ryz0zrimntl/cuda_9.0.176_windows.7z?dl=1                | cuda下载链接       |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DenseNet161_ID0455_for_PyTorch/url.ini                         | https://fonts.googleapis.com/css?family=Lato                                          | 下载配置           |

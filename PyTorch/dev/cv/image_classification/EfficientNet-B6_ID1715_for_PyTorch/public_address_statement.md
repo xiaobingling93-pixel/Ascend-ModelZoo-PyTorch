@@ -1,0 +1,5 @@
+| 文件位置                                                                                                              | 公网地址                              | 公网地址用途       |
+|-------------------------------------------------------------------------------------------------------------------|-----------------------------------|--------------|
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/EfficientNet-B6_ID1715_for_PyTorch/examples/imagenet/main.py | tcp://224.66.41.62:23456          | 分布式配置ip默认入参  |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/EfficientNet-B6_ID1715_for_PyTorch/modelarts/train_start.py  | tcp://224.66.41.62:23456          | 分布式配置ip默认入参  |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/EfficientNet-B6_ID1715_for_PyTorch/setup.py                  | lmelaskyriazi@college.harvard.edu | 作者邮箱         |

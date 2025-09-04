@@ -1,21 +1,13 @@
-| 类型     | 开源代码地址                                                       | 文件名                                         | 公网IP地址/公网URL地址/域名/邮箱地址 | 用途说明   |
-|--------|--------------------------------------------------------------|---------------------------------------------|------------------------|--------|
-| 开发引入 | / | url.ini | https://download.pytorch.org/models/resnet18-5c106cde.pth | 下载权重文件 |
-| 开发引入 | / | url.ini | https://download.pytorch.org/models/resnet34-333f7ec4.pth | 下载权重文件 |
-| 开发引入 | / | url.ini | https://download.pytorch.org/models/resnet50-19c8e357.pth | 下载权重文件 |
-| 开发引入 | / | url.ini | https://download.pytorch.org/models/resnet101-5d3b4d8f.pth | 下载权重文件 |
-| 开发引入 | / | url.ini | https://download.pytorch.org/models/resnet152-b121ed2d.pth | 下载权重文件 |
-| 开发引入 | / | url.ini | https://download.pytorch.org/models/resnext50_32x4d-7cdf4587.pth | 下载权重文件 |
-| 开发引入 | / | url.ini | https://download.pytorch.org/models/resnext101_32x8d-8ba56ff5.pth | 下载权重文件 |
-| 开发引入 | / | url.ini | https://download.pytorch.org/models/wide_resnet50_2-95faca4d.pth | 下载权重文件 |
-| 开发引入 | / | url.ini | https://download.pytorch.org/models/wide_resnet101_2-32ee1156.pth | 下载权重文件 |
-| 开源代码引入 | https://github.com/facebookresearch/moco/main_moco.py | Moco-v2/main_moco.py | https://arxiv.org/abs/1805.01978 | 论文地址 |
-| 开发引入 | / | Moco-v2/resnet.py | https://arxiv.org/pdf/1512.03385.pdf | 论文地址 |
-| 开源代码引入 | https://github.com/facebookresearch/moco/moco/loader.py | Moco-v2/main_moco.py | https://arxiv.org/abs/2002.05709 | 论文地址 |
-| 开发引入 | / | Moco-v2/resnet.py | https://arxiv.org/pdf/1605.07146.pdf | 论文地址 |
-| 开发引入 | / | Moco-v2/resnet.py | https://arxiv.org/abs/1706.02677 | 论文地址 |
-| 开发引入 | / | Moco-v2/resnet.py | https://ngc.nvidia.com/catalog/model-scripts/nvidia:resnet_50_v1_5_for_pytorch | 相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/moco/README.md | Moco-v2/moco/builder.py | https://arxiv.org/abs/1911.05722 | 论文地址 |
-| 开发引入 | / | Moco-v2/resnet.py | https://arxiv.org/pdf/1611.05431.pdf | 论文地址 |
-| 开发引入 | / | Moco-v2/resnet.py | https://arxiv.org/abs/1512.03385 | 论文地址 |
-| 开源代码引入 | https://github.com/facebookresearch/moco/moco/loader.py | Moco-v2/moco/loader.py | https://arxiv.org/abs/2002.05709 | 论文地址 |
+| 文件位置                                                                      | 公网地址                                                              | 公网地址用途       |
+|---------------------------------------------------------------------------|-------------------------------------------------------------------|--------------|
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/Moco-v2/main_lincls.py | tcp://224.66.41.62:23456                                          | 分布式配置ip默认入参  |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/Moco-v2/main_moco.py   | tcp://224.66.41.62:23456                                          | 分布式配置ip默认入参  |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/Moco-v2/url.ini        | https://download.pytorch.org/models/resnet50-19c8e357.pth         | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/Moco-v2/url.ini        | https://download.pytorch.org/models/wide_resnet50_2-95faca4d.pth  | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/Moco-v2/url.ini        | https://download.pytorch.org/models/wide_resnet101_2-32ee1156.pth | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/Moco-v2/url.ini        | https://download.pytorch.org/models/resnet18-5c106cde.pth         | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/Moco-v2/url.ini        | https://download.pytorch.org/models/resnet34-333f7ec4.pth         | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/Moco-v2/url.ini        | https://download.pytorch.org/models/resnet152-b121ed2d.pth        | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/Moco-v2/url.ini        | https://download.pytorch.org/models/resnet101-5d3b4d8f.pth        | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/Moco-v2/url.ini        | https://download.pytorch.org/models/resnext50_32x4d-7cdf4587.pth  | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/Moco-v2/url.ini        | https://download.pytorch.org/models/resnext101_32x8d-8ba56ff5.pth | 权重地址         |

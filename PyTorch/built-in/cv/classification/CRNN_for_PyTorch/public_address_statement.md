@@ -1,4 +1,6 @@
-| 类型   | 开源代码地址 | 文件名                                       | 公网IP地址/公网URL地址/域名/邮箱地址 | 用途说明   |
-|------|--------|-------------------------------------------|------------------------|--------|
-| 开发引入 | /      | CRNN_for_PyTorch/LMDB_anycard_config.yaml | 127.0.0.1              | 本机IP地址 |
-| 开发引入 | /      | CRNN_for_PyTorch/infer/requirements.txt | https://github.com/NVIDIA/dllogger.git              | 相关依赖 |
+| 文件位置                                                                                          | 公网地址                     | 公网地址用途       |
+|-----------------------------------------------------------------------------------------------|--------------------------|--------------|
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/CRNN_for_PyTorch/LMDB_8p_config.yaml      | tcp://224.66.41.62:23456 | 分布式配置ip默认入参  |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/CRNN_for_PyTorch/LMDB_anycard_config.yaml | tcp://224.66.41.62:23456 | 分布式配置ip默认入参  |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/CRNN_for_PyTorch/LMDB_config.yaml         | tcp://224.66.41.62:23456 | 分布式配置ip默认入参  |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/CRNN_for_PyTorch/LMDB_config_pr.yaml      | tcp://224.66.41.62:23456 | 分布式配置ip默认入参  |

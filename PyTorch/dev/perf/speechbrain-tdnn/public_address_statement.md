@@ -1,0 +1,18 @@
+| 文件位置                                                                                                                  | 公网地址                                                               | 公网地址用途  |
+|-----------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------|---------|
+| ModelZoo-PyTorch/PyTorch/dev/perf/speechbrain-tdnn/recipes/VoxCeleb/SpeakerRec/hparams/train_ecapa_tdnn.yaml          | https://www.robots.ox.ac.uk/~vgg/data/voxceleb/meta/veri_test2.txt | 数据及地址   |
+| ModelZoo-PyTorch/PyTorch/dev/perf/speechbrain-tdnn/recipes/VoxCeleb/SpeakerRec/hparams/train_x_vectors.yaml           | https://www.robots.ox.ac.uk/~vgg/data/voxceleb/meta/veri_test2.txt | 数据及地址   |
+| ModelZoo-PyTorch/PyTorch/dev/perf/speechbrain-tdnn/recipes/VoxCeleb/SpeakerRec/hparams/verification_ecapa.yaml        | https://www.robots.ox.ac.uk/~vgg/data/voxceleb/meta/veri_test2.txt | 数据及地址   |
+| ModelZoo-PyTorch/PyTorch/dev/perf/speechbrain-tdnn/recipes/VoxCeleb/SpeakerRec/hparams/verification_plda_xvector.yaml | https://www.robots.ox.ac.uk/~vgg/data/voxceleb/meta/veri_test2.txt | 数据及地址   |
+| ModelZoo-PyTorch/PyTorch/dev/perf/speechbrain-tdnn/recipes/VoxCeleb/voxceleb_prepare.py                               | http://www.robots.ox.ac.uk/~vgg/data/voxceleb/                     | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/dev/perf/speechbrain-tdnn/setup.py                                                           | speechbrain@gmail.com                                              | 作者邮箱    |
+| ModelZoo-PyTorch/PyTorch/dev/perf/speechbrain-tdnn/speechbrain/lobes/augment.py                                       | http://www.openslr.org/resources/28/rirs_noises.zip                | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/dev/perf/speechbrain-tdnn/speechbrain/lobes/models/EnhanceResnet.py                          | https://arxiv.org/abs/1709.01507                                   | 论文地址    |
+| ModelZoo-PyTorch/PyTorch/dev/perf/speechbrain-tdnn/speechbrain/lobes/models/fairseq_wav2vec.py                        | https://fairseq.readthedocs.io/en/latest/                          | 三方库链接   |
+| ModelZoo-PyTorch/PyTorch/dev/perf/speechbrain-tdnn/templates/enhancement/mini_librispeech_prepare.py                  | http://www.openslr.org/resources/31/dev-clean-2.tar.gz             | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/dev/perf/speechbrain-tdnn/templates/enhancement/mini_librispeech_prepare.py                  | http://www.openslr.org/resources/31/train-clean-5.tar.gz           | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/dev/perf/speechbrain-tdnn/templates/enhancement/mini_librispeech_prepare.py                  | https://www.openslr.org/resources/12/test-clean.tar.gz             | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/dev/perf/speechbrain-tdnn/templates/speaker_id/mini_librispeech_prepare.py                   | http://www.openslr.org/resources/31/train-clean-5.tar.gz           | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/dev/perf/speechbrain-tdnn/templates/speech_recognition/mini_librispeech_prepare.py           | http://www.openslr.org/resources/31/dev-clean-2.tar.gz             | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/dev/perf/speechbrain-tdnn/templates/speech_recognition/mini_librispeech_prepare.py           | http://www.openslr.org/resources/31/train-clean-5.tar.gz           | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/dev/perf/speechbrain-tdnn/templates/speech_recognition/mini_librispeech_prepare.py           | https://www.openslr.org/resources/12/test-clean.tar.gz             | 数据集链接   |

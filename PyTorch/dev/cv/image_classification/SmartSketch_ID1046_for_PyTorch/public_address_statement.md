@@ -1,0 +1,13 @@
+| 文件位置                                                                                                                   | 公网地址                                                                     | 公网地址用途    |
+|------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|-----------|
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/SmartSketch_ID1046_for_PyTorch/backend/Dockerfile                 | nyoshida@nd.edu                                                          | 镜像作者邮箱    |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/SmartSketch_ID1046_for_PyTorch/backend/static/drawingboard.min.js | http://browsehappy.com/                                                  | html相关配置  |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/SmartSketch_ID1046_for_PyTorch/backend/static/style.css           | https://use.typekit.net/ymw8ood.css                                      | 相关设置      |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/SmartSketch_ID1046_for_PyTorch/backend/templates/gallery.html     | https://code.jquery.com/jquery-3.3.1.slim.min.js                         | 数据集链接     |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/SmartSketch_ID1046_for_PyTorch/backend/templates/gallery.html     | https://use.typekit.net/ymw8ood.css                                      | html相关配置  |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/SmartSketch_ID1046_for_PyTorch/backend/templates/gallery.html     | https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css | html相关配置  |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/SmartSketch_ID1046_for_PyTorch/backend/templates/index.html       | https://arxiv.org/abs/1903.07291                                         | 论文地址      |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/SmartSketch_ID1046_for_PyTorch/backend/templates/index.html       | https://code.jquery.com/jquery-3.3.1.slim.min.js                         | html相关配置  |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/SmartSketch_ID1046_for_PyTorch/backend/templates/index.html       | https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js   | html相关配置  |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/SmartSketch_ID1046_for_PyTorch/backend/templates/index.html       | https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js         | html相关配置  |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/SmartSketch_ID1046_for_PyTorch/backend/templates/index.html       | https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css | html相关配置  |

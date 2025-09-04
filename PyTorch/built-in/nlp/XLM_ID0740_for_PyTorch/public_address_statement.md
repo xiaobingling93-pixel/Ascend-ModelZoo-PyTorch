@@ -1,96 +1,22 @@
-
-| 类型 | 开源代码地址 | 文件名 | 公网IP地址/公网URL地址/域名/邮箱地址 |用途说明|
-| ---- | ------------ | ------ | ------------------------------------ | -------- |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-glue.sh|XLM_ID0740_for_PyTorch/get-data-glue.sh |https://firebasestorage.googleapis.com/v0/b/mtl-sentence-representations.appspot.com/o/data%2F|mtl-sentence-representations在开源社区中的url链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-nmt.sh|XLM_ID0740_for_PyTorch/get-data-nmt.sh |http://www.statmt.org/wmt14/training-monolingual-news-crawl/news.2007.de.shuffled.gz|wmt14数据集在开源社区中的shuffled.gz下载链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-nmt.sh|XLM_ID0740_for_PyTorch/get-data-nmt.sh |http://www.statmt.org/wmt14/training-monolingual-news-crawl/news.2008.de.shuffled.gz|wmt14数据集在开源社区中的shuffled.gz下载链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-nmt.sh|XLM_ID0740_for_PyTorch/get-data-nmt.sh |http://www.statmt.org/wmt14/training-monolingual-news-crawl/news.2007.en.shuffled.gz|wmt14数据集在开源社区中的shuffled.gz下载链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-nmt.sh|XLM_ID0740_for_PyTorch/get-data-nmt.sh |http://www.statmt.org/wmt14/training-monolingual-news-crawl/news.2008.en.shuffled.gz|wmt14数据集在开源社区中的shuffled.gz下载链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-nmt.sh|XLM_ID0740_for_PyTorch/get-data-nmt.sh |http://www.statmt.org/wmt14/training-monolingual-news-crawl/news.2007.fr.shuffled.gz|wmt14数据集在开源社区中的shuffled.gz下载链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-nmt.sh|XLM_ID0740_for_PyTorch/get-data-nmt.sh |http://www.statmt.org/wmt14/training-monolingual-news-crawl/news.2008.fr.shuffled.gz|wmt14数据集在开源社区中的shuffled.gz下载链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-nmt.sh|XLM_ID0740_for_PyTorch/get-data-nmt.sh |http://www.statmt.org/wmt14/training-monolingual-news-crawl/news.2009.fr.shuffled.gz|wmt14数据集在开源社区中的shuffled.gz下载链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-nmt.sh|XLM_ID0740_for_PyTorch/get-data-nmt.sh |http://data.statmt.org/wmt16/translation-task/news.2015.ro.shuffled.gz|wmt16数据集在开源社区中的shuffled.gz下载链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-nmt.sh|XLM_ID0740_for_PyTorch/get-data-nmt.sh |http://data.statmt.org/wmt18/translation-task/dev.tgz|wmt18数据集在开源社区中的dev.gz下载链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-para.sh|XLM_ID0740_for_PyTorch/get-data-para.sh |http://opus.nlpl.eu/download.php?f=MultiUN%2Far-en.txt.zip|语言转换包在开源社区中的zip下载链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-para.sh|XLM_ID0740_for_PyTorch/get-data-para.sh |http://opus.nlpl.eu/download.php?f=EUbookshop%2Fbg-en.txt.zip|语言转换包在开源社区中的zip下载链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-para.sh|XLM_ID0740_for_PyTorch/get-data-para.sh |http://opus.nlpl.eu/download.php?f=Europarl%2Fbg-en.txt.zip|语言转换包在开源社区中的zip下载链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-para.sh|XLM_ID0740_for_PyTorch/get-data-para.sh |http://opus.nlpl.eu/download.php?f=EUbookshop%2Fde-en.txt.zip|语言转换包在开源社区中的zip下载链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-para.sh|XLM_ID0740_for_PyTorch/get-data-para.sh |http://opus.nlpl.eu/download.php?f=EUbookshop%2Fel-en.txt.zip|语言转换包在开源社区中的zip下载链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-para.sh|XLM_ID0740_for_PyTorch/get-data-para.sh |https://object.pouta.csc.fi/OPUS-MultiUN/v1/moses/en-es.txt.zip|语言转换包在开源社区中的zip下载链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-para.sh|XLM_ID0740_for_PyTorch/get-data-para.sh |https://object.pouta.csc.fi/OPUS-MultiUN/v1/moses/en-fr.txt.zip|语言转换包在开源社区中的zip下载链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-para.sh|XLM_ID0740_for_PyTorch/get-data-para.sh |http://www.cfilt.iitb.ac.in/iitb_parallel/iitb_corpus_download/parallel.tgz|语言转换包在开源社区中的tgz下载链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-para.sh|XLM_ID0740_for_PyTorch/get-data-para.sh |http://opus.nlpl.eu/download.php?f=MultiUN%2Fen-ru.txt.zip|语言转换包在开源社区中的zip下载链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-para.sh|XLM_ID0740_for_PyTorch/get-data-para.sh |http://opus.nlpl.eu/download.php?f=Tanzil%2Fen-sw.txt.zip|语言转换包在开源社区中的zip下载链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-para.sh|XLM_ID0740_for_PyTorch/get-data-para.sh |http://opus.nlpl.eu/download.php?f=GlobalVoices%2Fen-sw.txt.zip|语言转换包在开源社区中的zip下载链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-para.sh|XLM_ID0740_for_PyTorch/get-data-para.sh |http://opus.nlpl.eu/download.php?f=OpenSubtitles2018%2Fen-th.txt.zip|语言转换包在开源社区中的zip下载链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-para.sh|XLM_ID0740_for_PyTorch/get-data-para.sh |http://opus.nlpl.eu/download.php?f=SETIMES2%2Fen-tr.txt.zip|语言转换包在开源社区中的zip下载链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-para.sh|XLM_ID0740_for_PyTorch/get-data-para.sh |http://opus.nlpl.eu/download.php?f=Wikipedia%2Fen-tr.txt.zip|语言转换包在开源社区中的zip下载链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-para.sh|XLM_ID0740_for_PyTorch/get-data-para.sh |https://object.pouta.csc.fi/OPUS-TED2013/v1.1/moses/en-tr.txt.zip|语言转换包在开源社区中的zip下载链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-para.sh|XLM_ID0740_for_PyTorch/get-data-para.sh |http://opus.nlpl.eu/download.php?f=Tanzil%2Fen-ur.txt.zip|语言转换包在开源社区中的zip下载链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-para.sh|XLM_ID0740_for_PyTorch/get-data-para.sh |http://opus.nlpl.eu/download.php?f=OpenSubtitles2018%2Fen-vi.txt.zip|语言转换包在开源社区中的zip下载链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-para.sh|XLM_ID0740_for_PyTorch/get-data-para.sh |http://opus.nlpl.eu/download.php?f=MultiUN%2Fen-zh.txt.zip|语言转换包在开源社区中的zip下载链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-wiki.sh|XLM_ID0740_for_PyTorch/get-data-wiki.sh |https://dumps.wikimedia.org/${lg}wiki/latest/$WIKI_DUMP_NAME|wiki开源社区引用链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-xnli.sh|XLM_ID0740_for_PyTorch/get-data-xnli.sh |https://dl.fbaipublicfiles.com/XNLI/XNLI-MT-1.0.zip|XNLI-MT-1.0在开源社区中的zip下载链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-xnli.sh|XLM_ID0740_for_PyTorch/get-data-xnli.sh |https://dl.fbaipublicfiles.com/XNLI/XNLI-1.0.zip|XNLI-1.0在开源社区中的zip下载链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/install-tools.sh|XLM_ID0740_for_PyTorch/install-tools.sh |https://github.com/moses-smt/mosesdecoder.git|mosesdecoder在开源社区中的git链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/install-tools.sh|XLM_ID0740_for_PyTorch/install-tools.sh |https://github.com/glample/fastBPE|fastBPE在开源社区中的git链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/install-tools.sh|XLM_ID0740_for_PyTorch/install-tools.sh |https://github.com/rsennrich/wmt16-scripts.git|wmt16-scripts在开源社区中的git链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/install-tools.sh|XLM_ID0740_for_PyTorch/install-tools.sh |https://github.com/attardi/wikiextractor.git|wikiextractor在开源社区中的git链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/README.md|XLM_ID0740_for_PyTorch/install-tools.sh |https://nlp.stanford.edu/software/stanford-segmenter-2018-10-16.zip|stanford-segmenter在开源社区中的git链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/prepare-glue.sh|XLM_ID0740_for_PyTorch/prepare-glue.sh |https://dl.fbaipublicfiles.com/XLM/codes_en|codes_en在开源社区中的下载链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/prepare-glue.sh|XLM_ID0740_for_PyTorch/prepare-glue.sh |https://dl.fbaipublicfiles.com/XLM/vocab_en|vocab_en在开源社区中的下载链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/prepare-xnli.sh|XLM_ID0740_for_PyTorch/prepare-xnli.sh |https://dl.fbaipublicfiles.com/XLM/codes_xnli_15|codes_xnli_15在开源社区中的下载链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/prepare-xnli.sh|XLM_ID0740_for_PyTorch/prepare-xnli.sh |https://dl.fbaipublicfiles.com/XLM/vocab_xnli_15|vocab_xnli_15在开源社区中的下载链接|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/setup.py | XLM_ID0740_for_PyTorch/setup.py |glample@fb.com, aconneau@fb.com|setuptools的author_email配置选项|
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/xlm/trainer.py | XLM_ID0740_for_PyTorch/xlm/trainer.py | https://github.com/NVIDIA/apex/issues/250 | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/xlm/slurm.py | XLM_ID0740_for_PyTorch/xlm/slurm.py | http://pytorch.apachecn.org/en/0.3.0/distributed.html#environment-variable-initialization | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/xlm/optim.py | XLM_ID0740_for_PyTorch/xlm/optim.py | https://github.com/pytorch/pytorch/blob/master/torch/optim/adam.py | 源码实现 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/xlm/optim.py | XLM_ID0740_for_PyTorch/xlm/optim.py | https://arxiv.org/pdf/1608.03983.pdf | 参考论文地址 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/xlm/model/transformer.py | XLM_ID0740_for_PyTorch/xlm/model/transformer.py | https://arxiv.org/abs/1606.08415 | 参考论文地址 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/xlm/model/transformer.py | XLM_ID0740_for_PyTorch/xlm/model/transformer.py | https://github.com/huggingface/pytorch-openai-transformer-lm/blob/master/model_pytorch.py#L14 | 源码实现 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/xlm/model/transformer.py | XLM_ID0740_for_PyTorch/xlm/model/transformer.py | https://github.com/huggingface/pytorch-pretrained-BERT/blob/master/modeling.py | 源码实现 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/xlm/model/pretrain.py | XLM_ID0740_for_PyTorch/xlm/model/pretrain.py | https://github.com/facebookresearch/fastText | 源码实现 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/xlm/model/memory/utils.py | XLM_ID0740_for_PyTorch/xlm/model/memory/utils.py | https://github.com/facebookresearch/faiss/blob/master/gpu/test/test_pytorch_faiss.py | 源码实现 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/tools/lowercase_and_remove_accent.py | XLM_ID0740_for_PyTorch/tools/lowercase_and_remove_accent.py | https://github.com/benjaminp/six | 源码实现 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/setup.py | XLM_ID0740_for_PyTorch/setup.py | glample@fb.c | 开发者邮箱配置 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-wiki.sh | XLM_ID0740_for_PyTorch/get-data-wiki.sh | https://dumps.wikimedia.org/ | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-para.sh | XLM_ID0740_for_PyTorch/get-data-para.sh | http://opus.nlpl.eu/download.php?f=OpenSubtitles2018%2Far-en.txt.zip | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-para.sh | XLM_ID0740_for_PyTorch/get-data-para.sh | http://opus.nlpl.eu/download.php?f=OpenSubtitles2018%2Fbg-en.txt.zip | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-para.sh | XLM_ID0740_for_PyTorch/get-data-para.sh | http://opus.nlpl.eu/download.php?f=OpenSubtitles2018%2Fde-en.txt.zip | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-para.sh | XLM_ID0740_for_PyTorch/get-data-para.sh | http://opus.nlpl.eu/download.php?f=OpenSubtitles2018%2Fel-en.txt.zip | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-para.sh | XLM_ID0740_for_PyTorch/get-data-para.sh | http://opus.nlpl.eu/download.php?f=OpenSubtitles2018%2Fen-es.txt.zip | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-para.sh | XLM_ID0740_for_PyTorch/get-data-para.sh | http://opus.nlpl.eu/download.php?f=EUbookshop%2Fen-es.txt.zip | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-para.sh | XLM_ID0740_for_PyTorch/get-data-para.sh | http://opus.nlpl.eu/download.php?f=OpenSubtitles2018%2Fen-fr.txt.zip | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-para.sh | XLM_ID0740_for_PyTorch/get-data-para.sh | http://opus.nlpl.eu/download.php?f=EUbookshop%2Fen-fr.txt.zip | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-para.sh | XLM_ID0740_for_PyTorch/get-data-para.sh | http://opus.nlpl.eu/download.php?f=OpenSubtitles2018%2Fen-ru.txt.zip | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-para.sh | XLM_ID0740_for_PyTorch/get-data-para.sh | http://opus.nlpl.eu/download.php?f=OpenSubtitles2018%2Fen-tr.txt.zip | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-para.sh | XLM_ID0740_for_PyTorch/get-data-para.sh | http://opus.nlpl.eu/download.php?f=OpenSubtitles2018%2Fen-ur.txt.zip | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-para.sh | XLM_ID0740_for_PyTorch/get-data-para.sh | http://opus.nlpl.eu/download.php?f=OpenSubtitles2016%2Fen-zh.txt.zip | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-nmt.sh | XLM_ID0740_for_PyTorch/get-data-nmt.sh | http://www.statmt.org/wmt14/training-monolingual-news-crawl/news.2009.de.shuffled.gz | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-nmt.sh | XLM_ID0740_for_PyTorch/get-data-nmt.sh | http://www.statmt.org/wmt14/training-monolingual-news-crawl/news.2010.de.shuffled.gz | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-nmt.sh | XLM_ID0740_for_PyTorch/get-data-nmt.sh | http://www.statmt.org/wmt14/training-monolingual-news-crawl/news.2011.de.shuffled.gz | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-nmt.sh | XLM_ID0740_for_PyTorch/get-data-nmt.sh | http://www.statmt.org/wmt14/training-monolingual-news-crawl/news.2012.de.shuffled.gz | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-nmt.sh | XLM_ID0740_for_PyTorch/get-data-nmt.sh | http://www.statmt.org/wmt14/training-monolingual-news-crawl/news.2013.de.shuffled.gz | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-nmt.sh | XLM_ID0740_for_PyTorch/get-data-nmt.sh | http://www.statmt.org/wmt15/training-monolingual-news-crawl-v2/news.2014.de.shuffled.v2.gz | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-nmt.sh | XLM_ID0740_for_PyTorch/get-data-nmt.sh | http://data.statmt.org/wmt16/translation-task/news.2015.de.shuffled.gz | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-nmt.sh | XLM_ID0740_for_PyTorch/get-data-nmt.sh | http://data.statmt.org/wmt17/translation-task/news.2016.de.shuffled.gz | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-nmt.sh | XLM_ID0740_for_PyTorch/get-data-nmt.sh | http://data.statmt.org/wmt18/translation-task/news.2017.de.shuffled.deduped.gz | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-nmt.sh | XLM_ID0740_for_PyTorch/get-data-nmt.sh | http://www.statmt.org/wmt14/training-monolingual-news-crawl/news.2009.en.shuffled.gz | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-nmt.sh | XLM_ID0740_for_PyTorch/get-data-nmt.sh | http://www.statmt.org/wmt14/training-monolingual-news-crawl/news.2010.en.shuffled.gz | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-nmt.sh | XLM_ID0740_for_PyTorch/get-data-nmt.sh | http://www.statmt.org/wmt14/training-monolingual-news-crawl/news.2011.en.shuffled.gz | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-nmt.sh | XLM_ID0740_for_PyTorch/get-data-nmt.sh | http://www.statmt.org/wmt14/training-monolingual-news-crawl/news.2012.en.shuffled.gz | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-nmt.sh | XLM_ID0740_for_PyTorch/get-data-nmt.sh | http://www.statmt.org/wmt14/training-monolingual-news-crawl/news.2013.en.shuffled.gz | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-nmt.sh | XLM_ID0740_for_PyTorch/get-data-nmt.sh | http://www.statmt.org/wmt15/training-monolingual-news-crawl-v2/news.2014.en.shuffled.v2.gz | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-nmt.sh | XLM_ID0740_for_PyTorch/get-data-nmt.sh | http://data.statmt.org/wmt16/translation-task/news.2015.en.shuffled.gz | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-nmt.sh | XLM_ID0740_for_PyTorch/get-data-nmt.sh | http://data.statmt.org/wmt17/translation-task/news.2016.en.shuffled.gz | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-nmt.sh | XLM_ID0740_for_PyTorch/get-data-nmt.sh | http://data.statmt.org/wmt18/translation-task/news.2017.en.shuffled.deduped.gz | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-nmt.sh | XLM_ID0740_for_PyTorch/get-data-nmt.sh | http://www.statmt.org/wmt14/training-monolingual-news-crawl/news.2010.fr.shuffled.gz | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-nmt.sh | XLM_ID0740_for_PyTorch/get-data-nmt.sh | http://www.statmt.org/wmt14/training-monolingual-news-crawl/news.2011.fr.shuffled.gz | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-nmt.sh | XLM_ID0740_for_PyTorch/get-data-nmt.sh | http://www.statmt.org/wmt14/training-monolingual-news-crawl/news.2012.fr.shuffled.gz | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-nmt.sh | XLM_ID0740_for_PyTorch/get-data-nmt.sh | http://www.statmt.org/wmt14/training-monolingual-news-crawl/news.2013.fr.shuffled.gz | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-nmt.sh | XLM_ID0740_for_PyTorch/get-data-nmt.sh | http://www.statmt.org/wmt15/training-monolingual-news-crawl-v2/news.2014.fr.shuffled.v2.gz | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-nmt.sh | XLM_ID0740_for_PyTorch/get-data-nmt.sh | http://data.statmt.org/wmt17/translation-task/news.2015.fr.shuffled.gz | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-nmt.sh | XLM_ID0740_for_PyTorch/get-data-nmt.sh | http://data.statmt.org/wmt17/translation-task/news.2016.fr.shuffled.gz | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/get-data-nmt.sh | XLM_ID0740_for_PyTorch/get-data-nmt.sh | http://data.statmt.org/wmt17/translation-task/news.2017.fr.shuffled.gz | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/.gitignore | XLM_ID0740_for_PyTorch/.gitignore | https://www.gitignore.io/api/python | 模型相关说明 |
-| 开源代码引入 | https://github.com/facebookresearch/XLM/blob/main/.gitignore | XLM_ID0740_for_PyTorch/.gitignore | https://www.gitignore.io/?templates=python | 模型相关说明 |
+| 文件位置                                                                          | 公网地址                                                                                           | 公网地址用途  |
+|-------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------|---------|
+| ModelZoo-PyTorch/PyTorch/built-in/nlp/XLM_ID0740_for_PyTorch/get-data-glue.sh | https://firebasestorage.googleapis.com/v0/b/mtl-sentence-representations.appspot.com/o/data%2F | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/built-in/nlp/XLM_ID0740_for_PyTorch/get-data-nmt.sh  | http://data.statmt.org/wmt18/translation-task/dev.tgz                                          | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/built-in/nlp/XLM_ID0740_for_PyTorch/get-data-nmt.sh  | http://www.statmt.org/wmt14/training-monolingual-news-crawl/news.2009.fr.shuffled.gz           | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/built-in/nlp/XLM_ID0740_for_PyTorch/get-data-nmt.sh  | http://www.statmt.org/wmt14/training-monolingual-news-crawl/news.2008.fr.shuffled.gz           | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/built-in/nlp/XLM_ID0740_for_PyTorch/get-data-nmt.sh  | http://www.statmt.org/wmt14/training-monolingual-news-crawl/news.2008.en.shuffled.gz           | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/built-in/nlp/XLM_ID0740_for_PyTorch/get-data-nmt.sh  | http://www.statmt.org/wmt14/training-monolingual-news-crawl/news.2008.de.shuffled.gz           | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/built-in/nlp/XLM_ID0740_for_PyTorch/get-data-nmt.sh  | http://www.statmt.org/wmt14/training-monolingual-news-crawl/news.2007.fr.shuffled.gz           | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/built-in/nlp/XLM_ID0740_for_PyTorch/get-data-nmt.sh  | http://www.statmt.org/wmt14/training-monolingual-news-crawl/news.2007.en.shuffled.gz           | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/built-in/nlp/XLM_ID0740_for_PyTorch/get-data-nmt.sh  | http://www.statmt.org/wmt14/training-monolingual-news-crawl/news.2007.de.shuffled.gz           | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/built-in/nlp/XLM_ID0740_for_PyTorch/get-data-nmt.sh  | http://data.statmt.org/wmt16/translation-task/news.2015.ro.shuffled.gz                         | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/built-in/nlp/XLM_ID0740_for_PyTorch/get-data-para.sh | http://www.cfilt.iitb.ac.in/iitb_parallel/iitb_corpus_download/parallel.tgz                    | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/built-in/nlp/XLM_ID0740_for_PyTorch/get-data-wiki.sh | https://dumps.wikimedia.org/${lg}wiki/latest/$WIKI_DUMP_NAME                                   | 数据集说明   |
+| ModelZoo-PyTorch/PyTorch/built-in/nlp/XLM_ID0740_for_PyTorch/get-data-xnli.sh | https://dl.fbaipublicfiles.com/XNLI/XNLI-MT-1.0.zip                                            | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/built-in/nlp/XLM_ID0740_for_PyTorch/get-data-xnli.sh | https://dl.fbaipublicfiles.com/XNLI/XNLI-1.0.zip                                               | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/built-in/nlp/XLM_ID0740_for_PyTorch/install-tools.sh | https://nlp.stanford.edu/software/stanford-segmenter-2018-10-16.zip                            | 模型相关配置  |
+| ModelZoo-PyTorch/PyTorch/built-in/nlp/XLM_ID0740_for_PyTorch/prepare-glue.sh  | https://dl.fbaipublicfiles.com/XLM/vocab_en                                                    | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/built-in/nlp/XLM_ID0740_for_PyTorch/prepare-glue.sh  | https://dl.fbaipublicfiles.com/XLM/codes_en                                                    | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/built-in/nlp/XLM_ID0740_for_PyTorch/prepare-xnli.sh  | https://dl.fbaipublicfiles.com/XLM/vocab_xnli_15                                               | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/built-in/nlp/XLM_ID0740_for_PyTorch/prepare-xnli.sh  | https://dl.fbaipublicfiles.com/XLM/codes_xnli_15                                               | 数据集链接   |
+| ModelZoo-PyTorch/PyTorch/built-in/nlp/XLM_ID0740_for_PyTorch/setup.py         | glample@fb.com","aconneau@fb.com                                                               | 作者邮箱    |

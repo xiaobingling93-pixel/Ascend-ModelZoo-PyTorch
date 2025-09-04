@@ -1,0 +1,13 @@
+| 文件位置                                                                                                     | 公网地址                                                    | 公网地址用途       |
+|----------------------------------------------------------------------------------------------------------|---------------------------------------------------------|--------------|
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/VGGNet_ID0400_for_PyTorch/examples/cifar/main.py    | tcp://172.168.1.1:11111                                 | 分布式配置ip默认入参  |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/VGGNet_ID0400_for_PyTorch/examples/imagenet/main.py | tcp://224.66.41.62:23456                                | 分布式配置ip默认入参  |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/VGGNet_ID0400_for_PyTorch/setup.py                  | liuchangyu1111@gmail.com                                | 作者邮箱         |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/VGGNet_ID0400_for_PyTorch/vgg_pytorch/utils.py      | http//download.pytorch.org/models/vgg19_bn-c79401a0.pth | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/VGGNet_ID0400_for_PyTorch/vgg_pytorch/utils.py      | http//download.pytorch.org/models/vgg19-dcbb9e9d.pth    | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/VGGNet_ID0400_for_PyTorch/vgg_pytorch/utils.py      | http//download.pytorch.org/models/vgg16_bn-6c64b313.pth | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/VGGNet_ID0400_for_PyTorch/vgg_pytorch/utils.py      | http//download.pytorch.org/models/vgg16-397923af.pth    | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/VGGNet_ID0400_for_PyTorch/vgg_pytorch/utils.py      | http//download.pytorch.org/models/vgg13_bn-abd245e5.pth | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/VGGNet_ID0400_for_PyTorch/vgg_pytorch/utils.py      | http//download.pytorch.org/models/vgg13-c768596a.pth    | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/VGGNet_ID0400_for_PyTorch/vgg_pytorch/utils.py      | http//download.pytorch.org/models/vgg11_bn-6002323d.pth | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/VGGNet_ID0400_for_PyTorch/vgg_pytorch/utils.py      | http//download.pytorch.org/models/vgg11-bbd30ac9.pth    | 权重地址         |

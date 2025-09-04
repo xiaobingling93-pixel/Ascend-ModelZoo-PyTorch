@@ -1,0 +1,3 @@
+| 文件位置                                                                                     | 公网地址                                                          | 公网地址用途  |
+|------------------------------------------------------------------------------------------|---------------------------------------------------------------|---------|
+| ModelZoo-PyTorch/PyTorch/built-in/mm/CogVideo/sat/sgm/modules/autoencoding/lpips/util.py | https://heibox.uni-heidelberg.de/f/607503859c864bc1b30b/?dl=1 | 论文地址    |

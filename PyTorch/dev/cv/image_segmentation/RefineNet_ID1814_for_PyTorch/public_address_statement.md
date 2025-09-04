@@ -1,0 +1,20 @@
+| 文件位置                                                                                                | 公网地址                                                            | 公网地址用途       |
+|-----------------------------------------------------------------------------------------------------|-----------------------------------------------------------------|--------------|
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/RefineNet_ID1814_for_PyTorch/models/mobilenet.py | https://cloudstor.aarnet.edu.au/plus/s/nQ6wDnTEFhyidot/download | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/RefineNet_ID1814_for_PyTorch/models/mobilenet.py | https://cloudstor.aarnet.edu.au/plus/s/uRgFbkaRjD3qOg5/download | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/RefineNet_ID1814_for_PyTorch/models/resnet.py    | https://download.pytorch.org/models/resnet50-19c8e357.pth       | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/RefineNet_ID1814_for_PyTorch/models/resnet.py    | https://download.pytorch.org/models/resnet152-b121ed2d.pth      | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/RefineNet_ID1814_for_PyTorch/models/resnet.py    | https://download.pytorch.org/models/resnet101-5d3b4d8f.pth      | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/RefineNet_ID1814_for_PyTorch/models/resnet.py    | https://download.pytorch.org/models/resnet18-5c106cde.pth       | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/RefineNet_ID1814_for_PyTorch/models/resnet.py    | https://cloudstor.aarnet.edu.au/plus/s/xp7GcVKC0GbxhTv/download | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/RefineNet_ID1814_for_PyTorch/models/resnet.py    | https://cloudstor.aarnet.edu.au/plus/s/mLA7NxVSPjNL7Oo/download | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/RefineNet_ID1814_for_PyTorch/models/resnet.py    | https://cloudstor.aarnet.edu.au/plus/s/gE8dnQmHr9svpfu/download | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/RefineNet_ID1814_for_PyTorch/models/resnet.py    | https://cloudstor.aarnet.edu.au/plus/s/2w8bFOd45JtPqbD/download | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/RefineNet_ID1814_for_PyTorch/models/resnet.py    | https://cloudstor.aarnet.edu.au/plus/s/Ql64rWqiTvWGAA0/download | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/RefineNet_ID1814_for_PyTorch/models/resnet.py    | https://cloudstor.aarnet.edu.au/plus/s/EkPQzB2KtrrDnKf/download | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/RefineNet_ID1814_for_PyTorch/models/resnet.py    | https://cloudstor.aarnet.edu.au/plus/s/O84NszlYlsu00fW/download | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/RefineNet_ID1814_for_PyTorch/models/resnet.py    | https://cloudstor.aarnet.edu.au/plus/s/CPRKWiaCIDRdOwF/download | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/RefineNet_ID1814_for_PyTorch/models/resnet.py    | https://cloudstor.aarnet.edu.au/plus/s/f1tGGpwdCnYS3xu/download | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/RefineNet_ID1814_for_PyTorch/models/resnet.py    | https://cloudstor.aarnet.edu.au/plus/s/VnsaSUHNZkuIqeB/download | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/RefineNet_ID1814_for_PyTorch/models/resnet.py    | https://cloudstor.aarnet.edu.au/plus/s/hqmplxWOBbOYYjN/download | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_segmentation/RefineNet_ID1814_for_PyTorch/src/miou_utils.c    | vladimir.nekrasov@adelaide.edu.au                               | Copyright信息  |

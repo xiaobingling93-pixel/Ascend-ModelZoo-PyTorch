@@ -1,0 +1,9 @@
+| 文件位置                                                                                       | 公网地址                                                                                   | 公网地址用途       |
+|--------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|--------------|
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/RES2NET_ID0824_for_PyTorch/main.py    | tcp://224.66.41.62:23456                                                               | 分布式配置ip默认入参  |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/RES2NET_ID0824_for_PyTorch/res2net.py | https://shanghuagao.oss-cn-beijing.aliyuncs.com/res2net/res2net50_48w_2s-afed724a.pth  | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/RES2NET_ID0824_for_PyTorch/res2net.py | https://shanghuagao.oss-cn-beijing.aliyuncs.com/res2net/res2net50_26w_8s-2c7c9f12.pth  | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/RES2NET_ID0824_for_PyTorch/res2net.py | https://shanghuagao.oss-cn-beijing.aliyuncs.com/res2net/res2net50_26w_6s-19041792.pth  | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/RES2NET_ID0824_for_PyTorch/res2net.py | https://shanghuagao.oss-cn-beijing.aliyuncs.com/res2net/res2net50_26w_4s-06e79181.pth  | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/RES2NET_ID0824_for_PyTorch/res2net.py | https://shanghuagao.oss-cn-beijing.aliyuncs.com/res2net/res2net50_14w_8s-6527dddc.pth  | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/dev/cv/image_classification/RES2NET_ID0824_for_PyTorch/res2net.py | https://shanghuagao.oss-cn-beijing.aliyuncs.com/res2net/res2net101_26w_4s-02a759a1.pth | 权重地址         |

@@ -44,7 +44,7 @@ If this project is helpful to you, welcome to star.
 
 # Training
 * tianchi ICPR dataset download
-链接: https://pan.baidu.com/s/1NSyc-cHKV3IwDo6qojIrKA 密码: ye9y
+用户自行准备数据集
 
 * prepare training data: make data root dir(train_1000),
 copy images to root dir, and copy txts to root dir, 

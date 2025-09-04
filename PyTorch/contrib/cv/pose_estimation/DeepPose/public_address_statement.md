@@ -1,151 +1,78 @@
-| 类型   | 开源代码地址 | 文件名                                     | 公网IP地址/公网URL地址/域名/邮箱地址                                                                                                  | 用途说明    |
-|------|--------|-----------------------------------------|-------------------------------------------------------------------------------------------------------------------------|---------|
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/vgg/vgg11_imagenet-01ecd97e.pth                                      | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/vgg/vgg13_imagenet-9ad3945d.pth                                      | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/vgg/vgg16_imagenet-91b6d117.pth                                      | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/vgg/vgg19_imagenet-fee352a8.pth                                      | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/vgg/vgg11_bn_imagenet-6fbbbf3f.pth                                   | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/vgg/vgg13_bn_imagenet-4b5f9390.pth                                   | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/vgg/vgg16_bn_imagenet-3ac6d8fd.pth                                   | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/vgg/vgg19_bn_imagenet-7c058385.pth                                   | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/resnet/resnet18_batch256_imagenet_20200708-34ab8f90.pth              | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/resnet/resnet34_batch256_imagenet_20200708-32ffb4f7.pth              | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/resnet/resnet50_batch256_imagenet_20200708-cfb998bf.pth              | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/resnet/resnet101_batch256_imagenet_20200708-753f3608.pth             | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/resnet/resnet152_batch256_imagenet_20200708-ec25b1f9.pth             | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/resnet/resnetv1d50_batch256_imagenet_20200708-1ad0ce94.pth           | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/resnet/resnetv1d101_batch256_imagenet_20200708-9cb302ef.pth          | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/resnet/resnetv1d152_batch256_imagenet_20200708-e79cb6a2.pth          | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/resnext/resnext50_32x4d_batch256_imagenet_20200708-c07adbb7.pth      | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/resnext/resnext101_32x4d_batch256_imagenet_20200708-87f2d1c9.pth     | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/resnext/resnext101_32x8d_batch256_imagenet_20200708-1ec34aa7.pth     | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/resnext/resnext152_32x4d_batch256_imagenet_20200708-aab5034c.pth     | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/se-resnet/se-resnet50_batch256_imagenet_20200804-ae206104.pth        | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/se-resnet/se-resnet101_batch256_imagenet_20200804-ba5b51d4.pth       | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/resnest/resnest50_imagenet_converted-1ebf0afe.pth                    | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/resnest/resnest101_imagenet_converted-032caa52.pth                   | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/resnest/resnest200_imagenet_converted-581a60f2.pth                   | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/resnest/resnest269_imagenet_converted-59930960.pth                   | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/shufflenet_v1/shufflenet_v1_batch1024_imagenet_20200804-5d6cec73.pth | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/shufflenet_v2/shufflenet_v2_batch1024_imagenet_20200812-5bf4721e.pth | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/mobilenet_v2/mobilenet_v2_batch256_imagenet_20200708-3b2dc3af.pth    | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/vgg16_caffe-292e1171.pth                                            | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnet50_caffe-788b5fa3.pth                                         | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnet50_msra-5891d200.pth                                          | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnet101_caffe-3ad79236.pth                                        | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnet101_msra-6cc46731.pth                                         | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnext101_32x8d-1516f1aa.pth                                       | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnext50-32x4d-0ab1a123.pth                                        | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnext101_32x4d-a5af3160.pth                                       | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnext101_64x4d-ee2c6f71.pth                                       | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnet50_gn_thangvubk-ad1730dd.pth                                  | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnet50_gn-9186a21c.pth                                            | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnet101_gn-cac0ab98.pth                                           | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnet50_gn_ws-15beedd8.pth                                         | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnet101_gn_ws-3e3c308c.pth                                        | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnext50_32x4d_gn_ws-0d87ac85.pth                                  | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnext101_32x4d_gn_ws-34ac1a9e.pth                                 | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnext50_32x4d_gn-c7e8b754.pth                                     | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnext101_32x4d_gn-ac3bb84e.pth                                    | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/hrnetv2_w18_small-b5a04e21.pth                                      | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/hrnetv2_w18-00eb2006.pth                                            | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/hrnetv2_w32-dc9eeb4f.pth                                            | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/hrnetv2_w40-ed0b031c.pth                                            | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/hrnetv2_w48-d2186c55.pth                                            | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/bn_inception_caffe-ed2e8665.pth                                     | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/i3d_r50_f32s2_k400-2c57e077.pth                                     | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/nl3d_r50_f32s2_k400-fa7e7caa.pth                                    | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/res2net101_v1d_26w_4s_mmdetv2-f0a600f9.pth                          | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/regnetx_400mf-a5b10d96.pth                                          | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/regnetx_800mf-1f4be4c7.pth                                          | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/regnetx_1.6gf-5791c176.pth                                          | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/regnetx_3.2gf-c2599b0f.pth                                          | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/regnetx_4.0gf-a88f671e.pth                                          | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/regnetx_6.4gf-006af45d.pth                                          | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/regnetx_8.0gf-3c68abe7.pth                                          | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/regnetx_12gf-4c2a3350.pth                                           | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnet18_v1c-b5776b93.pth                                           | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnet50_v1c-2cccc1ad.pth                                           | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnet101_v1c-e67eebb6.pth                                          | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/mmediting/third_party/vgg_state_dict.pth                                                 | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/mmediting/third_party/model_best_resnet34_En_nomixup.pth                                 | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/mmediting/third_party/mobilenet_v2.pth                                                   | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/mobilenet_v3_large-bc2c3fd3.pth                                     | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/mobilenet_v3_small-47085aa1.pth                                     | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnest50_d2-7497a55b.pth                                           | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnest101_d2-f3b931b2.pth                                          | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnest200_d2-ca88e41f.pth                                          | 下载预训练模型 |
-| 开发引入 | /      | DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/darknet53-a628ea1b.pth                                              | 下载预训练模型 |
-| 开发引入 | / | DeepPose/mmpose/core/post_processing/one_euro_filter.py | https://github.com/HoBeom/OneEuroFilter-Numpy | 源码实现 |
-| 开发引入 | / | DeepPose/mmcv/ops/tin_shift.py | https://github.com/deepcs233/TIN/blob/master/cuda_shift/rtc_wrap.py | 源码实现 |
-| 开发引入 | / | DeepPose/mmcv/cnn/bricks/conv_ws.py | https://arxiv.org/pdf/2006.02334.pdf | 论文地址 |
-| 开发引入 | / | DeepPose/mmcv/cnn/bricks/plugin.py | https://inflection.readthedocs.io/en/latest/#inflection.underscore | 相关说明 |
-| 开发引入 | / | DeepPose/mmcv/ops/carafe.py | https://arxiv.org/abs/1905.02188 | 论文地址 |
-| 开发引入 | / | DeepPose/mmcv/cnn/bricks/wrappers.py | https://github.com/facebookresearch/detectron2/blob/master/detectron2/layers/wrappers.py | 源码实现 |
-| 开发引入 | / | DeepPose/mmcv/ops/nms.py | https://github.com/pytorch/vision/ | 源码实现 |
-| 开发引入 | / | DeepPose/mmcv/ops/upfirdn2d.py | https://www.mathworks.com/help/signal/ref/upfirdn.html | 相关说明 |
-| 开源代码引入 | https://github.com/open-mmlab/mmpose.git/README.md | DeepPose/mmpose/core/post_processing/nms.py | https://github.com/leoxiaobin/deep-high-resolution-net.pytorch | 源码实现 |
-| 开发引入 | / | DeepPose/mmcv/runner/fp16_utils.py | https://github.com/NVIDIA/apex/blob/master/apex/fp16_utils/loss_scaler.py | 源码实现 |
-| 开发引入 | / | DeepPose/mmpose/core/post_processing/group.py | https://github.com/princeton-vl/pose-ae-train/ | 源码实现 |
-| 开发引入 | / | DeepPose/modelarts/train_start.py | https://arxiv.org/abs/1706.02677 | 论文地址 |
-| 开发引入 | / | DeepPose/mmcv/image/colorspace.py | https://en.wikipedia.org/wiki/YCbCr#ITU-R_BT.601_conversion | 相关说明 |
-| 开发引入 | / | DeepPose/mmpose/datasets/pipelines/mesh_transform.py | https://smpl.is.tue.mpg.de/ | 相关说明 |
-| 开发引入 | / | DeepPose/mmcv/ops/focal_loss.py | https://github.com/rosinality/stylegan2-pytorch/blob/master/op/fused_act.py | 源码实现 |
-| 开发引入 | / | DeepPose/mmcv/ops/point_sample.py | https://github.com/facebookresearch/detectron2/tree/master/projects/PointRend | 源码实现 |
-| 开发引入 | / | DeepPose/mmpose/deprecated.py | https://github.com/open-mmlab/mmpose/pull/202 | 源码实现 |
-| 开发引入 | / | DeepPose/mmcv/runner/hooks/lr_updater.py | https://arxiv.org/pdf/1506.01186.pdf | 论文地址 |
-| 开发引入 | / | DeepPose/train.py | https://arxiv.org/abs/1706.02677 | 论文地址 |
-| 开发引入 | / | DeepPose/mmcv/utils/registry.py | https://mmcv.readthedocs.io/en/latest/registry.html | 相关说明 |
-| 开源代码引入 | https://github.com/open-mmlab/mmpose.git/mmpose/datasets/datasets/body/coco_dataset.py | DeepPose/mmpose/datasets/datasets/top_down/topdown_coco_dataset.py | https://arxiv.org/abs/1405.0312 | 论文地址 |
-| 开发引入 | / | DeepPose/mmcv/cnn/bricks/context_block.py | https://arxiv.org/abs/1904.11492 | 论文地址 |
-| 开源代码引入 | https://github.com/open-mmlab/mmpose.git/mmpose/datasets/builder.py | DeepPose/mmpose/datasets/builder.py | https://github.com/pytorch/pytorch/issues/973 | 源码实现 |
-| 开发引入 | / | DeepPose/mmcv/ops/tin_shift.py | shaoh19@mails.tsinghua.edu.cn","sjqian@cse.cuhk.edu.hk","yuliu@ee.cuhk.edu.hk | 邮箱地址 |
-| 开发引入 | / | DeepPose/mmcv/ops/fused_bias_leakyrelu.py | https://github.com/rosinality/stylegan2-pytorch/blob/master/op/fused_act.py | 源码实现 |
-| 开源代码引入 | https://github.com/open-mmlab/mmpose.git/docs/zh_cn/notes/changelog.md | DeepPose/mmpose/models/detectors/top_down.py | https://github.com/open-mmlab/mmpose/pull/382 | 源码实现 |
-| 开发引入 | / | DeepPose/mmcv/ops/corner_pool.py | https://github.com/princeton-vl/CornerNet-Lite | 源码实现 |
-| 开发引入 | / | DeepPose/mmcv/onnx/onnx_utils/symbolic_helper.py | https://github.com/pytorch/pytorch/blob/75ee5756715e7161314ce037474843b68f69fc04/torch/onnx/symbolic_helper.py#L375 | 源码实现 |
-| 开发引入 | / | DeepPose/mmcv/runner/hooks/momentum_updater.py | https://arxiv.org/pdf/1708.07120.pdf | 论文地址 |
-| 开发引入 | / | DeepPose/mmcv/ops/psa_mask.py | https://github.com/hszhao/semseg/blob/master/lib/psa | 源码实现 |
-| 开发引入 | / | DeepPose/mmcv/ops/tin_shift.py | https://github.com/mit-han-lab/temporal-shift-module | 源码实现 |
-| 开发引入 | / | DeepPose/mmpose/datasets/pipelines/shared_transform.py | https://albumentations.readthedocs.io | 相关说明 |
-| 开发引入 | / | DeepPose/mmcv/runner/hooks/lr_updater.py | https://arxiv.org/pdf/1708.07120.pdf | 论文地址 |
-| 开发引入 | / | DeepPose/mmcv/cnn/utils/weight_init.py | https://www.cv-foundation.org/openaccess/content_iccv_2015/ | 相关说明 |
-| 开源代码引入 | https://github.com/open-mmlab/mmpose.git/mmpose/evaluation/functional/mesh_eval.py | DeepPose/mmpose/models/mesh_heads/discriminator.py | https://github.com/akanazawa/hmr | 源码实现 |
-| 开发引入 | / | DeepPose/mmcv/runner/hooks/logger/mlflow.py | https://www.mlflow.org/docs/latest/index.html | 相关说明 |
-| 开发引入 | / | DeepPose/mmcv/onnx/onnx_utils/symbolic_helper.py | https://github.com/pytorch/pytorch | 源码实现 |
-| 开发引入 | / | DeepPose/mmcv/runner/hooks/optimizer.py | https://arxiv.org/abs/1710.03740 | 论文地址 |
-| 开源代码引入 | https://github.com/open-mmlab/mmpose.git/mmpose/utils/hooks.py | DeepPose/mmpose/utils/hooks.py | https://stackoverflow.com/questions/31174295/getattr-and-setattr-on-nested-objects | 相关说明 |
-| 开发引入 | / | DeepPose/mmcv/cnn/bricks/transformer.py | https://arxiv.org/pdf/2010.04159.pdf | 论文地址 |
-| 开发引入 | / | DeepPose/mmcv/image/io.py | https://github.com/lilohuang/PyTurboJPEG | 源码实现 |
-| 开源代码引入 | https://github.com/open-mmlab/mmpose.git/README.md | DeepPose/mmpose/core/post_processing/post_transforms.py | https://github.com/leoxiaobin/deep-high-resolution-net.pytorch | 源码实现 |
-| 开发引入 | / | DeepPose/mmcv/cnn/utils/weight_init.py | http://download.openmmlab.com/mmdetection/v2.0/retinanet/ | 相关说明 |
-| 开发引入 | / | DeepPose/mmcv/ops/deprecated_wrappers.py | https://github.com/rosinality/stylegan2-pytorch/blob/master/op/fused_act.py | 源码实现 |
-| 开源代码引入 | https://github.com/open-mmlab/mmpose.git/mmpose/models/backbones/resnet.py | DeepPose/mmpose/models/backbones/resnet.py | https://arxiv.org/pdf/1812.01187.pdf | 论文地址 |
-| 开发引入 | / | DeepPose/mmcv/cnn/utils/flops_counter.py | https://github.com/sovrasov/flops-counter.pytorch | 源码实现 |
-| 开发引入 | / | DeepPose/mmcv/ops/roi_align.py | https://github.com/facebookresearch/detectron2/ | 源码实现 |
-| 开发引入 | / | DeepPose/mmpose/datasets/datasets/top_down/topdown_coco_dataset.py | https://github.com/cocodataset/cocoapi/blob/master/PythonAPI/ | 源码实现 |
-| 开发引入 | / | DeepPose/mmcv/cnn/utils/weight_init.py | http://proceedings.mlr.press/v9/glorot10a/glorot10a.pdf | 论文地址 |
-| 开发引入 | / | DeepPose/mmcv/ops/nms.py | https://github.com/pytorch/vision/blob | 源码实现 |
-| 开发引入 | / | DeepPose/mmcv/runner/hooks/optimizer.py | https://pytorch.org/docs/stable/amp.html#torch.cuda.amp.GradScaler | 相关说明 |
-| 开发引入 | / | DeepPose/mmcv/ops/saconv.py | https://arxiv.org/pdf/2006.02334.pdf | 论文地址 |
-| 开源代码引入 | https://github.com/open-mmlab/mmpose.git/mmpose/evaluation/functional/mesh_eval.py | DeepPose/mmpose/core/evaluation/mesh_eval.py | https://github.com/akanazawa/hmr | 源码实现 |
-| 开发引入 | / | DeepPose/mmcv/cnn/bricks/depthwise_separable_conv_module.py | https://arxiv.org/pdf/1704.04861.pdf | 论文地址 |
-| 开源代码引入 | https://github.com/open-mmlab/mmpose.git/mmpose/datasets/transforms/common_transforms.py | DeepPose/mmpose/datasets/pipelines/shared_transform.py | https://github.com/albumentations-team/ | 源码实现 |
-| 开发引入 | / | DeepPose/mmpose/core/post_processing/one_euro_filter.py | http://gvv.mpi-inf.mpg.de/projects/VNect/ | 相关说明 |
-| 开发引入 | / | DeepPose/mmcv/cnn/bricks/non_local.py | https://github.com/AlexHex7/Non-local_pytorch | 源码实现 |
-| 开发引入 | / | DeepPose/mmpose/models/backbones/resnet.py | https://arxiv.org/abs/1512.03385 | 论文地址 |
-| 开发引入 | / | DeepPose/mmcv/cnn/bricks/non_local.py | https://arxiv.org/abs/1711.07971 | 论文地址 |
-| 开发引入 | / | DeepPose/mmcv/onnx/symbolic.py | https://github.com/pytorch/pytorch | 源码实现 |
-| 开发引入 | / | DeepPose/mmcv/cnn/bricks/conv_ws.py | https://arxiv.org/pdf/1903.10520.pdf | 论文地址 |
-| 开发引入 | / | DeepPose/mmcv/ops/roi_align_rotated.py | https://github.com/facebookresearch/detectron2/ | 源码实现 |
-| 开源代码引入 | https://github.com/open-mmlab/mmpose.git/mmpose/models/losses/heatmap_loss.py | DeepPose/mmcv/ops/corner_pool.py | https://arxiv.org/abs/1808.01244 | 论文地址 |
-| 开发引入 | / | DeepPose/mmcv/image/photometric.py | https://dl.acm.org/doi/pdf/10.1145/3065386 | 论文地址 |
-| 开发引入 | / | DeepPose/mmcv/ops/tin_shift.py | https://arxiv.org/abs/2001.06499 | 论文地址 |
-| 开发引入 | / | DeepPose/mmcv/engine/test.py | https://github.com/open-mmlab/mmcv/issues/985 | 源码实现 |
-| 开发引入 | / | DeepPose/mmcv/runner/hooks/profiler.py | https://pytorch.org/docs/1.8.1/profiler.html#torch.profiler.profile | 相关说明 |
-| 开发引入 | / | DeepPose/mmcv/ops/fused_bias_leakyrelu.py | http://arxiv.org/abs/1912.04958 | 论文地址 |
-| 开发引入 | / | DeepPose/mmcv/ops/upfirdn2d.py | https://github.com/rosinality/stylegan2-pytorch/blob/master/op/upfirdn2d.py | 源码实现 |
-| 开发引入 | / | DeepPose/mmcv/image/colorspace.py | https://en.wikipedia.org/wiki/YCbCr#JPEG_conversion | 相关说明 |
-| 开发引入 | / | DeepPose/mmcv/ops/deform_conv.py | https://arxiv.org/pdf/1703.06211.pdf | 论文地址 |
-| 开发引入 | / | DeepPose/mmcv/cnn/bricks/generalized_attention.py | https://arxiv.org/abs/1711.07971 | 论文地址 |
-| 开发引入 | / | DeepPose/mmcv/cnn/bricks/transformer.py | https://arxiv.org/abs/2002.04745 | 论文地址 |
+| 文件位置                                                                                        | 公网地址                                                                                                                    | 公网地址用途  |
+|---------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------|---------|
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/vgg/vgg11_imagenet-01ecd97e.pth                                      | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/vgg/vgg13_imagenet-9ad3945d.pth                                      | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/vgg/vgg16_imagenet-91b6d117.pth                                      | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/vgg/vgg19_imagenet-fee352a8.pth                                      | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/vgg/vgg11_bn_imagenet-6fbbbf3f.pth                                   | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/vgg/vgg13_bn_imagenet-4b5f9390.pth                                   | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/vgg/vgg16_bn_imagenet-3ac6d8fd.pth                                   | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/vgg/vgg19_bn_imagenet-7c058385.pth                                   | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/resnet/resnet18_batch256_imagenet_20200708-34ab8f90.pth              | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/resnet/resnet34_batch256_imagenet_20200708-32ffb4f7.pth              | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/resnet/resnet50_batch256_imagenet_20200708-cfb998bf.pth              | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/resnet/resnet101_batch256_imagenet_20200708-753f3608.pth             | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/resnet/resnet152_batch256_imagenet_20200708-ec25b1f9.pth             | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/resnet/resnetv1d50_batch256_imagenet_20200708-1ad0ce94.pth           | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/resnet/resnetv1d101_batch256_imagenet_20200708-9cb302ef.pth          | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/resnet/resnetv1d152_batch256_imagenet_20200708-e79cb6a2.pth          | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/resnext/resnext50_32x4d_batch256_imagenet_20200708-c07adbb7.pth      | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/resnext/resnext101_32x4d_batch256_imagenet_20200708-87f2d1c9.pth     | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/resnext/resnext101_32x8d_batch256_imagenet_20200708-1ec34aa7.pth     | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/resnext/resnext152_32x4d_batch256_imagenet_20200708-aab5034c.pth     | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/se-resnet/se-resnet50_batch256_imagenet_20200804-ae206104.pth        | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/se-resnet/se-resnet101_batch256_imagenet_20200804-ba5b51d4.pth       | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/resnest/resnest50_imagenet_converted-1ebf0afe.pth                    | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/resnest/resnest101_imagenet_converted-032caa52.pth                   | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/resnest/resnest200_imagenet_converted-581a60f2.pth                   | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/resnest/resnest269_imagenet_converted-59930960.pth                   | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/shufflenet_v1/shufflenet_v1_batch1024_imagenet_20200804-5d6cec73.pth | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/shufflenet_v2/shufflenet_v2_batch1024_imagenet_20200812-5bf4721e.pth | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/mmcls.json      | https://download.openmmlab.com/mmclassification/v0/mobilenet_v2/mobilenet_v2_batch256_imagenet_20200708-3b2dc3af.pth    | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/vgg16_caffe-292e1171.pth                                            | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnet50_caffe-788b5fa3.pth                                         | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnet50_msra-5891d200.pth                                          | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnet101_caffe-3ad79236.pth                                        | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnet101_msra-6cc46731.pth                                         | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnext101_32x8d-1516f1aa.pth                                       | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnext50-32x4d-0ab1a123.pth                                        | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnext101_32x4d-a5af3160.pth                                       | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnext101_64x4d-ee2c6f71.pth                                       | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnet50_gn_thangvubk-ad1730dd.pth                                  | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnet50_gn-9186a21c.pth                                            | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnet101_gn-cac0ab98.pth                                           | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnet50_gn_ws-15beedd8.pth                                         | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnet101_gn_ws-3e3c308c.pth                                        | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnext50_32x4d_gn_ws-0d87ac85.pth                                  | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnext101_32x4d_gn_ws-34ac1a9e.pth                                 | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnext50_32x4d_gn-c7e8b754.pth                                     | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnext101_32x4d_gn-ac3bb84e.pth                                    | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/hrnetv2_w18_small-b5a04e21.pth                                      | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/hrnetv2_w18-00eb2006.pth                                            | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/hrnetv2_w32-dc9eeb4f.pth                                            | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/hrnetv2_w40-ed0b031c.pth                                            | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/hrnetv2_w48-d2186c55.pth                                            | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/bn_inception_caffe-ed2e8665.pth                                     | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/i3d_r50_f32s2_k400-2c57e077.pth                                     | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/nl3d_r50_f32s2_k400-fa7e7caa.pth                                    | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/res2net101_v1d_26w_4s_mmdetv2-f0a600f9.pth                          | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/regnetx_400mf-a5b10d96.pth                                          | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/regnetx_800mf-1f4be4c7.pth                                          | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/regnetx_1.6gf-5791c176.pth                                          | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/regnetx_3.2gf-c2599b0f.pth                                          | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/regnetx_4.0gf-a88f671e.pth                                          | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/regnetx_6.4gf-006af45d.pth                                          | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/regnetx_8.0gf-3c68abe7.pth                                          | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/regnetx_12gf-4c2a3350.pth                                           | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnet18_v1c-b5776b93.pth                                           | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnet50_v1c-2cccc1ad.pth                                           | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnet101_v1c-e67eebb6.pth                                          | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/mmediting/third_party/vgg_state_dict.pth                                                 | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/mmediting/third_party/model_best_resnet34_En_nomixup.pth                                 | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | mmedit/mobilenet_v2": "https://download.openmmlab.com/mmediting/third_party/mobilenet_v2.pth                            | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/mobilenet_v3_large-bc2c3fd3.pth                                     | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/mobilenet_v3_small-47085aa1.pth                                     | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnest50_d2-7497a55b.pth                                           | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnest101_d2-f3b931b2.pth                                          | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/resnest200_d2-ca88e41f.pth                                          | 权重地址    |
+| ModelZoo-PyTorch/PyTorch/contrib/cv/pose_estimation/DeepPose/mmcv/model_zoo/open_mmlab.json | https://download.openmmlab.com/pretrain/third_party/darknet53-a628ea1b.pth                                              | 权重地址    |

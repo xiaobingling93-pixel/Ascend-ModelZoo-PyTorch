@@ -1,14 +1,9 @@
-| 类型 | 开源代码地址                                                                                    | 文件名                                       | 公网IP地址/公网URL地址/域名/邮箱地址 | 用途说明   |
-| ---- |-------------------------------------------------------------------------------------------|-------------------------------------------| ------------------------------------ |--------|
-| 开源代码引入 | https://github.com/MhLiao/DB/4ac194d0357fd102ac871e37986cb8027ecf094e/backbones/resnet.py | DB_ID0706_for_PyTorch/backbones/resnet.py | https://download.pytorch.org/models/resnet18-5c106cde.pth | 下载权重文件 |
-| 开源代码引入 | https://github.com/MhLiao/DB/4ac194d0357fd102ac871e37986cb8027ecf094e/backbones/resnet.py | DB_ID0706_for_PyTorch/backbones/resnet.py | https://download.pytorch.org/models/resnet34-333f7ec4.pth | 下载权重文件 |
-| 开源代码引入 | https://github.com/MhLiao/DB/4ac194d0357fd102ac871e37986cb8027ecf094e/backbones/resnet.py | DB_ID0706_for_PyTorch/backbones/resnet.py | https://download.pytorch.org/models/resnet50-19c8e357.pth | 下载权重文件 |
-| 开源代码引入 | https://github.com/MhLiao/DB/4ac194d0357fd102ac871e37986cb8027ecf094e/backbones/resnet.py | DB_ID0706_for_PyTorch/backbones/resnet.py | https://download.pytorch.org/models/resnet101-5d3b4d8f.pth | 下载权重文件 |
-| 开源代码引入 | https://github.com/MhLiao/DB/4ac194d0357fd102ac871e37986cb8027ecf094e/backbones/resnet.py | DB_ID0706_for_PyTorch/backbones/resnet.py | https://download.pytorch.org/models/resnet152-b121ed2d.pth | 下载权重文件 |
-| 开发引入 | /                                                                                         | DB_ID0706_for_PyTorch/Dockerfile          | http://download.osgeo.org/geos/geos-3.8.1.tar.bz2 | 下载第三方包 |
-| 开源代码引入 | https://github.com/MhLiao/DB/4ac194d0357fd102ac871e37986cb8027ecf094e/backbones/mobilenetv3.py | DB_ID0706_for_PyTorch/backbones/mobilenetv3.py | https://github.com/kuan-wang/pytorch-mobilenet-v3 | 源码实现 |
-| 开源代码引入 | https://github.com/MhLiao/DB/4ac194d0357fd102ac871e37986cb8027ecf094e/backbones/mobilenetv3.py | DB_ID0706_for_PyTorch/backbones/mobilenetv3.py | https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.1/ppocr/modeling/backbones/det_mobilenet_v3.py | 源码实现 |
-| 开源代码引入 | https://github.com/MhLiao/DB/4ac194d0357fd102ac871e37986cb8027ecf094e/data/processes/random_crop_data.py | DB_ID0706_for_PyTorch/data/processes/random_crop_data.py | https://github.com/argman/EAST | 源码实现 |
-| 开源代码引入 | https://github.com/MhLiao/DB/4ac194d0357fd102ac871e37986cb8027ecf094e/decoders/dice_loss.py | DB_ID0706_for_PyTorch/decoders/dice_loss.py | https://arxiv.org/abs/1707.03237 | 论文地址 |
-| 开源代码引入 | https://github.com/MhLiao/DB/4ac194d0357fd102ac871e37986cb8027ecf094e/concern/__init__.py | DB_ID0706_for_PyTorch/concern/visualizer.py | wanzhaoyi@megvii.com | 邮箱地址 |
-| 开源代码引入 | https://github.com/MhLiao/DB/4ac194d0357fd102ac871e37986cb8027ecf094e/concern/__init__.py | DB_ID0706_for_PyTorch/concern/__init__.py | wanzhaoyi@megvii.com | 邮箱地址 |
+| 文件位置                                                                                     | 公网地址                                                       | 公网地址用途       |
+|------------------------------------------------------------------------------------------|------------------------------------------------------------|--------------|
+| ModelZoo-PyTorch/PyTorch/built-in/cv/detection/DB_ID0706_for_PyTorch/backbones/resnet.py | https://download.pytorch.org/models/resnet50-19c8e357.pth  | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/detection/DB_ID0706_for_PyTorch/backbones/resnet.py | https://download.pytorch.org/models/resnet18-5c106cde.pth  | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/detection/DB_ID0706_for_PyTorch/backbones/resnet.py | https://download.pytorch.org/models/resnet34-333f7ec4.pth  | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/detection/DB_ID0706_for_PyTorch/backbones/resnet.py | https://download.pytorch.org/models/resnet152-b121ed2d.pth | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/detection/DB_ID0706_for_PyTorch/backbones/resnet.py | https://download.pytorch.org/models/resnet101-5d3b4d8f.pth | 权重地址         |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/detection/DB_ID0706_for_PyTorch/train.py            | tcp://224.66.41.62:23456                                   | 分布式配置ip默认入参  |
+| ModelZoo-PyTorch/PyTorch/built-in/cv/detection/DB_ID0706_for_PyTorch/url.ini             | http://download.osgeo.org/geos/geos-3.8.1.tar.bz2          | 模型相关说明       |

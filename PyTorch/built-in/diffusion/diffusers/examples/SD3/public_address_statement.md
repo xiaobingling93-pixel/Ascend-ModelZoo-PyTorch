@@ -1,0 +1,6 @@
+| 文件位置                                                                                            | 公网地址                                                                                  | 公网地址用途  |
+|-------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|---------|
+| ModelZoo-PyTorch/PyTorch/built-in/diffusion/diffusers/examples/SD3/train_dreambooth_lora_sd3.py | https://pytorch.org/docs/stable/notes/cuda.html#tensorfloat-32-tf32-on-ampere-devices | 设置说明    |
+| ModelZoo-PyTorch/PyTorch/built-in/diffusion/diffusers/examples/SD3/train_dreambooth_lora_sd3.py | https://www.tensorflow.org/tensorboard                                                | 设置说明    |
+| ModelZoo-PyTorch/PyTorch/built-in/diffusion/diffusers/examples/SD3/train_dreambooth_sd3.py      | https://pytorch.org/docs/stable/notes/cuda.html#tensorfloat-32-tf32-on-ampere-devices | 设置说明    |
+| ModelZoo-PyTorch/PyTorch/built-in/diffusion/diffusers/examples/SD3/train_dreambooth_sd3.py      | https://www.tensorflow.org/tensorboard                                                | 设置说明    |
