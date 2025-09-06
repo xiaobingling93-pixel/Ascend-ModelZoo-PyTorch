@@ -1,3 +1,4 @@
+# 目前本仓已停止维护，请转跳至https://github.com/volcengine/verl/blob/main/docs/ascend_tutorial/ascend_quick_start.rst
 # VeRL for Pytorch
 
 -   [概述](#概述)
