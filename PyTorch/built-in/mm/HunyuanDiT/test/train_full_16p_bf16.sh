@@ -1,19 +1,19 @@
 # 网络名称，权重路径以及相关参数，需要模型审视修改
 Network="HunyuanDiT"
-BATCH_SIZE=1
+BATCH_SIZE=2
 max_train_steps=5000
 task_flag="dit_g2_full_1024p"                                # the task flag is used to identify folders.
 resume=./ckpts/t2i/model/                                    # checkpoint root for resume
 index_file=dataset/porcelain/jsons/porcelain_mt.json         # index file for dataloader
 results_dir=./log_EXP                                        # save root for results
 image_size=1024                                              # training image resolution
-grad_accu_steps=1                                            # gradient accumulation
+grad_accu_steps=4                                            # gradient accumulation
 warmup_num_steps=0                                           # warm-up steps
 lr=0.0001                                                    # learning rate
 ckpt_every=10000                                             # create a ckpt every a few steps.
 ckpt_latest_every=5000                                       # create a ckpt named `latest.pt` every a few steps.
 
-export WORLD_SIZE=8
+export WORLD_SIZE=16
 export MASTER_PORT=29500
 export MASTER_ADDR=127.0.0.1
 
@@ -53,9 +53,10 @@ params=" \
             --qk-norm \
             --model ${model} \
             --rope-img base512 \
-            --rope-real \
+            --rope-real 
             "
-deepspeed --num_gpus ${WORLD_SIZE} --num_nodes 1 --master_port=${MASTER_PORT} hydit/train_deepspeed_zero3.py ${params} \
+            
+deepspeed --num_gpus ${WORLD_SIZE} --num_nodes 1 --master_port=${MASTER_PORT} hydit/train_deepspeed.py ${params} \
     --task-flag ${task_flag} \
     --noise-schedule scaled_linear --beta-start 0.00085 --beta-end 0.03 \
     --predict-type v_prediction \
@@ -71,13 +72,17 @@ deepspeed --num_gpus ${WORLD_SIZE} --num_nodes 1 --master_port=${MASTER_PORT} hy
     --warmup-num-steps ${warmup_num_steps} \
     --use-flash-attn \
     --use-fp16 \
+    --use-ema \
+    --ema-dtype fp32 \
     --results-dir ${results_dir} \
+    --resume-split \
+    --resume ${resume} \
     --ckpt-every ${ckpt_every} \
     --ckpt-latest-every ${ckpt_latest_every} \
     --log-every 1 \
     --deepspeed \
     --deepspeed-optimizer \
-    --use-zero-stage 3 \
+    --use-zero-stage 1 \
     --multireso \
     --reso-step 64 \
     --epochs 1400 \
@@ -101,20 +106,19 @@ CaseName=${Network}_bs${BatchSize}_${WORLD_SIZE}'p'_'acc'
 # 结果打印，不需要修改
 echo "------------------ Final result ------------------"
 # 输出性能FPS，需要模型审视修改
-avg_time=$(grep -a 'Steps/Sec:' "${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log" |
-           awk -F "Steps/Sec:" '{print $2}' |
-           awk '{a+=$1} END {if (NR!=0) printf "%.3f\n", a/NR}')
-FPS=$(echo "$avg_time * $BatchSize" |bc)
-# 输出性能100步到200步平均单步耗时
-avg_millisec_per_step=$(grep -a 'step=00001[0-9][0-9]' "${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log" |
-           awk -F "Millisec/Step:" '{print $2}' |
-           awk '{a+=$1} END {if (NR!=0) printf "%.3f\n", a/NR}')
-# 打印，不需要修改
-echo "Final Performance images/sec : $FPS"
-echo "E2E Training Duration sec : $e2e_time"
-echo "avg_millisec_per_step(100-200step) : $avg_millisec_per_step"
 
-# 性能看护结果汇总
+FPS=$(grep -oPa 'RunningAvgSamplesPerSec=\s*\K[\d.]+' "${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log" |
+        tail -n 1 |
+        awk -F "RunningAvgSamplesPerSec=" '{print $1}')
+
+avg_millisec_per_step=$(echo "$WORLD_SIZE * 1000 * $BatchSize / $FPS" | bc)
+
+# 打印，不需要修改
+echo "Final Performance AvgSamplesPerSec : $FPS"
+echo "E2E Training Duration sec : $e2e_time"
+echo "avg_millisec_per_step : $avg_millisec_per_step"
+
+
 # 获取性能数据，不需要修改
 # 吞吐量
 ActualFPS=${FPS}

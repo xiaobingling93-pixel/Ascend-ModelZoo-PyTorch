@@ -123,7 +123,7 @@ echo "avg_millisec_per_step(100-200step) : $avg_millisec_per_step"
 # 吞吐量
 ActualFPS=${FPS}
 #单迭代训练时长
-TrainingTime=$(awk 'BEGIN{printf "%.2f\n", '${BATCH_SIZE}'*8/'${FPS}'}')
+TrainingTime=$(awk 'BEGIN{printf "%.2f\n", '${BATCH_SIZE}'*'${WORLD_SIZE}'/'${FPS}'}')
 
 
 # 关键信息打印到${CaseName}.log中，不需要修改

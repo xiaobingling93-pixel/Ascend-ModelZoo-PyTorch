@@ -2,7 +2,51 @@
 import os
 
 def deepspeed_config_from_args(args, global_batch_size):
-    if args.use_zero_stage == 2:
+    if args.use_zero_stage == 1:
+        deepspeed_config = {
+            "train_batch_size": global_batch_size,
+            "train_micro_batch_size_per_gpu": args.batch_size,
+            "gradient_accumulation_steps": args.grad_accu_steps,
+            "steps_per_print": args.log_every,
+            "optimizer": {
+                "type": "AdamW",
+                "params": {
+                    "lr": args.lr,
+                    "betas": [
+                        0.9,
+                        0.999
+                    ],
+                    "eps": 1e-08,
+                    "weight_decay": args.weight_decay
+                }
+            },
+
+            "zero_optimization": {
+                "stage": 1,
+                "reduce_scatter": False,
+                "reduce_bucket_size": 1e9,
+            },
+
+            "gradient_clipping": 1.0,
+            "prescale_gradients": True,
+
+            "fp16": {
+                "enabled": args.use_fp16,
+                "loss_scale": 0,
+                "loss_scale_window": 500,
+                "hysteresis": 2,
+                "min_loss_scale": 1e-3,
+                "initial_scale_power": 15
+            },
+
+            "bf16": {
+                "enabled": False
+            },
+
+            "wall_clock_breakdown": False
+        }
+        
+    elif args.use_zero_stage == 2:
         deepspeed_config = {
             "train_batch_size": global_batch_size,
             "train_micro_batch_size_per_gpu": args.batch_size,

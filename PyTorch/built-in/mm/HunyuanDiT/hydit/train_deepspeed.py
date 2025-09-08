@@ -517,7 +517,7 @@ def main(args):
                                 f"Lr: {opt.param_groups[0]['lr']:.6g}, "
                                 f"Steps/Sec: {steps_per_sec:.2f}, "
                                 f"Millisec/Step: {(end_time - start_time) * 1000:.2f}," 
-                                f"Samples/Sec: {int(steps_per_sec * batch_size * world_size):d}")
+                                f"SpS: {int(steps_per_sec * batch_size * world_size):d}")
                     # Reset monitoring variables:
                     running_loss = 0
                     log_steps = 0
