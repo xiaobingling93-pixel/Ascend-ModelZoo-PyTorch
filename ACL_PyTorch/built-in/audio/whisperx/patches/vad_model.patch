@@ -1,0 +1,30 @@
+--- model.py	2025-09-09 14:29:16
++++ model_modified.py	2025-09-09 14:43:59
+@@ -336,7 +336,7 @@
+                 (cache["stats"].data_buf_all, cache["stats"].waveform[0])
+             )
+             
+-        waveform_numpy = cache["stats"].waveform.numpy()
++        waveform_numpy = cache["stats"].waveform.cpu().numpy()
+ 
+         offsets = np.arange(0, waveform_numpy.shape[1] - frame_sample_length + 1, frame_shift_length)
+         frames = waveform_numpy[0, offsets[:, np.newaxis] + np.arange(frame_sample_length)]
+@@ -348,7 +348,8 @@
+ 
+ 
+     def ComputeScores(self, feats: torch.Tensor, cache: dict = {}) -> None:
+-        scores = self.encoder(feats, cache=cache["encoder"]).to("cpu")  # return B * T * D
++        device = next(self.encoder.parameters()).device
++        scores = self.encoder(feats.to(device), cache=cache["encoder"]).to("cpu")  # return B * T * D
+         assert (
+             scores.shape[1] == feats.shape[1]
+         ), "The shape between feats and scores does not match"
+@@ -688,7 +689,7 @@
+         meta_data["load_data"] = f"{time2 - time1:0.3f}"
+         assert len(audio_sample_list) == 1, "batch_size must be set 1"
+ 
+-        audio_sample = torch.cat((cache["prev_samples"], audio_sample_list[0]))
++        audio_sample = torch.cat((cache["prev_samples"].to(audio_sample_list[0].device), audio_sample_list[0]))
+ 
+         n = int(len(audio_sample) // chunk_stride_samples + int(_is_final))
+         m = int(len(audio_sample) % chunk_stride_samples * (1 - int(_is_final)))

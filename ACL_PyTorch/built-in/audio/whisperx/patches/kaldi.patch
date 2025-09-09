@@ -1,0 +1,15 @@
+--- kaldi.py	2025-09-09 14:37:21
++++ kaldi_modified.py	2025-09-09 14:39:07
+@@ -613,7 +613,11 @@
+     )
+ 
+     # size (m, padded_window_size // 2 + 1)
+-    spectrum = torch.fft.rfft(strided_input).abs()
++    spectrum_real_img = torch.view_as_real(torch.fft.rfft(strided_input))
++    real_part = spectrum_real_img[...,0]
++    img_part = spectrum_real_img[...,1]
++    spectrum = torch.sqrt(real_part ** 2 + img_part ** 2)
++
+     if use_power:
+         spectrum = spectrum.pow(2.0)
+ 

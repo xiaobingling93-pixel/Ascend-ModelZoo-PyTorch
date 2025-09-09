@@ -1,0 +1,20 @@
+--- wav_frontend.py	2025-08-22 15:38:40
++++ wav_frontend_modified.py	2025-08-22 16:14:49
+@@ -323,7 +323,7 @@
+     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+         batch_size = input.size(0)
+ 
+-        input = torch.cat((cache["input_cache"], input), dim=1)
++        input = torch.cat((cache["input_cache"].to(input.device), input), dim=1)
+         frame_num = self.compute_frame_num(
+             input.shape[-1], self.frame_sample_length, self.frame_shift_sample_length
+         )
+@@ -422,7 +422,7 @@
+ 
+         if feats.shape[0]:
+ 
+-            cache["waveforms"] = torch.cat((cache["reserve_waveforms"], waveforms), dim=1)
++            cache["waveforms"] = torch.cat((cache["reserve_waveforms"].to(waveforms.device), waveforms), dim=1)
+ 
+             if not cache["lfr_splice_cache"]:  # 初始化splice_cache
+                 for i in range(batch_size):
