@@ -82,6 +82,7 @@ cd ..
 |   └── 📄 wav_frontend.patch
 ├── README.md
 ├── requrements.txt
+├── run_wer_test.py
 ├── weight_converter.py
 ├── 📁 weight/
 |   |── 📁 Whisper-large-v3
