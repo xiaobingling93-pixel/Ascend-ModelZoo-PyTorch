@@ -1,0 +1,50 @@
+diff -ruN doclayout_yolo-0.0.4/doclayout_yolo/engine/predictor.py doclayout_yolo-0.0.4_fix/doclayout_yolo/engine/predictor.py
+--- doclayout_yolo-0.0.4/doclayout_yolo/engine/predictor.py	2025-02-11 15:49:31.000000000 +0800
++++ doclayout_yolo-0.0.4_fix/doclayout_yolo/engine/predictor.py	2025-09-09 16:05:20.011737230 +0800
+@@ -152,7 +152,8 @@
+             (list): A list of transformed images.
+         """
+         same_shapes = len({x.shape for x in im}) == 1
+-        letterbox = LetterBox(self.imgsz, auto=same_shapes and self.model.pt, stride=self.model.stride)
++        letterbox = LetterBox(self.imgsz, auto=False, stride=self.model.stride)
++        # letterbox = LetterBox(self.imgsz, auto=same_shapes and self.model.pt, stride=self.model.stride)
+         return [letterbox(image=x) for x in im]
+ 
+     def postprocess(self, preds, img, orig_imgs):
+@@ -225,7 +226,8 @@
+ 
+             # Warmup model
+             if not self.done_warmup:
+-                self.model.warmup(imgsz=(1 if self.model.pt or self.model.triton else self.dataset.bs, 3, *self.imgsz))
++                # self.model.warmup(imgsz=(1 if self.model.pt or self.model.triton else self.dataset.bs, 3, *self.imgsz))
++                self.model.warmup(imgsz=(self.dataset.bs, 3, *self.imgsz))
+                 self.done_warmup = True
+ 
+             self.seen, self.windows, self.batch = 0, [], None
+
+diff -ruN doclayout_yolo-0.0.4/doclayout_yolo/nn/modules/block.py doclayout_yolo-0.0.4_fix/doclayout_yolo/nn/modules/block.py
+--- doclayout_yolo-0.0.4/doclayout_yolo/nn/modules/block.py	2025-02-11 15:49:31.000000000 +0800
++++ doclayout_yolo-0.0.4_fix/doclayout_yolo/nn/modules/block.py	2025-09-09 16:05:20.019737230 +0800
+@@ -230,7 +230,9 @@
+     def forward(self, x):
+         """Forward pass through C2f layer."""
+         y = list(self.cv1(x).chunk(2, 1))
+-        y.extend(m(y[-1]) for m in self.m)
++        # y.extend(m(y[-1]) for m in self.m)
++        for m in self.m:
++            y.append(m(y[-1]))
+         return self.cv2(torch.cat(y, 1))
+ 
+     def forward_split(self, x):
+
+diff -ruN doclayout_yolo-0.0.4/doclayout_yolo/utils/tal.py doclayout_yolo-0.0.4_fix/doclayout_yolo/utils/tal.py
+--- doclayout_yolo-0.0.4/doclayout_yolo/utils/tal.py	2025-02-11 15:49:31.000000000 +0800
++++ doclayout_yolo-0.0.4_fix/doclayout_yolo/utils/tal.py	2025-09-09 16:05:20.023737230 +0800
+@@ -328,7 +328,8 @@
+         sy = torch.arange(end=h, device=device, dtype=dtype) + grid_cell_offset  # shift y
+         sy, sx = torch.meshgrid(sy, sx, indexing="ij") if TORCH_1_10 else torch.meshgrid(sy, sx)
+         anchor_points.append(torch.stack((sx, sy), -1).view(-1, 2))
+-        stride_tensor.append(torch.full((h * w, 1), stride, dtype=dtype, device=device))
++        # stride_tensor.append(torch.full((h * w, 1), stride, dtype=dtype, device=device))
++        stride_tensor.append(torch.ones((h * w, 1), dtype=dtype, device=device)*stride)
+     return torch.cat(anchor_points), torch.cat(stride_tensor)

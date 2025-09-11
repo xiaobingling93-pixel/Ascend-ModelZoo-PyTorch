@@ -1,0 +1,77 @@
+diff -ruN ultralytics-8.3.193/ultralytics/engine/predictor.py ultralytics_/ultralytics/engine/predictor.py
+--- ultralytics-8.3.193/ultralytics/engine/predictor.py	2025-09-04 19:51:11.000000000 +0800
++++ ultralytics_/ultralytics/engine/predictor.py	2025-09-09 14:56:14.535737230 +0800
+@@ -196,9 +196,10 @@
+         same_shapes = len({x.shape for x in im}) == 1
+         letterbox = LetterBox(
+             self.imgsz,
+-            auto=same_shapes
+-            and self.args.rect
+-            and (self.model.pt or (getattr(self.model, "dynamic", False) and not self.model.imx)),
++            # auto=same_shapes
++            # and self.args.rect
++            # and (self.model.pt or (getattr(self.model, "dynamic", False) and not self.model.imx)),
++            auto=False,
+             stride=self.model.stride,
+         )
+         return [letterbox(image=x) for x in im]
+@@ -311,8 +312,11 @@
+ 
+             # Warmup model
+             if not self.done_warmup:
++                # self.model.warmup(
++                #     imgsz=(1 if self.models.pt or self.model.triton else self.dataset.bs, self.model.ch, *self.imgsz)
++                # )
+                 self.model.warmup(
+-                    imgsz=(1 if self.model.pt or self.model.triton else self.dataset.bs, self.model.ch, *self.imgsz)
++                    imgsz=(self.dataset.bs, self.model.ch, *self.imgsz)
+                 )
+                 self.done_warmup = True
+ 
+@@ -400,7 +404,8 @@
+             dnn=self.args.dnn,
+             data=self.args.data,
+             fp16=self.args.half,
+-            fuse=True,
++            # fuse=True,
++            fuse=False,
+             verbose=verbose,
+         )
+
+diff -ruN ultralytics-8.3.193/ultralytics/nn/modules/block.py ultralytics_/ultralytics/nn/modules/block.py
+--- ultralytics-8.3.193/ultralytics/nn/modules/block.py	2025-09-04 19:51:11.000000000 +0800
++++ ultralytics_/ultralytics/nn/modules/block.py	2025-09-09 14:56:14.543737230 +0800
+@@ -237,7 +237,9 @@
+     def forward(self, x: torch.Tensor) -> torch.Tensor:
+         """Apply sequential pooling operations to input and return concatenated feature maps."""
+         y = [self.cv1(x)]
+-        y.extend(self.m(y[-1]) for _ in range(3))
++        # y.extend(self.m(y[-1]) for _ in range(3))
++        for _ in range(3):
++            y.append(self.m(y[-1]))
+         return self.cv2(torch.cat(y, 1))
+ 
+ 
+@@ -315,7 +317,9 @@
+     def forward(self, x: torch.Tensor) -> torch.Tensor:
+         """Forward pass through C2f layer."""
+         y = list(self.cv1(x).chunk(2, 1))
+-        y.extend(m(y[-1]) for m in self.m)
++        # y.extend(m(y[-1]) for m in self.m)
++        for m in self.m:
++            y.append(m(y[-1]))
+         return self.cv2(torch.cat(y, 1))
+ 
+     def forward_split(self, x: torch.Tensor) -> torch.Tensor:
+
+diff -ruN ultralytics-8.3.193/ultralytics/utils/tal.py ultralytics_/ultralytics/utils/tal.py
+--- ultralytics-8.3.193/ultralytics/utils/tal.py	2025-09-04 19:51:11.000000000 +0800
++++ ultralytics_/ultralytics/utils/tal.py	2025-09-09 14:56:14.551737230 +0800
+@@ -375,7 +375,8 @@
+         sy = torch.arange(end=h, device=device, dtype=dtype) + grid_cell_offset  # shift y
+         sy, sx = torch.meshgrid(sy, sx, indexing="ij") if TORCH_1_10 else torch.meshgrid(sy, sx)
+         anchor_points.append(torch.stack((sx, sy), -1).view(-1, 2))
+-        stride_tensor.append(torch.full((h * w, 1), stride, dtype=dtype, device=device))
++        # stride_tensor.append(torch.full((h * w, 1), stride, dtype=dtype, device=device))
++        stride_tensor.append(torch.ones((h * w, 1), dtype=dtype, device=device)*stride)
+     return torch.cat(anchor_points), torch.cat(stride_tensor)
