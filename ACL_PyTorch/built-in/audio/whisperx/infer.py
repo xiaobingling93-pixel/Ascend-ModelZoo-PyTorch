@@ -90,7 +90,7 @@ if __name__ == '__main__':
     audio_sample = load_audio(args.audio_path)
 
     data_path = f'{args.speech_path}/1919/142785'
-    audio_files = collect_audio_files([data_path])[args.num_audio_files]
+    audio_files = collect_audio_files([data_path])[:args.num_audio_files]
     
     def get_audio(audio_file):
         return load_audio(audio_file)
