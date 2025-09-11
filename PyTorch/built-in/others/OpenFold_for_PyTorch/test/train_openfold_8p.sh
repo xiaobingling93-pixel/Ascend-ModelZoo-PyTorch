@@ -39,11 +39,22 @@ python3 train_openfold.py  $data_path/pdb_data/mmcif_files \
 wait
 
 # 取最后一步的打屏时间
-read a b c <<< $(tac openfold_train_8p.log | grep -m1 '1250/1250' | sed -n 's/.*\[\([0-9]\+\):\([0-9]\+\):\([0-9]\+\).*/\1 \2 \3/p')
+format_time=$(tac "openfold_train_8p.log" | grep -m 1 'Epoch' | awk -F'[][]' '{split($2, time, "<"); print time[1]}')
 
 # 计算总秒数
-total_seconds=$((a*3600 + b*60 + c))
+if [[ $format_time =~ ^[0-9]{2}:[0-9]{2}$ ]]; then
+    #分：秒
+    IFS=':' read -r minutes seconds <<< "$format_time"
+    total_seconds=$((minutes * 60 + seconds))
+elif [[ $format_time =~ ^[0-9]{2}:[0-9]{2}:[0-9]{2}$ ]]; then
+    #时：分：秒
+    IFS=':' read -r hours minutes seconds <<< "$format_time"
+    total_seconds=$((hours * 3600 + minutes * 60 + seconds))   
+else
+    echo "failed to compute total_seconds"
+    exit 1
+fi
 
 #打印，不需要修改
 echo "E2E Total Time sec : $total_seconds"
-echo "Format time: $a:$b:$c"
+echo "Format time: $format_time"
