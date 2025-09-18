@@ -81,8 +81,8 @@ cd ModelZoo-PyTorch/ACL_PyTorch/built-in/audio/CosyVoice2
         |── 📁 cosyVoice源码文件    # cosyVoice的源码文件，此处不一一列举
         ├── 📁 CosyVoice-0.5B/    # 权重文件
         ├── 📁 transformers/    # transformers库，里面修改modeling_qwen2.py文件
+        |── 📄 infer.py    # 推理脚本
     │── 📄 requirements.txt    # 依赖库
-    |── 📄 infer.py    # 推理脚本
     └── 📄 modify_onnx.py    # 模型转换脚本
     ```
    
