@@ -55,7 +55,7 @@ pip install transformers==4.52.3
 
 ## 数据集
 
-以LLaMA-Factory中的自我认知数据集为例，文件路径：LLaMA-Factory/data/identity.json，对其中的 name 和 author 进行替换，例如name换成 GLM4，author替换成 JYX
+以LLaMA-Factory中的自我认知数据集为例，文件路径：LLaMA-Factory/data/identity.json，对其中的 name 和 author 进行替换，例如name换成 昇腾小助手，author替换成 昇腾
 
 
 
@@ -63,7 +63,7 @@ pip install transformers==4.52.3
 
 从hugging face中下载模型权重
 
-将模型权重放至 /home/ling/ling_mini_v2
+下载后，比如将模型权重放至 /home/ling/ling_mini_v2
 
 
 
