@@ -78,7 +78,7 @@ cd ModelZoo-PyTorch/ACL_PyTorch/built-in/cv/SAM
 git clone https://github.com/facebookresearch/segment-anything.git
 cd segment-anything
 git reset --hard 6fdee8f2727f4506cfbbe553e23b895e27956588
-patch -p2 < ../segment_anything_diff.patch
+git apply ../segment_anything_diff.patch
 pip3 install -e .
 cd ..
 ```

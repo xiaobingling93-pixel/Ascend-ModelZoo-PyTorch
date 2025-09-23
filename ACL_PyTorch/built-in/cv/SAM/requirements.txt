@@ -1,5 +1,5 @@
 torch==2.1.0
-torch_npu==2.1.0.post17.dev20250905
+torch_npu==2.1.0.post10
 torchvision==0.16.0
 torchaudio==2.1.0
 decorator
