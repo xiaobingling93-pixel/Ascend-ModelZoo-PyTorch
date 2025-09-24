@@ -23,7 +23,7 @@ import torch_npu
 from diffusers.utils import logging
 from diffusers.utils.torch_utils import maybe_allow_in_graph
 
-from mindiesd.layers.linear import QKVLinear
+from ..layers import QKVLinear
 
 logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
 

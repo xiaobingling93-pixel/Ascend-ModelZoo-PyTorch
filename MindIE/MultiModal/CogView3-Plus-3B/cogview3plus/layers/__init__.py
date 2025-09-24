@@ -1,2 +1,3 @@
 from .normalization import CogView3PlusAdaLayerNormZeroTextImage, AdaLayerNormContinuous
 from .embeddings import CogView3CombinedTimestepSizeEmbeddings, CogView3PlusPatchEmbed
+from .linear import QKVLinear
