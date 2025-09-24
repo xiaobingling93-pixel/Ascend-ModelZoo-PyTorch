@@ -71,6 +71,7 @@ cd ..
 
 ```text
 📁 whisper/
+├── check_numa.sh
 ├── audio.mp3
 ├── infer.py
 ├── modeling_whisper.py
@@ -90,19 +91,45 @@ cd ..
 |   |── 📁 speech_fsmn_vad_zh-cn-16k-common-pytorch
 ```
 
-## 开始推理
-```SHELL
-# 1. 激活环境变量
-source /usr/local/Ascend/ascend-toolkit/set_env.sh  # 具体路径根据你自己的情况修改
-# 2. 指定使用NPU ID，默认为0
-export ASCEND_RT_VISIBLE_DEVICES=0
-# 3. 给funasr和torchaudio打补丁
-cd patches
-python3 patch_apply.py
-cd ..
-# 4. 开始推理
-python3 infer.py --whisper_model_path ./weight/Whisper-large-v3/large-v3.pt
-```
+## 模型推理
+1. 激活环境变量
+    ```SHELL
+    source /usr/local/Ascend/ascend-toolkit/set_env.sh  # 具体路径根据你自己的情况修改
+    # 提升性能相关环境变量
+    export TASK_QUEUE_ENABLE=2
+    export PYTORCH_NPU_ALLOC_CONF='expandable_segments:True'
+    export HOST_CACHE_CAPACITY=20
+    export ASCEND_ENHANCE_ENABLE=1
+    ```
+
+2. 指定使用NPU ID，默认为0
+    ```SHELL
+    export ASCEND_RT_VISIBLE_DEVICES=0
+    ```
+3. 给funasr和torchaudio打补丁
+    ```SHELL
+    cd patches
+    python3 patch_apply.py
+    cd ..
+    ```
+4. 使能绑核，进一步提升性能
+    ```SHELL
+    export CPU_AFFINITY_CONF=1
+    apt-get update
+    apt-get install numactl
+    # 在容器外执行脚本查看NPU id对应的NUMA node和cpu
+    bash check_numa.sh
+    ```
+    回显如下：
+    ```SHELL
+    ...
+    >>>>设备 0 对应 NUMA 节点: 6, NUMA node6 CPU(s):     192-223
+    ...
+    ```
+5. 开始推理, 根据实际查询到的核数配置，比如
+    ```SHELL
+    taskset -c 192-223 python3 infer.py --whisper_model_path ./weight/Whisper-large-v3/large-v3.pt
+    ```
 infer.py推理参数：
 * --whisper_model_path：whisper模型权重路径，默认为"./weight/Whisper-large-v3/large-v3.pt"
 * --vad_model_path：vad模型权重路径，默认为"./weight/speech_fsmn_vad_zh-cn-16k-common-pytorch"

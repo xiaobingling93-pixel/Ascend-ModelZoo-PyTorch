@@ -1,16 +1,32 @@
---- model.py	2025-09-09 14:29:16
-+++ model_modified.py	2025-09-09 14:43:59
-@@ -336,7 +336,7 @@
+--- model.py	2025-09-22 19:07:02
++++ model_modified.py	2025-09-23 09:23:30
+@@ -336,19 +336,26 @@
                  (cache["stats"].data_buf_all, cache["stats"].waveform[0])
              )
              
 -        waveform_numpy = cache["stats"].waveform.numpy()
-+        waveform_numpy = cache["stats"].waveform.cpu().numpy()
+-
+-        offsets = np.arange(0, waveform_numpy.shape[1] - frame_sample_length + 1, frame_shift_length)
+-        frames = waveform_numpy[0, offsets[:, np.newaxis] + np.arange(frame_sample_length)]
++        waveform = cache["stats"].waveform
  
-         offsets = np.arange(0, waveform_numpy.shape[1] - frame_sample_length + 1, frame_shift_length)
-         frames = waveform_numpy[0, offsets[:, np.newaxis] + np.arange(frame_sample_length)]
-@@ -348,7 +348,8 @@
+-        decibel_numpy = 10 * np.log10(np.sum(np.square(frames), axis=1) + 0.000001)
+-        decibel_numpy = decibel_numpy.tolist()
++        offsets = torch.arange(
++            0, waveform.shape[1] - frame_sample_length + 1, frame_shift_length,
++            device=waveform.device
++        )
  
+-        cache["stats"].decibel.extend(decibel_numpy)
++        indices = offsets.unsqueeze(1) + torch.arange(frame_sample_length, device=waveform.device)
++        frames = waveform[0].index_select(0, indices.view(-1)).view(offsets.size(0), frame_sample_length)
+ 
++        decibel = 10 * torch.log10(torch.sum(frames ** 2, dim=1) + 1e-6)
++
++        if isinstance(cache["stats"].decibel, torch.Tensor):
++            cache["stats"].decibel = torch.cat(cache["stats"].decibel, decibel)
++        else:
++            cache["stats"].decibel.extend(decibel.cpu().tolist())
  
      def ComputeScores(self, feats: torch.Tensor, cache: dict = {}) -> None:
 -        scores = self.encoder(feats, cache=cache["encoder"]).to("cpu")  # return B * T * D
@@ -19,7 +35,7 @@
          assert (
              scores.shape[1] == feats.shape[1]
          ), "The shape between feats and scores does not match"
-@@ -688,7 +689,7 @@
+@@ -688,7 +695,7 @@
          meta_data["load_data"] = f"{time2 - time1:0.3f}"
          assert len(audio_sample_list) == 1, "batch_size must be set 1"
  
