@@ -14,8 +14,15 @@ from torch_npu.contrib import transfer_to_npu
 from diffusers import CogVideoXDPMScheduler
 from diffusers.utils import export_to_video
 
-from cogvideox_5b import CogVideoXPipeline, CogVideoXTransformer3DModel, get_rank, get_world_size, all_gather, set_parallel
-from mindiesd.pipeline.sampling_optm import AdaStep
+from cogvideox_5b import (
+    CogVideoXPipeline,
+    CogVideoXTransformer3DModel,
+    get_rank,
+    get_world_size,
+    all_gather,
+    set_parallel,
+    AdaStep
+)
 from mindiesd import CacheAgent, CacheConfig
 
 
