@@ -35,12 +35,27 @@ def encoder_preprocessing(image):
     return image
 
 
-def decoder_preprocessing(image_embedding, input_point, image):
-    input_point = np.array(input_point)
-    input_label = [1] * len(input_point)
-    input_label = np.array(input_label)
-    onnx_coord = np.concatenate([input_point, np.array([[0.0, 0.0]])], axis=0)[None, :, :]
-    onnx_label = np.concatenate([input_label, np.array([-1])], axis=0)[None, :].astype(np.float32)
+def decoder_preprocessing(image_embedding, input_point=None, box=None, image=None):
+    coords_list = []
+    labels_list = []
+
+    if input_point is not None and len(input_point) > 0:
+        input_point = np.array(input_point, dtype=np.float32)
+        input_label = np.ones(len(input_point), dtype=np.float32)
+        coords_list.append(input_point)
+        labels_list.append(input_label)
+
+        coords_list.append(np.array([[0.0, 0.0]], dtype=np.float32))
+        labels_list.append(np.array([-1], dtype=np.float32))
+
+    if box is not None:
+        box = np.array(box, dtype=np.float32).reshape(2, 2)
+        coords_list.append(box)
+        labels_list.append(np.array([2, 3], dtype=np.float32))
+
+    onnx_coord = np.concatenate(coords_list, axis=0)[None, :, :]
+    onnx_label = np.concatenate(labels_list, axis=0)[None, :].astype(np.float32)
+
     transform = ResizeLongestSide(IMAGE_SIZE)
     onnx_coord = transform.apply_coords(onnx_coord, image.shape[: 2]).astype(np.float32)
     onnx_mask_input = np.zeros((1, 1, 256, 256), dtype=np.float32)

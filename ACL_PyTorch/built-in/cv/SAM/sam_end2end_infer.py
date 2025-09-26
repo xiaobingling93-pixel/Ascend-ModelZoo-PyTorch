@@ -69,11 +69,11 @@ def decoder_infer(session_decoder, decoder_inputs):
     return low_res_masks
 
 
-def sam_infer(src_path, session_encoder, session_decoder, input_point, save_path):
+def sam_infer(src_path, session_encoder, session_decoder, input_point=None, box=None, save_path="./"):
     image = cv2.imread(src_path)
     x = encoder_preprocessing(image)
     image_embedding = encoder_infer(session_encoder, x)
-    decoder_inputs = decoder_preprocessing(image_embedding, input_point, image)
+    decoder_inputs = decoder_preprocessing(image_embedding, input_point=input_point, box=box, image=image)
     low_res_masks = decoder_infer(session_decoder, decoder_inputs)
     masks = sam_postprocessing(low_res_masks, image)
     save_mask(masks, image, src_path, save_path, random_color=True)
@@ -95,8 +95,7 @@ def main():
     session_encoder = InferSession(args.device_id, args.encoder_model_path)
     session_decoder = InferSession(args.device_id, args.decoder_model_path)
 
-    sam_infer(args.src_path, session_encoder, session_decoder, args.input_point, args.save_path)
-
+    sam_infer(args.src_path, session_encoder, session_decoder, input_point=args.input_point, save_path=args.save_path)
 
 if __name__ == '__main__':
     main()
