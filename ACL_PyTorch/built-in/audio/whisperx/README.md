@@ -70,12 +70,13 @@ cd ..
 文件目录结构大致如下：
 
 ```text
-📁 whisper/
+📁 whisperx/
 ├── check_numa.sh
 ├── audio.mp3
 ├── infer.py
 ├── modeling_whisper.py
 ├── pipeline.py
+├── 📁 LibriSpeech/
 ├── 📁 patches/
 |   └── 📄 patch_apply.py
 |   └── 📄 kaldi.patch
@@ -134,11 +135,15 @@ infer.py推理参数：
 * --whisper_model_path：whisper模型权重路径，默认为"./weight/Whisper-large-v3/large-v3.pt"
 * --vad_model_path：vad模型权重路径，默认为"./weight/speech_fsmn_vad_zh-cn-16k-common-pytorch"
 * --audio_path：音频文件的路径，默认为"audio.mp3"
+* --librispeech_perf_test：启用该参数时，将在LibriSpeech数据集的部分数据上进行性能测试，并输出结果及转录比。默认值为 True
+* --skip_librispeech_perf_test：传入该参数时，跳过LibriSpeech数据集的性能测试
 * --speech_path：librispeech dev clean数据集文件的路径，默认为"./LibriSpeech/dev-clean/"
-* --num_audio_files：从librispeech dev clean数据集中选取部分音频文件做performance test，默认为52个，调整音频数量尽量让vad切分合并后的segment数接近但不大于batch size来达到最高性能。
+* --num_audio_files：从librispeech dev clean数据集中选取部分音频文件做性能测试，默认为52个，调整音频数量尽量让vad切分合并后的segment数接近但不大于batch size来达到最高性能
+* --librispeech_wer_demo：启用该参数时，将对一条LibriSpeech音频数据做转录，并计算wer。默认值为 True
+* --skip_librispeech_wer_demo：启用该参数时，跳过wer精度demo
 * --device: npu设备编号，默认为0
 * --batch_size: batch_size大小，默认为16
-* --warm_up：warm_up次数，默认为5
+* --warmup：warm up次数，默认为4，首次warm up时编译成图
 
 ## 性能数据
   infer.py取librispeech dev clean数据集中的部分音频进行转录，性能如下

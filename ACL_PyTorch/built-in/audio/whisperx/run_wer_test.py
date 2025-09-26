@@ -95,7 +95,7 @@ if __name__ == '__main__':
     args = parse_args()
     device = torch.device('npu:{}'.format(args.device))
 
-    audio_txt_pairs = get_audio_txt_pairs(args.speech_data)
+    audio_txt_pairs = get_audio_txt_pairs(args.speech_path)
     whisper_decode_options = whisper.DecodingOptions(language='en', without_timestamps=True, fp16=True)
 
     torchair_pipe = TorchairPipeline(
