@@ -269,8 +269,9 @@ class PPO:
         torch.save(self.policy_old.state_dict(), checkpoint_path)
    
     def load(self, checkpoint_path):
-        self.policy_old.load_state_dict(torch.load(checkpoint_path, map_location=lambda storage, loc: storage))
-        self.policy.load_state_dict(torch.load(checkpoint_path, map_location=lambda storage, loc: storage))
+        device_npu = torch.device('npu')
+        self.policy_old.load_state_dict(torch.load(checkpoint_path, map_location=device_npu, weights_only=False))
+        self.policy.load_state_dict(torch.load(checkpoint_path, map_location=device_npu, weights_only=False))
         
         
        
