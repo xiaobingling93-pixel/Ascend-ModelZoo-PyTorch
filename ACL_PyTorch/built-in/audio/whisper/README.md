@@ -90,15 +90,15 @@ infer.py推理参数：
 * --device: npu设备编号，默认为0
 * --batch_size: batch_size大小，默认为1
 * --warm_up：warm_up次数，默认为5
+* --loop：循环测试次数，默认为5
 
 在推理开始后，首先会默认执行warm_up，目的是执行首次编译，首次编译时间较长，在warm_up结束后，会执行推理操作，输出audio.mp3音频的推理得到的文本。
 
-warmup结束之后，开始推理librispeech_asr_dummy数据集，推理过程中会打屏输出E2E性能，推理结束后会输出WER精度得分。
+warmup结束之后，开始推理librispeech_asr_dummy数据集，推理过程中会打屏输出E2E性能，推理结束后会输出WER精度得分以及平均E2E时间。
 
-## 性能数据
-  在librispeech_asr_dummy/clean数据集上的性能如下：
+## 性能、精度数据
+  在librispeech_asr_dummy/clean数据集上的性能精度数据如下：
 
-   | 模型      | 芯片         | 转录倍率QPS |
-   |---------|------------|----------|
-   | whisper | 800I A2 64G | 42.34 |
-    注：QPS表示音频实际长度与转录音频所需的时间的比值，多次运行取平均
+   | 模型      | 芯片     | 平均E2E时间 | WER |
+   |---------|------------|----------|-------|
+   | whisper base | 800I A2 64G | 71.73ms | 8.21% |

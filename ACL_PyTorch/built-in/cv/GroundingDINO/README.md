@@ -28,12 +28,12 @@
 
   | 配套                                                            |   版本 | 环境准备指导                                                                                          |
   | ------------------------------------------------------------    | ------ | ------------------------------------------------------------                                          |
-  | 固件与驱动                                                       | 25.0.RC1 | [Pytorch框架推理环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies) |
-  | CANN                                                            |  8.1.RC1 | 包含kernels包和toolkit包                                                                                                   |
-  | Python                                                          |  3.8 | -                                                                                                     |
+  | 固件与驱动                                                       | 25.2.RC1 | [Pytorch框架推理环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies) |
+  | CANN                                                            |  8.2.RC1 | 包含kernels包和toolkit包                                                                                                   |
+  | Python                                                          |  3.11 | -                                                                                                     |
   | PyTorch                                                         | 2.1.0 | -                                                                                                     |
-  | Ascend Extension PyTorch                                        | 2.1.0.post10 | -                                                                                                     |
-  | 说明：Atlas 800I A2 推理卡和Atlas 300I DUO 推理卡请以CANN版本选择实际固件与驱动版本。 |      \ | \                                                                                                     |
+  | Ascend Extension PyTorch                                        | 2.1.0.post13 | -                                                                                                     |
+  | 说明：Atlas 800I A2 推理卡和Atlas 300I DUO 推理卡请以CANN版本选择实际固件与驱动版本。目前Atlas 300I DUO仅支持推理图像。 |      \ | \                                                                                                     |
 
 
 # 快速上手
@@ -64,6 +64,20 @@
          nltk.download('punkt', download_dir='~/nltk_data')
          nltk.download('averaged_perceptron_tagger', download_dir='~/nltk_data')
          ```
+      下载完成后目录大致为
+      ```shell
+      root/nltk_data/
+      ├── taggers
+      │   └── averaged_perceptron_tagger
+      │       └── averaged_perceptron_tagger.pickle
+      └── tokenizers
+          └── punkt
+              ├── PY3
+              │   ├── ...
+              │
+              ├── ...
+      ```
+
 
 3. 本地下载完成后的目录树如下，检查依赖项和脚本是否归档正确。
    ```shell

@@ -56,6 +56,40 @@ index 0eb5cd2f..a9cf3ffc 100644
              level_start_index=level_start_index,
              valid_ratios=valid_ratios)
          decoder_inputs_dict = dict(
+diff --git a/mmdet/models/detectors/glip.py b/mmdet/models/detectors/glip.py
+index 45cfe7d3..f14e6003 100644
+--- a/mmdet/models/detectors/glip.py
++++ b/mmdet/models/detectors/glip.py
+@@ -25,13 +25,25 @@ def find_noun_phrases(caption: str) -> list:
+         >>> caption = 'There is two cat and a remote in the picture'
+         >>> find_noun_phrases(caption) # ['cat', 'a remote', 'the picture']
+     """
++    # try:
++    #     import nltk
++    #     nltk.download('punkt', download_dir='~/nltk_data')
++    #     nltk.download('averaged_perceptron_tagger', download_dir='~/nltk_data')
++    # except ImportError:
++    #     raise RuntimeError('nltk is not installed, please install it by: '
++    #                        'pip install nltk.')
++        
++    import nltk 
+     try:
+-        import nltk
++        nltk.data.find("tokenizers/punkt")
++    except LookupError:
+         nltk.download('punkt', download_dir='~/nltk_data')
++
++    try:
++        nltk.data.find("taggers/averaged_perceptron_tagger")
++    except LookupError:
+         nltk.download('averaged_perceptron_tagger', download_dir='~/nltk_data')
+-    except ImportError:
+-        raise RuntimeError('nltk is not installed, please install it by: '
+-                           'pip install nltk.')
++
+ 
+     caption = caption.lower()
+     tokens = nltk.word_tokenize(caption)
 diff --git a/mmdet/models/detectors/grounding_dino.py b/mmdet/models/detectors/grounding_dino.py
 index b1ab7c2d..d4a15e98 100644
 --- a/mmdet/models/detectors/grounding_dino.py

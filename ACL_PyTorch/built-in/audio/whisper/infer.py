@@ -64,7 +64,8 @@ def parse_args():
                         help="librispeech_asr_dummy english transaction speech data path")
     parser.add_argument('--device', type=int, default='0', help="npu device id")
     parser.add_argument('--batch_size', type=int, default=1, help="batch size")
-    parser.add_argument('--warmup', type=int, default=4, help="Warm up times")
+    parser.add_argument('--warmup', type=int, default=5, help="Warm up times")
+    parser.add_argument('--loop', type=int, default=5, help="Loop times")
     args = parser.parse_args()
     return args
 
@@ -250,23 +251,26 @@ def model_compile():
 def libri_speech_infer(model, options, loader):
     hypotheses = []
     references = []
+    e2e_time_list = []
 
     for mels, texts in loader:
         start_time = time.time()
         results = model.decode(mels, options)
         e2e_time = time.time() - start_time
+        e2e_time_list.append(e2e_time)
         print(f'Parquet infer E2E time = {e2e_time * 1000:.2f} ms')
         hypotheses.extend([res.text for res in results])
         references.extend(texts)
 
     data = pd.DataFrame(dict(hypothesis=hypotheses, reference=references))
+    avg_e2e_time = sum(e2e_time_list) / len(e2e_time_list)
     print(data)
     normalizer = EnglishTextNormalizer()
     data["hypothesis_clean"] = [normalizer(text) for text in data["hypothesis"]]
     data["reference_clean"] = [normalizer(text) for text in data["reference"]]
     print(data[["hypothesis_clean", "reference_clean"]])
     wer = jiwer.wer(list(data["reference_clean"]), list(data["hypothesis_clean"]))
-    return wer
+    return wer, avg_e2e_time
 
 
 if __name__ == '__main__':
@@ -307,7 +311,10 @@ if __name__ == '__main__':
                 print("{}/{} - {}".format(_step, wsp_args.warmup, result[bs].text))
 
         print("LibriSpeech infer, English to English TRANSCRIBE ...")
-        start_time = time.time()
-        p_wer = libri_speech_infer(wsp_model, options, loader)
-        print(f"QPS: {duration_seconds/(time.time()-start_time):.2f}")
+        e2e_time_list = []
+        for _ in range(wsp_args.loop):
+            p_wer, e2e_time = libri_speech_infer(wsp_model, options, loader)
+            e2e_time_list.append(e2e_time)
         print(f"LibriSpeech infer WER score =  {p_wer * 100:.2f} %")
+        print(f"Average E2E infer time = {(sum(e2e_time_list)/wsp_args.loop)*1000:.2f}ms")
+

@@ -1,9 +1,9 @@
 torch==2.1.0
-torch_npu==2.1.0.post10
+torch_npu==2.1.0.post13
 openmim
 fairscale
 jsonlines
-nltk
+nltk==3.8
 pycocoevalcap
 transformers==4.40.0
 numpy==1.23.0
