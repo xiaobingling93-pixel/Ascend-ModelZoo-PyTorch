@@ -35,7 +35,7 @@ export ASCEND_GLOBAL_EVENT_ENABLE=0
 #-配置为0时：关闭task_queue算子下发队列优化。
 #-配置为1或未配置时：开启task_queue算子下发队列Level 1优化。
 #-配置为2时：开启task_queue算子下发队列Level 2优化。关于Level 1和Level 2优化的详细解释请查看官网文档。
-export TASK_QUEUE_ENABLE=1
+export TASK_QUEUE_ENABLE=2
 
 #设置是否开启PTCopy,0-关闭/1-开启
 export PTCOPY_ENABLE=1

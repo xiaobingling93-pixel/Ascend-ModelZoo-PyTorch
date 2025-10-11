@@ -27,7 +27,7 @@ node_rank=0
 data=$6
 data_url=www.openslr.org/resources/33
 
-nj=16
+nj=32
 dict=data/dict/lang_char.txt
 
 HOST_NOOD_ADDR="localhost:0"
@@ -83,7 +83,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     rm data/${x}/text.org
   done
 
-  ../../../tools/compute_cmvn_stats.py --num_workers 16 --train_config $train_config \
+  ../../../tools/compute_cmvn_stats.py --num_workers 24 --train_config $train_config \
     --in_scp data/${train_set}/wav.scp \
     --out_cmvn data/$train_set/global_cmvn
 fi
@@ -142,7 +142,7 @@ if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
       --model_dir $dir \
       --ddp.init_method $init_method \
       --ddp.dist_backend $dist_backend \
-      --num_workers 8 \
+      --num_workers 24 \
       --performance_epoch $performance_epoch \
       $cmvn_opts \
       --pin_memory > $test_output_dir/0/train.log 2>&1

@@ -46,3 +46,7 @@ export COMBINED_ENABLE=1
 export DYNAMIC_OP="ADD#MUL"
 #HCCL白名单开关,1-关闭/0-开启。设置为1则无需校验HCCL通信白名单。
 export HCCL_WHITELIST_DISABLE=1
+#增大host缓存
+export ACLNN_CACHE_LIMIT=100000
+#扩展内存池
+export PYTORCH_NPU_ALLOC_CONF="expandable_segments:True"
