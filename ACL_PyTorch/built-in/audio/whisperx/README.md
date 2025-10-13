@@ -38,7 +38,7 @@ cd weight
   * `large-v3.pt`：[下载链接](https://modelscope.cn/models/iic/Whisper-large-v3/files)
   * `large-v3-turbo.pt`：[下载链接](https://modelscope.cn/models/iic/Whisper-large-v3-turbo/files)
   * HuggingFace whisper-large-v3：[下载链接](https://huggingface.co/openai/whisper-large-v3/tree/main)
-  * HuggingFace whisper-large-v3：[下载链接](https://huggingface.co/openai/whisper-large-v3-turbo/tree/main)
+  * HuggingFace whisper-large-v3-turbo：[下载链接](https://huggingface.co/openai/whisper-large-v3-turbo/tree/main)
   * speech_fsmn_vad_zh-cn-16k-common-pytorch: [下载链接](https://huggingface.co/alextomcat/speech_fsmn_vad_zh-cn-16k-common-pytorch/tree/main)
 ```
 cd ..
@@ -93,6 +93,10 @@ cd ..
 ```
 
 ## 模型推理
+**脚本功能说明**：
+- infer.py主要用于短音频（<30s）的转录以及LibriSpeech数据集的性能验证
+- transcribe.py用于长音频转录，如智慧教室生成字幕场景
+
 1. 激活环境变量
     ```SHELL
     source /usr/local/Ascend/ascend-toolkit/set_env.sh  # 具体路径根据你自己的情况修改
@@ -127,7 +131,7 @@ cd ..
     >>>>设备 0 对应 NUMA 节点: 6, NUMA node6 CPU(s):     192-223
     ...
     ```
-5. 开始推理, 根据实际查询到的核数配置，比如
+5. 短音频和LibriSpeech数据集推理, 根据实际查询到的核数配置，比如
     ```SHELL
     taskset -c 192-223 python3 infer.py --whisper_model_path ./weight/Whisper-large-v3/large-v3.pt
     ```
@@ -144,6 +148,18 @@ infer.py推理参数：
 * --device: npu设备编号，默认为0
 * --batch_size: batch_size大小，默认为16
 * --warmup：warm up次数，默认为4，首次warm up时编译成图
+
+6. 长音频转录：
+    ```SHELL
+    taskset -c 192-223 python3 transcribe.py --whisper_model_path ./weight/Whisper-large-v3/large-v3.pt --audio_path {audio_file}
+    ```
+transcribe.py参数说明：
+* --whisper_model_path：whisper模型权重路径，默认为"./weight/Whisper-large-v3/large-v3.pt"
+* --language：输出语言，默认为中文
+* --sample_audio：warm up阶段使用的音频，默认为"audio.mp3"
+* --audio_path：长音频文件路径，必选参数
+* --device: npu设备编号，默认为0
+* --warmup：warm up次数，默认为3，首次warm up时编译成图
 
 ## 性能数据
   infer.py取librispeech dev clean数据集中的部分音频进行转录，性能如下
