@@ -154,7 +154,8 @@ python3 infer.py --data_path=OmniDocBench_dataset --model_source=local
 使用`OmniDocBench`数据集配套评测代码测试精度。
 
 1. 推理结果整理
-将解析结果文件夹中的markdown文件整理放置于同一目录，本例将所有markdown文件存放于OmniDocBench_dataset目录下的results_md文件夹
+
+   将解析结果文件夹中的markdown文件整理放置于同一目录，本例将所有markdown文件存放于OmniDocBench_dataset目录下的results_md文件夹
    ```
    cp OmniDocBench_dataset/output/*/auto/*.md OmniDocBench_dataset/results_md/
    ```
@@ -164,13 +165,15 @@ python3 infer.py --data_path=OmniDocBench_dataset --model_source=local
    ```
    git clone https://github.com/opendatalab/OmniDocBench.git
    cd OmniDocBench
+   git reset --hard dc96d812d219960773399c02ae8f89e4706120d4
    conda create -n omnidocbench python=3.10
    conda activate omnidocbench
    pip install -r requirements.txt
    ```
 
 3. 测评配置修改
-修改`OmniDocBench`测评代码中的config文件，具体来说，我们使用端到端测评配置，修改configs/end2end.yaml文件中的ground_truth的data_path为下载的OmniDocBench.json路径，修改prediction的data_path中提供整理的推理结果的文件夹路径，如下：
+
+   修改`OmniDocBench`测评代码中的config文件，具体来说，我们使用端到端测评配置，修改configs/end2end.yaml文件中的ground_truth的data_path为下载的OmniDocBench.json路径，修改prediction的data_path中提供整理的推理结果的文件夹路径，如下：
    ```
    # -----以下是需要修改的部分 -----
    dataset:
@@ -178,11 +181,12 @@ python3 infer.py --data_path=OmniDocBench_dataset --model_source=local
       ground_truth:
       data_path: ../OmniDocBench_dataset/OmniDocBench.json
       prediction:
-      data_path: ../OmniDocBench_dataset/result_md
+      data_path: ../OmniDocBench_dataset/results_md
    ```
 
 4. 精度测量结果
-配置好config文件后，只需要将config文件作为参数传入，运行以下代码即可进行评测：
+
+   配置好config文件后，只需要将config文件作为参数传入，运行以下代码即可进行评测：
    ```
    python pdf_validation.py --config ./configs/end2end.yaml
    ```

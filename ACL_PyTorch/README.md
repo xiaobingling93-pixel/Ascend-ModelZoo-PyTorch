@@ -3,7 +3,7 @@
 <h2>如何贡献</h2>
 <p>在开始贡献之前，请先阅读<a href="https://gitee.com/ascend/modelzoo/blob/master/CONTRIBUTING.md">CONTRIBUTING</a>。
 谢谢！</p>
-<p>目前ACL_PyTorch仓库已有模型<strong>398</strong>个</p>
+<p>目前ACL_PyTorch仓库已有模型<strong>401</strong>个</p>
 <blockquote>
 <p><strong>注意：</strong> <br />
 <strong>在提交新模型时，请加上模型ID用于区分，为防止重复提交模型，请执行脚本get_modelID.py，该脚本会自动检索ACL_PyTorch仓库中所有与您提交模型相关的已有模型，请自行查看脚本给出的链接，如果均不同，则可以输入1或true用于获取模型ID。由于该脚本使用正则匹配，后续新模型刷新到主页需要添加README内容时，格式请参考其余模型，并且同步刷新上文模型数量。脚本执行方式如下：</strong><br />
@@ -4654,6 +4654,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td>ROC_AUC</td>
         <td>mel_loss</td>
         <td>300I Pro</td>
+        <td>800I A2</td>
     </tr>
     <tr>
         <td> 100313
@@ -4824,7 +4825,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <td nowrap="nowrap">多尺度</td>
     </tr>
     <tr>
-        <td> 100321
+        <td> 100409
         </td><td>
         <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/audio/whisper"> whisper </a>
         </td>
@@ -4836,6 +4837,34 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td></td>
         <td>67.32(bs1)</td>
     <td nowrap="nowrap">bs x 80 x 3000</td>
+    </tr>
+    <tr>
+        <td> 100410
+        </td><td>
+        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/audio/CosyVoice2"> CosyVoice2 </a>
+        </td>
+        <td>代码仓提供</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>0.75</td>
+        <td>0.28</td>
+    <td nowrap="nowrap">多尺度</td>
+    </tr>
+    <tr>
+        <td> 100411
+        </td><td>
+        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/audio/whisperx"> whisperx </a>
+        </td>
+        <td>librispeech dev clean</td>
+        <td></td>
+        <td>0.050</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>70（转录比）</td>
+    <td nowrap="nowrap">多尺度</td>
     </tr>
 </table>
 
@@ -5256,6 +5285,36 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td></td>
     <td>493(bs32)</td>
     <td nowrap="nowrap">多尺度</td>
+</table>
+
+<p>OCR</p>
+<table align="center">
+    <tr>
+        <th rowspan=2>ID</th>
+        <th rowspan=2>Name</th>
+    <th rowspan=2>Dataset</th>
+        <th align="center" colspan=2>精度</th>
+    <th rowspan=2>300I Pro最优性能（对应bs）</th>
+    <th rowspan=2>800I A2最优性能（对应bs）</th>
+    <th rowspan=2>输入shape</th>
+    </tr>
+    <tr>
+        <td>overall_EN</td>
+        <td>overall_CH</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td> 100408
+        </td><td>
+        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/ocr/MinerU"> MinerU-ocr </a>
+        </td>
+        <td>OmniDocBench</td>
+    <td>0.1588</td>
+    <td>0.2527</td>
+    <td></td>
+    <td></td>
+        <td>多尺度</td>
+    </tr>
 </table>
 
 <p>RL</p>
