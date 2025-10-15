@@ -45,7 +45,7 @@ python3 train_openfold.py  $data_path/pdb_data/mmcif_files \
 wait
 
 # 提取最后一行中的 val/loss 小数值并赋值给变量
-val_loss=$(grep 'val/loss' openfold_val_8p.log | tail -n1 | awk '{print $(NF)}')
+val_loss=$(grep 'val/loss' openfold_val_8p.log | tail -n1 | awk '{for(i=1;i<NF;i++) if($i ~ /^[0-9]+(\.[0-9]+)?$/) print $i}')
 
 # 输出结果
 echo "val/loss: $val_loss"
