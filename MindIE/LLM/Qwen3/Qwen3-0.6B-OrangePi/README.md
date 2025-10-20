@@ -165,10 +165,11 @@ pip install torch_npu-2.1.0.post13-cp310-cp310-manylinux_2_17_aarch64.manylinux2
 
 ### 6. 安装开源软件依赖
 
-- 默认依赖路径：${working_dir}/MindIE-LLM/requirements/requirements.txt
+- 默认依赖路径：${working_dir}/MindIE-LLM/requirements/
 - 开源软件依赖请使用下述命令进行安装：
   ```bash
   pip install -r requirements.txt
+  pip install -r models/requirements_qwen3.txt
   ```
 
 ### 7. 内存占用优化补丁
