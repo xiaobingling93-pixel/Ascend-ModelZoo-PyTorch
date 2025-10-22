@@ -12,7 +12,7 @@
 
 ## 简述
 
-EfficientNetV2是Efficient的改进版，accuracy达到了发布时的SOTA水平，而且训练速度更快参数来更少。相对EfficientNetV1系列只关注准确率，参数量以及FLOPs，V2版本更加关注模型的实际训练速度。
+EfficientNetV2是Efficient的改进版，accuracy达到了发布时的SOTA水平，而且训练速度更快参数量更少。相对EfficientNetV1系列只关注准确率，参数量以及FLOPs，V2版本更加关注模型的实际训练速度。
 
 
 - 参考实现：

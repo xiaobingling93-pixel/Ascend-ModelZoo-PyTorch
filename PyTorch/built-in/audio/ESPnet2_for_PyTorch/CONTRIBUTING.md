@@ -33,7 +33,7 @@ may refer to [port-kaldi-recipe](https://github.com/espnet/espnet/wiki/How-to-po
 and other existing recipes for new additions. For the Kaldi-style recipe architecture, please refer to
 [Prepare-Kaldi-Style-Directory](https://kaldi-asr.org/doc/data_prep.html).
 
-For each recipe, we ask you to report the following: experiments results and environnement, model information.
+For each recipe, we ask you to report the following: experiments results and environment, model information.
 For reproducibility, a link to upload the pre-trained model may also be added. All this information should be written
 in a markdown file called `RESULTS.md` and put at the recipe root. You can refer to
 [tedlium2-example](https://github.com/espnet/espnet/blob/master/egs/tedlium2/asr1/RESULTS.md) for an example.

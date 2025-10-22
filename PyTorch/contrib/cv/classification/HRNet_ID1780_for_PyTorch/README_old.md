@@ -59,11 +59,11 @@
     - bash ./test/train_eval_8p.sh --data_path=xxx   --device_id=xxx
 
 - Training log
-    - test/output/devie_id/train_${device_id}.log # training detail log
+    - test/output/device_id/train_${device_id}.log # training detail log
     
-    - test/output/devie_id/HRNe_ID1780${device_id}_bs_8p_perf.log # 8p training performance result
+    - test/output/device_id/HRNet_ID1780${device_id}_bs_8p_perf.log # 8p training performance result
     
-    - test/output/devie_id/HRNe_ID1780${device_id}_bs_8p_acc.log # 8p training accuracy result    
+    - test/output/device_id/HRNet_ID1780${device_id}_bs_8p_acc.log # 8p training accuracy result    
 
 ```bash
 

@@ -65,8 +65,8 @@ to [the 1.x branch](https://github.com/open-mmlab/mmclassification/tree/1.x) and
 v0.24.0 was released in 30/9/2022.
 Highlights of the new version:
 
-- Support **HorNet**, **EfficientFormerm**, **SwinTransformer V2** and **MViT** backbones.
-- Support Standford Cars dataset.
+- Support **HorNet**, **EfficientFormer**, **SwinTransformer V2** and **MViT** backbones.
+- Support Stanford Cars dataset.
 
 v0.23.0 was released in 1/5/2022.
 Highlights of the new version:
@@ -100,10 +100,10 @@ Please see [Getting Started](https://mmclassification.readthedocs.io/en/latest/g
 - [Learn about Configs](https://mmclassification.readthedocs.io/en/latest/tutorials/config.html)
 - [Fine-tune Models](https://mmclassification.readthedocs.io/en/latest/tutorials/finetune.html)
 - [Add New Dataset](https://mmclassification.readthedocs.io/en/latest/tutorials/new_dataset.html)
-- [Customizie Data Pipeline](https://mmclassification.readthedocs.io/en/latest/tutorials/data_pipeline.html)
+- [Custom Data Pipeline](https://mmclassification.readthedocs.io/en/latest/tutorials/data_pipeline.html)
 - [Add New Modules](https://mmclassification.readthedocs.io/en/latest/tutorials/new_modules.html)
-- [Customizie Schedule](https://mmclassification.readthedocs.io/en/latest/tutorials/schedule.html)
-- [Customizie Runtime Settings](https://mmclassification.readthedocs.io/en/latest/tutorials/runtime.html)
+- [Customize Schedule](https://mmclassification.readthedocs.io/en/latest/tutorials/schedule.html)
+- [Customize Runtime Settings](https://mmclassification.readthedocs.io/en/latest/tutorials/runtime.html)
 
 Colab tutorials are also provided:
 
