@@ -202,7 +202,7 @@ Wenet是一款开源的、面向工业落地应用的语音识别工具包，主
 | Conformer 8p-竞品 | FP32 | 958.98 |
 | Conformer 8p-Atlas 900 A2 PoDc | FP32 | 1166.96 |
 | whisper 8p-竞品 | FP16 | 748.85 |
-| whisper 8p-Atlas 900 A2 PoDc | FP16 | 1532.5 |
+| whisper 8p-Atlas 900 A2 PoDc | FP16 | 1470|
 
 # 公网地址说明
 
