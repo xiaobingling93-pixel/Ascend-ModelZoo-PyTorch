@@ -44,7 +44,8 @@ def apply_fa(query, key, value, attention_mask):
     heads = query.shape[-2]
     head_dim = query.shape[-1]
     
-    hidden_states = attention_forward(query, key, value, attn_mask=attention_mask)
+    hidden_states = attention_forward(query, key, value, opt_mode="manual", attn_mask=attention_mask, 
+                                      op_type="fused_attn_score", layout="BSND")
     return hidden_states.reshape(batch_size, -1, head_dim * heads)
 
 
