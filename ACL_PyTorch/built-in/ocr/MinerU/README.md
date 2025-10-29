@@ -44,6 +44,8 @@ MinerU是由上海人工智能实验室OpenDataLab团队开发的开源文档解
 1. 获取`Pytorch`源码  
    
    ```
+   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+   cd ModelZoo-PyTorch/ACL_PyTorch/built-in/ocr/MinerU
    git clone https://github.com/opendatalab/MinerU.git
    cd MinerU
    git reset --hard de41fa58590263e43b783fe224b6d07cae290a33
@@ -71,13 +73,15 @@ MinerU是由上海人工智能实验室OpenDataLab团队开发的开源文档解
 3. 修改第三方库
 进入第三方库安装路径，默认为`source_path = /usr/local/lib/python3.11/site-packages`,通过工作目录`workdir`(自定义)中的`ultralytics.patch`和`doclayout_yolo.patch`进行修改
    ```
-   source_path=/usr/local/lib/python3.11/site-packages
+   workdir=$(pwd)
+   source_path=$(pip show ultralytics | grep Location | awk '{print $2}')
    cd ${source_path}/ultralytics
-   patch -p2 < ${workdir}/ultralytics.patch
+   patch -p1 < ${workdir}/ultralytics.patch
    cd ${source_path}/doclayout_yolo
-   patch -p2 < ${workdir}/doclayout_yolo.patch
-   cd ${workdir}
-   patch -p0 < mfr_encoder_mhsa.patch
+   patch -p1 < ${workdir}/doclayout_yolo.patch
+   cd ${workdir}/MinerU
+   git apply ../mineru.patch
+   cd ..
    ```
 
 ## 获取权重
@@ -155,20 +159,57 @@ python3 infer.py --data_path=OmniDocBench_dataset --model_source=local
 
 1. 推理结果整理
 
-   将解析结果文件夹中的markdown文件整理放置于同一目录，本例将所有markdown文件存放于OmniDocBench_dataset目录下的results_md文件夹
+   将解析结果文件夹中的markdown文件整理放置于同一目录，本例将所有markdown文件存放于OmniDocBench_dataset目录下的`end2end`文件夹
    ```
-   cp OmniDocBench_dataset/output/*/auto/*.md OmniDocBench_dataset/results_md/
+   cp OmniDocBench_dataset/output/*/auto/*.md OmniDocBench_dataset/end2end/
    ```
 
 2. 获取测评源码并构建环境
+
+   - 安装OmniDocBench基础环境
    
    ```
    git clone https://github.com/opendatalab/OmniDocBench.git
    cd OmniDocBench
-   git reset --hard dc96d812d219960773399c02ae8f89e4706120d4
+   git reset --hard 523fd1d529c3e9d0088c662e983aa70fb9585c9a
    conda create -n omnidocbench python=3.10
    conda activate omnidocbench
    pip install -r requirements.txt
+   ```
+
+   - 公式精度指标CDM需要额外安装环境
+
+   step.1 install nodejs
+   ```
+   wget https://nodejs.org/dist/v16.13.1/node-v16.13.1-linux-arm64.tar.xz
+   tar -xf node-v16.13.1-linux-arm64.tar.xz
+   mv node-v16.13.1-linux-arm64/* /usr/local/nodejs/
+   ln -s /usr/local/nodejs/bin/node /usr/local/bin
+   ln -s /usr/local/nodejs/bin/npm /usr/local/bin
+   node -v
+   ```
+
+   step.2 install imagemagic
+   ```
+   git clone https://github.com/ImageMagick/ImageMagick.git ImageMagick-7.1.2
+   cd ImageMagick-7.1.2
+   apt-get update && apt-get install -y libpng-dev zlib1g-dev
+   apt-get install -y ghostscript
+   ./configure
+   make
+   sudo make install
+   sudo ldconfig /usr/local/lib
+   convert --version
+   ```
+
+   step.3 install latexpdf
+   ```
+   sudo apt-get install texlive-full
+   ```
+
+   step.4 install python requriements
+   ```
+   pip install -r metrics/cdm/requirements.txt
    ```
 
 3. 测评配置修改
@@ -176,12 +217,18 @@ python3 infer.py --data_path=OmniDocBench_dataset --model_source=local
    修改`OmniDocBench`测评代码中的config文件，具体来说，我们使用端到端测评配置，修改configs/end2end.yaml文件中的ground_truth的data_path为下载的OmniDocBench.json路径，修改prediction的data_path中提供整理的推理结果的文件夹路径，如下：
    ```
    # -----以下是需要修改的部分 -----
+    display_formula:
+      metric:
+        - Edit_dist
+        - CDM       ### 安装好CDM环境后，可以在config文件中设置并直接计算
+        - CDM_plain
+   ...
    dataset:
       dataset_name: end2end_dataset
       ground_truth:
       data_path: ../OmniDocBench_dataset/OmniDocBench.json
       prediction:
-      data_path: ../OmniDocBench_dataset/results_md
+      data_path: ../OmniDocBench_dataset/end2end
    ```
 
 4. 精度测量结果
@@ -190,10 +237,18 @@ python3 infer.py --data_path=OmniDocBench_dataset --model_source=local
    ```
    python pdf_validation.py --config ./configs/end2end.yaml
    ```
+   评测结果将会存储在result目录下，Overall指标的计算方式为:
+   $$\text{Overall} = \frac{(1-\textit{Text Edit Distance}) \times 100 + \textit{Table TEDS} +\textit{Formula CDM}}{3}$$
 
-   在`OmniDocBench`数据集上的精度为：
-   |模型|芯片|overall_EN|overall_CH|
+   运行overall_metric.py可以得到精度结果：
+   ```
+   cd ..
+   python overall_metric.py
+   ```
+
+   在`OmniDocBench`数据集上的精度和性能数据分别为：
+   |模型|芯片|overall|性能（s）|
    |------|------|------|------|
-   |MinerU|300I DUO|0.1588|0.2527|
-   |MinerU|800I A2 64G|0.1580|0.2510|
+   |MinerU|300I DUO|81.68| 3.37 | 
+   |MinerU|800I A2 64G|81.51| 1.85 |
 

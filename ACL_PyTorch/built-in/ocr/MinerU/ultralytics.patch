@@ -1,7 +1,120 @@
-diff -ruN ultralytics-8.3.193/ultralytics/engine/predictor.py ultralytics_/ultralytics/engine/predictor.py
---- ultralytics-8.3.193/ultralytics/engine/predictor.py	2025-09-04 19:51:11.000000000 +0800
-+++ ultralytics_/ultralytics/engine/predictor.py	2025-09-09 14:56:14.535737230 +0800
-@@ -196,9 +196,10 @@
+diff -ruN ultralytics/data/loaders.py ultralytics/data/loaders.py
+--- ultralytics/data/loaders.py	2025-09-04 19:51:11.000000000 +0800
++++ ultralytics/data/loaders.py	2025-10-19 01:27:48.412000000 +0800
+@@ -534,7 +534,7 @@
+         self.bs = len(self.im0)
+ 
+     @staticmethod
+-    def _single_check(im: Image.Image | np.ndarray, flag: str = "RGB") -> np.ndarray:
++    def __single_check(im: Image.Image | np.ndarray, flag: str = "RGB") -> np.ndarray:
+         """Validate and format an image to numpy array, ensuring RGB order and contiguous memory."""
+         assert isinstance(im, (Image.Image, np.ndarray)), f"Expected PIL/np.ndarray image type, but got {type(im)}"
+         if isinstance(im, Image.Image):
+@@ -546,6 +546,19 @@
+             im = im[..., None]
+         return im
+ 
++    @staticmethod
++    def _single_check(im: Image.Image | np.ndarray, flag: str = "RGB") -> np.ndarray:
++        """Validate and format an image to numpy array, ensuring RGB order and contiguous memory."""
++        assert isinstance(im, (Image.Image, np.ndarray)), f"Expected PIL/np.ndarray image type, but got {type(im)}"
++        if isinstance(im, Image.Image):
++            if im.mode != "RGB":
++                im = im.convert("RGB")
++            im = np.asarray(im)
++        elif im.ndim == 2:  # grayscale in numpy form
++            im = im[..., None]
++        return im
++
++
+     def __len__(self) -> int:
+         """Return the length of the 'im0' attribute, representing the number of loaded images."""
+         return len(self.im0)
+diff -ruN ultralytics/engine/model.py ultralytics/engine/model.py
+--- ultralytics/engine/model.py	2025-09-04 19:51:11.000000000 +0800
++++ ultralytics/engine/model.py	2025-10-19 01:27:48.412000000 +0800
+@@ -152,6 +152,8 @@
+         else:
+             self._load(model, task=task)
+ 
++        self.model.half()
++
+         # Delete super().training for accessing self.model.training
+         del self.training
+ 
+diff -ruN ultralytics/engine/predictor.py ultralytics/engine/predictor.py
+--- ultralytics/engine/predictor.py	2025-09-04 19:51:11.000000000 +0800
++++ ultralytics/engine/predictor.py	2025-10-19 01:27:48.412000000 +0800
+@@ -43,6 +43,7 @@
+ import cv2
+ import numpy as np
+ import torch
++import torch.nn.functional as F
+ 
+ from ultralytics.cfg import get_cfg, get_save_dir
+ from ultralytics.data import load_inference_source
+@@ -149,7 +150,7 @@
+         self._lock = threading.Lock()  # for automatic thread-safe inference
+         callbacks.add_integration_callbacks(self)
+ 
+-    def preprocess(self, im: torch.Tensor | list[np.ndarray]) -> torch.Tensor:
++    def _preprocess(self, im: torch.Tensor | list[np.ndarray]) -> torch.Tensor:
+         """
+         Prepare input image before inference.
+ 
+@@ -174,6 +175,51 @@
+             im /= 255  # 0 - 255 to 0.0 - 1.0
+         return im
+ 
++    def preprocess(self, images: torch.Tensor | list[np.ndarray]) -> torch.Tensor:
++        """
++        Prepare input image before inference.
++
++        Args:
++            images (torch.Tensor | List[np.ndarray]): Images of shape (N, 3, H, W) for tensor, [(H, W, 3) x N] for list.
++
++        Returns:
++            (torch.Tensor): Preprocessed image tensor of shape (N, 3, H, W).
++        """
++
++        new_shape = (new_shape, new_shape) if isinstance(self.imgsz, int) else self.imgsz
++        tensors = []
++        for im in images:
++            im = torch.from_numpy(im).to(self.device).permute((2, 0, 1)) / 255.0
++            
++            c, h, w = im.shape
++
++            r = min(new_shape[0] / h, new_shape[1] / w)
++
++            new_unpad = (int(round(w * r)), int(round(h * r)))
++
++            if (w, h) != new_unpad:
++                im = F.interpolate(im.unsqueeze(0), size=(new_unpad[1], new_unpad[0]),
++                                mode="bilinear", align_corners=False).squeeze(0)
++
++            dw, dh = new_shape[1] - new_unpad[0], new_shape[0] - new_unpad[1]
++            dw /= 2
++            dh /= 2
++            left, right = int(dw), int(dw + 0.5)
++            top, bottom = int(dh), int(dh + 0.5)
++            im = F.pad(im, (left, right, top, bottom), value=114/255.0)
++            
++            _, H, W = im.shape
++            assert (H, W) == (new_shape[0], new_shape[1]), f"Expected image size do not match: padding image size:{(H, W)} != expected image size: {(new_shape[0], new_shape[1])}"    
++
++            im = im.half() if self.model.fp16 else im.float()  # uint8 to fp16/32
++            
++            tensors.append(im)
++
++        return torch.stack(tensors, dim=0)
++        
++
++
++
+     def inference(self, im: torch.Tensor, *args, **kwargs):
+         """Run inference on a given image using the specified model and arguments."""
+         visualize = (
+@@ -196,9 +242,10 @@
          same_shapes = len({x.shape for x in im}) == 1
          letterbox = LetterBox(
              self.imgsz,
@@ -15,7 +128,7 @@ diff -ruN ultralytics-8.3.193/ultralytics/engine/predictor.py ultralytics_/ultra
              stride=self.model.stride,
          )
          return [letterbox(image=x) for x in im]
-@@ -311,8 +312,11 @@
+@@ -311,8 +358,11 @@
  
              # Warmup model
              if not self.done_warmup:
@@ -28,7 +141,7 @@ diff -ruN ultralytics-8.3.193/ultralytics/engine/predictor.py ultralytics_/ultra
                  )
                  self.done_warmup = True
  
-@@ -400,7 +404,8 @@
+@@ -400,7 +450,8 @@
              dnn=self.args.dnn,
              data=self.args.data,
              fp16=self.args.half,
@@ -38,9 +151,9 @@ diff -ruN ultralytics-8.3.193/ultralytics/engine/predictor.py ultralytics_/ultra
              verbose=verbose,
          )
 
-diff -ruN ultralytics-8.3.193/ultralytics/nn/modules/block.py ultralytics_/ultralytics/nn/modules/block.py
---- ultralytics-8.3.193/ultralytics/nn/modules/block.py	2025-09-04 19:51:11.000000000 +0800
-+++ ultralytics_/ultralytics/nn/modules/block.py	2025-09-09 14:56:14.543737230 +0800
+diff -ruN ultralytics/nn/modules/block.py ultralytics/nn/modules/block.py
+--- ultralytics/nn/modules/block.py	2025-09-04 19:51:11.000000000 +0800
++++ ultralytics/nn/modules/block.py	2025-10-19 01:27:48.424000000 +0800
 @@ -237,7 +237,9 @@
      def forward(self, x: torch.Tensor) -> torch.Tensor:
          """Apply sequential pooling operations to input and return concatenated feature maps."""
@@ -63,10 +176,9 @@ diff -ruN ultralytics-8.3.193/ultralytics/nn/modules/block.py ultralytics_/ultra
          return self.cv2(torch.cat(y, 1))
  
      def forward_split(self, x: torch.Tensor) -> torch.Tensor:
-
-diff -ruN ultralytics-8.3.193/ultralytics/utils/tal.py ultralytics_/ultralytics/utils/tal.py
---- ultralytics-8.3.193/ultralytics/utils/tal.py	2025-09-04 19:51:11.000000000 +0800
-+++ ultralytics_/ultralytics/utils/tal.py	2025-09-09 14:56:14.551737230 +0800
+diff -ruN ultralytics/utils/tal.py ultralytics/utils/tal.py
+--- ultralytics/utils/tal.py	2025-09-04 19:51:11.000000000 +0800
++++ ultralytics/utils/tal.py	2025-10-19 01:27:48.428000000 +0800
 @@ -375,7 +375,8 @@
          sy = torch.arange(end=h, device=device, dtype=dtype) + grid_cell_offset  # shift y
          sy, sx = torch.meshgrid(sy, sx, indexing="ij") if TORCH_1_10 else torch.meshgrid(sy, sx)
@@ -75,3 +187,4 @@ diff -ruN ultralytics-8.3.193/ultralytics/utils/tal.py ultralytics_/ultralytics/
 +        # stride_tensor.append(torch.full((h * w, 1), stride, dtype=dtype, device=device))
 +        stride_tensor.append(torch.ones((h * w, 1), dtype=dtype, device=device)*stride)
      return torch.cat(anchor_points), torch.cat(stride_tensor)
+
