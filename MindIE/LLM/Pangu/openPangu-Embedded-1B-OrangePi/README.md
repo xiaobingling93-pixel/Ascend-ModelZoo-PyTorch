@@ -133,12 +133,11 @@ pip install torch_npu-2.1.0.post13-cp310-cp310-manylinux_2_17_aarch64.manylinux2
 ### 5. 安装模型仓
 
 使用编译好的包进行安装
-  - 下载编译好的包[链接](https://support.huawei.com/enterprise/zh/ascend-computing/mindie-pid-261803968/software/266130647?idAbPath=fixnode01|23710424|251366513|254884019|261408772|261803968)
+  - 下载编译好的包[链接](https://mindie.obs.cn-north-4.myhuaweicloud.com/artifact/ATB-Models/2.2.T10/Ascend-mindie-atb-models_2.2.T10_linux-aarch64_py310_torch2.1.0-abi0.tar.gz)
 
     | 包名                                                         |
     | ------------------------------------------------------------ |
     | Ascend-mindie-atb-models_2.1.RC1_linux-aarch64_py310_torch2.1.0-abi0.tar.gz |
-    | Ascend-mindie-atb-models_2.1.RC1_linux-aarch64_py310_torch2.1.0-abi1.tar.gz |
 
   - 将文件放置在\${working_dir}路径下
   - 解压
