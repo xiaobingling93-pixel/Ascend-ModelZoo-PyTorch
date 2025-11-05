@@ -1,0 +1,13 @@
+diff --git a/funasr/models/sense_voice/export_meta.py b/funasr/models/sense_voice/export_meta.py
+index 449388ef..19b9faf2 100644
+--- a/funasr/models/sense_voice/export_meta.py
++++ b/funasr/models/sense_voice/export_meta.py
+@@ -48,7 +48,7 @@ def export_forward(
+ 
+     ctc_logits = self.ctc.ctc_lo(encoder_out)
+     
+-    return ctc_logits, encoder_out_lens
++    return ctc_logits, encoder_out_lens, encoder_out
+ 
+ def export_dummy_inputs(self):
+     speech = torch.randn(2, 30, 560)
