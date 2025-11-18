@@ -55,7 +55,7 @@ cd ModelZoo-PyTorch/ACL_PyTorch/built-in/audio/CosyVoice2
    cd CosyVoice
    git reset --hard fd45708
    git submodule update --init --recursive
-   # 根据当前使用机型，叠加patch。如果当前使用机型为313T 800T A2，和800I共用patch文件
+   # 根据当前使用机型，叠加patch。如果当前使用机型为313T 800T A2，300I A2, 和800I共用patch文件
    git apply ../${platform}/diff_CosyVoice_${platform}.patch
    # 将infer.py复制到CosyVoice中
    cp ../infer.py ./
@@ -89,9 +89,11 @@ cd ModelZoo-PyTorch/ACL_PyTorch/built-in/audio/CosyVoice2
 2. 安装依赖  
    ```
    pip3 install -r ../requirements.txt
+   pip3 install tokenizers==0.14.0
+   pip3 install huggingface-hub==0.23.5
    apt-get install sox # centos版本 yum install sox
    ```
-   注：如果遇到无法安装WeTextProcessing的场景，例如提示安装pyinit报错，可以参考以下方法手动安装编译
+   手动安装编译WeTextProcessing
    ```bash
     # 下载安装包并解压
     wget https://www.openfst.org/twiki/pub/FST/FstDownload/openfst-1.8.3.tar.gz
