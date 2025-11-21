@@ -1,0 +1,13 @@
+PyYAML==6.0.2
+matplotlib==3.9.2
+opencv-python-headless==4.11.0.86
+numpy==1.24.0
+imageio
+decorator
+scipy
+attrs
+psutil
+hydra-core==1.3.2
+tqdm
+iopath
+protobuf==6.33.0
