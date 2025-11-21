@@ -10,7 +10,7 @@ index 36433c45..6f28620f 100644
 +                    f"{pdf_file_name}_content.json",
                      json.dumps(content_list, ensure_ascii=False, indent=4),
                  )
-
+ 
 @@ -142,7 +142,8 @@ def do_parse(
                  image_dir = str(os.path.basename(local_image_dir))
                  content_list = vlm_union_make(pdf_info, MakeMode.CONTENT_LIST, image_dir)
@@ -20,9 +20,9 @@ index 36433c45..6f28620f 100644
 +                    f"{pdf_file_name}_content.json", ## 文件名太长了，linux文件系统ext4超过255字节无法保存
                      json.dumps(content_list, ensure_ascii=False, indent=4),
                  )
-
+ 
 diff --git a/mineru/backend/pipeline/batch_analyze.py b/mineru/backend/pipeline/batch_analyze.py
-index c88a52a3..b0b79a80 100644
+index c88a52a3..561b055c 100644
 --- a/mineru/backend/pipeline/batch_analyze.py
 +++ b/mineru/backend/pipeline/batch_analyze.py
 @@ -3,6 +3,9 @@ from loguru import logger
@@ -32,12 +32,12 @@ index c88a52a3..b0b79a80 100644
 +import time
 +import torch
 +import torch_npu
-
+ 
  from .model_init import AtomModelSingleton
  from ...utils.config_reader import get_formula_enable, get_table_enable
 @@ -95,6 +98,7 @@ class BatchAnalyze:
                                                })
-
+ 
          # OCR检测处理
 +        from concurrent.futures import ThreadPoolExecutor, as_completed
          if self.enable_ocr_det_batch:
@@ -45,7 +45,7 @@ index c88a52a3..b0b79a80 100644
              # 收集所有需要OCR检测的裁剪图像
 @@ -139,79 +143,73 @@ class BatchAnalyze:
                  )
-
+ 
                  # 按分辨率分组并同时完成padding
 +                stride = 64
                  resolution_groups = defaultdict(list)
@@ -60,7 +60,7 @@ index c88a52a3..b0b79a80 100644
 +                    normalized_w = ((w + stride) // stride) * stride
                      group_key = (normalized_h, normalized_w)
                      resolution_groups[group_key].append(crop_info)
-
+ 
 -                # 对每个分辨率组进行批处理
 -                for group_key, group_crops in tqdm(resolution_groups.items(), desc=f"OCR-det {lang}"):
 -
@@ -95,7 +95,7 @@ index c88a52a3..b0b79a80 100644
 -                            from mineru.utils.ocr_utils import (
 -                                merge_det_boxes, update_det_boxes, sorted_boxes
 -                            )
-
+ 
 -                            # 1. 排序检测框
 -                            if len(dt_boxes) > 0:
 -                                dt_boxes_sorted = sorted_boxes(dt_boxes)
@@ -181,7 +181,7 @@ index c88a52a3..b0b79a80 100644
              # 原始单张处理模式
              for ocr_res_list_dict in tqdm(ocr_res_list_all_page, desc="OCR-det Predict"):
 @@ -247,7 +245,7 @@ class BatchAnalyze:
-
+ 
          # 表格识别 table recognition
          if self.table_enable:
 -            for table_res_dict in tqdm(table_res_list_all_page, desc="Table Predict"):
@@ -192,7 +192,7 @@ index c88a52a3..b0b79a80 100644
 @@ -271,6 +269,16 @@ class BatchAnalyze:
                          'table recognition processing fails, not get html return'
                      )
-
+ 
 +
 +            MAX_WORKERS = 4
 +            start = time.time()
@@ -206,6 +206,111 @@ index c88a52a3..b0b79a80 100644
          # Create dictionaries to store items by language
          need_ocr_lists_by_lang = {}  # Dict of lists for each language
          img_crop_lists_by_lang = {}  # Dict of lists for each language
+diff --git a/mineru/cli/fast_api.py b/mineru/cli/fast_api.py
+index 1bfc3e5d..4466260e 100644
+--- a/mineru/cli/fast_api.py
++++ b/mineru/cli/fast_api.py
+@@ -10,6 +10,20 @@ from fastapi.responses import JSONResponse
+ from typing import List, Optional
+ from loguru import logger
+ from base64 import b64encode
++import time
++
++from mineru.backend.pipeline.model_list import AtomicModel
++from mineru.utils.torchair_utils import (
++    get_pdf_page_count,
++    rewrite_model_init,
++    set_batch_candidate,
++    )
++from mineru.utils.model_utils import get_vram
++from mineru.backend.pipeline.batch_analyze import (
++    YOLO_LAYOUT_BASE_BATCH_SIZE,
++    MFD_BASE_BATCH_SIZE,
++    MFR_BASE_BATCH_SIZE,
++    )
+ 
+ from mineru.cli.common import aio_do_parse, read_fn, pdf_suffixes, image_suffixes
+ from mineru.utils.cli_parser import arg_parse
+@@ -18,6 +32,8 @@ from mineru.version import __version__
+ app = FastAPI()
+ app.add_middleware(GZipMiddleware, minimum_size=1000)
+ 
++batch_ratio = 16
++
+ def encode_image(image_path: str) -> str:
+     """Encode image using base64"""
+     with open(image_path, "rb") as f:
+@@ -64,6 +80,8 @@ async def parse_pdf(
+         pdf_file_names = []
+         pdf_bytes_list = []
+ 
++        pdfs_page_count = 0
++
+         for file in files:
+             content = await file.read()
+             file_path = Path(file.filename)
+@@ -74,12 +92,14 @@ async def parse_pdf(
+                 temp_path = Path(unique_dir) / file_path.name
+                 with open(temp_path, "wb") as f:
+                     f.write(content)
++                pdfs_page_count += get_pdf_page_count(temp_path)
+ 
+                 try:
+                     pdf_bytes = read_fn(temp_path)
+                     pdf_bytes_list.append(pdf_bytes)
+                     pdf_file_names.append(file_path.stem)
+-                    os.remove(temp_path)  # 删除临时文件
++                    abs_path=os.path.abspath(temp_path)
++                    os.remove(abs_path)  # 删除临时文件
+                 except Exception as e:
+                     return JSONResponse(
+                         status_code=400,
+@@ -91,13 +111,20 @@ async def parse_pdf(
+                     content={"error": f"Unsupported file type: {file_path.suffix}"}
+                 )
+ 
++        batch_candidate = {
++            AtomicModel.Layout: [YOLO_LAYOUT_BASE_BATCH_SIZE, pdfs_page_count % YOLO_LAYOUT_BASE_BATCH_SIZE],
++            AtomicModel.MFD: [MFD_BASE_BATCH_SIZE, pdfs_page_count % MFD_BASE_BATCH_SIZE],
++            AtomicModel.MFR: batch_ratio * MFR_BASE_BATCH_SIZE,
++        }
++        set_batch_candidate(batch_candidate)
++
+ 
+         # 设置语言列表，确保与文件数量一致
+         actual_lang_list = lang_list
+         if len(actual_lang_list) != len(pdf_file_names):
+             # 如果语言列表长度不匹配，使用第一个语言或默认"ch"
+             actual_lang_list = [actual_lang_list[0] if actual_lang_list else "ch"] * len(pdf_file_names)
+-
++        start_time = time.time()
+         # 调用异步处理函数
+         await aio_do_parse(
+             output_dir=unique_dir,
+@@ -120,6 +147,9 @@ async def parse_pdf(
+             end_page_id=end_page_id,
+             **config
+         )
++        stop_time = time.time()
++        print(f"total process time: {(stop_time-start_time):.2f}s")
++        print(f"per page process time: {(stop_time-start_time)/pdfs_page_count:.2f}s")
+ 
+         # 构建结果路径
+         result_dict = {}
+@@ -171,11 +201,12 @@ async def parse_pdf(
+ @click.command(context_settings=dict(ignore_unknown_options=True, allow_extra_args=True))
+ @click.pass_context
+ @click.option('--host', default='127.0.0.1', help='Server host (default: 127.0.0.1)')
+-@click.option('--port', default=8000, type=int, help='Server port (default: 8000)')
++@click.option('--port', default=6543, type=int, help='Server port (default: 6543)')
+ @click.option('--reload', is_flag=True, help='Enable auto-reload (development mode)')
+ def main(ctx, host, port, reload, **kwargs):
+ 
+     kwargs.update(arg_parse(ctx))
++    os.environ['MINERU_MODEL_SOURCE'] = 'local'
+ 
+     # 将配置参数存储到应用状态中
+     app.state.config = kwargs
 diff --git a/mineru/model/layout/doclayout_yolo.py b/mineru/model/layout/doclayout_yolo.py
 index 5667a909..fc5056bb 100644
 --- a/mineru/model/layout/doclayout_yolo.py
@@ -231,7 +336,7 @@ index 33dac091..1fb4b50e 100644
 +            half=True
          )
          return [pred.cpu() for pred in preds] if is_batch else preds[0].cpu()
-
+ 
 diff --git a/mineru/model/mfr/unimernet/Unimernet.py b/mineru/model/mfr/unimernet/Unimernet.py
 index ae3879da..23e56f2a 100644
 --- a/mineru/model/mfr/unimernet/Unimernet.py
@@ -242,13 +347,13 @@ index ae3879da..23e56f2a 100644
  from tqdm import tqdm
 -
 +import numpy as np
-
+ 
  class MathDataset(Dataset):
      def __init__(self, image_paths, transform=None):
 @@ -61,7 +61,7 @@ class UnimernetModel(object):
              res["latex"] = latex
          return formula_list
-
+ 
 -    def batch_predict(self, images_mfd_res: list, images: list, batch_size: int = 64) -> list:
 +    def _batch_predict(self, images_mfd_res: list, images: list, batch_size: int = 64) -> list:
          images_formula_list = []
@@ -256,7 +361,7 @@ index ae3879da..23e56f2a 100644
          backfill_list = []
 @@ -137,3 +137,94 @@ class UnimernetModel(object):
              res["latex"] = latex
-
+ 
          return images_formula_list
 +
 +
@@ -361,13 +466,13 @@ index 98d1deee..3866a257 100644
 +import torch
 +import torch_npu
 +import torch.nn.functional as F
-
+ 
  # TODO: dereference cv2 if possible
  class UnimerSwinImageProcessor(BaseImageProcessor):
 @@ -25,10 +27,53 @@ class UnimerSwinImageProcessor(BaseImageProcessor):
              ]
          )
-
+ 
 -    def __call__(self, item):
 +        self.NORMALIZE_DIVISOR = torch.tensor(255.0, dtype=torch.float16, device="npu")
 +        self.weights = torch.tensor([[[0.2989]], [[0.5870]], [[0.1140]]], dtype=torch.float16, device="npu")
@@ -381,7 +486,7 @@ index 98d1deee..3866a257 100644
 +    def ___call__(self, item):
          image = self.prepare_input(item)
          return self.transform(image=image)['image'][:1]
-
+ 
 +    def pil_to_npu(self, pil_img, device="npu"):
 +        img = torch.from_numpy(np.asarray(pil_img, dtype=np.float16))
 +        img = img.to(device).permute(2, 0, 1) / self.NORMALIZE_DIVISOR
@@ -422,7 +527,7 @@ index 98d1deee..3866a257 100644
 @@ -44,6 +89,32 @@ class UnimerSwinImageProcessor(BaseImageProcessor):
          a, b, w, h = cv2.boundingRect(coords)  # Find minimum spanning bounding box
          return img.crop((a, b, w + a, h + b))
-
+ 
 +    def crop_margin_tensor(self, img):
 +        """
 +        img: [C,H,W] tensor, uint8 或 float
@@ -453,15 +558,32 @@ index 98d1deee..3866a257 100644
      def crop_margin_numpy(img: np.ndarray) -> np.ndarray:
          """Crop margins of image using NumPy operations"""
 diff --git a/mineru/model/mfr/unimernet/unimernet_hf/unimer_swin/modeling_unimer_swin.py b/mineru/model/mfr/unimernet/unimernet_hf/unimer_swin/modeling_unimer_swin.py
-index 1b808e8b..0fe54751 100644
+index 1b808e8b..2abac99a 100644
 --- a/mineru/model/mfr/unimernet/unimernet_hf/unimer_swin/modeling_unimer_swin.py
 +++ b/mineru/model/mfr/unimernet/unimernet_hf/unimer_swin/modeling_unimer_swin.py
-@@ -465,11 +465,15 @@ class UnimerSwinSelfAttention(nn.Module):
+@@ -451,6 +451,16 @@ class UnimerSwinSelfAttention(nn.Module):
+         self.value = nn.Linear(self.all_head_size, self.all_head_size, bias=config.qkv_bias)
+ 
+         self.dropout = nn.Dropout(config.attention_probs_dropout_prob)
++        
++        wq = self.query.weight
++        wk = self.key.weight
++        wv = self.value.weight
++        self.qkv = nn.Linear(in_features=wk.shape[1], out_features=wq.shape[0] + wk.shape[0] + wv.shape[0])
++        self.qkv.weight = nn.Parameter(torch.concat([wq, wk, wv], dim=0), requires_grad=False)
++        wq_bias = self.query.bias if self.query.bias is not None else torch.zeros(wq.shape[0])
++        wk_bias = self.key.bias if self.key.bias is not None else torch.zeros(wk.shape[0])
++        wv_bias = self.key.bias if self.value.bias is not None else torch.zeros(wv.shape[0])
++        self.qkv.bias = nn.Parameter(torch.concat([wq_bias, wk_bias, wv_bias], dim=0), requires_grad=False)
+ 
+     def transpose_for_scores(self, x):
+         new_x_shape = x.size()[:-1] + (self.num_attention_heads, self.attention_head_size)
+@@ -465,11 +475,15 @@ class UnimerSwinSelfAttention(nn.Module):
          output_attentions: Optional[bool] = False,
      ) -> Tuple[torch.Tensor]:
          batch_size, dim, num_channels = hidden_states.shape
 -        mixed_query_layer = self.query(hidden_states)
-
+ 
 -        key_layer = self.transpose_for_scores(self.key(hidden_states))
 -        value_layer = self.transpose_for_scores(self.value(hidden_states))
 -        query_layer = self.transpose_for_scores(mixed_query_layer)
@@ -473,17 +595,17 @@ index 1b808e8b..0fe54751 100644
 +        query_layer = q.view(*q.shape[:2], self.num_attention_heads, -1).permute(0, 2, 1, 3)
 +        key_layer = k.view(*k.shape[:2], self.num_attention_heads, -1).permute(0, 2, 1, 3)
 +        value_layer = v.view(*v.shape[:2], self.num_attention_heads, -1).permute(0, 2, 1, 3)
-
+ 
          # Take the dot product between "query" and "key" to get the raw attention scores.
          attention_scores = torch.matmul(query_layer, key_layer.transpose(-1, -2))
 diff --git a/mineru/model/ocr/paddleocr2pytorch/tools/infer/predict_det.py b/mineru/model/ocr/paddleocr2pytorch/tools/infer/predict_det.py
-index 3de483ac..23813db9 100755
+index 3de483ac..712e4127 100755
 --- a/mineru/model/ocr/paddleocr2pytorch/tools/infer/predict_det.py
 +++ b/mineru/model/ocr/paddleocr2pytorch/tools/infer/predict_det.py
 @@ -117,6 +117,10 @@ class TextDetector(BaseOCRV20):
          self.net.eval()
          self.net.to(self.device)
-
+ 
 +
 +        import threading
 +        self._dev_lock = getattr(self, "_dev_lock", threading.Lock())
@@ -491,29 +613,27 @@ index 3de483ac..23813db9 100755
      def _batch_process_same_size(self, img_list):
          """
              对相同尺寸的图像进行批处理
-@@ -162,12 +166,12 @@ class TextDetector(BaseOCRV20):
+@@ -162,11 +166,11 @@ class TextDetector(BaseOCRV20):
              return batch_results, time.time() - starttime
-
+ 
          # 批处理推理
 -        with torch.no_grad():
 -            inp = torch.from_numpy(batch_tensor)
 -            inp = inp.to(self.device)
 -            outputs = self.net(inp)
 -
--        # 处理输出
 +        with self._dev_lock:
 +            with torch.no_grad():
 +                inp = torch.from_numpy(batch_tensor)
 +                inp = inp.to(self.device)
 +                outputs = self.net(inp)
-+        # 处理输出
+         # 处理输出
          preds = {}
          if self.det_algorithm == "EAST":
-             preds['f_geo'] = outputs['f_geo'].cpu().numpy()
 @@ -304,10 +308,11 @@ class TextDetector(BaseOCRV20):
          img = img.copy()
          starttime = time.time()
-
+ 
 -        with torch.no_grad():
 -            inp = torch.from_numpy(img)
 -            inp = inp.to(self.device)
@@ -523,7 +643,7 @@ index 3de483ac..23813db9 100755
 +                inp = torch.from_numpy(img)
 +                inp = inp.to(self.device)
 +                outputs = self.net(inp)
-
+ 
          preds = {}
          if self.det_algorithm == "EAST":
 diff --git a/mineru/model/ocr/paddleocr2pytorch/tools/infer/predict_rec.py b/mineru/model/ocr/paddleocr2pytorch/tools/infer/predict_rec.py
@@ -533,7 +653,7 @@ index c06ca5fe..d865b201 100755
 @@ -94,6 +94,9 @@ class TextRecognizer(BaseOCRV20):
          self.net.eval()
          self.net.to(self.device)
-
+ 
 +        import threading
 +        self._dev_lock = getattr(self, "_dev_lock", threading.Lock())
 +
@@ -611,7 +731,7 @@ index c06ca5fe..d865b201 100755
 -                        gsrm_slf_attn_bias1_list)
 -                    gsrm_slf_attn_bias2_list = np.concatenate(
 -                        gsrm_slf_attn_bias2_list)
-
+ 
 +        # for beg_img_no in range(0, img_num, batch_num):
 +        from concurrent.futures import ThreadPoolExecutor, as_completed
 +        def _rec_batch_worker(beg_img_no: int, end_img_no: int):
@@ -687,7 +807,7 @@ index c06ca5fe..d865b201 100755
                          inp = torch.from_numpy(norm_img_batch)
                          encoder_word_pos_inp = torch.from_numpy(encoder_word_pos_list)
 @@ -384,58 +391,67 @@ class TextRecognizer(BaseOCRV20):
-
+ 
                          backbone_out = self.net.backbone(inp) # backbone_feat
                          prob_out = self.net.head(backbone_out, [encoder_word_pos_inp, gsrm_word_pos_inp, gsrm_slf_attn_bias1_inp, gsrm_slf_attn_bias2_inp])
 -                    # preds = {"predict": prob_out[2]}
@@ -717,7 +837,7 @@ index c06ca5fe..d865b201 100755
                          inp = torch.from_numpy(norm_img_batch)
                          inp = inp.to(self.device)
                          preds = self.net(inp)
-
+ 
 -                elif self.rec_algorithm == "CAN":
 -                    starttime = time.time()
 -                    norm_img_mask_batch = np.concatenate(norm_img_mask_batch)
@@ -728,7 +848,7 @@ index c06ca5fe..d865b201 100755
 +                norm_img_mask_batch = np.concatenate(norm_img_mask_batch)
 +                word_label_list = np.concatenate(word_label_list)
 +                inputs = [norm_img_batch, norm_img_mask_batch, word_label_list]
-
+ 
 -                    inp = [torch.from_numpy(e_i) for e_i in inputs]
 -                    inp = [e_i.to(self.device) for e_i in inp]
 +                inp = [torch.from_numpy(e_i) for e_i in inputs]
@@ -737,13 +857,13 @@ index c06ca5fe..d865b201 100755
                      with torch.no_grad():
                          outputs = self.net(inp)
                          outputs = [v.cpu().numpy() for k, v in enumerate(outputs)]
-
+ 
 -                    preds = outputs
 -
 -                else:
 -                    starttime = time.time()
 +                preds = outputs
-
+ 
 +            else:
 +                with self._dev_lock:
                      with torch.no_grad():
@@ -752,13 +872,13 @@ index c06ca5fe..d865b201 100755
 +                        inp = torch.from_numpy(norm_img_batch).to(self.device)
                          prob_out = self.net(inp)
 +                preds = [v.cpu().numpy() for v in prob_out] if isinstance(prob_out, list) else prob_out.cpu().numpy()
-
+ 
 -                    if isinstance(prob_out, list):
 -                        preds = [v.cpu().numpy() for v in prob_out]
 -                    else:
 -                        preds = prob_out.cpu().numpy()
 +            rec_result = self.postprocess_op(preds)
-
+ 
 -                rec_result = self.postprocess_op(preds)
 -                for rno in range(len(rec_result)):
 -                    rec_res[indices[beg_img_no + rno]] = rec_result[rno]
@@ -778,7 +898,7 @@ index c06ca5fe..d865b201 100755
 +            for beg_img_no in range(0, img_num, batch_num):
 +                end_img_no = min(img_num, beg_img_no + batch_num)
 +                futures.append(ex.submit(_rec_batch_worker, beg_img_no, end_img_no))
-
+ 
 -                # 更新进度条，每次增加batch_size，但要注意最后一个batch可能不足batch_size
 -                current_batch_size = min(batch_num, img_num - index * batch_num)
 -                index += 1
@@ -787,7 +907,7 @@ index c06ca5fe..d865b201 100755
 +                n_done, batch_elapse = fut.result()
 +                elapse += batch_elapse
 +                pbar.update(n_done)
-
+ 
          # Fix NaN values in recognition results
          for i in range(len(rec_res)):
 diff --git a/mineru/model/table/rapid_table.py b/mineru/model/table/rapid_table.py
@@ -797,20 +917,20 @@ index 174a8052..dd796bcc 100644
 @@ -21,6 +21,8 @@ class RapidTableModel(object):
          self.table_model = RapidTable(input_args)
          self.ocr_engine = ocr_engine
-
+ 
 +        import threading
 +        self._dev_lock = getattr(self, "_dev_lock", threading.Lock())
-
+ 
      def predict(self, image):
          bgr_image = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
 @@ -30,44 +32,45 @@ class RapidTableModel(object):
          img_aspect_ratio = img_height / img_width if img_width > 0 else 1.0
          img_is_portrait = img_aspect_ratio > 1.2
-
+ 
 -        if img_is_portrait:
 +        with self._dev_lock:
 +            if img_is_portrait:
-
+ 
 -            det_res = self.ocr_engine.ocr(bgr_image, rec=False)[0]
 -            # Check if table is rotated by analyzing text box aspect ratios
 -            is_rotated = False
@@ -821,22 +941,22 @@ index 174a8052..dd796bcc 100644
 +                is_rotated = False
 +                if det_res:
 +                    vertical_count = 0
-
+ 
 -                for box_ocr_res in det_res:
 -                    p1, p2, p3, p4 = box_ocr_res
 +                    for box_ocr_res in det_res:
 +                        p1, p2, p3, p4 = box_ocr_res
-
+ 
 -                    # Calculate width and height
 -                    width = p3[0] - p1[0]
 -                    height = p3[1] - p1[1]
 +                        # Calculate width and height
 +                        width = p3[0] - p1[0]
 +                        height = p3[1] - p1[1]
-
+ 
 -                    aspect_ratio = width / height if height > 0 else 1.0
 +                        aspect_ratio = width / height if height > 0 else 1.0
-
+ 
 -                    # Count vertical vs horizontal text boxes
 -                    if aspect_ratio < 0.8:  # Taller than wide - vertical text
 -                        vertical_count += 1
@@ -847,7 +967,7 @@ index 174a8052..dd796bcc 100644
 +                            vertical_count += 1
 +                        # elif aspect_ratio > 1.2:  # Wider than tall - horizontal text
 +                        #     horizontal_count += 1
-
+ 
 -                # If we have more vertical text boxes than horizontal ones,
 -                # and vertical ones are significant, table might be rotated
 -                if vertical_count >= len(det_res) * 0.3:
@@ -856,10 +976,10 @@ index 174a8052..dd796bcc 100644
 +                    # and vertical ones are significant, table might be rotated
 +                    if vertical_count >= len(det_res) * 0.3:
 +                        is_rotated = True
-
+ 
 -                # logger.debug(f"Text orientation analysis: vertical={vertical_count}, det_res={len(det_res)}, rotated={is_rotated}")
 +                    # logger.debug(f"Text orientation analysis: vertical={vertical_count}, det_res={len(det_res)}, rotated={is_rotated}")
-
+ 
 -            # Rotate image if necessary
 -            if is_rotated:
 -                # logger.debug("Table appears to be in portrait orientation, rotating 90 degrees clockwise")
@@ -870,7 +990,7 @@ index 174a8052..dd796bcc 100644
 +                    # logger.debug("Table appears to be in portrait orientation, rotating 90 degrees clockwise")
 +                    image = cv2.rotate(np.asarray(image), cv2.ROTATE_90_CLOCKWISE)
 +                    bgr_image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-
+ 
 -        # Continue with OCR on potentially rotated image
 -        ocr_result = self.ocr_engine.ocr(bgr_image)[0]
 +            # Continue with OCR on potentially rotated image
@@ -878,4 +998,174 @@ index 174a8052..dd796bcc 100644
          if ocr_result:
              ocr_result = [[item[0], escape_html(item[1][0]), item[1][1]] for item in ocr_result if
                        len(item) == 2 and isinstance(item[1], tuple)]
-
+diff --git a/mineru/utils/torchair_utils.py b/mineru/utils/torchair_utils.py
+new file mode 100644
+index 00000000..70c7b0f5
+--- /dev/null
++++ b/mineru/utils/torchair_utils.py
+@@ -0,0 +1,164 @@
++from loguru import logger
++import pypdfium2 as pdfium
++
++import torch
++import torch_npu
++import torch.nn as nn
++import torchvision
++import torchvision_npu
++import torchair as tng
++from torchair.configs.compiler_config import CompilerConfig
++
++from mineru.backend.pipeline.model_list import AtomicModel
++from mineru.model.mfr.unimernet.unimernet_hf.unimer_swin.modeling_unimer_swin import UnimerSwinSelfAttention
++from mineru.backend.pipeline.model_init import (
++    AtomModelSingleton,
++    table_model_init,
++    mfd_model_init,
++    mfr_model_init,
++    doclayout_yolo_model_init,
++    ocr_model_init,
++    )
++
++from transformers.generation.utils import GenerationMixin
++
++batch_candidate = None
++
++def set_batch_candidate(bs):
++    global batch_candidate
++    batch_candidate = bs
++
++def atom_model_init_compile(model_name: str, **kwargs):
++    global batch_candidate
++    atom_model = None
++    if model_name == AtomicModel.Layout:
++        atom_model = doclayout_yolo_model_init(
++            kwargs.get('doclayout_yolo_weights'),
++            kwargs.get('device')
++        )
++        atom_model.model.model = compile_model(atom_model.model.model, False, True)
++        npu_input = torch.zeros((batch_candidate[AtomicModel.Layout][0], 3, atom_model.imgsz, atom_model.imgsz))
++        tng.inference.set_dim_gears(npu_input, {0: batch_candidate[AtomicModel.Layout]})
++
++    elif model_name == AtomicModel.MFD:
++        atom_model = mfd_model_init(
++            kwargs.get('mfd_weights'),
++            kwargs.get('device')
++        )
++        atom_model.model.model = compile_model(atom_model.model.model, False, True)
++        npu_input = torch.zeros((batch_candidate[AtomicModel.MFD][0], 3, atom_model.imgsz, atom_model.imgsz))
++        tng.inference.set_dim_gears(npu_input, {0: batch_candidate[AtomicModel.MFD]})
++
++    elif model_name == AtomicModel.MFR:
++        atom_model = mfr_model_init(
++            kwargs.get('mfr_weight_dir'),
++            kwargs.get('device')
++        )
++
++        atom_model.model.encoder = compile_model(atom_model.model.encoder, False, True)
++        atom_model.model.decoder = compile_model(atom_model.model.decoder, True, True)
++        
++    elif model_name == AtomicModel.OCR:
++        atom_model = ocr_model_init(
++            kwargs.get('det_db_box_thresh'),
++            kwargs.get('lang'),
++            kwargs.get('det_limit_side_len'),
++        )
++
++    elif model_name == AtomicModel.Table:
++        atom_model = table_model_init(
++            kwargs.get('lang'),
++        )
++        
++    else:
++        logger.error('model name not allow')
++        raise ValueError("model name not allow")
++
++    if atom_model is None:
++        logger.error('model init failed')
++        raise RuntimeError("model init failed")
++
++    return atom_model
++
++def compile_model(model, dynamic, fullgraph):
++    config = CompilerConfig()
++    config.experimental_config.frozen_parameter = True
++    config.experimental_config.tiling_schedule_optimize = True
++    npu_backend = tng.get_npu_backend(compiler_config=config)
++    compiled_model = torch.compile(model, dynamic=dynamic, fullgraph=fullgraph, backend=npu_backend)
++    return compiled_model
++
++
++def rewrite_model_init():
++    def _patched_getmodel(self, atom_model_name: str, **kwargs):
++        lang = kwargs.get('lang', None)
++        table_model_name = kwargs.get('table_model_name', None)
++
++        if atom_model_name in [AtomicModel.OCR]:
++            key = (atom_model_name, lang)
++        elif atom_model_name in [AtomicModel.Table]:
++            key = (atom_model_name, table_model_name, lang)
++        else:
++            key = atom_model_name
++
++        if key not in self._models:
++            self._models[key] = atom_model_init_compile(model_name=atom_model_name, **kwargs)
++        return self._models[key]
++    AtomModelSingleton.get_atom_model = _patched_getmodel
++
++
++def rewrite_mfr_encoder_forward():
++    def _patched_prepare_encoder_decoder_kwargs_for_generation(self,
++        inputs_tensor: torch.Tensor,
++        model_kwargs,
++        model_input_name,
++        generation_config,
++    ):
++        # 1. get encoder
++        encoder = self.get_encoder()
++
++        # 2. Prepare encoder args and encoder kwargs from model kwargs and generation config.
++        irrelevant_prefix = ["decoder_", "cross_attn", "use_cache"]
++        encoder_kwargs = {
++            argument: value
++            for argument, value in model_kwargs.items()
++            if not any(argument.startswith(p) for p in irrelevant_prefix)
++        }
++        encoder_signature = set(inspect.signature(encoder.forward).parameters)
++        encoder_accepts_wildcard = "kwargs" in encoder_signature or "model_kwargs" in encoder_signature
++        if not encoder_accepts_wildcard:
++            encoder_kwargs = {
++                argument: value 
++                for argument, value in encoder_kwargs.items() 
++                if argument in encoder_signature
++            }
++        encoder_kwargs["output_attentions"] = generation_config.output_attentions
++        encoder_kwargs["output_hidden_states"] = generation_config.output_hidden_states
++
++        # 3. make sure that encoder returns `ModelOutput`
++        model_input_name = model_input_name if model_input_name is not None else self.main_input_name
++        encoder_kwargs["return_dict"] = True
++
++        ####### 固定input_tensor形状
++        pad_count = 0
++        if batch_candidate[AtomicModel.MFR] != inputs_tensor.shape[0]:
++            pad_count = batch_candidate[AtomicModel.MFR] - inputs_tensor.shape[0]
++            padding_tensor = torch.zeros(pad_count, *inputs_tensor.shape[1:], dtype=inputs_tensor.dtype, device=inputs_tensor.device)
++            inputs_tensor = torch.cat((inputs_tensor, padding_tensor), dim=0)
++
++        encoder_kwargs[model_input_name] = inputs_tensor
++        output = encoder(**encoder_kwargs)# type: ignore
++        if pad_count != 0:
++            output.last_hidden_state = output.last_hidden_state[:-pad_count]
++            output.pooler_output = output.pooler_output[:-pad_count]
++        model_kwargs["encoder_outputs"] = output
++        return model_kwargs
++
++    GenerationMixin._prepare_encoder_decoder_kwargs_for_generation = _patched_prepare_encoder_decoder_kwargs_for_generation
++
++def get_pdf_page_count(pdf_path):
++    pdf = pdfium.PdfDocument(pdf_path)
++    try:
++        return len(pdf)
++    finally:
++        pdf.close()
+\ No newline at end of file
