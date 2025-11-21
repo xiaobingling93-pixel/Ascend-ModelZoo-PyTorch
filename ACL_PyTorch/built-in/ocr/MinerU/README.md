@@ -141,7 +141,7 @@ mineru-models-download --source modelscope --model_type pipeline
 
 ## 执行推理
 
-运行推理脚本infer.py
+### 运行推理脚本infer.py
 
 ```
 python3 infer.py --data_path=OmniDocBench_dataset --model_source=local
@@ -152,6 +152,22 @@ python3 infer.py --data_path=OmniDocBench_dataset --model_source=local
   - model_source: 模型源类型，local表示使用本地文件，modelscope/huggingface表示在线拉取权重
 
 推理执行完成后，解析结果存放于`OmniDocBench_dataset/output/`目录，结果除了输出主要的 markdown 文件外，还会生成多个辅助文件用于调试、质检和进一步处理。
+
+### 运行服务化推理-pipeline后端
+
+默认端口为6544，可以参照官方fast_api服务的启动方案，或者用如下代码启动：
+```
+nohup python3 MinerU/mineru/cli/fast_api.py > fast_api.log 2>&1 &
+```
+
+请求命令可以参考：
+```
+curl -X POST -F "files=@Your_PDF_FILE_PATH.pdf" {IP}:{PORT}/file_parse
+```
+例如
+```
+curl -X POST -F "files=@MinerU/demo/pdfs/demo3.pdf" 127.0.0.1:6544/file_parse
+```
 
 ## 精度测试
 
