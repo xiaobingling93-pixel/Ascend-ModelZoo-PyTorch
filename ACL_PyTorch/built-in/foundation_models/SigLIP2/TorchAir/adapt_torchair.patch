@@ -1,0 +1,135 @@
+diff --git a/src/transformers/models/siglip/modeling_siglip.py b/src/transformers/models/siglip/modeling_siglip.py
+index 6c488262a5..43f3284b62 100644
+--- a/src/transformers/models/siglip/modeling_siglip.py
++++ b/src/transformers/models/siglip/modeling_siglip.py
+@@ -21,6 +21,7 @@ from typing import Any, Callable, Optional, Tuple, Union
+ 
+ import numpy as np
+ import torch
++import torch_npu
+ import torch.utils.checkpoint
+ from torch import nn
+ from torch.nn import BCEWithLogitsLoss, CrossEntropyLoss, MSELoss
+@@ -401,6 +402,55 @@ class SiglipAttention(nn.Module):
+         self.q_proj = nn.Linear(self.embed_dim, self.embed_dim)
+         self.out_proj = nn.Linear(self.embed_dim, self.embed_dim)
+ 
++        self.qkv = None
++        self._merged = False
++
++    def merge_qkv_weight(self):
++        if self._merged:
++            return
++
++        with torch.no_grad():
++            qw, kw, vw = self.q_proj.weight, self.k_proj.weight, self.v_proj.weight
++            qb, kb, vb = self.q_proj.bias, self.k_proj.bias, self.v_proj.bias
++
++            merged_weight = torch.cat([qw, kw, vw], dim=0)
++            merged_bias = torch.cat([qb, kb, vb], dim=0)
++
++            qkv_layer = nn.Linear(self.embed_dim, 3 * self.embed_dim)
++            qkv_layer.weight.copy_(merged_weight)
++            qkv_layer.bias.copy_(merged_bias)
++
++            qkv_layer.to(self.q_proj.weight.device)
++            self.qkv = qkv_layer
++            self._merged = True
++
++            del self.q_proj, self.k_proj, self.v_proj
++
++    def torch_npu_flash_attention(
++            self,
++            q: torch.Tensor,
++            k: torch.Tensor,
++            v: torch.Tensor,
++            mask: Optional[torch.Tensor] = None,
++            actual_seq_len: Optional[list] = None,
++            kv_padding_size: Optional[torch.LongTensor] = None
++        ):
++        n_ctx = q.shape[1]
++        mask = mask.to(torch.bool) if mask is not None and n_ctx > 1 else None
++        q = q.to(torch.float16)
++        k = k.to(torch.float16)
++        v = v.to(torch.float16)
++        attn_output = torch_npu.npu_prompt_flash_attention(
++            q.contiguous(),
++            k.contiguous(),
++            v.contiguous(),
++            num_heads=self.num_heads,
++            input_layout='BSND',
++            scale_value=1 / math.sqrt(self.head_dim),
++            atten_mask=mask[:n_ctx, :n_ctx] if mask is not None else None
++        )
++        return attn_output
++
+     def forward(
+         self,
+         hidden_states: torch.Tensor,
+@@ -411,34 +461,18 @@ class SiglipAttention(nn.Module):
+ 
+         batch_size, seq_length, embed_dim = hidden_states.shape
+ 
+-        queries = self.q_proj(hidden_states)
+-        keys = self.k_proj(hidden_states)
+-        values = self.v_proj(hidden_states)
+-
+-        queries = queries.view(batch_size, seq_length, self.num_heads, self.head_dim).transpose(1, 2)
+-        keys = keys.view(batch_size, seq_length, self.num_heads, self.head_dim).transpose(1, 2)
+-        values = values.view(batch_size, seq_length, self.num_heads, self.head_dim).transpose(1, 2)
+-
+-        attention_interface: Callable = eager_attention_forward
+-        if self.config._attn_implementation != "eager":
+-            if self.config._attn_implementation == "sdpa" and output_attentions:
+-                logger.warning_once(
+-                    "`torch.nn.functional.scaled_dot_product_attention` does not support `output_attentions=True`. Falling back to "
+-                    'eager attention. This warning can be removed using the argument `attn_implementation="eager"` when loading the model.'
+-                )
+-            else:
+-                attention_interface = ALL_ATTENTION_FUNCTIONS[self.config._attn_implementation]
++        if self._merged and self.qkv is not None:
++            qkv = self.qkv(hidden_states)
++            queries, keys, values = qkv.split([self.embed_dim] * 3, dim=-1)
++        else:
++            queries = self.q_proj(hidden_states)
++            keys = self.k_proj(hidden_states)
++            values = self.v_proj(hidden_states)
+ 
+-        attn_output, attn_weights = attention_interface(
+-            self,
+-            queries,
+-            keys,
+-            values,
+-            attention_mask,
+-            is_causal=self.is_causal,
+-            scaling=self.scale,
+-            dropout=0.0 if not self.training else self.dropout,
+-        )
++        queries = queries.view(batch_size, seq_length, self.num_heads, self.head_dim)
++        keys = keys.view(batch_size, seq_length, self.num_heads, self.head_dim)
++        values = values.view(batch_size, seq_length, self.num_heads, self.head_dim)
++        attn_output = self.torch_npu_flash_attention(queries, keys, values, attention_mask)
+ 
+         attn_output = attn_output.reshape(batch_size, seq_length, embed_dim).contiguous()
+         attn_output = self.out_proj(attn_output)
+@@ -1165,6 +1199,20 @@ class SiglipModel(SiglipPreTrainedModel):
+         pooled_output = vision_outputs.pooler_output
+ 
+         return pooled_output
++
++    def optimize_qkv_for_inference(self):
++        vision_layers = getattr(self.vision_model.encoder, "layers", None)
++        text_layers = getattr(self.text_model.encoder, "layers", None)
++
++        if vision_layers is not None:
++            for i, layer in enumerate(vision_layers):
++                if hasattr(layer, "self_attn"):
++                    layer.self_attn.merge_qkv_weight()
++
++        if text_layers is not None:
++            for i, layer in enumerate(text_layers):
++                if hasattr(layer, "self_attn"):
++                    layer.self_attn.merge_qkv_weight()
+ 
+     @can_return_tuple
+     @add_start_docstrings_to_model_forward(SIGLIP_INPUTS_DOCSTRING)
