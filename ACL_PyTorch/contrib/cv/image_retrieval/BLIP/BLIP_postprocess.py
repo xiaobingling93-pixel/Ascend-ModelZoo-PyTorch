@@ -1,57 +1,35 @@
-# BSD 3-Clause License
-#
-# Copyright (c) 2017 xxxx
-# All rights reserved.
-# Copyright 2021 Huawei Technologies Co., Ltd
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# * Redistributions of source code must retain the above copyright notice, this
-#   list of conditions and the following disclaimer.
-#
-# * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
-#   and/or other materials provided with the distribution.
-#
-# * Neither the name of the copyright holder nor the names of its
-#   contributors may be used to endorse or promote products derived from
-#   this software without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-# ============================================================================
-
-# coding:utf-8
+# Copyright (c) OpenMMLab. All rights reserved.
+# Copyright (c) 2025 Huawei Technologies Co., Ltd
+# This software is licensed under Mulan PSL v2.
+# You can use this software according to the terms and conditions of the Mulan PSL v2.
+# THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+# EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+# MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+# See the Mulan PSL v2 for more details.
 
 
-import functools
 import os
-import numpy as np
-import json
-import utils as utils
-import torch
-from models.blip_itm import blip_itm
 import re
+import json
 import argparse
+
+import torch
+import torch_npu
+from torch_npu.contrib import transfer_to_npu
+import numpy as np
+
+import utils as utils
+from models.blip_itm import blip_itm
 
 
 @torch.no_grad()
-def evaluation(image_bin_path, image_feat_bin_path, text_bin_path, ids_path, mask_path, model):
+def evaluation(image_bin_path, image_feat_bin_path, text_bin_path, ids_path, mask_path, model, max_samples=None, device_str='npu:0'):
     k_test = 20
 
     print("k_test: ", k_test)
     metric_logger = utils.MetricLogger(delimiter="  ")
     header = 'Evaluation:'
-    device = torch.device('cpu')
+    device = torch.device(device_str)
     print("Running on : ", device)
 
     model.to(device)
@@ -60,6 +38,39 @@ def evaluation(image_bin_path, image_feat_bin_path, text_bin_path, ids_path, mas
     image_embed_files = os.listdir(image_bin_path)
     image_feat_files = os.listdir(image_feat_bin_path)
     text_embed_files = os.listdir(text_bin_path)
+
+
+    # In order by number but not str, such as 0.bin, 1.bin, 2.bin, ..., 10.bin, 11.bin
+    image_embed_files.sort(key=lambda x: int(x.split('.')[0]))
+    image_feat_files.sort(key=lambda x: int(x.split('.')[0]))
+    text_embed_files.sort(key=lambda x: int(x.split('.')[0]))
+
+    all_text_ids = []
+    text_id_dic = {}
+    if max_samples is not None:
+        # Load annotation file to make sure the dictionary of image-text.
+        ann_root = 'annotation'
+        filenames = {'test': 'coco_karpathy_test.json'}
+        annotation = json.load(open(os.path.join(ann_root, filenames['test']), 'r'))
+
+        # Build dictionary of image id -> text ids.
+        text_id_counter = 0
+        for img_id, ann in enumerate(annotation):
+            if img_id >= max_samples:
+                break
+            caption_count = len(ann['caption'])
+            text_id_dic[img_id] = list(range(text_id_counter, text_id_counter + caption_count))
+            text_id_counter += caption_count
+
+        # Collect all the text ids that need to be processed
+        for text_ids in text_id_dic.values():
+            all_text_ids.extend(text_ids)
+
+        image_embed_files = image_embed_files[:max_samples]
+        image_feat_files = image_feat_files[:max_samples]
+        text_embed_files = [text_embed_files[i] for i in all_text_ids if i < len(text_embed_files)]
+
+        print(f"Limit the number of samples: The first {max_samples} images correspond to {len(text_embed_files)} texts")
 
     # read bin files
     text_embeds = []  # [256]
@@ -70,13 +81,13 @@ def evaluation(image_bin_path, image_feat_bin_path, text_bin_path, ids_path, mas
         file_path = os.path.join(image_bin_path, file)
         image_embed = np.fromfile(file_path, dtype=np.float32)  # [256]
         image_embeds.append(image_embed)
-        
+
     for file in image_feat_files:
         file_path = os.path.join(image_feat_path, file)
         image_feat = np.fromfile(file_path, dtype=np.float32)  # [443136]
         image_feat = image_feat.reshape(577, 768)
         image_feats.append(image_feat)
-        
+
     for file in text_embed_files:
         file_path = os.path.join(text_bin_path, file)
         text_embed = np.fromfile(file_path, dtype=np.float32)  # [256]
@@ -85,85 +96,58 @@ def evaluation(image_bin_path, image_feat_bin_path, text_bin_path, ids_path, mas
     print("Load bins completed.")
 
     image_embeds = torch.tensor(np.array(image_embeds))
-    image_feats = torch.tensor(np.array(image_feats))
+    image_feats = torch.tensor(np.array(image_feats), device=device)
     text_embeds = torch.tensor(np.array(text_embeds))
-
     print("convert bins to tensors completed")
 
-    text_ids = []
     text_atts = []
-
-    #  make sure the orders of bin files : [0.bin, 1.bin, 2.bin, 3.bin, ... , 4998.bin, 4999.bin]
-    def compare_str(s1, s2):
-        if len(s1) < len(s2):
-            return -1
-        elif len(s1) > len(s2):
-            return 1
-        elif s1 < s2:
-            return -1
-        elif s1 > s2:
-            return 1
-        else:
-            return 0
-
     ids_dir = os.listdir(ids_path)
-    ids_dir.sort(key=functools.cmp_to_key(compare_str))
     mask_dir = os.listdir(mask_path)
-    mask_dir.sort(key=functools.cmp_to_key(compare_str))
+    ids_dir.sort(key=lambda x: int(x.split('.')[0]))
+    mask_dir.sort(key=lambda x: int(x.split('.')[0]))
+    text_ids = []
 
-    for ids_bin in ids_dir:
-        if 'sumary.json' == ids_bin:
+    for i, ids_bin in enumerate(ids_dir):
+        if max_samples is not None and i not in all_text_ids:
             continue
-        files = np.fromfile(ids_path + ids_bin, dtype=np.int64)
+        files = np.fromfile(ids_path + ids_bin, dtype=np.int32)
         text_ids.append(files)
 
-    for atts_bin in mask_dir:
-        if 'sumary.json' == atts_bin:
+    for i, atts_bin in enumerate(mask_dir):
+        if max_samples is not None and i not in all_text_ids:
             continue
-        files = np.fromfile(mask_path + atts_bin, dtype=np.int64)
+        files = np.fromfile(mask_path + atts_bin, dtype=np.int32)
         text_atts.append(files)
 
     print("load text ids and mask completed.")
 
-    text_ids = torch.tensor(np.array(text_ids))
-    text_atts = torch.tensor(np.array(text_atts))
+    text_ids = torch.tensor(np.array(text_ids), device=device)
+    text_atts = torch.tensor(np.array(text_atts), device=device)
     text_ids[:, 0] = model.tokenizer.enc_token_id
 
     print("convert text ids and masks to tensor completed.")
-
     print("text_ids, text_atts:", text_ids.shape, text_atts.shape)
-    text_ids = text_ids.to(torch.int64)
 
     sims_matrix = image_embeds @ text_embeds.t()
     sims_matrix = sims_matrix.to(device)
     score_matrix_i2t = torch.full(
         (len(image_embed_files), len(text_embed_files)), -100.0).to(device)
-
-    num_tasks = utils.get_world_size()
-    rank = utils.get_rank()
-    step = sims_matrix.size(0)//num_tasks + 1
-    start = rank*step
-    end = min(sims_matrix.size(0), start+step)
-
     print("### begin calcute score_matrix_i2t")
 
-    for i, sims in enumerate(metric_logger.log_every(sims_matrix[start:end], 50, header)):
-
+    for i, sims in enumerate(metric_logger.log_every(sims_matrix, 50, header)):
         topk_sim, topk_idx = sims.topk(k=k_test, dim=0)
-        encoder_output = image_feats[start+i].repeat(k_test, 1, 1).to(device)
+        encoder_output = image_feats[topk_idx].to(device)
         encoder_att = torch.ones(encoder_output.size()[
                                  :-1], dtype=torch.long).to(device)
 
         output = model.text_encoder(text_ids[topk_idx].to(device),
-                                    attention_mask=text_atts[topk_idx].to(
-                                        device),
+                                    attention_mask=text_atts[topk_idx].to(device),
                                     encoder_hidden_states=encoder_output,
                                     encoder_attention_mask=encoder_att,
                                     return_dict=True,
                                     )
         score = model.itm_head(output.last_hidden_state[:, 0, :])[:, 1]
-
-        score_matrix_i2t[start+i, topk_idx] = score + topk_sim
+        score_matrix_i2t[i, topk_idx] = score + topk_sim
 
     print("### end calcute score_matrix_i2t")
 
@@ -172,27 +156,22 @@ def evaluation(image_bin_path, image_feat_bin_path, text_bin_path, ids_path, mas
         (len(text_embed_files), len(image_embed_files)), -100.0)
     score_matrix_t2i = score_matrix_t2i.to(device)
 
-    step = sims_matrix.size(0)//num_tasks + 1
-    start = rank*step
-    end = min(sims_matrix.size(0), start+step)
-
     print("### begin calcute score_matrix_t2i")
 
-    for i, sims in enumerate(metric_logger.log_every(sims_matrix[start:end], 50, header)):
+    for i, sims in enumerate(metric_logger.log_every(sims_matrix, 50, header)):
         topk_sim, topk_idx = sims.topk(k=k_test, dim=0)
         encoder_output = image_feats[topk_idx].to(device)
         encoder_att = torch.ones(encoder_output.size()[
                                  :-1], dtype=torch.long).to(device)
 
-        output = model.text_encoder(text_ids[start+i].repeat(k_test, 1).to(device),
-                                    attention_mask=text_atts[start +
-                                                             i].repeat(k_test, 1).to(device),
+        output = model.text_encoder(text_ids[i].repeat(k_test, 1).to(device),
+                                    attention_mask=text_atts[i].repeat(k_test, 1).to(device),
                                     encoder_hidden_states=encoder_output,
                                     encoder_attention_mask=encoder_att,
                                     return_dict=True,
                                     )
         score = model.itm_head(output.last_hidden_state[:, 0, :])[:, 1]
-        score_matrix_t2i[start+i, topk_idx] = score + topk_sim
+        score_matrix_t2i[i, topk_idx] = score + topk_sim
 
     print("### end calcute score_matrix_t2i")
 
@@ -201,7 +180,6 @@ def evaluation(image_bin_path, image_feat_bin_path, text_bin_path, ids_path, mas
 
 def itm_eval(scores_i2t, scores_t2i, text2image, image2text):
     print("begin calcute matrics.")
-    # Images->Text
     ranks = np.zeros(scores_i2t.shape[0])
     for index, score in enumerate(scores_i2t):
         inds = np.argsort(score)[::-1]
@@ -273,7 +251,10 @@ if __name__ == '__main__':
                         default='./coco2014_infer/image_feat/xxx/')
     parser.add_argument('--coco_bin_path', default='./coco2014_bin/')
     parser.add_argument('--pth_path', default='/model_base_retrieval_coco.pth')
+    parser.add_argument('--max_samples', type=int, default=None, help='number of samples')
+    parser.add_argument('--device', default=0, type=int, help='npu device to use (0, 1, 2, etc.)')
     args = parser.parse_args()
+    args.device = f"npu:{str(args.device)}"
 
     print("running calculate metrics...")
 
@@ -285,14 +266,11 @@ if __name__ == '__main__':
     mask_path = os.path.join(args.coco_bin_path, 'mask/')
 
     pretrained_model = args.pth_path
-
     model = blip_itm(pretrained=pretrained_model)
     with torch.no_grad():
-        score_matrix_i2t, score_matrix_t2i = evaluation(
-            image_embed_path, image_feat_path, text_embed_path, ids_path, mask_path, model)
+        score_matrix_i2t, score_matrix_t2i = evaluation(image_embed_path, image_feat_path, text_embed_path, ids_path, mask_path, model, args.max_samples, args.device)
 
     ann_root = 'annotation'
-    # 获取测试集
     filenames = {'val': 'coco_karpathy_val.json',
                  'test': 'coco_karpathy_test.json'}
     annotation = json.load(
@@ -314,4 +292,5 @@ if __name__ == '__main__':
             text_id += 1
 
     print("prepare test data completed.")
+
     itm_eval(score_matrix_i2t, score_matrix_t2i, text2image, image2text)

@@ -50,8 +50,8 @@ BLIP模型为一种新的Vision-Language Pre-training框架，它可以灵活地
 
   | 输入数据 | 数据类型 | 大小                      | 数据排布格式 |
   | -------- | -------- | ------------------------- | ------------ |
-  | text_ids | INT64    | batchsize x 35          | ND          |
-  | text_atten_mask | INT64    | batchsize x 35          | ND          |
+  | text_ids | INT32    | batchsize x 35          | ND          |
+  | text_atten_mask | INT32    | batchsize x 35          | ND          |
 
 
 - 输出数据
@@ -98,11 +98,12 @@ BLIP模型为一种新的Vision-Language Pre-training框架，它可以灵活地
 
   | 配套                                                         | 版本    | 环境准备指导                                                 |
   | ------------------------------------------------------------ | ------- | ------------------------------------------------------------ |
-  | 固件与驱动                                                   | 22.0.2  | [Pytorch框架推理环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies) |
-  | CANN                                                         | 6.0.RC1 | -                                                            |
-  | Python                                                       | 3.7.5   | -                                                            |
-  | PyTorch                                                      | 1.7.0   | -                                                            |
-  | 说明：Atlas 300I Duo 推理卡请以CANN版本选择实际固件与驱动版本。 | \       | \                                                            |
+  | 固件与驱动                                                   | 24.1.rc3  | [Pytorch框架推理环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies) |
+  | CANN                                                                            | 8.3.RC1 | \                                                            |
+  | Python                                                                        | 3.11.10   | \                                                           |
+  | PyTorch (torch)                                                       | 2.1.0         |\                                                           |
+  | Ascend Extension for PyTorch (torch_npu) | 2.1.0.post10| \                         |
+  | 已验证支持的产品型号：                      |Atlas 300I DUO|
 
 
 
@@ -343,23 +344,23 @@ BLIP模型为一种新的Vision-Language Pre-training框架，它可以灵活地
 
 调用ACL接口推理计算，性能参考下列数据。
 
-| 芯片型号 | Batch Size   | 数据集 | 精度 | 性能 |
+| 芯片型号 | Batch Size | 数据集 | 精度（text_r1/image_r1） | 性能 |
 | --------- | ---------------- | ---------- | ---------- | --------------- |
-| 300I Pro          | 1                | coco           | 81.3%           | text:292    |
-| 300I Pro          | 4                | coco           |            |  text:754   |
-| 300I Pro          | 8                | coco           |            |  text:1227   |
-| 300I Pro          | 16               | coco           |            |  text:1400  |
-| 300I Pro          | 32               | coco           |            |  text:1536   |
-| 300I Pro          | 64               | coco           |            |   text:1662  |
-| 300I Pro          | 1                | coco           | 81.3%           | image:72    |
-| 300I Pro          | 4                | coco           |            |  image:59  |
-| 300I Pro          | 8                | coco           |            |  image:71  |
-| 300I Pro          | 16               | coco           |            |  image:59  |
-| 300I Pro          | 32               | coco           |            |  image:59  |
-| 300I Pro          | 64               | coco           |            |  image:67  |
-| 300I Pro          | 1                | coco           | 81.3%           | image_feat: 73 |
-| 300I Pro          | 4                | coco           |            |  image_feat: 59  |
-| 300I Pro          | 8                | coco           |            |  image_feat:  70 |
-| 300I Pro          | 16               | coco           |            |  image_feat: 59  |
-| 300I Pro          | 32               | coco           |            |  image_feat: 58  |
-| 300I Pro          | 64               | coco           |            |   image_feat: 67 |
+| 300I Duo          | 1                | coco           | 81.1%/64.21%          | text:348    |
+| 300I Duo          | 4                | coco           |            |  text:963   |
+| 300I Duo          | 8                | coco           |            |  text:1311   |
+| 300I Duo          | 16               | coco           |            |  text:1543  |
+| 300I Duo          | 32               | coco           |            |  text:1713   |
+| 300I Duo          | 64               | coco           |            |   text:1739  |
+| 300I Duo          | 1                | coco           | 81.1%/64.21%           | image:97    |
+| 300I Duo          | 4                | coco           |            |  image:102  |
+| 300I Duo          | 8                | coco           |            |  image:97  |
+| 300I Duo          | 16               | coco           |            |  image:92  |
+| 300I Duo          | 32               | coco           |            |  image:91  |
+| 300I Duo          | 64               | coco           |            |  image:91  |
+| 300I Duo          | 1                | coco           | 81.1%/64.21%           | image_feat: 97 |
+| 300I Duo          | 4                | coco           |            |  image_feat: 102  |
+| 300I Duo          | 8                | coco           |            |  image_feat:  97 |
+| 300I Duo          | 16               | coco           |            |  image_feat: 92  |
+| 300I Duo          | 32               | coco           |            |  image_feat: 591  |
+| 300I Duo          | 64               | coco           |            |   image_feat: 91 |
