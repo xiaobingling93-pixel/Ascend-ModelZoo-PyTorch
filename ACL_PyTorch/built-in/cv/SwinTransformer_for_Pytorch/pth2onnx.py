@@ -20,7 +20,7 @@ import timm
 
 
 def pth2onnx(args):
-    pth_path = args.input_path
+    pth_path = args.model_path
     batch_size = args.batch_size
     model_name = args.model_name
     out_path = args.out_path
@@ -51,7 +51,7 @@ def pth2onnx(args):
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='SwinTransformer onnx export.')
-    parser.add_argument('-i', '--input_path', type=str, required=True,
+    parser.add_argument('-i', '--model_path', type=str, required=True,
                         help='input path for pth model')
     parser.add_argument('-o', '--out_path', type=str, required=True,
                         help='save path for output onnx model')

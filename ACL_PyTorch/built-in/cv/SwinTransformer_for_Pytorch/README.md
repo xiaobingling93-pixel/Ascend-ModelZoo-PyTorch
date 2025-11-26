@@ -51,13 +51,14 @@
 
   **表 1**  版本配套表
 
-  | 配套                                                         | 版本    | 环境准备指导                                                 |
+  | 配套                                                         |  版本    | 环境准备指导                                                 |
   | ------------------------------------------------------------ | ------- | ------------------------------------------------------------ |
-  | 固件与驱动                                                   | 24.1RC2 | [Pytorch框架推理环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies) |
-  | CANN                                                         | 8.0.RC2 | -                                                            |
-  | Python                                                       | 3.10 | -                                                            |
-  | PyTorch                                                      | 1.13.1 | -                                                            |
-  | 说明：Atlas 300I Duo 推理卡请以CANN版本选择实际固件与驱动版本。 | \       | \                                                            |
+  | 固件与驱动                                                    | 24.1RC3 | [Pytorch框架推理环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies) |
+  | CANN                                                         | 8.1.RC1 | -                                                            |
+  | Python                                                       | 3.11.x  | -                                                            |
+  | PyTorch                                                      | 2.1.0   | -                                                            |
+  | Ascend Extension PyTorch                                                      | 2.1.0   | -                                                            |
+  | 说明：Atlas 300I Duo 推理卡请以CANN版本选择实际固件与驱动版本。  | \       | \                                                            |
 
 
 
@@ -68,7 +69,7 @@
 1. 获取源码。
 
    ```shell
-   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git        # 克隆仓库的代码
+   git clone https://gitcode.com/Ascend/ModelZoo-PyTorch.git        # 克隆仓库的代码
    git checkout master         # 切换到对应分支
    cd ACL_PyTorch/built-in/cv/SwinTransformer_for_Pytorch              # 切换到模型的代码仓目录
    ```
@@ -84,15 +85,19 @@
 ## 准备数据集<a name="section183221994411"></a>
 
 
-   本模型使用ImageNet 50000张图片的验证集，请前往[ImageNet官网](https://image-net.org/download.php)下载数据集:
+   本模型使用ImageNet 50000张图片的验证集。其他数据集请前往[ImageNet官网](https://image-net.org/download.php)下载:
 
     ```
+    数据集下载链接:
+    wget https://image-net.org/data/ILSVRC/2012/ILSVRC2012_img_val.tar
+
     ├── ImageNet
     |   ├── val
     |   |    ├── ILSVRC2012_val_00000001.JPEG
     │   |    ├── ILSVRC2012_val_00000002.JPEG
     │   |    ├── ......
     |   ├── val_label.txt
+    
     ```
 
    执行预处理脚本:
@@ -115,19 +120,29 @@
 
    1. 导出onnx文件。
 
-      1. 使用以下脚本导出onnx文件:
+      1. 使用以下脚本导出onnx文件（开源下载未重新训练）:
 
          ```
          # 以 swin_base_patch4_window12_384 为例
-         python3 pth2onnx.py --input_path swin_base_patch4_window12_384_22kto1k.pth --out_path models/onnx/swin_base_patch4_window12_384_bs${bs}.onnx --model_name swin_base_patch4_window12_384 --batch_size ${bs}
+         
+         python3 pth2onnx.py --model_path swin_base_patch4_window12_384_22kto1k.pth --out_path models/onnx/swin_base_patch4_window12_384_bs${bs}.onnx --model_name swin_base_patch4_window12_384 --batch_size ${bs}
          
          # 以 swin_tiny_patch4_window7_224 为例
-         python3 pth2onnx.py --input_path swin_tiny_patch4_window7_224.pth --out_path models/onnx/swin_tiny_patch4_window7_224_bs${bs}.onnx --model_name swin_tiny_patch4_window7_224 --batch_size ${bs}
+         python3 pth2onnx.py --model_path swin_tiny_patch4_window7_224.pth --out_path models/onnx/swin_tiny_patch4_window7_224_bs${bs}.onnx --model_name swin_tiny_patch4_window7_224 --batch_size ${bs}
+         ```
+      2. 使用以下脚本导出onnx文件（使用NPU重新训练）[训练代码参考连接](https://gitcode.com/Ascend/ModelZoo-PyTorch/blob/master/PyTorch/contrib/cv/classification/Swin-Transformer_for_PyTorch/README.md) ：
+
+         ```
+
+         # 以 swin_tiny_patch4_window7_224 为例
+ 		   python3 pth2onnx_npu.py -i ckpt_epoch_299.pth -o swin_tiny_patch4_window7_224_bs${bs}.onnx --batch-size ${bs}
+ 		   或
+ 		   python3 pth2onnx_npu.py --model-path ckpt_epoch_299.pth --out_path swin_tiny_patch4_window7_224_bs${bs}.onnx --batch-size ${bs}
          ```
 
          - 参数说明：
 
-           -   --input_path：模型权重文件所在路径。
+           -   --model_path：模型权重文件所在路径。
            -   --out_path：输出onnx文件所在路径。
            -   --model_name：模型名，例如：swin_base_patch4_window12_384，swin_tiny_patch4_window7_224 等。
            -   --batch_size：模型对应batch_size。
@@ -263,3 +278,4 @@
    | 300I Pro    | -                              | 8          | ImageNet | -                               | -                                 | 76 fps  |
    | 300I Pro    | swin_large_patch4_window7_224  | 1          | ImageNet | Top1 Acc: 86.3%;Top5 Acc: 97.9% | Top1 Acc: 86.19%;Top5 Acc: 97.83% | 112 fps |
    | 300I Pro    | -                              | 8          | ImageNet | -                               | -                                 | 204 fps |
+   | Atlas 800I A2    | swin_tiny_patch4_window7_224  | 1          | ImageNet | Top1 Acc: 79.98%;Top5 Acc: 94.93% | Top1 Acc: 79.98%;Top5 Acc: 94.93% | 2669 fps |
