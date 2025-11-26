@@ -103,9 +103,17 @@ Wenet是一款开源的、面向工业落地应用的语音识别工具包，主
 
   在官网根据PyTorch版本获取torchaudio对应版本，解压至torchaudio文件夹，运行以下命令
   ```
-  cd torchaudio
+  git clone https://github.com/pytorch/audio.git
+  cd audio
+  git checkout release/2.1
   pip install -r requirements.txt
   python setup.py develop
+  ```
+
+- 安装sox库
+  ```bash
+  #以yum为例，执行以下命令安装sox库及开发包
+  sudo yum install sox sox-devel
   ```
 
 
@@ -124,6 +132,23 @@ Wenet是一款开源的、面向工业落地应用的语音识别工具包，主
 
    > **说明：** 
    > 该数据集的训练过程脚本只作为一种参考示例。
+
+2. 确保权限设置正确。
+
+  训练脚本在运行时会读取并生成诸如 `data/train/data.list` 等数据/中间文件。如果对数据集目录或模型目录没有执行权限，可能会出现如下错误：
+
+  ```
+  FileNotFoundError: [Errno 2] No such file or directory: 'data/train/data.list'
+  ```
+
+  该报错常见原因是目录或文件权限不足（例如从其他用户拷贝或解压得到的数据），而不是文件真实不存在。请在数据集目录和模型代码目录上为当前训练用户开启可执行权限，例如：
+
+  ```bash
+  chmod 755 -R /path/to/your/dataset
+  chmod 755 -R /path/to/Wenet_Conformer_for_Pytorch
+  ```
+
+  > **说明：** 请根据实际部署环境调整路径，并确保仅在符合安全策略的前提下修改权限。
 
 
 ## 开始训练
@@ -165,6 +190,28 @@ Wenet是一款开源的、面向工业落地应用的语音识别工具包，主
    > --data_path参数填写数据集路径，需要写到数据集的一级目录。
 
    训练完成后，权重文件保存在当前路径下，并输出模型训练精度和性能信息。
+
+### Profiling日志采集（可选）
+
+本仓已提供基于 Ascend Profiler 的简单 profiling 能力，通过环境变量控制开启时机和采集步数：
+
+- `PROFILE_START_STEP`：从第几个 step 开始采集，只采集一个 step 的数据。
+- `PROFILE_TYPE`：profiling 类型，目前支持 `ASCEND_PROFILER`。
+
+使用示例（以单机 8 卡训练脚本为例）：
+
+```bash
+export PROFILE_START_STEP=5   # 从第 5 个 step 开始采集，只采集该 step
+export PROFILE_TYPE=ASCEND_PROFILER
+
+cd examples/aishell/s0/test
+bash train_full_8p.sh --stage=起始stage --stop_stage=终止stage --data_path=/data/xxx/
+```
+
+常见说明：
+
+- 如无 profiling 需求，可不设置上述环境变量，训练流程不受影响。
+- 由于 profiling 会增加一定开销，建议在较短的训练阶段或少量 step 上使用，避免影响整体性能评估。
 
 
 ## 训练结果展示
