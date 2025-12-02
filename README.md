@@ -1,7 +1,7 @@
 # ModelZoo-PyTorch
 
 # 简介
-ModelZoo-PyTorch，昇腾旗下的开源AI模型平台，涵盖计算机视觉、自然语言处理、语音、推荐、多模态、大语言模型等方向的AI模型及其基于昇腾机器实操案例。平台的每个模型都有详细的使用指导，为方便更多开发者使用ModelZoo-PyTorch，我们将持续增加典型网络和相关预训练模型。如果您有任何需求，请在[Gitee](https://gitee.com/ascend/modelzoo/issues)或[ModelZoo](https://bbs.huaweicloud.com/forum-726-1.html)提交issue，我们会及时处理。
+ModelZoo-PyTorch，昇腾旗下的开源AI模型平台，涵盖计算机视觉、自然语言处理、语音、推荐、多模态、大语言模型等方向的AI模型及其基于昇腾机器实操案例。平台的每个模型都有详细的使用指导，为方便更多开发者使用ModelZoo-PyTorch，我们将持续增加典型网络和相关预训练模型。如果您有任何需求，请在[GitCode](https://gitcode.com/Ascend/ModelZoo-PyTorch/issues)或[ModelZoo](https://bbs.huaweicloud.com/forum-726-1.html)提交issue，我们会及时处理。
 
 
 # 目录
