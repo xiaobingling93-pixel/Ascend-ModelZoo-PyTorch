@@ -1,6 +1,6 @@
 # OpenSoraPlan1.0 for PyTorch
 
-**注意**： 本仓库OpenSoraPlan1.0模型将不再进行维护，请使用[MindSpeed-MM](https://gitee.com/ascend/MindSpeed-MM/tree/master/examples/opensoraplan1.3)
+**注意**： 本仓库OpenSoraPlan1.0模型将不再进行维护，请使用[MindSpeed-MM](https://gitcode.com/ascend/MindSpeed-MM/tree/master/examples/opensoraplan1.3)
 
 # 目录
 
@@ -54,7 +54,7 @@ Open-Sora-Plan是由北大技术团队推出的项目，旨在通过开源框架
 - 适配昇腾 AI 处理器的实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/built-in/mlm/
   ```
 

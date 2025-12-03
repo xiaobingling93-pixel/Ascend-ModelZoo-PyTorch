@@ -52,7 +52,7 @@ Conformer是将CNN用于增强Transformer来做ASR的结构
    
 3. 安装ais-bench/auto-optimizer
 
-   参考[ais-bench](https://gitee.com/ascend/tools/tree/master/ais-bench_workload/tool/ais_bench)/[auto-optimizer](https://gitee.com/ascend/msadvisor/tree/master/auto-optimizer/auto_optimizer)安装。
+   参考[ais-bench](https://gitee.com/ascend/tools/tree/master/ais-bench_workload/tool/ais_bench)/[auto-optimizer](https://gitcode.com/ascend/msadvisor/tree/master/auto-optimizer/auto_optimizer)安装。
    
 
 4. 获取`OM`推理代码

@@ -56,7 +56,7 @@ DeepSeek-R1-Safe
 
 ## 🤖 环境配置
 
-DeepSeek-R1-Safe 的环境依赖如下表所示，具体安装指导请参考：[安装指导](https://gitee.com/ascend/MindSpeed-LLM/tree/7ce6c0c786ac50d77fb348b7b04776e60c1aad8d#/ascend/MindSpeed-LLM/blob/7ce6c0c786ac50d77fb348b7b04776e60c1aad8d/./docs/features/install_guide.md)
+DeepSeek-R1-Safe 的环境依赖如下表所示，具体安装指导请参考：[安装指导](https://gitcode.com/ascend/MindSpeed-LLM/tree/7ce6c0c786ac50d77fb348b7b04776e60c1aad8d#/ascend/MindSpeed-LLM/blob/7ce6c0c786ac50d77fb348b7b04776e60c1aad8d/./docs/features/install_guide.md)
 
 | 依赖软件                                                     | 版本     |
 | ------------------------------------------------------------ | -------- |
@@ -66,7 +66,7 @@ DeepSeek-R1-Safe 的环境依赖如下表所示，具体安装指导请参考：
 | PyTorch                                                      | 2.6      |
 | torch_npu插件<br>apex                                        | 在研版本 |
 
-请将链接中[指定版本的MindSpeed-LLM仓库](https://gitee.com/ascend/MindSpeed-LLM/tree/7ce6c0c786ac50d77fb348b7b04776e60c1aad8d#/ascend/MindSpeed-LLM/blob/7ce6c0c786ac50d77fb348b7b04776e60c1aad8d/./docs/features/install_guide.md)置于Code/MindSpeed-LLM。
+请将链接中[指定版本的MindSpeed-LLM仓库](https://gitcode.com/ascend/MindSpeed-LLM/tree/7ce6c0c786ac50d77fb348b7b04776e60c1aad8d#/ascend/MindSpeed-LLM/blob/7ce6c0c786ac50d77fb348b7b04776e60c1aad8d/./docs/features/install_guide.md)置于Code/MindSpeed-LLM。
 
 ## 🚀 运行推理脚本
 

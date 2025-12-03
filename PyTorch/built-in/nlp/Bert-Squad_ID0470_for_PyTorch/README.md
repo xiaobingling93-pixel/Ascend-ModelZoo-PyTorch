@@ -25,13 +25,13 @@ BERT-Large模型是一个24层，1024维，24个自注意头（self attention he
 - 适配昇腾 AI 处理器的实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/built-in/nlp
   ```
 
 # 准备训练环境
 
-该模型为随版本演进模型（随版本演进模型范围可在[此处](https://gitee.com/ascend/ModelZoo-PyTorch/blob/master/PyTorch/README.CN.md)查看），您可以根据下面提供的安装指导选择匹配的CANN等软件下载使用。
+该模型为随版本演进模型（随版本演进模型范围可在[此处](https://gitcode.com/ascend/ModelZoo-PyTorch/blob/master/PyTorch/README.CN.md)查看），您可以根据下面提供的安装指导选择匹配的CANN等软件下载使用。
 
 ## 准备环境
 

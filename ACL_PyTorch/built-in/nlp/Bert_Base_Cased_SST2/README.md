@@ -142,7 +142,7 @@
          - --model_dir：模型路径（包含配置文件等）
          - --save_path：输出的onnx文件路径。
 
-   3. 优化ONNX文件。 请访问[auto-optimizer优化工具](https://gitee.com/ascend/msadvisor/tree/master/auto-optimizer)代码仓，根据readme文档进行工具安装。
+   3. 优化ONNX文件。 请访问[auto-optimizer优化工具](https://gitcode.com/ascend/msadvisor/tree/master/auto-optimizer)代码仓，根据readme文档进行工具安装。
 
       ```shell
       python3 -m onnxsim model/bert_base_sst2.onnx model/bert_base_sst2_bs${bs}.onnx --input-shape "input_ids:${bs},${seq_len}" "attention_mask:${bs},${seq_len}"

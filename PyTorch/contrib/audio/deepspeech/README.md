@@ -24,7 +24,7 @@ DeepSpeech2是一个建立在端到端深度学习之上，将大多数模块替
 - 适配昇腾 AI 处理器的实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/contrib/audio
   ```
 

@@ -67,7 +67,7 @@
     ```
 4. 安装onnx改图工具
     ```shell
-    git clone https://gitee.com/ascend/msadvisor.git
+    git clone https://gitcode.com/ascend/msadvisor.git
     cd msadvisor/auto-optimizer
     python3 -m pip install .
     ```

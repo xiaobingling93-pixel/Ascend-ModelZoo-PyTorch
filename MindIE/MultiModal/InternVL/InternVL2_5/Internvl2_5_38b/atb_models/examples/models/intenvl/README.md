@@ -40,7 +40,7 @@
 | 变量名      | 含义                                                                                                                    |
 | ----------- |-----------------------------------------------------------------------------------------------------------------------|
 | working_dir | 加速库及模型库下载后放置的目录                                                                                                       |
-| llm_path    | 模型仓所在路径。若使用编译好的包，则路径为 `${working_dir}/MindIE-LLM/`；若使用gitee下载的代码，则路径为 `${working_dir}/MindIE-LLM/examples/atb_models` |
+| llm_path    | 模型仓所在路径。若使用编译好的包，则路径为 `${working_dir}/MindIE-LLM/`；若使用gitcode下载的代码，则路径为 `${working_dir}/MindIE-LLM/examples/atb_models` |
 | script_path | 脚本所在路径；internvl的工作脚本所在路径为 `${llm_path}/examples/models/internvl`                                                      |
 | weight_path | 模型权重路径                                                                                                                |
 | trust_remote_code | 是否信任本地的可执行文件：默认不执行，传入此参数，则信任                                                                  |

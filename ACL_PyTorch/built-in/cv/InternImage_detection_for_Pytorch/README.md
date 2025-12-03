@@ -58,7 +58,7 @@ InternImage使用公共数据集COCO进行推理
 1. 获取本仓源码
    
    ```
-   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+   git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
    cd ModelZoo-PyTorch/ACL_PyTorch/built-in/cv/InternImage_detection_for_Pytorch
    ```
 
@@ -160,7 +160,7 @@ InternImage使用公共数据集COCO进行推理
         
         - --img_shape_path：存储前处理后的图像shape
    
-   4. 请访问[msit推理工具](https://gitee.com/ascend/msit/tree/master/msit/)代码仓，根据README文档进行工具安装benchmark和surgeon
+   4. 请访问[msit推理工具](https://gitcode.com/ascend/msit/tree/master/msit/)代码仓，根据README文档进行工具安装benchmark和surgeon
    
    5. 使用ATC工具将ONNX模型转为OM模型
       

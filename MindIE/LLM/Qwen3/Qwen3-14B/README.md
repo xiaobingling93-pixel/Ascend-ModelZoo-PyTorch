@@ -89,10 +89,10 @@ docker exec -it ${容器名称} bash
 
 ## 权重量化
 ### Atlas 800I A2 w8a8量化
-W8A8量化权重可通过[msmodelslim](https://gitee.com/ascend/msit/blob/master/msmodelslim/example/Qwen/README.md)（昇腾压缩加速工具）实现。
+W8A8量化权重可通过[msmodelslim](https://gitcode.com/ascend/msit/blob/master/msmodelslim/example/Qwen/README.md)（昇腾压缩加速工具）实现。
 - 注意该量化方式仅支持在Atlas 800I A2服务器上运行
-- 环境配置请参考[使用说明](https://gitee.com/ascend/msit/blob/master/msmodelslim/README.md)
-- git clone下载msit仓代码； `git clone https://gitee.com/ascend/msit.git`
+- 环境配置请参考[使用说明](https://gitcode.com/ascend/msit/blob/master/msmodelslim/README.md)
+- git clone下载msit仓代码； `git clone https://gitcode.com/ascend/msit.git`
 - 进入到msit/msmodelslim的目录 `cd msit/msmodelslim`；并在进入的msmodelslim目录下，运行安装脚本 `bash install.sh`;
 - 进入到msit/msmodelslim/example/Qwen的目录 `cd msit/msmodelslim/example/Qwen`；
 - `vim quant_qwen.py` 在文件开头新增两行代码, 新增完后 `wq`保存

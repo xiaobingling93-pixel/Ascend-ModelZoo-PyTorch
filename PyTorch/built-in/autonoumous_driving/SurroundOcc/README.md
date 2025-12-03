@@ -1,4 +1,4 @@
-# 当前仓已不维护，请跳转至 https://gitee.com/ascend/DrivingSDK/tree/master/model_examples/SurroundOcc
+# 当前仓已不维护，请跳转至 https://gitcode.com/ascend/DrivingSDK/tree/master/model_examples/SurroundOcc
 
 # SurroundOcc for PyTorch
 
@@ -40,7 +40,7 @@
 - 适配昇腾 AI 处理器的实现：
 
     ```
-    url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+    url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
     code_path=PyTorch/built-in/autonoumous_driving 
     ```
 
@@ -118,7 +118,7 @@
     MMCV_WITH_OPS=1 pip install -e . -v
     ```
 - 安装mx_driving
-  - 参考mxDriving官方gitee仓README安装编译构建并安装mxDriving包：[参考链接](https://gitee.com/ascend/mxDriving)
+  - 参考mxDriving官方gitcode仓README安装编译构建并安装mxDriving包：[参考链接](https://gitcode.com/ascend/mxDriving)
   【注意】当前版本配套mxDriving RC3及以上版本，历史mxDriving版本需要model仓代码回退到git reset --hard 91ac141ecfe5872f4835eef6aa4662f46ede80c3
   
 - 在模型根目录下执行以下命令，安装模型对应PyTorch版本需要的依赖。
@@ -133,7 +133,7 @@
   bash replace_patch.sh --packages_path=location_path
   ```
 
-- 安装mxDriving加速库，安装方法参考[原仓](https://gitee.com/ascend/mxDriving)，安装后手动source环境变量或将其配置在test/env_npu.sh中。
+- 安装mxDriving加速库，安装方法参考[原仓](https://gitcode.com/ascend/mxDriving)，安装后手动source环境变量或将其配置在test/env_npu.sh中。
 
 
 ### 准备数据集

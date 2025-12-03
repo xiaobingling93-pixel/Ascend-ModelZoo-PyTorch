@@ -67,7 +67,7 @@ cd ${AieInstallPath}/mindie && source set_env.sh
 
 ### 2.4 下载本仓库
 ```shell
-   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+   git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
 ```
 
 ### 2.5 安装所需依赖
@@ -248,7 +248,7 @@ python3 export_model.py --model ${model_base} --output_dir ./models --parallel -
    # 下载Parti数据集
    wget https://raw.githubusercontent.com/google-research/parti/main/PartiPrompts.tsv --no-check-certificate
    ```
-   hpsv2数据集下载链接：https://gitee.com/ascend/ModelZoo-PyTorch/blob/master/MindIE/MindIE-Torch/built-in/foundation/stable_diffusion_xl/hpsv2_benchmark_prompts.json
+   hpsv2数据集下载链接：https://gitcode.com/ascend/ModelZoo-PyTorch/blob/master/MindIE/MindIE-Torch/built-in/foundation/stable_diffusion_xl/hpsv2_benchmark_prompts.json
 
 2. 下载模型权重
    ```bash
@@ -398,7 +398,7 @@ python3 export_model.py --model ${model_base} --output_dir ./models --parallel -
       - --model_name: Clip模型名称。
       - --model_weights_path: Clip模型权重文件路径。
 
-      clip_score.py脚本可参考[SDXL](https://gitee.com/ascend/ModelZoo-PyTorch/blob/master/MindIE/MindIE-Torch/built-in/foundation/stable_diffusion_xl/clip_score.py)，执行完成后会在屏幕打印出精度计算结果。
+      clip_score.py脚本可参考[SDXL](https://gitcode.com/ascend/ModelZoo-PyTorch/blob/master/MindIE/MindIE-Torch/built-in/foundation/stable_diffusion_xl/clip_score.py)，执行完成后会在屏幕打印出精度计算结果。
    
    2. HPSv2
       ```bash
@@ -413,7 +413,7 @@ python3 export_model.py --model ${model_base} --output_dir ./models --parallel -
       - --HPSv2_checkpoint: HPSv2模型权重文件路径。
       - --clip_checkpointh: Clip模型权重文件路径。
 
-      hpsv2_score.py脚本可参考[SDXL](https://gitee.com/ascend/ModelZoo-PyTorch/blob/master/MindIE/MindIE-Torch/built-in/foundation/stable_diffusion_xl/hpsv2_score.py)，执行完成后会在屏幕打印出精度计算结果。
+      hpsv2_score.py脚本可参考[SDXL](https://gitcode.com/ascend/ModelZoo-PyTorch/blob/master/MindIE/MindIE-Torch/built-in/foundation/stable_diffusion_xl/hpsv2_score.py)，执行完成后会在屏幕打印出精度计算结果。
 
 ## 五、推理结果参考
 ### StableDiffusion3性能 & 精度数据

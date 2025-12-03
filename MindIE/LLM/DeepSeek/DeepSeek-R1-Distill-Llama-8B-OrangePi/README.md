@@ -17,7 +17,7 @@
 ### 本地部署w8a8量化
 * 使用此方法需要另外准备一台Atlas 800I A2或Atlas 300I DUO，转换成功后需把权重转移至香橙派上
 
-* 生成量化权重依赖msModelSlim工具，安装方式见[此README](https://gitee.com/ascend/msit/tree/dev/msmodelslim)
+* 生成量化权重依赖msModelSlim工具，安装方式见[此README](https://gitcode.com/ascend/msit/tree/dev/msmodelslim)
 
 * W8A8量化权重请使用以下指令生成
 

@@ -21,7 +21,7 @@ commit_id=4700293a2d0a91826ab357fc5b9bc1468ae0e987
 
 - 适配昇腾 AI 处理器的实现：
 ```
-url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
 code_path=PyTorch/contrib/cv/classification
 ```
 

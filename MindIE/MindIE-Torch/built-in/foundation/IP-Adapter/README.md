@@ -55,7 +55,7 @@ cd ${AieInstallPath}/mindie && source set_env.sh
 ### 2.4 代码下载
 1. 本仓库代码下载
 ```shell
-   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+   git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
 ```
 
 2. 获取源码，并将其中部分文件移到IP-Adapter工程下

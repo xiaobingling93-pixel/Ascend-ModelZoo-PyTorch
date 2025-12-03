@@ -329,7 +329,7 @@ python clipscore.py \
 #### 4.4.2 Hpsv2精度测试
 1.准备模型与数据集
 
-[hpsv2数据集获取](https://gitee.com/ascend/ModelZoo-PyTorch/blob/master/MindIE/MindIE-Torch/built-in/foundation/stable_diffusion_xl/hpsv2_benchmark_prompts.json)
+[hpsv2数据集获取](https://gitcode.com/ascend/ModelZoo-PyTorch/blob/master/MindIE/MindIE-Torch/built-in/foundation/stable_diffusion_xl/hpsv2_benchmark_prompts.json)
 ```shell
 # 下载权重
 wget https://huggingface.co/spaces/xswu/HPSv2/resolve/main/HPS_v2_compressed.pt --no-check-certificate

@@ -82,7 +82,7 @@ Whisper 是一个通用的语音识别模型。它在一个大型多样化音频
 
 1. 获取本仓库`OM`推理代码
 ```shell
-   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+   git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
    cd ModelZoo-PyTorch/ACL_PyTorch/contrib/audio/Whisper/
 ```
 

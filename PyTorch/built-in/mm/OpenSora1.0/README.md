@@ -1,5 +1,5 @@
 # OpenSora1.0 for PyTorch
-**注意**： 本仓库OpenSora1.0模型将不再进行维护，请使用[MindSpeed-MM](https://gitee.com/ascend/MindSpeed-MM/tree/master/examples/opensora1.0)
+**注意**： 本仓库OpenSora1.0模型将不再进行维护，请使用[MindSpeed-MM](https://gitcode.com/ascend/MindSpeed-MM/tree/master/examples/opensora1.0)
 
 # 目录
 
@@ -22,7 +22,7 @@
 OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。OpenSora不仅实现了先进视频生成技术的低成本普及，还提供了一个精简且用户友好的方案，简化了视频制作的复杂性。
 本仓库主要将STDiT模型的任务迁移到了昇腾NPU上，并进行极致性能优化。
 
-> <span style="color: red;">**注意**: OpenSora1.0目录下面的OpenSora1.0模型已经集成到[MindSpeed-MM](https://gitee.com/ascend/MindSpeed-MM)中,当前目录下的OpenSora1.0模型不再维护，MindSpeed-MM是面向大规模分布式训练的昇腾多模态大模型套件，同时支持多模态生成及多模态理解,欢迎大家使用。</span>
+> <span style="color: red;">**注意**: OpenSora1.0目录下面的OpenSora1.0模型已经集成到[MindSpeed-MM](https://gitcode.com/ascend/MindSpeed-MM)中,当前目录下的OpenSora1.0模型不再维护，MindSpeed-MM是面向大规模分布式训练的昇腾多模态大模型套件，同时支持多模态生成及多模态理解,欢迎大家使用。</span>
 
 ## 支持任务列表
 
@@ -48,7 +48,7 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
 - 适配昇腾 AI 处理器的实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/built-in/mm/OpenSora1.0
   ```
 
@@ -77,7 +77,7 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
    pip install -v -e .                                                # 安装本地代码仓，同时自动安装依赖
 
    # 以https://gitee.com/aijgnem/MindSpeed最新文档为准，安装 MindSpeed
-   git clone https://gitee.com/ascend/MindSpeed.git
+   git clone https://gitcode.com/ascend/MindSpeed.git
    cd MindSpeed
    git checkout 3e7d2377f1947594708ced2fe66f6428da9d330f
    cd ..

@@ -113,11 +113,11 @@
    ```
    说明：python3 -m spacy download en下载过慢或代理错误可以直接使用昇腾社区上已经下载好的模型。点击[链接](https://ascend-repo-modelzoo.obs.cn-east-2.myhuaweicloud.com/model/1_PyTorch_PTH/Transformer/PTH/de-en.zip)，压缩包中de和en文件夹即为下载好的语言模型，将其拷贝到当前工作目录即可。
 
-4. 安装改图依赖[auto-optimizer](https://gitee.com/ascend/msadvisor/tree/master/auto-optimizer)。
+4. 安装改图依赖[auto-optimizer](https://gitcode.com/ascend/msadvisor/tree/master/auto-optimizer)。
 
    ```
    # 安装改图工具auto-optimizer
-   git clone https://gitee.com/ascend/msadvisor.git
+   git clone https://gitcode.com/ascend/msadvisor.git
    cd msadvisor/auto-optimizer
    python3 -m pip install .
    

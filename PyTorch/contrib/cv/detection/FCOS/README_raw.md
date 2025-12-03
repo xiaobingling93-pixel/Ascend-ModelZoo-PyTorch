@@ -1,5 +1,5 @@
 # Warning
-- 当前README为原生mmdetection自带的，请参考[README_raw.md](https://gitee.com/ascend/modelzoo/blob/master/contrib/PyTorch/Research/cv/image_object_detection/FCOS/README_raw.md)来进行FCOS模型训练
+- 当前README为原生mmdetection自带的，请参考[README_raw.md](https://gitcode.com/ascend/modelzoo/blob/master/contrib/PyTorch/Research/cv/image_object_detection/FCOS/README_raw.md)来进行FCOS模型训练
 
 
 

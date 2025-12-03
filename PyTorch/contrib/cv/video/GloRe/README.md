@@ -24,7 +24,7 @@ Glore是一个经典的视频分类网络，其包含了基于图的全局推理
 - 适配昇腾 AI 处理器的实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/contrib/cv/video
   ```
 

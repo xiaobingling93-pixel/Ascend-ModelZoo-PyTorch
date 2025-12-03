@@ -70,7 +70,7 @@ commit_id=7d955df73fe0e9b47f7d6c77c699324b256fc41f
 1. 获取源码上传到服务器任意目录（如：/home/HwHiAiUser）。
    
    ```
-   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+   git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
    cd ModelZoo-PyTorch/ACL_PyTorch/built-in/cv/Resnet101_Pytorch_Infer
    ```
    工作目录如下：

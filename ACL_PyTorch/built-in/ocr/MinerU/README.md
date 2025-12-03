@@ -44,7 +44,7 @@ MinerU是由上海人工智能实验室OpenDataLab团队开发的开源文档解
 1. 获取`Pytorch`源码  
    
    ```
-   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+   git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
    cd ModelZoo-PyTorch/ACL_PyTorch/built-in/ocr/MinerU
    git clone https://github.com/opendatalab/MinerU.git
    cd MinerU
@@ -58,7 +58,7 @@ MinerU是由上海人工智能实验室OpenDataLab团队开发的开源文档解
    ```
    pip3 install -r requirements.txt
    ### 此外，还需安装 Torchvision Adapter
-   git clone https://gitee.com/ascend/vision.git vision_npu
+   git clone https://gitcode.com/ascend/vision.git vision_npu
    cd vision_npu
    git checkout v0.21.0-7.1.0
    pip3 install -r requirement.txt

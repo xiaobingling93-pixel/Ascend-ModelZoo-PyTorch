@@ -34,7 +34,7 @@ StlyeGAN2-ADA-Pytorch使用FID(Fréchet inception distance)作为评价模型训
 - 适配昇腾 AI 处理器的实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/contrib/cv/others/
   ```
   
@@ -59,7 +59,7 @@ StlyeGAN2-ADA-Pytorch使用FID(Fréchet inception distance)作为评价模型训
   | ---------- | ------------------------------------------------------------ |
   | 固件与驱动 | [5.1.RC2](https://www.hiascend.com/hardware/firmware-drivers?tag=commercial) |
   | CANN       | [5.1.RC2](https://www.hiascend.com/software/cann/commercial?version=5.1.RC2) |
-  | PyTorch    | [1.5.0](https://gitee.com/ascend/pytorch/tree/v1.5.0/) |
+  | PyTorch    | [1.5.0](https://gitcode.com/ascend/pytorch/tree/v1.5.0/) |
 
 - 环境准备指导。
 

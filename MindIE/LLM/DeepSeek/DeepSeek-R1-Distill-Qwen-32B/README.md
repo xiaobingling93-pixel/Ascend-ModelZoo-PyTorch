@@ -89,7 +89,7 @@ docker run -it -d --net=host --shm-size=1g \
 >       chmod -R 750 /path-to-weights
 >       ```
 > 5. **在普通用户镜像中，注意所有文件均在 `/home/mindieuser` 下，请勿直接挂载 `/home` 目录，以免宿主机上存在相同目录，将容器内文件覆盖清除。**
-更多镜像使用信息请参考[官方镜像仓库文档](https://gitee.com/ascend/ascend-docker-image/tree/dev/mindie#%E5%90%AF%E5%8A%A8%E5%AE%B9%E5%99%A8)。
+更多镜像使用信息请参考[官方镜像仓库文档](https://gitcode.com/ascend/ascend-docker-image/tree/dev/mindie#%E5%90%AF%E5%8A%A8%E5%AE%B9%E5%99%A8)。
 
 ## 进入容器
 ```shell
@@ -98,10 +98,10 @@ docker exec -it ${容器名称} bash
 
 ## 权重量化
 ### Atlas 800I A2 w8a8量化
-W8A8量化权重可通过[msmodelslim](https://gitee.com/ascend/msit/blob/master/msmodelslim/example/Qwen/README.md)（昇腾压缩加速工具）实现。
+W8A8量化权重可通过[msmodelslim](https://gitcode.com/ascend/msit/blob/master/msmodelslim/example/Qwen/README.md)（昇腾压缩加速工具）实现。
 - 注意该量化方式仅支持在Atlas 800I A2服务器上运行
-- 环境配置请参考[使用说明](https://gitee.com/ascend/msit/blob/master/msmodelslim/README.md)
-- git clone下载msit仓代码； `git clone https://gitee.com/ascend/msit.git`
+- 环境配置请参考[使用说明](https://gitcode.com/ascend/msit/blob/master/msmodelslim/README.md)
+- git clone下载msit仓代码； `git clone https://gitcode.com/ascend/msit.git`
 - 进入到msit/msmodelslim的目录 `cd msit/msmodelslim`；并在进入的msmodelslim目录下，运行安装脚本 `bash install.sh`;
 - 进入到msit/msmodelslim/example/Qwen的目录 `cd msit/msmodelslim/example/Qwen`；并在进入的Qwen目录下，运行量化转换脚本
 ```bash

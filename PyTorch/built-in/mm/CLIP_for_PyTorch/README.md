@@ -24,7 +24,7 @@ CLIP (Contrastive Language-Image Pre-Training，以下简称 CLIP) 模型是 Ope
 - 适配昇腾 AI 处理器的实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/built-in/others
   ```
 
@@ -162,7 +162,7 @@ CLIP (Contrastive Language-Image Pre-Training，以下简称 CLIP) 模型是 Ope
      
    - 多机训练
      
-     请参考[PyTorch模型多机多卡训练适配指南](https://gitee.com/ascend/pytorch/blob/v1.5.0-3.0.rc2/docs/zh/PyTorch%E6%A8%A1%E5%9E%8B%E5%A4%9A%E6%9C%BA%E5%A4%9A%E5%8D%A1%E8%AE%AD%E7%BB%83%E9%80%82%E9%85%8D%E6%8C%87%E5%8D%97.md)中的“多机多卡训练流程”-“准备环境”章节进行环境设置，然后在每台服务器上使用如下命令启动训练。
+     请参考[PyTorch模型多机多卡训练适配指南](https://gitcode.com/ascend/pytorch/blob/v1.5.0-3.0.rc2/docs/zh/PyTorch%E6%A8%A1%E5%9E%8B%E5%A4%9A%E6%9C%BA%E5%A4%9A%E5%8D%A1%E8%AE%AD%E7%BB%83%E9%80%82%E9%85%8D%E6%8C%87%E5%8D%97.md)中的“多机多卡训练流程”-“准备环境”章节进行环境设置，然后在每台服务器上使用如下命令启动训练。
      
      ```bash
      bash test/train_clip_cluster.sh --data_path=/data/xxx/coco --model_path=./clip-roberta --nnodes=${机器总数量} --node_rank=${当前机器rank(0,1,2..)} --master_addr=${主服务器地址} --master_port=${主服务器端口号}

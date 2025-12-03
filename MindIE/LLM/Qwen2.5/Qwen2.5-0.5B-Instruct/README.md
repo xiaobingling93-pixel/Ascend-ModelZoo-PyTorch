@@ -28,7 +28,7 @@
 | 变量名      | 含义                                                                                                                                                     |
 | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | working_dir     | 加速库及模型库下载后放置的目录                                                                                                                           |
-| llm_path        | 模型仓所在路径。若使用编译好的包，则路径为`/usr/local/Ascend/atb-models`；若使用 gitee 下载的代码，则路径为`${working_dir}/MindIE-LLM/examples/atb_models` |
+| llm_path        | 模型仓所在路径。若使用编译好的包，则路径为`/usr/local/Ascend/atb-models`；若使用 gitcode 下载的代码，则路径为`${working_dir}/MindIE-LLM/examples/atb_models` |
 | script_path     | 脚本所在路径；qwen2.5 的工作脚本所在路径为`${llm_path}/examples/models/qwen`                                                                    |
 | weight_path     | 模型权重路径                                                                                                                                             |
 | rank_table_path | Rank table文件路径                                                                                                                                              |

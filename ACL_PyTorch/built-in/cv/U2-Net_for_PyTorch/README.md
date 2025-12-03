@@ -149,7 +149,7 @@ U-2-Net是基于UNet提出的一种新的网络结构，网络基于encode-decod
 
          获得./models/u2net.onnx文件。
 
-      2. 优化ONNX文件(需要用到[auto-optimizer工具](https://gitee.com/ascend/msadvisor/tree/master/auto-optimizer)，请自行下载安装)。
+      2. 优化ONNX文件(需要用到[auto-optimizer工具](https://gitcode.com/ascend/msadvisor/tree/master/auto-optimizer)，请自行下载安装)。
 
          ```
          python3 -m onnxsim models/u2net.onnx models/u2net_sim_bs1.onnx --input-shape "image:1,3,320,320"

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Copied from https://gitee.com/ascend/MindSpeed-RL/blob/master/mindspeed_rl/utils/utils.py
+# Copied from https://gitcode.com/ascend/MindSpeed-RL/blob/master/mindspeed_rl/utils/utils.py
 import os
 from functools import wraps
 

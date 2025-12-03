@@ -12,7 +12,7 @@ imagenet data is processed [as described here](https://github.com/facebook/fb.re
     torch(NPU版本)
     torchvision
     pillow
-    Installation guidance: https://gitee.com/ascend/pytorch/blob/master/docs/zh/PyTorch%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97/PyTorch%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97.md 
+    Installation guidance: https://gitcode.com/ascend/pytorch/blob/master/docs/zh/PyTorch%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97/PyTorch%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97.md 
 
 ## 二、训练流程：
 

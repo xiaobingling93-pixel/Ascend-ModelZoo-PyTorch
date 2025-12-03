@@ -40,7 +40,7 @@
 1. 获取本仓源码
 
 ```shell
-git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
 cd ModelZoo-PyTorch/ACL_PyTorch/contrib/audio/SenseVoice
 ```
 
@@ -64,7 +64,7 @@ cp ../om_infer.py ./
 4. 安装aisbench工具
    参考[aisbench](https://gitee.com/ascend/tools/tree/master/ais-bench_workload/tool/ais_bench)安装aisbench工具
 5. 安装msit工具
-   参考[msit](https://gitee.com/ascend/msit)安装工具中surgeon组件。
+   参考[msit](https://gitcode.com/ascend/msit)安装工具中surgeon组件。
 6. 获取权重
 
 + [SenseVoiceSmall](https://modelscope.cn/models/iic/SenseVoiceSmall/files)

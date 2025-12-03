@@ -93,7 +93,7 @@
    python3 setup.py install
    export PYTHONPATH=$(echo $(pwd)):$PYTHONPATH
    cd ..
-   git clone https://gitee.com/ascend/auto-optimizer.git
+   git clone https://gitcode.com/ascend/auto-optimizer.git
    cd auto-optimizer
    pip3 install -r requirements.txt
    python3 setup.py install

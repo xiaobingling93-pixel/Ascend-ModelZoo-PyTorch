@@ -36,7 +36,7 @@
 - 适配昇腾 AI 处理器的实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/contrib/cv/semantic_segmentation
   ```
   注：请将参考实现原仓中*mmseg/utils*目录下的*bpe_simple_vocab_16e6.txt.gz*文件手动下载后放置到适配实现的同目录下

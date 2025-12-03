@@ -35,7 +35,7 @@ commit_id=e50d12953ec51c128360181afe69db37298f30d2
 适配昇腾 AI 处理器的实现：
 
 ```
-url=https://gitee.com/ascend/ModelZoo-PyTorch
+url=https://gitcode.com/ascend/ModelZoo-PyTorch
 tag=v.0.4.0
 code_path=ACL_PyTorch/contrib/cv/detection
 ```
@@ -116,7 +116,7 @@ code_path=ACL_PyTorch/contrib/cv/detection
    # 安装必要依赖
    pip3 install -r requirements.txt
    # 安装改图依赖
-   git clone https://gitee.com/ascend/msadvisor.git
+   git clone https://gitcode.com/ascend/msadvisor.git
    cd auto-optimizer
    pip3 install -r requirements.txt
    python3 setup.py install

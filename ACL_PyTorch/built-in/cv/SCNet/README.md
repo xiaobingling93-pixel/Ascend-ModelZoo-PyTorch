@@ -29,7 +29,7 @@
   ```
   url=https://github.com/MCG-NKU/SCNet
   commit_id=c0b5bd6aa919c00afb5815b2810e645e6a4a5976
-  code_path=https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/SCNet
+  code_path=https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/SCNet
   model_name=SCNet
   ```
 

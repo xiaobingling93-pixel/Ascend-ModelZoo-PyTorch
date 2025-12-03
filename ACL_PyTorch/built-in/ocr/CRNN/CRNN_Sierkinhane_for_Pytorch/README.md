@@ -49,7 +49,7 @@ commit_id=a565687c4076b729d4059593b7570dd388055af4
    git reset --hard a565687c4076b729d4059593b7570dd388055af4
    ```
 
-2. 在 CRNN_Chinese_Characters_Rec 目录下新建一个 npu_infer 文件夹，把 Gitee 仓库 CRNN_sierkinhane_for_Pytorch 目录下的所有文件复制到 npu_infer 文件夹。
+2. 在 CRNN_Chinese_Characters_Rec 目录下新建一个 npu_infer 文件夹，把 Gitcode 仓库 CRNN_sierkinhane_for_Pytorch 目录下的所有文件复制到 npu_infer 文件夹。
 
 ### 准备数据集
 

@@ -42,7 +42,7 @@
 
 ## 获取本仓源码
 ```
-git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
 cd ModelZoo-PyTorch/ACL_PyTorch/built-in/audio/CosyVoice2
 ```
 
@@ -112,7 +112,7 @@ cd ModelZoo-PyTorch/ACL_PyTorch/built-in/audio/CosyVoice2
    
 3. 安装msit工具
    
-   参考[msit](https://gitee.com/ascend/msit/blob/master/msit/docs/install/README.md)安装工具中的benchmark和surgeon组件。（未安装会提示 ais_bench 导入失败报错）
+   参考[msit](https://gitcode.com/ascend/msit/blob/master/msit/docs/install/README.md)安装工具中的benchmark和surgeon组件。（未安装会提示 ais_bench 导入失败报错）
    推荐使用git clone源码方式安装msit组件，否则推理过程中易出现报错The stream is not in the current context.
 
 
@@ -226,4 +226,4 @@ cd ModelZoo-PyTorch/ACL_PyTorch/built-in/audio/CosyVoice2
 
    5. 运行modify_onnx.py时，如提示ModuleNotFoundError: No module named 'auto_optimizer'：
 
-      需先安装[msit](https://gitee.com/ascend/msit)工具。
+      需先安装[msit](https://gitcode.com/ascend/msit)工具。

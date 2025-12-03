@@ -1,4 +1,4 @@
-# 当前仓已不维护，请跳转至 https://gitee.com/ascend/DrivingSDK/tree/master/model_examples/
+# 当前仓已不维护，请跳转至 https://gitcode.com/ascend/DrivingSDK/tree/master/model_examples/
 
 # OpenPCDet for Pytorch
 
@@ -14,7 +14,7 @@ commit_id=255db8f02a8bd07211d2c91f54602d63c4c93356
 
 - 适配昇腾AI处理器的实现：
 ```
-url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
 code_path=PyTorch/built-in/autonoumous_driving
 ```
 
@@ -176,7 +176,7 @@ python -c "import torch_scatter"
 ```
 
 #### 2.5 编译安装mxDriving
-参考mxDriving官方gitee仓README安装编译构建并安装mxDriving包：[参考链接](https://gitee.com/ascend/mxDriving)
+参考mxDriving官方gitcode仓README安装编译构建并安装mxDriving包：[参考链接](https://gitcode.com/ascend/mxDriving)
 
 【注意】当前版本配套mxDriving RC3及以上版本，历史mxDriving版本需要model仓代码回退到git reset --hard 91ac141ecfe5872f4835eef6aa4662f46ede80c3
 【注意】安装完毕后建议运行以下命令，如无报错，证明安装无误，可继续安装流程

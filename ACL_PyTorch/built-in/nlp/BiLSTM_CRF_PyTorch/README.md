@@ -207,7 +207,7 @@ CLUENER 细粒度命名实体识别
 ## 推理验证
 
 1. 对数据集推理  
-    该离线模型使用ais_bench作为推理工具，请参考ais_bench的[**Gitee主页**](https://gitee.com/ascend/tools/tree/master/ais-bench_workload/tool/ais_bench)安装推理后端包aclruntime与推理前端包ais_bench。  
+    该离线模型使用ais_bench作为推理工具，请参考ais_bench的[**Gitcode主页**](https://gitee.com/ascend/tools/tree/master/ais-bench_workload/tool/ais_bench)安装推理后端包aclruntime与推理前端包ais_bench。  
     可直接使用命令方式对预处理后的数据进行推理，参考命令：
     ```bash
     python -m ais_bench \

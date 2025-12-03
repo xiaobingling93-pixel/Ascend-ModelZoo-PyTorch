@@ -81,7 +81,7 @@ mode_name = [
 1. 获取源码。
 
    ```bash
-   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git        # 克隆仓库的代码
+   git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git        # 克隆仓库的代码
    git checkout master                                            # 切换到对应分支
    cd ACL_PyTorch/contrib/cv/classfication/ViT                    # 切换到模型的代码仓目录
    ```
@@ -94,7 +94,7 @@ mode_name = [
 
 3. 安装改图工具 auto-optimizer
    ```bash
-   git clone https://gitee.com/ascend/msadvisor.git
+   git clone https://gitcode.com/ascend/msadvisor.git
    cd msadvisor/auto-optimizer
    pip3 install -r requirements.txt
    python3 setup.py install

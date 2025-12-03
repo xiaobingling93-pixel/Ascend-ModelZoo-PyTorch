@@ -29,7 +29,7 @@ LSTM是一种特殊的RNN模型，与普通RNN相比，LSTM可以更好地解决
 - 参考实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   commit_id=8ed54e7d0fc9b632e1e3b9420bed96ee2c7fa1e3
   code_path=ModelZoo-PyTorch/PyTorch/built-in/nlp/LSTM_ID0468_for_PyTorch
   model_name=LSTM
@@ -76,7 +76,7 @@ LSTM是一种特殊的RNN模型，与普通RNN相比，LSTM可以更好地解决
 1. 获取源码。
 
    ```
-   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+   git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
    cd ModelZoo-PyTorch
    cp -r PyTorch/built-in/nlp/LSTM_ID0468_for_PyTorch/NPU/1p/* ACL_PyTorch/built-in/audio/LSTM/
    cd ACL_PyTorch/built-in/audio/LSTM

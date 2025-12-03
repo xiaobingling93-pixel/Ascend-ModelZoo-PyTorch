@@ -42,7 +42,7 @@
 1. 获取本仓源码
    
    ```
-   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+   git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
    cd ModelZoo-PyTorch/ACL_PyTorch/built-in/audio/CosyVoice
    ```
 
@@ -81,7 +81,7 @@
 
 3. 安装msit工具
    
-   参考[msit](https://gitee.com/ascend/msit)安装工具中的benchmark和surgen组件。（未安装会提示 ais_bench 导入失败报错）
+   参考[msit](https://gitcode.com/ascend/msit)安装工具中的benchmark和surgen组件。（未安装会提示 ais_bench 导入失败报错）
    
 
 4. 获取权重数据

@@ -1,7 +1,7 @@
 
 # OpenSora1.1 for PyTorch
 
-**注意**： 本仓库OpenSora-1.1模型将不再进行维护，请使用[MindSpeed-MM](https://gitee.com/ascend/MindSpeed-MM/tree/master/examples/opensora1.2)
+**注意**： 本仓库OpenSora-1.1模型将不再进行维护，请使用[MindSpeed-MM](https://gitcode.com/ascend/MindSpeed-MM/tree/master/examples/opensora1.2)
 
 # 目录
 
@@ -56,7 +56,7 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
 - 适配昇腾 AI 处理器的实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/built-in/mm/
   ```
 
@@ -86,7 +86,7 @@ OpenSora是HPC AI Tech开发的开源高效复现类Sora视频生成方案。Ope
    ```
    安装mindspeed：
    ```
-   git clone https://gitee.com/ascend/MindSpeed.git
+   git clone https://gitcode.com/ascend/MindSpeed.git
    pip install -e MindSpeed
    ```
    获取 Megatron-LM 并指定 commit id:
@@ -192,7 +192,7 @@ https://github.com/hpcaitech/Open-Sora?tab=readme-ov-file#data-processing
    # 混合精度BF16，八卡训练，stage1
    ```
    对于本模型，可以采用绑核优化，以绑核方式启动。
-   绑核方法参考：https://gitee.com/ascend/att/tree/master/profiler/affinity_cpu_bind
+   绑核方法参考：https://gitcode.com/ascend/att/tree/master/profiler/affinity_cpu_bind
    本模型使用示例如下：
    ```
    python3 bind_core.py \

@@ -26,7 +26,7 @@
 - 适配昇腾 AI 处理器的实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/built-in/foundation/FlagAI
   ```
 
@@ -40,22 +40,22 @@
 
   PyTorch 版本 >= 1.8.0，建议使用 PyTorch 1.11.0
 
-  安装昇腾Megatron（流程参考 https://gitee.com/ascend/Megatron-LM）
+  安装昇腾Megatron（流程参考 https://gitcode.com/ascend/Megatron-LM）
 
-  安装昇腾Deepspeed（流程参考 https://gitee.com/ascend/DeepSpeed）
+  安装昇腾Deepspeed（流程参考 https://gitcode.com/ascend/DeepSpeed）
 
 
 - 安装依赖。
 
   在FlagAI根目录下执行命令，安装flagai库以及所需要的依赖。
   ```shell
-  git clone https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/built-in/foundation/FlagAI
+  git clone https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/built-in/foundation/FlagAI
   pip install -e .                    
   ```
   
-  源码编译安装torch 1.11.0 和 torch_npu v1.11.0 （流程参考 https://gitee.com/ascend/pytorch/tree/v1.11.0/）
+  源码编译安装torch 1.11.0 和 torch_npu v1.11.0 （流程参考 https://gitcode.com/ascend/pytorch/tree/v1.11.0/）
   
-  源码编译安装apex（流程参考 https://gitee.com/ascend/apex）
+  源码编译安装apex（流程参考 https://gitcode.com/ascend/apex）
 
 
 - 准备模型配置文件：

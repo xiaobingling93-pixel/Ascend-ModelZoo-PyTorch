@@ -25,7 +25,7 @@ VOLO是一种分类网络，VOLO采用两阶段架构设计，同时考虑了更
 - 适配昇腾 AI 处理器的实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/contrib/cv/classification
   ```
 

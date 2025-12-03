@@ -23,7 +23,7 @@ DLRM（Deep Learning Recommendation Model）是深度学习推荐模型的实现
 - 适配昇腾 AI 处理器的实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/contrib/others/
   ```
 

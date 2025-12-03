@@ -1,4 +1,4 @@
-# 当前仓已不维护，请跳转至 https://gitee.com/ascend/DrivingSDK/tree/master/model_examples/BEVDet
+# 当前仓已不维护，请跳转至 https://gitcode.com/ascend/DrivingSDK/tree/master/model_examples/BEVDet
 
 # BEVDet_for_PyTorch
 
@@ -37,7 +37,7 @@
 - 适配昇腾 AI 处理器的实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/contrib/autonoumous_driving
   ```
 
@@ -70,7 +70,7 @@
 
 - 安装Mx_Driving-Accelerator
 
-  请参考昇腾[mxDriving](https://gitee.com/ascend/mxDriving)代码仓说明编译安装Mx_Driving-Accelerator
+  请参考昇腾[mxDriving](https://gitcode.com/ascend/mxDriving)代码仓说明编译安装Mx_Driving-Accelerator
   【注意】当前版本配套mxDriving RC3及以上版本，历史mxDriving版本需要model仓代码回退到git reset --hard 91ac141ecfe5872f4835eef6aa4662f46ede80c3
 
 - 安装基础依赖

@@ -71,7 +71,7 @@
 
     2. 安装ONNX改图工具
     ```bash
-    git clone https://gitee.com/ascend/msadvisor.git
+    git clone https://gitcode.com/ascend/msadvisor.git
     cd msadvisor/auto-optimizer
     pip install --upgrade pip
     pip install wheel
@@ -84,7 +84,7 @@
     3. 参考[AMCT(ONNX)](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/80RC3alpha001/devaids/auxiliarydevtool/atlasamctonnx_16_0001.html)主页安装量化工具。  
     
 
-    4. 参考[ais_bench的Gitee主页](https://gitee.com/ascend/tools/tree/master/ais-bench_workload/tool/ais_bench)安装OM推理工具。  
+    4. 参考[ais_bench的Gitcode主页](https://gitee.com/ascend/tools/tree/master/ais-bench_workload/tool/ais_bench)安装OM推理工具。  
 
 2. 获取源码。
 
@@ -287,7 +287,7 @@
 
 2. 推理验证  
 
-    该模型使用`ais_bench`工具进行推理，其安装、用法等详细信息请参考[ais_bench工具Gitee主页](https://gitee.com/ascend/tools/tree/master/ais-bench_workload/tool/ais_bench)
+    该模型使用`ais_bench`工具进行推理，其安装、用法等详细信息请参考[ais_bench工具Gitcode主页](https://gitee.com/ascend/tools/tree/master/ais-bench_workload/tool/ais_bench)
 
 
     1. 执行推理  

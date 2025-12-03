@@ -110,7 +110,7 @@ model_name=model_base_vqa_capfilt_large
 
 2. 安装 msit 的 debug surgeon
 
-   请参考 [msit 安装指导](https://gitee.com/ascend/msit/blob/master/msit/docs/install/README.md)，安装 debug surgeon 组件即可。
+   请参考 [msit 安装指导](https://gitcode.com/ascend/msit/blob/master/msit/docs/install/README.md)，安装 debug surgeon 组件即可。
 
 3. 安装 ais_bench
 
@@ -119,7 +119,7 @@ model_name=model_base_vqa_capfilt_large
 4. 获取 ModelZoo 源码
 
    ```bash
-   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+   git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
    cd ModelZoo-PyTorch/ACL_PyTorch/built-in/foundation_models/blip_vqa
    ```
 

@@ -100,7 +100,7 @@ SSD模型是用于图像检测的模型，通过基于Resnet34残差卷积网络
 
    1.安装改图工具。
    ```
-   git clone https://gitee.com/ascend/msadvisor.git
+   git clone https://gitcode.com/ascend/msadvisor.git
    cd msadvisor/auto-optimizer
    pip3 install wheel ./
    cd ../../

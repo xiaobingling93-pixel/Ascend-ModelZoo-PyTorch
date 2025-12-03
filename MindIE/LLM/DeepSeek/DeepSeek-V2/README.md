@@ -18,7 +18,7 @@
 | 变量名      | 含义                                                                                                                                                     |
 | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | working_dir     | 加速库及模型库下载后放置的目录                                                                                                                           |
-| llm_path        | 模型仓所在路径。若使用编译好的包，则路径为`${working_dir}/MindIE-LLM/`；若使用 gitee 下载的代码，则路径为`${working_dir}/MindIE-LLM/examples/atb_models` |
+| llm_path        | 模型仓所在路径。若使用编译好的包，则路径为`${working_dir}/MindIE-LLM/`；若使用 gitcode 下载的代码，则路径为`${working_dir}/MindIE-LLM/examples/atb_models` |
 | script_path     | 脚本所在路径；Deepseek-MoE 的工作脚本所在路径为`${llm_path}/examples/models/deepseekv2`                                                                    |
 | weight_path     | 模型权重路径                                                                                                                                             |
 | rank_table_path | Rank table文件路径                                                                                                                                              |
@@ -32,7 +32,7 @@
 
 ## 生成量化权重
 
-- 生成量化权重依赖msModelSlim工具，安装方式见[此README](https://gitee.com/ascend/msit/tree/dev/msmodelslim)。
+- 生成量化权重依赖msModelSlim工具，安装方式见[此README](https://gitcode.com/ascend/msit/tree/dev/msmodelslim)。
 - 量化权重统一使用`${llm_path}/examples/convert/model_slim/quantifier.py`脚本生成，以下提供DeepSeek-V2模型量化权重生成快速启动命令，各模型量化方式的具体参数配置见`${llm_path}/examples/models/deepseekv2/generate_quant_weight.sh`
 - 当前DeepSeek-V2支持W8A16、W8A8 dynamic量化，通过以下命令生成量化权重：
 ```shell

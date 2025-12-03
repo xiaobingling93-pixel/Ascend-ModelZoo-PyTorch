@@ -170,7 +170,7 @@
     安装auto_optimizer
 
     ```shell
-    git clone https://gitee.com/ascend/auto-optimizer.git
+    git clone https://gitcode.com/ascend/auto-optimizer.git
     cd auto-optimizer
     git reset --hard 52e2f791ba6fa9d55c5b57f0a2521c69aed01ea9
     pip3 install -r requirements.txt

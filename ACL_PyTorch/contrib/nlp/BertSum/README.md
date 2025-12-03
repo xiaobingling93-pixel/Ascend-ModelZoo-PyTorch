@@ -66,7 +66,7 @@ BertSum模型主要由句子编码层和摘要判断层组成，其中，`句子
 1. 获取源码。
 
    ```
-   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git        # 克隆仓库的代码
+   git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git        # 克隆仓库的代码
    git checkout master         # 切换到对应分支
    cd ACL_PyTorch/contrib/nlp/BertSum              # 切换到模型的代码仓目录
    ```

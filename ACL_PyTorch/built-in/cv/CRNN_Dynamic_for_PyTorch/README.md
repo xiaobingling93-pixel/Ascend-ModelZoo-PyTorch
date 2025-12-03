@@ -137,7 +137,7 @@
 
 2. 改图
 
-   使用`auto-optimizer`进行改图，安装参考[链接](https://gitee.com/ascend/msadvisor/tree/master/auto-optimizer)，而后运行`fix.py`
+   使用`auto-optimizer`进行改图，安装参考[链接](https://gitcode.com/ascend/msadvisor/tree/master/auto-optimizer)，而后运行`fix.py`
    ```
    python3 fix.py crnn_dy_raw.onnx crnn_dy.onnx
    ```

@@ -6,4 +6,4 @@
 
 1. 继续使用模型README中的配套版本
 
-2. （推荐）使用[MindSpeed-MM](https://gitee.com/ascend/MindSpeed-MM/tree/master/examples)仓库中更前沿的模型作为替代模型
+2. （推荐）使用[MindSpeed-MM](https://gitcode.com/ascend/MindSpeed-MM/tree/master/examples)仓库中更前沿的模型作为替代模型

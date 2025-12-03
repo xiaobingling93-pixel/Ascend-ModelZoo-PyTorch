@@ -23,7 +23,7 @@ LAVIS 是一个多模态模型套件，包含CLIP、ALBEF、BLIP、BLIP2、Instr
 - 适配昇腾 AI 处理器的实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/built-in/mlm/LAVIS
   ```
 
@@ -89,7 +89,7 @@ LAVIS 是一个多模态模型套件，包含CLIP、ALBEF、BLIP、BLIP2、Instr
   pip install -e .                    # 安装LAVIS以及所需的依赖
   ```
 
-- 安装Megatron-LM: 参考[MindSpeed安装章节](https://gitee.com/ascend/MindSpeed/tree/1.0.0_core_r0.6.0/)中安装megatron的方法安装
+- 安装Megatron-LM: 参考[MindSpeed安装章节](https://gitcode.com/ascend/MindSpeed/tree/1.0.0_core_r0.6.0/)中安装megatron的方法安装
 
 ## 适配情况
 

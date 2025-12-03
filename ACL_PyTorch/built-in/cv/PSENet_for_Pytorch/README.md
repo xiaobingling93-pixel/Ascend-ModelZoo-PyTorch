@@ -73,7 +73,7 @@ PSENet(渐进式的尺度扩张网络)是一种文本检测器，能够很好地
 ## 获取源码<a name="section4622531142816"></a>
 1. 获取源码
    ```
-   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+   git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
    cd ModelZoo-PyTorch/ACL_PyTorch/built-in/cv/PSENet_for_Pytorch
    ```
 2. 安装依赖。

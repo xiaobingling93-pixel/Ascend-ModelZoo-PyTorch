@@ -52,7 +52,7 @@ Tacotron2是由Google Brain在2017年提出来的一个End-to-End语音合成框
 | 固件与驱动                                                   | 22.0.3  | [Pytorch框架推理环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies) |
 | CANN                                                         | 6.0.RC1 | -                                                            |
 | Python                                                       | 3.7.5   | -                                                            |
-| PyTorch                                                      | 1.11.0  | [AscendPytorch安装](https://gitee.com/ascend/pytorch/tree/v1.11.0/) |
+| PyTorch                                                      | 1.11.0  | [AscendPytorch安装](https://gitcode.com/ascend/pytorch/tree/v1.11.0/) |
 | 说明：Atlas 300I Duo 推理卡请以CANN版本选择实际固件与驱动版本。 | \       | \                                                            |
 
 

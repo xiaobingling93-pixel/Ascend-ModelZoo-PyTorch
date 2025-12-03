@@ -171,7 +171,7 @@ commit_id=1eab4106330f275ab3c5dfb910ddd79a5bac95ef
     
        - softmax.py修改模型节点需要和onnx模型中Softmax节点name保持一致。如果执行脚本报错时参考onnx图中Softmax节点的name。
        
-       - ONNX改图依赖om_gener工具，下载链接：https://gitee.com/ascend/modelzoo/tree/master/built-in/ACL_PyTorch/Official/nlp/VilBert_for_Pytorch/om_gener
+       - ONNX改图依赖om_gener工具，下载链接：https://gitcode.com/ascend/modelzoo/tree/master/built-in/ACL_PyTorch/Official/nlp/VilBert_for_Pytorch/om_gener
 
 
    5. 修改atc.sh脚本，通过ATC工具使用脚本完成转换，具体的脚本示例如下：

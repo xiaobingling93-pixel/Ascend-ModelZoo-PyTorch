@@ -69,7 +69,7 @@
 1. 获取源码。
 
    ```bash
-   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git        # 克隆仓库的代码
+   git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git        # 克隆仓库的代码
    git checkout master         # 切换到对应分支
    cd ACL_PyTorch/built-in/nlp/Bert_Base_Chinese_for_Pytorch/downstream_tasks/sequence_labeling              # 切换到模型的代码仓目录
    ```
@@ -82,7 +82,7 @@
 
 3. 安装昇腾推理工具
 
-   请访问[msit代码仓](https://gitee.com/ascend/msit/tree/master/msit/)，根据readme文档进行工具安装。可只安装需要的组件：debug surgeon，其他组件为可选安装。
+   请访问[msit代码仓](https://gitcode.com/ascend/msit/tree/master/msit/)，根据readme文档进行工具安装。可只安装需要的组件：debug surgeon，其他组件为可选安装。
    
    请访问[ais_bench](https://gitee.com/ascend/tools/tree/master/ais-bench_workload/tool/ais_bench)，根据readme文件进行工具安装，建议使用whl包进行安装。
 

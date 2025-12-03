@@ -23,7 +23,7 @@ SPACH是由来自Microsoft Research和中国科学技术大学的学者提出的
 - 适配昇腾 AI 处理器的实现：
 
     ```
-    url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+    url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
     code_path=PyTorch/contrib/cv/classification
     ```
 

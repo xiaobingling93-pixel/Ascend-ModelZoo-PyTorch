@@ -24,7 +24,7 @@ Vit_small_patch16_224模型把Transformer设计思路用在视觉任务如图片
 - 适配昇腾 AI 处理器的实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/contrib/cv/classification
   ```
 

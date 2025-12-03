@@ -24,14 +24,14 @@
     ```
   - 适配昇腾 AI 处理器的实现：
     ```
-    https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/contrib/nlp/Telechat
+    https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/contrib/nlp/Telechat
     ```
   
 # 训练环境准备<a name="ZH-CN_TOPIC_0000001126281702"></a>
 
-该模型为不随版本演进模型（随版本演进模型范围可在[此处](https://gitee.com/ascend/ModelZoo-PyTorch/blob/master/PyTorch/README.CN.md)查看），未在最新昇腾配套软件中适配验证，您可以：
-1. 根据下面提供PyTorch版本在[软件版本配套表](https://gitee.com/ascend/pytorch#%E6%98%87%E8%85%BE%E8%BE%85%E5%8A%A9%E8%BD%AF%E4%BB%B6)中选择匹配的CANN等软件下载使用。
-2. 查看[软件版本配套表](https://gitee.com/ascend/pytorch#%E6%98%87%E8%85%BE%E8%BE%85%E5%8A%A9%E8%BD%AF%E4%BB%B6)后确认对该模型有新版本PyTorch和CANN中的适配需求，请在[modelzoo/issues](https://gitee.com/ascend/modelzoo/issues)中提出您的需求。**自行适配不保证精度和性能达标。**
+该模型为不随版本演进模型（随版本演进模型范围可在[此处](https://gitcode.com/ascend/ModelZoo-PyTorch/blob/master/PyTorch/README.CN.md)查看），未在最新昇腾配套软件中适配验证，您可以：
+1. 根据下面提供PyTorch版本在[软件版本配套表](https://gitcode.com/ascend/pytorch#%E6%98%87%E8%85%BE%E8%BE%85%E5%8A%A9%E8%BD%AF%E4%BB%B6)中选择匹配的CANN等软件下载使用。
+2. 查看[软件版本配套表](https://gitcode.com/ascend/pytorch#%E6%98%87%E8%85%BE%E8%BE%85%E5%8A%A9%E8%BD%AF%E4%BB%B6)后确认对该模型有新版本PyTorch和CANN中的适配需求，请在[modelzoo/issues](https://gitcode.com/ascend/modelzoo/issues)中提出您的需求。**自行适配不保证精度和性能达标。**
 
 - 该模型需要以下插件与驱动
 
@@ -41,7 +41,7 @@
   | ------------------------------------------------------------ | ------- | ------------------------------------------------------------ |
   | 固件与驱动                                                   | 23.0.0  | [固件与驱动](https://support.huawei.com/enterprise/zh/ascend-computing/ascend-hdk-pid-252764743/software/258924109?idAbsPath=fixnode01%7C23710424%7C251366513%7C22892968%7C252764743) |
   | CANN（toolkit+kernels）                                     | 7.0.0   | [CANN](https://support.huawei.com/enterprise/zh/ascend-computing/cann-pid-251168373/software/258923273?idAbsPath=fixnode01%7C23710424%7C251366513%7C22892968%7C251168373) |
-  | FrameworkPTAdapter (pytorch2.1.0)                           | 5.0.0   | [PTA](https://gitee.com/ascend/pytorch/releases/) | 
+  | FrameworkPTAdapter (pytorch2.1.0)                           | 5.0.0   | [PTA](https://gitcode.com/ascend/pytorch/releases/) | 
   | Python                                                     | 3.9   | -                                                            |            
 
 
@@ -59,7 +59,7 @@
    # 拉取telechat开源代码仓
    git clone https://github.com/Tele-AI/Telechat
    # 拉取昇腾适配代码仓
-   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+   git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
    ```
 
 2. 昇腾软件环境搭建
@@ -133,7 +133,7 @@
    4.3  (**可选**) 安装 deepspeed和 (**必选**) deepspeed_npu 
    ```
    pip3 install deepspeed==0.9.2 
-   git clone https://gitee.com/ascend/DeepSpeed.git -b v0.9.2 deepspeed_npu
+   git clone https://gitcode.com/ascend/DeepSpeed.git -b v0.9.2 deepspeed_npu
    cd deepspeed_npu
    pip3 install -e ./
    cd ..

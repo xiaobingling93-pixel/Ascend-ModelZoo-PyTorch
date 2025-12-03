@@ -40,7 +40,7 @@ CogVLM is VISUAL EXPERT FOR LARGE LANGUAGE 是一个多模态视觉-文本模型
   ```
 - 适配昇腾 AI 处理器的实现：
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/built-in/foundation/CogVLM
   ```
   

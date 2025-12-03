@@ -21,7 +21,7 @@ cd ..
 
 4.获取数据集 [VoxCeleb1](https://www.robots.ox.ac.uk/~vgg/data/voxceleb/vox1.html) ，下载Audio files测试集，重命名VoxCeleb1，确保VoxCeleb1下全部为id1xxxx文件夹，放到/root/datasets目录,注：该路径为绝对路径
 
-5.获取 [msame工具](https://gitee.com/ascend/tools/tree/master/msame) 和 [benchmark工具](https://gitee.com/ascend/cann-benchmark/tree/master/infer)
+5.获取 [msame工具](https://gitee.com/ascend/tools/tree/master/msame) 和 [benchmark工具](https://gitcode.com/ascend/cann-benchmark/tree/master/infer)
 
 将msame和benchmark.x86_64放到与test文件夹同级目录下。
 

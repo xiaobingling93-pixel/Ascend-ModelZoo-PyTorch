@@ -28,7 +28,7 @@ RDN用于图像超分辨率的残差密集网络,主要是提出了网络结构R
   ```
   url=https://github.com/yjn870/RDN-pytorch
   commit_id=f2641c0817f9e1f72acd961e3ebf42c89778a054
-  code_path=https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/super_resolution/RDN
+  code_path=https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/super_resolution/RDN
   model_name=RDN
   ```
 

@@ -78,7 +78,7 @@
    patch -p1 < ../db.diff
    cd ..
    ```
-   并把gitee所有的py文件全部移到`DB`中
+   并把gitcode所有的py文件全部移到`DB`中
    
    备注说明,如果出现`Hunk FAILED`，可以使用以下方法
    ```bash

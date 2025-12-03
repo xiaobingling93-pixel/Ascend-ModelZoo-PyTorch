@@ -83,7 +83,7 @@ BERT（Bidirectional Encoder Representations from Transformers）是一种预训
 1. 获取本仓源码。
 
    ```shell
-   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git        # 克隆仓库的代码
+   git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git        # 克隆仓库的代码
    git checkout master                                            # 切换到对应分支
    cd ModelZoo-PyTorch/ACL_PyTorch/built-in/nlp/Bert_Uncased_Huggingface           # 切换到模型的代码仓目录
    ```
@@ -108,10 +108,10 @@ BERT（Bidirectional Encoder Representations from Transformers）是一种预训
    pip3 install -r requirements.txt
    ```
 
-4. 安装改图依赖 [auto-optimizer](https://gitee.com/ascend/msadvisor/tree/master/auto-optimizer)。
+4. 安装改图依赖 [auto-optimizer](https://gitcode.com/ascend/msadvisor/tree/master/auto-optimizer)。
 
    ```shell
-   git clone https://gitee.com/ascend/msadvisor.git
+   git clone https://gitcode.com/ascend/msadvisor.git
    cd msadvisor/auto-optimizer
    pip3 install -r requirements.txt
    python3 setup.py install&&cd ../..

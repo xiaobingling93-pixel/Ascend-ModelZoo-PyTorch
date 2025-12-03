@@ -32,7 +32,7 @@ DETR是将目标检测视为一个集合预测问题（集合其实和anchors的
   适配昇腾 AI 处理器的实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch
   tag=v.0.4.0
   code_path=ACL_PyTorch/contrib/cv/detection
   ```

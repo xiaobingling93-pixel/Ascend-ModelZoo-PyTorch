@@ -150,7 +150,7 @@ GPT-2 模型只使用了多个Masked Self-Attention和Feed Forward Neural Networ
 
          2. 改图
             
-            使用auto-optimizer改图，获取安装使用请参考[这里](https://gitee.com/ascend/msadvisor/tree/master/auto-optimizer)
+            使用auto-optimizer改图，获取安装使用请参考[这里](https://gitcode.com/ascend/msadvisor/tree/master/auto-optimizer)
 
             ```
             python3 opt_onnx_update.py onnx_sim_and_modify/gpt2_4bs_sim.onnx onnx_sim_and_modify/gpt2_4bs_sim_modify.onnx

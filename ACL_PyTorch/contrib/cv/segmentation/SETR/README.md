@@ -37,7 +37,7 @@ commit_id=23f8fde88182c7965e91c28a0c59d9851af46858
 适配昇腾 AI 处理器的实现：
 
 ```shell
-url=https://gitee.com/ascend/ModelZoo-PyTorch
+url=https://gitcode.com/ascend/ModelZoo-PyTorch
 tag=v.0.4.0
 code_path=ACL_PyTorch/contrib/cv/segmentation
 ```
@@ -108,7 +108,7 @@ code_path=ACL_PyTorch/contrib/cv/segmentation
 1. 获取源码。
 
    ```
-   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+   git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
    cd /ModelZoo-PyTorch/ACL_PyTorch\contrib\cv\segmentation\SETR
    ```
 

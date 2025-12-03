@@ -24,7 +24,7 @@ YOLOR提出了一个统一的网络来同时编码显式知识和隐式知识，
 - 适配昇腾 AI 处理器的实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/contrib/cv/detection
   ```
 

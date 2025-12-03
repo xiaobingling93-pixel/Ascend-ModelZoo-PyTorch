@@ -1,7 +1,7 @@
 
 # LLaVA for PyTorch
 
-**注意**： 本仓库中LLaVA模型将不再进行维护，请使用[MindSpeed-MM](https://gitee.com/ascend/MindSpeed-MM/tree/master/examples/llava1.5)
+**注意**： 本仓库中LLaVA模型将不再进行维护，请使用[MindSpeed-MM](https://gitcode.com/ascend/MindSpeed-MM/tree/master/examples/llava1.5)
 
 
 # 目录
@@ -47,7 +47,7 @@ LLaVA是一种新颖的端到端训练的大型多模态模型，它结合了视
 
 - 适配昇腾AI处理器的实现：
   ```shell
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/built-in/mlm/LLaVA
   ```
 
@@ -57,7 +57,7 @@ LLaVA是一种新颖的端到端训练的大型多模态模型，它结合了视
 
 - git clone 远程仓
   ```shell
-  git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+  git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
   cd PyTorch/built-in/mlm/LLaVA
   ```
 

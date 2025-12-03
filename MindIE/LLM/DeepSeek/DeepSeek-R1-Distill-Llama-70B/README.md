@@ -69,7 +69,7 @@ docker run -it -d --net=host --shm-size=1g \
     -v /path-to-weights:/path-to-weights:ro \
     mindie:2.0.RC2-800I-A2-py311-openeuler24.03-lts bash
 ```
-更多镜像使用信息请参考[官方镜像仓库文档](https://gitee.com/ascend/ascend-docker-image/tree/dev/mindie#%E5%90%AF%E5%8A%A8%E5%AE%B9%E5%99%A8)。
+更多镜像使用信息请参考[官方镜像仓库文档](https://gitcode.com/ascend/ascend-docker-image/tree/dev/mindie#%E5%90%AF%E5%8A%A8%E5%AE%B9%E5%99%A8)。
 
 ## 进入容器
 ```shell
@@ -78,7 +78,7 @@ docker exec -it ${容器名称} bash
 
 ## 量化权重生成
 ### Atlas 800I A2 w8a8量化
-* 生成量化权重依赖msModelSlim工具，安装方式见[此README](https://gitee.com/ascend/msit/tree/master/msmodelslim)
+* 生成量化权重依赖msModelSlim工具，安装方式见[此README](https://gitcode.com/ascend/msit/tree/master/msmodelslim)
 
 * 进入到msit/msmodelslim/example/Llama的目录 `cd msit/msmodelslim/example/Llama`；
 

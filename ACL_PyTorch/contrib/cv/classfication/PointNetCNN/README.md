@@ -144,7 +144,7 @@ PointNetCNN是一个简单而通用的从点云中学习特征的框架。在图
 
       2. 优化onnx模型
 
-         请访问[aoto-optimizer优化工具](https://gitee.com/ascend/msadvisor/tree/master/auto-optimizer)代码仓，根据readme文档进行工具安装。
+         请访问[aoto-optimizer优化工具](https://gitcode.com/ascend/msadvisor/tree/master/auto-optimizer)代码仓，根据readme文档进行工具安装。
 
          ```
          python3 PointNetCNN_modify_onnx.py pointnetcnn.onnx pointnetcnn_new.onnx

@@ -22,7 +22,7 @@ RDN主要是提出了网络结构RDB(residual dense blocks)，它本质上就是
 - 适配昇腾 AI 处理器的实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/contrib/cv/others
   ```
 

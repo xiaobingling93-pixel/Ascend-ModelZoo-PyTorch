@@ -29,7 +29,7 @@
 - 参考实现：
 
   ```
-  url=https://gitee.com/ascend/modelzoo
+  url=https://gitcode.com/ascend/modelzoo
   commit_id=718e303e705102860809894a623ae80e0103b7fd
   code_path=ACL_PyTorch\contrib\audio\LSTM
   model_name=LSTM
@@ -90,7 +90,7 @@
 1. 获取数据处理脚本
 
    ```
-   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+   git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
    cd /ModelZoo-PyTorch/PyTorch/built-in/nlp/LSTM_ID0468_for_PyTorch/NPU/1p/
    ```
 

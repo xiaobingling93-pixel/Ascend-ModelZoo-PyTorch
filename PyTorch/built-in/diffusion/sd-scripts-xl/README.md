@@ -40,7 +40,7 @@ Stable Diffusion(SD)是计算机视觉领域的一个生成式大模型，能够
 - 适配昇腾 AI 处理器的实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/built-in/diffusion/
   ```
 # sd-scripts-xl
@@ -78,7 +78,7 @@ Stable Diffusion(SD)是计算机视觉领域的一个生成式大模型，能够
      pip install -r requirements.txt 
      ```
   
-  2. 参考[gitee官仓](https://gitee.com/ascend/vision/tree/v0.12.0-dev/)安装对应0.12.0版本的torchvision和torchvision_npu。
+  2. 参考[gitcode官仓](https://gitcode.com/ascend/vision/tree/v0.12.0-dev/)安装对应0.12.0版本的torchvision和torchvision_npu。
   
 - 替换三方库补丁。
 

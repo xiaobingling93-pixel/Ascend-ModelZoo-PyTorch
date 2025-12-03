@@ -202,7 +202,7 @@ ml_PP-OCRv3_det是基于PP-OCRv3的混合语言文本检测模型，PP-OCRv3在P
 
 2. 开始推理验证。
 
-   OM模型使用ais_bench作为推理工具，其介绍、安装、使用、参数说明请参考ais_bench工具的[Gitee主页](https://gitee.com/ascend/tools/tree/master/ais-bench_workload/tool/ais_bench)。因为模型的特殊性，这里调用ais_benchd的推理接口进行推理。
+   OM模型使用ais_bench作为推理工具，其介绍、安装、使用、参数说明请参考ais_bench工具的[Gitcode主页](https://gitee.com/ascend/tools/tree/master/ais-bench_workload/tool/ais_bench)。因为模型的特殊性，这里调用ais_benchd的推理接口进行推理。
 
    1. 执行推理。
 

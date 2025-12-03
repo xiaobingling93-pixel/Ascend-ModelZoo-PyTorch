@@ -24,7 +24,7 @@ YOLACT++是用于实时实例分割的卷积神经网络，该网络将DCNv2和R
 - 适配昇腾 AI 处理器的实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/contrib/cv/detection
   ```
 

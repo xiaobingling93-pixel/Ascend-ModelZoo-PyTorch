@@ -1,4 +1,4 @@
-# 当前模型脚本已不随版本演进，如使用此模型可跳转至该[地址](https://gitee.com/ascend/MindSpeed-LLM)
+# 当前模型脚本已不随版本演进，如使用此模型可跳转至该[地址](https://gitcode.com/ascend/MindSpeed-LLM)
 
 #  baichuan-13B
 
@@ -18,7 +18,7 @@ LLaMA Factory是一个易于使用的LLM微调框架。它使用一个简单的W
 - 适配昇腾 AI 处理器的实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/built-in/foundation
   ```
 
@@ -54,7 +54,7 @@ LLaMA Factory是一个易于使用的LLM微调框架。它使用一个简单的W
 
     # install deepspeed and deepspeed_npu
     pip install deepspeed==0.9.2
-    git clone https://gitee.com/ascend/DeepSpeed.git -b v0.9.2 deepspeed_npu
+    git clone https://gitcode.com/ascend/DeepSpeed.git -b v0.9.2 deepspeed_npu
     cd deepspeed_npu
     pip3 install -e ./
     cd ..
@@ -200,7 +200,7 @@ ssh node2
 
 ### 准备代码
 ```
-git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
 cd ModelZoo-PyTorch/PyTorch/built-in/foundation/Baichuan-13B
 
 git clone https://github.com/hiyouga/LLaMA-Factory/tree/7a5318804870b1f2bedec8d4a676e465b48d5c3e

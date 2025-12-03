@@ -218,7 +218,7 @@ Yaojie Lu等人在ACL-2022中提出了通用信息抽取统一框架UIE。该框
 
          2. 改图
             
-            使用auto-optimizer改图，获取安装使用请参考[这里](https://gitee.com/ascend/msadvisor/tree/master/auto-optimizer)
+            使用auto-optimizer改图，获取安装使用请参考[这里](https://gitcode.com/ascend/msadvisor/tree/master/auto-optimizer)
 
             ```
             # 四个参数对应:

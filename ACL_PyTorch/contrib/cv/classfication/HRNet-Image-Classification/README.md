@@ -28,7 +28,7 @@ HRNet（High-Resolution Net）是针对2D人体姿态估计（Human Pose Estimat
   ```
   url=https://github.com/HRNet/HRNet-Image-Classification
   commit_id=f130a24bf09b7f23ebd0075271f76c4a188093b2
-  code_path=https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/HRNet-Image-Classification
+  code_path=https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/HRNet-Image-Classification
   model_name=HRNet
   ```
 

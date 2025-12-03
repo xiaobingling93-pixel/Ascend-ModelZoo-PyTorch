@@ -1,4 +1,4 @@
-# 当前仓已不维护，请跳转至 https://gitee.com/ascend/DrivingSDK/tree/master/model_examples/UniAD
+# 当前仓已不维护，请跳转至 https://gitcode.com/ascend/DrivingSDK/tree/master/model_examples/UniAD
 
 ## 目录
 
@@ -34,7 +34,7 @@
 - 适配昇腾 AI 处理器的实现：
 
     ```
-    url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+    url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
     code_path=PyTorch/built-in/autonoumous_driving 
     ```
 # UniAD
@@ -138,7 +138,7 @@
   pip install -r requirements.txt
   ```
 
-- 安装mxDriving加速库，安装方法参考[原仓](https://gitee.com/ascend/mxDriving)，安装后手动source环境变量或将其配置在test/env_npu.sh中。
+- 安装mxDriving加速库，安装方法参考[原仓](https://gitcode.com/ascend/mxDriving)，安装后手动source环境变量或将其配置在test/env_npu.sh中。
   【注意】当前版本配套mxDriving RC3及以上版本，历史mxDriving版本需要model仓代码回退到git reset --hard 91ac141ecfe5872f4835eef6aa4662f46ede80c3
 
 ### 准备数据集

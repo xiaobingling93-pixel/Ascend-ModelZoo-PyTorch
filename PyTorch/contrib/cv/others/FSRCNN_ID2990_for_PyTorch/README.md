@@ -51,7 +51,7 @@ python3 prepare.py --images-dir "images-dir" \
 
     环境变量配置信息参见：
 
-    [Ascend 910训练平台环境变量设置](https://gitee.com/ascend/modelzoo/wikis/Ascend 910训练平台环境变量设置?sort_id=3148819)
+    [Ascend 910训练平台环境变量设置](https://gitcode.com/ascend/modelzoo/wikis/Ascend 910训练平台环境变量设置?sort_id=3148819)
 
   - 单卡训练
 

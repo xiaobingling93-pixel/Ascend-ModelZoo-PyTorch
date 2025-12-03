@@ -25,7 +25,7 @@ The CascadeMaskRCNN model is an instance segmentation model provided by MMDetect
 - Implementation adapted to Ascend：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/dev/perf/
   ```
 

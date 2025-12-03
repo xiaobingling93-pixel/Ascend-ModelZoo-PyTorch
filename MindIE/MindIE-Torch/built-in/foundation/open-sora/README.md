@@ -56,7 +56,7 @@ cd ${AieInstallPath}/mindie && source set_env.sh
 
 ### 2.4 下载本仓库
 ```shell
-   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+   git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
 ```
 
 ### 2.5 安装所需依赖

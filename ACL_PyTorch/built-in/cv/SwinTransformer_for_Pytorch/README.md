@@ -80,7 +80,7 @@
    pip3 install -r requirements.txt
    ```
 
-3. 请访问[msit代码仓](https://gitee.com/ascend/msit/tree/master/msit/)，根据readme文档进行工具安装。可只安装需要的组件：debug surgeon，其他组件为可选安装。
+3. 请访问[msit代码仓](https://gitcode.com/ascend/msit/tree/master/msit/)，根据readme文档进行工具安装。可只安装需要的组件：debug surgeon，其他组件为可选安装。
 
 ## 准备数据集<a name="section183221994411"></a>
 

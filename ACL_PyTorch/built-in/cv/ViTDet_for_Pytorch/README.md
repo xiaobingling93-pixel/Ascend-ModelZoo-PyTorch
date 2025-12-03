@@ -58,7 +58,7 @@ ViTDet使用公共数据集COCO进行推理
 1. 获取本仓源码
    
    ```
-   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+   git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
    cd ModelZoo-PyTorch/ACL_PyTorch/built-in/cv/ViTDet_for_Pytorch
    ```
 

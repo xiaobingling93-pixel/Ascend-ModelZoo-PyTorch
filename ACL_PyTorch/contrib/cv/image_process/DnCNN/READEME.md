@@ -30,7 +30,7 @@ DnCNN作为去噪神经网络非常出名，这个网络强调了residual learni
   ```
   url=https://github.com/SaoYan/DnCNN-PyTorch
   commit_id=6b0804951484eadb7f1ea24e8e5c9ede9bea485b
-  code_path=https://gitee.com/ascend/ModelZoo-PyTorch/blob/master/ACL_PyTorch/contrib/cv/image_process/DnCNN
+  code_path=https://gitcode.com/ascend/ModelZoo-PyTorch/blob/master/ACL_PyTorch/contrib/cv/image_process/DnCNN
   model_name=DnCNN
   ```
 

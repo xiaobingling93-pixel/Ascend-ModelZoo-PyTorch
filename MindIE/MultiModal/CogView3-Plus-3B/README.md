@@ -93,7 +93,7 @@ export CPLUS_INCLUDE_PATH=/usr/include/c++/12/:/usr/include/c++/12/aarch64-openE
 
 ### 2.6 下载本仓库
 ```shell
-   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+   git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
 ```
 
 ### 2.7 安装所需依赖
@@ -204,7 +204,7 @@ python inference_cogview3plus.py \
 # 下载Parti数据集
 wget https://raw.githubusercontent.com/google-research/parti/main/PartiPrompts.tsv --no-check-certificate
 ```
-hpsv2数据集下载链接：https://gitee.com/ascend/ModelZoo-PyTorch/blob/master/MindIE/MindIE-Torch/built-in/foundation/stable_diffusion_xl/hpsv2_benchmark_prompts.json
+hpsv2数据集下载链接：https://gitcode.com/ascend/ModelZoo-PyTorch/blob/master/MindIE/MindIE-Torch/built-in/foundation/stable_diffusion_xl/hpsv2_benchmark_prompts.json
 
 2. 设置模型权重路径
 ```shell

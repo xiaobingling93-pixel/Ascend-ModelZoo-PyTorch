@@ -27,7 +27,7 @@
 扩散模型 (Diffusion Models) 是一种生成模型，可生成各种各样的高分辨率图像。Diffusers 是Huggingface发布的模型套件，是最先进的预训练扩散模型的首选库，用于生成图像，音频甚至分子的3D结构。套件包含基于扩散模型的多种个模型，提供了各种下游任务的训练与推理的实现。
 本仓库主要将SDXL、SVD模型的多个任务迁移到了昇腾NPU上，并进行极致性能优化。
 
-> <span style="color: red;">**注意**: diffusers0.25.0目录下面的SDXL模型已经集成到[MindSpeed-MM](https://gitee.com/ascend/MindSpeed-MM)中,当前目录下的SDXL模型不再维护，MindSpeed-MM是面向大规模分布式训练的昇腾多模态大模型套件，同时支持多模态生成及多模态理解,欢迎大家使用。</span>
+> <span style="color: red;">**注意**: diffusers0.25.0目录下面的SDXL模型已经集成到[MindSpeed-MM](https://gitcode.com/ascend/MindSpeed-MM)中,当前目录下的SDXL模型不再维护，MindSpeed-MM是面向大规模分布式训练的昇腾多模态大模型套件，同时支持多模态生成及多模态理解,欢迎大家使用。</span>
 
 
 ## 支持任务列表
@@ -55,7 +55,7 @@
 - 适配昇腾 AI 处理器的实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/built-in/diffusion/
   ```
 

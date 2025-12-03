@@ -11,7 +11,7 @@ conda activate convnext
 
 Clone this repo and install required packages:
 ```
-git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
 ```
 
 The results in the paper are produced with `torch==1.8.1+ascend.rc2.20220505;torchvision==0.9.1;torch-npu 1.8.1rc2.post20220505 `.

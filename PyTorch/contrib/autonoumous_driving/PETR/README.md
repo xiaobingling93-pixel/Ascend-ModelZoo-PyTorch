@@ -48,7 +48,7 @@ PETR开发了用于多视图3D对象检测的位置嵌入变换(PETR)。PETR将3
 - 适配昇腾 AI 处理器的实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/contrib/autonoumous_driving
   ```
 

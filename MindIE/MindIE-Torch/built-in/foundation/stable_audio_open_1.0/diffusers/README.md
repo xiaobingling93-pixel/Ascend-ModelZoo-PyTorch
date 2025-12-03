@@ -64,7 +64,7 @@ https://www.hiascend.com/document/detail/zh/mindie/100/mindietorch/Torchdev/mind
 
 ### 2.5 下载本仓库
 ```shell
-   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+   git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
 ```
 
 ### 2.6 安装所需依赖

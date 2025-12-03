@@ -27,7 +27,7 @@
 - 适配昇腾 AI 处理器的实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch
   code_path=built-in/PyTorch/built-in/others
   ```
 

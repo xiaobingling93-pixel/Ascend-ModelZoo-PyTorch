@@ -22,7 +22,7 @@ SSD是一种one-stage的目标检测框架。SSD_MobileNetV1使用MobileNetV1提
 - 适配昇腾 AI 处理器的实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/contrib/cv/detection
   ```
 

@@ -1,4 +1,4 @@
-# 当前模型脚本已不随版本演进，如使用此模型可跳转至该[地址](https://gitee.com/ascend/MindSpeed-LLM)
+# 当前模型脚本已不随版本演进，如使用此模型可跳转至该[地址](https://gitcode.com/ascend/MindSpeed-LLM)
 
 # ChatGLM3-6B for PyTorch
 
@@ -24,7 +24,7 @@
 - 适配昇腾 AI 处理器的实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/built-in/foundation
   ```
 

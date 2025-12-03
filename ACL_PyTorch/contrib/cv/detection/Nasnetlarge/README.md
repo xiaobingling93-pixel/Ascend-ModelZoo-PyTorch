@@ -157,7 +157,7 @@ SPNASNet100是通过网络搜索技术得到的精度与效率权衡的卷积神
       3. 不同bs算子融合优化。
 
          ```
-         git clone https://gitee.com/ascend/msadvisor.git
+         git clone https://gitcode.com/ascend/msadvisor.git
          cd /msadvisor/auto-optimizer
          pip3 install -r requirements.txt
          python3 setup.py install 

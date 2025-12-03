@@ -107,10 +107,10 @@ LPRNet(License Plate Recognition Network)是一个实时的轻量化、高质量
 
    > 注意：其中`onnxsim`库在aarch64环境下可能会安装失败，推荐在x86_64环境下进行安装，并对onnx模型进行简化，其他操作可在aarch64环境下运行。
 
-   `auto-optimizer`库[安装参考](https://gitee.com/ascend/msadvisor/tree/master/auto-optimizer)：
+   `auto-optimizer`库[安装参考](https://gitcode.com/ascend/msadvisor/tree/master/auto-optimizer)：
 
    ```
-   git clone https://gitee.com/ascend/msadvisor.git
+   git clone https://gitcode.com/ascend/msadvisor.git
    cd ./msadvisor/auto-optimizer
    pip3 install -r requirements.txt
    python3 setup.py install

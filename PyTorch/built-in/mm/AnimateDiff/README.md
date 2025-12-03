@@ -43,7 +43,7 @@ AnimateDiff提出了一个有效的框架，可将现有的大多数个性化文
 
 - 适配昇腾AI处理器的实现：
   ```shell
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/built-in/mlm/AnimateDiff
   ```
 
@@ -53,7 +53,7 @@ AnimateDiff提出了一个有效的框架，可将现有的大多数个性化文
 
 - git clone 远程仓
   ```shell
-    git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+    git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
     cd PyTorch/built-in/mlm/AnimateDiff
   ```
 

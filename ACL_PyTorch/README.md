@@ -1,7 +1,7 @@
 <h1>欢迎使用Ascend ACL_PyTorch</h1>
-<p>为方便更多开发者体验和使用昇腾芯片澎湃推理算力，该目录下提供了经典和主流算法模型实现昇腾服务器推理的端到端流程，更多模型持续更新中。如果您有任何需求，请在<a href="https://gitee.com/ascend/modelzoo/issues">modelzoo/issues</a>提交issue，我们会及时处理。如果您希望适配您的自定义模型，我们同时提供在昇腾设备上自行适配模型的<a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/docs/README.md">ONNX推理流程</a>。</p>
+<p>为方便更多开发者体验和使用昇腾芯片澎湃推理算力，该目录下提供了经典和主流算法模型实现昇腾服务器推理的端到端流程，更多模型持续更新中。如果您有任何需求，请在<a href="https://gitcode.com/ascend/modelzoo/issues">modelzoo/issues</a>提交issue，我们会及时处理。如果您希望适配您的自定义模型，我们同时提供在昇腾设备上自行适配模型的<a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/docs/README.md">ONNX推理流程</a>。</p>
 <h2>如何贡献</h2>
-<p>在开始贡献之前，请先阅读<a href="https://gitee.com/ascend/modelzoo/blob/master/CONTRIBUTING.md">CONTRIBUTING</a>。
+<p>在开始贡献之前，请先阅读<a href="https://gitcode.com/ascend/modelzoo/blob/master/CONTRIBUTING.md">CONTRIBUTING</a>。
 谢谢！</p>
 <p>目前ACL_PyTorch仓库已有模型<strong>401</strong>个</p>
 <blockquote>
@@ -36,7 +36,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100007
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Big-transfer"> Big-Transfer </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Big-transfer"> Big-Transfer </a>
         </td>
         <td>CIFAR-10</td>
     <td>97.62%</td>
@@ -48,7 +48,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100008
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/C3D">  C3D </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/C3D">  C3D </a>
         </td>
         <td>UCF101</td>
     <td>81.87%</td>
@@ -60,7 +60,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100019
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/Densenet121_Pytorch_Infer">   DenseNet121 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/Densenet121_Pytorch_Infer">   DenseNet121 </a>
         </td>
         <td>ImageNet</td>
     <td>74.43%</td>
@@ -72,7 +72,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100033
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/GaitSet">   GaitSet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/GaitSet">   GaitSet </a>
         </td>
         <td>CASIA-B</td>
     <td>95.512%</td>
@@ -84,7 +84,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100037
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/InceptionV3_for_Pytorch">  InceptionV3 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/InceptionV3_for_Pytorch">  InceptionV3 </a>
         </td>
         <td>ImageNet</td>
     <td>77.31%</td>
@@ -96,7 +96,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100038
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/MaskRcnn">  MaskRcnn </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/MaskRcnn">  MaskRcnn </a>
         </td>
         <td>coco</td>
         <td></td>
@@ -108,7 +108,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100039
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/MobileNet-v1"> MobileNetV1 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/MobileNet-v1"> MobileNetV1 </a>
         </td>
         <td>ImageNet</td>
     <td>69.52%</td>
@@ -120,7 +120,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100041
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/MobileNetV2_for_Pytorch"> MobileNetV2 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/MobileNetV2_for_Pytorch"> MobileNetV2 </a>
         </td>
         <td>ImageNet</td>
     <td>71.87%</td>
@@ -132,7 +132,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100040
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/MobileNetV3_for_Pytorch"> MobileNetV3 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/MobileNetV3_for_Pytorch"> MobileNetV3 </a>
         </td>
         <td>ImageNet</td>
     <td>65.094%</td>
@@ -144,7 +144,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100075
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/RegNetX-1.6GF"> RegNetX-1.6GF </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/RegNetX-1.6GF"> RegNetX-1.6GF </a>
         </td>
         <td>ImageNet</td>
     <td>76.93%</td>
@@ -156,7 +156,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100044
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/RepVGG">   RepVGG </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/RepVGG">   RepVGG </a>
         </td>
         <td>ImageNet</td>
     <td>72.15%</td>
@@ -168,7 +168,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100076
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/ResNeSt50">  ResNeSt50 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/ResNeSt50">  ResNeSt50 </a>
         </td>
         <td>ImageNet</td>
     <td>80.98%</td>
@@ -180,7 +180,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100077
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/ResNext101_32x8d"> ResNext101-32x8d </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/ResNext101_32x8d"> ResNext101-32x8d </a>
         </td>
         <td>ImageNet</td>
     <td>79.312%</td>
@@ -192,7 +192,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100078
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/SCNet"> SCNet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/SCNet"> SCNet </a>
         </td>
         <td>ImageNet</td>
     <td>80.34%</td>
@@ -204,7 +204,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100053
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Shufflenetv1"> ShuffleNetV1 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Shufflenetv1"> ShuffleNetV1 </a>
         </td>
         <td>ImageNet</td>
     <td>67.71%</td>
@@ -216,7 +216,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100052
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/Shufflenetv2_for_Pytorch"> ShuffleNetV2 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/Shufflenetv2_for_Pytorch"> ShuffleNetV2 </a>
         </td>
         <td>ImageNet</td>
     <td>69.33%</td>
@@ -228,7 +228,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100079
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Squeezenet1_1">  SqueezeNet1 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Squeezenet1_1">  SqueezeNet1 </a>
         </td>
         <td>ImageNet</td>
     <td>57.32%</td>
@@ -240,7 +240,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100068
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/VGG16">  VGG16 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/VGG16">  VGG16 </a>
         </td>
         <td>ImageNet</td>
     <td>71.28%</td>
@@ -252,7 +252,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100070
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/ViT"> ViT </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/ViT"> ViT </a>
         </td>
         <td>ImageNet</td>
     <td>80.63%(patch32_224)</td>
@@ -264,7 +264,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100401
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/foundation_models/Chinese_CLIP"> Chinese-CLIP </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/foundation_models/Chinese_CLIP"> Chinese-CLIP </a>
         </td>
         <td></td>
         <td></td>
@@ -294,7 +294,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100080
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/CascadeRCNN-DCN"> CascadeRCNN-DCN </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/CascadeRCNN-DCN"> CascadeRCNN-DCN </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -307,7 +307,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100010
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/CenterFace"> CenterFace </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/CenterFace"> CenterFace </a>
         </td>
         <td>WIDER_FACE</td>
     <td></td>
@@ -320,7 +320,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100011
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/CenterNet">  CenterNet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/CenterNet">  CenterNet </a>
         </td>
         <td>coco</td>
     <td>36.4%</td>
@@ -333,7 +333,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100012
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/CRNN_BuiltIn_for_Pytorch">  CRNN-BuildIn </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/CRNN_BuiltIn_for_Pytorch">  CRNN-BuildIn </a>
         </td>
         <td>IIIT5K_lmdb</td>
     <td>74.87%</td>
@@ -346,7 +346,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100083
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/DBNet_MobileNetV3">  DBNet-MobileNetV3 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/DBNet_MobileNetV3">  DBNet-MobileNetV3 </a>
         </td>
         <td>ICDAR2015</td>
     <td></td>
@@ -359,7 +359,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100020
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/Detr">  DETR </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/Detr">  DETR </a>
         </td>
         <td>coco</td>
     <td>41.6%</td>
@@ -372,7 +372,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100023
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/EfficientDetD0">   EfficientDet-D0 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/EfficientDetD0">   EfficientDet-D0 </a>
         </td>
         <td>coco</td>
     <td>33.4%</td>
@@ -385,7 +385,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100024
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/EfficientNet_for_Pytorch">   EfficientNet-B0 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/EfficientNet_for_Pytorch">   EfficientNet-B0 </a>
         </td>
         <td>ImageNet</td>
     <td></td>
@@ -398,7 +398,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100042
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/OpenPose"> OpenPose </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/OpenPose"> OpenPose </a>
         </td>
         <td>coco</td>
     <td>40.4%</td>
@@ -411,7 +411,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100043
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/PSENet_for_Pytorch">  PSENet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/PSENet_for_Pytorch">  PSENet </a>
         </td>
         <td>ICDAR2015</td>
     <td></td>
@@ -424,7 +424,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100084
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/Retinanet_for_Pytorch"> RetinaNet-r50-fpn </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/Retinanet_for_Pytorch"> RetinaNet-r50-fpn </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -437,7 +437,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100048
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/Retinanet_Resnet18"> RetinaNet-ResNet18 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/Retinanet_Resnet18"> RetinaNet-ResNet18 </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -450,7 +450,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100057
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/SSD"> SSD </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/SSD"> SSD </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -463,7 +463,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100056
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/SSD-Resnet34"> SSD-ResNet34 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/SSD-Resnet34"> SSD-ResNet34 </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -476,7 +476,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100085
         </td><td>
-        <a href="https://gitee.com/ascend/modelzoo-GPL/tree/master/built-in/ACL_Pytorch/Yolov3_for_PyTorch"> YOLOV3 </a>
+        <a href="https://gitcode.com/ascend/modelzoo-GPL/tree/master/built-in/ACL_Pytorch/Yolov3_for_PyTorch"> YOLOV3 </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -489,7 +489,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100072
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/Yolov4_for_Pytorch"> YOLOV4 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/Yolov4_for_Pytorch"> YOLOV4 </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -502,7 +502,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100073
         </td><td>
-        <a href="https://gitee.com/ascend/modelzoo-GPL/tree/master/built-in/ACL_Pytorch/Yolov5_for_Pytorch"> YOLOV5s2.0 </a>
+        <a href="https://gitcode.com/ascend/modelzoo-GPL/tree/master/built-in/ACL_Pytorch/Yolov5_for_Pytorch"> YOLOV5s2.0 </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -515,7 +515,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100074
         </td><td>
-        <a href="https://gitee.com/ascend/modelzoo-GPL/tree/master/built-in/ACL_Pytorch/Yolov5_for_Pytorch"> YOLOV5s6.0 </a>
+        <a href="https://gitcode.com/ascend/modelzoo-GPL/tree/master/built-in/ACL_Pytorch/Yolov5_for_Pytorch"> YOLOV5s6.0 </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -528,7 +528,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100086
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/YOLOX"> YOLOX </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/YOLOX"> YOLOX </a>
         </td>
         <td>coco</td>
     <td>51.2%</td>
@@ -540,7 +540,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100399
         </td><td>
-        <a href=https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/GLIP> GLIP </a>
+        <a href=https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/GLIP> GLIP </a>
         </td>
         <td>coco</td>
     <td>46.3%</td>
@@ -552,7 +552,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100400
         </td><td>
-        <a href=https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/GLIP_STATIC> GLIP_STATIC </a>
+        <a href=https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/GLIP_STATIC> GLIP_STATIC </a>
         </td>
         <td></td>
     <td></td>
@@ -564,7 +564,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100404
         </td><td>
-        <a href=https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/InternImage_detection_for_Pytorch> InternImage_Detection </a>
+        <a href=https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/InternImage_detection_for_Pytorch> InternImage_Detection </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -576,7 +576,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100406
         </td><td>
-        <a href=https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/GroundingDINO> GroundingDINO </a>
+        <a href=https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/GroundingDINO> GroundingDINO </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -604,7 +604,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100016
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/DeeplabV3"> DeeplabV3 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/DeeplabV3"> DeeplabV3 </a>
         </td>
         <td>Cityscapes</td>
     <td>79.12%</td>
@@ -615,7 +615,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100055
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/SOLOV2">  SOLOV2 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/SOLOV2">  SOLOV2 </a>
         </td>
         <td>coco</td>
     <td>34%</td>
@@ -626,7 +626,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100088
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/UNet">  UNet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/UNet">  UNet </a>
         </td>
         <td>carvana</td>
     <td>98.6%</td>
@@ -636,7 +636,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100405
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/InternImage_segmentation_for_Pytorch">  InternImage_Segmentation </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/InternImage_segmentation_for_Pytorch">  InternImage_Segmentation </a>
         </td>
         <td>ADE20K</td>
         <td>aAcc: 86.55%<br>mAcc: 71.8%</td>
@@ -662,7 +662,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100059
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/gan/StarGAN">  StarGAN </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/gan/StarGAN">  StarGAN </a>
         </td>
         <td>celeba</td>
         <td></td>
@@ -673,7 +673,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100061
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/gan/StyleGAN2-ADA">   StyleGAN2-ADA </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/gan/StyleGAN2-ADA">   StyleGAN2-ADA </a>
         </td>
         <td>代码仓提供</td>
         <td></td>
@@ -699,7 +699,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100036
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/pose_estimation/HRNet"> HRNet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/pose_estimation/HRNet"> HRNet </a>
         </td>
         <td>ImageNet</td>
     <td>76.46%</td>
@@ -710,7 +710,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100060
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/STGCN_for_Pytorch"> STGCN </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/STGCN_for_Pytorch"> STGCN </a>
         </td>
         <td>Kinetics</td>
     <td>31.59%</td>
@@ -721,7 +721,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100407
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/MuseTalk"> MuseTalk </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/MuseTalk"> MuseTalk </a>
         </td>
         <td>代码仓提供</td>
     <td></td>
@@ -747,7 +747,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100022
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/super_resolution/EDSR">  EDSR </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/super_resolution/EDSR">  EDSR </a>
         </td>
         <td>DIV2K</td>
     <td>34.6</td>
@@ -757,7 +757,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100089
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/EDSR_Dynamic_for_PyTorch">  EDSR-Dynamic </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/EDSR_Dynamic_for_PyTorch">  EDSR-Dynamic </a>
         </td>
         <td>B100</td>
     <td>32.35</td>
@@ -781,7 +781,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100017
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/tracking/Deepsort_for_Pytorch">  Deepsort </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/tracking/Deepsort_for_Pytorch">  Deepsort </a>
         </td>
         <td>MOT16</td>
     <td>30.0%</td>
@@ -791,7 +791,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100090
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/T2vec_for_Pytorch">  T2Vec </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/T2vec_for_Pytorch">  T2Vec </a>
         </td>
         <td>Proto</td>
     <td>(精度数据参考链接)</td>
@@ -816,7 +816,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100091
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/SuperGlue_with_SuperPoint_for_Pytorch"> SuperGlue-SuperPoint </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/SuperGlue_with_SuperPoint_for_Pytorch"> SuperGlue-SuperPoint </a>
         </td>
         <td>YFCC100M</td>
     <td>74.72%</td>
@@ -842,7 +842,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100092
         </td><td>
-        <a href=https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/TSM_sthv2_for_Pytorch> TSM-SthV2 </a>
+        <a href=https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/TSM_sthv2_for_Pytorch> TSM-SthV2 </a>
         </td>
         <td>sthv2</td>
     <td>61.87%</td>
@@ -870,7 +870,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100018
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/audio/Deepspeech2">   DeepSpeech2 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/audio/Deepspeech2">   DeepSpeech2 </a>
         </td>
         <td>an4</td>
     <td>9.573</td>
@@ -883,7 +883,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100027
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/audio/EspNet_for_Pytoch">    EspNet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/audio/EspNet_for_Pytoch">    EspNet </a>
         </td>
         <td>代码仓提供</td>
     <td></td>
@@ -896,7 +896,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100032
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/audio/FastSpeech2_for_PyTorch">  FastSpeech2 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/audio/FastSpeech2_for_PyTorch">  FastSpeech2 </a>
         </td>
         <td>LJSpeech</td>
     <td></td>
@@ -909,7 +909,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100035
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/audio/HiFiGAN_for_PyTorch">  HiFiGAN </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/audio/HiFiGAN_for_PyTorch">  HiFiGAN </a>
         </td>
         <td>LJSpeech</td>
     <td></td>
@@ -922,7 +922,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100063
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/audio/Tacotron2">   Tacotron2 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/audio/Tacotron2">   Tacotron2 </a>
         </td>
         <td>LJSpeech</td>
     <td></td>
@@ -935,7 +935,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100064
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/audio/TDNN_for_Pytorch">  TDNN-buildin </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/audio/TDNN_for_Pytorch">  TDNN-buildin </a>
         </td>
         <td>Mini Librispeech</td>
     <td></td>
@@ -948,7 +948,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100093
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/audio/Conformer_for_Pytorch">  Conformer </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/audio/Conformer_for_Pytorch">  Conformer </a>
         </td>
         <td>aishell</td>
     <td></td>
@@ -960,7 +960,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100402
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/audio/SenseVoice">  SenseVoice </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/audio/SenseVoice">  SenseVoice </a>
         </td>
         <td>代码仓提供</td>
     <td></td>
@@ -972,7 +972,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100403
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/audio/CosyVoice">  CosyVoice </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/audio/CosyVoice">  CosyVoice </a>
         </td>
         <td>代码仓提供</td>
     <td></td>
@@ -999,7 +999,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100001
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/albert">  ALBERT </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/albert">  ALBERT </a>
         </td>
         <td>SST-2</td>
         <td>92.8%</td>
@@ -1009,7 +1009,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100094
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/nlp/Bert_Base_Cased_SST2">  BertBase-Cased-SST2 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/nlp/Bert_Base_Cased_SST2">  BertBase-Cased-SST2 </a>
         </td>
         <td>SST-2</td>
         <td>92.43%</td>
@@ -1019,7 +1019,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100003
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/nlp/Bert_Base_Chinese_for_Pytorch">  Bert-Base-CH </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/nlp/Bert_Base_Chinese_for_Pytorch">  Bert-Base-CH </a>
         </td>
         <td>zhwiki</td>
         <td>77.94%</td>
@@ -1029,7 +1029,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100340
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/nlp/textcnn">   TextCNN </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/nlp/textcnn">   TextCNN </a>
         </td>
         <td>THUCNews</td>
         <td>top1acc:90.47%<br>top5acc:99.35%</td>
@@ -1039,7 +1039,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100095
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/nlp/Bert_Uncased_Huggingface">  Bert-Uncased-Huggingface </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/nlp/Bert_Uncased_Huggingface">  Bert-Uncased-Huggingface </a>
         </td>
         <td>SQuAD 1.1</td>
         <td>F1:88.2%<br>EM:80.84%</td>
@@ -1049,7 +1049,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100026
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/nlp/Ernie3_for_Pytorch">  Ernie3 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/nlp/Ernie3_for_Pytorch">  Ernie3 </a>
         </td>
         <td>Clue</td>
         <td>49%</td>
@@ -1059,7 +1059,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100096
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/m2m_100">  M2M100 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/m2m_100">  M2M100 </a>
         </td>
         <td>sacrebleu</td>
         <td></td>
@@ -1069,7 +1069,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100050
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/roberta">  RoBERTa </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/roberta">  RoBERTa </a>
         </td>
         <td>SST-2</td>
         <td>94.8%</td>
@@ -1079,7 +1079,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100051
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/SAST">  SAST </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/SAST">  SAST </a>
         </td>
         <td>ICDAR</td>
         <td>91.3%</td>
@@ -1089,7 +1089,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100006
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/nlp/BiLSTM_CRF_PyTorch">  BiLSTM-CRF </a></td>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/nlp/BiLSTM_CRF_PyTorch">  BiLSTM-CRF </a></td>
         <td> CLUE_NER </td>
         <td> acc=73.5%<br>recall=69.3%<br>f1=71.4%</td>
         <td> 961(bs32)</td>
@@ -1098,7 +1098,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100348
         </td>
-        <td><a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/nlp/Uie_for_Pytorch">  Uie_for_PyTorch </a></td>
+        <td><a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/nlp/Uie_for_Pytorch">  Uie_for_PyTorch </a></td>
         <td> doccano(paddle) </td>
         <td> f1=100% </td>
         <td> 1334.26(bs16)</td>
@@ -1107,7 +1107,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100349
         </td>
-        <td><a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/nlp/Pet_for_Pytorch">  Pet_for_PyTorch </a></td>
+        <td><a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/nlp/Pet_for_Pytorch">  Pet_for_PyTorch </a></td>
         <td> eprstmt </td>
         <td> f1=88.5% </td>
         <td> 342.79(bs8)</td>
@@ -1134,7 +1134,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100082
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/ocr/CRNN/CRNN_Sierkinhane_for_Pytorch"> CRNN-ocr </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/ocr/CRNN/CRNN_Sierkinhane_for_Pytorch"> CRNN-ocr </a>
         </td>
         <td>原仓自带的数据集</td>
     <td>78.37%</td>
@@ -1147,7 +1147,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100087
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/ocr/DBNET"> DBNET-ocr </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/ocr/DBNET"> DBNET-ocr </a>
         </td>
         <td>icdar2015</td>
     <td></td>
@@ -1179,7 +1179,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100098
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/3d_attention_net"> 3D-AttentionNet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/3d_attention_net"> 3D-AttentionNet </a>
         </td>
         <td>CIFAR-10</td>
     <td>62.2%</td>
@@ -1192,7 +1192,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100099
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/3d_resnets"> 3D-ResNets </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/3d_resnets"> 3D-ResNets </a>
         </td>
         <td>hmdb51</td>
     <td>62.22%</td>
@@ -1205,7 +1205,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100100
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/AlexNet"> AlexNet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/AlexNet"> AlexNet </a>
         </td>
         <td>ImageNet</td>
     <td>56.56%</td>
@@ -1218,7 +1218,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100101
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/baseline_dino_resnet50"> Dino-ResNet50-baseline </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/baseline_dino_resnet50"> Dino-ResNet50-baseline </a>
         </td>
         <td>ImageNet</td>
     <td>75.28%</td>
@@ -1231,7 +1231,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100102
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/BMN">  BMN </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/BMN">  BMN </a>
         </td>
         <td>Activity1.3</td>
     <td>67.69%</td>
@@ -1244,7 +1244,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100103
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Beit">  BEIT </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Beit">  BEIT </a>
         </td>
         <td>ImageNet</td>
     <td>84.68%</td>
@@ -1257,7 +1257,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100104
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/ch_ppocr_mobile_v2.0_cls">  CH-PPOCR-MobileNetV2.0 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/ch_ppocr_mobile_v2.0_cls">  CH-PPOCR-MobileNetV2.0 </a>
         </td>
         <td>PaddleOCR</td>
     <td></td>
@@ -1270,7 +1270,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100105
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Conformer-base">   Conformer-base </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Conformer-base">   Conformer-base </a>
         </td>
         <td>ImageNet</td>
     <td>83.85%</td>
@@ -1283,7 +1283,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100106
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Conformer_Ti">  Conformer-Ti </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Conformer_Ti">  Conformer-Ti </a>
         </td>
         <td>ImageNet</td>
     <td>81.09%</td>
@@ -1296,7 +1296,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100107
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/convmixer_1536_20">  ConvMixer </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/convmixer_1536_20">  ConvMixer </a>
         </td>
         <td>ImageNet</td>
     <td>81.37%</td>
@@ -1309,7 +1309,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100108
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/ConvNext_for_Pytorch">  ConvNext </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/ConvNext_for_Pytorch">  ConvNext </a>
         </td>
         <td>ImageNet</td>
     <td>82.094%</td>
@@ -1322,7 +1322,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100109
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/CSPResneXt50">  CSPResNeXt50 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/CSPResneXt50">  CSPResNeXt50 </a>
         </td>
         <td>ImageNet</td>
     <td>79.79%</td>
@@ -1335,7 +1335,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100110
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/CSWin-Transformer">  CSWin-Transformer </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/CSWin-Transformer">  CSWin-Transformer </a>
         </td>
         <td>ImageNet</td>
     <td>83.3%</td>
@@ -1348,7 +1348,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100111
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Deit_Small">   Deit-Small </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Deit_Small">   Deit-Small </a>
         </td>
         <td>ImageNet</td>
         <td>79.5%</td>
@@ -1361,7 +1361,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100112
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/DPN131">  DPN131 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/DPN131">  DPN131 </a>
         </td>
         <td>ImageNet</td>
     <td>79.47%</td>
@@ -1374,7 +1374,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100013
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/CRNN_meijieru_for_Pytorch">  CRNN-Meijieru </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/CRNN_meijieru_for_Pytorch">  CRNN-Meijieru </a>
         </td>
         <td>demo文件</td>
     <td></td>
@@ -1386,7 +1386,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100113
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Efficient-3DCNNs">   Efficient-3DCNNs </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Efficient-3DCNNs">   Efficient-3DCNNs </a>
         </td>
         <td>UCF-101</td>
     <td>81.073%</td>
@@ -1399,7 +1399,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100114
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/EfficientNet-B1">    EfficientNet-B1 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/EfficientNet-B1">    EfficientNet-B1 </a>
         </td>
         <td>ImageNet</td>
     <td>75.940%</td>
@@ -1412,7 +1412,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100115
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/EfficientNet-B3">   EfficientNet-B3 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/EfficientNet-B3">   EfficientNet-B3 </a>
         </td>
         <td>ImageNet</td>
     <td>76.25%</td>
@@ -1425,7 +1425,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100116
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/EfficientNet-B5">  EfficientNet-B5 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/EfficientNet-B5">  EfficientNet-B5 </a>
         </td>
         <td>ImageNet</td>
     <td>77.2%</td>
@@ -1438,7 +1438,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100117
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/EfficientNet_b7_for_Pytorch"> EfficientNet-B7 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/EfficientNet_b7_for_Pytorch"> EfficientNet-B7 </a>
         </td>
         <td>ImageNet</td>
     <td>84.4%</td>
@@ -1451,7 +1451,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100025
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/EfficientNetV2_for_Pytorch"> EfficientNet-V2 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/EfficientNetV2_for_Pytorch"> EfficientNet-V2 </a>
         </td>
         <td>ImageNet</td>
     <td>82.26%</td>
@@ -1464,7 +1464,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100118
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/FixRes">   FixRes </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/FixRes">   FixRes </a>
         </td>
         <td>ImageNet</td>
     <td>79.0%</td>
@@ -1477,7 +1477,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100119
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/FocalTransformer">  FocalTransformer </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/FocalTransformer">  FocalTransformer </a>
         </td>
         <td>ImageNet</td>
     <td>83.586%</td>
@@ -1490,7 +1490,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100120
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/GENet">   GENet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/GENet">   GENet </a>
         </td>
         <td>CIFAR-10</td>
     <td>94.23%</td>
@@ -1503,7 +1503,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100121
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/GhostNet1.0x">    GhostNet1.0x </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/GhostNet1.0x">    GhostNet1.0x </a>
         </td>
         <td>ImageNet</td>
     <td>73.98%</td>
@@ -1516,7 +1516,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100122
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/GloRe">   GloRe </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/GloRe">   GloRe </a>
         </td>
         <td>UCF101</td>
     <td>92.12%</td>
@@ -1529,7 +1529,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100123
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/GoogleNet_for_Pytorch">  GoogleNet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/GoogleNet_for_Pytorch">  GoogleNet </a>
         </td>
         <td>ImageNet</td>
     <td>69.78%</td>
@@ -1542,7 +1542,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100124
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/HRNet-Image-Classification">  HRNet-Image-Classification </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/HRNet-Image-Classification">  HRNet-Image-Classification </a>
         </td>
         <td>ImageNet</td>
     <td>76.51%</td>
@@ -1555,7 +1555,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100125
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/InceptionResnetV2">  InceptionResNetV2 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/InceptionResnetV2">  InceptionResNetV2 </a>
         </td>
         <td>ImageNet</td>
     <td>80.15%</td>
@@ -1568,7 +1568,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100126
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Inception_V4">  InceptionV4 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Inception_V4">  InceptionV4 </a>
         </td>
         <td>ImageNet</td>
     <td>79.99%</td>
@@ -1581,7 +1581,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100127
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/LResNet100E-IR">   LResNet100E-IR </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/LResNet100E-IR">   LResNet100E-IR </a>
         </td>
         <td>LFW</td>
         <td>99.7%</td>
@@ -1594,7 +1594,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100128
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/LV-Vit">  LV-Vit </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/LV-Vit">  LV-Vit </a>
         </td>
         <td>ImageNet</td>
         <td>83.3%</td>
@@ -1607,7 +1607,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100129
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/MAE"> MAE </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/MAE"> MAE </a>
         </td>
         <td>ImageNet</td>
     <td>83.52%%</td>
@@ -1620,7 +1620,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100130
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Mnasnet1_0"> MnasNet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Mnasnet1_0"> MnasNet </a>
         </td>
         <td>ImageNet</td>
     <td>73.48%</td>
@@ -1633,7 +1633,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100131
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/MobileNetV3_large_100"> MobileNetV3-large </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/MobileNetV3_large_100"> MobileNetV3-large </a>
         </td>
         <td>ImageNet</td>
     <td>75.62%</td>
@@ -1646,7 +1646,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100132
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Moco-v2"> MOCOV2 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Moco-v2"> MOCOV2 </a>
         </td>
         <td>ImageNet</td>
         <td>67.28%</td>
@@ -1659,7 +1659,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100133
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/OSNet"> OSNet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/OSNet"> OSNet </a>
         </td>
         <td>Market-1501</td>
     <td></td>
@@ -1672,7 +1672,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100134
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/PAMTRI"> PAMTRI </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/PAMTRI"> PAMTRI </a>
         </td>
         <td>veri</td>
     <td></td>
@@ -1685,7 +1685,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100135
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/pnasnet5large"> PnasNet5large </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/pnasnet5large"> PnasNet5large </a>
         </td>
         <td>ImageNet</td>
     <td>81.76%</td>
@@ -1698,7 +1698,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100136
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/PointNet"> PointNet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/PointNet"> PointNet </a>
         </td>
         <td>shapenetcore</td>
     <td>97.35%</td>
@@ -1711,7 +1711,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100137
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/PointNetCNN">  PointNetCNN </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/PointNetCNN">  PointNetCNN </a>
         </td>
         <td>modelnet40</td>
     <td>82.82%</td>
@@ -1724,7 +1724,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100138
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Pointnetplus/Pointnetplus">  PointNet+ </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Pointnetplus/Pointnetplus">  PointNet+ </a>
         </td>
         <td>modelnet40</td>
     <td>88.4%</td>
@@ -1737,7 +1737,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100139
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/R(2+1)D"> R(2+1)D </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/R(2+1)D"> R(2+1)D </a>
         </td>
         <td>UCF-101</td>
     <td>89.23%</td>
@@ -1750,7 +1750,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100140
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/ReID_for_Pytorch"> ReID </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/ReID_for_Pytorch"> ReID </a>
         </td>
         <td>Market1501</td>
     <td></td>
@@ -1763,7 +1763,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100141
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/RegNetY-1.6GF">  RegNetY-1.6GF </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/RegNetY-1.6GF">  RegNetY-1.6GF </a>
         </td>
         <td>ImageNet</td>
     <td>77.86%</td>
@@ -1776,7 +1776,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100142
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Res2Net101_v1b"> Res2Net101-v1b </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Res2Net101_v1b"> Res2Net101-v1b </a>
         </td>
         <td>ImageNet</td>
         <td>81.22%</td>
@@ -1789,7 +1789,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100143
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/ResNet152"> ResNet152 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/ResNet152"> ResNet152 </a>
         </td>
         <td>ImageNet</td>
     <td>78.31%</td>
@@ -1802,7 +1802,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100144
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/ResNet34"> ResNet34 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/ResNet34"> ResNet34 </a>
         </td>
         <td>ImageNet</td>
     <td>73.31%</td>
@@ -1815,7 +1815,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100145
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/resnet50_mmlab_for_pytorch">  ResNet50-MMLab </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/resnet50_mmlab_for_pytorch">  ResNet50-MMLab </a>
         </td>
         <td>cifar100</td>
     <td>79.9%</td>
@@ -1828,7 +1828,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100045
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/Resnet18_for_PyTorch">  ResNet18 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/Resnet18_for_PyTorch">  ResNet18 </a>
         </td>
         <td>ImageNet</td>
     <td>69.75%</td>
@@ -1841,7 +1841,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100046
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/Resnet50_Pytorch_Infer">  ResNet50 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/Resnet50_Pytorch_Infer">  ResNet50 </a>
         </td>
         <td>ImageNet</td>
     <td>76.14%</td>
@@ -1854,7 +1854,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100146
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/Resnet50_mlperf">  ResNet50-mlperf </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/Resnet50_mlperf">  ResNet50-mlperf </a>
         </td>
         <td>ImageNet</td>
     <td>76.44%</td>
@@ -1866,7 +1866,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100147
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/Resnet101_Pytorch_Infer">  ResNet101 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/Resnet101_Pytorch_Infer">  ResNet101 </a>
         </td>
         <td>ImageNet</td>
     <td>77.38%</td>
@@ -1879,7 +1879,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100148
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Resnetvd">  ResNetvd </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Resnetvd">  ResNetvd </a>
         </td>
         <td>ImageNet</td>
     <td>77.37%</td>
@@ -1892,7 +1892,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100047
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/ResNeXt50"> ResNeXt50 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/ResNeXt50"> ResNeXt50 </a>
         </td>
         <td>ImageNet</td>
     <td>77.61%</td>
@@ -1905,7 +1905,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100149
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/SENet"> SENet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/SENet"> SENet </a>
         </td>
         <td>ImageNet</td>
     <td>77.64%</td>
@@ -1918,7 +1918,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100150
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Se-Resnext101"> Se-ResNext101 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Se-Resnext101"> Se-ResNext101 </a>
         </td>
         <td>ImageNet</td>
     <td>78.24%</td>
@@ -1931,7 +1931,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100151
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/SE_ResNet50_Pytorch_Infer"> SE-ResNet50 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/SE_ResNet50_Pytorch_Infer"> SE-ResNet50 </a>
         </td>
         <td>ImageNet</td>
     <td>77.36%</td>
@@ -1944,7 +1944,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100152
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/SE-ResNeXt50_32x4d">  SE-ResNeXt50-32x4d </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/SE-ResNeXt50_32x4d">  SE-ResNeXt50-32x4d </a>
         </td>
         <td>ImageNet</td>
     <td>79.06%</td>
@@ -1957,7 +1957,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100153
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/ShiftViT">  ShiftViT </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/ShiftViT">  ShiftViT </a>
         </td>
         <td>ImageNet</td>
     <td>79.3%</td>
@@ -1970,7 +1970,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100154
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Shufflenetv2+">   ShuffleNetv2+ </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Shufflenetv2+">   ShuffleNetv2+ </a>
         </td>
         <td>ImageNet</td>
     <td>74.08%</td>
@@ -1983,7 +1983,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100155
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/SimCLR_inference">   SimCLR </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/SimCLR_inference">   SimCLR </a>
         </td>
         <td>CIFAR-10</td>
     <td>65.55%</td>
@@ -1996,7 +1996,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100156
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Sknet50">    SkNet50 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Sknet50">    SkNet50 </a>
         </td>
         <td>ImageNet</td>
     <td>77.54%</td>
@@ -2009,7 +2009,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100157
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/sMLP">    SMLP </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/sMLP">    SMLP </a>
         </td>
         <td>ImageNet</td>
     <td>81.25%</td>
@@ -2022,7 +2022,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100158
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/SPACH">  SPACH </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/SPACH">  SPACH </a>
         </td>
         <td>ImageNet</td>
     <td>81.5%</td>
@@ -2035,7 +2035,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100159
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/spnasnet_100">  SpnasNet100 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/spnasnet_100">  SpnasNet100 </a>
         </td>
         <td>ImageNet</td>
     <td>74.19%</td>
@@ -2048,7 +2048,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100062
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/SwinTransformer_for_Pytorch"> SwinTransformer </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/SwinTransformer_for_Pytorch"> SwinTransformer </a>
         </td>
         <td>ImageNet</td>
     <td>86.4%</td>
@@ -2061,7 +2061,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100160
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Swin-Transformer_tiny">  SwinTransformer-tiny </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Swin-Transformer_tiny">  SwinTransformer-tiny </a>
         </td>
         <td>ImageNet</td>
     <td>81.15%</td>
@@ -2074,7 +2074,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100161
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/T2T-ViT">  T2T-ViT </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/T2T-ViT">  T2T-ViT </a>
         </td>
         <td>ImageNet</td>
     <td>81.4%</td>
@@ -2087,7 +2087,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100162
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/TimeSformer">   TimeSformer </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/TimeSformer">   TimeSformer </a>
         </td>
         <td>kinetics400</td>
     <td>77.68%</td>
@@ -2100,7 +2100,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100163
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/TNT">  TNT </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/TNT">  TNT </a>
         </td>
         <td>ImageNet</td>
     <td>81.5%</td>
@@ -2113,7 +2113,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100164
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/TResNet">  TResNet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/TResNet">  TResNet </a>
         </td>
         <td>ImageNet</td>
     <td></td>
@@ -2126,7 +2126,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100165
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Twins-PCPVT-S">  Twins-PCPVT-S </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Twins-PCPVT-S">  Twins-PCPVT-S </a>
         </td>
         <td>ImageNet</td>
     <td>81.22%</td>
@@ -2139,7 +2139,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100166
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/Twins-SVT-L">  Twins-SVT-L </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/Twins-SVT-L">  Twins-SVT-L </a>
         </td>
         <td>ImageNet</td>
     <td>83.7%</td>
@@ -2152,7 +2152,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100167
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/VAN"> VAN </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/VAN"> VAN </a>
         </td>
         <td>ImageNet</td>
     <td>82.78%</td>
@@ -2165,7 +2165,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100067
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/VGG19"> VGG19 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/VGG19"> VGG19 </a>
         </td>
         <td>ImageNet</td>
     <td>71.76%</td>
@@ -2178,7 +2178,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100168
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Video-Swin-Transformer">  Video-SwinTransformer </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Video-Swin-Transformer">  Video-SwinTransformer </a>
         </td>
         <td>kinetics400</td>
     <td>80.6%</td>
@@ -2191,7 +2191,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100169
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/vit-small">  ViT-small </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/vit-small">  ViT-small </a>
         </td>
         <td>ImageNet</td>
     <td>81.37%</td>
@@ -2204,7 +2204,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100170
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/volo"> VOLO </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/volo"> VOLO </a>
         </td>
         <td>ImageNet</td>
     <td>82.53%</td>
@@ -2217,7 +2217,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100171
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/vovnet39">  VoVNet39 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/vovnet39">  VoVNet39 </a>
         </td>
         <td>ImageNet</td>
     <td>76.77%</td>
@@ -2230,7 +2230,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100172
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Wide_ResNet101_2"> Wide-ResNet101 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Wide_ResNet101_2"> Wide-ResNet101 </a>
         </td>
         <td>ImageNet</td>
     <td>78.86%</td>
@@ -2243,7 +2243,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100173
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Wide_ResNet50_2_for_Pytorch"> Wide-ResNet50 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Wide_ResNet50_2_for_Pytorch"> Wide-ResNet50 </a>
         </td>
         <td>ImageNet</td>
     <td>78.48%</td>
@@ -2256,7 +2256,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100174
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/xception">  Xception </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/xception">  Xception </a>
         </td>
         <td>ImageNet</td>
     <td>78.8%</td>
@@ -2269,7 +2269,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100175
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/xcit">  XCIT </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/xcit">  XCIT </a>
         </td>
         <td>ImageNet</td>
     <td>81.86%</td>
@@ -2303,7 +2303,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100176
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/3DUnet"> 3D-UNet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/3DUnet"> 3D-UNet </a>
         </td>
         <td>Brats2018</td>
     <td></td>
@@ -2320,7 +2320,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100177
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/AdvancedEAST"> AdvancedEAST </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/AdvancedEAST"> AdvancedEAST </a>
         </td>
         <td>天池ICPR</td>
     <td></td>
@@ -2337,7 +2337,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100178
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/AlphaPose"> AlphaPose </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/AlphaPose"> AlphaPose </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -2354,7 +2354,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100179
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/BSN"> BSN </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/BSN"> BSN </a>
         </td>
         <td>Activity1.3</td>
     <td></td>
@@ -2371,7 +2371,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100180
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/Cascade_Mask_Rcnn_SwinS"> Cascade-MaskRcnn-SwinS </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/Cascade_Mask_Rcnn_SwinS"> Cascade-MaskRcnn-SwinS </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -2388,7 +2388,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100181
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/CascadeRCNN-DCN-101_for_Pytorch">  CascadeRCNN-DCN101 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/CascadeRCNN-DCN-101_for_Pytorch">  CascadeRCNN-DCN101 </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -2405,7 +2405,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100182
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/Cascade_RCNN_R101_FPN">  CascadeRCNN-R101-FPN </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/Cascade_RCNN_R101_FPN">  CascadeRCNN-R101-FPN </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -2422,7 +2422,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100009
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/Cascade-RCNN-Resnet101-FPN-DCN">  CascadeRCNN-ResNet101-FPN-DCN </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/Cascade-RCNN-Resnet101-FPN-DCN">  CascadeRCNN-ResNet101-FPN-DCN </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -2439,7 +2439,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100183
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/Cascade-RCNN-Resnet50-FPN"> CascadeRCNN-ResNet50-FPN </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/Cascade-RCNN-Resnet50-FPN"> CascadeRCNN-ResNet50-FPN </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -2456,7 +2456,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100184
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/ch_ppocr_server_v2.0_det"> CH-PPOCR-serverV2.0-det </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/ch_ppocr_server_v2.0_det"> CH-PPOCR-serverV2.0-det </a>
         </td>
         <td>PaddleOCR</td>
     <td></td>
@@ -2473,7 +2473,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100185
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/ch_PP-OCRv2_det">  CH-PPOCRV2-det </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/ch_PP-OCRv2_det">  CH-PPOCRV2-det </a>
         </td>
         <td>PaddleOCR</td>
     <td></td>
@@ -2490,7 +2490,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100186
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/ch_PP-OCRv3_det">  CH-PPOCRV3-det</a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/ch_PP-OCRv3_det">  CH-PPOCRV3-det</a>
         </td>
         <td>PaddleOCR</td>
     <td></td>
@@ -2507,7 +2507,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100187
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/CRAFT_for_Pytorch">   CRAFT </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/CRAFT_for_Pytorch">   CRAFT </a>
         </td>
         <td>随机数</td>
     <td></td>
@@ -2524,7 +2524,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100188
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/CTPN">  CTPN </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/CTPN">  CTPN </a>
         </td>
         <td>ICDAR2013</td>
     <td>86.84%</td>
@@ -2541,7 +2541,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100189
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/Deepmar_for_Pytorch">  DeepMAR </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/Deepmar_for_Pytorch">  DeepMAR </a>
         </td>
         <td>PETA</td>
     <td></td>
@@ -2558,7 +2558,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100190
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/EAST_MobileNetV3">   EAST-MobileNetV3 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/EAST_MobileNetV3">   EAST-MobileNetV3 </a>
         </td>
         <td>ICDAR2015</td>
     <td>78.29%</td>
@@ -2575,7 +2575,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100191
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/EAST_ResNet50_vd">  EAST-ResNet50-vd </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/EAST_ResNet50_vd">  EAST-ResNet50-vd </a>
         </td>
         <td>ICDAR2015</td>
     <td>88.63%</td>
@@ -2592,7 +2592,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100192
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/EfficientDetD7"> EfficientDet-D7 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/EfficientDetD7"> EfficientDet-D7 </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -2609,7 +2609,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100193
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/en_PP-OCRv3_det">  EN-PPOCRV3-det </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/en_PP-OCRv3_det">  EN-PPOCRV3-det </a>
         </td>
         <td>PaddleOCR</td>
     <td></td>
@@ -2626,7 +2626,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100194
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/FairMOT">   FairMOT </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/FairMOT">   FairMOT </a>
         </td>
         <td>MOT17</td>
     <td>83.7%</td>
@@ -2643,7 +2643,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100029
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/Faster_R-CNN_DCN_Res101">   FasterRCNN-DCN-Res101 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/Faster_R-CNN_DCN_Res101">   FasterRCNN-DCN-Res101 </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -2660,7 +2660,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100195
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/Faster_R-CNN_DCN_Res50">   FasterRCNN-DCN-Res50 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/Faster_R-CNN_DCN_Res50">   FasterRCNN-DCN-Res50 </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -2677,7 +2677,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100030
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/Faster_R-CNN_ResNet50">  FasterRCNN-ResNet50 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/Faster_R-CNN_ResNet50">  FasterRCNN-ResNet50 </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -2694,7 +2694,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100196
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/FCENet">  FCENet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/FCENet">  FCENet </a>
         </td>
         <td>icdar2015</td>
     <td></td>
@@ -2711,7 +2711,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100197
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/Fcos">  Fcos </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/Fcos">  Fcos </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -2728,7 +2728,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100198
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/FOTS"> FOTS </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/FOTS"> FOTS </a>
         </td>
         <td>ICDAR2015</td>
     <td>86.4%</td>
@@ -2745,7 +2745,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100199
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/Fsaf"> FSAF </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/Fsaf"> FSAF </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -2762,7 +2762,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100200
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/GFocalV2"> GFocalV2 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/GFocalV2"> GFocalV2 </a>
         </td>
         <td>coco</td>
     <td>40.6%</td>
@@ -2779,7 +2779,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100201
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/M2Det"> M2Det </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/M2Det"> M2Det </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -2796,7 +2796,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100202
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/NAS_FPN">  NAS-FPN </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/NAS_FPN">  NAS-FPN </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -2813,7 +2813,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100203
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/Nasnetlarge">  NasNetlarge </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/Nasnetlarge">  NasNetlarge </a>
         </td>
         <td>ImageNet</td>
     <td></td>
@@ -2830,7 +2830,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100204
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/Pelee_for_Pytorch">  Pelee </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/Pelee_for_Pytorch">  Pelee </a>
         </td>
         <td>VOC</td>
     <td></td>
@@ -2847,7 +2847,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100205
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/PSE_MobileNetV3">  PSE-MobileNetV3 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/PSE_MobileNetV3">  PSE-MobileNetV3 </a>
         </td>
         <td>ICDAR2015</td>
     <td>82.14%</td>
@@ -2864,7 +2864,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100206
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/PSENet_ResNet50_vd">  PSENet-ResNet50-vd </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/PSENet_ResNet50_vd">  PSENet-ResNet50-vd </a>
         </td>
         <td>ICDAR2015</td>
     <td>85.72%</td>
@@ -2881,7 +2881,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100207
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/pyramidbox"> Pyramidbox </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/pyramidbox"> Pyramidbox </a>
         </td>
         <td>widerface</td>
     <td>95%</td>
@@ -2898,7 +2898,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100208
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/RCF"> RCF </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/RCF"> RCF </a>
         </td>
         <td>BSDS500</td>
     <td></td>
@@ -2915,7 +2915,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100209
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/RefineDet">  RefineDet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/RefineDet">  RefineDet </a>
         </td>
         <td>VOC2007</td>
     <td></td>
@@ -2932,7 +2932,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100210
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/RetinaMask"> RetinaMask </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/RetinaMask"> RetinaMask </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -2949,7 +2949,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100211
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/Retinanet"> RetinaNet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/Retinanet"> RetinaNet </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -2966,7 +2966,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100212
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/RFCN"> RFCN </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/RFCN"> RFCN </a>
         </td>
         <td>VOCtest</td>
     <td></td>
@@ -2983,7 +2983,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100213
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/SFA3D_for_Pytorch">  SFA3D </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/SFA3D_for_Pytorch">  SFA3D </a>
         </td>
         <td>KITTI</td>
     <td></td>
@@ -3000,7 +3000,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100214
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/SSD-MobileNetV1"> SSD-MobileNetV1 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/SSD-MobileNetV1"> SSD-MobileNetV1 </a>
         </td>
         <td>VOC2007</td>
     <td>69.3%</td>
@@ -3017,7 +3017,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100215
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/SSD-MobileNetV2">  SSD-MobileNetV2 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/SSD-MobileNetV2">  SSD-MobileNetV2 </a>
         </td>
         <td>VOC2007</td>
     <td>69.8%</td>
@@ -3034,7 +3034,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100218
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/TextSnake">   TextSnake </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/TextSnake">   TextSnake </a>
         </td>
         <td>TextSnake</td>
     <td></td>
@@ -3051,7 +3051,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100219
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/TOOD">   TOOD </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/TOOD">   TOOD </a>
         </td>
         <td>coco</td>
     <td>42.2%</td>
@@ -3068,7 +3068,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100220
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/VGG16_SSD_for_PyTorch">   VGG16-SSD </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/VGG16_SSD_for_PyTorch">   VGG16-SSD </a>
         </td>
         <td>VOC</td>
     <td></td>
@@ -3085,7 +3085,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100221
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/YOLOF">  YOLOF </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/YOLOF">  YOLOF </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -3102,7 +3102,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100222
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/yolor">   YOLOR </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/yolor">   YOLOR </a>
         </td>
         <td>coco</td>
     <td>52.1%</td>
@@ -3119,7 +3119,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100223
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/YoloX_Tiny_for_Pytorch">   YOLOX-Tiny </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/YoloX_Tiny_for_Pytorch">   YOLOX-Tiny </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -3136,7 +3136,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100224
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/YoloXs_for_Pytorch">   YOLOXs </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/YoloXs_for_Pytorch">   YOLOXs </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -3153,7 +3153,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100225
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/YOLOX-mmdetection"> YOLOX-MMdetection </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/detection/YOLOX-mmdetection"> YOLOX-MMdetection </a>
         </td>
         <td>coco</td>
     <td>51%</td>
@@ -3191,7 +3191,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100226
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/3D_HRNet"> 3D-HRNet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/3D_HRNet"> 3D-HRNet </a>
         </td>
         <td>Cityscapes</td>
     <td></td>
@@ -3208,7 +3208,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100227
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/3D_Nested_Unet"> 3D-Nested-UNet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/3D_Nested_Unet"> 3D-Nested-UNet </a>
         </td>
         <td>Task03_Liver</td>
     <td></td>
@@ -3225,7 +3225,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100228
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/Cascade_Mask_RCNN">  Cascade-MaskRCNN </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/Cascade_Mask_RCNN">  Cascade-MaskRCNN </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -3242,7 +3242,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100229
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/Cascade_Mask_RCNN_UniFormer">  Cascade-MaskRCNN-UniFormer </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/Cascade_Mask_RCNN_UniFormer">  Cascade-MaskRCNN-UniFormer </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -3259,7 +3259,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100230
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/Cascade_RCNN">   CascadeRCNN </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/Cascade_RCNN">   CascadeRCNN </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -3276,7 +3276,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100015
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/DeeplabV3+">  DeeplabV3+ </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/DeeplabV3+">  DeeplabV3+ </a>
         </td>
         <td>VOCtrainval</td>
     <td></td>
@@ -3293,7 +3293,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100231
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/ENet"> ENet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/ENet"> ENet </a>
         </td>
         <td>Cityscapes</td>
     <td></td>
@@ -3310,7 +3310,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100232
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/ErfNet">  ErfNet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/ErfNet">  ErfNet </a>
         </td>
         <td>Cityscapes</td>
     <td></td>
@@ -3327,7 +3327,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100233
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/FastSCNN">   FastSCNN </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/FastSCNN">   FastSCNN </a>
         </td>
         <td>Cityscapes</td>
     <td></td>
@@ -3344,7 +3344,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100234
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/FCN-8s"> FCN-8s </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/FCN-8s"> FCN-8s </a>
         </td>
         <td>VOC2012</td>
     <td></td>
@@ -3361,7 +3361,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100235
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/GCNet">  GCNet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/GCNet">  GCNet </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -3378,7 +3378,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100236
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/ICNet">  ICNet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/ICNet">  ICNet </a>
         </td>
         <td>Cityscapes</td>
     <td></td>
@@ -3395,7 +3395,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100237
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/IntraDA">  IntraDA </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/IntraDA">  IntraDA </a>
         </td>
         <td>Cityscapes</td>
     <td></td>
@@ -3412,7 +3412,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100238
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/LPRNet_for_PyTorch">  LPRNet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/LPRNet_for_PyTorch">  LPRNet </a>
         </td>
         <td>代码仓提供</td>
     <td>90.2%</td>
@@ -3429,7 +3429,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100239
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/Maskrcnn-mmdet">   MaskRcnn-MMdet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/Maskrcnn-mmdet">   MaskRcnn-MMdet </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -3446,7 +3446,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100240
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/Nested_UNet">  Nested-UNet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/Nested_UNet">  Nested-UNet </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -3463,7 +3463,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100241
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/OCRNet"> OCRNet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/OCRNet"> OCRNet </a>
         </td>
         <td>Cityscapes</td>
     <td></td>
@@ -3480,7 +3480,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100242
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/PointRend"> PointRend </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/PointRend"> PointRend </a>
         </td>
         <td>Cityscapes</td>
     <td></td>
@@ -3497,7 +3497,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100243
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/PraNet">  PraNet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/PraNet">  PraNet </a>
         </td>
         <td>kvasir</td>
     <td></td>
@@ -3514,7 +3514,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100244
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/PSPNet">  PSPNet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/PSPNet">  PSPNet </a>
         </td>
         <td>VOC2012</td>
     <td></td>
@@ -3531,7 +3531,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100245
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/RefineNet">   RefineNet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/RefineNet">   RefineNet </a>
         </td>
         <td>VOC2012</td>
     <td></td>
@@ -3548,7 +3548,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100246
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/Segformer"> Segformer </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/Segformer"> Segformer </a>
         </td>
         <td>Cityscapes</td>
     <td></td>
@@ -3565,7 +3565,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100247
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/Segmenter"> Segmenter </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/Segmenter"> Segmenter </a>
         </td>
         <td>Cityscapes</td>
     <td></td>
@@ -3582,7 +3582,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100248
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/SeMask">  SeMask </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/SeMask">  SeMask </a>
         </td>
         <td>Cityscapes</td>
     <td></td>
@@ -3599,7 +3599,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100249
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/SETR">   SETR </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/SETR">   SETR </a>
         </td>
         <td>Cityscapes</td>
     <td></td>
@@ -3616,7 +3616,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100250
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/SiamMask"> SiamMask </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/SiamMask"> SiamMask </a>
         </td>
         <td>VOT2016</td>
     <td></td>
@@ -3633,7 +3633,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100251
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/SOLOV1"> SOLOV1 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/SOLOV1"> SOLOV1 </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -3650,7 +3650,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100252
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/STDC"> STDC </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/STDC"> STDC </a>
         </td>
         <td>Cityscapes</td>
     <td></td>
@@ -3667,7 +3667,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100253
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/swin_97">  Swin97 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/swin_97">  Swin97 </a>
         </td>
         <td>ADE20K</td>
     <td></td>
@@ -3684,7 +3684,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100254
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/swin_98">  Swin98 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/swin_98">  Swin98 </a>
         </td>
         <td>ADE20K</td>
     <td></td>
@@ -3701,7 +3701,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100255
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/swin_99">  Swin99 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/swin_99">  Swin99 </a>
         </td>
         <td>ADE20K</td>
     <td></td>
@@ -3718,7 +3718,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100256
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/swin100"> Swin100 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/swin100"> Swin100 </a>
         </td>
         <td>ADE20K</td>
     <td></td>
@@ -3735,7 +3735,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100257
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/Swin-Transformer-Semantic-Segmentation"> SwinTransformer-Semantic-Segmentation </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/Swin-Transformer-Semantic-Segmentation"> SwinTransformer-Semantic-Segmentation </a>
         </td>
         <td>ADE20K</td>
     <td></td>
@@ -3752,7 +3752,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100258
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/Transformer-SSL"> Transformer-SSL </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/Transformer-SSL"> Transformer-SSL </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -3769,7 +3769,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100066
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/U2-Net_for_PyTorch"> U2Net </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/U2-Net_for_PyTorch"> U2Net </a>
         </td>
         <td>ECSSD</td>
     <td></td>
@@ -3786,7 +3786,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100259
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/Ultra-Fast-Lane-Detection"> Ultra-Fast-Lane-Detection </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/Ultra-Fast-Lane-Detection"> Ultra-Fast-Lane-Detection </a>
         </td>
         <td>Tusimple</td>
     <td>95.8%</td>
@@ -3803,7 +3803,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100260
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/VNet"> VNet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/VNet"> VNet </a>
         </td>
         <td>LUNA16</td>
     <td>99.4%</td>
@@ -3820,7 +3820,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100261
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/Wseg">  Wseg </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/Wseg">  Wseg </a>
         </td>
         <td>VOC</td>
     <td></td>
@@ -3837,7 +3837,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100262
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/YOLACT">   YOLACT </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/YOLACT">   YOLACT </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -3854,7 +3854,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100263
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/YolactEdge_for_PyTorch">   YOLACTEdge </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/YolactEdge_for_PyTorch">   YOLACTEdge </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -3871,7 +3871,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100264
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/YOLACT_plus">   YOLACT++ </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/segmentation/YOLACT_plus">   YOLACT++ </a>
         </td>
         <td>coco</td>
     <td></td>
@@ -3903,7 +3903,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100265
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/face/AlignedReID">  AlignedReID </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/face/AlignedReID">  AlignedReID </a>
         </td>
         <td>Market1501</td>
     <td>80.55%</td>
@@ -3914,7 +3914,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100266
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/face/centroids-reid"> Centroids-ReID </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/face/centroids-reid"> Centroids-ReID </a>
         </td>
         <td>DukeMTMC-reID</td>
     <td>96.8%</td>
@@ -3925,7 +3925,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100267
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/face/FaceBoxes"> FaceBoxes </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/face/FaceBoxes"> FaceBoxes </a>
         </td>
         <td>FDDB</td>
     <td>94.8%</td>
@@ -3936,7 +3936,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100268
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/face/FaceNet">  FaceNet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/face/FaceNet">  FaceNet </a>
         </td>
         <td>LFW</td>
     <td>99.2%</td>
@@ -3947,7 +3947,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100269
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/face/reid_PCB_baseline">   ReID-PCB-baseline </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/face/reid_PCB_baseline">   ReID-PCB-baseline </a>
         </td>
         <td>Market</td>
     <td>92.1%</td>
@@ -3958,7 +3958,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100270
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/face/ReId-MGN-master">   ReId-MGN </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/face/ReId-MGN-master">   ReId-MGN </a>
         </td>
         <td>Market</td>
     <td></td>
@@ -3969,7 +3969,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100271
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/face/Retinaface"> Retinaface </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/face/Retinaface"> Retinaface </a>
         </td>
         <td>WiderFace</td>
     <td>87.56%</td>
@@ -3996,7 +3996,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100272
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/gan/BigGAN"> BigGAN </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/gan/BigGAN"> BigGAN </a>
         </td>
         <td>噪声数据</td>
         <td>94.009</td>
@@ -4008,7 +4008,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100273
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/gan/CGAN"> CGAN </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/gan/CGAN"> CGAN </a>
         </td>
         <td>随机数</td>
         <td></td>
@@ -4020,7 +4020,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100274
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/gan/CycleGAN"> CycleGAN </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/gan/CycleGAN"> CycleGAN </a>
         </td>
         <td>maps</td>
         <td></td>
@@ -4032,7 +4032,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100275
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/gan/DCGAN"> DCGAN </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/gan/DCGAN"> DCGAN </a>
         </td>
         <td>噪声数据</td>
         <td></td>
@@ -4044,7 +4044,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100276
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/DG-Net"> DGNet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/DG-Net"> DGNet </a>
         </td>
         <td>Market-1501</td>
         <td></td>
@@ -4056,7 +4056,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100277
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/gan/GAN"> GAN </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/gan/GAN"> GAN </a>
         </td>
         <td>随机数</td>
         <td></td>
@@ -4068,7 +4068,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100278
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/gan/Pix2Pix"> Pix2Pix </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/gan/Pix2Pix"> Pix2Pix </a>
         </td>
         <td>facades</td>
         <td></td>
@@ -4080,7 +4080,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100279
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/gan/Pix2pixHD">  Pix2PixHD </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/gan/Pix2pixHD">  Pix2PixHD </a>
         </td>
         <td>cityscapes</td>
         <td></td>
@@ -4106,7 +4106,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100280
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/image_process/Cross-Scale-Non-Local-Attention"> CrossScale-NonLocal-Attention </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/image_process/Cross-Scale-Non-Local-Attention"> CrossScale-NonLocal-Attention </a>
         </td>
         <td>Set5</td>
         <td>32.57</td>
@@ -4116,7 +4116,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100281
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/image_process/DnCNN"> DnCNN </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/image_process/DnCNN"> DnCNN </a>
         </td>
         <td>dncnn</td>
         <td>31.53</td>
@@ -4126,7 +4126,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100282
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/image_process/SRFlow">  SRFlow </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/image_process/SRFlow">  SRFlow </a>
         </td>
         <td>DIV2K</td>
         <td>23</td>
@@ -4136,7 +4136,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100283
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/image_process/wdsr">  WDSR </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/image_process/wdsr">  WDSR </a>
         </td>
         <td>DIV2K</td>
         <td>34.75</td>
@@ -4160,7 +4160,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100284
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/image_registration/superpoint"> SuperPoint </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/image_registration/superpoint"> SuperPoint </a>
         </td>
         <td>HPatches</td>
         <td>80.6%</td>
@@ -4184,7 +4184,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100285
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/image_retrieval/BLIP"> BLIP </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/image_retrieval/BLIP"> BLIP </a>
         </td>
         <td>coco</td>
         <td>81.3%</td>
@@ -4211,7 +4211,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100286
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/pose_estimation/3DMPPE-ROOTNET"> 3DMPPE-RootNet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/pose_estimation/3DMPPE-ROOTNET"> 3DMPPE-RootNet </a>
         </td>
         <td>MuPoTS</td>
         <td>31.81%</td>
@@ -4224,7 +4224,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100287
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/pose_estimation/DEKR"> DEKR </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/pose_estimation/DEKR"> DEKR </a>
         </td>
         <td>coco</td>
         <td></td>
@@ -4237,7 +4237,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100288
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/pose_estimation/HigherHRNet"> HigherHRNet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/pose_estimation/HigherHRNet"> HigherHRNet </a>
         </td>
         <td>coco</td>
         <td></td>
@@ -4250,7 +4250,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100289
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/HRNet_mmlab_for_pytorch"> HRNet-MMLab </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/HRNet_mmlab_for_pytorch"> HRNet-MMLab </a>
         </td>
         <td>coco</td>
         <td></td>
@@ -4263,7 +4263,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100290
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/pose_estimation/MSPN"> MSPN </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/pose_estimation/MSPN"> MSPN </a>
         </td>
         <td>coco</td>
         <td></td>
@@ -4276,7 +4276,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100291
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/pose_estimation/PoseC3D">  PoseC3D </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/pose_estimation/PoseC3D">  PoseC3D </a>
         </td>
         <td>HMDB51</td>
         <td>69.22%</td>
@@ -4289,7 +4289,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100292
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/pose_estimation/TransPose">   TransPose </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/pose_estimation/TransPose">   TransPose </a>
         </td>
         <td>coco</td>
         <td></td>
@@ -4302,7 +4302,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100293
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/pose_estimation/UniFormer">   UniFormer </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/pose_estimation/UniFormer">   UniFormer </a>
         </td>
         <td>coco</td>
         <td></td>
@@ -4315,7 +4315,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100294
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/pose_estimation/VideoPose3D">  VideoPose3D </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/pose_estimation/VideoPose3D">  VideoPose3D </a>
         </td>
         <td>Human3.6M</td>
         <td></td>
@@ -4344,7 +4344,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100295
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/quality_enhancement/ADNet">  ADNet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/quality_enhancement/ADNet">  ADNet </a>
         </td>
         <td>BSD68</td>
         <td>29.24%</td>
@@ -4356,7 +4356,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100296
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/quality_enhancement/SRGAN">   SRGAN </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/quality_enhancement/SRGAN">   SRGAN </a>
         </td>
         <td>Set5</td>
         <td></td>
@@ -4383,7 +4383,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100297
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/FLAVR_for_PyTorch">  FLAVR </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/FLAVR_for_PyTorch">  FLAVR </a>
         </td>
         <td>UCF101</td>
         <td>29.83</td>
@@ -4394,7 +4394,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100298
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/super_resolution/RCAN">  RCAN </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/super_resolution/RCAN">  RCAN </a>
         </td>
         <td>Set5</td>
         <td>38.25</td>
@@ -4405,7 +4405,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100299
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/super_resolution/RDN">   RDN </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/super_resolution/RDN">   RDN </a>
         </td>
         <td>Set5</td>
         <td>38.27</td>
@@ -4416,7 +4416,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100300
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/super_resolution/Real-ESRGAN">  Real-ESRGAN </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/super_resolution/Real-ESRGAN">  Real-ESRGAN </a>
         </td>
         <td>代码仓提供</td>
         <td></td>
@@ -4427,7 +4427,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100301
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/super_resolution/SRCNN">  SRCNN </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/super_resolution/SRCNN">  SRCNN </a>
         </td>
         <td>Set5</td>
         <td>36.33</td>
@@ -4457,7 +4457,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100302
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/Flownet2_for_Pytorch"> FlowNet2 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/Flownet2_for_Pytorch"> FlowNet2 </a>
         </td>
         <td>MPI-Sintel-complete</td>
         <td></td>
@@ -4472,7 +4472,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100303
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/tracking/SiamFC">  SiamFC </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/tracking/SiamFC">  SiamFC </a>
         </td>
         <td>OTB2015</td>
         <td>57.2%</td>
@@ -4487,7 +4487,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100054
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/tracking/SiamRPN">  SiamRPN </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/tracking/SiamRPN">  SiamRPN </a>
         </td>
         <td>VOT</td>
         <td></td>
@@ -4502,7 +4502,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100304
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/tracking/GMA">  GMA </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/tracking/GMA">  GMA </a>
         </td>
         <td>MPI-Sintel-complete</td>
         <td></td>
@@ -4517,7 +4517,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100305
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/deepctr">  DeepCTR </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/deepctr">  DeepCTR </a>
         </td>
         <td>代码仓提供</td>
         <td></td>
@@ -4549,7 +4549,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100306
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/video_understanding/FOMM">  FOMM </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/video_understanding/FOMM">  FOMM </a>
         </td>
         <td>taichi</td>
         <td>6.7975</td>
@@ -4562,7 +4562,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100307
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/I3D_nonlocal">  I3D-Nonlocal </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/I3D_nonlocal">  I3D-Nonlocal </a>
         </td>
         <td>kinetics400</td>
         <td></td>
@@ -4575,7 +4575,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100308
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/video_understanding/NonLocal">   NonLocal </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/video_understanding/NonLocal">   NonLocal </a>
         </td>
         <td>kinetics400</td>
         <td></td>
@@ -4588,7 +4588,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100309
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/video_understanding/SlowFast">   SlowFast </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/video_understanding/SlowFast">   SlowFast </a>
         </td>
         <td>kinetics400</td>
         <td></td>
@@ -4601,7 +4601,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100310
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/video_understanding/TSM">  TSM </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/video_understanding/TSM">  TSM </a>
         </td>
         <td>UCF-101</td>
         <td></td>
@@ -4614,7 +4614,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100311
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/video_understanding/TSN">  TSN </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/video_understanding/TSN">  TSN </a>
         </td>
         <td>UCF-101</td>
         <td></td>
@@ -4627,7 +4627,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100312
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/video_understanding/X3D"> X3D </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/video_understanding/X3D"> X3D </a>
         </td>
         <td>Kinetic400</td>
         <td></td>
@@ -4659,7 +4659,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100313
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/audio/AASIST-L_for_Pytorch">  AASIST-L </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/audio/AASIST-L_for_Pytorch">  AASIST-L </a>
         </td>
         <td>LA</td>
         <td>0.979</td>
@@ -4673,7 +4673,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100314
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/audio/data2vec">  Data2Vec </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/audio/data2vec">  Data2Vec </a>
         </td>
         <td>LibriSpeech</td>
         <td></td>
@@ -4687,7 +4687,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100021
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/audio/Ecapa_Tdnn">  Ecapa-TDNN </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/audio/Ecapa_Tdnn">  Ecapa-TDNN </a>
         </td>
         <td>VoxCeleb1</td>
         <td></td>
@@ -4701,7 +4701,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100031
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/audio/FastPitch"> FastPitch </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/audio/FastPitch"> FastPitch </a>
         </td>
         <td>LJSpeech</td>
         <td></td>
@@ -4715,7 +4715,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100315
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/audio/jasper">  Jasper </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/audio/jasper">  Jasper </a>
         </td>
         <td>LibriSpeech</td>
         <td></td>
@@ -4729,7 +4729,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100316
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/audio/LSTM">  LSTM </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/audio/LSTM">  LSTM </a>
         </td>
         <td>timit</td>
         <td></td>
@@ -4743,7 +4743,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100317
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/audio/rawnet2">  RawNet2 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/audio/rawnet2">  RawNet2 </a>
         </td>
         <td>VoxCeleb1</td>
         <td>2.5%</td>
@@ -4757,7 +4757,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100318
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/audio/Speech-Transformer">  Speech-Transformer </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/audio/Speech-Transformer">  Speech-Transformer </a>
         </td>
         <td>aishell</td>
         <td>9.9%</td>
@@ -4771,7 +4771,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100319
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/audio/tdnn">  TDNN-contrib </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/audio/tdnn">  TDNN-contrib </a>
         </td>
         <td>librispeech</td>
         <td></td>
@@ -4785,7 +4785,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100071
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/audio/wav2vec2"> Wav2Vec2 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/audio/wav2vec2"> Wav2Vec2 </a>
         </td>
         <td>librispeech</td>
         <td></td>
@@ -4799,7 +4799,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100320
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/audio/WaveGlow"> WaveGlow </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/audio/WaveGlow"> WaveGlow </a>
         </td>
         <td>LJSpeech</td>
         <td></td>
@@ -4813,7 +4813,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100321
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/audio/Wenet2_for_Pytorch"> WeNet </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/audio/Wenet2_for_Pytorch"> WeNet </a>
         </td>
         <td>aishell</td>
         <td></td>
@@ -4827,7 +4827,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100409
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/audio/whisper"> whisper </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/audio/whisper"> whisper </a>
         </td>
         <td>librispeech_asr_dummy</td>
         <td></td>
@@ -4841,7 +4841,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100410
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/audio/CosyVoice2"> CosyVoice2 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/audio/CosyVoice2"> CosyVoice2 </a>
         </td>
         <td>代码仓提供</td>
         <td></td>
@@ -4855,7 +4855,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100411
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/audio/whisperx"> whisperx </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/audio/whisperx"> whisperx </a>
         </td>
         <td>librispeech dev clean</td>
         <td></td>
@@ -4884,7 +4884,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100322
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/knowledge/RotatE">   RotatE </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/knowledge/RotatE">   RotatE </a>
         </td>
         <td>FB15k-237</td>
         <td>0.3355</td>
@@ -4906,7 +4906,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     </tr>
     <tr>
         <td>100410</td>
-        <td><a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/embedding/bge-m3"> bge-m3 </a>
+        <td><a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/embedding/bge-m3"> bge-m3 </a>
         </td>
         <td>forward 23.23ms, e2e 137.59ms (bs2)</td>
         <td>forward 14.71ms, e2e 103.88ms (bs2)</td>
@@ -4914,7 +4914,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     </tr>
     <tr>
         <td>100411</td>
-        <td><a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/embedding/bge-reranker-v2-m3"> bge-reranker-v2-m3 </a>
+        <td><a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/embedding/bge-reranker-v2-m3"> bge-reranker-v2-m3 </a>
         </td>
         <td>forward 22.57ms, e2e 60.47ms (bs2)</td>
         <td>forward 15.08ms, e2e 46.64ms (bs2)</td>
@@ -4944,7 +4944,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100005
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/nlp/Bert_Base_Uncased_for_Pytorch"> BertBase-Uncased </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/nlp/Bert_Base_Uncased_for_Pytorch"> BertBase-Uncased </a>
         </td>
         <td>squad</td>
         <td>88.78%</td>
@@ -4959,7 +4959,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100323
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/BertSum"> BertSum </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/BertSum"> BertSum </a>
         </td>
         <td>代码仓提供</td>
         <td>42.85%</td>
@@ -4974,7 +4974,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100324
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/ch_ppocr_server_v2.0_rec"> CH-PPOCR-serverV2.0-rec </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/ch_ppocr_server_v2.0_rec"> CH-PPOCR-serverV2.0-rec </a>
         </td>
         <td>PaddleOCR</td>
         <td></td>
@@ -4989,7 +4989,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100325
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/ch_PP-OCRv2_rec">  CH-PPOCRV2-rec </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/ch_PP-OCRv2_rec">  CH-PPOCRV2-rec </a>
         </td>
         <td>PaddleOCR</td>
         <td></td>
@@ -5004,7 +5004,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100326
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/ch_PP-OCRv3_rec">  CH-PPOCRV3-rec </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/ch_PP-OCRv3_rec">  CH-PPOCRV3-rec </a>
         </td>
         <td>PaddleOCR</td>
         <td></td>
@@ -5019,7 +5019,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100327
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/CNN_Transformer_for_Pytorch"> CNN-Transformer </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/CNN_Transformer_for_Pytorch"> CNN-Transformer </a>
         </td>
         <td>Librispeech</td>
         <td></td>
@@ -5034,7 +5034,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100328
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/deberta"> DeBERTa </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/deberta"> DeBERTa </a>
         </td>
         <td>MNLI</td>
         <td>90.46%</td>
@@ -5049,7 +5049,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100329
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/ELMo"> ELMO </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/ELMo"> ELMO </a>
         </td>
         <td>1 Billion Word</td>
         <td></td>
@@ -5064,7 +5064,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100330
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/en_PP-OCRv3_rec">  EN-PPOCRV3-rec </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/en_PP-OCRv3_rec">  EN-PPOCRV3-rec </a>
         </td>
         <td>PaddleOCR</td>
         <td></td>
@@ -5079,7 +5079,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100331
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/nlp/GPT2_for_Pytorch">  GPT2 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/nlp/GPT2_for_Pytorch">  GPT2 </a>
         </td>
         <td>wiki_zh_2019</td>
         <td></td>
@@ -5094,7 +5094,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100332
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/GNMT">   GNMT </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/GNMT">   GNMT </a>
         </td>
         <td>newstest2014</td>
         <td></td>
@@ -5109,7 +5109,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100333
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/hubert">   HuBERT </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/hubert">   HuBERT </a>
         </td>
         <td>test-clean</td>
         <td></td>
@@ -5124,7 +5124,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100334
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/RARE_Resnet34_vd">  RARE-ResNet34-vd </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/RARE_Resnet34_vd">  RARE-ResNet34-vd </a>
         </td>
         <td>LMDB</td>
         <td>84.79%</td>
@@ -5139,7 +5139,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100335
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/Rosetta_MobileNetV3"> Rosetta-MobileNetV3 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/Rosetta_MobileNetV3"> Rosetta-MobileNetV3 </a>
         </td>
         <td>LMDB</td>
         <td>77.38%</td>
@@ -5154,7 +5154,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100336
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/Rosetta_Resnet34_vd"> Rosetta-ResNet34-vd </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/Rosetta_Resnet34_vd"> Rosetta-ResNet34-vd </a>
         </td>
         <td>LMDB</td>
         <td>80.63%</td>
@@ -5169,7 +5169,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100337
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/SATRN">  SATRN </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/SATRN">  SATRN </a>
         </td>
         <td>IIIT5K</td>
         <td>94.87%</td>
@@ -5184,7 +5184,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100338
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/SpanBERT">  SpanBERT </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/SpanBERT">  SpanBERT </a>
         </td>
         <td>SQuAD 1.1</td>
         <td></td>
@@ -5199,7 +5199,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100339
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/StarNet_MobileNetV3">  StarNet-MobileNetV3 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/StarNet_MobileNetV3">  StarNet-MobileNetV3 </a>
         </td>
         <td>LMDB</td>
         <td>80.02%</td>
@@ -5214,7 +5214,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100341
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/tinybert">   TinyBERT </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/tinybert">   TinyBERT </a>
         </td>
         <td>SST-2</td>
         <td>92.32%</td>
@@ -5229,7 +5229,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100342
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/Transformer">    Transformer </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/Transformer">    Transformer </a>
         </td>
         <td>Multi30k</td>
         <td>40.92%</td>
@@ -5244,7 +5244,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100343
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/TransformerXL_for_Pytorch">   TransformerXL </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/TransformerXL_for_Pytorch">   TransformerXL </a>
         </td>
         <td>enwik8</td>
         <td></td>
@@ -5259,7 +5259,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100344
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/TrOCR">  TrOCR </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/nlp/TrOCR">  TrOCR </a>
         </td>
         <td>IAM</td>
         <td></td>
@@ -5274,7 +5274,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100345
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/nlp/VilBert_for_Pytorch"> VilBERT </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/nlp/VilBert_for_Pytorch"> VilBERT </a>
         </td>
         <td>coco</td>
         <td></td>
@@ -5306,7 +5306,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100408
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/ocr/MinerU"> MinerU-ocr </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/ocr/MinerU"> MinerU-ocr </a>
         </td>
         <td>OmniDocBench</td>
     <td>0.1588</td>
@@ -5333,7 +5333,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100346
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/rl/c51">  C51 </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/rl/c51">  C51 </a>
         </td>
         <td>随机数</td>
         <td>98.9%</td>
@@ -5343,7 +5343,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100347
         </td><td>
-        <a href="https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/rl/DQN"> DQN </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/rl/DQN"> DQN </a>
         </td>
         <td>随机数</td>
         <td>100%</td>

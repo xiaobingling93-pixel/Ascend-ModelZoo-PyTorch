@@ -24,7 +24,7 @@ AdvancedEast是场景文字检测算法，基于EAST算法，对EAST在长文本
 - 适配昇腾 AI 处理器的实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/contrib/cv/detection
   ```
 

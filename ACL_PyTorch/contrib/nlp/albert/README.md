@@ -67,7 +67,7 @@ ALBERT是BERT 的“改进版”，主要通过通过Factorized embedding parame
 1. 获取源码。
 
    ```
-   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git        # 克隆仓库的代码
+   git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git        # 克隆仓库的代码
    git checkout master         # 切换到对应分支
    cd ACL_PyTorch/contrib/nlp/albert              # 切换到模型的代码仓目录
    ```
@@ -76,7 +76,7 @@ ALBERT是BERT 的“改进版”，主要通过通过Factorized embedding parame
 
    ```
    pip3 install -r requirements.txt
-   git clone https://gitee.com/ascend/msadvisor && cd msadvisor && git checkout master
+   git clone https://gitcode.com/ascend/msadvisor && cd msadvisor && git checkout master
    cd auto-optimizer && python3 -m pip install .
    cd ../..
    ```

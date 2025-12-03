@@ -83,7 +83,7 @@
 4. 安装改图依赖 auto_optimizer，安装和使用详情参考[链接](https://gitee.com/sibylk/msadvisor/tree/master/auto-optimizer)。
 
    ```
-   git clone https://gitee.com/ascend/msadvisor.git
+   git clone https://gitcode.com/ascend/msadvisor.git
    cd auto-optimizer
    pip3 install -r requirements.txt
    python3 setup.py install

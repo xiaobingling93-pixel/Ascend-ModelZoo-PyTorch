@@ -164,7 +164,7 @@
 
          获得srgan.onnx文件。
 
-      2. 优化ONNX文件(使用[auto-optimizer](https://gitee.com/Ascend/msadvisor)工具对onnx模型修改)。
+      2. 优化ONNX文件(使用[auto-optimizer](https://gitcode.com/Ascend/msadvisor)工具对onnx模型修改)。
 
          ```
          python3 eidt_onnx.py --src_path=./srgan.onnx --result_path=./srgan_fix.onnx

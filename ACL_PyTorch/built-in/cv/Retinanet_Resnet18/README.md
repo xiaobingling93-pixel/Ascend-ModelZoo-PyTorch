@@ -141,7 +141,7 @@
 
       3. 修改ONNX文件。
 
-          请访问[auto-optimizer改图工具](https://gitee.com/ascend/msadvisor/tree/master/auto-optimizer)代码仓，根据readme文档进行工具安装。
+          请访问[auto-optimizer改图工具](https://gitcode.com/ascend/msadvisor/tree/master/auto-optimizer)代码仓，根据readme文档进行工具安装。
 	 
           ```shell
           python3 -m auto_optimizer optimize retinanet.onnx retinanet_fix.onnx -k 4,8

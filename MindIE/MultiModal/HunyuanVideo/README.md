@@ -94,7 +94,7 @@ export CPLUS_INCLUDE_PATH=/usr/include/c++/12/:/usr/include/c++/12/aarch64-openE
 
 ### 2.6 下载本仓库
 ```shell
-git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
 cd ModelZoo-PyTorch/MindIE/MultiModal/HunyuanVideo/
 ```
 

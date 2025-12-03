@@ -71,7 +71,7 @@ Faster-R-CNN 在Fast RCNN的基础上使用RPN层代替Selective Search提取候
 
 1. 获取本仓代码
    ```bash
-   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git 
+   git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git 
    cd ./ModelZoo-PyTorch/ACL_PyTorch/contrib/cv/detection/Faster_R-CNN_ResNet50/
    ```
 
@@ -234,7 +234,7 @@ Faster-R-CNN 在Fast RCNN的基础上使用RPN层代替Selective Search提取候
 
       获得```faster_rcnn_r50_fpn.onnx```文件。
 
-   4. 优化onnx算子，消除冗余算子(安装[auto-optimzer](https://gitee.com/ascend/msadvisor/tree/master/auto-optimizer)工具)：
+   4. 优化onnx算子，消除冗余算子(安装[auto-optimzer](https://gitcode.com/ascend/msadvisor/tree/master/auto-optimizer)工具)：
 
       ```
       python3 modify.py --model=faster_rcnn_r50_fpn.onnx --output=faster_rcnn_r50_fpn_m.onnx

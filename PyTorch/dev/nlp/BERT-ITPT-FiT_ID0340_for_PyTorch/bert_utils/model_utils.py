@@ -65,9 +65,9 @@ def train(model, iterator, criterion, optimizer, device, include_bert_masks=True
     """
     epoch_loss, epoch_acc = 0.0, 0.0
     max_step = 0
-    #https://gitee.com/ascend/pytorch/issues/I3TWK4?from=project-issue
+    #https://gitcode.com/ascend/pytorch/issues/I3TWK4?from=project-issue
     model.train()
-    #https://gitee.com/ascend/pytorch/issues/I3TWK4?from=project-issue
+    #https://gitcode.com/ascend/pytorch/issues/I3TWK4?from=project-issue
 
     for batch in iterator:
         start = time.time()

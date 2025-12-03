@@ -4,7 +4,7 @@ Implements training of X3D-S on the Kinetics-400 dataset
 
 ## Detail
 
-Most of codes are modified according to [here](https://gitee.com/ascend/modelzoo/wikis/Pytorch%E8%AE%AD%E7%BB%83%E6%8C%87%E5%AF%BC?sort_id=4208869#21-%E8%BF%81%E7%A7%BB%E6%B5%81%E7%A8%8B%E8%AF%B4%E6%98%8E)
+Most of codes are modified according to [here](https://gitcode.com/ascend/modelzoo/wikis/Pytorch%E8%AE%AD%E7%BB%83%E6%8C%87%E5%AF%BC?sort_id=4208869#21-%E8%BF%81%E7%A7%BB%E6%B5%81%E7%A8%8B%E8%AF%B4%E6%98%8E)
 
 There are some special modification of [source repository](https://github.com/facebookresearch/SlowFast) :
 
@@ -36,7 +36,7 @@ There are some special modification of [source repository](https://github.com/fa
 - torchvision == 0.6.0
   - If on Centos arm, please build the source code from [here](https://gitee.com/azureology/torchvision/tree/v0.6.0/) 
 - PyAV
-  - If the installation fails on Centos arm, following this [issue](https://gitee.com/ascend/modelzoo/issues/I48AP3?from=project-issue)
+  - If the installation fails on Centos arm, following this [issue](https://gitcode.com/ascend/modelzoo/issues/I48AP3?from=project-issue)
 - Detectron2
   - According to the CUDA version and Pytorch version, build from [source code](https://github.com/facebookresearch/detectron2)
 
@@ -206,10 +206,10 @@ So we made the following analysis and improvement:
 
 Iessues and PRs about this project
 
-- invalid gradient https://gitee.com/ascend/modelzoo/issues/I452ZB  https://gitee.com/ascend/pytorch-develop/pulls/2438
-- optimizer error https://gitee.com/ascend/pytorch-develop/pulls/2438
-- pyav install on CentOS arm  https://gitee.com/ascend/modelzoo/issues/I48AP3
-- scikit-learn cannot allocate memory in static TLS https://gitee.com/ascend/modelzoo/issues/I48QNY
+- invalid gradient https://gitcode.com/ascend/modelzoo/issues/I452ZB  https://gitcode.com/ascend/pytorch-develop/pulls/2438
+- optimizer error https://gitcode.com/ascend/pytorch-develop/pulls/2438
+- pyav install on CentOS arm  https://gitcode.com/ascend/modelzoo/issues/I48AP3
+- scikit-learn cannot allocate memory in static TLS https://gitcode.com/ascend/modelzoo/issues/I48QNY
 
 
 # Statement

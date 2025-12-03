@@ -76,7 +76,7 @@ BERT，即Bidirectional Encoder Representations from Transformers，是一种基
 1. 获取本仓代码
 
    ```bash
-   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+   git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
    cd ./ModelZoo-PyTorch/ACL_PyTorch/built-in/nlp/Bert_Base_Uncased_for_Pytorch/
    ```
 

@@ -16,7 +16,7 @@
   鉴于DeepSeek-V2、V3、R1系列模型结构高度相似，模块化后组图代码差异较小。为提升代码复用率并降低冗余，三个模型的共享代码模块已统一整合至DeepSeek-V2文件夹中
   注意：以下引用的`atb_models`路径在`DeepSeek-V2`路径下：
   ```sh
-  git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+  git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
   cd ModelZoo-PyTorch/MindIE/LLM/DeepSeek/DeepSeek-V2/
   ```
 
@@ -47,7 +47,7 @@ NPU侧权重转换
 - DeepSeek官方没有针对DeepSeek-R1提供新的权重转换脚本，所以复用DeepSeek-V2的权重转换脚本。
 - 若用户使用上方脚本下载权重，则无需使用以下git clone命令，直接进入权重转换脚本目录。
 ```sh
-git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
 ```
 ```sh
 cd ModelZoo-PyTorch/MindIE/LLM/DeepSeek/DeepSeek-V2/NPU_inference
@@ -75,7 +75,7 @@ python fp8_cast_bf16.py --input-fp8-hf-path {/path/to/DeepSeek-R1} --output-bf16
 
 目前支持：生成模型W8A8混合量化权重，使用histogram量化方式 (MLA:W8A8量化，MOE:W8A8 dynamic pertoken量化)。
 
-详情请参考 [DeepSeek模型量化方法介绍](https://gitee.com/ascend/msit/tree/br_noncom_MindStudio_8.0.0_POC_20251231/msmodelslim/example/DeepSeek)
+详情请参考 [DeepSeek模型量化方法介绍](https://gitcode.com/ascend/msit/tree/br_noncom_MindStudio_8.0.0_POC_20251231/msmodelslim/example/DeepSeek)
 
 注意：DeepSeek-R1模型权重较大，量化权重生成时间较久，请耐心等待；具体时间与校准数据集大小成正比，10条数据大概需花费3小时。
 

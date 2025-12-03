@@ -84,7 +84,7 @@ ELMo模型是用于训练得到单词词向量的，不同于以往常用的word
 
 3. 安装auto-optimizer工具
 
-   安装方式参考[auto-optimizer开源链接](https://gitee.com/ascend/msadvisor/tree/master/auto-optimizer)。
+   安装方式参考[auto-optimizer开源链接](https://gitcode.com/ascend/msadvisor/tree/master/auto-optimizer)。
 
 ## 准备数据集<a name="section183221994411"></a>
 

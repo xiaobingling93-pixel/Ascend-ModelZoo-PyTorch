@@ -70,7 +70,7 @@ docker run -it -d --net=host --shm-size=1g \
     -v /path-to-weights:/path-to-weights:ro \
     mindie:2.0.RC2-800I-A2-py311-openeuler24.03-lts bash
 ```
-更多镜像使用信息请参考[官方镜像仓库文档](https://gitee.com/ascend/ascend-docker-image/tree/dev/mindie#%E5%90%AF%E5%8A%A8%E5%AE%B9%E5%99%A8)。
+更多镜像使用信息请参考[官方镜像仓库文档](https://gitcode.com/ascend/ascend-docker-image/tree/dev/mindie#%E5%90%AF%E5%8A%A8%E5%AE%B9%E5%99%A8)。
 
 ## 进入容器
 ```shell
@@ -79,7 +79,7 @@ docker exec -it ${容器名称} bash
 
 ## 量化权重生成
 ### Atlas 800I A2 w8a8量化
-* 生成量化权重依赖msModelSlim工具，安装方式见[此README](https://gitee.com/ascend/msit/tree/master/msmodelslim)
+* 生成量化权重依赖msModelSlim工具，安装方式见[此README](https://gitcode.com/ascend/msit/tree/master/msmodelslim)
 
 * 量化权重统一使用${ATB_SPEED_HOME_PATH}/examples/convert/model_slim/quantifier.py脚本生成，以下提供Llama模型量化权重生成快速启动命令
 
@@ -101,7 +101,7 @@ bash examples/models/llama3/generate_quant_weight.sh -src {浮点权重路径} -
 **Step 1 生成W8A8S量化权重**
 - 注意该量化方式仅支持在Atlas 300I DUO卡上运行
 - 修改模型权重config.json中`torch_dtype`字段为`float16`
-- 生成量化权重依赖msModelSlim工具，安装方式见[此README](https://gitee.com/ascend/msit/tree/master/msmodelslim)
+- 生成量化权重依赖msModelSlim工具，安装方式见[此README](https://gitcode.com/ascend/msit/tree/master/msmodelslim)
 - 进入到{msModelSlim工具路径}/msit/msmodelslim/example/Llama的目录 `cd msit/msmodelslim/example/Llama`；
 ```shell
 # 运行量化转换脚本

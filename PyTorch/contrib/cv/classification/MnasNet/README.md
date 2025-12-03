@@ -24,7 +24,7 @@ MnasNet是Google研究小组2019年在论文《MnasNet: Platform-Aware Neural Ar
 - 适配昇腾 AI 处理器的实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/contrib/cv/classification
   ```
 

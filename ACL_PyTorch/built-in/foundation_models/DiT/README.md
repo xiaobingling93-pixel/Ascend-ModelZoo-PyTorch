@@ -74,7 +74,7 @@ latent_size = image_size // 8
 1. 获取本仓源码
    
    ```
-   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+   git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
    cd ModelZoo-PyTorch/ACL_PyTorch/built-in/foundation_models/DiT
    ```
 

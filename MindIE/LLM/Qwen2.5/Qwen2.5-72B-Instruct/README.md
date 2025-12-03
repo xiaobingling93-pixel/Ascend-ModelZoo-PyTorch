@@ -28,7 +28,7 @@ s
 | 变量名      | 含义                                                                                                                                                     |
 | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | working_dir     | 加速库及模型库下载后放置的目录                                                                                                                           |
-| llm_path        | 模型仓所在路径。若使用编译好的包，则路径为`/usr/local/Ascend/atb-models`；若使用 gitee 下载的代码，则路径为`${working_dir}/MindIE-LLM/examples/atb_models` |
+| llm_path        | 模型仓所在路径。若使用编译好的包，则路径为`/usr/local/Ascend/atb-models`；若使用 gitcode 下载的代码，则路径为`${working_dir}/MindIE-LLM/examples/atb_models` |
 | script_path     | 脚本所在路径；qwen2.5 的工作脚本所在路径为`${llm_path}/examples/models/qwen`                                                                    |
 | weight_path     | 模型权重路径                                                                                                                                             |
 | rank_table_path | Rank table文件路径                                                                                                                                              |
@@ -48,8 +48,8 @@ s
 ## 生成量化权重
 #### Qwen2.5-72B FA3量化
   - 参考量化工具中的FA3量化的README文档进行F3A量化
-    量化工具文档：https://gitee.com/ascend/msit/tree/master/msmodelslim；
-    FA3量化指导：https://gitee.com/ascend/msit/blob/master/msmodelslim/docs/FA%E9%87%8F%E5%8C%96%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E.md
+    量化工具文档：https://gitcode.com/ascend/msit/tree/master/msmodelslim；
+    FA3量化指导：https://gitcode.com/ascend/msit/blob/master/msmodelslim/docs/FA%E9%87%8F%E5%8C%96%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E.md
   - 生成权重后，需要将模型浮点权重中的其他文件（除safetensors文件外）手工拷贝到目标量化文件夹中。
   - 拷贝好之后，用户需在`config.json`文件中手动添加以下两个字段：
     ```json

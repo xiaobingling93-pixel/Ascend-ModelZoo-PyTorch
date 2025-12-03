@@ -166,7 +166,7 @@ RCF（Richer Convolutional Features）通过自动学习将所有卷积层的信
          获得rcf.onnx文件。
 
       2. 优化ONNX文件。
-           安装auto-optimizer工具。请访问[auto-optimizer改图工具](https://gitee.com/ascend/msadvisor/tree/master/auto-optimizer)代码仓，根据readme文档进行工具安装。
+           安装auto-optimizer工具。请访问[auto-optimizer改图工具](https://gitcode.com/ascend/msadvisor/tree/master/auto-optimizer)代码仓，根据readme文档进行工具安装。
 
          ```
          python3 -m auto_optimizer optimize rcf.onnx rcf_new.onnx -k 4

@@ -31,7 +31,7 @@
 - 参考实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/contrib/cv/detection/RetinaMask	
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/contrib/cv/detection/RetinaMask	
   code_path=contrib/cv/detection/RetinaMask
   ```
   
@@ -87,7 +87,7 @@
 2. 获取源码。
     1. 安装npu版retinamask源码
    ```
-   git clone https://gitee.com/ascend/ModelZoo-PyTorch
+   git clone https://gitcode.com/ascend/ModelZoo-PyTorch
    cp -r  ./ModelZoo-PyTorch/PyTorch/contrib/cv/detection/RetinaMask ./
    cd RetinaMask
    patch -p1< ../RetinaMask.patch

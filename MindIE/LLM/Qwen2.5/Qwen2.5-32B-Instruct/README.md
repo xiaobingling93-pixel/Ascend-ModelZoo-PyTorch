@@ -29,7 +29,7 @@
 | 变量名      | 含义                                                                                                                                                     |
 | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | working_dir     | 加速库及模型库下载后放置的目录                                                                                                                           |
-| llm_path        | 模型仓所在路径。若使用编译好的包，则路径为`/usr/local/Ascend/atb-models`；若使用 gitee 下载的代码，则路径为`${working_dir}/MindIE-LLM/examples/atb_models` |
+| llm_path        | 模型仓所在路径。若使用编译好的包，则路径为`/usr/local/Ascend/atb-models`；若使用 gitcode 下载的代码，则路径为`${working_dir}/MindIE-LLM/examples/atb_models` |
 | script_path     | 脚本所在路径；qwen2.5 的工作脚本所在路径为`${llm_path}/examples/models/qwen`                                                                    |
 | weight_path     | 模型权重路径                                                                                                                                             |
 | rank_table_path | Rank table文件路径                                                                                                                                              |
@@ -53,7 +53,7 @@
     - 执行量化脚本
     ```shell
     - 下载msmodelslim量化工具
-    - 下载地址为https://gitee.com/ascend/msit/tree/master/msmodelslim
+    - 下载地址为https://gitcode.com/ascend/msit/tree/master/msmodelslim
     - 根据msmodelslim量化工具readme进行相关操作
     注： 安装完cann后 需要执行source set_env.sh 声明ASCEND_HOME_PATH值 后续安装msmodelslim前需保证其不为空
     # 执行"jq --version"查看是否安装jq，若返回"bash：jq：command not found"，则依次执行"apt-get update"和"apt install jq"

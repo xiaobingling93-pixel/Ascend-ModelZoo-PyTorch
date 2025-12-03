@@ -179,11 +179,11 @@ balabala
          +===================+=================+======================================================+
          ```
 
-   4. 安装 [auto_optimizer工具](https://gitee.com/ascend/msadvisor/tree/master/auto-optimizer#%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B)， 生成指定算子精度模式的配置文件。
+   4. 安装 [auto_optimizer工具](https://gitcode.com/ascend/msadvisor/tree/master/auto-optimizer#%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B)， 生成指定算子精度模式的配置文件。
 
       ```
       # 安装依赖
-      git clone https://gitee.com/ascend/msadvisor.git
+      git clone https://gitcode.com/ascend/msadvisor.git
       cd msadvisor/auto-optimizer
       pip install -r requirements.txt
       

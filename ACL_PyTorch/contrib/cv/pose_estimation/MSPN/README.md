@@ -28,7 +28,7 @@
 - 参考实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   commit_id=05360171699bbe3bb1916bbafa84a445bd112e87 
   model_name=ACL_PyTorch/contrib/cv/pose_estimation/MSPN
   ```

@@ -24,7 +24,7 @@
 - 适配昇腾 AI 处理器的实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/built-in/diffusion/
   ```
 
@@ -71,7 +71,7 @@
 
 - 安装Megatron-LM：
 
-  参考[MindSpeed安装章节](https://gitee.com/ascend/MindSpeed/tree/1.0.0_core_r0.6.0/)中安装megatron的方法安装
+  参考[MindSpeed安装章节](https://gitcode.com/ascend/MindSpeed/tree/1.0.0_core_r0.6.0/)中安装megatron的方法安装
   
   
   

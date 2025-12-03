@@ -43,7 +43,7 @@ PIDM 是一种基于扩散模型的人物图像生成网络。模型利用扩散
 
 - 适配昇腾AI处理器的实现：
   ```shell
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/built-in/mlm/PIDM
   ```
 
@@ -53,7 +53,7 @@ PIDM 是一种基于扩散模型的人物图像生成网络。模型利用扩散
 
 - 下载代码：
   ```shell
-  git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+  git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
   cd PyTorch/built-in/mlm/PIDM
   ```
 

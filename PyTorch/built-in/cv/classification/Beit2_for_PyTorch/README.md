@@ -23,14 +23,14 @@ BEiT v2是基于矢量量化视觉标记的掩码图像模型
 - 适配昇腾 AI 处理器的实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/built-in/cv/classification/Beit2_for_PyTorch
   ```
 
 拉取模型代码到本地并下载bpe_simple_vocab_16e6.txt.gz：
 
 ```
-    git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+    git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
 
     cd PyTorch/built-in/cv/classification/Beit2_for_PyTorch/vqkd_teacher/clip/
     wget https://github.com/microsoft/unilm/blob/master/beit2/vqkd_teacher/clip/bpe_simple_vocab_16e6.txt.gz
@@ -45,9 +45,9 @@ BEiT v2是基于矢量量化视觉标记的掩码图像模型
 
 默认配置需要每张卡有60G空闲内存。
 
-该模型为不随版本演进模型（随版本演进模型范围可在[此处](https://gitee.com/ascend/ModelZoo-PyTorch/blob/master/PyTorch/README.CN.md)查看），未在最新昇腾配套软件中适配验证，您可以：
-1. 根据下面提供PyTorch版本在[软件版本配套表](https://gitee.com/ascend/pytorch#%E6%98%87%E8%85%BE%E8%BE%85%E5%8A%A9%E8%BD%AF%E4%BB%B6)中选择匹配的CANN等软件下载使用。
-2. 查看[软件版本配套表](https://gitee.com/ascend/pytorch#%E6%98%87%E8%85%BE%E8%BE%85%E5%8A%A9%E8%BD%AF%E4%BB%B6)后确认对该模型有新版本PyTorch和CANN中的适配需求，请在[modelzoo/issues](https://gitee.com/ascend/modelzoo/issues)中提出您的需求。**自行适配不保证精度和性能达标。**
+该模型为不随版本演进模型（随版本演进模型范围可在[此处](https://gitcode.com/ascend/ModelZoo-PyTorch/blob/master/PyTorch/README.CN.md)查看），未在最新昇腾配套软件中适配验证，您可以：
+1. 根据下面提供PyTorch版本在[软件版本配套表](https://gitcode.com/ascend/pytorch#%E6%98%87%E8%85%BE%E8%BE%85%E5%8A%A9%E8%BD%AF%E4%BB%B6)中选择匹配的CANN等软件下载使用。
+2. 查看[软件版本配套表](https://gitcode.com/ascend/pytorch#%E6%98%87%E8%85%BE%E8%BE%85%E5%8A%A9%E8%BD%AF%E4%BB%B6)后确认对该模型有新版本PyTorch和CANN中的适配需求，请在[modelzoo/issues](https://gitcode.com/ascend/modelzoo/issues)中提出您的需求。**自行适配不保证精度和性能达标。**
 
 - 当前模型支持的 PyTorch 历史版本和已知三方库依赖如下表所示。
 

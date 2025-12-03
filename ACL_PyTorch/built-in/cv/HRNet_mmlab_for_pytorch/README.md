@@ -29,7 +29,7 @@
   ```
   url=https://github.com/open-mmlab/mmpose
   commit_id=4c397f2db99cc6dbf0787ec6a44266eddd231bb3
-  code_path=https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/HRNet_mmpose
+  code_path=https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/cv/HRNet_mmpose
   model_name=HRNet
   ```
 

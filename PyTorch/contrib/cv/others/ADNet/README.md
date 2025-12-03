@@ -43,7 +43,7 @@ ADNet是一个注意力引导的图像去噪网络，它利用稀疏机制、特
 - 适配昇腾 AI 处理器的实现：
 
 ```
-url=https://gitee.com/ascend/ModelZoo-PyTorch.git 
+url=https://gitcode.com/ascend/ModelZoo-PyTorch.git 
 code_path= ModelZoo-PyTorch/PyTorch/contrib/cv/others/ADNet
 
 ```
@@ -69,7 +69,7 @@ code_path= ModelZoo-PyTorch/PyTorch/contrib/cv/others/ADNet
   | ---------- | ------------------------------------------------------------ |
   | 固件与驱动 | [1.0.15](https://www.hiascend.com/hardware/firmware-drivers?tag=commercial) |
   | CANN       | [5.1.RC1](https://www.hiascend.com/software/cann/commercial?version=5.1.RC1) |
-  | PyTorch    | [1.8.1](https://gitee.com/ascend/pytorch/tree/master/)|
+  | PyTorch    | [1.8.1](https://gitcode.com/ascend/pytorch/tree/master/)|
 
 - 环境准备指导。
 

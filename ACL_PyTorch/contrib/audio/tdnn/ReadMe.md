@@ -33,7 +33,7 @@
 华为npu模型训练组依据客户给的模型进行训练所得，无参考论文
 
 ### 1.2 代码地址
-[Tdnn代码]https://gitee.com/ascend/modelzoo.git)  
+[Tdnn代码]https://gitcode.com/ascend/modelzoo.git)  
 branch:master  
 commit_id=  
 code_path=  

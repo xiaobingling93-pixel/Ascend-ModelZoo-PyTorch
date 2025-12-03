@@ -34,7 +34,7 @@ DQN其实是深度学习和强化学习知识的结合，也就是用Deep Networ
   适配昇腾 AI 处理器的实现：
    
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch
   tag=v.0.4.0
   code_path=ACL_PyTorch/contrib/rl
   ```

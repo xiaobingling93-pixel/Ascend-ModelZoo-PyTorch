@@ -28,7 +28,7 @@ FixRes是图像分类任务的卷积神经网络，该网络基于ResNet50进行
   ```
   url=https://github.com/facebookresearch/FixRes
   commit_id=c9be6acc7a6b32f896e62c28a97c20c2348327d3
-  code_path=https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/FixRes
+  code_path=https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/FixRes
   model_name=FixRes
   ```
 

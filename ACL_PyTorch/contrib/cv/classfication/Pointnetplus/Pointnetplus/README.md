@@ -28,7 +28,7 @@ PointNet++是PointNet的续作，在一定程度上弥补了PointNet的一些缺
   ```
   url=https://github.com/yanx27/Pointnet_Pointnet2_pytorch
   commit_id=e365b9f7b9c3d7d6444278d92e298e3f078794e1
-  code_path=https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Pointnetplus/Pointnetplus
+  code_path=https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/Pointnetplus/Pointnetplus
   model_name=PointNet++
   ```
 

@@ -34,7 +34,7 @@
 
 - 适配昇腾AI处理器的实现
   ```text
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/contrib/autonoumous_driving
   ```
 

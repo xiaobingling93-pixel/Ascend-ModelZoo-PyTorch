@@ -39,7 +39,7 @@ Paraformer是阿里达摩院语音团队提出的一种高效的非自回归端�
 1. 获取本仓源码
    
    ```
-   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+   git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
    cd ModelZoo-PyTorch/ACL_PyTorch/built-in/audio/Paraformer
    ```
    

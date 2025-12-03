@@ -53,7 +53,7 @@ https://huggingface.co/Rundiffusion/Juggernaut-XI-Lightning
 
 0. 下载仓库到本地。
    ```bash
-   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+   git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
    ```
 
 1. 安装依赖。

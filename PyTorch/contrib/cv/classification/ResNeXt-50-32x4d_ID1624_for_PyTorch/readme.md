@@ -1,10 +1,10 @@
 # Resnext50_32x4d for PyTorch
 
-- [概述](https://gitee.com/ascend/docs-openmind/blob/master/guide/modelzoo/pytorch_model/tutorials/%E6%A6%82%E8%BF%B0.md)
-- [准备训练环境](https://gitee.com/ascend/docs-openmind/blob/master/guide/modelzoo/pytorch_model/tutorials/%E5%87%86%E5%A4%87%E8%AE%AD%E7%BB%83%E7%8E%AF%E5%A2%83.md)
-- [开始训练](https://gitee.com/ascend/docs-openmind/blob/master/guide/modelzoo/pytorch_model/tutorials/%E5%BC%80%E5%A7%8B%E8%AE%AD%E7%BB%83.md)
-- [训练结果展示](https://gitee.com/ascend/docs-openmind/blob/master/guide/modelzoo/pytorch_model/tutorials/%E8%AE%AD%E7%BB%83%E7%BB%93%E6%9E%9C%E5%B1%95%E7%A4%BA.md)
-- [版本说明](https://gitee.com/ascend/docs-openmind/blob/master/guide/modelzoo/pytorch_model/tutorials/%E7%89%88%E6%9C%AC%E8%AF%B4%E6%98%8E.md)
+- [概述](https://gitcode.com/ascend/docs-openmind/blob/master/guide/modelzoo/pytorch_model/tutorials/%E6%A6%82%E8%BF%B0.md)
+- [准备训练环境](https://gitcode.com/ascend/docs-openmind/blob/master/guide/modelzoo/pytorch_model/tutorials/%E5%87%86%E5%A4%87%E8%AE%AD%E7%BB%83%E7%8E%AF%E5%A2%83.md)
+- [开始训练](https://gitcode.com/ascend/docs-openmind/blob/master/guide/modelzoo/pytorch_model/tutorials/%E5%BC%80%E5%A7%8B%E8%AE%AD%E7%BB%83.md)
+- [训练结果展示](https://gitcode.com/ascend/docs-openmind/blob/master/guide/modelzoo/pytorch_model/tutorials/%E8%AE%AD%E7%BB%83%E7%BB%93%E6%9E%9C%E5%B1%95%E7%A4%BA.md)
+- [版本说明](https://gitcode.com/ascend/docs-openmind/blob/master/guide/modelzoo/pytorch_model/tutorials/%E7%89%88%E6%9C%AC%E8%AF%B4%E6%98%8E.md)
 
 # 概述
 
@@ -22,7 +22,7 @@ ResNeXt-50-32x4d是一个经典的图像分类网络，对于一个L层的网络
 - 适配昇腾 AI 处理器的实现：
   
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/contrib/cv/classification
   ```
 

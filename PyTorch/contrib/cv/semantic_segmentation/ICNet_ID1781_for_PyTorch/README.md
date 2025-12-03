@@ -24,7 +24,7 @@ ICNet是一个基于PSPNet的实时语义分割网络，设计目的是减少PSP
 - 适配昇腾 AI 处理器的实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/contrib/cv/semantic_segmentation
   ```
   
@@ -49,7 +49,7 @@ ICNet是一个基于PSPNet的实时语义分割网络，设计目的是减少PSP
   | ---------- | ------------------------------------------------------------ |
   | 固件与驱动 | [5.1.RC2](https://www.hiascend.com/hardware/firmware-drivers?tag=commercial) |
   | CANN       | [5.1.RC2](https://www.hiascend.com/software/cann/commercial?version=5.1.RC2) |
-  | PyTorch    | [1.8.1](https://gitee.com/ascend/pytorch/tree/master/)       |
+  | PyTorch    | [1.8.1](https://gitcode.com/ascend/pytorch/tree/master/)       |
 
 - 环境准备指导。
 

@@ -30,7 +30,7 @@ Alex在2012年提出的alexnet网络结构模型,首次在CNN中成功应用了R
   ```
   url=https://github.com/pytorch/examples/tree/master/imagenet
   commit_id=49e1a8847c8c4d8d3c576479cb2fe2fd2ac583de
-  code_path=https://gitee.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/AlexNet
+  code_path=https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/contrib/cv/classfication/AlexNet
   model_name=AlexNet
   ```
 

@@ -68,7 +68,7 @@ Segformer是一个简单、高效但功能强大的语义分割框架，它将 T
 
 1. 获取本仓代码
    ```bash
-   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+   git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
    cd ModelZoo-PyTorch/ACL_PyTorch/contrib/cv/segmentation/Segformer
    ```
    文件说明
@@ -108,7 +108,7 @@ Segformer是一个简单、高效但功能强大的语义分割框架，它将 T
    ```
    安装改图工具
    ```bash
-   git clone https://gitee.com/ascend/msadvisor.git
+   git clone https://gitcode.com/ascend/msadvisor.git
    cd msadvisor/auto-optimizer
    pip3 install -r requirements.txt
    python3 setup.py install

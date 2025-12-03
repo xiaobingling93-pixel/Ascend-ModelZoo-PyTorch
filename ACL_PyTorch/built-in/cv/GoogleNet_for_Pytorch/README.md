@@ -51,7 +51,7 @@ commit_id=7d955df73fe0e9b47f7d6c77c699324b256fc41f
 1. 获取源码。
 
    ```bsah
-   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+   git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
    cd ModelZoo-PyTorch/ACL_PyTorch/built-in/cv/GoogleNet_for_Pytorch
    ```
 
@@ -116,7 +116,7 @@ commit_id=7d955df73fe0e9b47f7d6c77c699324b256fc41f
       ```shell
       python3 googlenet_pth2onnx.py ./googlenet-1378be20.pth googlenet.onnx
       ```
-      请访问[auto-optimizer推理工具](https://gitee.com/ascend/msadvisor/tree/master/auto-optimizer)代码仓，根据readme文档进行工具安装。
+      请访问[auto-optimizer推理工具](https://gitcode.com/ascend/msadvisor/tree/master/auto-optimizer)代码仓，根据readme文档进行工具安装。
       
       运行onnx_optimize.py脚本，优化模型。
       ```

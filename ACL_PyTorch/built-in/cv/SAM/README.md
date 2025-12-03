@@ -37,7 +37,7 @@ Segment Anything Model (SAM) 是由 Meta 开源的图像分割大模型，在计
 ### 1. 获取源码
    
 ```bash
-git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
 cd ModelZoo-PyTorch/ACL_PyTorch/built-in/cv/SAM
 git clone https://github.com/facebookresearch/segment-anything.git
 cd segment-anything
@@ -56,7 +56,7 @@ pip3 install -r requirements.txt
 ```
 说明：如果某些库通过此方式安装失败，可使用 pip3 install 单独进行安装。
 
-- 安装 [msit](https://gitee.com/ascend/msit/tree/master/msit/) 的 surgeon 组件和 benchmark 组件。
+- 安装 [msit](https://gitcode.com/ascend/msit/tree/master/msit/) 的 surgeon 组件和 benchmark 组件。
 
 ### 3. 输入输出数据描述
 

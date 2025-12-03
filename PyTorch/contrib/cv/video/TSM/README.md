@@ -24,7 +24,7 @@ TSN模型从视频中采样N帧图像并通过最简单直接地对N帧图像分
 - 适配昇腾 AI 处理器的实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/contrib/cv/video
   ```
 

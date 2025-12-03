@@ -171,7 +171,7 @@ echo "CompileTime = ${CompileTime}" >> $cur_path/test/output/$ASCEND_DEVICE_ID/$
 #失败阶段，枚举值图准备FAIL/图拆分FAIL/图优化FAIL/图编译FAIL/图执行FAIL/流程OK
 #ModelStatus="Parser FAIL"
 #DTS单号或者issue链接
-#DTS_Number="https://gitee.com/ascend/pytorch/issues/I3TWK4?from=project-issue"
+#DTS_Number="https://gitcode.com/ascend/pytorch/issues/I3TWK4?from=project-issue"
 
 #关键信息打印到CaseName.log中，此处无需修改
 #echo "Network = ${Network}" > $cur_path/test/output/$ASCEND_DEVICE_ID/${CaseName}.log

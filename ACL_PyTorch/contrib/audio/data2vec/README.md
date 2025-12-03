@@ -135,7 +135,7 @@ Data2Vec是一个对语音、语言或计算机视觉使用相同学习方法的
 
          获得data2vec.onnx文件。
       
-      2. 优化ONNX文件。(安装[auto-optimzer](https://gitee.com/ascend/msadvisor/tree/master/auto-optimizer)工具)
+      2. 优化ONNX文件。(安装[auto-optimzer](https://gitcode.com/ascend/msadvisor/tree/master/auto-optimizer)工具)
 
          ```
          python3 data2vec_modify.py -m1 data2vec.onnx -m2 data2vec_new.onnx

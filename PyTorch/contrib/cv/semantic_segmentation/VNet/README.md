@@ -23,7 +23,7 @@ V-Net是一个早期的全卷积的三维图像分割网络，基本网络架构
 - 适配昇腾 AI 处理器的实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/contrib/cv/semantic_segmentation
   ```
 

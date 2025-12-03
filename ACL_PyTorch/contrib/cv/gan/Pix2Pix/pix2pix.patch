@@ -353,7 +353,7 @@ diff -u -r '--exclude=*.md' ./origin/models/pix2pix_model.py ./fix/models/pix2pi
 +            """!!!!!!!!!!!!!!!npu修改的地方!!!!!!!!!!!!!!!!!!1"""
 +        #     self.netD = DDP(self.netD, device_ids=[LOCAL_RANK], output_device=LOCAL_RANK,broadcast_buffers=False)
 +        # self.netG = DDP(self.netG, device_ids=[LOCAL_RANK], output_device=LOCAL_RANK,broadcast_buffers=False)
-+        #     # self.netD = torch.nn.DataParallel(self.netD,self.gpu_ids)  # multi-GPUs 改成distribute那种，再model zoo 上面参考https://gitee.com/ascend/modelzoo/tree/master/contrib/PyTorch/Official/cv/image_classification
++        #     # self.netD = torch.nn.DataParallel(self.netD,self.gpu_ids)  # multi-GPUs 改成distribute那种，再model zoo 上面参考https://gitcode.com/ascend/modelzoo/tree/master/contrib/PyTorch/Official/cv/image_classification
 +        # 解决Warning->GPU多卡(prof文件性能文件 pytorch里面有性能测试工具，log文件)->NPU 1P（跑通）->NPU 8P（也按200epoch对齐GPU loss）
 +        # self.netG = torch.nn.DataParallel(self.netG, self.gpu_ids)  # multi-GPUs
      def set_input(self, input):

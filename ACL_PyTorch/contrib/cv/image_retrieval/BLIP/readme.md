@@ -113,7 +113,7 @@ BLIP模型为一种新的Vision-Language Pre-training框架，它可以灵活地
 1. 获取本仓源码
    
    ```
-   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+   git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
    cd ModelZoo-PyTorch/ACL_PyTorch/contrib/cv/image_retrieval/BLIP
    ```
 

@@ -67,7 +67,7 @@ PSENet([Shape Robust Text Detection with Progressive Scale Expansion Network](ht
 1. 获取本仓源码
    
    ```
-   git clone https://gitee.com/ascend/ModelZoo-PyTorch.git
+   git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
    cd ModelZoo-PyTorch/ACL_PyTorch/contrib/cv/detection/PSENet_ResNet50_vd
    ```
 
@@ -172,7 +172,7 @@ PSENet([Shape Robust Text Detection with Progressive Scale Expansion Network](ht
          运行后获得PSENet_ResNet50_vd_dybs.onnx文件。
 
       2. 优化onnx模型。
-         请访问[auto-optimizer优化工具](https://gitee.com/ascend/msit/blob/master/msit/README.md)代码仓，根据readme文档进行benchmark和surgeon工具安装。
+         请访问[auto-optimizer优化工具](https://gitcode.com/ascend/msit/blob/master/msit/README.md)代码仓，根据readme文档进行benchmark和surgeon工具安装。
 
          运行modify_onnx.py脚本优化onnx模型，优化点为：Resize算子按Paddle定义参数导出的onnx模型有精度问题，因此将按PyTorch定义重新构造Resize参数。
 

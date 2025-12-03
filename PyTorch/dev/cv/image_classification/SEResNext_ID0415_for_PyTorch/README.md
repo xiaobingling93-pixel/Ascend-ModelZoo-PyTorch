@@ -41,7 +41,7 @@
 -   适配昇腾 AI 处理器的实现：【深加工】
     
         ```
-        https://gitee.com/ascend/modelzoo/tree/master/built-in/PyTorch/Research/cv/image_classification/SEresNext_ID0415_for_PyTorch
+        https://gitcode.com/ascend/modelzoo/tree/master/built-in/PyTorch/Research/cv/image_classification/SEresNext_ID0415_for_PyTorch
         branch=master
         commit_id= 
         ```
@@ -178,7 +178,7 @@ run_config = NPURunConfig(
 
        环境变量配置信息参见：
 
-          [Ascend 910训练平台环境变量设置](https://gitee.com/ascend/modelzoo/wikis/Ascend%20910%E8%AE%AD%E7%BB%83%E5%B9%B3%E5%8F%B0%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E8%AE%BE%E7%BD%AE?sort_id=3148819)
+          [Ascend 910训练平台环境变量设置](https://gitcode.com/ascend/modelzoo/wikis/Ascend%20910%E8%AE%AD%E7%BB%83%E5%B9%B3%E5%8F%B0%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E8%AE%BE%E7%BD%AE?sort_id=3148819)
     
 
     2. 单卡训练

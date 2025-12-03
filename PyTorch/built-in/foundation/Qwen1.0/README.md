@@ -1,4 +1,4 @@
-# 当前模型脚本已不随版本演进，如使用此模型可跳转至该[地址](https://gitee.com/ascend/MindSpeed-LLM)
+# 当前模型脚本已不随版本演进，如使用此模型可跳转至该[地址](https://gitcode.com/ascend/MindSpeed-LLM)
 
 # Qwen1.0 for PyTorch
 
@@ -50,7 +50,7 @@ Qwen是一个全能的语言模型系列，包含各种参数量的模型，如Q
 - 适配昇腾 AI 处理器的实现：
 
     ```
-    url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+    url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
     code_path=PyTorch/built-in/foundation
     ```
 

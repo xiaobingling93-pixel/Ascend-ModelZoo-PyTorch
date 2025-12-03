@@ -18,7 +18,7 @@ MMsegmentation仓，使用swin-transfermer作为backbone做分割任务。
 - 适配昇腾 AI 处理器的实现：
 
   ```
-  url=https://gitee.com/ascend/ModelZoo-PyTorch.git
+  url=https://gitcode.com/ascend/ModelZoo-PyTorch.git
   code_path=PyTorch/contrib/cv/semantic_segmentation
   ```
   
@@ -44,7 +44,7 @@ MMsegmentation仓，使用swin-transfermer作为backbone做分割任务。
   | 硬件 | [1.0.16](https://www.hiascend.com/hardware/firmware-drivers?tag=commercial) |
   | NPU固件与驱动 | [1.0.16](https://www.hiascend.com/hardware/firmware-drivers?tag=commercial) |
   | CANN       | [5.1.RC2](https://www.hiascend.com/software/cann/commercial?version=5.1.RC2) |
-  | PyTorch    | [1.5.0](https://gitee.com/ascend/pytorch/tree/v1.5.0/)
+  | PyTorch    | [1.5.0](https://gitcode.com/ascend/pytorch/tree/v1.5.0/)
 
 - 环境准备指导。
 
