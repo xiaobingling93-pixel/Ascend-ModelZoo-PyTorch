@@ -458,6 +458,7 @@ def set_environ_variable():
 
 #======================================overlap============================================
 
+set_environ_variable()
 torchtitan.tools.utils.get_peak_flops = get_peak_flops
 profiling.maybe_enable_profiling = maybe_enable_profiling
 torch.distributed.fsdp._fully_shard._fsdp_collectives._get_gradient_divide_factors = _get_gradient_divide_factors  # EP=8

@@ -152,64 +152,88 @@ python scripts/download_hf_assets.py --repo_id <hf_repo_name> --assets tokenizer
 
 `<hf_repo_name>`可选：
 - 对于deepseek_v3_16b模型，Hugging Face 仓库名称为`deepseek-ai/deepseek-moe-16b-base`；
-- 对于debug model，可以直接使用torchtitan代码仓中`tests/assets/tokenizer`，无需额外下载。
 
 #### 训练配置
 
-debug_model开箱并行策略配置如下，表示仅开启FSDP。只有`data_parallel_shard_degree`可设置成-1，表示基于device数量自动生成。
+deepseek_v3_16b FSDP2训练配置为
 
 ```toml
+[training]
+local_batch_size = 4 #Atlas 800T A2单机8卡开箱训练配置会OOM，需减小batch_size与seq_len拉起实验
+seq_len = 2048
+
 [parallelism]
 data_parallel_replicate_degree = 1
 data_parallel_shard_degree = -1
 fsdp_reshard_after_forward = "default" # default / never / always
 tensor_parallel_degree = 1
-enable_async_tensor_parallel = false # not support for torch_npu now
+enable_async_tensor_parallel = false
 pipeline_parallel_degree = 1
-pipeline_parallel_schedule = "1F1B"
-context_parallel_degree = 1
+pipeline_parallel_schedule = "Interleaved1F1B"
 expert_parallel_degree = 1
 expert_tensor_parallel_degree = 1
+
+[compile]
+enable=false #目前版本尚不支持compile选项，相应配置应为false
+components = ["model", "loss"]
 ```
 
-deepseek_v3_16b Atlas 800T A2单机8卡开箱训练配置会OOM，推荐修改训练配置如下
+deepseek_v3_16b FSDP2+EP8训练配置为
 
 ```toml
 [training]
-local_batch_size = 4
+local_batch_size = 4 #Atlas 800T A2单机8卡开箱训练配置会OOM，需减小batch_size与seq_len拉起实验
 seq_len = 2048
-max_norm = 1.0  # grad norm clipping
-steps = 100
-dataset = "c4"  # supported datasets: c4_test (2K), c4 (177M)
-dataset_path = "/PATH/TO/c4"
-```
 
-deepseek_v3_16b已验证的并行配置策略为
-
-```toml
 [parallelism]
 data_parallel_replicate_degree = 1
 data_parallel_shard_degree = -1
 fsdp_reshard_after_forward = "default" # default / never / always
-tensor_parallel_degree = 2
+tensor_parallel_degree = 1
 enable_async_tensor_parallel = false
 pipeline_parallel_degree = 1
 pipeline_parallel_schedule = "Interleaved1F1B"
-expert_parallel_degree = 4
+expert_parallel_degree = 8
 expert_tensor_parallel_degree = 1
-```
 
-目前版本尚不支持compile选项，相应配置应为
-```toml
 [compile]
-enable=false
+enable=false #目前版本尚不支持compile选项，相应配置应为false
 components = ["model", "loss"]
 ```
 
 在启动文件`run_train.sh`中修改config_file
 
 ```bash
-CONFIG_FILE=${CONFIG_FILE:-"./torchtitan/models/deepseek_v3/train_configs/debug_model.toml"}
+CONFIG_FILE=${CONFIG_FILE:-"./torchtitan/models/deepseek_v3/train_configs/deepseek_v3_16b.toml"}
+```
+
+### 确定性计算配置说明
+
+精度验证/对齐，需固定随机种子，设置确定性计算/通信
+
+设置环境变量
+
+```bash
+#Set HCCL Determinism
+export HCCL_DETERMINISTIC=true
+#Set NPU Hardware Determinism
+export ASCEND_LAUNCH_BLOCKING=1
+```
+
+在`torchtitan/train.py`中导包完成后，添加如下代码
+
+```python
+import torch_npu
+import numpy as np
+import random
+seed = 1
+random.seed(seed)
+os.environ["PYTHONHASHSEED"] = str(seed)
+np.random.seed(seed)
+torch.manual_seed(seed)
+torch.use_deterministic_algorithms(True)
+torch_npu.npu.manual_seed_all(seed)
+torch_npu.npu.manual_seed(seed)
 ```
 
 ### 环境变量与训练启动
@@ -231,20 +255,3 @@ source /usr/local/Ascend/nnal/atb/set_env.sh
 # cd torchtitan source root
 bash ./run_train.sh
 ```
-
-## 性能分析
-
-Profiling文件的输出位置为`./outputs/profile_trace`，可在配置文件中进行修改。
-
-```python
-[job]
-dump_folder = "./outputs"
-
-[profiling]
-enable_profiling = true
-save_traces_folder = "profile_trace"
-profile_freq = 100
-```
-
-下载并安装[MindStudio Insight](https://www.hiascend.com/document/detail/zh/mindstudio/82RC1/GUI_baseddevelopmenttool/msascendinsightug/Insight_userguide_0002.html)，打开profiling_trace的子文件夹。
-具体采集和分析说明可参考[性能数据采集和自动解析](https://www.hiascend.com/document/detail/zh/canncommercial/83RC1/devaids/Profiling/atlasprofiling_16_0033.html)。
