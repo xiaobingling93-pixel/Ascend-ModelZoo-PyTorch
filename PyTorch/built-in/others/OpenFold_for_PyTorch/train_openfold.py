@@ -11,6 +11,7 @@ def _check_cuda_matmul_precision_npu(device):
     # Patch the function which is not supported by NPU
     pass
 
+
 cuda_module._check_cuda_matmul_precision = _check_cuda_matmul_precision_npu
 
 import pytorch_lightning as pl
@@ -25,7 +26,7 @@ import torch
 import torch_npu
 from torch_npu.contrib import transfer_to_npu
 import wandb
-from deepspeed.utils import zero_to_fp32 
+from deepspeed.utils import zero_to_fp32
 
 from openfold.config import model_config
 from openfold.data.data_modules import OpenFoldDataModule, OpenFoldMultimerDataModule
@@ -54,6 +55,16 @@ from openfold.utils.import_weights import (
 from openfold.utils.logger import PerformanceLoggingCallback
 
 
+def compute_wrapper(self):
+    if self.is_tensor:
+        value = self.value
+        if self.meta.is_mean_reduction:
+            cumulated_batch_size = self.cumulated_batch_size
+            return value / cumulated_batch_size
+        return value
+    return self.value.compute()
+
+
 class OpenFoldWrapper(pl.LightningModule):
     def __init__(self, config):
         super(OpenFoldWrapper, self).__init__()
@@ -66,7 +77,7 @@ class OpenFoldWrapper(pl.LightningModule):
         self.ema = ExponentialMovingAverage(
             model=self.model, decay=config.ema.decay
         )
-        
+
         self.cached_weights = None
         self.last_lr_step = -1
         self.save_hyperparameters()
@@ -78,13 +89,13 @@ class OpenFoldWrapper(pl.LightningModule):
         phase = "train" if train else "val"
         for loss_name, indiv_loss in loss_breakdown.items():
             self.log(
-                f"{phase}/{loss_name}", 
-                indiv_loss, 
+                f"{phase}/{loss_name}",
+                indiv_loss,
                 prog_bar=(loss_name == 'loss'),
                 on_step=train, on_epoch=(not train), logger=True, sync_dist=False,
             )
 
-            if(train):
+            if (train):
                 self.log(
                     f"{phase}/{loss_name}_epoch",
                     indiv_loss,
@@ -93,12 +104,12 @@ class OpenFoldWrapper(pl.LightningModule):
 
         with torch.no_grad():
             other_metrics = self._compute_validation_metrics(
-                batch, 
+                batch,
                 outputs,
                 superimposition_metrics=(not train)
             )
 
-        for k,v in other_metrics.items():
+        for k, v in other_metrics.items():
             self.log(
                 f"{phase}/{k}",
                 torch.mean(v),
@@ -107,7 +118,7 @@ class OpenFoldWrapper(pl.LightningModule):
             )
 
     def training_step(self, batch, batch_idx):
-        if(self.ema.device != batch["aatype"].device):
+        if (self.ema.device != batch["aatype"].device):
             self.ema.to(batch["aatype"].device)
 
         ground_truth = batch.pop('gt_features', None)
@@ -138,7 +149,7 @@ class OpenFoldWrapper(pl.LightningModule):
 
     def validation_step(self, batch, batch_idx):
         # At the start of validation, load the EMA weights
-        if(self.cached_weights is None):
+        if (self.cached_weights is None):
             # model.state_dict() contains references to model weights rather
             # than copies. Therefore, we need to clone them before calling 
             # load_state_dict().
@@ -165,23 +176,23 @@ class OpenFoldWrapper(pl.LightningModule):
         )
 
         self._log(loss_breakdown, batch, outputs, train=False)
-        
+
     def on_validation_epoch_end(self):
         # Restore the model weights to normal
         self.model.load_state_dict(self.cached_weights)
         self.cached_weights = None
 
-    def _compute_validation_metrics(self, 
-        batch, 
-        outputs, 
-        superimposition_metrics=False
-    ):
+    def _compute_validation_metrics(self,
+                                    batch,
+                                    outputs,
+                                    superimposition_metrics=False
+                                    ):
         metrics = {}
-        
+
         gt_coords = batch["all_atom_positions"]
         pred_coords = outputs["final_atom_positions"]
         all_atom_mask = batch["all_atom_mask"]
-    
+
         # This is super janky for superimposition. Fix later
         gt_coords_masked = gt_coords * all_atom_mask[..., None]
         pred_coords_masked = pred_coords * all_atom_mask[..., None]
@@ -189,7 +200,7 @@ class OpenFoldWrapper(pl.LightningModule):
         gt_coords_masked_ca = gt_coords_masked[..., ca_pos, :]
         pred_coords_masked_ca = pred_coords_masked[..., ca_pos, :]
         all_atom_mask_ca = all_atom_mask[..., ca_pos]
-    
+
         lddt_ca_score = lddt_ca(
             pred_coords,
             gt_coords,
@@ -197,18 +208,18 @@ class OpenFoldWrapper(pl.LightningModule):
             eps=self.config.globals.eps,
             per_residue=False,
         )
-   
+
         metrics["lddt_ca"] = lddt_ca_score
-   
+
         drmsd_ca_score = drmsd(
             pred_coords_masked_ca,
             gt_coords_masked_ca,
-            mask=all_atom_mask_ca, # still required here to compute n
+            mask=all_atom_mask_ca,  # still required here to compute n
         )
-   
+
         metrics["drmsd_ca"] = drmsd_ca_score
-    
-        if(superimposition_metrics):
+
+        if (superimposition_metrics):
             superimposed_pred, alignment_rmsd = superimpose(
                 gt_coords_masked_ca, pred_coords_masked_ca, all_atom_mask_ca,
             )
@@ -222,17 +233,17 @@ class OpenFoldWrapper(pl.LightningModule):
             metrics["alignment_rmsd"] = alignment_rmsd
             metrics["gdt_ts"] = gdt_ts_score
             metrics["gdt_ha"] = gdt_ha_score
-    
+
         return metrics
 
-    def configure_optimizers(self, 
-        learning_rate: float = 1e-3,
-        eps: float = 1e-5,
-    ) -> torch.optim.Adam:
+    def configure_optimizers(self,
+                             learning_rate: float = 1e-3,
+                             eps: float = 1e-5,
+                             ) -> torch.optim.Adam:
         # Ignored as long as a DeepSpeed optimizer is configured
         optimizer = torch.optim.Adam(
-            self.model.parameters(), 
-            lr=learning_rate, 
+            self.model.parameters(),
+            lr=learning_rate,
             eps=eps
         )
 
@@ -257,8 +268,8 @@ class OpenFoldWrapper(pl.LightningModule):
 
     def on_load_checkpoint(self, checkpoint):
         ema = checkpoint["ema"]
-        if(not self.model.template_config.enabled):
-            ema["params"] = {k:v for k,v in ema["params"].items() if not "template" in k}
+        if (not self.model.template_config.enabled):
+            ema["params"] = {k: v for k, v in ema["params"].items() if "template" not in k}
         self.ema.load_state_dict(ema)
 
     def on_save_checkpoint(self, checkpoint):
@@ -269,14 +280,15 @@ class OpenFoldWrapper(pl.LightningModule):
 
     def load_from_jax(self, jax_path):
         model_basename = os.path.splitext(
-                os.path.basename(
-                    os.path.normpath(jax_path)
-                )
+            os.path.basename(
+                os.path.normpath(jax_path)
+            )
         )[0]
         model_version = "_".join(model_basename.split("_")[1:])
         import_jax_weights_(
-                self.model, jax_path, version=model_version
+            self.model, jax_path, version=model_version
         )
+
 
 def get_model_state_dict_from_ds_checkpoint(checkpoint_dir):
     latest_path = os.path.join(checkpoint_dir, 'latest')
@@ -291,19 +303,20 @@ def get_model_state_dict_from_ds_checkpoint(checkpoint_dir):
     state_file = zero_to_fp32.get_model_state_file(ds_checkpoint_dir, _DS_CHECKPOINT_VERSION)
     return torch.load(state_file)
 
+
 def main(args):
-    if(args.seed is not None):
-        seed_everything(args.seed, workers=True) 
+    if (args.seed is not None):
+        seed_everything(args.seed, workers=True)
 
     is_low_precision = args.precision in [
         "bf16-mixed", "16", "bf16", "16-true", "16-mixed", "bf16-mixed"]
 
     config = model_config(
-        args.config_preset, 
-        train=True, 
+        args.config_preset,
+        train=True,
         low_prec=is_low_precision,
-    ) 
-    if args.experiment_config_json: 
+    )
+    if args.experiment_config_json:
         with open(args.experiment_config_json, 'r') as f:
             custom_config_dict = json.load(f)
         config.update_from_flattened_dict(custom_config_dict)
@@ -327,7 +340,7 @@ def main(args):
                     model=model_module, state_dict=sd['state_dict'])
             else:
                 # Loading from pre-trained model
-                sd = {'model.'+k: v for k, v in sd.items()}
+                sd = {'model.' + k: v for k, v in sd.items()}
                 import_openfold_weights_(model=model_module, state_dict=sd)
             logging.info("Successfully loaded model weights...")
 
@@ -343,29 +356,29 @@ def main(args):
     if args.resume_from_jax_params:
         model_module.load_from_jax(args.resume_from_jax_params)
         logging.info(f"Successfully loaded JAX parameters at {args.resume_from_jax_params}...")
- 
+
     # TorchScript components of the model
-    if(args.script_modules):
+    if (args.script_modules):
         script_preset_(model_module)
 
     if "multimer" in args.config_preset:
         data_module = OpenFoldMultimerDataModule(
-        config=config.data, 
-        batch_seed=args.seed,
-        **vars(args)
-    )
+            config=config.data,
+            batch_seed=args.seed,
+            **vars(args)
+        )
     else:
         data_module = OpenFoldDataModule(
-            config=config.data, 
+            config=config.data,
             batch_seed=args.seed,
             **vars(args)
         )
 
     data_module.prepare_data()
     data_module.setup()
-    
+
     callbacks = []
-    if(args.checkpoint_every_epoch):
+    if (args.checkpoint_every_epoch):
         mc = ModelCheckpoint(
             every_n_epochs=1,
             auto_insert_metric_name=False,
@@ -373,7 +386,7 @@ def main(args):
         )
         callbacks.append(mc)
 
-    if(args.early_stopping):
+    if (args.early_stopping):
         es = EarlyStoppingVerbose(
             monitor="val/lddt_ca",
             min_delta=args.min_delta,
@@ -385,7 +398,7 @@ def main(args):
         )
         callbacks.append(es)
 
-    if(args.log_performance):
+    if (args.log_performance):
         global_batch_size = args.num_nodes * args.gpus
         perf = PerformanceLoggingCallback(
             log_file=os.path.join(args.output_dir, "performance_log.json"),
@@ -393,13 +406,13 @@ def main(args):
         )
         callbacks.append(perf)
 
-    if(args.log_lr):
+    if (args.log_lr):
         lr_monitor = LearningRateMonitor(logging_interval="step")
         callbacks.append(lr_monitor)
 
     loggers = []
     is_rank_zero = args.mpi_plugin and (int(os.environ.get("PMI_RANK")) == 0)
-    if(args.wandb):
+    if (args.wandb):
         if args.mpi_plugin and is_rank_zero:
             wandb_init_dict = dict(
                 name=args.experiment_name,
@@ -422,12 +435,12 @@ def main(args):
         loggers.append(wdb_logger)
 
     cluster_environment = MPIEnvironment() if args.mpi_plugin else None
-    if(args.deepspeed_config_path is not None):
+    if (args.deepspeed_config_path is not None):
         strategy = DeepSpeedStrategy(
             config=args.deepspeed_config_path,
             cluster_environment=cluster_environment,
         )
-        if(args.wandb and is_rank_zero):
+        if (args.wandb and is_rank_zero):
             wdb_logger.experiment.save(args.deepspeed_config_path)
             wdb_logger.experiment.save("openfold/config.py")
     elif (args.gpus is not None and args.gpus > 1) or args.num_nodes > 1:
@@ -435,8 +448,8 @@ def main(args):
                                cluster_environment=cluster_environment)
     else:
         strategy = "auto"
- 
-    if(args.wandb and is_rank_zero):
+
+    if (args.wandb and is_rank_zero):
         freeze_path = f"{wdb_logger.experiment.dir}/package_versions.txt"
         os.system(f"{sys.executable} -m pip freeze > {freeze_path}")
         wdb_logger.experiment.save(f"{freeze_path}")
@@ -452,7 +465,6 @@ def main(args):
     })
     trainer = pl.Trainer(**trainer_args)
 
-
     if (args.resume_model_weights_only):
         ckpt_path = None
     else:
@@ -467,13 +479,14 @@ def main(args):
 
     if openfold_run_stage == "train":
         trainer.fit(
-            model_module, 
+            model_module,
             datamodule=data_module,
             ckpt_path=ckpt_path,
         )
     else:
+        pl.trainer.connectors.logger_connector.result._ResultMetric.compute = compute_wrapper
         trainer.validate(
-            model_module, 
+            model_module,
             datamodule=data_module,
             ckpt_path=ckpt_path,
         )
@@ -677,7 +690,8 @@ if __name__ == "__main__":
         help="Distillation alignment index. See the README for instructions."
     )
     parser.add_argument(
-        "--experiment_config_json", default="", help="Path to a json file with custom config values to overwrite config setting",
+        "--experiment_config_json", default="",
+        help="Path to a json file with custom config values to overwrite config setting",
     )
     parser.add_argument(
         "--gpus", type=int, default=1, help='For determining optimal strategy and effective batch size.'
@@ -715,16 +729,14 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    if(args.seed is None and 
-        ((args.gpus is not None and args.gpus > 1) or 
-         (args.num_nodes is not None and args.num_nodes > 1))):
+    multi_nodes = (args.gpus is not None and args.gpus > 1) or (args.num_nodes is not None and args.num_nodes > 1)
+    if args.seed is None and multi_nodes:
         raise ValueError("For distributed training, --seed must be specified")
 
-    if(str(args.precision) == "16" and args.deepspeed_config_path is not None):
+    if (str(args.precision) == "16" and args.deepspeed_config_path is not None):
         raise ValueError("DeepSpeed and FP16 training are not compatible")
 
-    if(args.resume_from_jax_params is not None and args.resume_from_ckpt is not None):
+    if (args.resume_from_jax_params is not None and args.resume_from_ckpt is not None):
         raise ValueError("Choose between loading pretrained Jax-weights and a checkpoint-path")
-
 
     main(args)

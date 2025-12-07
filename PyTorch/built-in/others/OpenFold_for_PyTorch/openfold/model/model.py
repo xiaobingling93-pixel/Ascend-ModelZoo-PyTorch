@@ -587,5 +587,7 @@ class AlphaFold(nn.Module):
 
         # Run auxiliary heads
         outputs.update(self.aux_heads(outputs))
+        if hasattr(torch, "npu"):
+            torch.npu.empty_cache()
 
         return outputs
