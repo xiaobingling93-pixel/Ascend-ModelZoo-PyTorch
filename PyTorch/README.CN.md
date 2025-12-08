@@ -99,7 +99,6 @@
 - [MAE_Fine_for_PyTorch(FP16)](https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/contrib/cv/classification/MAE_for_PyTorch)
 - [MAPPO_for_PyTorch(FP16)](https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/built-in/rl/MAPPO_for_PyTorch)
 - [MobileNetV3-Large_ID1784_for_PyTorch(FP16)](https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/built-in/cv/classification/MobileNetV3-Large_ID1784_for_PyTorch)
-- [PPO_for_Pytorch(FP16)](https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/built-in/rl/PPO_for_Pytorch)
 - [Resnet50_Cifar_for_PyTorch(FP16)](https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/built-in/cv/classification/Resnet50_Cifar_for_PyTorch)
 - [ResNet50_ID4149_for_PyTorch(FP16)](https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/built-in/cv/classification/ResNet50_ID4149_for_PyTorch)
 - [ResNet50_ID4149_for_PyTorch(FP32)](https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/PyTorch/built-in/cv/classification/ResNet50_ID4149_for_PyTorch)
