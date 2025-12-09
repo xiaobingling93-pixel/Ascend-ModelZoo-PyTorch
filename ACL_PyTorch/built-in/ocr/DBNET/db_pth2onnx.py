@@ -1,4 +1,4 @@
-# Copyright 2021 Huawei Technologies Co., Ltd
+# Copyright © 2021 - 2025. Huawei Technologies Co., Ltd. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 
 import argparse
 from collections import OrderedDict
+
 
 import torch
 import torch.onnx
@@ -35,17 +36,20 @@ def pth2onnx(model):
     input_names = ["actual_input_1"]
     output_names = ["output1"]
     dynamic_axes = {'actual_input_1': {0: '-1'}, 'output1': {0: '-1'}}
-    dummy_input = torch.randn(1, 3, 736, 1280)
-
-    torch.onnx.export(model, 
-                    dummy_input, 
-                    "dbnet.onnx", 
-                    input_names=input_names, 
-                    enable_onnx_checker=False, 
-                    dynamic_axes=dynamic_axes, 
-                    output_names=output_names, 
-                    opset_version=11, 
-                    verbose=True)
+    dummy_input = torch.randn(1, 3, 800, 768)
+    torch.onnx.export(
+        model,
+        dummy_input,
+        "dbnet.onnx",
+        do_constant_folding=False,
+        input_names=input_names,
+        dynamic_axes=dynamic_axes,
+        output_names=output_names,
+        autograd_inlining=False,
+        opset_version=15,
+        operator_export_type=torch.onnx.OperatorExportTypes.ONNX_FALLTHROUGH,
+        verbose=False
+        )
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='db pth2onnx')

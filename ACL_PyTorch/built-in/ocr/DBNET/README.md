@@ -31,23 +31,6 @@
   commit_id=4ac194d0357fd102ac871e37986cb8027ecf094e
   model_name=DB_for_PyTorch
   ```
-  
-
-## 输入输出数据<a name="section540883920406"></a>
-
-- 输入数据
-
-  | 输入数据 | 数据类型 | 大小                       | 数据排布格式 |
-  | -------- | -------- | -------------------------- | ------------ |
-  | input    | RGB_FP32 | batchsize x 3 x 736 x 1280 | NCHW         |
-
-
-- 输出数据
-
-  | 输出数据 | 数据类型 | 大小                       | 数据排布格式 |
-  | -------- | -------- | -------------------------- | ------------ |
-  | output1  | FLOAT32  | batchsize x 1 x 736 x 1280 | ND           |
-
 
 # 推理环境准备<a name="ZH-CN_TOPIC_0000001126281702"></a>
 
@@ -57,10 +40,10 @@
 
   | 配套                                                         | 版本    | 环境准备指导                                                 |
   | ------------------------------------------------------------ | ------- | ------------------------------------------------------------ |
-  | 固件与驱动                                                   | 22.0.2  | [Pytorch框架推理环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies) |
-  | CANN                                                         | 6.0.RC1 | -                                                            |
-  | Python                                                       | 3.7.5   | -                                                            |
-  | PyTorch                                                      | 1.6.0   | -                                                            |
+  | 固件与驱动                                                   | 25.3.rc1  | [Pytorch框架推理环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies) |
+  | CANN                                                         | 8.3.RC1 | -                                                            |
+  | Python                                                       | 3.11.10   | -                                                            |
+  | PyTorch                                                      | 2.1.0   | -                                                            |
   | 说明：Atlas 300I Duo 推理卡请以CANN版本选择实际固件与驱动版本。 | \       | \                                                            |
 
 
@@ -72,18 +55,18 @@
 1. 获取源码
 
    ```shell
+   #下载原仓代码并切换至目标状态
    git clone https://github.com/MhLiao/DB 
    cd DB
    git reset 4ac194d0357fd102ac871e37986cb8027ecf094e --hard
-   patch -p1 < ../db.diff
-   cd ..
-   ```
-   并把gitcode所有的py文件全部移到`DB`中
    
-   备注说明,如果出现`Hunk FAILED`，可以使用以下方法
-   ```bash
-   unix2dos ../db.diff
-   unix2dos backbones/resnet.py
+   #统一原仓文件格式
+   dos2unix backbones/resnet.py
+
+   git apply ../db.diff
+
+   rsync -av --exclude='DB' ../ ./
+
    ```
 
 2. 安装依赖
@@ -96,10 +79,10 @@
 
 1. 获取原始数据集
 
-   本模型支持icdar2015验证集。用户需自行下载数据集并解压到`DB/datasets`路径下，可参考[源码数据集](https://github.com/MhLiao/DB#datasets)。目录结构如下：
+   本模型支持total_text验证集。用户需自行下载数据集并解压到`DB/datasets`路径下，可参考[源码数据集](https://github.com/MhLiao/DB#datasets)。目录结构如下：
 
    ```
-   datasets/icdar2015/  
+   datasets/total_text/  
    ├── test_gts  
    ├── test_images  
    ├── test_list.txt  
@@ -112,35 +95,29 @@
    执行db_preprocess.py脚本，完成预处理
 
    ```shell
-   python3 ./db_preprocess.py --image_src_path=./datasets/icdar2015/test_images --npu_file_path=./prep_dataset
+   python3 ./db_preprocess.py --image_src_path=./datasets/total_text/test_images --npu_file_path=./prep_dataset
    ```
    
    结果存在 ./prep_dataset 中
 
 
 ## 模型推理<a name="section741711594517"></a>
+- 获取权重文件。
+   用户需自行下载模型文件并解压在项目路径`${DBNET}`路径下，可参考[DB源码仓](https://github.com/MhLiao/DB#Models)。
 
-1. 模型转换。
+- 模型转换。
 
-   使用PyTorch将模型权重文件.pth转换为.onnx文件，再使用ATC工具将.onnx文件转为离线推理模型文件.om文件。
+   - 使用PyTorch将模型权重文件.pth转换为.onnx文件，再使用ATC工具将.onnx文件转为离线推理模型文件.om文件。
 
-   1. 获取权重文件。
+      使用db_pth2onnx.py导出onnx文件
 
-       ```sh
-       wget https://ascend-repo-modelzoo.obs.cn-east-2.myhuaweicloud.com/model/1_PyTorch_PTH/DBnet/PTH/ic15_resnet50 -O DB/ic15_resnet50
-       ```
-
-   2. 导出onnx文件。
-
-      1. 使用db_pth2onnx.py导出onnx文件
-
-         ```shell
-         python3 ./db_pth2onnx.py experiments/seg_detector/ic15_resnet50_deform_thre.yaml --resume ./ic15_resnet50
-         ```
+      ```shell
+      python3 ./db_pth2onnx.py ./DB/experiments/seg_detector/totaltext_resnet18_deform_thre.yaml --resume ./totaltext_resnet18
+      ```
          
-         获得dbnet.onnx文件 
+      获得dbnet.onnx文件 
       
-   3. 使用ATC工具将ONNX模型转OM模型。
+   - 使用ATC工具将ONNX模型转OM模型。
 
       1. 配置环境变量。
    
@@ -169,12 +146,21 @@
       3. 执行ATC命令。
    
          ```sh
-         atc --framework=5 --model=./dbnet.onnx --input_format=NCHW --input_shape="actual_input_1:${bs},3,736,1280" --output=db_bs${bs} --log=error --soc_version=Ascend${chip_name}
+         atc --framework=5 \
+         --model=./dbnet.onnx \
+         --input_format=ND \
+         --input_shape=${in_shape} \
+         --dynamic_dims=${dynamic_dims} \
+         --output=db_bs${bs}  \
+         --log=error \ 
+         --soc_version=Ascend${chip_name} \
+         --precision_mode=force_fp32
          ```
       
-         运行成功后生成<u>***db_bs${bs}.om***</u>模型文件。
+         运行成功后生成**db_bs${bs}.om**模型文件。
          
          - 参数说明
+              - **--dynamic_dims** 动态维度，需要通过`python get_dynamic_dims.py`命令获得打屏信息，随后设置${dynamic_dims}为打屏的数据。
            
               - --model：为ONNX模型文件。
               
@@ -182,11 +168,18 @@
               
               - --output：输出的OM模型。
               
-              - --input\_format：输入数据的格式。
+              - --input_format：输入数据的格式。
               
-              - --input\_shape：输入数据的shape。
-              
+              - --input_shape：输入数据的shape, 格式严格为`"input_name:n,c,h,w"`。
+                              input_name：本模型固定为actual_input_1；
+                              n：batchsize，此处为${bs}；
+                              h: 高度，本模型固定为800；
+                              w：宽度，自适应，为-1；
+
               - --log：日志级别。--soc\_version：处理器型号。
+              
+              - --bs：一次推理的样本数，自行设定。
+
               
                 
    
@@ -198,78 +191,48 @@
 
    2. 执行推理。
 
-        ```shell
-        python3 -m ais_bench --model ./db_bs1.om --input ./prep_dataset  --output ./ --output_dirname result --device 0
-        ```
+      ```shell
+      python3 om_infer.py --device 0 --batchsize 1 --preped_path ./prep_dataset  --output_path ./outputs
+      ```
 
-        -   参数说明：
+      -   参数说明：
+         - --device：int类型，chip id，缺省为0
+         - --batchsize: int类型，一次推理的样本数，需与atc导出om模型时设置一致。
+         - --preped_path：str类型，经过预处理后的数据集目录，缺省为./prep_dataset
+         - --output_path：str类型，推理二进制结果保存的路径，缺省为./outputs
 
-             -   --model：模型
-             -   --input：数据位置
-             -   --output：结果存的路径
-             -   --output_dirname: 结果存的文件夹
-
-        推理后的输出默认在当前目录result下。
+        推理后的结果打屏显示。
 
 
    3. 精度验证。
 
-      结果保存在result_bs1.json
-
       ```shell
-      python3 ./db_postprocess.py experiments/seg_detector/ic15_resnet50_deform_thre.yaml --bin_data_path ./result --box_thresh 0.6 > result_bs1.json
+      python3 ./db_postprocess.py experiments/seg_detector/totaltext_resnet18_deform_thre.yaml --bin_data_path ./outputs --box_thresh 0.7
       ```
-
       - 参数说明：
-
         - ./result：om推理结果保存的文件夹
         - result_bs1.json：为精度生成结果文件
 
-   4. 性能验证
+   4. 多卡推理demo。
+      ```shell
+      python3 multi_infer.py --device 0,1 --batchsize 1 --preped_path ./prep_dataset
+      ```
+      -   参数说明：
+         - --device：str类型，chip ids，缺省为0,1
+         - --batchsize: int类型，填一次推理的样本数，需与atc导出om模型时设置一致。
+         - --preped_path：str类型，经过预处理后的数据集目录，缺省为./prep_dataset
 
-      可使用ais_bench推理工具的纯推理模式验证不同batch_size的om模型的性能，参考命令如下：
 
-        ```shell
-        python3 -m ais_bench --model=db_bs${bs}.om --loop=20 --batchsize=${bs}
-        ```
-
-      - 参数说明：
-        - --model：om模型
-## 动态shape流程
-1. 转om模型
-   ```bash
-   atc --framework=5 --model=./dbnet.onnx --input_format=NCHW --input_shape="actual_input_1:1,3,128~2048,128~2048" --output=db_dym --log=error --soc_version=Ascend${chip_name}
-   ```
-   生成模型`db_dym_linux_${arch}.om`，${arch}是服务器对应的架构
-
-2. 推理验证
-   ```bash
-   python3 npu_end2end.py --data_path ./prep_dataset --om_path db_dym_linux_${arch}.om --output npu_result
-   ```
-   结果存在npu_result
-3. 精度验证
-   ```bash
-   python3 ./db_postprocess.py experiments/seg_detector/ic15_resnet50_deform_thre.yaml --bin_data_path ./npu_result --box_thresh 0.6
-   ```
-   精度会打屏显示
+        推理后的结果打屏显示。
 
 # 模型推理性能&精度<a name="ZH-CN_TOPIC_0000001172201573"></a>
 
-1. 静态数据
-
-| 芯片型号 | Batch Size |  数据集   | precision:精度 | 性能  |
+| 芯片型号 | Batch Size |  数据集   | precision:精度 | 性能 (samples/s)  |
 | :------: | :--------: | :-------: | :--: | :---: |
-|  300I Pro   |     1      | icdar2015 | 0.88 | 17.83 |
-|  300I Pro   |     4      | icdar2015 | 0.88 | 18.70 |
-|  300I Pro   |     8      | icdar2015 | 0.88 | 18.85 |
-|  300I Pro   |     16     | icdar2015 | 0.88 | 19.20 |
-|  300I Pro   |     32     | icdar2015 | 0.88 | 18.71 |
+|  300I DUO   |     1      | totaltext | 0.88 | 36.37 |
+|  300I DUO   |     4      | totaltext |  | 24.82 |
+|  300I DUO   |     8      | totaltext |  | 20.60 |
 
-2. 动态数据
-
-| 芯片型号 |   数据集   | precision:精度 | 性能  |
-| :------: |  :-------: | :--: | :---: |
-|  300I Pro   |     icdar2015 | 0.88 | 16.57 |
 
 # 公网地址说明
 代码涉及公网地址参考 public_address_statement.md

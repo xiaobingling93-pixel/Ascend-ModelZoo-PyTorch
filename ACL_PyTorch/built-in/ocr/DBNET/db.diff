@@ -1,17 +1,16 @@
 diff --git a/assets/ops/dcn/functions/deform_conv.py b/assets/ops/dcn/functions/deform_conv.py
-index 6af75a7..4055a68 100644
+index 6af75a7..173a2a2 100644
 --- a/assets/ops/dcn/functions/deform_conv.py
 +++ b/assets/ops/dcn/functions/deform_conv.py
-@@ -2,7 +2,7 @@ import torch
+@@ -2,7 +2,6 @@ import torch
  from torch.autograd import Function
  from torch.nn.modules.utils import _pair
  
 -from .. import deform_conv_cuda
-+#from .. import deform_conv_cuda
  
  
  class DeformConvFunction(Function):
-@@ -107,12 +107,32 @@ class DeformConvFunction(Function):
+@@ -107,12 +106,32 @@ class DeformConvFunction(Function):
  
  class ModulatedDeformConvFunction(Function):
  
@@ -46,7 +45,7 @@ index 6af75a7..4055a68 100644
                  bias=None,
                  stride=1,
                  padding=0,
-@@ -127,13 +147,15 @@ class ModulatedDeformConvFunction(Function):
+@@ -127,13 +146,12 @@ class ModulatedDeformConvFunction(Function):
          ctx.with_bias = bias is not None
          if not ctx.with_bias:
              bias = input.new_empty(1)  # fake tensor
@@ -54,10 +53,8 @@ index 6af75a7..4055a68 100644
 +        if not input.is_cuda and not torch.onnx.is_in_onnx_export():
              raise NotImplementedError
 -        if weight.requires_grad or mask.requires_grad or offset.requires_grad \
-+        '''if weight.requires_grad or mask.requires_grad or offset.requires_grad \
-                 or input.requires_grad:
+-                or input.requires_grad:
 -            ctx.save_for_backward(input, offset, mask, weight, bias)
-+            ctx.save_for_backward(input, offset, mask, weight, bias)'''
          output = input.new_empty(
              ModulatedDeformConvFunction._infer_shape(ctx, input, weight))
 +        if torch.onnx.is_in_onnx_export():
@@ -66,40 +63,62 @@ index 6af75a7..4055a68 100644
          deform_conv_cuda.modulated_deform_conv_cuda_forward(
              input, weight, bias, ctx._bufs[0], offset, mask, output,
 diff --git a/assets/ops/dcn/functions/deform_pool.py b/assets/ops/dcn/functions/deform_pool.py
-index 65ff0ef..9403ef6 100644
+index 65ff0ef..ed3101c 100644
 --- a/assets/ops/dcn/functions/deform_pool.py
 +++ b/assets/ops/dcn/functions/deform_pool.py
-@@ -1,7 +1,7 @@
+@@ -1,8 +1,6 @@
  import torch
  from torch.autograd import Function
  
 -from .. import deform_pool_cuda
-+#from .. import deform_pool_cuda
- 
+-
  
  class DeformRoIPoolingFunction(Function):
+ 
 diff --git a/assets/ops/dcn/modules/deform_conv.py b/assets/ops/dcn/modules/deform_conv.py
-index 50d15d1..332eb48 100644
+index 50d15d1..a4e5e76 100644
 --- a/assets/ops/dcn/modules/deform_conv.py
 +++ b/assets/ops/dcn/modules/deform_conv.py
-@@ -123,7 +123,14 @@ class ModulatedDeformConv(nn.Module):
+@@ -122,12 +122,28 @@ class ModulatedDeformConv(nn.Module):
+         if self.bias is not None:
              self.bias.data.zero_()
  
++    @staticmethod
++    def _calculate_sort_index(kernel_h, kernel_w, deformable_group):
++        split_num = deformable_group * 2 * kernel_h * kernel_w
++        sort_index = list(range(split_num))
++        sort_index_fp = (sort_index[1::2] + sort_index[::2])
++        sort_index_bp_dict = {i: idx for idx, i in enumerate(sort_index_fp)}
++        sort_index_bp = [sort_index_bp_dict[i] for i in sort_index]
++        sort_index_fp = torch.IntTensor(sort_index_fp)
++        sort_index_bp = torch.IntTensor(sort_index_bp)
++        sort_index_fp = sort_index_fp.cpu()
++        sort_index_bp = sort_index_bp.cpu()
++        return sort_index_fp, sort_index_bp
++
      def forward(self, x, offset, mask):
 -        return modulated_deform_conv(x, offset, mask, self.weight, self.bias,
-+        offset_x = offset.reshape(offset.shape[0], -1, 2, offset.shape[2].numpy(), offset.shape[3].numpy()) \
-+                         [:, :, 1, ...].reshape(offset.shape[0], offset.shape[1].numpy() // 2,
-+                                                offset.shape[2].numpy(), offset.shape[3].numpy())
-+        offset_y = offset.reshape(offset.shape[0], -1, 2, offset.shape[2].numpy(), offset.shape[3].numpy()) \
-+                         [:, :, 0, ...].reshape(offset.shape[0], offset.shape[1].numpy() // 2,
-+                                                offset.shape[2].numpy(), offset.shape[3].numpy())
-+        offset = torch.cat((offset_x, offset_y, mask), 1)
-+        return modulated_deform_conv(x, self.weight, offset, self.bias,
++        self.bias = None
++        sort_index_fp, sort_index_bp = ModulatedDeformConv._calculate_sort_index(3, 3, 1)
++        select_offset = offset.index_select(1, sort_index_fp)
++        offset_all = torch.cat([select_offset, mask], dim=1)
++        return modulated_deform_conv(x, self.weight, offset_all, self.bias,
                                       self.stride, self.padding, self.dilation,
                                       self.groups, self.deformable_groups)
  
+-
+ class ModulatedDeformConvPack(ModulatedDeformConv):
+ 
+     def __init__(self, *args, **kwargs):
+@@ -154,4 +170,4 @@ class ModulatedDeformConvPack(ModulatedDeformConv):
+         mask = torch.sigmoid(mask)
+         return modulated_deform_conv(x, offset, mask, self.weight, self.bias,
+                                      self.stride, self.padding, self.dilation,
+-                                     self.groups, self.deformable_groups)
++                                     self.groups, self.deformable_groups)
+\ No newline at end of file
 diff --git a/backbones/resnet.py b/backbones/resnet.py
-index df6e5a2..796b02f 100644
+index df6e5a2..0d1bd1e 100644
 --- a/backbones/resnet.py
 +++ b/backbones/resnet.py
 @@ -129,7 +129,8 @@ class Bottleneck(nn.Module):
@@ -112,6 +131,15 @@ index df6e5a2..796b02f 100644
              self.conv2 = conv_op(
                  planes, planes, kernel_size=3, padding=1, stride=stride,
                  deformable_groups=deformable_groups, bias=False)
+@@ -255,7 +256,7 @@ def resnet18(pretrained=True, **kwargs):
+             model_urls['resnet18']), strict=False)
+     return model
+ 
+-def deformable_resnet18(pretrained=True, **kwargs):
++def deformable_resnet18(pretrained=False, **kwargs):
+     """Constructs a ResNet-18 model.
+     Args:
+         pretrained (bool): If True, returns a model pre-trained on ImageNet
 @@ -295,7 +296,7 @@ def resnet50(pretrained=True, **kwargs):
      return model
  
@@ -121,23 +149,138 @@ index df6e5a2..796b02f 100644
      """Constructs a ResNet-50 model with deformable conv.
      Args:
          pretrained (bool): If True, returns a model pre-trained on ImageNet
+diff --git a/data/processes/resize_image.py b/data/processes/resize_image.py
+index ee0efd0..f2c7b0d 100644
+--- a/data/processes/resize_image.py
++++ b/data/processes/resize_image.py
+@@ -2,7 +2,6 @@ import cv2
+ import numpy as np
+ 
+ from concern.config import Configurable, State
+-import concern.webcv2 as webcv2
+ from .data_process import DataProcess
+ 
+ 
+diff --git a/demo.py b/demo.py
+index 4206046..61d74c4 100644
+--- a/demo.py
++++ b/demo.py
+@@ -56,11 +56,7 @@ class Demo:
+     def init_torch_tensor(self):
+         # Use gpu or not
+         torch.set_default_tensor_type('torch.FloatTensor')
+-        if torch.cuda.is_available():
+-            self.device = torch.device('cuda')
+-            torch.set_default_tensor_type('torch.cuda.FloatTensor')
+-        else:
+-            self.device = torch.device('cpu')
++        self.device = torch.device('cpu')
+ 
+     def init_model(self):
+         model = self.structure.builder.build(self.device)
+diff --git a/experiment.py b/experiment.py
+index b1bfbf0..d6fffcf 100644
+--- a/experiment.py
++++ b/experiment.py
+@@ -3,7 +3,6 @@ from concern.log import Logger
+ from structure.builder import Builder
+ from structure.representers import *
+ from structure.measurers import *
+-from structure.visualizers import *
+ from data.data_loader import *
+ from data import *
+ from training.model_saver import ModelSaver
+diff --git a/experiments/seg_detector/base_totaltext.yaml b/experiments/seg_detector/base_totaltext.yaml
+index bf88f29..5014e4d 100644
+--- a/experiments/seg_detector/base_totaltext.yaml
++++ b/experiments/seg_detector/base_totaltext.yaml
+@@ -38,7 +38,7 @@ define:
+           augmenter_args:
+               - ['Resize', {'width': 800, 'height': 800}]
+           only_resize: True
+-          keep_ratio: True
++          keep_ratio: False
+         - class: MakeICDARData
+         - class: MakeSegDetectionData
+         - class: NormalizeImage
+diff --git a/experiments/seg_detector/totaltext_resnet18_deform_thre.yaml b/experiments/seg_detector/totaltext_resnet18_deform_thre.yaml
+index 9f722cf..130684f 100644
+--- a/experiments/seg_detector/totaltext_resnet18_deform_thre.yaml
++++ b/experiments/seg_detector/totaltext_resnet18_deform_thre.yaml
+@@ -22,8 +22,6 @@ define:
+             max_candidates: 1000
+         measurer:  
+             class: QuadMeasurer
+-        visualizer:  
+-            class: SegDetectorVisualizer
+     train: 
+         class: TrainSettings
+         data_loader: 
+diff --git a/requirement.txt b/requirement.txt
+index bf59a14..89f8faa 100644
+--- a/requirement.txt
++++ b/requirement.txt
+@@ -1,7 +1,7 @@
+ pyyaml 
+ tqdm 
+ tensorboardX 
+-opencv-python==4.1.2.30
++opencv-python==4.6.0.66
+ anyconfig 
+ munch 
+ scipy 
+diff --git a/structure/measurers/quad_measurer.py b/structure/measurers/quad_measurer.py
+index 8613dc6..f62e644 100644
+--- a/structure/measurers/quad_measurer.py
++++ b/structure/measurers/quad_measurer.py
+@@ -23,8 +23,10 @@ class QuadMeasurer(Configurable):
+         results = []
+         gt_polyons_batch = batch['polygons']
+         ignore_tags_batch = batch['ignore_tags']
+-        pred_polygons_batch = np.array(output[0])
+-        pred_scores_batch = np.array(output[1])
++        pred_polygons_batch = np.array(output[0], dtype='object')
++        pred_scores_batch = np.array(output[1], dtype='object')
++
++
+         for polygons, pred_polygons, pred_scores, ignore_tags in\
+                 zip(gt_polyons_batch, pred_polygons_batch, pred_scores_batch, ignore_tags_batch):
+             gt = [dict(points=polygons[i], ignore=ignore_tags[i])
 diff --git a/structure/model.py b/structure/model.py
-index 060191b..ea1705b 100644
+index 060191b..1ce5b61 100644
 --- a/structure/model.py
 +++ b/structure/model.py
-@@ -36,7 +36,7 @@ class SegDetectorModel(nn.Module):
+@@ -36,7 +36,6 @@ class SegDetectorModel(nn.Module):
  
          self.model = BasicModel(args)
          # for loading models
 -        self.model = parallelize(self.model, distributed, local_rank)
-+        #self.model = parallelize(self.model, distributed, local_rank)
          self.criterion = SegDetectorLossBuilder(
              args['loss_class'], *args.get('loss_args', []), **args.get('loss_kwargs', {})).build()
          self.criterion = parallelize(self.criterion, distributed, local_rank)
-@@ -63,4 +63,4 @@ class SegDetectorModel(nn.Module):
+@@ -63,4 +62,4 @@ class SegDetectorModel(nn.Module):
              loss_with_metrics = self.criterion(pred, batch)
              loss, metrics = loss_with_metrics
              return loss, pred, metrics
 -        return pred
 \ No newline at end of file
 +        return pred
+diff --git a/structure/representers/seg_detector_representer.py b/structure/representers/seg_detector_representer.py
+index a962ca1..18af012 100644
+--- a/structure/representers/seg_detector_representer.py
++++ b/structure/representers/seg_detector_representer.py
+@@ -192,10 +192,10 @@ class SegDetectorRepresenter(Configurable):
+     def box_score_fast(self, bitmap, _box):
+         h, w = bitmap.shape[:2]
+         box = _box.copy()
+-        xmin = np.clip(np.floor(box[:, 0].min()).astype(np.int), 0, w - 1)
+-        xmax = np.clip(np.ceil(box[:, 0].max()).astype(np.int), 0, w - 1)
+-        ymin = np.clip(np.floor(box[:, 1].min()).astype(np.int), 0, h - 1)
+-        ymax = np.clip(np.ceil(box[:, 1].max()).astype(np.int), 0, h - 1)
++        xmin = np.clip(np.floor(box[:, 0].min()).astype(np.int32), 0, w - 1)
++        xmax = np.clip(np.ceil(box[:, 0].max()).astype(np.int32), 0, w - 1)
++        ymin = np.clip(np.floor(box[:, 1].min()).astype(np.int32), 0, h - 1)
++        ymax = np.clip(np.ceil(box[:, 1].max()).astype(np.int32), 0, h - 1)
+ 
+         mask = np.zeros((ymax - ymin + 1, xmax - xmin + 1), dtype=np.uint8)
+         box[:, 0] = box[:, 0] - xmin
