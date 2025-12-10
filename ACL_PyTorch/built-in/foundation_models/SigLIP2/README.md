@@ -261,15 +261,23 @@ SigLIP 2模型在SigLIP的原始训练目标基础上，增加了额外的目标
 
 - 文本侧模型：
 
-| 硬件形态     | Input Shape | tps |
+| 硬件形态     | Input Shape(labelnums x seqlen) | Texts Per Second |
 |:-----------|:------------|:------------:|
-| Atlas 800T A2 (8*64G) 单卡    | 1000 x 64  |  1262.35    |
-
+| Atlas 800T A2 (8*64G) 单卡    | 1 x 64  |  214.66    |
+| Atlas 800T A2 (8*64G) 单卡    | 3 x 64  |  140.1    |
+| Atlas 800T A2 (8*64G) 单卡    | 10 x 64  |  71.92   |
+| Atlas 800T A2 (8*64G) 单卡    | 100 x 64  |  13.2    |
+| Atlas 800T A2 (8*64G) 单卡    | 1000 x 64  |  1.26    |
 - 图像侧模型：
 
-| 硬件形态    | Input Shape | fps |
+| 硬件形态    | Input Shape(bs x channels x height x width) | Frames Per Second |
 |:-----------|:------------|:------------:|
+| Atlas 800T A2 (8*64G) 单卡  | 1 x 3 x 384 x 384        |  61.46    |
+| Atlas 800T A2 (8*64G) 单卡  | 4 x 3 x 384 x 384        |  81.04    |
+| Atlas 800T A2 (8*64G) 单卡  | 8 x 3 x 384 x 384        |  82.93    |
+| Atlas 800T A2 (8*64G) 单卡  | 16 x 3 x 384 x 384        |  78.71    |
 | Atlas 800T A2 (8*64G) 单卡  | 24 x 3 x 384 x 384        |  81.48    |
+| Atlas 800T A2 (8*64G) 单卡  | 32 x 3 x 384 x 384        |  80.45   |
 
 模型OM部署的推理精度数据参考如下数据。
 

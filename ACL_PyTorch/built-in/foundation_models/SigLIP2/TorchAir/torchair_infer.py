@@ -15,8 +15,8 @@ import torch
 import torch_npu
 import torchair as tng
 from torchair.configs.compiler_config import CompilerConfig
+from PIL import Image
 from transformers import AutoModel, AutoImageProcessor, AutoTokenizer, pipeline
-from transformers.image_utils import load_image
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="SigLIP2 performance tests")
@@ -44,12 +44,11 @@ if __name__ == '__main__':
     model.vision_model = torch.compile(model.vision_model, dynamic=True, fullgraph=True, backend=npu_backbend)
     model.text_model = torch.compile(model.text_model, dynamic=True, fullgraph=True, backend=npu_backbend)
 
-    image = load_image(args.image_path)
+    image = Image.open(args.image_path).convert("RGB")
     image_inputs = image_processor(images=image, return_tensors="pt").to(device)
     image_inputs = {k: v.repeat(args.batch_size, *([1] * (v.ndim - 1))) for k, v in image_inputs.items()}
 
-    text_inputs = tokenizer(args.candidate_labels, padding=True, return_tensors="pt").to(device)
-    text_inputs = {k: v.repeat(args.batch_size, *([1] * (v.ndim - 1))) for k, v in text_inputs.items()}
+    text_inputs = tokenizer(args.candidate_labels, padding="max_length", max_length=64, truncation=True, return_tensors="pt").to(device)
     
     image_classifier = pipeline(
         model=model,
@@ -78,7 +77,8 @@ if __name__ == '__main__':
             text_features = model.get_text_features(**text_inputs)
         torch.npu.synchronize()
         text_times.append(time() - st)
-    text_perf = round(args.batch_size / (sum(text_times) / args.loop), 2)
+    text_perf = round(1 / (sum(text_times) / args.loop), 2)
+    print(f"Text inputs shape(labelnums x seqlen): {text_inputs['input_ids'].shape}")
     print(f"Text encoder performance: {text_perf} text/s")
 
     image_times = []
@@ -90,4 +90,5 @@ if __name__ == '__main__':
         torch.npu.synchronize()
         image_times.append(time() - st)
     image_perf = round(args.batch_size / (sum(image_times) / args.loop), 2)
+    print(f"Image inputs shape(bs x channels x height x width): {image_inputs['pixel_values'].shape}")
     print(f"Image encoder performance: {image_perf} image/s")
