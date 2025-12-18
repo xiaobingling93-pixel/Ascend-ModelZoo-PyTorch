@@ -632,6 +632,8 @@ def train(args):
         num_workers=args.n_iter_processes,
         shuffle=not use_sortagrad,
         collate_fn=lambda x: x[0],
+        pin_memory=True,
+        pin_memory_device="npu"
     )
     valid_iter = ChainerDataLoader(
         dataset=TransformDataset(valid, lambda data: converter([load_cv(data)])),

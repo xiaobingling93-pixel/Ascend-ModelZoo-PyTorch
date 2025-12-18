@@ -92,6 +92,8 @@ try:
 except ImportError:
     fairscale = None
 
+torch.npu.config.allow_internal_format = False
+
 
 @dataclasses.dataclass
 class TrainerOptions:
