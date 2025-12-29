@@ -1,6 +1,6 @@
-# MinerU(TorchAir)-推理指导
+# MinerU2.0-Pipeline(TorchAir)-推理指导
 
-- [MinerU(TorchAir)-推理指导](#MinerU(TorchAir)-推理指导)
+- [MinerU2.0-Pipeline(TorchAir)-推理指导](#MinerU2.0-Pipeline(TorchAir)-推理指导)
 - [概述](#概述)
 - [推理环境准备](#推理环境准备)
 - [快速上手](#快速上手)
@@ -14,6 +14,8 @@
 
 # 概述
 MinerU是由上海人工智能实验室OpenDataLab团队开发的开源文档解析工具，致力于解决大模型（LLM）训练和RAG（检索增强生成）应用中高质量结构化数据的提取难题。其核心价值在于将复杂文档（如PDF、网页、电子书）转换为机器可读的Markdown、JSON格式，同时保留原始文档的语义逻辑与多模态元素。
+
+本文档介绍了MinerU 2.0模型的Pipeline部署流程，包括推理环境准备、模型部署、功能验证，旨在帮助用户快速完成模型部署和验证。
 
 - 版本说明：
   
