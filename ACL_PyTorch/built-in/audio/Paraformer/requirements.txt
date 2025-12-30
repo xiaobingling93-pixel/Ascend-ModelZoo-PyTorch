@@ -1,4 +1,0 @@
-torch==2.1.0
-torch-npu==2.1.0
-numpy==1.26
-torchaudio
