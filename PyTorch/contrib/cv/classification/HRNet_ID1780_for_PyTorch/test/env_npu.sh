@@ -26,7 +26,7 @@ export ASCEND_GLOBAL_EVENT_ENABLE=0
 #-配置为0时：关闭task_queue算子下发队列优化。
 #-配置为1或未配置时：开启task_queue算子下发队列Level 1优化。
 #-配置为2时：开启task_queue算子下发队列Level 2优化。关于Level 1和Level 2优化的详细解释请查看官网文档。
-export TASK_QUEUE_ENABLE=1
+export TASK_QUEUE_ENABLE=2
 
 #设置是否开启PTCopy,0-关闭/1-开启
 export PTCOPY_ENABLE=1
@@ -39,7 +39,7 @@ export HCCL_WHITELIST_DISABLE=1
 #分布式训练或推理场景下，用于限制不同设备之间socket建链过程的超时等待时间。该环境变量需要配置为整数。此处为试验后的经验值。
 export HCCL_CONNECT_TIMEOUT=1800
 #设置绑核,0-关闭/1-平均分配绑核
-export CPU_AFFINITY_CONF=1
+export CPU_AFFINITY_CONF=2
 
 #设置device侧日志登记为error
 msnpureport -g error -d 0

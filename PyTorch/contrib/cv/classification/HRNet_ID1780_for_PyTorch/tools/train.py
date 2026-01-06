@@ -24,6 +24,7 @@ import os
 import pprint
 import shutil
 import sys
+import random
 
 import torch
 if torch.__version__ >= "1.8":
@@ -41,6 +42,10 @@ import torch.utils.data.distributed
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
 from tensorboardX import SummaryWriter
+try:
+    import numpy as np
+except Exception:
+    np = None
 
 import _init_paths
 import models
@@ -56,6 +61,41 @@ import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 import torch.multiprocessing as mp
 from apex import amp
+
+
+def _infer_rank_from_argv(argv):
+    for i, a in enumerate(argv):
+        if a.startswith("--device_id="):
+            v = a.split("=", 1)[1].strip()
+            if v.lstrip("-").isdigit():
+                return int(v)
+        if a == "--device_id" and i + 1 < len(argv):
+            v = argv[i + 1].strip()
+            if v.lstrip("-").isdigit():
+                return int(v)
+
+    for k in ("RANK_ID", "LOCAL_RANK", "ASCEND_DEVICE_ID"):
+        v = os.getenv(k)
+        if v is not None and v.strip().lstrip("-").isdigit():
+            return int(v)
+    return 0
+
+
+def _seed_everything(seed: int):
+    os.environ.setdefault("PYTHONHASHSEED", str(seed))
+    random.seed(seed)
+    if np is not None:
+        np.random.seed(seed)
+    torch.manual_seed(seed)
+
+    # Ascend NPU
+    torch.npu.manual_seed(seed)
+    torch.npu.manual_seed_all(seed)
+    torch_npu.npu.manual_seed(seed)
+
+_BASE_SEED = 1234
+_RANK_FOR_SEED = _infer_rank_from_argv(sys.argv)
+_seed_everything(_BASE_SEED + _RANK_FOR_SEED)
 
 
 def parse_args():
