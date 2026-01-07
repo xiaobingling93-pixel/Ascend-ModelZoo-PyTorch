@@ -19,7 +19,7 @@ import os
 
 import torch
 import torch.nn as nn
-from mindiesd import ConfigMixin
+from ..utils.config_utils import ConfigMixin
 from .model_load_utils import load_state_dict
 
 

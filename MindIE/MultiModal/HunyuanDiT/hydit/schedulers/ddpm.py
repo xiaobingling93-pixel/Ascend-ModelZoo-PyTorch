@@ -18,7 +18,7 @@
 import torch
 import numpy as np
 
-from mindiesd import DiffusionScheduler
+from .scheduler_utils import DiffusionScheduler
 from ..utils import randn_tensor
 
 

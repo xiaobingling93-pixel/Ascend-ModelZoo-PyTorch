@@ -16,7 +16,7 @@
 
 
 import torch.nn as nn
-from mindiesd import get_activation_layer, Linear
+from mindiesd import get_activation_layer
 
 
 class Mlp(nn.Module):
@@ -27,19 +27,14 @@ class Mlp(nn.Module):
                  features_out=None,
                  act_layer="gelu",
                  norm_layer=None,
-                 bias=True,
-                 op_type=None):
+                 bias=True):
         super().__init__()
 
         features_out = features_out or features_in
         features_hidden = features_hidden or features_in
 
-        if op_type is None:
-            self.fc1 = nn.Linear(features_in, features_hidden, bias=bias)
-            self.fc2 = nn.Linear(features_hidden, features_out, bias=bias)
-        else:
-            self.fc1 = Linear(features_in, features_hidden, bias=bias, op_type=op_type)
-            self.fc2 = Linear(features_hidden, features_out, bias=bias, op_type=op_type)
+        self.fc1 = nn.Linear(features_in, features_hidden, bias=bias)
+        self.fc2 = nn.Linear(features_hidden, features_out, bias=bias)
 
         self.act = act_layer() if not isinstance(act_layer, str) else get_activation_layer(act_layer)
         self.norm = norm_layer(features_hidden) if norm_layer is not None else nn.Identity()
