@@ -1,0 +1,229 @@
+diff --git a/torchtitan/components/loss.py b/torchtitan/components/loss.py
+index 30366113..9ed5ab2b 100644
+--- a/torchtitan/components/loss.py
++++ b/torchtitan/components/loss.py
+@@ -64,3 +64,100 @@ def rescale_accumulated_loss(unwrapped_loss_fn, accumulation_steps):
+     `unwrapped_loss_fn`.
+     """
+     return RescaleAccumulatedLoss(unwrapped_loss_fn, accumulation_steps)
++
++
++####=========================chunk loss=========================================
++from typing import Any, Optional
++
++
++def fixed_cross_entropy(
++    source: torch.Tensor,
++    target: torch.Tensor,
++    num_items_in_batch: Optional[torch.Tensor] = None,
++    ignore_index: int = -100,
++    **kwargs,
++) -> torch.Tensor:
++    reduction = "sum" if num_items_in_batch is not None else "mean"
++    loss = torch.nn.functional.cross_entropy(source, target, ignore_index=ignore_index, reduction=reduction)
++    if reduction == "sum":
++        # just in case users pass an int for num_items_in_batch, which could be the case for custom trainer
++        if torch.is_tensor(num_items_in_batch):
++            num_items_in_batch = num_items_in_batch.to(loss.device)
++        loss = loss / num_items_in_batch
++    return loss
++
++def ce_loss_func(hidden_states, weight, bias, labels, num_items_in_batch, ignore_index=-100, **kwargs):
++    # Flatten the labels and hidden_states
++    labels = labels.reshape(-1)
++    hidden_states = hidden_states.reshape(-1,hidden_states.size(-1))
++    logits = torch.nn.functional.linear(hidden_states, weight).float()
++    loss = fixed_cross_entropy(logits, labels, num_items_in_batch,ignore_index, **kwargs)
++    return loss, logits
++
++class ChunkLoss(torch.autograd.Function):
++    @staticmethod
++    def forward(
++        ctx,
++        hidden_states: torch.Tensor,
++        head_weight: torch.Tensor,
++        head_bias: torch.Tensor | None,
++        loss_forward: Callable,
++        loss_kwargs_chunks: list[Any],
++        chunk_size: int,
++    ):
++        if head_bias is not None:
++            raise NotImplementedError("head_bias is not supported in ChunkLoss")
++
++        device = hidden_states.device
++        accumulated_loss = torch.tensor(0.0, device=device)
++        grad_inputs = torch.empty_like(hidden_states)
++        grad_weight = torch.zeros_like(head_weight)
++
++        grad_inputs_chunks = torch.split(grad_inputs, chunk_size, dim=1)
++        hidden_states_chunks = torch.split(hidden_states, chunk_size, dim=1)
++
++        for i in range(len(hidden_states_chunks)):
++            hidden_states_chunk = hidden_states_chunks[i]
++            grad_inputs_chunk = grad_inputs_chunks[i]
++
++            (chunk_grad_input, chunk_grad_weight), (chunk_loss, _) = torch.func.grad_and_value(
++                loss_forward, argnums=(0, 1), has_aux=True
++            )(hidden_states_chunk, head_weight, None, **loss_kwargs_chunks[i])
++
++            accumulated_loss.add_(chunk_loss)
++            grad_inputs_chunk.copy_(chunk_grad_input)
++            grad_weight.add_(chunk_grad_weight)
++
++        ctx.save_for_backward(grad_inputs, grad_weight)
++        return accumulated_loss
++
++    @staticmethod
++    def backward(ctx, *grad_output):
++        grad_input, grad_weight = ctx.saved_tensors
++        if torch.ne(grad_output[0], torch.tensor(1.0, device=grad_output[0].device)):
++            grad_input = grad_input * grad_output[0]
++            grad_weight = grad_weight * grad_output[0]
++
++        return grad_input, grad_weight, None, None, None, None
++
++def calculate_chunkloss(hidden_states, head_weight, labels, chunk_size, local_batch_size):
++
++    chunk_labels = torch.split(labels, chunk_size, dim=1)
++    loss_kwargs_chunks = [
++        {
++            "labels": chunk_labels[i],
++            "ignore_index": -100,
++            "num_items_in_batch": labels.shape[1]
++        }
++        for i in range(len(chunk_labels))
++    ]
++    return ChunkLoss.apply(hidden_states, head_weight, None, ce_loss_func, loss_kwargs_chunks, chunk_size)/local_batch_size
++
++
++def build_calculate_chunkloss(job_config: JobConfig, **kwargs):
++    del kwargs  # delete any unused arguments
++    loss_fn = calculate_chunkloss
++    if job_config.compile.enable and "loss" in job_config.compile.components:
++        logger.info("Compiling the loss function with torch.compile")
++        loss_fn = torch.compile(loss_fn, backend=job_config.compile.backend)
++    return loss_fn
+\ No newline at end of file
+diff --git a/torchtitan/config/job_config.py b/torchtitan/config/job_config.py
+index 7137579f..c6573954 100644
+--- a/torchtitan/config/job_config.py
++++ b/torchtitan/config/job_config.py
+@@ -262,6 +262,13 @@ class Training:
+     debug_moe_force_load_balance: bool = False
+     """If True, we force each experts to get the same amount of tokens via round-robin. This option is for debugging usage only."""
+ 
++    use_chunkloss: bool = True
++    chunk_size: int = 1024
++    """
++    Whether to enable chunk-based loss computation to prevent memory spikes 
++    that may occur with FSDP2 during training. When enabled, loss computation 
++    is distributed across chunks to reduce peak memory usage.
++    """
+ 
+ @dataclass
+ class Parallelism:
+diff --git a/torchtitan/models/qwen3/__init__.py b/torchtitan/models/qwen3/__init__.py
+index 8c6cd22c..df3289d4 100644
+--- a/torchtitan/models/qwen3/__init__.py
++++ b/torchtitan/models/qwen3/__init__.py
+@@ -6,7 +6,7 @@
+ #
+ # Copyright (c) Meta Platforms, Inc. All Rights Reserved.
+
+-from torchtitan.components.loss import build_cross_entropy_loss
++from torchtitan.components.loss import build_cross_entropy_loss, build_calculate_chunkloss
+ from torchtitan.components.lr_scheduler import build_lr_schedulers
+ from torchtitan.components.optimizer import build_optimizers
+ from torchtitan.components.tokenizer import build_hf_tokenizer
+@@ -141,6 +141,8 @@ qwen3_args = {
+             route_scale=1.0,
+             score_before_experts=False,
+         ),
++        use_chunkloss=True,
++        chunk_size=512,
+     ),
+     "30B-A3B": Qwen3ModelArgs(
+         vocab_size=151936,
+@@ -164,6 +166,8 @@ qwen3_args = {
+             route_scale=1.0,
+             score_before_experts=False,
+         ),
++        use_chunkloss=True,
++        chunk_size=512,
+     ),
+     "235B-A22B": Qwen3ModelArgs(
+         vocab_size=151936,
+@@ -187,6 +191,8 @@ qwen3_args = {
+             route_scale=1.0,  # not needed, need double check
+             score_before_experts=False,
+         ),
++        use_chunkloss=True,
++        chunk_size=512,
+     ),
+ }
+
+@@ -201,7 +207,7 @@ def get_train_spec() -> TrainSpec:
+         build_lr_schedulers_fn=build_lr_schedulers,
+         build_dataloader_fn=build_hf_dataloader,
+         build_tokenizer_fn=build_hf_tokenizer,
+-        build_loss_fn=build_cross_entropy_loss,
++        build_loss_fn=build_calculate_chunkloss,
+         build_validator_fn=build_validator,
+         state_dict_adapter=Qwen3StateDictAdapter,
+     )
+diff --git a/torchtitan/models/qwen3/model/args.py b/torchtitan/models/qwen3/model/args.py
+index 5fd98fdc..a9019e1e 100644
+--- a/torchtitan/models/qwen3/model/args.py
++++ b/torchtitan/models/qwen3/model/args.py
+@@ -47,6 +47,10 @@ class Qwen3ModelArgs(BaseModelArgs):
+     moe_inter_dim: int = 768
+     moe_args: MoEArgs = field(default_factory=MoEArgs)
+ 
++    # chunkloss
++    use_chunkloss: bool = True
++    chunk_size : int = 1024
++
+     def update_from_config(self, job_config: JobConfig, **kwargs) -> None:
+         seq_len = job_config.training.seq_len
+         if seq_len > self.max_seq_len:
+diff --git a/torchtitan/models/qwen3/model/model.py b/torchtitan/models/qwen3/model/model.py
+index 32c98342..7ae27ab4 100644
+--- a/torchtitan/models/qwen3/model/model.py
++++ b/torchtitan/models/qwen3/model/model.py
+@@ -491,5 +491,9 @@ class Qwen3Model(nn.Module, ModelProtocol):
+             h = layer(h, self.rope_cache, attention_masks)
+ 
+         h = self.norm(h) if self.norm else h
+-        output = self.output(h) if self.output else h
+-        return output
++
++        if self.model_args.use_chunkloss:
++            return h
++        else: 
++            output = self.output(h) if self.output else h
++            return output
+diff --git a/torchtitan/train.py b/torchtitan/train.py
+index 8fd2f8a8..a8369ea3 100644
+--- a/torchtitan/train.py
++++ b/torchtitan/train.py
+@@ -483,10 +483,16 @@ class Trainer(torch.distributed.checkpoint.stateful.Stateful):
+             with self.train_context(optional_context_parallel_ctx):
+                 assert len(model_parts) == 1
+                 with self.maybe_enable_amp:
+-                    pred = model_parts[0](inputs, **extra_inputs, **extra_kwargs)
+-                    loss = self.loss_fn(pred, labels)
+-                # need to free pred before bwd to avoid peaking memory
+-                del pred
++                    if self.model_args.use_chunkloss:
++                        hidden_states = model_parts[0](inputs, **extra_inputs, **extra_kwargs)
++                        loss = self.loss_fn(hidden_states, model_parts[0].output.weight, labels, self.model_args.chunk_size, self.job_config.training.local_batch_size)
++                        del hidden_states
++                    else:
++                        pred = model_parts[0](inputs, **extra_inputs, **extra_kwargs)
++                        loss = self.loss_fn(pred, labels)
++                        # need to free pred before bwd to avoid peaking memory
++                        del pred
++
+                 loss.backward()
+ 
+         return loss
