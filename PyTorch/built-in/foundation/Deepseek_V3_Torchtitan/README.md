@@ -20,7 +20,7 @@
 
 | CANN| torch | torch_npu | torchtitan | triton-ascend |
 | --- | --- | --- | --- | --- |
-| 8.3.RC1.B130 | 2.9.0 | 2.9.0.dev20251120 | 0.2.0 | 3.2.0rc3 |
+| 8.5.0.B120 | 2.9.0 | 2.9.0.post1.dev20260108 | 0.2.0 | 3.4.0.dev2026010713 |
 
 ### 昇腾CANN安装配置
 
@@ -43,10 +43,10 @@ npu-smi info
 执行以下命令确认CANN是否安装以及对应版本，以下示例为默认安装路径，实际路径可能不同：
 
 ```bash
-cat /usr/local/Ascend/ascend-toolkit/latest/version.cfg
+cat /usr/local/Ascend/ascend-toolkit/latest/aarch64-linux/ascend_toolkit_install.info
 # output e.g.
-# # version: 1.0
-# runtime_running_version=[8.3.0.1.200:8.3.RC1]
+# package_name=Ascend-cann-toolkit
+# version: 8.5.0
 # ...
 ```
 
@@ -60,7 +60,7 @@ cat /usr/local/Ascend/ascend-toolkit/latest/version.cfg
 
 ### 安装triton-ascend
 
-安装triton-ascend>=3.2.0rc3：
+安装triton-ascend：
 
 ```bash
 pip install triton-ascend
@@ -95,7 +95,7 @@ pip install scipy
 pip install decorator
 pip install numpy==1.2x
 # Install torch-npu
-pip install torch_npu==2.9.0.dev20251120 --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi
+pip install torch_npu==2.9.0.post1.dev20260108 --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi
 
 # Install triton-ascend
 pip install triton-ascend
@@ -111,6 +111,7 @@ export PYTHONPATH=`pwd`/torchtitan/:$PYTHONPATH
 ## 补丁文件说明
 
 将`torchtitan_npu_patch.py`添加至torchtitan根目录`torchtitan/train.py`同级目录下，在`train.py`开头添加
+注：补丁文件`torchtitan_npu_patch.py`与本`README.md`在同一目录下
 
 ```python
 from . import torchtitan_npu_patch
@@ -201,6 +202,63 @@ enable=false #目前版本尚不支持compile选项，相应配置应为false
 components = ["model", "loss"]
 ```
 
+deepseek_v3_16b HSDP2+TP2+EP4训练配置为
+
+```toml
+[training]
+local_batch_size = 4 #Atlas 800T A2单机8卡开箱训练配置会OOM，需减小batch_size与seq_len拉起实验
+seq_len = 2048
+
+[parallelism]
+data_parallel_replicate_degree = 2
+data_parallel_shard_degree = -1
+fsdp_reshard_after_forward = "default" # default / never / always
+tensor_parallel_degree = 2
+enable_async_tensor_parallel = false
+pipeline_parallel_degree = 1
+pipeline_parallel_schedule = "Interleaved1F1B"
+expert_parallel_degree = 4
+expert_tensor_parallel_degree = 1
+
+[compile]
+enable=false #目前版本尚不支持compile选项，相应配置应为false
+components = ["model", "loss"]
+```
+
+deepseek_v3_16b SAC=none, FSDP2+TP2+EP4+PP2-ZBVZeroBubble训练配置为
+
+```toml
+[training]
+local_batch_size = 4 #Atlas 800T A2单机8卡开箱训练配置会OOM，需减小batch_size与seq_len拉起实验
+seq_len = 2048
+
+[parallelism]
+data_parallel_replicate_degree = 1
+data_parallel_shard_degree = -1
+fsdp_reshard_after_forward = "default" # default / never / always
+tensor_parallel_degree = 2
+enable_async_tensor_parallel = false
+pipeline_parallel_degree = 2
+pipeline_parallel_schedule = "ZBVZeroBubble" #该项配置为ZBVZeroBubble后需将SAC设置为none,其他配置对SAC无影响
+expert_parallel_degree = 4
+expert_tensor_parallel_degree = 1
+
+[activation_checkpoint]
+mode = "none"  #["none", "selective", "full"] 上述配置需将该项配置为none，否则会报错，GPU存在同样现象
+selective_ac_option = 'op'  # 'int' = ac every positive int layer or 'op', ac based on ops policy
+
+[compile]
+enable=false #目前版本尚不支持compile选项，相应配置应为false
+components = ["model", "loss"]
+```
+
+使用PP并行只会在模型划分好的最后一个stage输出loss，以上述PP=2为例，在双节点上执行上述并行策略时，不同的模型stage会被放置在不同的节点上，因此只会在一个节点上有正确的loss输出，使用上述PP并行可在启动文件`run_train.sh`将输出的rank号修改为如下形式，会在主节点上输出正常loss
+
+```toml
+export LOG_RANK=${LOG_RANK:-4}
+```
+
+
 在启动文件`run_train.sh`中修改config_file
 
 ```bash
@@ -254,4 +312,16 @@ source /usr/local/Ascend/nnal/atb/set_env.sh
 ```bash
 # cd torchtitan source root
 bash ./run_train.sh
+```
+
+通过修改`run_train.sh`中`torchrun`命令可运行双机任务，训练时先运行主节点脚本再运行副节点脚本，具体修改方法如下
+
+主节点配置
+```bash
+torchrun --nnodes 2 --node_rank 0 --local-ranks-filter ${LOG_RANK} --nproc_per_node=${NGPU} --master_addr="master_node_address" --master_port 29500 -m ${TRAIN_FILE} --job.config_file ${CONFIG_FILE} "$@"
+```
+
+副节点配置
+```bash
+torchrun --nnodes 2 --node_rank 1 --local-ranks-filter ${LOG_RANK} --nproc_per_node=${NGPU} --master_addr="master_node_address" --master_port 29500 -m ${TRAIN_FILE} --job.config_file ${CONFIG_FILE} "$@"
 ```

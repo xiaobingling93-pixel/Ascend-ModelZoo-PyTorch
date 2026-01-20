@@ -126,7 +126,7 @@
 import os
 import time
 import subprocess
-from typing import Callable, cast, NamedTuple, Optional, Union
+from typing import Any, Optional, Union
 import contextlib
 import torchtitan
 import torch
@@ -145,6 +145,8 @@ from torch.distributed._functional_collectives import (
 )
 from torchtitan.models.qwen3.infra import parallelize
 import torch.nn as nn
+import torch.nn.functional as F
+from torch.distributed.pipelining.schedules import PipelineScheduleMulti
 from torch.distributed.device_mesh import DeviceMesh
 from torch.distributed.tensor import Replicate, Shard
 from torch.distributed.tensor.parallel import (
@@ -318,6 +320,9 @@ def update_from_config(self, job_config: JobConfig, **kwargs) -> None:
         )
     self.max_seq_len = seq_len
     
+    if job_config.parallelism.pipeline_parallel_degree > 1 and job_config.parallelism.pipeline_parallel_schedule == "ZBVZeroBubble":
+        self.moe_args.use_grouped_mm = False
+
     if job_config.parallelism.context_parallel_degree > 1 and self.use_flex_attn:
         raise NotImplementedError(
             "CP support for FlexAttention is still in progress."
@@ -375,7 +380,81 @@ def forward(
         num_tokens_per_expert,
     )
 
+
+##patch for used npu_grouped_matmul
+def _run_experts_grouped_mm(
+    w1: torch.Tensor,
+    w2: torch.Tensor,
+    w3: torch.Tensor,
+    x: torch.Tensor,
+    num_tokens_per_expert: torch.Tensor | None,
+) -> torch.Tensor:
+    group_list = num_tokens_per_expert.to(torch.int64)
+    group_list_type = 1
+    w1_T = w1.bfloat16().transpose(-2, -1)
+    h = NPUGroupedLinearGMM.apply(x.bfloat16(), group_list, group_list_type, w1.bfloat16(), *w1_T)
+    h = F.silu(h)
+    w3_T = w3.bfloat16().transpose(-2, -1)
+    h = h * NPUGroupedLinearGMM.apply(x.bfloat16(), group_list, group_list_type, w3.bfloat16(), *w3_T)
+    w2_T = w2.bfloat16().transpose(-2, -1)
+    out = NPUGroupedLinearGMM.apply(h.bfloat16(), group_list, group_list_type, w2.bfloat16(), *w2_T)
+    return out
+
+
+class NPUGroupedLinearGMM(torch.autograd.Function):
+    @staticmethod
+    def forward(ctx, input_tensor: torch.Tensor,
+                m_split=None,
+                group_list_type=None,
+                ori_weight=None,
+                *weight_input_T) -> torch.Tensor:
+        if not isinstance(m_split, torch.Tensor):
+            ctx.group_list = torch.tensor(m_split, device='npu', dtype=torch.int64)
+        else:
+            ctx.group_list = m_split
+        weight_T = weight_input_T
+        ctx.group_list_type = group_list_type
+        fwd_output = torch_npu.npu_grouped_matmul([input_tensor], weight_T, bias=None, group_list=ctx.group_list,
+                                                  split_item=2, group_type=0, group_list_type=ctx.group_list_type)[0]
+        ctx.save_for_backward(input_tensor, *ori_weight)
+        return fwd_output
+
+    @staticmethod
+    def backward(ctx, grad_output):
+        group_list = ctx.group_list
+        saved_tensors = ctx.saved_tensors
+        inp = saved_tensors[0]
+        weight = saved_tensors[1:]
+        group_list_type = ctx.group_list_type
+        grad = torch_npu.npu_grouped_matmul([grad_output], weight, bias=None, group_list=group_list,
+                                            split_item=2, group_type=0, group_list_type=group_list_type)[0]
+        # K spilt gmm.
+        grad_weight = torch_npu.npu_grouped_matmul([inp.T], [grad_output], bias=None, group_list=group_list,
+                                    split_item=3, group_type=2, group_list_type=group_list_type)[0]
+        
+        return grad, None, None, None, *grad_weight
+
+
 ##=====================patch for torch==========================
+
+##PP—ZBVZeroBubble patch
+def _initialize_stages(self, args: tuple[Any, ...], kwargs):
+    # may be 'none' value (if this stage sends its output shapes to the next stage via P2P)
+    # or real value (if this stage and next stage are on the same device)
+    next_stage_args: tuple[Any, ...] = tuple()
+    for stage in self._stages:
+        if stage.is_first:
+            next_stage_args = stage._prepare_forward_infra(
+                self._n_microbatches, args, kwargs
+            )
+        else:
+            next_stage_args = stage._prepare_forward_infra(
+                self._n_microbatches, next_stage_args, kwargs
+            )
+
+        if self._has_backward:
+            stage._prepare_backward_infra(self._n_microbatches)
+    self._stages_initialized = True
 
 
 ## EP patch
@@ -439,6 +518,23 @@ aten = torch.ops.aten
 if aten.matmul.default in DTensor._op_dispatcher.sharding_propagator.op_strategy_funcs:
     DTensor._op_dispatcher.sharding_propagator.op_strategy_funcs.pop(aten.matmul.default)  # TP=2
 
+
+class RMSNorm(nn.Module):
+    def __init__(self, dim: int, eps: float = 1e-6):
+        super().__init__()
+        self.eps = eps
+        self.weight = nn.Parameter(torch.ones(dim))
+
+    def _norm(self, x: torch.Tensor):
+        return x * torch.rsqrt(x.pow(2).mean(-1, keepdim=True) + self.eps)
+
+    def forward(self, x: torch.Tensor):
+        return torch_npu.npu_rms_norm(x, self.weight, epsilon=self.eps)[0]
+
+    def reset_parameters(self):
+        torch.nn.init.ones_(self.weight) 
+
+
 ##=====================environment variable configuration=======================
 
 
@@ -461,6 +557,9 @@ def set_environ_variable():
 set_environ_variable()
 torchtitan.tools.utils.get_peak_flops = get_peak_flops
 profiling.maybe_enable_profiling = maybe_enable_profiling
+PipelineScheduleMulti._initialize_stages = _initialize_stages
 torch.distributed.fsdp._fully_shard._fsdp_collectives._get_gradient_divide_factors = _get_gradient_divide_factors  # EP=8
 DeepSeekV3ModelArgs.update_from_config = update_from_config
 TokenReorderer.forward = forward
+torchtitan.models.moe.moe._run_experts_grouped_mm = _run_experts_grouped_mm
+nn.RMSNorm = RMSNorm
