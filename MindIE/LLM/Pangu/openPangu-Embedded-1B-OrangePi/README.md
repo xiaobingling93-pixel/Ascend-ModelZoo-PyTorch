@@ -137,7 +137,7 @@ pip install torch_npu-2.1.0.post13-cp310-cp310-manylinux_2_17_aarch64.manylinux2
 
     | 包名                                                         |
     | ------------------------------------------------------------ |
-    | Ascend-mindie-atb-models_2.1.RC1_linux-aarch64_py310_torch2.1.0-abi0.tar.gz |
+    | Ascend-mindie-atb-models_2.2.T10_linux-aarch64_py310_torch2.1.0-abi0.tar.gz |
 
   - 将文件放置在\${working_dir}路径下
   - 解压
