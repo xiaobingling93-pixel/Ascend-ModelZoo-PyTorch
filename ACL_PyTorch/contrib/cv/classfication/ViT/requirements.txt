@@ -1,9 +1,9 @@
 onnx==1.15.0
 onnxsim==0.4.36
 torch==2.1.0
+torch_npu==2.1.0.post13
 torchvision>=0.5.0
 pyyaml
 timm==0.6.7
-onnx-simplifier==0.3.6
 tqdm
 scipy

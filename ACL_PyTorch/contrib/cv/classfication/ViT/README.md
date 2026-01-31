@@ -66,10 +66,11 @@ mode_name = [
 
   | 配套                                                         | 版本    | 环境准备指导                                                 |
   | ------------------------------------------------------------ | ------- | ------------------------------------------------------------ |
-  | 固件与驱动                                                   | 22.0.4  | [Pytorch框架推理环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies) |
-  | CANN                                                         | 6.0.RC1 | -                                                            |
-  | Python                                                       | 3.7.5   | -                                                            |
-  | PyTorch                                                      | 1.8.0+  | -                                                            |
+  | 固件与驱动                                                   | 25.3.rc1  | [Pytorch框架推理环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies) |
+  | CANN                                                         | 8.3.RC2 | -                                                            |
+  | Python                                                       | 3.11.10   | -                                                            |
+  | PyTorch                                                      | 2.1.0  | -                                                            |
+  | Ascend Extension PyTorch                                     | 2.1.0.post13 | -                                                            |
   | 说明：Atlas 300I Duo 推理卡请以CANN版本选择实际固件与驱动版本。 | \       | \                                                            |
 
 
@@ -94,7 +95,7 @@ mode_name = [
 
 3. 安装改图工具 auto-optimizer
    ```bash
-   git clone https://gitcode.com/ascend/msadvisor.git
+   git clone https://github.com/Ascend/msadvisor.git
    cd msadvisor/auto-optimizer
    pip3 install -r requirements.txt
    python3 setup.py install
@@ -196,7 +197,7 @@ mode_name = [
 
          ```
          npu-smi info
-         #该设备芯片名为Ascend310P3 （自行替换）
+         chip_name=Ascend310P3 #该设备芯片名为Ascend310P3 （自行替换）
          回显如下：
          +-------------------|-----------------|------------------------------------------------------+
          | NPU     Name      | Health          | Power(W)     Temp(C)           Hugepages-Usage(page) |
@@ -281,15 +282,23 @@ mode_name = [
 |:------:|:-------------------:|:-----------:|:------:|:----------:|:---------:|:-------:|
 |   300I Pro|  ViT_base_patch8_224|            1|ImageNet| top1: 85.80|top1: 85.58|    76.42|
 |   300I Pro|  ViT_base_patch8_224| 8 (最优性能)|ImageNet| top1: 85.80|top1: 85.58|    98.48|
-|   300I Pro| ViT_base_patch16_224|            1|ImageNet| top1: 84.53|top1: 84.16|   342.34|
-|   300I Pro| ViT_base_patch16_224|16 (最优性能)|ImageNet| top1: 84.53|top1: 84.16|   660.64|
-|   300I Pro| ViT_base_patch16_384|            1|ImageNet| top1: 86.01|top1: 85.84|   108.87|
-|   300I Pro| ViT_base_patch16_384| 8 (最优性能)|ImageNet| top1: 86.01|top1: 85.84|   151.01|
+|   300I Pro| ViT_base_patch16_224|            1|ImageNet| top1: 84.20|top1: 84.16|   342.34|
+|   300I Pro| ViT_base_patch16_224|16 (最优性能)|ImageNet| top1: 84.20|top1: 84.16|   660.64|
+|   300I Pro| ViT_base_patch16_384|            1|ImageNet| top1: 85.83|top1: 85.84|   108.87|
+|   300I Pro| ViT_base_patch16_384| 8 (最优性能)|ImageNet| top1: 85.83|top1: 85.84|   151.01|
 |   300I Pro| ViT_base_patch32_224|            1|ImageNet| top1: 80.72|top1: 80.63|   431.89|
 |   300I Pro| ViT_base_patch32_224|64 (最优性能)|ImageNet| top1: 80.72|top1: 80.63|  1679.63|
 |   300I Pro| ViT_base_patch32_384|            1|ImageNet| top1: 83.35|top1: 83.29|   267.01|
 |   300I Pro| ViT_base_patch32_384|32 (最优性能)|ImageNet| top1: 83.35|top1: 83.29|   596.55|
 |   300I Pro|ViT_large_patch16_224|            1|ImageNet| top1: 85.84|top1: 85.62|   119.80|
 |   300I Pro|ViT_large_patch16_224| 4 (最优性能)|ImageNet| top1: 85.84|top1: 85.62|   166.43|
+|   300I Duo| ViT_base_patch16_224|            1|ImageNet| top1: 84.20|top1: 84.16|   351.32|
+|   300I Duo| ViT_base_patch16_224| 8 (最优性能)|ImageNet| top1: 84.20|top1: 84.16|   661.05|
+|   300I Duo| ViT_base_patch16_384|            1|ImageNet| top1: 85.83|top1: 85.84|   110.54|
+|   300I Duo| ViT_base_patch16_384| 8 (最优性能)|ImageNet| top1: 85.83|top1: 85.84|   153.29|
+|    310P RC| ViT_base_patch16_224|            1|ImageNet| top1: 84.20|top1: 84.16|   364.69|
+|    310P RC| ViT_base_patch16_224| 8 (最优性能)|ImageNet| top1: 84.20|top1: 84.16|   683.75|
+|    310P RC| ViT_base_patch16_384|            1|ImageNet| top1: 85.83|top1: 85.84|   112.73|
+|    310P RC| ViT_base_patch16_384| 8 (最优性能)|ImageNet| top1: 85.83|top1: 85.84|   158.43|
 
 > 完整性能数据请查阅文件：`performances.md`
