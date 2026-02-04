@@ -25,6 +25,9 @@ from ais_bench.infer.interface import InferSession
 from tqdm import trange
 
 
+SAMPLE_RATE = 16000
+
+
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -73,7 +76,7 @@ def get_args():
     )
 
     parser.add_argument(
-        "sound_file",
+        "--sound_file",
         type=str,
         help="Path to the test wave",
     )
@@ -121,8 +124,7 @@ class OMModel:
 
         self.is_multilingual = int(model_cfg["is_multilingual"]) == 1
 
-    def get_self_cache(self):
-        batch_size = 1
+    def get_self_cache(self, batch_size=1):
         n_layer_self_k_cache = np.zeros((self.n_text_layer, batch_size,
                                          self.n_text_ctx, self.n_text_state),
                                         dtype=np.float32)
@@ -147,19 +149,17 @@ class OMModel:
         logits[self.translate] = float("-inf")
 
     def detect_language(self, n_layer_cross_k: torch.Tensor,
-                        n_layer_cross_v: torch.Tensor) -> int:
+                        n_layer_cross_v: torch.Tensor,
+                        custom_sizes) -> int:
         tokens = np.array([[self.sot]], dtype=np.int64)
         offset = np.zeros(1, dtype=np.int64)
-        n_layer_self_k_cache, n_layer_self_v_cache = self.get_self_cache()
 
-        logits, n_layer_self_k_cache, n_layer_self_v_cache = self.run_decoder(
-            tokens=tokens,
-            n_layer_self_k_cache=n_layer_self_k_cache,
-            n_layer_self_v_cache=n_layer_self_v_cache,
-            n_layer_cross_k=n_layer_cross_k,
-            n_layer_cross_v=n_layer_cross_v,
-            offset=offset,
-        )
+        batch_size = n_layer_cross_k.shape[1] # n_text_layer x batch_size x mel_len x n_text_state
+        n_layer_self_k_cache, n_layer_self_v_cache = self.get_self_cache(batch_size)
+
+        feeds = [tokens, n_layer_self_k_cache, n_layer_self_v_cache,
+                 n_layer_cross_k, n_layer_cross_v, offset]
+        logits = self.run_decoder(feeds, custom_sizes)[0]
         logits = logits.reshape(-1)
         mask = np.ones(logits.shape[0], dtype=np.int64)
         mask[self.all_language_tokens] = 0
@@ -167,6 +167,14 @@ class OMModel:
         lang_id = logits.argmax()
         print("detected language: ", self.id2lang[lang_id])
         return lang_id
+
+    def run_decoder(self, feeds, custom_sizes):
+        logits, n_layer_self_k_cache, n_layer_self_v_cache = self.decoder.infer(
+            feeds,
+            mode="dymshape",
+            custom_sizes=custom_sizes
+        )
+        return logits, n_layer_self_k_cache, n_layer_self_v_cache
 
 
 def load_tokens(filename):
@@ -188,14 +196,14 @@ def compute_features(filename: str) -> torch.Tensor:
     """
     wave, sample_rate = torchaudio.load(filename)
     audio = wave[0].contiguous()  # only use the first channel
-    if sample_rate != 16000:  #sample rate should be 16000, otherwise it will be resample
+    if sample_rate != SAMPLE_RATE:  # sample rate should be 16000, otherwise it will be resample
         audio = torchaudio.functional.resample(audio,
                                                orig_freq=sample_rate,
-                                               new_freq=16000)
+                                               new_freq=SAMPLE_RATE)
 
     features = []
-    online_whisper_fbank = knf.OnlineWhisperFbank(knf.FrameExtractionOptions())
-    online_whisper_fbank.accept_waveform(16000, audio.numpy())
+    online_whisper_fbank = knf.OnlineWhisperFbank(knf.WhisperFeatureOptions())
+    online_whisper_fbank.accept_waveform(SAMPLE_RATE, audio.numpy())
     online_whisper_fbank.input_finished()
     for i in range(online_whisper_fbank.num_frames_ready):
         f = online_whisper_fbank.get_frame(i)
@@ -229,10 +237,11 @@ def main():
     args = get_args()
 
     mel = compute_features(args.sound_file)
+    batch_size = mel.shape[0]
 
     model = OMModel(args.model_cfg, args.encoder, args.decoder)
-    n_layer_cross_k_bytesize = 6 * mel.shape[0] * math.ceil(
-        mel.shape[2]) * 512 * 4
+    n_layer_cross_k_bytesize = model.n_text_ctx * batch_size * math.ceil(
+        mel.shape[2]) * model.n_text_ctx * 4
     n_layer_cross_v_bytesize = n_layer_cross_k_bytesize
     n_layer_cross_k, n_layer_cross_v = model.encoder.infer(
         [
@@ -240,6 +249,11 @@ def main():
         ],
         mode='dymshape',
         custom_sizes=[n_layer_cross_k_bytesize, n_layer_cross_v_bytesize])
+
+    logits_bytesize = 10000000 # a large value to avoid error during inference
+    n_layer_self_k_cache_bytesize = model.n_text_layer * batch_size * model.n_text_ctx * model.n_text_state * 4
+    n_layer_self_v_cache_bytesize = n_layer_self_k_cache_bytesize
+    custom_sizes = [logits_bytesize, n_layer_self_k_cache_bytesize, n_layer_self_v_cache_bytesize]
     
     if args.language is not None:
         if model.is_multilingual is False and args.language != "en":
@@ -251,11 +265,11 @@ def main():
             print(f"Valid values are: {list(model.lang2id.keys())}")
             return
 
-        # [sot, lang, task, notimestamps]
+        # sot_sequence format: [sot, lang, task, notimestamps]
         model.sot_sequence[1] = model.lang2id[args.language]
     elif model.is_multilingual is True:
         print("detecting language")
-        lang = model.detect_language(n_layer_cross_k, n_layer_cross_v)
+        lang = model.detect_language(n_layer_cross_k, n_layer_cross_v, custom_sizes)
         model.sot_sequence[1] = lang
 
     if args.task is not None:
@@ -269,23 +283,17 @@ def main():
         if args.task == "translate":
             model.sot_sequence[2] = model.translate
 
-    n_layer_self_k_cache, n_layer_self_v_cache = model.get_self_cache()
+    n_layer_self_k_cache, n_layer_self_v_cache = model.get_self_cache(batch_size)
     tokens = np.array([model.sot_sequence], dtype=np.int64)
     offset = np.zeros(1, dtype=np.int64)
 
-    logits_bytesize = mel.shape[0] * 2 * model.vocab_size * 4
-    n_layer_self_k_cache_bytesize = 6 * mel.shape[0] * 448 * 512 * 4
-    n_layer_self_v_cache_bytesize = n_layer_self_k_cache_bytesize
-    logits, n_layer_self_k_cache, n_layer_self_v_cache = model.decoder.infer(
+    logits, n_layer_self_k_cache, n_layer_self_v_cache = model.run_decoder(
         [
             tokens, n_layer_self_k_cache, n_layer_self_v_cache,
             n_layer_cross_k, n_layer_cross_v, offset
         ],
-        mode="dymshape",
-        custom_sizes=[
-            logits_bytesize, n_layer_self_k_cache_bytesize,
-            n_layer_self_v_cache_bytesize
-        ])
+        custom_sizes
+    )
 
     offset += len(model.sot_sequence)
 
@@ -293,23 +301,20 @@ def main():
     model.suppress_tokens(logits, is_initial=True)
     max_token_id = logits.argmax(axis=-1)
     results = []
-    for i in trange(model.n_text_ctx):
+    for _ in trange(model.n_text_ctx):
         if max_token_id == model.eot:
             break
         results.append(max_token_id)
 
         tokens = np.array([[results[-1]]])
 
-        logits, n_layer_self_k_cache, n_layer_self_v_cache = model.decoder.infer(
+        logits, n_layer_self_k_cache, n_layer_self_v_cache = model.run_decoder(
             [
                 tokens, n_layer_self_k_cache, n_layer_self_v_cache,
                 n_layer_cross_k, n_layer_cross_v, offset
             ],
-            mode="dymshape",
-            custom_sizes=[
-                logits_bytesize, n_layer_self_k_cache_bytesize,
-                n_layer_self_v_cache_bytesize
-            ])
+            custom_sizes
+        )
         offset += 1
         logits = logits[0, -1]
         model.suppress_tokens(logits, is_initial=False)

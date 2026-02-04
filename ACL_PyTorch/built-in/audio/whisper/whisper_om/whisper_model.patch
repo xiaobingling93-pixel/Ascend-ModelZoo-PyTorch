@@ -1,0 +1,10 @@
+--- model.py	2025-12-29 20:06:54
++++ model_modified.py	2025-12-29 20:14:32
+@@ -120,6 +120,7 @@
+         k = k.view(*k.shape[:2], self.n_head, -1).permute(0, 2, 1, 3)
+         v = v.view(*v.shape[:2], self.n_head, -1).permute(0, 2, 1, 3)
+ 
++        n_ctx = n_ctx.item() if isinstance(n_ctx, torch.Tensor) else int(n_ctx)
+         if SDPA_AVAILABLE and MultiHeadAttention.use_sdpa:
+             a = scaled_dot_product_attention(
+                 q, k, v, is_causal=mask is not None and n_ctx > 1

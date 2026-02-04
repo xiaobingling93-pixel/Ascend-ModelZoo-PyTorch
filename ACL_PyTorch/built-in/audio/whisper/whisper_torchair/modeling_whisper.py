@@ -481,7 +481,7 @@ def rewrite_whisper_logits(n_layer):
     Whisper.logits = _whisper_logits
 
 
-def get_whisper_model(whisper_model_path, whisper_decode_options, device):
+def get_whisper_model(whisper_model_path, whisper_decode_options, device='npu'):
     model = whisper.load_model(whisper_model_path)
     model = modify_model(model, whisper_decode_options, device)
     rewrite_inference_logits(model.dims.n_text_layer)

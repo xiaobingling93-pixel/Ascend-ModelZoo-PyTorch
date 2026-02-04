@@ -101,11 +101,13 @@ def load_audio(file: str, sr: int = SAMPLE_RATE):
 
 @lru_cache(maxsize=None)
 def mel_filters(device, n_mels: int) -> torch.Tensor:
-    mel_filters_path = os.path.join(os.path.dirname(__file__), "mel_filters.npz")
+    mel_filters_path = os.path.join(os.path.dirname(__file__), f"mel_filters_{n_mels}.npz")
+    mel_key = f"mel_{n_mels}"
+    mel_filter = librosa.filters.mel(sr=16000, n_fft=400, n_mels=n_mels)
     if not os.path.exists(mel_filters_path):
         np.savez_compressed(
             mel_filters_path,
-            mel_128=librosa.filters.mel(sr=16000, n_fft=400, n_mels=128),
+            **{mel_key: mel_filter}
         )
     if n_mels not in [80, 128]:
         raise ValueError(f"Unsupported n_mels: {n_mels}")

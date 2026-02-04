@@ -1,0 +1,7 @@
+torch==2.5.1
+torchvision==0.20.1
+torchaudio==2.5.1
+torch_npu==2.5.1
+openai-whisper
+kaldi_native_fbank
+numpy==1.26.4

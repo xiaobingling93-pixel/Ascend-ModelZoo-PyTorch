@@ -4827,15 +4827,15 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100409
         </td><td>
-        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/audio/whisper"> whisper </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/audio/whisper/whisper_torchair"> whisper-base </a>
         </td>
-        <td>librispeech_asr_dummy</td>
+        <td>librispeech dev clean</td>
         <td></td>
-        <td>8.21%</td>
+        <td>8.52%</td>
         <td></td>
         <td></td>
         <td></td>
-        <td>67.32(bs1)</td>
+        <td>403(bs16)</td>
     <td nowrap="nowrap">bs x 80 x 3000</td>
     </tr>
     <tr>
@@ -4855,7 +4855,7 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
     <tr>
         <td> 100411
         </td><td>
-        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/audio/whisperx"> whisperx </a>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/audio/whisper/whisper_torchair"> whisper-large-v3 </a>
         </td>
         <td>librispeech dev clean</td>
         <td></td>
@@ -4864,6 +4864,20 @@ python3 get_modelID.py --model your_model_name</strong><br /></p>
         <td></td>
         <td></td>
         <td>70（转录比）</td>
+    <td nowrap="nowrap">多尺度</td>
+    </tr>
+    <tr>
+        <td> 100412
+        </td><td>
+        <a href="https://gitcode.com/ascend/ModelZoo-PyTorch/tree/master/ACL_PyTorch/built-in/audio/whisper/whisper_om"> whisper-base-en </a>
+        </td>
+        <td>随机数</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>252(bs2)</td>
+        <td></td>
     <td nowrap="nowrap">多尺度</td>
     </tr>
 </table>

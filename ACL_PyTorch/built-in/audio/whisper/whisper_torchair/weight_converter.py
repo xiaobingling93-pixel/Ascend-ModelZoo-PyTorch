@@ -49,6 +49,45 @@ replace_map = {
     "model.decoder.embed_tokens": "decoder.token_embedding"
 }
 
+model_dims_map = {
+    "large-v3": {
+        "n_mels": 128,
+        "n_vocab": 51866,
+        "n_audio_ctx": 1500,
+        "n_audio_state": 1280,
+        "n_audio_head": 20,
+        "n_audio_layer": 32,
+        "n_text_ctx": 448,
+        "n_text_state": 1280,
+        "n_text_head": 20,
+        "n_text_layer": 32
+    },
+    "large-v3-turbo": {
+        "n_mels": 128,
+        "n_vocab": 51866,
+        "n_audio_ctx": 1500,
+        "n_audio_state": 1280,
+        "n_audio_head": 20,
+        "n_audio_layer": 32,
+        "n_text_ctx": 448,
+        "n_text_state": 1280,
+        "n_text_head": 20,
+        "n_text_layer": 4
+    },
+    "base": {
+        "n_mels": 80,
+        "n_vocab": 51865,
+        "n_audio_ctx": 1500,
+        "n_audio_state": 512,
+        "n_audio_head": 8,
+        "n_audio_layer": 6,
+        "n_text_ctx": 448,
+        "n_text_state": 512,
+        "n_text_head": 8,
+        "n_text_layer": 6
+    }
+}
+
 
 def convert_key(old_key):
     new_key = old_key
@@ -69,7 +108,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--model_name",
                         type=str,
-                        choices=["large-v3", "large-v3-turbo"],
+                        choices=["large-v3", "large-v3-turbo", "base"],
                         default="large-v3",
                         help="choose model, supported models: large-v3 or large-v3-turbo")
     parser.add_argument("--model_path", type=str, default="./weight/whisper-large-v3")
@@ -89,18 +128,7 @@ if __name__ == '__main__':
         whisper_safetensor2 = load_file(model_file2)
         whisper_safetensor = {**whisper_safetensor1, **whisper_safetensor2}
 
-        dims_info = {
-            "n_mels": 128,
-            "n_vocab": 51866,
-            "n_audio_ctx": 1500,
-            "n_audio_state": 1280,
-            "n_audio_head": 20,
-            "n_audio_layer": 32,
-            "n_text_ctx": 448,
-            "n_text_state": 1280,
-            "n_text_head": 20,
-            "n_text_layer": 32
-        }
+        dims_info = model_dims_map["large-v3"]
     else:
         model_file = f"{args.model_path}/model.safetensors"
 
@@ -109,18 +137,7 @@ if __name__ == '__main__':
 
         whisper_safetensor = load_file(model_file)
 
-        dims_info = {
-            "n_mels": 128,
-            "n_vocab": 51866,
-            "n_audio_ctx": 1500,
-            "n_audio_state": 1280,
-            "n_audio_head": 20,
-            "n_audio_layer": 32,
-            "n_text_ctx": 448,
-            "n_text_state": 1280,
-            "n_text_head": 20,
-            "n_text_layer": 4
-        }
+        dims_info = model_dims_map[args.model_name]
 
     model_state_dict = convert_safetensors_to_pt(whisper_safetensor)
     whisper_pt = {"dims": dims_info,

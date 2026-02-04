@@ -1,4 +1,4 @@
-# Whisper-推理指导
+# whisper-base.en-om推理指导
 
 
 
@@ -68,10 +68,10 @@ Whisper 是一个通用的语音识别模型。它在一个大型多样化音频
 
   | 配套                                                         | 版本    | 环境准备指导                                                 |
   | ------------------------------------------------------------ | ------- | ------------------------------------------------------------ |
-  | 固件与驱动                                                   | 22.0.3  | [Pytorch框架推理环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies) |
-  | CANN                                                         | 7.0.RC1 | -                                                            |
-  | Python                                                       | 3.9.0   | -                                                            |
-  | PyTorch                                                      | 1.10.1  | -                                                            |
+  | 固件与驱动                                                   | 24.1.rc3  | [Pytorch框架推理环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies) |
+  | CANN                                                         | 8.3.RC1 | -                                                            |
+  | Python                                                       | 3.11.10   | -                                                            |
+  | PyTorch                                                      | 2.5.1  | -                                                            |
   | 说明：Atlas 300I Duo 推理卡请以CANN版本选择实际固件与驱动版本。 | \       | \                                                            |
 
 
@@ -83,7 +83,7 @@ Whisper 是一个通用的语音识别模型。它在一个大型多样化音频
 1. 获取本仓库`OM`推理代码
 ```shell
    git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
-   cd ModelZoo-PyTorch/ACL_PyTorch/contrib/audio/Whisper/
+   cd ModelZoo-PyTorch/ACL_PyTorch/built-in/audio/whisper/whisper_om
 ```
 
 2. 安装依赖
@@ -123,19 +123,35 @@ Whisper
     下载[权重文件](https://openaipublic.azureedge.net/main/whisper/models/25a8566e1d0c1e2231d1c762132cd20e0f96a85d16145c3a00adf5d1ac670ead/base.en.pt)，以`base.en`为例，将下载的模型文件`base.en.pt`放在项目目录下。
 
 2. 导出`ONNX`模型
+   先给whisper打上patch：
+   ```
+   python3 patch_apply.py
+   ```
 
-   运行`pth2onnx.py`导出ONNX模型。原始模型中的配置信息与对应的`tokenizer`分别保存至`model_cfg.josn`和`tokens.txt `方便后续`om`模型推理时能读取对应的信息。由于whisper模型由`encoder`和`decoder`组成，且`encoder`和`decoder`需要进行`Cross Attention`操作，所以需要对模型进行修改，从而该脚本将会导出两个`ONNX `模型，即`encoder.onnx`和`decoder.onnx`。
+   运行`pth2onnx.py`导出ONNX模型。
+   ```
+   python3 pth2onnx.py --model base.en.pt --output_dir whisper_base_en
+   ```
+   原始模型中的配置信息与对应的`tokenizer`分别保存至`model_cfg.josn`和`tokens.txt `方便后续`om`模型推理时能读取对应的信息。由于whisper模型由`encoder`和`decoder`组成，且`encoder`和`decoder`需要进行`Cross Attention`操作，所以需要对模型进行修改，从而该脚本将会导出两个`ONNX `模型，即`encoder.onnx`和`decoder.onnx`。
 
    执行完这一步项目目录如下：
 
    ```
-   Whisper
-       ├── pth2onnx.py        
-       ├── om_val.py             
-       ├── encoder.onnx
-       ├── decoder.onnx
-       ├── model_cfg.json
-       └── tokens.txt
+   📁 whisper_om
+       ├── pth2onnx.py
+       ├── atc.sh
+       ├── om_val.py
+       ├── patch_apply.py
+       ├── whisper_model.patch
+       ├── 📁 whisper_base_en
+       |   ├── encoder.onnx
+       |   ├── decoder.onnx
+       |   ├── model_cfg.json
+       |   ├── tokens.txt
+       ├── requirements.txt
+       ├── modelzoo_level.txt
+       ├── README.md
+       └── LICENSE
    ```
 
 3. 使用`ATC`工具将`ONNX`模型转为`OM`模型。
@@ -170,23 +186,23 @@ Whisper
     运行`atc.sh`导出`OM`模型。
         
         ```shell
-        #运行脚本示例如下，可根据实际环境更改相应的参数
-        bash atc.sh --enccoder_model=encoder --decoder_model=decoder --bs=1 --output_dir=output --soc=Ascend310P3
+        #运行脚本示例如下，根据实际环境更改相应的参数，注意onnx文件路径参数不需要".onnx"后缀
+        bash atc.sh --encoder_model=path/to/encoder --decoder_model=path/to/decoder --bs=1 --config=path/to/model_cfg.json --output_dir=output --soc=Ascend310P3
         ```
         
         ```shell
         #encoder模型实际执行的atc转换命令
         atc --framework=5 --input_format=ND --log=error --soc_version=${soc}
             --model=${encoder_model}.onnx --output=${output_dir}/${encoder_model}_bs${bs} 
-            --input_shape="mel:${bs},80,250~3000"
+            --input_shape="mel:${bs},${n_mels},250~3000"
         ```
 
         ```shell
         #decoder模型实际执行的atc转换命令
         atc --framework=5 --input_format=ND --log=error --soc_version=${soc} \
             --model=${decoder_model}.onnx --output=${output_dir}/${decoder_model}_bs${bs} \
-            --input_shape="tokens:${bs},1~4;in_n_layer_self_k_cache:6,${bs},448,512; \
-            in_n_layer_self_k_cache:6,${bs},448,512;n_layer_cross_k:6,${bs},250~3000,512;n_layer_cross_v:6,${bs},250~3000,512;offset:1"
+            --input_shape="tokens:${bs},1~4;in_n_layer_self_k_cache:${n_text_layer},${bs},${n_text_ctx},${n_text_state}; \
+            in_n_layer_self_v_cache:${n_text_layer},${bs},${n_text_ctx},${n_text_state};n_layer_cross_k:${n_text_layer},${bs},250~3000,${n_text_state};n_layer_cross_v:${n_text_layer},${bs},250~3000,${n_text_state};offset:1"
         ```
         
         由于音频数据的长度不固定，再转`OM`模型时使用`~`来接受范围内的输入。除此之外，用户可以`padding`频谱长度，将动态值固定在一些档位，转而使用`--dynamic_dims`参数来接受动态输入。
@@ -211,30 +227,28 @@ Whisper
    运行`om_val.py`推理`OM`模型，默认为转录任务，模型将输入的语音文件转化为对应的文字。若使用的为多语言模型则可进行翻译任务，将其他语种的语音文件，翻译为英文的语音文件。
    
    ```shell
-   python3 om_val.py --encoder encoder_linux_x86_64.om \
-                     --decoder decoder_linux_x86_64.om \
+   python3 om_val.py --encoder encoder_linux_{arch}.om \
+                     --decoder decoder_linux_{arch}.om \
                      --tokens tokens.txt \
                      --model-cfg model_cfg.json \
-                     data/test.wav
+                     --sound_file data/test.wav
    ```
    
 3. 性能验证  
    可使用`ais_bench`推理工具的纯推理模式验证`OM`模型的性能，参考命令如下：
    
    ```
-   python3 -m ais_bench --model encoder_bs${bs}_linux_x86_64.om --loop 10 --dymShape "mel:${bs},80,3000" --outputSize "10000000"
+   python3 -m ais_bench --model encoder_bs${bs}_linux_{arch}.om --loop 10 --dymShape "mel:${bs},80,3000" --outputSize "10000000,10000000"
    ```
    ```
-   python3 -m ais_bench --model decoder_bs${bs}_linux_x86_64.om --dymShape "tokens:${bs},1;in_n_layer_self_k_cache:6,${bs},448,512;in_n_layer_self_v_cache:6,${bs},448,512;n_layer_cross_k:6,${bs},351,512;n_layer_cross_v:6,${bs},351,512;offset:1" --outputSize "10000000,10000000,1000000"
+   python3 -m ais_bench --model decoder_bs${bs}_linux_{arch}.om --loop 10 --dymShape "tokens:${bs},1;in_n_layer_self_k_cache:6,${bs},448,512;in_n_layer_self_v_cache:6,${bs},448,512;n_layer_cross_k:6,${bs},351,512;n_layer_cross_v:6,${bs},351,512;offset:1" --outputSize "100000000,100000000,10000000"
    ```
 
    # 模型推理性能&精度<a name="ZH-CN_TOPIC_0000001172201573"></a>
    | NPU芯片型号 | Batch Size |  mel_len|数据集  | throughout性能(encoder/decoder) |
    | :---------: | :--------: |:------:| :------: | :------------: |
-   | 300I Pro |     1      |  2000  |  随机数据 |  76.60/56.58   |
-   | 300I Pro |     1      |  1000  |  随机数据 |  184.52/57.11  |
-   | 300I Pro |     2      |  2000  |  随机数据 |  76.58/78.70   |
-   | 300I Pro |     2      |  1000  |  随机数据 |  203.29/80.05  |
-   | 300I Pro |     4      |  2000  |  随机数据 |  74.73/125.31  |
-   | 300I Pro |     4      |  1000  |  随机数据 |  194.89/130.61 |
+   | 300I Pro |     1      |  2000  |  随机数据 |  90.96/45.70   |
+   | 300I Pro |     1      |  1000  |  随机数据 |  204.26/50.12  |
+   | 300I Pro |     2      |  2000  |  随机数据 |  93.09/77.79   |
+   | 300I Pro |     2      |  1000  |  随机数据 |  252.22/83.18  |
    

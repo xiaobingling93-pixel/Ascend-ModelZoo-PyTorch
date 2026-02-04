@@ -118,6 +118,9 @@ if __name__ == '__main__':
             # 对Librispeech数据集中的音频进行推理
             data_path = f'{args.speech_path}/1919/142785'
             audio_files = collect_audio_files([data_path])[:args.num_audio_files]
+            if len(audio_files) == 0:
+                print(f"No valid audio files found in {data_path}, please check speech_path: {args.speech_path}")
+                exit()
             speech_data_list = list(map(load_audio, audio_files))
             speech_data = np.concatenate(speech_data_list)
             duration_seconds = 0

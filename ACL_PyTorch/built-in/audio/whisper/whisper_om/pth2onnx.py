@@ -15,6 +15,7 @@
 #!/usr/bin/python
 #encoding=utf-8
 
+import os
 import argparse
 import json
 from pathlib import Path
@@ -37,6 +38,9 @@ def get_args():
     parser.add_argument("--model",
                         type=str,
                         default="./base.en.pt")
+    parser.add_argument("--output_dir",
+                        type=str,
+                        default="./whisper_base_en")
     return parser.parse_args()
 
 
@@ -216,7 +220,7 @@ class TextDecoderTensorCache(nn.Module):
         return logits, n_layer_self_k_cache, n_layer_self_v_cache
 
 
-def convert_tokens(model):
+def convert_tokens(model, output_path):
     whisper_dir = Path(whisper.__file__).parent
     multilingual = model.is_multilingual
     tokenizer = (whisper_dir / "assets" /
@@ -224,21 +228,22 @@ def convert_tokens(model):
     if not tokenizer.is_file():
         raise ValueError(f"Cannot find {tokenizer}")
 
+    tokens = {}
     with open(tokenizer, "r") as f:
         contents = f.read()
-        tokens = {
-            token: int(rank)
-            for token, rank in (line.split() for line in contents.splitlines()
-                                if line)
-        }
+        for line in contents.splitlines():
+            if not line:
+                continue
+            token, rank = line.split()
+            tokens[token] = int(rank)
 
-    with open("tokens.txt", "w") as f:
+    with open(f"{output_path}/tokens.txt", "w") as f:
         for t, i in tokens.items():
             f.write(f"{t} {i}\n")
 
 
-def get_cfg(model):
-    convert_tokens(model)
+def get_cfg(model, output_path):
+    convert_tokens(model, output_path)
     tokenizer = whisper.tokenizer.get_tokenizer(model.is_multilingual)
     model_cfg = {
         "n_mels":
@@ -293,14 +298,15 @@ def get_cfg(model):
         "no_timestamps":
         tokenizer.no_timestamps,
     }
-    with open("model_cfg.json", "w") as json_file:
+    with open(f"{output_path}/model_cfg.json", "w") as json_file:
         json.dump(model_cfg, json_file)
 
 
 @torch.no_grad()
 def main():
     args = get_args()
-    opset_version = 13
+    os.makedirs(args.output_dir, exist_ok=True)
+    opset_version = 14
     model = whisper.load_model(args.model)
 
     print(
@@ -319,15 +325,16 @@ def main():
     tokenizer = whisper.tokenizer.get_tokenizer(model.is_multilingual)
 
     model.eval()
-    get_cfg(model)
+    get_cfg(model, args.output_dir)
     audio = torch.rand(16000 * 2)
     audio = whisper.pad_or_trim(audio)
     assert audio.shape == (16000 * 30, ), audio.shape
 
     # make log-Mel spectrogram and move to the same device as the model
-    mel = whisper.log_mel_spectrogram(audio).to(model.device).unsqueeze(0)
+    n_mels = model.dims.n_mels
+    mel = whisper.log_mel_spectrogram(audio, n_mels=n_mels).to(model.device).unsqueeze(0)
     batch_size = 1
-    assert mel.shape == (batch_size, 80, 30 * 100)
+    assert mel.shape == (batch_size, n_mels, 30 * 100)
 
     encoder = AudioEncoderTensorCache(model.encoder, model.decoder)
 
@@ -345,7 +352,7 @@ def main():
         model.dims.n_text_state,
     ), (n_layer_cross_v.shape, model.dims)
 
-    encoder_filename = "new-encoder.onnx"
+    encoder_filename = f"{args.output_dir}/encoder.onnx"
     torch.onnx.export(
         encoder,
         mel,
@@ -427,7 +434,7 @@ def main():
         offset,
     )
 
-    decoder_filename = "new-decoder.onnx"
+    decoder_filename = f"{args.output_dir}/decoder.onnx"
     torch.onnx.export(
         decoder,
         (
