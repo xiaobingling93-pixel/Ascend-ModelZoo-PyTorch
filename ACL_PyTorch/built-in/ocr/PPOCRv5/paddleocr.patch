@@ -129,7 +129,7 @@ index ec284f5..b205221 100755
 +            preds = to_float32(preds)
 +        else:
 +            if model_type == "table" or extra_input:
-+                preds = model.infer([images.numpy()], mode='dymshape', custom_sizes=10000000)[0]
++                preds = model.infer([images.numpy()], mode='dymshape', custom_sizes=1000000000)[0]
 +            elif model_type in ["kie"]:
 +                preds = model(batch)
              elif model_type in ["can"]:
@@ -144,7 +144,7 @@ index ec284f5..b205221 100755
 +                sr_img = preds["sr_img"]
 +                lr_img = preds["lr_img"]
 +            else:
-+                outputs = model.infer([images.numpy()], mode='dymshape', custom_sizes=10000000)
++                outputs = model.infer([images.numpy()], mode='dymshape', custom_sizes=1000000000)
 +                preds = {}
 +                preds["maps"] = outputs[0]
 +

@@ -44,7 +44,7 @@ def parse_args():
     parser.add_argument(
         "--custom_size",
         type=str,
-        default=10000000,
+        default=1000000000,
         help="aisbench buffer size for dynamic-shape inference",
     )
 
@@ -232,7 +232,7 @@ def patch_paddlex():
     TextDetPredictor._build = AscendTextDetPredictor._build
     TextDetPredictor.process = AscendTextDetPredictor.process
 
-    ## for TextDetPredictor
+    ## for TextRecPredictor
     TextRecPredictor.__init__ = AscendTextRecPredictor.__init__
     TextRecPredictor._build = AscendTextRecPredictor._build
     TextRecPredictor.process = AscendTextRecPredictor.process
