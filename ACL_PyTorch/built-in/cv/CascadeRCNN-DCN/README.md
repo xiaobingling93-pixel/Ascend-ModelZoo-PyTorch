@@ -44,9 +44,12 @@
 
 - 输入数据
 
+   batchsize当前只支持1，
+   height x width规格为1216 x 1216 或者640 x 640
+
   | 输入数据 | 数据类型 | 大小                      | 数据排布格式 |
   | -------- | -------- | ------------------------- | ------------ |
-  | input    | RGB_FP32 | batchsize x 3 x 1216 x 1216 | NCHW         |
+  | input    | RGB_FP32 | batchsize x 3 x height x width | NCHW         |
 
 
 - 输出数据
@@ -64,10 +67,10 @@
 
   | 配套                                                         | 版本    | 环境准备指导                                                 |
   | ------------------------------------------------------------ | ------- | ------------------------------------------------------------ |
-  | 固件与驱动                                                   | 1.0.17(NPU驱动固件版本为6.0.RC1)  | [Pytorch框架推理环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies) |
-  | CANN                                                         | 6.0.RC1 | -                                                            |
-  | Python                                                       | 3.7.5   | -                                                            |
-  | Pytorch                                                      | 1.7.0   | -                                                            |
+  | 固件与驱动                                                   | 24.1.rc3  | [Pytorch框架推理环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies) |
+  | CANN                                                         | 8.3.RC1 | -                                                            |
+  | Python                                                       | 3.8.20   | -                                                            |
+  | Pytorch                                                      | 1.8.1   | -                                                            |
                     
 
 
@@ -75,13 +78,18 @@
 
 ## 获取源码<a name="section4622531142816"></a>
 
-1. 安装依赖。
+1. 获取本仓源码
+   ```
+   git clone https://gitcode.com/ascend/ModelZoo-PyTorch.git
+   cd ModelZoo-PyTorch/ACL_PyTorch/built-in/cv/CascadeRCNN-DCN
+   ```
+2. 安装依赖。
 
    ```
    pip install -r requirements.txt     
    ```
 
-2. 获取源码。
+3. 获取mmdetection源码。
     1. 安装开源仓
    ```
    git clone https://github.com/open-mmlab/mmdetection
@@ -94,14 +102,6 @@
    ```
    patch -p1 < ../cascadercnndcn.diff
    cd ..
-   ```
-
-3. 安装mmcv-full,mmpycocotools
-
-   ```
-   pip install openmim
-   mim install mmcv-full==1.2.4
-   mim install mmpycocotools==12.0.3
    ```
 
 4. 因DeformConv没有在cpu上执行，修改deform_conv.py文件
@@ -117,12 +117,22 @@
 
 1. 获取原始数据集。
    本模型已在coco 2017数据集上验证过精度。推理数据集采用coco_val_2017，请用户自行获取coco_val_2017数据集。将instances_val2017.json文件和val2017文件夹按照如下目录结构上传并解压数据集到服务器任意目录。
-    最终，数据的目录结构如下：
+    最终，目录结构如下：
    ```
-   ├── coco
-       ├── val2017   
-       ├── annotations
-            ├──instances_val2017.json
+   ├── CascadeRCNN-DCN
+      ├── cascadercnndcn_postprocess.py
+      ├── cascadercnndcn_preprocess.py
+      ├── cascadercnndcn.diff
+      ├── coco_eval.py
+      ├── deform.patch
+      ├── get_info.py
+      ├── README.md
+      ├── requirements.txt
+      ├── txt_to_json.py
+      ├── coco
+         ├── val2017   
+         ├── annotations
+               ├──instances_val2017.json
          
 
    ```
@@ -133,14 +143,16 @@
    执行cascadercnndcn_preprocess.py脚本，完成预处理。
 
    ```
-   python cascadercnndcn_preprocess.py --image_folder_path ./coco/val2017 --bin_folder_path ./val2017_bin
+   python cascadercnndcn_preprocess.py --image_folder_path ./coco/val2017 --bin_folder_path ./val2017_bin --net_input_width 640 --net_input_height 640
    ```
    - 参数说明：
       -  --image_folder_path：数据集路径。
       -  --bin_folder_path：预处理后的数据文件的相对路径。
+      -  --net_input_width：预处理后的图片宽，缺省时为1216
+      -  --net_input_height：与处理后的图片高，缺省时为1216
       
     
-    运行成功后，会在当前目录下生成二进制文件。
+    运行成功后，会在bin_folder_path下生成二进制文件。
 
 
 ## 模型推理<a name="section741711594517"></a>
@@ -149,7 +161,7 @@
 
    使用PyTorch将模型权重文件.pth转换为.onnx文件，再使用ATC工具将.onnx文件转为离线推理模型文件.om文件。
 
-   1. 获取权重文件。
+   1. 获取权重文件，放在当前目录下。
 
        [下载文件](https://download.openmmlab.com/mmdetection/v2.0/dcn/cascade_rcnn_r50_fpn_dconv_c3-c5_1x_coco/cascade_rcnn_r50_fpn_dconv_c3-c5_1x_coco_20200130-2f1fca44.pth)
 
@@ -157,16 +169,15 @@
 
       1. 使用mmdetection/tools/pytorch2onnx.py导出onnx文件。
 
-      
-  
-
          ```
-         python mmdetection/tools/pytorch2onnx.py mmdetection/configs/dcn/cascade_rcnn_r50_fpn_dconv_c3-c5_1x_coco.py ./cascade_rcnn_r50_fpn_dconv_c3- 
-         c5_1x_coco_20200130-2f1fca44.pth --output-file=cascade.onnx --shape=1216   
+         python mmdetection/tools/pytorch2onnx.py\
+            mmdetection/configs/dcn/cascade_rcnn_r50_fpn_dconv_c3-c5_1x_coco.py\
+            ./cascade_rcnn_r50_fpn_dconv_c3-c5_1x_coco_20200130-2f1fca44.pth\
+            --output-file=cascade.onnx --shape=640
 
          ```
          - 参数说明：
-            -  --shape : 模型大小
+            -  --shape : 输入图片大小
             -  --output-file: 输出onnx模型
           
 
@@ -200,16 +211,16 @@
          +===================+=================+======================================================+
          ```
 
-      3. 执行ATC命令。
+      3. 执行ATC命令，input_shape请根据实际情况输入对应的输入宽高。
 
          ```
             atc --framework=5\ 
                  --model=./cascade.onnx\ 
                  --output=./cascade\ 
                  --input_format=NCHW\ 
-                 --input_shape="input:1,3,1216,1216"\ 
+                 --input_shape="input:1,3,640,640"\ 
                  --log=error\
-                 --out_nodes="Concat_1036:0;Reshape_1038:0"\
+                 --out_nodes="Concat_1031:0;Reshape_1033:0"\
                  --soc_version=Ascend${ChipName}
          ```
 
@@ -222,7 +233,7 @@
            -   --input\_shape：输入数据的shape。
            -   --log：日志级别。
            -   --soc_version：处理器型号。
-           -   --out_nodes: 输出节点
+           -   --out_nodes: 输出节点，当input_shape为1,3,1216,1216时，out_nodes为"Concat_1036:0;Reshape_1038:0"
 
         运行成功后生成cascade.om模型文件。
 
@@ -269,7 +280,13 @@
       调用“cascadercnndcn_postprocess.py”评测模型的精度。
 
     ```
-    python cascadercnndcn_postprocess.py --bin_data_path=result --prob_thres=0.05 --ifShowDetObj --det_results_path=detection-results --test_annotation=coco2017_jpg.info  
+    python cascadercnndcn_postprocess.py\
+      --bin_data_path=result\
+      --prob_thres=0.05 --ifShowDetObj\
+      --det_results_path=detection-results\
+      --test_annotation=coco2017_jpg.info\
+      --net_input_width=640\
+      --net_input_height=640
     ```
     - 参数说明：
 
@@ -278,6 +295,8 @@
       - --det_results_path: 后处理输出结果。
       - --ifShowDetObj：是否将box画在图上显示。
       - --prob_thres: 目标框的置信度阈值
+      - --net_input_width：输入图片宽，缺省时为1216
+      - --net_input_height：输入图片高，缺省时为1216
 
       评测结果的mAP值需要使用官方的pycocotools工具，首先将后处理输出的txt文件转化为coco数据集评测精度的标准json格式。
 
@@ -322,12 +341,18 @@
 
 1. 精度对比
 
-    | Model       | batchsize | Accuracy | 
-    | ----------- | --------- | -------- |
-    | Cascade_rcnn_dcn| 1       | bbox_mAP = 0.438 |
+    | Model       | batchsize | input shape | Accuracy | 
+    | ----------- | --------- | -------- | -------- |
+    | Cascade_rcnn_dcn| 1    | 1x3x1216x1216   | bbox_mAP = 0.438 |
+    | Cascade_rcnn_dcn| 1    | 1x3x640x640   | bbox_mAP = 0.373 |
 
 2. 性能对比
 
-    | batchsize | 300I PRO 性能 | 
-    | ---- | ---- |
-    | 1 |3.9|
+    | batchsize |input shape | 300I PRO 性能 imgs/s | 
+    | ---- | ---- | ---- |
+    | 1 | 1x3x1216x1216 |6.79|
+    | 1 | 1x3x640x640 |10.5|
+
+
+# FAQ
+- 如果在import cv2时报错”libGL.so.1 cannot open shared object file: No such file or directory“，可能是当前环境里同时有opencv-python和opencv-python-headless，uninstall opencv-python opencv-python-headless，然后重新下载opencv-python-headless：pip install opencv-python-headless==4.11.0.86

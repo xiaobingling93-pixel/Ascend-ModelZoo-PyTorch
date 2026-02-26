@@ -39,16 +39,12 @@ import torch
 import tqdm
 
 dataset_config = {
-        'resize': (1216, 1216),
         'mean': [123.675, 116.28, 103.53],
         'std': [58.395, 57.12, 57.375],
 }
 
-tensor_height = 1216
-tensor_width = 1216
 
-
-def coco_preprocess(input_image, output_bin_path):
+def coco_preprocess(input_image, output_bin_path, tensor_height, tensor_width):
     #define the output file name 
     img_name = input_image.split('/')[-1]
     bin_name = img_name.split('.')[0] + ".bin"
@@ -71,9 +67,12 @@ def coco_preprocess(input_image, output_bin_path):
     one_img = one_img.transpose(2, 0, 1)
     one_img.tofile(bin_fl)
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='preprocess of FasterRCNN pytorch model')
     parser.add_argument("--image_folder_path", default="./coco2014/", help='image of dataset')
+    parser.add_argument("--net_input_width", type=int, default=1216)
+    parser.add_argument("--net_input_height", type=int, default=1216)
     parser.add_argument("--bin_folder_path", default="./coco2014_bin/", help='Preprocessed image buffer')
     flags = parser.parse_args()    
 
@@ -84,4 +83,4 @@ if __name__ == "__main__":
         if not (image_name.endswith(".jpeg") or image_name.endswith(".JPEG") or image_name.endswith(".jpg")):
             continue
         path_image = os.path.join(flags.image_folder_path, image_name)
-        coco_preprocess(path_image, flags.bin_folder_path)
+        coco_preprocess(path_image, flags.bin_folder_path, flags.net_input_height, flags.net_input_width)

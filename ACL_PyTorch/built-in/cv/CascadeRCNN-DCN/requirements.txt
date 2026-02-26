@@ -1,8 +1,11 @@
-torch==1.7.0
-torchvision==0.8.0
+torch==1.8.1
+torchvision==0.9.1
 onnx==1.12.0
 onnxruntime==1.11.0
-numpy==1.21.6
-opencv-python==4.6.0.66
+numpy==1.23.5
+opencv-python-headless==4.11.0.86
 protobuf==3.20.0
+cython==0.29.33
+mmcv-full==1.2.4
+mmpycocotools==12.0.3
 
