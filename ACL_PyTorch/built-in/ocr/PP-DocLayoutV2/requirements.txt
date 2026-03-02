@@ -1,0 +1,12 @@
+paddle2onnx==2.1.0
+paddleocr==3.3.2
+paddlex[ocr]==3.3.13
+paddlepaddle==3.2.2
+onnx==1.16.1
+onnx_graphsurgeon==0.5.8
+numpy==1.26.4
+openai==2.15.0
+opencv-python==4.11.0.86
+opencv-python-headless==4.11.0.86
+opencv-contrib-python==4.10.0.84
+modelscope

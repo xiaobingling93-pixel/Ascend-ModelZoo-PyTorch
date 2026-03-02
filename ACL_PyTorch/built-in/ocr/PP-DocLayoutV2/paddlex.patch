@@ -1,0 +1,55 @@
+diff -ruN paddlex_/inference/models/doc_vlm/predictor.py paddlex/inference/models/doc_vlm/predictor.py
+--- paddlex_/inference/models/doc_vlm/predictor.py	2026-02-24 20:08:06.590533120 +0800
++++ paddlex/inference/models/doc_vlm/predictor.py	2026-02-24 20:12:07.842533120 +0800
+@@ -490,7 +490,7 @@
+                         }
+                     ],
+                     return_future=True,
+-                    timeout=600,
++                    timeout=3600,
+                     **kwargs,
+                 )
+                 return future
+diff -ruN paddlex_/inference/models/object_detection/predictor.py paddlex/inference/models/object_detection/predictor.py
+--- paddlex_/inference/models/object_detection/predictor.py	2026-02-24 20:08:06.622533120 +0800
++++ paddlex/inference/models/object_detection/predictor.py	2026-02-24 20:11:42.570533120 +0800
+@@ -34,6 +34,9 @@
+ from .result import DetResult
+ from .utils import STATIC_SHAPE_MODEL_LIST
+ 
++import os
++from ais_bench.infer.interface import InferSession
++
+ 
+ class DetPredictor(BasePredictor):
+ 
+@@ -111,6 +114,9 @@
+         self.layout_merge_bboxes_mode = layout_merge_bboxes_mode
+         self.pre_ops, self.infer, self.post_op = self._build()
+ 
++        om_path = os.path.join(self.model_dir, f"inference_linux_aarch64.om")
++        self.om_sess = InferSession(0, om_path)
++
+     def _build_batch_sampler(self):
+         return ImageBatchSampler()
+ 
+@@ -140,7 +146,8 @@
+             pre_ops.insert(1, self.build_resize(self.img_size, False, 2))
+ 
+         # build infer
+-        infer = self.create_static_infer()
++        # infer = self.create_static_infer()
++        infer = None
+ 
+         # build postprocess op
+         post_op = self.build_postprocess()
+@@ -231,7 +238,8 @@
+         batch_inputs = self.pre_ops[-1](datas)
+ 
+         # do infer
+-        batch_preds = self.infer(batch_inputs)
++        # batch_preds = self.infer(batch_inputs)
++        batch_preds = self.om_sess.infer(batch_inputs, mode='dymshape', custom_sizes=100000000)
+ 
+         # process a batch of predictions into a list of single image result
+         preds_list = self._format_output(batch_preds)
