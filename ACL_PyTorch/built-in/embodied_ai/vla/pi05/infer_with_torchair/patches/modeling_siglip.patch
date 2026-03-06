@@ -1,0 +1,20 @@
+--- modeling_siglip.py	2026-03-03 23:12:37
++++ modeling_siglip_modified.py	2026-03-04 14:42:37
+@@ -351,6 +351,7 @@
+     def __init__(self, config):
+         super().__init__()
+         self.config = config
++        self.config._attn_implementation = "eager"
+         self.embed_dim = config.hidden_size
+         self.num_heads = config.num_attention_heads
+         self.head_dim = self.embed_dim // self.num_heads
+\ No newline at end of file
+@@ -457,6 +458,7 @@
+                 Whether or not to return the attentions tensors of all attention layers. See `attentions` under
+                 returned tensors for more detail.
+         """
++        hidden_states = hidden_states.to(self.layer_norm1.weight.dtype)
+         residual = hidden_states
+ 
+         hidden_states = self.layer_norm1(hidden_states)
+\ No newline at end of file

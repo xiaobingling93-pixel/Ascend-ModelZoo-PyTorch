@@ -1,0 +1,164 @@
+diff --git a/src/lerobot/configs/eval.py b/src/lerobot/configs/eval.py
+index da8bee6b..194f4b0f 100644
+--- a/src/lerobot/configs/eval.py
++++ b/src/lerobot/configs/eval.py
+@@ -36,6 +36,7 @@ class EvalPipelineConfig:
+     output_dir: Path | None = None
+     job_name: str | None = None
+     seed: int | None = 1000
++    tokenizer_path: str | None = None
+     # Rename map for the observation to override the image and state keys
+     rename_map: dict[str, str] = field(default_factory=dict)
+     # Explicit consent to execute remote code from the Hub (required for hub environments).
+diff --git a/src/lerobot/policies/pi05/modeling_pi05.py b/src/lerobot/policies/pi05/modeling_pi05.py
+index 104ec63b..c60c4b6a 100644
+--- a/src/lerobot/policies/pi05/modeling_pi05.py
++++ b/src/lerobot/policies/pi05/modeling_pi05.py
+@@ -22,6 +22,9 @@ from pathlib import Path
+ from typing import TYPE_CHECKING, Literal, TypedDict
+ 
+ import torch
++import torch_npu
++import torchair as tng
++from torchair.configs.compiler_config import CompilerConfig
+ import torch.nn.functional as F  # noqa: N812
+ from torch import Tensor, nn
+ from typing_extensions import Unpack
+@@ -335,7 +338,7 @@ class PaliGemmaWithExpertModel(
+         vlm_config,
+         action_expert_config,
+         use_adarms=None,
+-        precision: Literal["bfloat16", "float32"] = "bfloat16",
++        precision: Literal["float16", "float32"] = "float16",
+         image_size: int = DEFAULT_IMAGE_SIZE,
+         freeze_vision_encoder: bool = False,
+         train_expert_only: bool = False,
+@@ -384,12 +387,12 @@ class PaliGemmaWithExpertModel(
+         self.gemma_expert = GemmaForCausalLM(config=action_expert_config_hf)
+         self.gemma_expert.model.embed_tokens = None
+ 
+-        self.to_bfloat16_for_selected_params(precision)
++        self.to_float16_for_selected_params(precision)
+         self._set_requires_grad()
+ 
+-    def to_bfloat16_for_selected_params(self, precision: Literal["bfloat16", "float32"] = "bfloat16"):
+-        if precision == "bfloat16":
+-            self.to(dtype=torch.bfloat16)
++    def to_float16_for_selected_params(self, precision: Literal["float16", "float32"] = "float16"):
++        if precision == "float16":
++            self.to(dtype=torch.float16)
+         elif precision == "float32":
+             self.to(dtype=torch.float32)
+             return
+@@ -551,7 +554,7 @@ class PI05Pytorch(nn.Module):  # see openpi `PI0Pytorch`
+             paligemma_config,
+             action_expert_config,
+             use_adarms=[False, True],
+-            precision=config.dtype,
++            precision="float16",
+             image_size=config.image_resolution[0],
+             freeze_vision_encoder=config.freeze_vision_encoder,
+             train_expert_only=config.train_expert_only,
+@@ -569,9 +572,13 @@ class PI05Pytorch(nn.Module):  # see openpi `PI0Pytorch`
+         # Compile model if requested
+         if config.compile_model:
+             torch.set_float32_matmul_precision("high")
+-            self.sample_actions = torch.compile(self.sample_actions, mode=config.compile_mode)
+-            # Also compile the main forward pass used during training
+-            self.forward = torch.compile(self.forward, mode=config.compile_mode)
++            config = CompilerConfig()
++            config.experimental_config.frozen_parameter = True
++            config.experimental_config.tiling_schedule_optimize = True  # 使能tiling全下沉配置
++            npu_backend = tng.get_npu_backend(compiler_config=config)
++            self.paligemma_with_expert.forward = torch.compile(self.paligemma_with_expert.forward, dynamic=False, fullgraph=True, backend=npu_backend)
++            self.paligemma_with_expert.embed_image = torch.compile(self.paligemma_with_expert.embed_image, dynamic=False, fullgraph=True, backend=npu_backend)
++            self.denoise_step = torch.compile(self.denoise_step, dynamic=False, fullgraph=True, backend=npu_backend)
+ 
+         msg = """An incorrect transformer version is used, please create an issue on https://github.com/huggingface/lerobot/issues"""
+ 
+@@ -688,7 +695,7 @@ class PI05Pytorch(nn.Module):  # see openpi `PI0Pytorch`
+             max_period=self.config.max_period,
+             device=timestep.device,
+         )
+-        time_emb = time_emb.type(dtype=timestep.dtype)
++        time_emb = time_emb.to(dtype=timestep.dtype)
+ 
+         # Fuse timestep + action information using an MLP
+         def action_proj_func(noisy_actions):
+@@ -1206,8 +1213,6 @@ class PI05Policy(PreTrainedPolicy):
+             "RTC is not supported for select_action, use it with predict_action_chunk"
+         )
+ 
+-        self.eval()
+-
+         # Action queue logic for n_action_steps > 1
+         if len(self._action_queue) == 0:
+             actions = self.predict_action_chunk(batch)[:, : self.config.n_action_steps]
+@@ -1219,7 +1224,6 @@ class PI05Policy(PreTrainedPolicy):
+     @torch.no_grad()
+     def predict_action_chunk(self, batch: dict[str, Tensor], **kwargs: Unpack[ActionSelectKwargs]) -> Tensor:
+         """Predict a chunk of actions given environment observations."""
+-        self.eval()
+ 
+         # Prepare inputs
+         images, img_masks = self._preprocess_images(batch)
+diff --git a/src/lerobot/scripts/lerobot_eval.py b/src/lerobot/scripts/lerobot_eval.py
+index e32b8040..43dd6007 100644
+--- a/src/lerobot/scripts/lerobot_eval.py
++++ b/src/lerobot/scripts/lerobot_eval.py
+@@ -1,5 +1,7 @@
+ #!/usr/bin/env python
+ 
++# Copyright (c) 2026 Institute of Software, Chinese Academy of Sciences (ISCAS). All rights reserved.
++# Copyright (c) 2026, HUAWEI CORPORATION.  All rights reserved.
+ # Copyright 2024 The HuggingFace Inc. team. All rights reserved.
+ #
+ # Licensed under the Apache License, Version 2.0 (the "License");
+@@ -61,10 +63,16 @@ from pathlib import Path
+ from pprint import pformat
+ from typing import Any, TypedDict
+ 
++import torch
++import torch_npu
++from torch_npu.contrib import transfer_to_npu
++torch.npu.set_device(
++    "npu:0"
++) # 必须在import gymnasium之前设置，否则仿真环境可能跟NPU有冲突
+ import einops
+ import gymnasium as gym
+ import numpy as np
+-import torch
++
+ from termcolor import colored
+ from torch import Tensor, nn
+ from tqdm import trange
+@@ -538,6 +546,8 @@ def eval_main(cfg: EvalPipelineConfig):
+         "device_processor": {"device": str(policy.config.device)},
+         "rename_observations_processor": {"rename_map": cfg.rename_map},
+     }
++    if cfg.tokenizer_path:
++        preprocessor_overrides['tokenizer_processor'] = {"tokenizer_name": cfg.tokenizer_path}
+ 
+     preprocessor, postprocessor = make_pre_post_processors(
+         policy_cfg=cfg.policy,
+@@ -804,6 +814,7 @@ def eval_policy_all(
+ 
+ 
+ def main():
++    torch_npu.npu.set_compile_mode(jit_compile=False)
+     init_logging()
+     register_third_party_plugins()
+     eval_main()
+diff --git a/src/lerobot/utils/utils.py b/src/lerobot/utils/utils.py
+index c7ad2bbd..c46595fb 100644
+--- a/src/lerobot/utils/utils.py
++++ b/src/lerobot/utils/utils.py
+@@ -114,6 +114,8 @@ def is_torch_device_available(try_device: str) -> bool:
+         return torch.xpu.is_available()
+     elif try_device == "cpu":
+         return True
++    elif try_device == "npu":
++        return torch.npu.is_available()
+     else:
+         raise ValueError(f"Unknown device {try_device}. Supported devices are: cuda, mps, xpu or cpu.")
+ 
