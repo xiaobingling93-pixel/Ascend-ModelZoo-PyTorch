@@ -25,7 +25,7 @@ export ASCEND_GLOBAL_EVENT_ENABLE=0
 #-配置为0时：关闭task_queue算子下发队列优化。
 #-配置为1或未配置时：开启task_queue算子下发队列Level 1优化。
 #-配置为2时：开启task_queue算子下发队列Level 2优化。关于Level 1和Level 2优化的详细解释请查看官网文档。
-export TASK_QUEUE_ENABLE=1
+export TASK_QUEUE_ENABLE=2
 
 #HCCL白名单开关,1-关闭/0-开启。设置为1则无需校验HCCL通信白名单。
 export HCCL_WHITELIST_DISABLE=1
