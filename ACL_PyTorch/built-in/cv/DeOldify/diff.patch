@@ -1,0 +1,134 @@
+diff --git a/deoldify/filters.py b/deoldify/filters.py
+index d29894e..da746c7 100644
+--- a/deoldify/filters.py
++++ b/deoldify/filters.py
+@@ -38,7 +38,7 @@ class BaseFilter(IFilter):
+         # a simple stretch to fit a square really makes a big difference in rendering quality/consistency.
+         # I've tried padding to the square as well (reflect, symetric, constant, etc).  Not as good!
+         targ_sz = (targ, targ)
+-        return orig.resize(targ_sz, resample=PIL.Image.BILINEAR)
++        return orig.resize(targ_sz, resample=PilImage.Resampling.BILINEAR)
+ 
+     def _get_model_ready_image(self, orig: PilImage, sz: int) -> PilImage:
+         result = self._scale_to_square(orig, sz)
+@@ -69,7 +69,7 @@ class BaseFilter(IFilter):
+ 
+     def _unsquare(self, image: PilImage, orig: PilImage) -> PilImage:
+         targ_sz = orig.size
+-        image = image.resize(targ_sz, resample=PIL.Image.BILINEAR)
++        image = image.resize(targ_sz, resample=PilImage.Resampling.BILINEAR)
+         return image
+ 
+ 
+diff --git a/deoldify/generators.py b/deoldify/generators.py
+index 9545608..7d13fdf 100644
+--- a/deoldify/generators.py
++++ b/deoldify/generators.py
+@@ -8,6 +8,22 @@ from torch import nn
+ from .unet import DynamicUnetWide, DynamicUnetDeep
+ from .dataset import *
+ 
++import torch
++import torch_npu
++from torch_npu.contrib import transfer_to_npu
++import torchair as tng
++from torchair.configs.compiler_config import CompilerConfig
++
++def ascend_compile(model):
++    model.model.train(False)
++    config = CompilerConfig()
++    # aclgraph mode
++    config.mode = "reduce-overhead"
++    torch.npu.config.allow_internal_format = False
++    npu_backend = tng.get_npu_backend(compiler_config=config)
++    model.model = torch.compile(model.model, dynamic=True, fullgraph=True, backend=npu_backend)
++    return model
++
+ # Weights are implicitly read from ./models/ folder
+ def gen_inference_wide(
+     root_folder: Path, weights_name: str, nf_factor: int = 2, arch=models.resnet101) -> Learner:
+@@ -18,6 +34,7 @@ def gen_inference_wide(
+     learn.path = root_folder
+     learn.load(weights_name)
+     learn.model.eval()
++    learn = ascend_compile(learn)
+     return learn
+ 
+ 
+@@ -91,6 +108,7 @@ def gen_inference_deep(
+     learn.path = root_folder
+     learn.load(weights_name)
+     learn.model.eval()
++    learn = ascend_compile(learn)
+     return learn
+ 
+ 
+diff --git a/fastai/basic_train.py b/fastai/basic_train.py
+index a9bab34..df76fda 100644
+--- a/fastai/basic_train.py
++++ b/fastai/basic_train.py
+@@ -268,7 +268,7 @@ class Learner():
+         if device is None: device = self.data.device
+         elif isinstance(device, int): device = torch.device('cuda', device)
+         source = self.path/self.model_dir/f'{file}.pth' if is_pathlike(file) else file
+-        state = torch.load(source, map_location=device)
++        state = torch.load(source, map_location=device, weights_only=False)
+         if set(state.keys()) == {'model', 'opt'}:
+             model_state = state['model']
+             if remove_module: model_state = remove_module_load(model_state)
+@@ -319,7 +319,7 @@ class Learner():
+         torch.save(state, open(tmp_file, 'wb'))
+         for a in attrs_del: delattr(self, a)
+         gc.collect()
+-        state = torch.load(tmp_file)
++        state = torch.load(tmp_file, weights_only=False)
+         os.remove(tmp_file)
+ 
+         for a in attrs_pkl: setattr(self, a, state[a])
+diff --git a/fastai/layers.py b/fastai/layers.py
+index ef6a639..265a994 100644
+--- a/fastai/layers.py
++++ b/fastai/layers.py
+@@ -132,12 +132,12 @@ class SequentialEx(Module):
+     def forward(self, x):
+         res = x
+         for l in self.layers:
+-            res.orig = x
++            l.orig = x
+             nres = l(res)
+             #print(l. + ' mean: ' + str(nres.abs().mean()))
+             #print(' max: ' + str(nres.abs().max()))
+             # We have to remove res.orig to avoid hanging refs and therefore memory leaks
+-            res.orig = None
++            # res.orig = None
+             res = nres
+         return res
+ 
+@@ -149,7 +149,7 @@ class SequentialEx(Module):
+ class MergeLayer(Module):
+     "Merge a shortcut with the result of the module by adding them or concatenating thme if `dense=True`."
+     def __init__(self, dense:bool=False): self.dense=dense
+-    def forward(self, x): return torch.cat([x,x.orig], dim=1) if self.dense else (x+x.orig)
++    def forward(self, x): return torch.cat([x,self.orig], dim=1) if self.dense else (x+self.orig)
+ 
+ def res_block(nf, dense:bool=False, norm_type:Optional[NormType]=NormType.Batch, bottle:bool=False, **conv_kwargs):
+     "Resnet block of `nf` features. `conv_kwargs` are passed to `conv_layer`."
+diff --git a/requirements.txt b/requirements.txt
+index e194991..ebfec4d 100644
+--- a/requirements.txt
++++ b/requirements.txt
+@@ -5,9 +5,10 @@ ffmpeg
+ ffmpeg-python
+ yt-dlp
+ jupyterlab
+-opencv-python>=4.2.0.32
++opencv-python==4.7.0.68
+ Pillow==9.3.0
+---extra-index-url https://download.pytorch.org/whl/cu113
+-torch==1.11.0
+-torchvision==0.12.0
+ ipywidgets
++numpy==1.26.4
++torch==2.9.0
++torch-npu==2.9.0
++torchvision==0.24.0
