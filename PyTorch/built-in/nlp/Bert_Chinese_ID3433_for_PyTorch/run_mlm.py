@@ -36,7 +36,9 @@ if torch.__version__ >= "1.8":
     # 配置为enable启用算子编译缓存; 配置为disable禁用算子编译缓存; 配置为force强制刷新缓存。
     option['ACL_OP_COMPILER_CACHE_MODE'] = "enable"
     option['ACL_OP_COMPILER_CACHE_DIR'] = "./cache"  # 可通过此环境变量配置算子编译磁盘缓存的目录
-
+import torch_npu
+if "Ascend910B" in torch.npu.get_device_name():
+    torch.npu.config.allow_internal_format = True
 import datasets
 from datasets import load_dataset, load_metric
 

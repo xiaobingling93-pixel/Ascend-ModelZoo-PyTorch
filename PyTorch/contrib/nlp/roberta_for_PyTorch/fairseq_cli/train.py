@@ -29,6 +29,9 @@ from torch import cuda
 
 import numpy as np
 import torch
+import torch_npu
+if "Ascend910B" in torch.npu.get_device_name():
+    torch.npu.config.allow_internal_format = True
 
 # We need to setup root logger before importing any fairseq libraries.
 logging.basicConfig(

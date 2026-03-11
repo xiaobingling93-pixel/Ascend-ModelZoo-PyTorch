@@ -21,6 +21,8 @@ from datetime import datetime
 import torch
 import torch_npu
 from torch_npu.contrib import transfer_to_npu
+if "Ascend910B" in torch.npu.get_device_name():
+    torch.npu.config.allow_internal_format = True
 import numpy as np
 
 import gym

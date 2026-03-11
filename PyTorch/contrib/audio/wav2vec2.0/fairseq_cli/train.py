@@ -16,6 +16,9 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import numpy as np
 import torch
+import torch_npu
+if "Ascend910B" in torch.npu.get_device_name():
+    torch.npu.config.allow_internal_format = True
 if torch.__version__ >= "2.6":
     torch._C._set_math_sdp_allow_fp16_bf16_reduction(True)
 

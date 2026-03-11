@@ -21,6 +21,9 @@ import numpy as np
 from pathlib import Path
 import torch
 import torch_npu
+if "Ascend910B" in torch.npu.get_device_name():
+    torch.npu.config.allow_internal_format = True
+
 if torch_npu.npu.utils.get_soc_version() == 251:
     torch_npu.npu.config.allow_internal_format = True
 

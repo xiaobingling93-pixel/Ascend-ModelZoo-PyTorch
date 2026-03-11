@@ -16,6 +16,9 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 import numpy as np
 import torch
 from torch_npu.contrib import transfer_to_npu
+import torch_npu
+if "Ascend910B" in torch.npu.get_device_name():
+    torch.npu.config.allow_internal_format = True
 from omegaconf import DictConfig, OmegaConf
 
 # We need to setup root logger before importing any fairseq libraries.

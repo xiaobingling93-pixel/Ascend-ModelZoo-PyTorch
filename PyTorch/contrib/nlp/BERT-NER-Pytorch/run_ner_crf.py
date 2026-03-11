@@ -41,7 +41,9 @@ if torch.__version__ >= "2.6":
     torch._C._set_math_sdp_allow_fp16_bf16_reduction(True)
 
 import torch.nn as nn
-import torch_npu 
+import torch_npu
+if "Ascend910B" in torch.npu.get_device_name():
+    torch.npu.config.allow_internal_format = True
 from torch_npu.contrib import transfer_to_npu 
 from torch_npu.optim import NpuFusedAdamW
 from torch.utils.data import DataLoader, RandomSampler, SequentialSampler, TensorDataset

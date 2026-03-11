@@ -26,6 +26,9 @@ import apex
 import torch
 if torch.__version__ >= "1.8":
     import torch_npu
+import torch_npu
+if "Ascend910B" in torch.npu.get_device_name():
+    torch.npu.config.allow_internal_format = True
 from torch.utils.data import DataLoader, RandomSampler, SequentialSampler, TensorDataset
 from torch.utils.data.distributed import DistributedSampler
 try:
