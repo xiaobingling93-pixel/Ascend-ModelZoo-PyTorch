@@ -1,0 +1,706 @@
+diff --git a/configs/config.py b/configs/config.py
+index 221bf28..4975f1d 100644
+--- a/configs/config.py
++++ b/configs/config.py
+@@ -16,7 +16,7 @@ def get_config():
+     parser.add_argument('--train_source', type=str, default='Omni6DPose')
+     parser.add_argument('--val_source', type=str, default='Omni6DPose')
+     parser.add_argument('--test_source', type=str, default='Omni6DPose')
+-    parser.add_argument('--device', type=str, default='cuda')
++    parser.add_argument('--device', type=str, default='npu:0')
+     parser.add_argument('--num_points', type=int, default=1024)
+     parser.add_argument('--per_obj', type=str, default='')
+     parser.add_argument('--num_workers', type=int, default=32)
+diff --git a/datasets/datasets_infer.py b/datasets/datasets_infer.py
+index 3ebfeea..61dc944 100644
+--- a/datasets/datasets_infer.py
++++ b/datasets/datasets_infer.py
+@@ -2,7 +2,6 @@ import numpy as np
+ import cv2
+ import torch
+ import copy
+-import open3d as o3d
+ 
+ from cutoop.data_loader import Dataset, ImageMetaData
+ from utils.datasets_utils import aug_bbox_eval, get_2d_coord_np, crop_resize_by_warp_affine
+@@ -138,7 +137,7 @@ class InferDataset(object):
+         data['roi_rgb_'] = torch.as_tensor(np.ascontiguousarray(roi_rgb_), dtype=torch.uint8).contiguous()
+         data['roi_xs'] = torch.as_tensor(np.ascontiguousarray(xs), dtype=torch.int64).contiguous()
+         data['roi_ys'] = torch.as_tensor(np.ascontiguousarray(ys), dtype=torch.int64).contiguous()
+-        data['roi_center_dir'] = torch.as_tensor(pixel2xyz(img_height, img_height, bbox_center, intrinsics), dtype=torch.float32).contiguous()
++        data['roi_center_dir'] = torch.tensor(pixel2xyz(img_height, img_height, bbox_center, intrinsics), dtype=torch.float32).contiguous()
+ 
+         return data
+     
+diff --git a/networks/gf_algorithms/samplers.py b/networks/gf_algorithms/samplers.py
+index 5b1131d..41b3152 100755
+--- a/networks/gf_algorithms/samplers.py
++++ b/networks/gf_algorithms/samplers.py
+@@ -203,8 +203,8 @@ def cond_ode_sampler(
+         # num_steps, from T -> eps
+         t_eval = np.linspace(T, eps, num_steps)
+     res = integrate.solve_ivp(ode_func, (T, eps), init_x.reshape(-1).cpu().numpy(), rtol=rtol, atol=atol, method='RK45', t_eval=t_eval)
+-    xs = torch.tensor(res.y, device=device).T.view(-1, batch_size, pose_dim) # [num_steps, bs, pose_dim]
+-    x = torch.tensor(res.y[:, -1], device=device).reshape(shape) # [bs, pose_dim]
++    xs = torch.tensor(res.y, device=device, dtype=torch.float32).T.view(-1, batch_size, pose_dim) # [num_steps, bs, pose_dim]
++    x = torch.tensor(res.y[:, -1], device=device, dtype=torch.float32).reshape(shape) # [bs, pose_dim]
+     # denoise, using the predictor step in P-C sampler
+     if denoise:
+         # Reverse diffusion predictor for denoising
+@@ -251,10 +251,10 @@ def cond_edm_sampler(
+         data, denoised = decoder(data)
+         # recover data
+         data['sampled_pose'], data['t'] = x_, t_
+-        return denoised.to(torch.float64)
++        return denoised.to(torch.float32)
+ 
+     # Main sampling loop.
+-    x_next = latents.to(torch.float64) * t_steps[0]
++    x_next = latents.to(torch.float32) * t_steps[0]
+     xs = []
+     for i, (t_cur, t_next) in enumerate(zip(t_steps[:-1], t_steps[1:])): # 0, ..., N-1
+         x_cur = x_next
+diff --git a/networks/gf_algorithms/sde.py b/networks/gf_algorithms/sde.py
+index bf98620..70c074b 100755
+--- a/networks/gf_algorithms/sde.py
++++ b/networks/gf_algorithms/sde.py
+@@ -19,13 +19,14 @@ def ve_marginal_prob(x, t, sigma_min=0.01, sigma_max=90):
+ 
+ def ve_sde(t, sigma_min=0.01, sigma_max=90):
+     sigma = sigma_min * (sigma_max / sigma_min) ** t
+-    drift_coeff = torch.tensor(0)
+-    diffusion_coeff = sigma * torch.sqrt(torch.tensor(2 * (np.log(sigma_max) - np.log(sigma_min)), device=t.device))
++    device = t.device if hasattr(t, 'device') else 'cpu'
++    drift_coeff = torch.tensor(0, device=device)
++    diffusion_coeff = sigma * torch.sqrt(torch.tensor(2 * (np.log(sigma_max) - np.log(sigma_min)), device=device))
+     return drift_coeff, diffusion_coeff
+ 
+ def ve_prior(shape, sigma_min=0.01, sigma_max=90, T=1.0):
+     _, sigma_max_prior = ve_marginal_prob(None, T, sigma_min=sigma_min, sigma_max=sigma_max)
+-    return torch.randn(*shape) * sigma_max_prior
++    return torch.randn(*shape, dtype=torch.float32) * sigma_max_prior
+ 
+ #----- VP SDE -----
+ #------------------
+@@ -42,7 +43,7 @@ def vp_sde(t, beta_0=0.1, beta_1=20):
+     return drift_coeff, diffusion_coeff
+ 
+ def vp_prior(shape, beta_0=0.1, beta_1=20):
+-    return torch.randn(*shape)
++    return torch.randn(*shape, dtype=torch.float32)
+ 
+ #----- sub-VP SDE -----
+ #----------------------
+@@ -70,12 +71,13 @@ def edm_marginal_prob(x, t, sigma_min=0.002, sigma_max=80):
+     return mean, std
+ 
+ def edm_sde(t, sigma_min=0.002, sigma_max=80):
+-    drift_coeff = torch.tensor(0)
++    device = t.device if hasattr(t, 'device') else 'cpu'
++    drift_coeff = torch.tensor(0, device=device)
+     diffusion_coeff = torch.sqrt(2 * t)
+     return drift_coeff, diffusion_coeff
+ 
+ def edm_prior(shape, sigma_min=0.002, sigma_max=80):
+-    return torch.randn(*shape) * sigma_max
++    return torch.randn(*shape, dtype=torch.float32) * sigma_max
+ 
+ def init_sde(sde_mode):
+     # the SDE-related hyperparameters are copied from https://github.com/yang-song/score_sde_pytorch
+diff --git a/networks/posenet_agent.py b/networks/posenet_agent.py
+index e36c154..6901760 100644
+--- a/networks/posenet_agent.py
++++ b/networks/posenet_agent.py
+@@ -1,6 +1,8 @@
+ import sys
+ import os
+ import torch
++import torch_npu
++torch_npu.npu.set_compile_mode(jit_compile=False)
+ import time
+ import functools
+ import numpy as np
+@@ -167,7 +169,7 @@ class PoseNet(nn.Module):
+         if not os.path.exists(load_path):
+             raise ValueError("Checkpoint {} not exists.".format(load_path))
+ 
+-        checkpoint = torch.load(load_path)
++        checkpoint = torch.load(load_path, map_location=self.cfg.device)
+         print("Loading checkpoint from {} ...".format(load_path))
+         
+         if isinstance(self.net, nn.DataParallel):
+diff --git a/networks/pts_encoder/pointnet2_utils/pointnet2/pointnet2_utils.py b/networks/pts_encoder/pointnet2_utils/pointnet2/pointnet2_utils.py
+index 97a5466..145f7ec 100755
+--- a/networks/pts_encoder/pointnet2_utils/pointnet2/pointnet2_utils.py
++++ b/networks/pts_encoder/pointnet2_utils/pointnet2/pointnet2_utils.py
+@@ -5,7 +5,7 @@ import torch.nn as nn
+ from typing import Tuple
+ import sys
+ 
+-import pointnet2_cuda as pointnet2
++import pointnet2_ops as pointnet2
+ 
+ 
+ class FurthestPointSampling(Function):
+@@ -23,8 +23,10 @@ class FurthestPointSampling(Function):
+         assert xyz.is_contiguous()
+ 
+         B, N, _ = xyz.size()
+-        output = torch.cuda.IntTensor(B, npoint)
+-        temp = torch.cuda.FloatTensor(B, N).fill_(1e10)
++        device = xyz.device
++        output = torch.empty((B, npoint), dtype=torch.int32, device=device)
++        temp = torch.empty((B, N), dtype=torch.float32, device=device)
++        temp.fill_(1e10)
+ 
+         pointnet2.furthest_point_sampling_wrapper(B, N, npoint, xyz, temp, output)
+         return output
+@@ -53,7 +55,8 @@ class GatherOperation(Function):
+ 
+         B, npoint = idx.size()
+         _, C, N = features.size()
+-        output = torch.cuda.FloatTensor(B, C, npoint)
++        device = features.device
++        output = torch.empty((B, C, npoint), dtype=torch.float32, device=device)
+ 
+         pointnet2.gather_points_wrapper(B, C, N, npoint, features, idx, output)
+ 
+@@ -64,8 +67,8 @@ class GatherOperation(Function):
+     def backward(ctx, grad_out):
+         idx, C, N = ctx.for_backwards
+         B, npoint = idx.size()
+-
+-        grad_features = Variable(torch.cuda.FloatTensor(B, C, N).zero_())
++        device = grad_out.device
++        grad_features = Variable(torch.empty((B, C, N), dtype=torch.float32, device=device).zero_())
+         grad_out_data = grad_out.data.contiguous()
+         pointnet2.gather_points_grad_wrapper(B, C, N, npoint, grad_out_data, idx, grad_features.data)
+         return grad_features, None
+@@ -92,8 +95,9 @@ class ThreeNN(Function):
+ 
+         B, N, _ = unknown.size()
+         m = known.size(1)
+-        dist2 = torch.cuda.FloatTensor(B, N, 3)
+-        idx = torch.cuda.IntTensor(B, N, 3)
++        device = known.device
++        dist2 = torch.empty((B, N, 3), dtype=torch.float32, device=device)
++        idx = torch.empty((B, N, 3), dtype=torch.int32, device=device)
+ 
+         pointnet2.three_nn_wrapper(B, N, m, unknown, known, dist2, idx)
+         return torch.sqrt(dist2), idx
+@@ -125,8 +129,9 @@ class ThreeInterpolate(Function):
+ 
+         B, c, m = features.size()
+         n = idx.size(1)
++        device = features.device
+         ctx.three_interpolate_for_backward = (idx, weight, m)
+-        output = torch.cuda.FloatTensor(B, c, n)
++        output = torch.empty((B, c, n), dtype=torch.float32, device=device)
+ 
+         pointnet2.three_interpolate_wrapper(B, c, m, n, features, idx, weight, output)
+         return output
+@@ -143,8 +148,8 @@ class ThreeInterpolate(Function):
+         """
+         idx, weight, m = ctx.three_interpolate_for_backward
+         B, c, n = grad_out.size()
+-
+-        grad_features = Variable(torch.cuda.FloatTensor(B, c, m).zero_())
++        device = weight.device
++        grad_features = Variable(torch.empty((B, c, m), dtype=torch.float32, device=device).zero_())
+         grad_out_data = grad_out.data.contiguous()
+ 
+         pointnet2.three_interpolate_grad_wrapper(B, c, n, m, grad_out_data, idx, weight, grad_features.data)
+@@ -170,7 +175,8 @@ class GroupingOperation(Function):
+ 
+         B, nfeatures, nsample = idx.size()
+         _, C, N = features.size()
+-        output = torch.cuda.FloatTensor(B, C, nfeatures, nsample)
++        device = features.device
++        output = torch.empty((B, C, nfeatures, nsample), dtype=torch.float32, device=device)
+ 
+         pointnet2.group_points_wrapper(B, C, N, nfeatures, nsample, features, idx, output)
+ 
+@@ -188,7 +194,8 @@ class GroupingOperation(Function):
+         idx, N = ctx.for_backwards
+ 
+         B, C, npoint, nsample = grad_out.size()
+-        grad_features = Variable(torch.cuda.FloatTensor(B, C, N).zero_())
++        device = grad_out.device
++        grad_features = Variable(torch.empty((B, C, N), dtype=torch.float32, device=device).zero_())
+ 
+         grad_out_data = grad_out.data.contiguous()
+         pointnet2.group_points_grad_wrapper(B, C, N, npoint, nsample, grad_out_data, idx, grad_features.data)
+@@ -216,7 +223,8 @@ class BallQuery(Function):
+ 
+         B, N, _ = xyz.size()
+         npoint = new_xyz.size(1)
+-        idx = torch.cuda.IntTensor(B, npoint, nsample).zero_()
++        device = xyz.device
++        idx = torch.empty((B, npoint, nsample), dtype=torch.int32, device=device).zero_()
+ 
+         pointnet2.ball_query_wrapper(B, N, npoint, radius, nsample, new_xyz, xyz, idx)
+         return idx
+diff --git a/requirements.txt b/requirements.txt
+index a437ae6..68c0d79 100644
+--- a/requirements.txt
++++ b/requirements.txt
+@@ -1,11 +1,16 @@
++torch==2.1.0
++torch_npu==2.1.0
++torchvision==0.16.0
++torchaudio==2.1.0
+ opencv-python==4.9.0.80
+ scipy==1.12.0
+ numpy==1.26.3
+ tensorboardX==2.6.2.2
+ tensorboard==2.17.0
+-open3d==0.18.0
+-pyrealsense2==2.55.1.6486
+-ipdb
+ matplotlib
+ tqdm
+-scikit-learn
+\ No newline at end of file
++scikit-learn
++cutoop
++ipdb
++# open3d==0.18.0 # If use camera, need to install open3d.
++# pyrealsense2==2.56.5.9235 # If use camera, need to install pyrealsense2.
+diff --git a/runners/evaluation_single.py b/runners/evaluation_single.py
+index 7211d15..b3df985 100644
+--- a/runners/evaluation_single.py
++++ b/runners/evaluation_single.py
+@@ -8,6 +8,9 @@ from tqdm import tqdm
+ import _pickle as cPickle
+ import pickle
+ import torch
++import torch_npu
++import random
++torch_npu.npu.set_compile_mode(jit_compile=False)
+ import torch.nn as nn
+ import torch.nn.functional as F
+ import copy
+@@ -41,6 +44,66 @@ torch.cuda.manual_seed(cfg.seed)
+ random.seed(cfg.seed)
+ np.random.seed(cfg.seed)
+ 
++# Performance statistics
++perf_stats = {
++    'score_time': [],
++    'score_samples': 0,
++    'energy_time': [],
++    'energy_samples': 0,
++    'aggregate_time': [],
++    'aggregate_samples': 0,
++    'scale_time': [],
++    'scale_samples': 0,
++    'bbox_time': [],
++    'bbox_samples': 0,
++}
++
++
++def apply_spec_ops_patches():
++    def patched_bilinear2d(input, output_size, align_corners,scale_factors):
++        original_device = input.device
++        input_cpu = input.cpu()
++
++        result_tmp = _original_bilinear2d(
++            input_cpu,
++            output_size,
++            align_corners, 
++            scale_factors,
++        )
++        result = result_tmp.to(device=original_device)
++        return result
++
++    def patched_max_pool2d(input, kernel_size):
++        original_device = input.device
++        input_cpu = input.cpu()
++        result_tmp = _original_max_pool2d(input_cpu, kernel_size)
++        result = result_tmp.to(device=original_device)
++        return result
++    
++    def patched_interpolate(*args, **kwargs):
++        mode = kwargs.get('mode', None)
++        if mode is None and len(args) >= 4:
++            mode = args[3]
++    
++        if mode == 'bicubic':
++            kwargs['mode'] = 'bilinear'
++            if len(args) >= 4:
++                args = list(args)
++                args[3] = 'bilinear'
++                args = tuple(args)
++        result = _original_interpolate(*args, **kwargs)
++        return result
++
++
++
++    _original_bilinear2d = torch._C._nn.upsample_bilinear2d
++    _original_max_pool2d = F.max_pool2d
++    _original_interpolate = torch.nn.functional.interpolate
++
++    torch._C._nn.upsample_bilinear2d = patched_bilinear2d
++    F.max_pool2d = patched_max_pool2d
++    torch.nn.functional.interpolate = patched_interpolate
++
+ def get_dataloader():
+     dataset = Omni6DPoseDataSet(
+         cfg=cfg,
+@@ -77,8 +140,11 @@ def inference_score(save_path):
+ 
+     all_pred_pose = []
+     all_score_feature = []
++    total_samples = 0
+ 
+     for i, test_batch in enumerate(tqdm(dataloader, desc="score sampling")):
++        torch.npu.synchronize()
++        start_time = time.time()
+         batch_sample = process_batch(
+             batch_sample = test_batch, 
+             device=cfg.device, 
+@@ -97,9 +163,14 @@ def inference_score(save_path):
+             'pts_feat': batch_sample['pts_feat'].cpu(),
+             'rgb_feat': (None if batch_sample['rgb_feat'] is None else batch_sample['rgb_feat'].cpu()),
+         })
++        torch.npu.synchronize()
++        elapsed = time.time() - start_time
++        perf_stats['score_time'].append(elapsed)
++        total_samples += pred_pose.shape[0]
++        perf_stats['score_samples'] = total_samples
++
+         if i % 4 == 3:
+             gc.collect()
+-    
+     pickle.dump((all_pred_pose, all_score_feature), open(save_path, 'wb'))
+ 
+ def inference_energy(score_path, save_path):
+@@ -114,8 +185,12 @@ def inference_energy(score_path, save_path):
+     energy_agent.eval()
+ 
+     all_pred_energy = []
++    total_samples = 0
+ 
+     for i, test_batch in enumerate(tqdm(dataloader, desc="energy")):
++        torch.npu.synchronize()
++        start_time = time.time()
++
+         batch_sample = process_batch(
+             batch_sample = test_batch, 
+             device=cfg.device, 
+@@ -129,9 +204,16 @@ def inference_energy(score_path, save_path):
+             extract_feature=True
+         )
+         all_pred_energy.append(pred_energy.cpu())
++
++        torch.npu.synchronize()
++        elapsed = time.time() - start_time
++        perf_stats['energy_time'].append(elapsed)
++        total_samples += pred_energy.shape[0]
++        perf_stats['energy_samples'] = total_samples
++
+         if i % 4 == 3:
+             gc.collect()
+-    
++
+     pickle.dump(all_pred_energy, open(save_path, 'wb'))
+ 
+ def aggregate_pose(score_path, energy_path, save_path):
+@@ -147,8 +229,11 @@ def aggregate_pose(score_path, energy_path, save_path):
+                            for i in range(len(all_pred_pose))]
+ 
+     all_aggregated_pose = []
+-    
++    total_samples = 0
++
+     for i, (pred_pose, pred_energy) in enumerate(tqdm(zip(all_pred_pose, all_pred_energy), desc="aggregate")):
++        torch.npu.synchronize()
++        start_time = time.time()
+         sorted_pose, sorted_energy = sort_poses_by_energy(pred_pose, pred_energy)
+         bs = pred_pose.shape[0]
+         retain_num = int(cfg.eval_repeat_num * cfg.retain_ratio)
+@@ -173,6 +258,13 @@ def aggregate_pose(score_path, energy_path, save_path):
+         aggregated_pose[:, :3, :3] = quaternion_to_matrix(aggregated_quat_wxyz)
+         aggregated_pose[:, :3, 3] = aggregated_trans
+         all_aggregated_pose.append(aggregated_pose)
++
++        torch.npu.synchronize()
++        elapsed = time.time() - start_time
++        perf_stats['aggregate_time'].append(elapsed)
++        total_samples += bs
++        perf_stats['aggregate_samples'] = total_samples
++
+         if i % 10 == 9:
+             gc.collect()
+     
+@@ -188,8 +280,11 @@ def inference_scale(score_path, aggregate_path, save_path):
+ 
+     if cfg.pretrained_scale_model_path is None:
+         all_final_length = []
++        total_samples = 0
+ 
+         for i, test_batch in enumerate(tqdm(dataloader, desc="bbox")):
++            torch.npu.synchronize()
++            start_time = time.time()
+             pcl: torch.Tensor = test_batch['pcl_in'] # [bs, 1024, 3]
+             rotation: torch.Tensor = all_aggregated_pose[i][:, :3, :3] # [bs, 3, 3]
+             rotation_t = torch.transpose(rotation, 1, 2) # [bs, 3, 3]
+@@ -205,6 +300,12 @@ def inference_scale(score_path, aggregate_path, save_path):
+             bbox_length *= 2
+             all_final_length.append(bbox_length.cpu())
+ 
++            torch.npu.synchronize()
++            elapsed = time.time() - start_time
++            perf_stats['bbox_time'].append(elapsed)
++            total_samples += pcl.shape[0]
++            perf_stats['bbox_samples'] = total_samples
++
+             if i % 10 == 9:
+                 gc.collect()
+ 
+@@ -218,8 +319,12 @@ def inference_scale(score_path, aggregate_path, save_path):
+ 
+     all_final_pose = []
+     all_final_length = []
++    total_samples = 0
+ 
+     for i, test_batch in enumerate(tqdm(dataloader, desc="scale")):
++        torch.npu.synchronize()
++        start_time = time.time()
++
+         batch_sample = process_batch(
+             batch_sample = test_batch, 
+             device=cfg.device, 
+@@ -233,6 +338,13 @@ def inference_scale(score_path, aggregate_path, save_path):
+         final_pose[:, :3, :3] = cal_mat.cpu()
+         all_final_pose.append(final_pose.cpu())
+         all_final_length.append(length.cpu())
++
++        torch.npu.synchronize()
++        elapsed = time.time() - start_time
++        perf_stats['scale_time'].append(elapsed)
++        total_samples += length.shape[0]
++        perf_stats['scale_samples'] = total_samples
++
+         if i % 4 == 3:
+             gc.collect()
+     
+@@ -312,6 +424,52 @@ def print_metrics(dm_path, criterion_path, save_path):
+     
+     metrics.dump_json(save_path)
+ 
++def print_performance_stats():
++    """Print performance statistics for each inference stage."""
++    print("\n" + "="*60)
++    print("Performance Statistics")
++    print("="*60)
++
++    stages = [
++        ('Score Network', 'score_time', 'score_samples'),
++        ('Energy Network', 'energy_time', 'energy_samples'),
++        ('Pose Aggregation', 'aggregate_time', 'aggregate_samples'),
++        ('Scale Network', 'scale_time', 'scale_samples'),
++        ('Bbox Calculation', 'bbox_time', 'bbox_samples'),
++    ]
++
++    for stage_name, time_key, samples_key in stages:
++        if len(perf_stats[time_key]) > 0:
++            times = perf_stats[time_key]
++            samples = perf_stats[samples_key]
++            total_time = sum(times)
++            avg_batch_time = total_time / len(times)
++            fps = samples / total_time if total_time > 0 else 0
++
++            print(f"\n{stage_name}:")
++            print(f"  Total batches: {len(times)}")
++            print(f"  Total samples: {samples}")
++            print(f"  Total time: {total_time:.3f}s")
++            print(f"  Avg batch time: {avg_batch_time:.3f}s")
++            print(f"  FPS: {fps:.3f}")
++            print(f"  Avg latency per sample: {1000/fps if fps > 0 else 0:.2f}ms")
++
++    # Calculate overall statistics
++    total_samples = perf_stats['score_samples']
++    total_time = sum(perf_stats['score_time']) + sum(perf_stats.get('energy_time', [0])) + \
++                 sum(perf_stats.get('aggregate_time', [0])) + \
++                 sum(perf_stats.get('scale_time', []) if perf_stats['scale_time'] else perf_stats.get('bbox_time', []))
++
++    if total_time > 0:
++        overall_fps = total_samples / total_time
++        print(f"\n{'='*60}")
++        print(f"Overall Pipeline:")
++        print(f"  Total samples: {total_samples}")
++        print(f"  Total time: {total_time:.3f}s")
++        print(f"  Overall FPS: {overall_fps:.3f}")
++        print(f"  Avg latency per sample: {1000/overall_fps:.2f}ms")
++        print("="*60)
++
+ def visualize_pose_distribution(score_path, dm_path):
+     all_pred_pose, _ = pickle.load(open(score_path, 'rb'))
+     all_dm: DetectMatch = pickle.load(open(dm_path, 'rb'))
+@@ -334,6 +492,7 @@ def visualize_pose_distribution(score_path, dm_path):
+             all_dm.draw_image(index=index)
+             set_trace()
+ 
++apply_spec_ops_patches()
+ os.makedirs(f'results/evaluation_results/{cfg.result_dir}', exist_ok=True)
+ 
+ score_model_name = '_'.join(cfg.pretrained_score_model_path.split('/')[-2:])
+@@ -364,5 +523,6 @@ get_criterion(dm_save_path, criterion_save_path)
+ 
+ metrics_save_path = f'results/evaluation_results/{cfg.result_dir}/metrics.json'
+ print_metrics(dm_save_path, criterion_save_path, metrics_save_path)
+-# visualize_pose_distribution(score_save_path, dm_save_path)
+-os._exit(0)
+\ No newline at end of file
++
++# Print performance statistics
++print_performance_stats()
+diff --git a/runners/infer.py b/runners/infer.py
+index 963c6a0..2448b94 100644
+--- a/runners/infer.py
++++ b/runners/infer.py
+@@ -1,15 +1,19 @@
+ import os
+ import sys
++
++# Disable OpenCV GUI for headless environments
++os.environ['QT_QPA_PLATFORM'] = 'offscreen'
+ import numpy as np
+ from tqdm import tqdm
+ import pickle
+ import torch
++import torch_npu
++torch_npu.npu.set_compile_mode(jit_compile=False)
+ import random
+ import gc
+ import cv2
+-import open3d as o3d
+-import pyrealsense2 as rs
+-import pyrealsense2 as rs
++# import open3d as o3d  # Not needed for offline inference
++# import pyrealsense2 as rs  # Not needed for offline inference
+ import numpy as np
+ import glob
+ 
+@@ -243,11 +247,13 @@ def visualize_pose(data:InferDataset, all_final_pose, all_final_length, visualiz
+     all_final_length = all_final_length[0].cpu().numpy()
+ 
+     for index, (obj_pose, obj_length) in enumerate(zip(all_final_pose, all_final_length)):
+-        if visualize_pts:
+-            pts = data.get_objects()['pts'].cpu().numpy()[index]
+-            pcd = o3d.geometry.PointCloud()
+-            pcd.points = o3d.utility.Vector3dVector(pts)
+-            o3d.visualization.draw_geometries([pcd])
++        # open3d Not needed for offline inference
++        # if visualize_pts:
++        #     pts = data.get_objects()['pts'].cpu().numpy()[index]
++        #     pcd = o3d.geometry.PointCloud()
++        #     pcd.points = o3d.utility.Vector3dVector(pts)
++        #     o3d.visualization.draw_geometries([pcd])
++        #     print(f"Object {index}: visualize_pts is not supported (open3d disabled)")
+         color_img = DetectMatch._draw_image(
+             vis_img=color_img,
+             pred_affine=obj_pose,
+@@ -264,17 +270,18 @@ def visualize_pose(data:InferDataset, all_final_pose, all_final_length, visualiz
+             thickness=True,
+         )
+     
+-    if visualize_image:
+-        cv2.namedWindow('rgb')
+-        cv2.imshow('rgb', color_img)
+-        cv2.waitKey() 
+-        cv2.destroyAllWindows()
++    # Not needed for offline inference
++    # if visualize_image:
++    #     cv2.namedWindow('rgb')
++    #     cv2.imshow('rgb', color_img)
++    #     cv2.waitKey()
++    #     cv2.destroyAllWindows()
+     return color_img
+ 
+ 
+ def main():
+     ######################################## PARAMETERS ########################################
+-    DATA_PATH = 'data/Omni6DPose/ROPE/000007'                 # Path to the data
++    DATA_PATH = 'omin6dpose-000/ROPE/000000/'                 # Path to the data
+     TRACKING = True                                           # Tracking mode
+ 
+     # Tracking parameter, if the relative pose between the current frame and the previous frame
+@@ -297,20 +304,19 @@ def main():
+         scale_model_path=SCALE_MODEL_PATH,
+     )
+     
+-    cv2.namedWindow('rgb')
++    # cv2.namedWindow('rgb')  # Not needed for offline inference
+     for index, color_image in enumerate(tqdm(color_images)):
+         data_prefix = color_image.replace('color.png', '')
+         data = InferDataset.alternetive_init(data_prefix, img_size=GenPose2.cfg.img_size, device=GenPose2.cfg.device, n_pts=GenPose2.cfg.num_points)
+         pose, length = GenPose2.inference(data, PREV_POSE, TRACKING, TRACKING_T0)
+         color_image_w_pose = visualize_pose(data, pose, length, visualize_image=False)
+         PREV_POSE = pose
+-        cv2.imshow('rgb', color_image_w_pose)
+-        cv2.waitKey(1) 
++        # cv2.imshow('rgb', color_image_w_pose)  # Not needed for offline inference
++        # cv2.waitKey(1)
+ 
+-    cv2.destroyAllWindows()    
++    # cv2.destroyAllWindows()  # Not needed for offline inference    
+ 
+ 
+ if __name__ == '__main__':
+     main()
+ 
+-
+diff --git a/scripts/eval_single.sh b/scripts/eval_single.sh
+index 6386f80..8bec618 100644
+--- a/scripts/eval_single.sh
++++ b/scripts/eval_single.sh
+@@ -3,10 +3,10 @@ CUDA_VISIBLE_DEVICES=0 python runners/evaluation_single.py \
+ --pretrained_score_model_path results/ckpts/ScoreNet/scorenet.pth \
+ --pretrained_energy_model_path results/ckpts/EnergyNet/energynet.pth \
+ --pretrained_scale_model_path results/ckpts/ScaleNet/scalenet.pth \
+---data_path Omni6DPose_ROPE_PATH \
++--data_path omni6dpose-000000/ROPE/ \
+ --sampler_mode ode \
+ --percentage_data_for_test 1.0 \
+---batch_size 128 \
++--batch_size 32 \
+ --seed 0 \
+ --result_dir single \
+ --eval_repeat_num 50 \
+@@ -14,4 +14,5 @@ CUDA_VISIBLE_DEVICES=0 python runners/evaluation_single.py \
+ --T0 0.55 \
+ --dino pointwise \
+ --num_worker 32 \
+---real_drop 3 \
+\ No newline at end of file
++--real_drop 3 \
++--device npu:0
+diff --git a/utils/transforms/rotation_conversions.py b/utils/transforms/rotation_conversions.py
+index df68525..11efc01 100755
+--- a/utils/transforms/rotation_conversions.py
++++ b/utils/transforms/rotation_conversions.py
+@@ -553,6 +553,13 @@ def quaternion_to_axis_angle(quaternions: torch.Tensor) -> torch.Tensor:
+     return quaternions[..., 1:] / sin_half_angles_over_angles
+ 
+ 
++
++def _simple_cross(a, b):
++    c1 = a[...,1]*b[...,2] - a[...,2]*b[...,1]
++    c2 = a[...,2]*b[...,0] - a[...,0]*b[...,2]
++    c3 = a[...,0]*b[...,1] - a[...,1]*b[...,0]
++    return torch.stack([c1, c2, c3], dim=-1)
++
+ def rotation_6d_to_matrix(d6: torch.Tensor) -> torch.Tensor:
+     """
+     Converts 6D rotation representation by Zhou et al. [1] to rotation matrix
+@@ -573,7 +580,7 @@ def rotation_6d_to_matrix(d6: torch.Tensor) -> torch.Tensor:
+     b1 = F.normalize(a1, dim=-1)
+     b2 = a2 - (b1 * a2).sum(-1, keepdim=True) * b1
+     b2 = F.normalize(b2, dim=-1)
+-    b3 = torch.cross(b1, b2, dim=-1)
++    b3 = _simple_cross(b1, b2)
+     return torch.stack((b1, b2, b3), dim=-2)
+ 
+ 
