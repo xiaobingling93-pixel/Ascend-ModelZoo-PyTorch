@@ -2,7 +2,7 @@
 
 ## 约束条件
 * 在20t24g 香橙派aipro上部署DeepSeek-R1-Distill-Llama-8B模型
-* 需要修改权重目录下的config.json文件，"torch_dtype"字段改为"float16", "max_position_embedding"字段改为8192
+* 需要修改权重目录下的config.json文件，"torch_dtype"字段改为"float16", "max_position_embedding"字段改为8192（根据输入输出配置调整，大于max_input_length + max_output_length）
 * 由于此硬件为单卡，仅支持TP=1
 
 ## 权重
