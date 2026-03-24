@@ -88,6 +88,7 @@ cd ModelZoo-PyTorch/ACL_PyTorch/built-in/audio/CosyVoice2
    
 2. 安装依赖  
    ```
+   pip install openai-whisper==20231117 --no-build-isolation
    pip3 install -r ../requirements.txt
    pip3 install tokenizers==0.14.0
    pip3 install huggingface-hub==0.23.5
@@ -97,6 +98,8 @@ cd ModelZoo-PyTorch/ACL_PyTorch/built-in/audio/CosyVoice2
    ```bash
     # 下载安装包并解压
     wget https://www.openfst.org/twiki/pub/FST/FstDownload/openfst-1.8.3.tar.gz
+    tar -xvzf openfst-1.8.3.tar.gz
+    cd openfst-1.8.3
     # 进入目录后编译安装
     ./configure --enable-far --enable-mpdt --enable-pdt
     make -j$(nproc)
@@ -108,6 +111,7 @@ cd ModelZoo-PyTorch/ACL_PyTorch/built-in/audio/CosyVoice2
     sudo ldconfig
     # 安装WeTextProcessing
     pip3 install WeTextProcessing==1.0.4.1
+    cd ..
    ```
    
 3. 安装msit工具
