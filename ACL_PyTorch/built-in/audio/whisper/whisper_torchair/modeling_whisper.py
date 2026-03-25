@@ -439,6 +439,13 @@ def rewrite_inference_logits(n_layer):
                 }
                 for _ in range(n_layer)
             ]
+
+            # 用于适配best_of和beam_size参数
+            current_bs = tokens.shape[0]
+            encoder_bs = audio_features.shape[0]
+            if current_bs != encoder_bs:
+                beam_size = current_bs // encoder_bs
+                audio_features = audio_features.repeat_interleave(beam_size, dim=0)
             return self.model.prefill_decoder(tokens, audio_features, kv_cache=self.kv_cache)
 
         actual_seq_len = tokens.shape[-1]
@@ -486,5 +493,35 @@ def get_whisper_model(whisper_model_path, whisper_decode_options, device='npu'):
     model = modify_model(model, whisper_decode_options, device)
     rewrite_inference_logits(model.dims.n_text_layer)
     rewrite_whisper_logits(model.dims.n_text_layer)
-
+    PyTorchInference.rearrange_kv_cache = _rewrite_rearrange_kv_cache
     return model
+
+
+def _rewrite_rearrange_kv_cache(self, source_indices):
+    if source_indices is None or len(source_indices) == 0:
+        return
+
+    if not isinstance(source_indices, torch.Tensor):
+        source_indices = torch.tensor(source_indices, dtype=torch.long)
+
+    for layer_cache in self.kv_cache:
+        if not isinstance(layer_cache, dict):
+            continue
+
+        for attn_type in ['attn', 'cross_attn']:
+            if attn_type not in layer_cache or not isinstance(layer_cache[attn_type], dict):
+                continue
+            for cache_key in ['key', 'value']:
+                if cache_key not in layer_cache[attn_type]:
+                    continue
+                tensor = layer_cache[attn_type][cache_key]
+                if tensor is None or tensor.dim() == 0 or tensor.shape[0] == 0:
+                    continue
+                if source_indices.numel() == 0:
+                    continue
+                max_src_idx = source_indices.max().item()
+                if max_src_idx >= tensor.shape[0]:
+                    continue
+                if source_indices.device != tensor.device:
+                    source_indices = source_indices.to(tensor.device)
+                layer_cache[attn_type][cache_key] = tensor[source_indices].detach().contiguous()
