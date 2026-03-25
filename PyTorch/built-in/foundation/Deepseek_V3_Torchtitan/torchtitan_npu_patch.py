@@ -392,12 +392,15 @@ def _run_experts_grouped_mm(
     group_list = num_tokens_per_expert.to(torch.int64)
     group_list_type = 1
     w1_T = w1.bfloat16().transpose(-2, -1)
-    h = NPUGroupedLinearGMM.apply(x.bfloat16(), group_list, group_list_type, w1.bfloat16(), *w1_T)
+    h = NPUGroupedLinearGMM.apply(
+        x.bfloat16(), group_list, group_list_type, w1.bfloat16(), w1_T)
     h = F.silu(h)
     w3_T = w3.bfloat16().transpose(-2, -1)
-    h = h * NPUGroupedLinearGMM.apply(x.bfloat16(), group_list, group_list_type, w3.bfloat16(), *w3_T)
+    h = h * NPUGroupedLinearGMM.apply(x.bfloat16(),
+                                      group_list, group_list_type, w3.bfloat16(), w3_T)
     w2_T = w2.bfloat16().transpose(-2, -1)
-    out = NPUGroupedLinearGMM.apply(h.bfloat16(), group_list, group_list_type, w2.bfloat16(), *w2_T)
+    out = NPUGroupedLinearGMM.apply(
+        h.bfloat16(), group_list, group_list_type, w2.bfloat16(), w2_T)
     return out
 
 
@@ -407,15 +410,22 @@ class NPUGroupedLinearGMM(torch.autograd.Function):
                 m_split=None,
                 group_list_type=None,
                 ori_weight=None,
-                *weight_input_T) -> torch.Tensor:
+                weight_input_T=None) -> torch.Tensor:
         if not isinstance(m_split, torch.Tensor):
-            ctx.group_list = torch.tensor(m_split, device='npu', dtype=torch.int64)
+            ctx.group_list = torch.tensor(
+                m_split, device='npu', dtype=torch.int64)
         else:
             ctx.group_list = m_split
-        weight_T = weight_input_T
+        weight_T = torch.split(weight_input_T, weight_input_T.shape[0])
         ctx.group_list_type = group_list_type
-        fwd_output = torch_npu.npu_grouped_matmul([input_tensor], weight_T, bias=None, group_list=ctx.group_list,
-                                                  split_item=2, group_type=0, group_list_type=ctx.group_list_type)[0]
+
+        fwd_output = torch_npu.npu_grouped_matmul(
+            [input_tensor], weight_T, bias=None,
+            group_list=ctx.group_list,
+            split_item=2, group_type=0,
+            group_list_type=ctx.group_list_type
+        )[0]
+
         ctx.save_for_backward(input_tensor, *ori_weight)
         return fwd_output
 
@@ -430,9 +440,8 @@ class NPUGroupedLinearGMM(torch.autograd.Function):
                                             split_item=2, group_type=0, group_list_type=group_list_type)[0]
         # K spilt gmm.
         grad_weight = torch_npu.npu_grouped_matmul([inp.T], [grad_output], bias=None, group_list=group_list,
-                                    split_item=3, group_type=2, group_list_type=group_list_type)[0]
-        
-        return grad, None, None, None, *grad_weight
+                                                   split_item=3, group_type=2, group_list_type=group_list_type)[0]
+        return grad, None, None, None, grad_weight
 
 
 ##=====================patch for torch==========================
