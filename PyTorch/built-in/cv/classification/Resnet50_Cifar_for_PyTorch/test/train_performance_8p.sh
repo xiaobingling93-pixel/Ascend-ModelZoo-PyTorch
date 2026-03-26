@@ -76,8 +76,20 @@ e2e_time=$(( $end_time - $start_time ))
 
 #结果打印，不需要修改
 echo "------------------ Final result ------------------"
+sum=0
+sample_count=0
+for file in ./work_dirs/resnet50_8xb256_cifar100_perf/*; do
+    if [[ "$file" =~ rank[0-9]\.log\.json$ ]]; then
+        rank_result=`sed -n "7,26p;33,52p" $file | awk -F " " '{print $12 $16}' | awk -F',' '{sum1 += $1; sum2 += $2; count += 1} END {print sum2 - sum1 " " count}'`
+        rank_time=`echo $rank_result | awk '{print $1}'`
+        rank_count=`echo $rank_result | awk '{print $2}'`
+        sum=`echo "$sum + $rank_time" |bc`
+        sample_count=$((sample_count + rank_count))
+    fi
+done
+
 #输出性能FPS，需要模型审视修改
-avg_time=`sed '/Epoch(val)/q' ${test_path_dir}/output/${ASCEND_DEVICE_ID}/train_${ASCEND_DEVICE_ID}.log | grep -a 'time: ' | awk -F "time: " '{print $2}'| awk -F "," '{print $1}'|tail -10 | awk '{a+=$1} END {if (NR != 0) printf("%.3f",a/NR)}'`
+avg_time=`echo "scale=4; $sum / $sample_count" |bc`
 FPS=`echo "$batch_size / $avg_time" |bc`
 #打印，不需要修改
 echo "Final Performance images/sec : $FPS"

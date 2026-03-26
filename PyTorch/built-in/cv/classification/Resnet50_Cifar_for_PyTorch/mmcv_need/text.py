@@ -103,6 +103,8 @@ class TextLoggerHook(LoggerHook):
         self.start_iter = runner.iter
         self.json_log_path = osp.join(runner.work_dir,
                                       f'{runner.timestamp}.log.json')
+        self.rank_json_log_path = osp.join(runner.work_dir,
+                                      f'{runner.timestamp}.rank{runner.rank}.log.json')
         if runner.meta is not None:
             self._dump_log(runner.meta, runner)
 
@@ -187,11 +189,9 @@ class TextLoggerHook(LoggerHook):
         json_log = OrderedDict()
         for k, v in log_dict.items():
             json_log[k] = self._round_float(v)
-        # only append log at last line
-        if runner.rank == 0:
-            with open(self.json_log_path, 'a+') as f:
-                mmcv.dump(json_log, f, file_format='json')
-                f.write('\n')
+        with open(self.rank_json_log_path, 'a+') as f:
+            mmcv.dump(json_log, f, file_format='json')
+            f.write('\n')
 
     def _round_float(self, items):
         if isinstance(items, list):
