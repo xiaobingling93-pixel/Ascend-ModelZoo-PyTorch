@@ -31,7 +31,7 @@
   | 配套                                                            |   版本 | 环境准备指导                                                                                          |
   | ------------------------------------------------------------    | ------ | ------------------------------------------------------------                                          |
   | 固件与驱动                                                       | 25.2.0 | [Pytorch框架推理环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies) |
-  | CANN                                                            |  8.2.RC1 | 包含kernels包和toolkit包                                                                                                   |
+  | CANN                                                            |  9.0.0 | 包含kernels包和toolkit包                                                                                                   |
   | Python                                                          |  3.11 | -                                                                                                     |
   | PyTorch                                                         | 2.3.1 | -                                                                                                     |
   | Ascend Extension PyTorch                                        | 2.3.1.post6 | -                                                                                                     |
@@ -173,7 +173,9 @@ cd ModelZoo-PyTorch/ACL_PyTorch/built-in/audio/CosyVoice2
    ```
    在权重目录CosyVoice2-0.5B下会生成三个om模型, 分别为 speech_{arch}.om和flow_{arch}.om，flow_static.om。其中flow_static.om为分档模型，在流式输出中生效，档位设置为模型中默认流式输出token档位，如果在模型中修改token_hope_len，档位也需要对应修改。
 
-   注：模型{arch}后缀为当前使用的CPU操作系统。
+   注：
+   * 模型{arch}后缀为当前使用的CPU操作系统。
+   * 在算力切分场景下，需要在atc命令中添加--aicore_num="5|10" --virtual_type=1这两个参数，其中5和10分别为切分后的ai core和vector core数量（vector core数量为ai core数量的两倍)，根据实际切分环境配置。且atc转换命令需要在切分环境下执行。
 
 ### 2 开始推理验证
 
@@ -231,3 +233,5 @@ cd ModelZoo-PyTorch/ACL_PyTorch/built-in/audio/CosyVoice2
    5. 运行modify_onnx.py时，如提示ModuleNotFoundError: No module named 'auto_optimizer'：
 
       需先安装[msit](https://gitcode.com/ascend/msit)工具。
+   
+   6. 在未切分的环境下生成的om模型，在切分后的环境中运行时可能会导致报错或者卡死，所以需要确保导出om模型和运行时的环境一致。
