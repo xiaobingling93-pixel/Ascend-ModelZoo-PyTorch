@@ -1,0 +1,7 @@
+torch_npu==2.1.0.post17
+pyyaml
+ipdb
+cutoop
+decorator
+attrs==21.4.0
+psutil

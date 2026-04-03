@@ -60,7 +60,12 @@ pip install -r requirements.txt
 ```
 
 * 安装requirements：
-`pip3 install -r requirements.txt`
+
+```bash
+pip3 install -r requirements.txt
+pip3 install -r ../requirements.txt
+```
+
 
 ### 下载配置文件与模型
 
@@ -110,9 +115,13 @@ GenPose2
 ```
 bash scripts/eval_single.sh
 ```
+注：如为310P RC设备，需将eval_single.sh中bs修改为16.
+
 
 模型推理性能精度结果：
 | 芯片 |   batchsize  |     iou_mean   |   性能(ms/sample)     |
 |------|-------------|-------------|-------------|
 |  300I DUO| 32  |        0.2928     | 2973.17 |
+|  310P RC| 16  |        0.2959     | 3861.52 |
+
 

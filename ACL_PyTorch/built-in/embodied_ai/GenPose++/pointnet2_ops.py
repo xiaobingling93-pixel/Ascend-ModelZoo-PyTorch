@@ -16,6 +16,25 @@
 import torch
 
 
+from env_utils import is_rc_device 
+
+
+def apply_spec_ops_patches():
+    def patched_floordiv(self, other):
+        tmp = self / other
+        if isinstance(tmp, torch.Tensor):
+            result = tmp.type(self.dtype)
+        else:
+            result = tmp.__floordiv__(other) if hasattr(tmp, '__floordiv__') else (self // other)
+        return result
+
+    if is_rc_device():
+        torch.Tensor.__floordiv__ = patched_floordiv
+
+
+apply_spec_ops_patches()
+
+
 def _furthest_point_sampling(xyz, npoints):
     """Implemetation of PyTorch Furthest Point Sampling (FPS) algorithm."""
     B, N, _ = xyz.shape
