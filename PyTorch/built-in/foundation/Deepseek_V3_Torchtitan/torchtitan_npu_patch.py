@@ -444,6 +444,64 @@ class NPUGroupedLinearGMM(torch.autograd.Function):
         return grad, None, None, None, grad_weight
 
 
+def moe_forward(self, x: torch.Tensor) -> torch.Tensor:
+    """
+    Args:
+        x (torch.Tensor): Input tensor with shape ``(bs, slen, dim)``.
+
+    Returns:
+        out (torch.Tensor): Output tensor with shape ``(bs, slen, dim)``.
+    """
+    bs, slen, dim = x.shape
+    x = x.view(-1, dim)
+
+    (
+        top_scores,
+        selected_experts_indices,
+        num_tokens_per_expert,
+    ) = self.router(x, self.expert_bias)
+
+    with torch.no_grad():
+        self.tokens_per_expert = self.tokens_per_expert + num_tokens_per_expert
+
+    (
+        top_scores_experts_sorted,
+        token_indices_experts_sorted,
+        num_tokens_per_expert,
+    ) = self.reorderer(top_scores, selected_experts_indices)
+
+    token_indices_experts_sorted = token_indices_experts_sorted.reshape(
+        -1, 1
+    ).expand(-1, dim)
+
+    routed_input = torch.gather(x, dim=0, index=token_indices_experts_sorted)
+
+    if self.score_before_experts:
+        routed_input = (
+            routed_input.to(torch.float32)
+            * top_scores_experts_sorted.reshape(-1, 1)
+        ).to(x.dtype)
+
+    routed_output = self.experts(routed_input, num_tokens_per_expert)
+
+    if self.shared_experts is not None:
+        out = self.shared_experts(x)
+    else:
+        out = torch.zeros_like(x)
+
+    if not self.score_before_experts:
+        routed_output = (
+            routed_output.to(torch.float32)
+            * top_scores_experts_sorted.reshape(-1, 1)
+        ).to(x.dtype)
+
+    out = out.scatter_add(
+        dim=0, index=token_indices_experts_sorted, src=routed_output
+    )
+    out = out.reshape(bs, slen, dim)
+    return out
+
+
 ##=====================patch for torch==========================
 
 ##PP—ZBVZeroBubble patch
@@ -571,4 +629,5 @@ torch.distributed.fsdp._fully_shard._fsdp_collectives._get_gradient_divide_facto
 DeepSeekV3ModelArgs.update_from_config = update_from_config
 TokenReorderer.forward = forward
 torchtitan.models.moe.moe._run_experts_grouped_mm = _run_experts_grouped_mm
+torchtitan.models.moe.moe.MoE.forward = moe_forward
 nn.RMSNorm = RMSNorm
