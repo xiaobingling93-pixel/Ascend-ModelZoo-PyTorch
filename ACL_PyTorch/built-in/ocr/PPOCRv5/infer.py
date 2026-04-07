@@ -43,8 +43,8 @@ def parse_args():
     )
     parser.add_argument(
         "--custom_size",
-        type=str,
-        default=1000000000,
+        type=int,
+        default=10000000,
         help="aisbench buffer size for dynamic-shape inference",
     )
 

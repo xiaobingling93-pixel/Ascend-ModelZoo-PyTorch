@@ -109,15 +109,17 @@ PPOCRv5产线主要包含文本检测模块（det）以及文本识别模块（r
 获取示例图像存放在工作路径，并执行推理脚本，脚本通过调用PaddleOCR接口进行产线推理，通过指定文本检测模块以及文本识别模块，解决了文本识别任务，将图片中的文字信息以文本形式输出。
    ```
    wget https://paddle-model-ecology.bj.bcebos.com/paddlex/imgs/demo_image/general_ocr_002.png
-   python3 infer.py --image_dir general_ocr_002.png
+   python3 infer.py --image_dir general_ocr_002.png (--custom_size 10000000)
    ```
 
 - 参数说明
   - image_dir: 待预测数据，可以是图像文件或者包含图片的本地目录
+  - device_id：使用的NPU卡号，默认为0
   - det_model_name: 文本检测模型的名称，默认为PP-OCRv5_server_det
   - det_model_dir: 文本检测模型的目录路径，默认为PP-OCRv5_server_det_infer
   - rec_model_name: 文本识别模型的名称，默认为PP-OCRv5_server_rec
   - rec_model_dir: 文本识别模型的目录路径，默认为PP-OCRv5_server_rec_infer
+  - custom_size: ais_bench使用动态shape时指定的buffer size，具体数值根据数据集而异，值过小会导致内存越界，可从小往大调整直至正常推理，推荐初始值为1e7
 
 推理执行完成后，解析结果存放于`output`目录，目录包含存有各项中间结果的json文件以及可视化结果图像。
 
@@ -163,11 +165,11 @@ PPOCRv5产线主要包含文本检测模块（det）以及文本识别模块（r
    预期输出acc以及norm_edit_dis两个指标，分别表示准确率以及归一化编辑距离，这里选用acc作为文本识别模型的精度指标，PP-OCRv5_server_rec模型在ocr_rec_dataset_examples数据集上的预期输出为0.7227。
 
 ### 性能测试
-对于文本检测模型，输入的数据要求长宽为32的整数倍，我们以（1,3,960,960）的输入shape为例，运行如下命令测试推理性能，
+对于文本检测模型，输入的数据要求长宽为32的整数倍，我们以（1,3,960,960）的输入shape为例，运行如下命令测试纯模型推理性能，
    ```
    python -m ais_bench --model ../PP-OCRv5_server_det_infer/inference_linux_aarch64.om --outputSize "1000000000" --dymShape "x:1,3,960,960" --loop 100
    ```
-对于文本识别模型，以（1,3,48,320）shape为例，运行如下命令测试性能
+对于文本识别模型，以（1,3,48,320）shape为例，运行如下命令测试纯模型推理性能
    ```
    python -m ais_bench --model ../PP-OCRv5_server_rec_infer/inference_linux_aarch64.om --outputSize "1000000000" --dymShape "x:1,3,48,320" --loop 100
    ```
@@ -178,7 +180,7 @@ PPOCRv5产线主要包含文本检测模块（det）以及文本识别模块（r
    EP模式: Atlas 300I DUO;
    RC模式: Ascend 310P RC 176T
 
-   |模型|hmeans/acc|hmeans/acc（A10）|性能（ms）(EP模式)|性能（ms）(RC模式)|
+   |模型|hmeans/acc|hmeans/acc（A10）|纯模型性能（ms）(EP模式)|纯模型性能（ms）(RC模式)|
    |------|------|------|------|------|
    |PP-OCRv5_server_det|52.87%|52.87%|35.01 |26.85 |
    |PP-OCRv5_server_rec|72.27%|72.27%|2.63 |6.09 |
