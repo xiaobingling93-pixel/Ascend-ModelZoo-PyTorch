@@ -214,11 +214,11 @@
       3. 执行ATC命令，input_shape请根据实际情况输入对应的输入宽高。
 
          ```
-            atc --framework=5\ 
-                 --model=./cascade.onnx\ 
-                 --output=./cascade\ 
-                 --input_format=NCHW\ 
-                 --input_shape="input:1,3,640,640"\ 
+            atc --framework=5\
+                 --model=./cascade.onnx\
+                 --output=./cascade\
+                 --input_format=NCHW\
+                 --input_shape="input:1,3,640,640"\
                  --log=error\
                  --out_nodes="Concat_1031:0;Reshape_1033:0"\
                  --soc_version=Ascend${ChipName}
@@ -247,9 +247,10 @@
 
         
     ```
-    python -m ais_bench --model ./cascade.om\  
-                                  --input ./val2017_bin/\ 
-                                  --output ./\ 
+    python -m ais_bench --model ./cascade.om\
+                                  --input ./val2017_bin/\
+                                  --output ./output\
+                                  --output_dirname result\
                                   --batchsize 1\
                                   --outfmt BIN\
                                   --output_dirname result
@@ -281,7 +282,7 @@
 
     ```
     python cascadercnndcn_postprocess.py\
-      --bin_data_path=result\
+      --bin_data_path=output/result\
       --prob_thres=0.05 --ifShowDetObj\
       --det_results_path=detection-results\
       --test_annotation=coco2017_jpg.info\
