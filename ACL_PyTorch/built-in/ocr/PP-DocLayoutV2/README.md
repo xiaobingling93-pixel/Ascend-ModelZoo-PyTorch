@@ -191,7 +191,7 @@ for f in OmniDocBenchV1.5_out_pdf/end2end/*_0.md; do mv "$f" "${f%_0.md}.md"; do
    ```
    git clone https://github.com/ImageMagick/ImageMagick.git ImageMagick-7.1.2
    cd ImageMagick-7.1.2
-   apt-get update && apt-get install -y libpng-dev zlib1g-dev
+   apt-get update && apt-get install -y libpng-dev zlib1g-dev libgs-dev libxml2-dev libfontconfig1-dev
    apt-get install -y ghostscript
    ./configure
    make
