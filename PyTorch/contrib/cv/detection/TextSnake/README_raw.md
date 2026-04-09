@@ -198,5 +198,5 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## Acknowledgement
 
-* This project is writen by [Prince Wang](https://github.com/princewang1994), part of codes refer to [songdejia/EAST](https://github.com/songdejia/EAST)
+* This project is writen by Prince Wang, part of codes refer to [songdejia/EAST](https://github.com/songdejia/EAST)
 * Thanks [techkang](https://github.com/techkang) for your great help!

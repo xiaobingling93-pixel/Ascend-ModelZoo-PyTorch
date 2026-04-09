@@ -86,7 +86,7 @@ Fairseq Transformer wmt18模型是Fairseq套件中基于Transformer结构的翻�
 
 1. 获取数据集。
   
-    用户自行下载 `WMT18` (Workshop on Machine Translation at EMNLP 2018)数据集，并将[表2 数据集简介表](表2)中的数据集全部下载后上传到源码包中的 `./examples/translation/orig` 目录下并解压。
+ 用户自行下载 `WMT18` (Workshop on Machine Translation at EMNLP 2018)数据集，并将 数据集简介表中的数据集全部下载后上传到源码包中的 `./examples/translation/orig` 目录下并解压。
 
     **表 2**  数据集简介表
     | 来源  | 名称                                             |

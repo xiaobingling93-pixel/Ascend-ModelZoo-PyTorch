@@ -15,7 +15,7 @@
 ## 数据集
 
 please download from origin repo:
-https://github.com/okankop/Efficient-3DCNNs/tree/master/annotation_UCF10
+
 
 ### 处理数据
 参考：https://github.com/okankop/Efficient-3DCNNs

@@ -129,7 +129,7 @@ RARE是一个对于不规则的文字具有鲁棒性的识别模型模型，参�
 
    1. 获取权重文件。
 
-       训练权重链接为：https://paddleocr.bj.bcebos.com/dygraph_v2.0/en/rec_r34_vd_tps_bilstm_att_v2.0_train.tar。
+ 训练权重链接为：
        
        在`RARE_Resnet34_vd`工作目录下可通过以下命令获取训练权重并转为推理模型。
 

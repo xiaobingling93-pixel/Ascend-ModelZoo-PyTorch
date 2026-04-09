@@ -146,7 +146,7 @@ FLAVR使用3D卷积来学习帧间运动信息，是一种无光流估计的单�
 
    1. 获取权重文件。
 
-       从开源仓获取权重文件[FLAVR_4x.pth](https://drive.google.com/file/d/1btmNm4LkHVO9gjAaKKN9CXf5vP7h4hCy/view?usp=sharing)
+ 从开源仓获取权重文件FLAVR_4x.pth
 
    2. 导出onnx文件。
 

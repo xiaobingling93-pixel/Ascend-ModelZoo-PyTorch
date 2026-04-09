@@ -121,14 +121,12 @@ The generator is trained adversarially against two discriminators: an patch-base
 
 **Object Discriminator**: These flags only apply to the object discriminator:
 
-- `--d_obj_arch`: String giving the architecture of the object discriminator; the semantics for architecture strings [is described here](https://github.com/jcjohnson/sg2im-release/blob/master/sg2im/layers.py#L116).
 - `--crop_size`: The object discriminator crops out each object in images; this gives the spatial size to which these crops are (differentiably) resized. Default is 32.
 - `--d_obj_weight`: Weight for real / fake classification in the object discriminator. During training the weight given to fooling the object discriminator is `--discriminator_loss_weight * --d_obj_weight`. Default is 1.0
 - `--ac_loss_weight`: Weight for the auxiliary classifier in the object discriminator that attempts to predict the object category of objects; the weight assigned to this loss is `--discriminator_loss_weight * --ac_loss_weight`. Default is 0.1.
 
 **Image Discriminator**: These flags only apply to the image discriminator:
 
-- `--d_img_arch`: String giving the architecture of the image discriminator; the semantics for architecture strings [is described here](https://github.com/jcjohnson/sg2im-release/blob/master/sg2im/layers.py#L116).
 - `--d_img_weight`: The weight assigned to fooling the image discriminator is `--discriminator_loss_weight * --d_img_weight`. Default is 1.0.
 
 ### Output Options

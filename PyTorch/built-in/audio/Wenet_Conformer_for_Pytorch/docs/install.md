@@ -8,7 +8,7 @@ just install it by `pip`, please note python 3.6+ is required.
 pip3 install wenetruntime
 ```
 
-And please see [doc](https://github.com/wenet-e2e/wenet/tree/main/runtime/binding/python) for usage.
+And please see doc for usage.
 
 
 ## Install for training

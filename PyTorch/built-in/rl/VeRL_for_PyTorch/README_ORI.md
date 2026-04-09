@@ -35,7 +35,7 @@ verl is fast with:
 
 ## News
 - [2025/03] verl v0.3.0.post1 is released! See [release note](https://github.com/volcengine/verl/releases/) for details.
-- [2025/03] [DAPO](https://dapo-sia.github.io/) is the open-sourced SOTA RL algorithm that achieves 50 points on AIME 2024 based on the Qwen2.5-32B pre-trained model, surpassing the previous SOTA achieved by DeepSeek's GRPO (DeepSeek-R1-Zero-Qwen-32B). DAPO's training is fully powered by verl and the reproduction code is [publicly available](https://github.com/volcengine/verl/tree/gm-tyx/puffin/main/recipe/dapo) now.
+- [2025/03] [DAPO](https://dapo-sia.github.io/) is the open-sourced SOTA RL algorithm that achieves 50 points on AIME 2024 based on the Qwen2.5-32B pre-trained model, surpassing the previous SOTA achieved by DeepSeek's GRPO (DeepSeek-R1-Zero-Qwen-32B). DAPO's training is fully powered by verl and the reproduction code is publicly available now.
 - [2025/03] We will present verl(HybridFlow) at EuroSys 2025. See you in Rotterdam!
 - [2025/03] We introduced the programming model of verl at the [vLLM Beijing Meetup](https://mp.weixin.qq.com/s/n77GibL2corAtQHtVEAzfg) and [verl intro and updates](https://github.com/eric-haibin-lin/verl-community/blob/main/slides/verl-lmsys-meetup.pdf) at the [LMSys Meetup](https://lu.ma/ntjrr7ig) in Sunnyvale mid March.
 - [2025/02] verl v0.2.0.post2 is released!
@@ -56,7 +56,7 @@ verl is fast with:
 - **vLLM**, **SGLang**(experimental) and **HF Transformers** for rollout generation.
 - Compatible with Hugging Face Transformers and Modelscope Hub: Qwen-2.5, Llama3.1, Gemma2, DeepSeek-LLM, etc
 - Supervised fine-tuning.
-- Reinforcement learning with [PPO](examples/ppo_trainer/), [GRPO](examples/grpo_trainer/), [ReMax](examples/remax_trainer/), [REINFORCE++](https://verl.readthedocs.io/en/latest/examples/config.html#algorithm), [RLOO](examples/rloo_trainer/), [PRIME](recipe/prime/), etc.
+- Reinforcement learning with PPO, GRPO, ReMax, [REINFORCE++](https://verl.readthedocs.io/en/latest/examples/config.html#algorithm), RLOO, PRIME, etc.
   - Support model-based reward and function-based reward (verifiable reward)
   - Support vision-language models (VLMs) and [multi-modal RL](examples/grpo_trainer/run_qwen2_5_vl-7b.sh)
 - Flash attention 2, [sequence packing](examples/ppo_trainer/run_qwen2-7b_seq_balance.sh), [sequence parallelism](examples/ppo_trainer/run_deepseek7b_llm_sp2.sh) support via DeepSpeed Ulysses, [LoRA](examples/sft/gsm8k/run_qwen_05_peft.sh), [Liger-kernel](examples/sft/gsm8k/run_qwen_05_sp2_liger.sh).
@@ -88,7 +88,6 @@ verl is fast with:
   - [Run GSM8K Example](https://verl.readthedocs.io/en/latest/examples/gsm8k_example.html)
 
 **Reproducible algorithm baselines:**
-- [PPO, GRPO, ReMax](https://verl.readthedocs.io/en/latest/experiment/ppo.html)
 
 **For code explanation and advance usage (extension):**
 - PPO Trainer and Workers

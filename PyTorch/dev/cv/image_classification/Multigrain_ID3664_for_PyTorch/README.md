@@ -147,7 +147,7 @@ python scripts/whiten.py --expdir experiments/joint_3B_0.5/finetune500_whitened 
 ## Fine-tuning existing network
 
 In appendix E. we report fine-tuning results on several pretrained networks. 
-This experience can be reproduced using the [finetune_p.py](multigrain/datasets/finetune_p.py) script.
+This experience can be reproduced using the finetune_p.py script.
 For example, in the case of `SENet154` at scale s*=450, the following command should yield 83.1 top-1 accuracy with p*=1.6:
 ```
 python scripts/finetune_p.py --expdir experiments/se154/finetune450 \

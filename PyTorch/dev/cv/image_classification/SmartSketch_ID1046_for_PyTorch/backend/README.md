@@ -17,9 +17,9 @@ Copyright (C) 2019 NVIDIA Corporation.
 All rights reserved.
 Licensed under the [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode) (**Attribution-NonCommercial-ShareAlike 4.0 International**)
 
-The code is released for academic research use only. For commercial use or business inquiries, please contact [researchinquiries@nvidia.com](researchinquiries@nvidia.com).
+The code is released for academic research use only. For commercial use or business inquiries, please contact .
 
-For press and other inquiries, please contact [Hector Marinez](hmarinez@nvidia.com)
+For press and other inquiries, please contact Hector Marinez
 
 ## Installation
 
@@ -58,7 +58,7 @@ There are different modes to load images by specifying `--preprocess_mode` along
 
 Once the dataset is ready, the result images can be generated using pretrained models.
 
-1. Download the tar of the pretrained models from the [Google Drive Folder](https://drive.google.com/file/d/12gvlTbMvUcJewQlSEaZdeb2CdOB-b8kQ/view?usp=sharing), save it in 'checkpoints/', and run
+1. Download the tar of the pretrained models from the Google Drive Folder, save it in 'checkpoints/', and run
 
     ```
     cd checkpoints

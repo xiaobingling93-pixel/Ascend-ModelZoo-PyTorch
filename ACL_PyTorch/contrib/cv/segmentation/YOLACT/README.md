@@ -146,7 +146,7 @@ YOLACT是2019年发表在ICCV上面的一个实时实例分割的模型，它主
 
    1. 获取权重文件。
 
-      下载权重文件[yolact_base_54_800000.pth](https://ucdavis365-my.sharepoint.com/:u:/g/personal/yongjaelee_ucdavis_edu/EYRWxBEoKU9DiblrWx2M89MBGFkVVB_drlRd_v5sdT3Hgg)，可放置于任意路径下，以"./"目录下为例。
+ 下载权重文件yolact_base_54_800000.pth，可放置于任意路径下，以"./"目录下为例。
       
 
    2. 导出onnx文件。

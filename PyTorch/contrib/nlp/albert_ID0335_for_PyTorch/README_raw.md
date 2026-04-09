@@ -1,4 +1,4 @@
-[**English Version**](./README.md) | [**中文版说明**](./README_zh.md)
+[**English Version**](./README.md) | **中文版说明**
 
 ## albert_pytorch
 

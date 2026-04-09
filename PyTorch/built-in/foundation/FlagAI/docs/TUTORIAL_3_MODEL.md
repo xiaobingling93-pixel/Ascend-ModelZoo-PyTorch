@@ -11,8 +11,6 @@
     - [input](#input)
     - [output](#output)
   - [init_from_json](#init_from_json)
-    - [input](#input-1)
-    - [output](#output-1)
 
 ## BaseModel
 

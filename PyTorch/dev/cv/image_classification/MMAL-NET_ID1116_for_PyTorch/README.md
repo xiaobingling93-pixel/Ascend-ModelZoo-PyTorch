@@ -13,7 +13,6 @@ This is a PyTorch implementation of the paper ["Multi-branch and Multi-scale Att
 ### Table of Contents
 - <a href='#requirements'>Requirements</a>
 - <a href='#datasets'>Datasets</a>
-- <a href='#training L-Net'>Training MMAL-Net</a>
 - <a href='#evaluation'>Evaluation</a>
 - <a href='#model'>Model</a>
 - <a href='#reference'>Reference</a>
@@ -31,7 +30,7 @@ This is a PyTorch implementation of the paper ["Multi-branch and Multi-scale Att
 - pillow 6.1.0
 
 ## Datasets
-Download the [CUB-200-2011](http://www.vision.caltech.edu/visipedia-data/CUB-200-2011/CUB_200_2011.tgz) datasets and copy the contents of the extracted **images** folder into **datasets/CUB 200-2011/images**. 
+Download the CUB-200-2011 datasets and copy the contents of the extracted **images** folder into **datasets/CUB 200-2011/images**. 
 
 Download the [FGVC-Aircraft](http://www.robots.ox.ac.uk/~vgg/data/fgvc-aircraft/archives/fgvc-aircraft-2013b.tar.gz) datasets and copy the contents of the extracted **data/images** folder into **datasets/FGVC_Aircraft/data/images**)
 

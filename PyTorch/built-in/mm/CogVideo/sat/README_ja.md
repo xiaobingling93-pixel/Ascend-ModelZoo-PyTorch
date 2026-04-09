@@ -1,6 +1,6 @@
 # SAT CogVideoX-2B
 
-[Read this in English.](./README_zh)
+Read this in English.
 
 [中文阅读](./README_zh.md)
 

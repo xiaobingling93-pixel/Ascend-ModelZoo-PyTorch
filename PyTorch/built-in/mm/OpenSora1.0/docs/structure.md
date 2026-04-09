@@ -68,7 +68,7 @@ Open-Sora
 
 ## Inference config demos
 
-To change the inference settings, you can directly modify the corresponding config file. Or you can pass arguments to overwrite the config file ([config_utils.py](/opensora/utils/config_utils.py)). To change sampling prompts, you should modify the `.txt` file passed to the `--prompt_path` argument.
+To change the inference settings, you can directly modify the corresponding config file. Or you can pass arguments to overwrite the config file (config_utils.py). To change sampling prompts, you should modify the `.txt` file passed to the `--prompt_path` argument.
 
 ```plaintext
 --prompt_path ./assets/texts/t2v_samples.txt  -> prompt_path

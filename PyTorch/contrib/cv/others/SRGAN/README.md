@@ -1,6 +1,6 @@
 # SRGAN
 
-This implements training of SRGAN on  [VOC2012](http://cvlab.postech.ac.kr/~mooyeol/pascal_voc_2012/) dataset, mainly modified from [leftthomas/SRGAN](https://github.com/leftthomas/SRGAN). The Train dataset has 16700 images and The Val dataset has 425 images. Download the datasets from [here](https://pan.baidu.com/s/1xuFperu2WiYc5-_QXBemlA)(access code:5tzp).
+This implements training of SRGAN on VOC2012 dataset, mainly modified from [leftthomas/SRGAN](https://github.com/leftthomas/SRGAN). The Train dataset has 16700 images and The Val dataset has 425 images. Download the datasets from [here](https://pan.baidu.com/s/1xuFperu2WiYc5-_QXBemlA)(access code:5tzp).
 
 ## Requirements
 

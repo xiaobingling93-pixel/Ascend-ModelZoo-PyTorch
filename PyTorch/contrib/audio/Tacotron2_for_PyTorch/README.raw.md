@@ -43,7 +43,6 @@ v1.6 models to achieve state of the art accuracy, and is tested and maintained b
          * [Training curves](#training-curves)
       * [Training performance results](#training-performance-results)
          * [Training performance: NVIDIA DGX A100 (8x A100 40GB)](#training-performance-nvidia-dgx-a100-8x-a100-40gb)
-         * [Training performance: NVIDIA DGX-1 (8x V100 16GB)](#training-performance-nvidia-dgx-1-8x-v100-16gB)
          * [Expected training time](#expected-training-time)
       * [Inference performance results](#inference-performance-results)
          * [Inference performance: NVIDIA DGX A100 (1x A100 40GB)](#inference-performance-nvidia-dgx-a100-1x-a100-40gb)
@@ -120,7 +119,7 @@ Figure 2. Architecture of the WaveGlow model. Taken from the
 
 Both models support multi-GPU and mixed precision training with dynamic loss
 scaling (see Apex code
-[here](https://github.com/NVIDIA/apex/blob/master/apex/fp16_utils/loss_scaler.py)),
+here),
 as well as mixed precision inference. To speed up Tacotron 2 training,
 reference mel-spectrograms are generated during a preprocessing step and read
 directly from disk during training, instead of being generated during training.
@@ -231,11 +230,11 @@ called `losses`):
 
 #### Enabling TF32
 
-TensorFloat-32 (TF32) is the new math mode in [NVIDIA A100](#https://www.nvidia.com/en-us/data-center/a100/) GPUs for handling the matrix math also called tensor operations. TF32 running on Tensor Cores in A100 GPUs can provide up to 10x speedups compared to single-precision floating-point math (FP32) on Volta GPUs.
+TensorFloat-32 (TF32) is the new math mode in NVIDIA A100 GPUs for handling the matrix math also called tensor operations. TF32 running on Tensor Cores in A100 GPUs can provide up to 10x speedups compared to single-precision floating-point math (FP32) on Volta GPUs.
 
 TF32 Tensor Cores can speed up networks using FP32, typically with no loss of accuracy. It is more robust than FP16 for models which require high dynamic range for weights or activations.
 
-For more information, refer to the [TensorFloat-32 in the A100 GPU Accelerates AI Training, HPC up to 20x](#https://blogs.nvidia.com/blog/2020/05/14/tensorfloat-32-precision-format/) blog post.
+For more information, refer to the TensorFloat-32 in the A100 GPU Accelerates AI Training, HPC up to 20x blog post.
 
 TF32 is supported in the NVIDIA Ampere GPU architecture and is enabled by default.
 
@@ -264,7 +263,6 @@ For more information about how to get started with NGC containers, see the
 following sections from the NVIDIA GPU Cloud Documentation and the Deep Learning
 Documentation:
 
-- [Getting Started Using NVIDIA GPU Cloud](https://docs.nvidia.com/ngc/ngc-getting-started-guide/index.html)
 - [Accessing And Pulling From The NGC Container Registry](https://docs.nvidia.com/deeplearning/frameworks/user-guide/index.html#accessing_registry)
 - [Running PyTorch](https://docs.nvidia.com/deeplearning/frameworks/pytorch-release-notes/running.html#running)
 
@@ -512,8 +510,8 @@ python inference.py --tacotron2 <Tacotron2_checkpoint> --waveglow <WaveGlow_chec
 Here, `Tacotron2_checkpoint` and `WaveGlow_checkpoint` are pre-trained
 checkpoints for the respective models, and `phrases/phrase.txt` contains input
 phrases. The number of text lines determines the inference batch size. Audio
-will be saved in the output folder. The audio files [audio_fp16](./audio/audio_fp16.wav)
-and [audio_fp32](./audio/audio_fp32.wav) were generated using checkpoints from
+will be saved in the output folder. The audio files audio_fp16
+and audio_fp32 were generated using checkpoints from
 mixed precision and FP32 training, respectively.
 
 You can find all the available options by calling `python inference.py --help`.
@@ -850,7 +848,6 @@ January 2020
 * Updated batch sizes and performance results for Tacotron 2.
 
 December 2019
-* Added export and inference scripts for TensorRT. See [Tacotron2 TensorRT README](trt/README.md).
 
 November 2019
 * Implemented training resume from checkpoint

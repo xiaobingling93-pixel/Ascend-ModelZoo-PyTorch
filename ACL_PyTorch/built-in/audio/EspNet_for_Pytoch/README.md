@@ -132,7 +132,7 @@ EspNet安装比较复杂，请参考https://espnet.github.io/espnet/installation
 
     1. 在checkpoints目录下获取权重文件。
 
-        下载路径：https://github.com/espnet/espnet/blob/master/egs/aishell/asr1/RESULTS.md
+ 下载路径：
         
         对应Conformer(kernel size = 15) + SpecAugment + LM weight = 0.0下面的model link即可
         

@@ -1,25 +1,15 @@
 ## example简介
 ### 基础测试
-- [basic_test_tokenizer.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/basic/basic_test_tokenizer.py): 测试tokenizer和transformers包的结果一致。
-- [basic_test_parallel_apply.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/basic/basic_test_parallel_apply.py): 测试parallel_apply的效果。
-- [basic_extract_features.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/basic/basic_extract_features.py)：测试BERT对句子的编码序列。
-- [basic_gibbs_sampling_via_mlm.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/basic/basic_gibbs_sampling_via_mlm.py)：利用BERT+Gibbs采样进行文本随机生成，参考[这里](https://kexue.fm/archives/8119)。
-- [basic_language_model_nezha_gen_gpt.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/basic/basic_language_model_nezha_gen_gpt.py)：测试[GPTBase（又叫NEZHE-GEN）](https://github.com/huawei-noah/Pretrained-Language-Model/tree/master/NEZHA-Gen-TensorFlow)的生成效果。
-- [basic_make_uncased_model_cased.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/basic/basic_make_uncased_model_cased.py)：通过简单修改词表，使得不区分大小写的模型有区分大小写的能力。
-- [basic_language_model_bert.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/basic/basic_language_model_bert.py)：测试BERT的MLM模型效果。
-- [basic_language_model_ernie.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/basic/basic_language_model_ernie.py)：测试百度文心ERNIE的MLM模型效果。
-- [basic_language_model_GAU_alpha.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/basic/basic_language_model_GAU_alpha.py)：测试[GAU-alpha](https://github.com/ZhuiyiTechnology/GAU-alpha)的MLM模型效果。
-- [basic_language_model_roformer.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/basic/basic_language_model_roformer.py)：测试roformer的MLM模型效果。
-- [basic_language_model_CDial_GPT.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/basic/basic_language_model_CDial_GPT.py)：测试[CDial_GPT](https://github.com/thu-coai/CDial-GPT)的对话生成效果。
-- [basic_language_model_gpt2_ml.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/basic/basic_language_model_gpt2_ml.py)：测试[gpt2-ml](https://github.com/imcaspar/gpt2-ml)的的生成效果。
-- [basic_language_model_cpm_lm.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/basic/basic_language_model_cpm_lm.py)：测试[CPM-Generate](https://github.com/TsinghuaAI/CPM-Generate)的的生成效果。
-- [basic_language_model_uer_t5.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/basic/basic_language_model_uer_t5.py)：测试[uer-t5-small](https://huggingface.co/uer/t5-small-chinese-cluecorpussmall)和[uer-t5-base](https://huggingface.co/uer/t5-base-chinese-cluecorpussmall)的生成效果。
-- [basic_language_model_t5_pegasus.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/basic/basic_language_model_t5_pegasus.py)：测试[t5_pegasus](https://github.com/ZhuiyiTechnology/t5-pegasus)的生成效果。
-- [basic_language_model_simbert.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/basic/basic_language_model_simbert.py)：测试[simbert](https://github.com/ZhuiyiTechnology/simbert)和[roformer-sim](https://github.com/ZhuiyiTechnology/roformer-sim)的生成效果和句子相似度效果。
-- [basic_language_model_transformer_xl.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/basic/basic_language_model_transformer_xl.py): 测试transformer_xl模型，做了一些简化，仅有英文预训练模型。
-- [basic_language_model_xlnet.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/basic/basic_language_model_xlnet.py): 测试xlnet模型。
-- [basic_language_model_nezha_gpt_dialog.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/basic/basic_language_model_nezha_gpt_dialog.py): 测试[nezha_gpt_dialog](https://kexue.fm/archives/7718)。
-- [basic_language_model_bart.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/basic/basic_language_model_bart.py): 测试bart模型。
+- basic_gibbs_sampling_via_mlm.py：利用BERT+Gibbs采样进行文本随机生成，参考[这里](https://kexue.fm/archives/8119)。
+- basic_language_model_nezha_gen_gpt.py：测试[GPTBase（又叫NEZHE-GEN）](https://github.com/huawei-noah/Pretrained-Language-Model/tree/master/NEZHA-Gen-TensorFlow)的生成效果。
+- basic_language_model_GAU_alpha.py：测试[GAU-alpha](https://github.com/ZhuiyiTechnology/GAU-alpha)的MLM模型效果。
+- basic_language_model_CDial_GPT.py：测试[CDial_GPT](https://github.com/thu-coai/CDial-GPT)的对话生成效果。
+- basic_language_model_gpt2_ml.py：测试[gpt2-ml](https://github.com/imcaspar/gpt2-ml)的的生成效果。
+- basic_language_model_cpm_lm.py：测试[CPM-Generate](https://github.com/TsinghuaAI/CPM-Generate)的的生成效果。
+- basic_language_model_uer_t5.py：测试[uer-t5-small](https://huggingface.co/uer/t5-small-chinese-cluecorpussmall)和[uer-t5-base](https://huggingface.co/uer/t5-base-chinese-cluecorpussmall)的生成效果。
+- basic_language_model_t5_pegasus.py：测试[t5_pegasus](https://github.com/ZhuiyiTechnology/t5-pegasus)的生成效果。
+- basic_language_model_simbert.py：测试[simbert](https://github.com/ZhuiyiTechnology/simbert)和[roformer-sim](https://github.com/ZhuiyiTechnology/roformer-sim)的生成效果和句子相似度效果。
+- basic_language_model_nezha_gpt_dialog.py: 测试[nezha_gpt_dialog](https://kexue.fm/archives/7718)。
 
 ### 文本分类
 - [task_sentence_similarity_lcqmc.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/sentence_classfication/task_sentence_similarity_lcqmc.py)：句子对分类任务。
@@ -62,7 +52,7 @@
 - [task_sentence_embedding_sup_ContrastiveLoss.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/sentence_embedding/task_sentence_embedding_sup_ContrastiveLoss.py)：参考[SentenceTransformer](https://www.sbert.net/index.html)
 - [task_sentence_embedding_sup_CosineMSELoss.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/sentence_embedding/task_sentence_embedding_sup_CosineMSELoss.py)：参考[SentenceTransformer](https://www.sbert.net/index.html)
 - [task_sentence_embedding_sup_concat_CrossEntropyLoss.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/sentence_embedding/task_sentence_embedding_sup_concat_CrossEntropyLoss.py)：参考[SentenceTransformer](https://www.sbert.net/index.html)
-- [task_sentence_embedding_sup_MultiNegtiveRankingLoss.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/sentence_embedding/task_sentence_embedding_sup_MultiNegtiveRankingLoss.py)：参考[SentenceTransformer](https://www.sbert.net/index.html)
+- task_sentence_embedding_sup_MultiNegtiveRankingLoss.py：参考[SentenceTransformer](https://www.sbert.net/index.html)
 - [task_sentence_embedding_sup_CoSENT.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/sentence_embedding/task_sentence_embedding_sup_CoSENT.py)：参考[CoSENT](https://kexue.fm/archives/8847)
 - [task_sentence_embedding_DimensionalityReduction.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/sentence_embedding/task_sentence_embedding_DimensionalityReduction.py)：参考[SentenceTransformer](https://www.sbert.net/index.html)
 - [task_sentence_embedding_model_distillation.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/sentence_embedding/task_sentence_embedding_model_distillation.py)：参考[SentenceTransformer](https://www.sbert.net/index.html)
@@ -75,10 +65,10 @@
 - [task_relation_extraction_tplinker_plus.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/relation_extraction/task_relation_extraction_tplinker_plus.py)：tplinker关系抽取[TPLinkerPlus](https://github.com/131250208/TPlinker-joint-extraction)。
 
 ### 文本生成
-- [task_seq2seq_autotitle_unilm.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/seq2seq/task_seq2seq_autotitle_unilm.py)：通过[UniLM](https://kexue.fm/archives/6933)式的Seq2Seq模型来做新闻标题生成。
+- task_seq2seq_autotitle_unilm.py：通过[UniLM](https://kexue.fm/archives/6933)式的Seq2Seq模型来做新闻标题生成。
 - [task_seq2seq_autotitle_csl_bart.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/seq2seq/task_seq2seq_autotitle_csl_bart.py)：通过BART来做新闻标题生成
 - [task_seq2seq_autotitle_csl_uer_t5.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/seq2seq/task_seq2seq_autotitle_csl_uer_t5.py)：通过T5来做新闻标题生成，用的[uer-t5-small](https://huggingface.co/uer/t5-small-chinese-cluecorpussmall)
-- [task_seq2seq_autotitle_csl.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/seq2seq/task_seq2seq_autotitle_csl.py)：通过[UniLM](https://kexue.fm/archives/6933)式的Seq2Seq模型来做论文标题生成。
+- task_seq2seq_autotitle_csl.py：通过[UniLM](https://kexue.fm/archives/6933)式的Seq2Seq模型来做论文标题生成。
 - [task_seq2seq_autotitle_csl_mt5.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/seq2seq/task_seq2seq_autotitle_csl_mt5.py)：通过[google_mt](https://huggingface.co/google/mt5-base)的Seq2Seq模型来做论文标题生成。
 - [task_question_answer_generation_by_seq2seq.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/seq2seq/task_question_answer_generation_by_seq2seq.py)：通过[UniLM](https://kexue.fm/archives/6933)式的Seq2Seq模型来做[问答对自动构建](https://kexue.fm/archives/7630)，属于自回归文本生成。
 - [task_reading_comprehension_by_mlm.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/seq2seq/task_reading_comprehension_by_mlm.py)：通过MLM模型来做[阅读理解问答](https://kexue.fm/archives/7148)，属于简单的非自回归文本生成。
@@ -102,7 +92,7 @@
 
 ### 预训练
 - [roberta_pretrain](https://github.com/Tongjilibo/bert4torch/blob/master/examples/pretrain/roberta_pretrain)：roberta的mlm预训练，数据生成代码和训练代码
-- [simbert_v2_pretrain](https://github.com/Tongjilibo/bert4torch/blob/master/examples/pretrain/simbert_v2_pretrain)：相似问生成，数据增广，三个步骤：1-[弱监督](https://github.com/Tongjilibo/bert4torch/blob/master/examples/pretrain/simbert_v2_pretrain/simbert_v2_stage1.py)，2-[蒸馏](https://github.com/Tongjilibo/bert4torch/blob/master/examples/pretrain/simbert_v2_pretrain/simbert_v2_stage2.py)，3-[有监督](https://github.com/Tongjilibo/bert4torch/blob/master/examples/pretrain/simbert_v2_pretrain/simbert_v2_supervised.py)，参考[SimBERT-V2](https://kexue.fm/archives/8454)
+- simbert_v2_pretrain：相似问生成，数据增广，三个步骤：1-弱监督，2-蒸馏，3-有监督，参考[SimBERT-V2](https://kexue.fm/archives/8454)
 
 ### 模型部署
 - [basic_simple_web_serving_simbert.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/serving/basic_simple_web_serving_simbert.py): 测试自带的WebServing（将模型转化为Web接口）。
@@ -118,10 +108,6 @@
 - [task_nl2sql_baseline.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/others/task_nl2sql_baseline.py)：[追一科技2019年NL2SQL挑战赛的一个Baseline](https://kexue.fm/archives/6771)
 
 ### 教程
-- [Tutorials](https://github.com/Tongjilibo/bert4torch/blob/master/examples/tutorials/Tutorials)：教程说明文档。
-- [tutorials_custom_fit_progress.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/tutorials/tutorials_custom_fit_progress.py)：教程，自定义训练过程fit函数（集成了训练进度条展示），可用于满足如半精度，梯度裁剪等高阶需求。
-- [tutorials_load_transformers_model.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/tutorials/tutorials_load_transformers_model.py)：教程，加载transformer包中模型，可以使用bert4torch中继承的对抗训练等trick。
-- [tutorials_small_tips.py](https://github.com/Tongjilibo/bert4torch/blob/master/examples/tutorials/tutorials_small_tips.py)：教程，常见的一些tips集合。
 
 ## 用到的数据集
 | 数据集名称 | 用途 | 下载链接 |

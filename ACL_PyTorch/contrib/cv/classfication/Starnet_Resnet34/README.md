@@ -22,7 +22,7 @@
 
 # 概述<a name="ZH-CN_TOPIC_0000001172161501"></a>
 
-Starnet是一个对于不规则的文字具有鲁棒性的识别模型模型，参考论文[[STAR-Net: a spatial attention residue network for scene text recognition.](http://www.bmva.org/bmvc/2016/papers/paper043/paper043.pdf)]，对于标准的文本的效果会更差一些，且处理效率较CRNN会更低
+Starnet是一个对于不规则的文字具有鲁棒性的识别模型模型，参考论文[STAR-Net: a spatial attention residue network for scene text recognition.]，对于标准的文本的效果会更差一些，且处理效率较CRNN会更低
 
 
 - 参考实现：
@@ -140,7 +140,7 @@ Starnet是一个对于不规则的文字具有鲁棒性的识别模型模型，�
 
    1. 获取权重文件。
 
-       训练权重链接为：https://paddleocr.bj.bcebos.com/dygraph_v2.0/en/rec_r34_vd_tps_bilstm_ctc_v2.0_train.tar。
+ 训练权重链接为：
        
        在`Starnet_Resnet34`工作目录下可通过以下命令获取训练权重并转为推理模型。
 

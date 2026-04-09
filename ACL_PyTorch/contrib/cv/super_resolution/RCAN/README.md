@@ -106,7 +106,7 @@ RCAN设计了一个残差中的残差（RIR）结构来构造深层网络，每�
 
 1. PyTroch 模型转 ONNX 模型  
  
-    进入 [Dropbox](https://www.dropbox.com/s/qm9vc0p0w9i4s0n/models_ECCV2018RCAN.zip?dl=0) / [BaiduYun](https://pan.baidu.com/s/1bkoJKmdOcvLhOFXHVkFlKA) / [GoogleDrive](https://drive.google.com/file/d/10bEK-NxVtOS9-XSeyOZyaRmxUTX3iIRa/view?usp=sharing) 任意一个下载通道，下载开源仓提供的预训练权重到当前目录，解压缩。该推理任务只需用到 `models_ECCV2018RCAN/RCAN_BIX2.pt`。可通过md5sum值(f567f8560fde71ba0973a7fe472a42f2)来检查预训练权重文件的完整性。
+ 进入 [Dropbox](https://www.dropbox.com/s/qm9vc0p0w9i4s0n/models_ECCV2018RCAN.zip?dl=0) / [BaiduYun](https://pan.baidu.com/s/1bkoJKmdOcvLhOFXHVkFlKA) / GoogleDrive 任意一个下载通道，下载开源仓提供的预训练权重到当前目录，解压缩。该推理任务只需用到 `models_ECCV2018RCAN/RCAN_BIX2.pt`。可通过md5sum值(f567f8560fde71ba0973a7fe472a42f2)来检查预训练权重文件的完整性。
 
     然后执行执行以下命令生成 ONNX 模型：
     ```bash

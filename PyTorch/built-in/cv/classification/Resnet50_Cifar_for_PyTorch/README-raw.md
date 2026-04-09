@@ -7,14 +7,12 @@
     <sup>
       <a href="https://openmmlab.com">
         <i><font size="4">HOT</font></i>
-      </a>
     </sup>
     &nbsp;&nbsp;&nbsp;&nbsp;
     <b><font size="5">OpenMMLab platform</font></b>
     <sup>
       <a href="https://platform.openmmlab.com">
         <i><font size="4">TRY IT OUT</font></i>
-      </a>
     </sup>
   </div>
   <div>&nbsp;</div>
@@ -37,7 +35,7 @@
 
 ## Introduction
 
-English | [简体中文](/README_zh-CN.md)
+English | 简体中文
 
 MMClassification is an open source image classification toolbox based on PyTorch. It is
 a part of the [OpenMMLab](https://openmmlab.com/) project.
@@ -75,7 +73,7 @@ Highlights of the new version:
 - Support training on IPU.
 - New style API docs, welcome [view it](https://mmclassification.readthedocs.io/en/master/api/models.html).
 
-Please refer to [changelog.md](docs/en/changelog.md) for more details and other release history.
+Please refer to changelog.md for more details and other release history.
 
 ## Installation
 

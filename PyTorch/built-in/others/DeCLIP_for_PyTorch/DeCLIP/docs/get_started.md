@@ -3,7 +3,7 @@
 Install PyTorch. The code has been tested with CUDA 11.2/CuDNN 8.1.0, PyTorch 1.8.1.
 
 
-First, prepare pre-training datasets and downstream classification datasets through [get_started.md](docs/get_started.md#installation). 
+First, prepare pre-training datasets and downstream classification datasets through get_started.md. 
 
 We organize the different models trained on different data through separate [experimental catalogs] (experiments/), you can check the dir for detail.
 

@@ -10,7 +10,7 @@
 [![Documentation Status](https://readthedocs.org/projects/deepctr-torch/badge/?version=latest)](https://deepctr-torch.readthedocs.io/)
 ![CI status](https://github.com/shenweichen/deepctr-torch/workflows/CI/badge.svg)
 [![codecov](https://codecov.io/gh/shenweichen/DeepCTR-Torch/branch/master/graph/badge.svg)](https://codecov.io/gh/shenweichen/DeepCTR-Torch)
-[![Disscussion](https://img.shields.io/badge/chat-wechat-brightgreen?style=flat)](./README.md#disscussiongroup)
+[![Disscussion](https://img.shields.io/badge/chat-wechat-brightgreen?style=flat)]()
 [![License](https://img.shields.io/github/license/shenweichen/deepctr-torch.svg)](https://github.com/shenweichen/deepctr-torch/blob/master/LICENSE)
 
 PyTorch version of [DeepCTR](https://github.com/shenweichen/DeepCTR).
@@ -52,13 +52,11 @@ Let's [**Get Started!**](https://deepctr-torch.readthedocs.io/en/latest/Quick-St
                 公众号：<b>浅梦的学习笔记</b><br><br>
                 <a href="https://github.com/shenweichen/deepctr-torch">
   <img align="center" src="./docs/pics/code.png" />
-</a>
             </td>
             <td>
                 微信：<b>deepctrbot</b><br><br>
  <a href="https://github.com/shenweichen/deepctr-torch">
   <img align="center" src="./docs/pics/deepctrbot.png" />
-</a>
             </td>
             <td>
 <ul>

@@ -500,7 +500,7 @@ bash ./tools/dist_train.sh \
     [optional arguments]
 ```
 
-Optional arguments remain the same as stated [above](#train-with-a-single-GPU).
+Optional arguments remain the same as stated above.
 
 #### Launch multiple jobs simultaneously
 

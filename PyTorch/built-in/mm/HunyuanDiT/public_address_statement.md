@@ -5,4 +5,3 @@
 | ModelZoo-PyTorch/PyTorch/built-in/mm/HunyuanDiT/comfyui-hydit/utils.py                | https://raw.githubusercontent.com/CompVis/stable-diffusion/main/configs/stable-diffusion/v1-inference.yaml | 配置文件    |
 | ModelZoo-PyTorch/PyTorch/built-in/mm/HunyuanDiT/hydit/config.py                       | http://arxiv.org/abs/2302.05442                                                                            | 论文地址    |
 | ModelZoo-PyTorch/PyTorch/built-in/mm/HunyuanDiT/IndexKits/setup.py                    | jarvizhang@tencent.com                                                                                     | 作者邮箱    |
-| ModelZoo-PyTorch/PyTorch/built-in/mm/HunyuanDiT/mllm/llava/utils.py                   | https://api.openai.com/v1/moderations                                                                      | 模型相关说明  |

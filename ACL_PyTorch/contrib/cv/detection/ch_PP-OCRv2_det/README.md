@@ -13,7 +13,6 @@
 
 - [模型推理性能](#ZH-CN_TOPIC_0000001172201573)
 
-- [配套环境](#ZH-CN_TOPIC_0000001126121892)
 
 
 # 概述<a name="ZH-CN_TOPIC_0000001172161501"></a>
@@ -122,9 +121,9 @@ ch_PP-OCRv2_det是基于PP-OCRv2的中文文本检测模型，PP-OCRv2在PP-OCR�
 
    1. 获取权重文件。
 
-       训练模型（在线推理使用）链接为：https://paddleocr.bj.bcebos.com/PP-OCRv2/chinese/ch_PP-OCRv2_det_distill_train.tar。
+ 训练模型（在线推理使用）链接为：
        
-       推理模型链接为：https://paddleocr.bj.bcebos.com/PP-OCRv2/chinese/ch_PP-OCRv2_det_infer.tar。
+ 推理模型链接为：
 
        辅助训练模型（在线推理使用）链接为：https://paddleocr.bj.bcebos.com/dygraph_v2.0/ch/ch_ppocr_server_v2.0_det_train.tar
 

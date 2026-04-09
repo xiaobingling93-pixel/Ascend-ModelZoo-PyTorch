@@ -107,7 +107,7 @@ DeepLabV3+就是属于典型的DilatedFCN，它是Google提出的DeepLab系列�
 
 1. 获取原始数据集。（解压命令参考tar –xvf  \*.tar与 unzip \*.zip）
 
-   请用户需自行获取[VOCtrainval_11-May-2012 数据集](https://pjreddie.com/media/files/VOCtrainval_11-May-2012.tar)，上传数据集到服务器任意目录并解压（以当前路径"./datasets"为例） VOCtrainval_11-May-2012数据集目录结构如下：
+ 请用户需自行获取VOCtrainval_11-May-2012 数据集，上传数据集到服务器任意目录并解压（以当前路径"./datasets"为例） VOCtrainval_11-May-2012数据集目录结构如下：
 
    ```
    ├──datasets

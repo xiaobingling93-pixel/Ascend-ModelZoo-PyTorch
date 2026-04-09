@@ -10,10 +10,8 @@
   <img alt="docs" src="https://github.com/salesforce/LAVIS/actions/workflows/docs.yaml/badge.svg"/>
   <a href="https://opensource.org/licenses/BSD-3-Clause">
   <img alt="license" src="https://img.shields.io/badge/License-BSD_3--Clause-blue.svg"/>
-  </a> 
   <a href="https://pepy.tech/project/salesforce-lavis">
   <img alt="Downloads" src="https://pepy.tech/badge/salesforce-lavis">
-  </a>
 </div>
 
 <div align="center">
@@ -21,7 +19,7 @@
 <a href="https://arxiv.org/abs/2209.09019">Technical Report</a>,
 <a href="https://opensource.salesforce.com/LAVIS//latest/index.html">Documentation</a>,
 <a href="https://github.com/salesforce/LAVIS/tree/main/examples">Jupyter Notebook Examples</a>,
-<a href="https://blog.salesforceairesearch.com/lavis-language-vision-library/">Blog</a>
+Blog
 </div>
 
 # LAVIS - A Library for Language-Vision Intelligence

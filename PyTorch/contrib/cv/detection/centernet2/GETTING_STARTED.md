@@ -44,7 +44,7 @@ logic.
 
 To train a model with "train_net.py", first
 setup the corresponding datasets following
-[datasets/README.md](./datasets/README.md),
+datasets/README.md,
 then run:
 ```
 cd tools/

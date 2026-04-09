@@ -4,7 +4,7 @@
 
 ![Architecture](../../../../../../../../../TransPose_msft/transpose_architecture.png)
 
-[[arxiv 2012.14214]](https://arxiv.org/abs/2012.14214) [[paper]](https://arxiv.org/pdf/2012.14214.pdf) [[demo-notebook]](../../../../../../../../../TransPose_msft/demo.ipynb)
+[[arxiv 2012.14214]](https://arxiv.org/abs/2012.14214) [[paper]](https://arxiv.org/pdf/2012.14214.pdf) [[demo-notebook]]()
 
 
 > TransPose: Keypoint Localization via Transformer,
@@ -60,7 +60,7 @@ Note:
 
 ### Visualization
 
-[Jupyter Notebook Demo](../../../../../../../../../TransPose_msft/demo.ipynb)
+Jupyter Notebook Demo
 
 Given an input image, a pretrained TransPose model, and the predicted locations, we can visualize the spatial dependencies of the predicted locations with threshold for the attention scores.
 

@@ -4,7 +4,7 @@ This roadmap for WeNet.
 WeNet is a community-driven project and we love your feedback and proposals on where we should be heading.
 
 Please open up [issues](https://github.com/wenet-e2e/wenet/issues/) or
-[discussion](https://github.com/wenet-e2e/wenet/discussions) on github to write your proposal.
+discussion on github to write your proposal.
 Feel free to volunteer yourself if you are interested in trying out some items(they do not have to be on the list).
 
 

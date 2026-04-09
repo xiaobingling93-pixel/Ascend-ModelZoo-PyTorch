@@ -5,18 +5,14 @@
 <p align="center">
       <a href="https://github.com/OpenRLHF/OpenRLHF/graphs/contributors">
         <img alt="GitHub Contributors" src="https://img.shields.io/github/contributors/OpenRLHF/OpenRLHF" />
-      </a>
       <a href="https://github.com/OpenRLHF/OpenRLHF/issues">
         <img alt="Issues" src="https://img.shields.io/github/issues/OpenRLHF/OpenRLHF?color=0088ff" />
-      </a>
       <a href="https://github.com/OpenRLHF/OpenRLHF/discussions">
         <img alt="Issues" src="https://img.shields.io/github/discussions/OpenRLHF/OpenRLHF?color=0088ff" />
-      </a>
       <a href="https://github.com/OpenRLHF/OpenRLHF/pulls">
         <img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr/OpenRLHF/OpenRLHF?color=0088ff" />
       <a href="https://github.com/OpenRLHF/OpenRLHF/stargazers">
         <img alt="GitHub stars" src="https://img.shields.io/github/stars/OpenRLHF/OpenRLHF?color=ccf" />
-      </a>
       <br>
       <em>Open-source / Comprehensive / Lightweight / Easy-to-use</em>
     </p>
@@ -56,7 +52,6 @@ More details are in [Slides](https://docs.google.com/presentation/d/1JRhB1d7csof
 - Integration of [Process Reward Model (PRM)](./examples/scripts/train_prm_mistral.sh).  
 - Packing of training samples for SFT, DPO, RM, PRM, and PPO (`--packing_samples`).  
 - Implementation of [RingAttention](./examples/scripts/train_dpo_ring_llama.sh) (`--ring_attn_size`, `--ring_head_stride`).  
-- Support for [Mixture of Experts (MoE)](./examples/test_scripts/train_sft_mixtral_lora.sh) (`--aux_loss_coef`).  
 - Integration of FlashAttention2 (`--flash_attn`).  
 - Support for QLoRA (`--load_in_4bit`) and [LoRA](./examples/scripts/train_sft_mixtral_lora.sh) (`--lora_rank`, `--target_modules`).  
 - Compatibility with HuggingFace's `tokenizer.apply_chat_template` for datasets (`--apply_chat_template` and `--input_key`).  
@@ -112,7 +107,7 @@ pip install -e .
 
 > [!NOTE]
 >We recommend using vLLM 0.6.4 or higher. Other versions (vLLM >= 0.4.2) may require weight synchronization via Gloo (`--vllm_sync_backend gloo`).
->We also provided the [Dockerfiles for vLLM](./dockerfile/) and [One-Click Installation Script of Nvidia-Docker](./examples/scripts/nvidia_docker_install.sh).
+>We also provided the Dockerfiles for vLLM and [One-Click Installation Script of Nvidia-Docker](./examples/scripts/nvidia_docker_install.sh).
 
 ### Prepare Datasets
 OpenRLHF provides multiple data processing methods in our dataset classes.
@@ -168,7 +163,7 @@ data
 
 OpenRLHF's model checkpoint is fully compatible with HuggingFace models. You can specify the model name or path using `--pretrain  {name or path}`, `--reward_pretrain  {name or path}` and `--critic_pretrain  {name or path}`. We have provided some pre-trained checkpoints and datasets on [HuggingFace OpenRLHF](https://huggingface.co/OpenRLHF).
 
-Then you can use the startup scripts we provide in the [examples/scripts](./examples/scripts/) directory, or start the training using the following commands.
+Then you can use the startup scripts we provide in the examples/scripts directory, or start the training using the following commands.
 
 ```bash 
 deepspeed --module openrlhf.cli.train_sft \
@@ -366,7 +361,7 @@ ray job submit --address="http://127.0.0.1:8265" \
 >   export RAY_EXPERIMENTAL_NOSET_CUDA_VISIBLE_DEVICES=1
 >   ```
 
-The launch scripts and documents for supported algorithms are in [example/scripts](./examples/scripts/) and [Documents - Usage](https://openrlhf.readthedocs.io/en/latest/usage.html)
+The launch scripts and documents for supported algorithms are in example/scripts and Documents - Usage
 
 ### LoRA
 If you use `LoRA (Low-Rank Adaptation)`, `OpenRLHF` will not save the full weights by default instead of `LoRA Adapter`. To continue in your task normally, you should combine the `Adapter` with weights of your base model
@@ -446,7 +441,6 @@ A big thank you to all our contributors! If you want to contribute, feel free to
 
 <a href="https://github.com/OpenRLHF/OpenRLHF/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=OpenRLHF/OpenRLHF" />
-</a>
 
 ## References & Acknowledgements
 
@@ -458,7 +452,7 @@ We would like to express our gratitude to the following projects and organizatio
 - [DeepSpeed ↗](https://github.com/microsoft/DeepSpeed)
 - [Ray ↗](https://github.com/ray-project/ray)
 
-Our project would also like to thank [ColossalChat](https://github.com/hpcaitech/ColossalAI/tree/main/applications/Chat) and [DeepSpeedChat](https://github.com/microsoft/DeepSpeedExamples/tree/master/applications/DeepSpeed-Chat). In the early stages of the project, we referred to their code design. 
+Our project would also like to thank ColossalChat and [DeepSpeedChat](https://github.com/microsoft/DeepSpeedExamples/tree/master/applications/DeepSpeed-Chat). In the early stages of the project, we referred to their code design. 
 
 (2024/7) Our GitHub organization has changed from OpenLLMAI to OpenRLHF.
 

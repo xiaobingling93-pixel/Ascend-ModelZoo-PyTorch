@@ -14,11 +14,8 @@ This subfolder of the Jasper for PyTorch repository contains scripts for  deploy
      * [Inference Benchmarking in Triton Inference Server](#inference-benchmarking-in-triton-inference-server)
      * [Results](#results)
        * [Performance Analysis for Triton Inference Server: NVIDIA T4](#performance-analysis-for-triton-inference-server-nvidia-t4)
-       * [Maximum batch size](#maximum-batch-size)
-            * [Batching techniques: Static versus Dynamic Batching](#batching-techniques-static-versus-dynamic)
             * [TensorRT, ONNXRT-CUDA, and PyTorch JIT comparisons](#tensorrt-onnxrt-cuda-and-pytorch-jit-comparisons)
 - [Release Notes](#release-notes)
-	* [Changelog](#change-log)
 	* [Known issues](#known-issues)
 
 
@@ -70,7 +67,7 @@ To run a model with TensorRT, we first construct the model in PyTorch, which is 
 |ONNX|-|x|-|
 |TensorRT|-|x|-|
 
-In order to run inference with TensorRT outside of the inference server, refer to the [Jasper TensorRT README](../tensort/README.md).
+In order to run inference with TensorRT outside of the inference server, refer to the Jasper TensorRT README.
 
 
 ## Setup
@@ -117,9 +114,9 @@ Running the following scripts will build and launch the container containing all
 
     Where <DATA_DIR>, <CHECKPOINT_DIR> and <RESULT_DIR> can be either empty or absolute directory paths to dataset, existing checkpoints or potential output files. When left empty, they default to `datasets/`, `/checkpoints`, and `results/`, respectively. The `/datasets`, `/checkpoints`, `/results` directories will be mounted as volumes and mapped to the corresponding directories `<DATA_DIR>`, `<CHECKPOINT_DIR>`, `<RESULT_DIR>` on the host.
 
-    Note that `<DATA_DIR>`, `<CHECKPOINT_DIR>`, and `<RESULT_DIR>` directly correspond to the same arguments in `scripts/docker/launch.sh` and `trt/scripts/docker/launch.sh` mentioned in the [Jasper PyTorch README](../README.md) and [Jasper TensorRT README](../tensorrt/README.md).
+ Note that `<DATA_DIR>`, `<CHECKPOINT_DIR>`, and `<RESULT_DIR>` directly correspond to the same arguments in `scripts/docker/launch.sh` and `trt/scripts/docker/launch.sh` mentioned in the [Jasper PyTorch README](../README.md) and Jasper TensorRT README.
 
-    Briefly, `<DATA_DIR>` should contain, or be prepared to contain a `LibriSpeech` sub-directory (created in [Acquiring Dataset](../trt/README.md)), `<CHECKPOINT_DIR>` should contain a PyTorch model checkpoint (`*.pt`) file obtained through training described in [Jasper PyTorch README](../README.md), and `<RESULT_DIR>` should be prepared to contain converted model and logs.
+ Briefly, `<DATA_DIR>` should contain, or be prepared to contain a `LibriSpeech` sub-directory (created in Acquiring Dataset), `<CHECKPOINT_DIR>` should contain a PyTorch model checkpoint (`*.pt`) file obtained through training described in [Jasper PyTorch README](../README.md), and `<RESULT_DIR>` should be prepared to contain converted model and logs.
 
 4. Downloading the `test-clean` part of `LibriSpeech` is required for model conversion. But it is not required for inference on Triton Inference Server, which can use a single .wav audio file. To download and preprocess LibriSpeech, run the following inside the container:
 
@@ -269,7 +266,7 @@ bash triton/scripts/run_perf_client.sh
 
 The export values above are default values. The script waits until the server is up and running, sends requests as per the constraints set and writes results to `/results/results_${TIMESTAMP}.csv` where `TIMESTAMP=$(date "+%y%m%d_%H%M")` and `/results/` is the results directory mounted in the docker .
 
-For more information about `perf_client`, refer to the [official documentation](https://docs.nvidia.com/deeplearning/triton-inference-server/master-user-guide/docs/optimization.html#perf-client).
+For more information about `perf_client`, refer to the official documentation.
 
 
 ## Performance

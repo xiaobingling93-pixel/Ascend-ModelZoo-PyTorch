@@ -93,7 +93,7 @@ python utils/ckpt_convert.py # Please set the corresponding checkpoint path firs
 python train_one_gpu.py
 ```
 
-If you only want to train the mask decoder, please check the tutorial on the [0.1 branch](https://github.com/bowang-lab/MedSAM/tree/0.1).
+If you only want to train the mask decoder, please check the tutorial on the 0.1 branch.
 
 
 ## Acknowledgements

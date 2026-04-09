@@ -141,6 +141,5 @@ The visualizations we have represented here should not be taken for granted, but
 ## Resources
 * *How to Fine-Tune BERT for Text Classification* by Chi Sun, Xipeng Qiu, Yige Xu, and Xuanjing Huang. [(arXiv)](https://arxiv.org/abs/1905.05583)
 * *To Tune or Not To Tune? How About the Best of Both Worlds?* by Ran Wang, Haibo Su, Chunye Wang, Kailin Ji, and Jupeng Ding [(arXiv)](https://arxiv.org/abs/1907.05338)
-* *Research of LSTM Additions on Top of SQuAD BERT Hidden Transform Layers* by Adam Thorne, Zac Farnsworth, and Oscar Matus [(web.stanford)](http://web.stanford.edu/class/cs224n/reports/default/15718571.pdf)
 * [PyTorch Transformers]
 * [BertViz](https://github.com/jessevig/bertviz)

@@ -126,8 +126,6 @@ Focal-Base	| 84.0	| 16.4	| 138	| 44	| 11|
 ## Getting Started
 
 * Please follow [get_started_for_image_classification.md](./classification/get_started.md) to get started for image classification.
-* Please follow [get_started_for_object_detection.md](./detection/get_started.md) to get started for object detection.
-* Please follow [get_started_for_semantic_segmentation.md](./segmentation/get_started.md) to get started for semantic segmentation.
 
 ## Citation
 

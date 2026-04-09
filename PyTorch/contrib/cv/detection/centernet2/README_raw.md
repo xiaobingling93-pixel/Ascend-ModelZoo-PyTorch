@@ -71,7 +71,7 @@ Please check detectron2 [GETTING_STARTED.md](https://github.com/facebookresearch
 
 ## License
 
-Our code under `projects/CenterNet2/` is under [Apache 2.0 license](projects/CenterNet2/LICENSE). `projects/CenterNet2/centernet/modeling/backbone/bifpn_fcos.py` are from [AdelaiDet](https://github.com/aim-uofa/AdelaiDet), which follows the original [non-commercial license](https://github.com/aim-uofa/AdelaiDet/blob/master/LICENSE). The code from detectron2 follows the original [Apache 2.0 license](LICENSE).
+Our code under `projects/CenterNet2/` is under Apache 2.0 license. `projects/CenterNet2/centernet/modeling/backbone/bifpn_fcos.py` are from [AdelaiDet](https://github.com/aim-uofa/AdelaiDet), which follows the original [non-commercial license](https://github.com/aim-uofa/AdelaiDet/blob/master/LICENSE). The code from detectron2 follows the original [Apache 2.0 license](LICENSE).
 
 ## Citation
 

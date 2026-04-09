@@ -135,7 +135,7 @@ ch_ppocr_mobile_v2.0_cls为[[PaddleOCR](https://github.com/PaddlePaddle/PaddleOC
 
    1. 获取权重文件。
 
-        推理权重下载链接为：https://paddleocr.bj.bcebos.com/dygraph_v2.0/ch/ch_ppocr_mobile_v2.0_cls_infer.tar。
+ 推理权重下载链接为：
 
         通过以下命令可以得到权重文件。
 

@@ -4,7 +4,7 @@
 
 ## Introduction
 
-English | [简体中文](README_CN.md)
+English | 简体中文
 
 [![Documentation](https://readthedocs.org/projects/mmpose/badge/?version=latest)](https://mmpose.readthedocs.io/en/latest/?badge=latest)
 [![actions](https://github.com/open-mmlab/mmpose/workflows/build/badge.svg)](https://github.com/open-mmlab/mmpose/actions)
@@ -39,17 +39,17 @@ The master branch works with **PyTorch 1.3+**.
 - **Support diverse tasks**
 
   We support a wide spectrum of mainstream pose analysis tasks in current research community, including 2d multi-person human pose estimation, 2d hand pose estimation, 2d face landmark detection, 133 keypoint whole-body human pose estimation, 3d human mesh recovery, fashion landmark detection and animal pose estimation.
-  See [demo.md](demo/README.md) for more information.
+ See demo.md for more information.
 
 - **Higher efficiency and higher accuracy**
 
   MMPose implements multiple state-of-the-art (SOTA) deep learning models, including both top-down & bottom-up approaches. We achieve faster training speed and higher accuracy than other popular codebases, such as [HRNet](https://github.com/leoxiaobin/deep-high-resolution-net.pytorch).
-  See [benchmark.md](docs/benchmark.md) for more information.
+ See benchmark.md for more information.
 
 - **Support for various datasets**
 
   The toolbox directly supports multiple popular and representative datasets, COCO, AIC, MPII, MPII-TRB, OCHuman etc.
-  See [data_preparation.md](docs/data_preparation.md) for more information.
+ See data_preparation.md for more information.
 
 - **Well designed, tested and documented**
 
@@ -57,7 +57,7 @@ The master branch works with **PyTorch 1.3+**.
   pose estimation framework by combining different modules.
   We provide detailed documentation and API reference, as well as unittests.
 
-## [Model Zoo](https://mmpose.readthedocs.io/en/latest/modelzoo.html)
+## Model Zoo
 
 Supported algorithms:
 
@@ -65,25 +65,25 @@ Supported algorithms:
 <summary>(click to collapse)</summary>
 
 - [x] [DeepPose](configs/top_down/deeppose/README.md) (CVPR'2014)
-- [x] [Wingloss](configs/face/deeppose/README.md) (CVPR'2018)
-- [x] [CPM](configs/top_down/cpm/README.md) (CVPR'2016)
-- [x] [Hourglass](configs/top_down/hourglass/README.md) (ECCV'2016)
-- [x] [SimpleBaseline](configs/top_down/resnet/README.md) (ECCV'2018)
-- [x] [HRNet](configs/top_down/hrnet/README.md) (CVPR'2019)
-- [x] [HRNetv2](configs/face/hrnetv2/README.md) (TPAMI'2019)
-- [x] [SCNet](configs/top_down/scnet/README.md) (CVPR'2020)
-- [x] [Associative Embedding](configs/bottom_up/hrnet/README.md) (NeurIPS'2017)
-- [x] [HigherHRNet](configs/bottom_up/higherhrnet/README.md) (CVPR'2020)
-- [x] [DarkPose](configs/top_down/darkpose/README.md) (CVPR'2020)
-- [x] [UDP](configs/top_down/udp/README.md) (CVPR'2020)
-- [x] [MSPN](configs/top_down/mspn/README.md) (ArXiv'2019)
-- [x] [RSN](configs/top_down/rsn/README.md) (ECCV'2020)
-- [x] [HMR](configs/mesh/hmr/README.md) (CVPR'2018)
-- [x] [Simple 3D Baseline](configs/body3d/simple_baseline/README.md) (ICCV'2017)
+- [x] Wingloss (CVPR'2018)
+- [x] CPM (CVPR'2016)
+- [x] Hourglass (ECCV'2016)
+- [x] SimpleBaseline (ECCV'2018)
+- [x] HRNet (CVPR'2019)
+- [x] HRNetv2 (TPAMI'2019)
+- [x] SCNet (CVPR'2020)
+- [x] Associative Embedding (NeurIPS'2017)
+- [x] HigherHRNet (CVPR'2020)
+- [x] DarkPose (CVPR'2020)
+- [x] UDP (CVPR'2020)
+- [x] MSPN (ArXiv'2019)
+- [x] RSN (ECCV'2020)
+- [x] HMR (CVPR'2018)
+- [x] Simple 3D Baseline (ICCV'2017)
 
 </details>
 
-Supported [datasets](https://mmpose.readthedocs.io/en/latest/datasets.html):
+Supported datasets:
 
 <details open>
 <summary>(click to collapse)</summary>
@@ -101,8 +101,8 @@ Supported [datasets](https://mmpose.readthedocs.io/en/latest/datasets.html):
 - [x] [Human3.6M](http://vision.imar.ro/human3.6m/description.php) (TPAMI'2014)
 - [x] [300W](https://ibug.doc.ic.ac.uk/resources/300-W/) (IMAVIS'2016)
 - [x] [WFLW](https://wywu.github.io/projects/LAB/WFLW.html) (CVPR'2018)
-- [x] [AFLW](https://www.tugraz.at/institute/icg/research/team-bischof/lrs/downloads/aflw/) (ICCVW'2011)
-- [x] [COFW](http://www.vision.caltech.edu/xpburgos/ICCV13/) (ICCV'2013)
+- [x] AFLW (ICCVW'2011)
+- [x] COFW (ICCV'2013)
 - [x] [OneHand10K](https://www.yangangwang.com/papers/WANG-MCC-2018-10.html) (TCSVT'2019)
 - [x] [FreiHand](https://lmb.informatik.uni-freiburg.de/projects/freihand/) (ICCV'2019)
 - [x] [RHD](https://lmb.informatik.uni-freiburg.de/resources/datasets/RenderedHandposeDataset.en.html) (ICCV'2017)
@@ -110,7 +110,7 @@ Supported [datasets](https://mmpose.readthedocs.io/en/latest/datasets.html):
 - [x] [InterHand2.6M](https://mks0601.github.io/InterHand2.6M/) (ECCV'2020)
 - [x] [DeepFashion](http://mmlab.ie.cuhk.edu.hk/projects/DeepFashion/LandmarkDetection.html) (CVPR'2016)
 - [x] [Animal-Pose](https://sites.google.com/view/animal-pose/) (ICCV'2019)
-- [x] [Horse-10](http://www.mackenziemathislab.org/horse10) (WACV'2021)
+- [x] Horse-10 (WACV'2021)
 - [x] [MacaquePose](http://www.pri.kyoto-u.ac.jp/datasets/macaquepose/index.html) (bioRxiv'2020)
 - [x] [Vinegar Fly](https://github.com/jgraving/DeepPoseKit-Data) (Nature Methods'2019)
 - [x] [Desert Locust](https://github.com/jgraving/DeepPoseKit-Data) (Elife'2019)
@@ -124,23 +124,23 @@ Supported backbones:
 <details>
 <summary>(click to expand)</summary>
 
-- [x] [AlexNet](configs/top_down/alexnet/README.md) (NeurIPS'2012)
-- [x] [VGG](configs/top_down/vgg/README.md) (ICLR'2015)
-- [x] [HRNet](configs/top_down/hrnet/README.md) (CVPR'2019)
-- [x] [ResNet](configs/top_down/resnet/README.md) (CVPR'2016)
-- [x] [ResNetV1D](configs/top_down/resnetv1d/README.md) (CVPR'2019)
-- [x] [ResNeSt](configs/top_down/resnest/README.md) (ArXiv'2020)
-- [x] [ResNext](configs/top_down/resnext/README.md) (CVPR'2017)
-- [x] [SCNet](configs/top_down/scnet/README.md) (CVPR'2020)
-- [x] [SEResNet](configs/top_down/seresnet/README.md) (CVPR'2018)
-- [x] [ShufflenetV1](configs/top_down/shufflenet_v1/README.md) (CVPR'2018)
-- [x] [ShufflenetV2](configs/top_down/shufflenet_v2/README.md) (ECCV'2018)
-- [x] [MobilenetV2](configs/top_down/mobilenet_v2/README.md) (CVPR'2018)
+- [x] AlexNet (NeurIPS'2012)
+- [x] VGG (ICLR'2015)
+- [x] HRNet (CVPR'2019)
+- [x] ResNet (CVPR'2016)
+- [x] ResNetV1D (CVPR'2019)
+- [x] ResNeSt (ArXiv'2020)
+- [x] ResNext (CVPR'2017)
+- [x] SCNet (CVPR'2020)
+- [x] SEResNet (CVPR'2018)
+- [x] ShufflenetV1 (CVPR'2018)
+- [x] ShufflenetV2 (ECCV'2018)
+- [x] MobilenetV2 (CVPR'2018)
 
 </details>
 
 Results and models are available in the *README.md* of each method's config directory.
-A summary can be found in the [**model zoo**](https://mmpose.readthedocs.io/en/latest/modelzoo.html) page.
+A summary can be found in the **model zoo** page.
 We will keep up with the latest progress of the community, and support more popular algorithms and frameworks.
 
 If you have any feature requests, please feel free to leave a comment in [Issues](https://github.com/open-mmlab/mmpose/issues/9).
@@ -162,36 +162,29 @@ We demonstrate the superiority of our MMPose framework in terms of speed and acc
 | hrnet_w48  | 256x192  | **0.66** | 1.55 | **0.756** | 0.751 |
 | hrnet_w48  | 384x288  | **1.23** | 2.20 | **0.767** | 0.763 |
 
-More details about the benchmark are available on [benchmark.md](docs/benchmark.md).
+More details about the benchmark are available on benchmark.md.
 
 ## Installation
 
-Please refer to [install.md](docs/install.md) for installation.
+Please refer to install.md for installation.
 
 ## Data Preparation
 
-Please refer to [data_preparation.md](docs/data_preparation.md) for a general knowledge of data preparation.
+Please refer to data_preparation.md for a general knowledge of data preparation.
 
 ## Get Started
 
-Please see [getting_started.md](docs/getting_started.md) for the basic usage of MMPose.
+Please see getting_started.md for the basic usage of MMPose.
 There are also tutorials:
 
-- [learn about configs](docs/tutorials/0_config.md)
-- [finetune model](docs/tutorials/1_finetune.md)
-- [add new dataset](docs/tutorials/2_new_dataset.md)
-- [customize data pipelines](docs/tutorials/3_data_pipeline.md)
-- [add new modules](docs/tutorials/4_new_modules.md)
-- [export a model to ONNX](docs/tutorials/5_export_model.md)
-- [customize runtime settings](docs/tutorials/6_customize_runtime.md)
 
 ## FAQ
 
-Please refer to [FAQ](docs/faq.md) for frequently asked questions.
+Please refer to FAQ for frequently asked questions.
 
 ## License
 
-This project is released under the [Apache 2.0 license](LICENSE).
+This project is released under the Apache 2.0 license.
 
 ## Citation
 
@@ -208,7 +201,7 @@ If you find this project useful in your research, please consider cite:
 
 ## Contributing
 
-We appreciate all contributions to improve MMPose. Please refer to [CONTRIBUTING.md](.github/CONTRIBUTING.md) for the contributing guideline.
+We appreciate all contributions to improve MMPose. Please refer to CONTRIBUTING.md for the contributing guideline.
 
 ## Acknowledgement
 

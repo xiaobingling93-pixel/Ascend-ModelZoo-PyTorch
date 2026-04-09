@@ -16,7 +16,7 @@ conda install opencv
 ## Datasets
 
 ### Train、Val Dataset
-The train and val datasets are sampled from [VOC2012](http://cvlab.postech.ac.kr/~mooyeol/pascal_voc_2012/).
+The train and val datasets are sampled from VOC2012.
 Train dataset has 16700 images and Val dataset has 425 images.
 Download the datasets from [here](https://pan.baidu.com/s/1xuFperu2WiYc5-_QXBemlA)(access code:5tzp), and then extract it into `data` directory.
 
@@ -24,8 +24,8 @@ Download the datasets from [here](https://pan.baidu.com/s/1xuFperu2WiYc5-_QXBeml
 The test image dataset are sampled from 
 | **Set 5** |  [Bevilacqua et al. BMVC 2012](http://people.rennes.inria.fr/Aline.Roumy/results/SR_BMVC12.html)
 | **Set 14** |  [Zeyde et al. LNCS 2010](https://sites.google.com/site/romanzeyde/research-interests)
-| **BSD 100** | [Martin et al. ICCV 2001](https://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/)
-| **Sun-Hays 80** | [Sun and Hays ICCP 2012](http://cs.brown.edu/~lbsun/SRproj2012/SR_iccp2012.html)
+| **BSD 100** | Martin et al. ICCV 2001
+| **Sun-Hays 80** | Sun and Hays ICCP 2012
 | **Urban 100** | [Huang et al. CVPR 2015](https://sites.google.com/site/jbhuang0604/publications/struct_sr).
 Download the image dataset from [here](https://pan.baidu.com/s/1vGosnyal21wGgVffriL1VQ)(access code:xwhy), and then extract it into `data` directory.
 

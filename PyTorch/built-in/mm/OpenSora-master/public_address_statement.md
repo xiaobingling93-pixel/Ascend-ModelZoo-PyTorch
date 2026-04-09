@@ -4,7 +4,6 @@
 | ModelZoo-PyTorch/PyTorch/built-in/mm/OpenSora-master/configs/opensora-v1-1/inference/sample-ref.py | https://cdn.openai.com/tmp/s/interp/d0.mp4                                                     | prompt地址  |
 | ModelZoo-PyTorch/PyTorch/built-in/mm/OpenSora-master/docker/Dockerfile                             | https://download.pytorch.org/whl/cu121                                                         | 三方库连接     |
 | ModelZoo-PyTorch/PyTorch/built-in/mm/OpenSora-master/eval/vae/flolpips/flolpips.py                 | https://raw.githubusercontent.com/danier97/flolpips/main/weights/v0.1/alex.pth                 | 权重地址      |
-| ModelZoo-PyTorch/PyTorch/built-in/mm/OpenSora-master/eval/vae/flolpips/pwcnet.py                   | http://content.sniklaus.com/github/pytorch-pwc/network-                                        | 权重地址      |
 | ModelZoo-PyTorch/PyTorch/built-in/mm/OpenSora-master/gradio/app.py                                 | https://github.com/hpcaitech/Open-Sora/stargazers                                              | 相关html配置  |
 | ModelZoo-PyTorch/PyTorch/built-in/mm/OpenSora-master/gradio/app.py                                 | https://img.shields.io/github/stars/hpcaitech/Open-Sora?style=social                           | 相关html配置  |
 | ModelZoo-PyTorch/PyTorch/built-in/mm/OpenSora-master/gradio/app.py                                 | https://twitter.com/yangyou1991/status/1769411544083996787?s=61&t=jT0Dsx2d-MS5vS9rNM5e5g       | 相关说明      |
@@ -22,6 +21,4 @@
 | ModelZoo-PyTorch/PyTorch/built-in/mm/OpenSora-master/opensora/models/vae/lpips.py                  | https://heibox.uni-heidelberg.de/f/607503859c864bc1b30b/?dl=1                                  | 论文地址      |
 | ModelZoo-PyTorch/PyTorch/built-in/mm/OpenSora-master/opensora/utils/ckpt_utils.py                  | https://dl.fbaipublicfiles.com/DiT/models/DiT-XL-2-512x512.pt                                  | 模型地址      |
 | ModelZoo-PyTorch/PyTorch/built-in/mm/OpenSora-master/opensora/utils/ckpt_utils.py                  | https://dl.fbaipublicfiles.com/DiT/models/DiT-XL-2-256x256.pt                                  | 模型地址      |
-| ModelZoo-PyTorch/PyTorch/built-in/mm/OpenSora-master/tools/caption/caption_gpt4.py                 | https://api.openai.com/v2/chat/completions                                                     | 模型相关说明    |
 | ModelZoo-PyTorch/PyTorch/built-in/mm/OpenSora-master/tools/frame_interpolation/utils/flow_utils.py | http://vision.middlebury.edu/flow/flowEval-iccv07.pdf                                          | 论文地址      |
-| ModelZoo-PyTorch/PyTorch/built-in/mm/OpenSora-master/tools/scoring/ocr/dbnetpp.py                  | https://download.openmmlab.com/mmocr/textdet/dbnetpp/                                          | 权重地址      |

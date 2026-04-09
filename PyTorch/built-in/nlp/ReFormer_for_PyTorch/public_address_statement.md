@@ -3,4 +3,3 @@
 | ModelZoo-PyTorch/PyTorch/built-in/nlp/ReFormer_for_PyTorch/accuracy.py                              | https://scikit-learn.org/stable/modules/generated/sklearn.metrics.accuracy_score.html | 模型相关说明  |
 | ModelZoo-PyTorch/PyTorch/built-in/nlp/ReFormer_for_PyTorch/transformers_modify/modeling_reformer.py | https://pytorch.org/docs/stable/nn.html#torch.nn.Module                               | 源码实现    |
 | ModelZoo-PyTorch/PyTorch/built-in/nlp/ReFormer_for_PyTorch/transformers_modify/modeling_reformer.py | https://arxiv.org/abs/2001.04451                                                      | 论文地址    |
-| ModelZoo-PyTorch/PyTorch/built-in/nlp/ReFormer_for_PyTorch/transformers_modify/training_args.py     | https://docs.ray.io/en/latest/tune/api_docs/analysis.html                             | 模型相关说明  |

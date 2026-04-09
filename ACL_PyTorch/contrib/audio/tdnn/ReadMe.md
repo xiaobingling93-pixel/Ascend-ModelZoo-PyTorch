@@ -18,8 +18,6 @@
 	-   [6.2 精度对比](#62-精度对比)
 -   [7 性能对比](#7-性能对比)
 	-   [7.1 npu性能数据](#71-npu性能数据)
-	-   [7.2 T4性能数据](#72-T4性能数据)
-	-   [7.3 性能对比](#73-性能对比)
 
 
 
@@ -127,7 +125,7 @@ pip install --editable .
 ## 3 模型转换
 
 本模型基于开源框架PyTorch训练的TDNN模型进行转换。  
-首先使用PyTorch将模型权重文件[tdnn.pth](https://ascend-repo-modelzoo.obs.cn-east-2.myhuaweicloud.com/model/1_PyTorch_PTH/TDNN/PTH/classifier.ckpt
+首先使用PyTorch将模型权重文件[tdnn.pth](
 
 https://ascend-repo-modelzoo.obs.cn-east-2.myhuaweicloud.com/model/1_PyTorch_PTH/TDNN/PTH/embedding_model.ckpt)转换为tdnn.onnx文件，再使用ATC工具将tdnn.onnx文件转为tdnn.om文件。  
 
@@ -214,7 +212,6 @@ bash om_infer.sh
 
 
 ## 6 精度对比
--   **[离线推理精度](#61-离线推理精度)**  
 -   **[精度对比](#62-精度对比)**  
 
 ### 6.1 离线推理精度统计
@@ -236,8 +233,6 @@ pth模型精度99.10%，om模型精度98.69%，模型转换后精度损失不超
 ## 7 性能对比
 
 -   **[npu性能数据](#71-npu性能数据)**  
--   **[T4性能数据](#72-T4性能数据)**  
--   **[性能对比](#73-性能对比)**  
 
 ### 7.1 npu性能数据  
 该模型不支持benchmark推理，故使用pyacl离线推理获取npu性能数据，npu性能数据为  

@@ -1,5 +1,4 @@
 # 为模型和数据并行训练定制训练器
-- [Trainer](#trainer)
   - [入门](#入门)
   - [Trainer主要参数env_type](#trainer主要参数env_type)
   - [自定义Trainer](#自定义trainer)

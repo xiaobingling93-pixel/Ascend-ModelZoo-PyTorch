@@ -113,7 +113,7 @@ SpanBERT在BERT的基础上，采用Geometric Spans的遮盖方案并加入Span 
 
 1. 获取原始数据集。（解压命令参考tar –xvf  \*.tar与 unzip \*.zip）
 
-   本模型支持[SQuAD 1.1](https://github.com/rajpurkar/SQuAD-explorer/tree/master/datase)数据集， 上传数据集到服务器任意目录并解压（如：/home/HwHiAiUser/dataset）。本模型将使用到dev-v1.1.json验证集。目录结构如下：
+ 本模型支持SQuAD 1.1数据集， 上传数据集到服务器任意目录并解压（如：/home/HwHiAiUser/dataset）。本模型将使用到dev-v1.1.json验证集。目录结构如下：
 
    ```
    ├── SQuAD1.1

@@ -71,7 +71,7 @@ The `preview` command only works with existing doc files. When you add a complet
 Accepted files are Markdown (.md or .mdx).
 
 Create a file with its extension and put it in the source directory. You can then link it to the toc-tree by putting
-the filename without the extension in the [`_toctree.yml`](https://github.com/huggingface/diffusers/blob/main/docs/source/_toctree.yml) file.
+the filename without the extension in the `_toctree.yml` file.
 
 ## Renaming section headers and moving sections
 
@@ -96,7 +96,7 @@ Sections that were moved:
 
 Use the relative style to link to the new file so that the versioned docs continue to work.
 
-For an example of a rich moved section set please see the very end of [the transformers Trainer doc](https://github.com/huggingface/transformers/blob/main/docs/source/en/main_classes/trainer.mdx).
+For an example of a rich moved section set please see the very end of the transformers Trainer doc.
 
 
 ## Writing Documentation - Specification

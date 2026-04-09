@@ -100,7 +100,7 @@ SRFlow是一种基于归一化流的超分辨率方法，具备比GAN更强的�
 
 1. PyTroch 模型转 ONNX 模型  
  
-    下载[**预训练模型**](http://data.vision.ee.ethz.ch/alugmayr/SRFlow/pretrained_models.zip)到当前目录并解压，可参考命令：
+ 下载**预训练模型**到当前目录并解压，可参考命令：
     ```bash
     wget http://data.vision.ee.ethz.ch/alugmayr/SRFlow/pretrained_models.zip
     unzip pretrained_models.zip

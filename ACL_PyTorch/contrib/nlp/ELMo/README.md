@@ -13,7 +13,6 @@
 
 - [模型推理性能](#ZH-CN_TOPIC_0000001172201573)
 
-- [配套环境](#ZH-CN_TOPIC_0000001126121892)
 
   ******
 
@@ -144,7 +143,7 @@ ELMo模型是用于训练得到单词词向量的，不同于以往常用的word
 
    使用PyTorch将模型权重文件.pth转换为.onnx文件，再使用ATC工具将.onnx文件转为离线推理模型文件.om文件。
    
-   下载链接为：https://allenai.org/allennlp/software/elmo。选择Pre-trained ELMo Models中的Original模型，并下载对应的`weights`和`options`放在当前目录下，文件名称分别为`elmo_2x4096_512_2048cnn_2xhighway_weights.hdf5`，`elmo_2x4096_512_2048cnn_2xhighway_options.json`。
+ 下载链接为： ELMo Models中的Original模型，并下载对应的`weights`和`options`放在当前目录下，文件名称分别为`elmo_2x4096_512_2048cnn_2xhighway_weights.hdf5`，`elmo_2x4096_512_2048cnn_2xhighway_options.json`。
 
 2. 模型转换
 

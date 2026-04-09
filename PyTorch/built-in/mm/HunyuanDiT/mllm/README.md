@@ -78,7 +78,7 @@ python mllm/make_csv.py --img_dir "mllm/images" --input_file "mllm/images/demo.c
 python mllm/caption_demo.py --mode "caption_zh" --input_file "mllm/images/demo.csv" --output_file "mllm/images/demo_res.csv" --model_path "./ckpts/captioner"
 ```
 
-(Optional) To convert the output csv file to Arrow format, please refer to [Data Preparation #3](#data-preparation) for detailed instructions. 
+(Optional) To convert the output csv file to Arrow format, please refer to Data Preparation #3 for detailed instructions. 
    
 ### Gradio 
 To launch a Gradio demo locally, please execute the following commands sequentially. Ensure each command is running in the background. For more detailed instructions, please refer to [LLaVA](https://github.com/haotian-liu/LLaVA). 

@@ -231,7 +231,7 @@ pip3 install requirements.txt
 - 数据集准备
 
 1. 模型训练使用iemocap数据集，数据集可以从这个OBS链接获取：obs://cann-id2983/dataset/iemocap.pkl
-2. 或者从https://drive.google.com/open?id=1CixSaw3dpHESNG0CaCJV6KutdlANP_cr获取
+2. 或者从
 3. 将获得的数据放在项目文件的data文件下
 
 ## 模型训练<a name="section715881518135"></a>

@@ -5,18 +5,14 @@
 <p align="center">
       <a href="https://github.com/OpenRLHF/OpenRLHF/graphs/contributors">
         <img alt="GitHub Contributors" src="https://img.shields.io/github/contributors/OpenRLHF/OpenRLHF" />
-      </a>
       <a href="https://github.com/OpenRLHF/OpenRLHF/issues">
         <img alt="Issues" src="https://img.shields.io/github/issues/OpenRLHF/OpenRLHF?color=0088ff" />
-      </a>
       <a href="https://github.com/OpenRLHF/OpenRLHF/discussions">
         <img alt="Issues" src="https://img.shields.io/github/discussions/OpenRLHF/OpenRLHF?color=0088ff" />
-      </a>
       <a href="https://github.com/OpenRLHF/OpenRLHF/pulls">
         <img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr/OpenRLHF/OpenRLHF?color=0088ff" />
       <a href="https://github.com/OpenRLHF/OpenRLHF/stargazers">
         <img alt="GitHub stars" src="https://img.shields.io/github/stars/OpenRLHF/OpenRLHF?color=ccf" />
-      </a>
       <br>
       <em>オープンソース / 包括的 / 軽量 / 使いやすい</em>
     </p>
@@ -25,7 +21,7 @@
 
 <hr>
 
-<span>[ <a href="README.md">English</a> | <a href="README_zh.md">中文</a> | 日本語 ]</span>
+<span>[ English | <a href="README_zh.md">中文</a> | 日本語 ]</span>
 
 OpenRLHFは、Ray、DeepSpeed、およびHF Transformersを基盤とした高性能なRLHFフレームワークです：
 
@@ -61,7 +57,6 @@ OpenRLHFは、Ray、DeepSpeed、およびHF Transformersを基盤とした高性
 - [プロセス報酬モデル（PRM）](./examples/scripts/train_prm_mistral.sh)の統合。
 - SFT、DPO、RM、PRM、およびPPOのトレーニングサンプルのパッキング（`--packing_samples`）。
 - [RingAttention](./examples/scripts/train_dpo_ring_llama.sh)の実装（`--ring_attn_size`、`--ring_head_stride`）。
-- [専門家の混合モデル（MoE）](./examples/test_scripts/train_sft_mixtral_lora.sh)のサポート（`--aux_loss_coef`）。
 - FlashAttention2の統合（`--flash_attn`）。
 - QLoRA（`--load_in_4bit`）および[LoRA](./examples/scripts/train_sft_mixtral_lora.sh)（`--lora_rank`、`--target_modules`）のサポート。
 - HuggingFaceの`tokenizer.apply_chat_template`との互換性（`--apply_chat_template`および`--input_key`）。
@@ -115,7 +110,7 @@ pip install -e .
 
 > [!NOTE]
 >vLLM 0.6.4以降の使用をお勧めします。他のバージョン（vLLM >= 0.4.2）は、Glooを介して重みの同期が必要な場合があります（`--vllm_sync_backend gloo`）。
->また、[vLLM用のDockerfile](./dockerfile/)および[Nvidia-Dockerのワンクリックインストールスクリプト](./examples/scripts/nvidia_docker_install.sh)も提供しています。
+>また、vLLM用のDockerfileおよび[Nvidia-Dockerのワンクリックインストールスクリプト](./examples/scripts/nvidia_docker_install.sh)も提供しています。
 
 ### データセットの準備
 OpenRLHFは、データセットクラス内で複数のデータ処理方法を提供しています。
@@ -171,7 +166,7 @@ data
 
 OpenRLHFのモデルチェックポイントはHuggingFaceモデルと完全に互換性があります。`--pretrain  {name or path}`、`--reward_pretrain  {name or path}`、および`--critic_pretrain  {name or path}`を使用してモデル名またはパスを指定できます。いくつかの事前トレーニング済みチェックポイントとデータセットを[HuggingFace OpenRLHF](https://huggingface.co/OpenRLHF)で提供しています。
 
-次に、[examples/scripts](./examples/scripts/)ディレクトリに提供されている起動スクリプトを使用するか、以下のコマンドを使用してトレーニングを開始できます。
+次に、examples/scriptsディレクトリに提供されている起動スクリプトを使用するか、以下のコマンドを使用してトレーニングを開始できます。
 
 ```bash 
 deepspeed --module openrlhf.cli.train_sft \
@@ -330,7 +325,7 @@ OPENRLHFのRLOOは、REINFORCE++を基に改良されたものであり、オリ
 >   export RAY_EXPERIMENTAL_NOSET_CUDA_VISIBLE_DEVICES=1
 >   ```
 
-サポートされているアルゴリズムの起動スクリプトとドキュメントは[example/scripts](./examples/scripts/)および[Documents - Usage](https://openrlhf.readthedocs.io/en/latest/usage.html)にあります。
+サポートされているアルゴリズムの起動スクリプトとドキュメントはexample/scriptsおよびDocuments - Usageにあります。
 
 ### Reinforced Fine-tuning
 
@@ -435,7 +430,6 @@ Adamオフロードの有効化、報酬モデル（RM）および参照モデ�
 
 <a href="https://github.com/OpenRLHF/OpenRLHF/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=OpenRLHF/OpenRLHF" />
-</a>
 
 ## 参考文献と謝辞
 
@@ -447,7 +441,7 @@ AIおよびNLP分野への貢献に対して、以下のプロジェクトおよ
 - [DeepSpeed ↗](https://github.com/microsoft/DeepSpeed)
 - [Ray ↗](https://github.com/ray-project/ray)
 
-私たちのプロジェクトは、[ColossalChat](https://github.com/hpcaitech/ColossalAI/tree/main/applications/Chat)および[DeepSpeedChat](https://github.com/microsoft/DeepSpeedExamples/tree/master/applications/DeepSpeed-Chat)にも感謝します。プロジェクトの初期段階で、彼らのコードデザインを参考にしました。
+私たちのプロジェクトは、ColossalChatおよび[DeepSpeedChat](https://github.com/microsoft/DeepSpeedExamples/tree/master/applications/DeepSpeed-Chat)にも感謝します。プロジェクトの初期段階で、彼らのコードデザインを参考にしました。
 私たちのプロジェクトでは、ring attention の開発にあたり GPU サポートを提供してくださった [Netmind.AI](https://www.netmind.ai/) にも深く感謝いたします。
 
 (2024/7) 私たちのGitHub組織はOpenLLMAIからOpenRLHFに変更されました。

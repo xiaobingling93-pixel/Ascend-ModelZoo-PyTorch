@@ -21,7 +21,7 @@ Face Semantic maps were acquired by training a pytorch implementation of [DeepLa
 ## Environment preparation
 - Install Packages
   - pip install -r requirements.txt
-- Download **FFHQ-Aging-Dataset** & **Deeplab Model** from [original repo](https://github.com/royorel/FFHQ-Aging-Dataset) & [deeplab_model/R-101-GN-WS.pth.tar](https://drive.google.com/uc?id=1oRGgrI4KNdefbWVpw0rRkEP1gbJIRokM) & [deeplab_model/deeplab_model.pth](https://drive.google.com/uc?id=1w2XjDywFr2NjuUWaLQDRktH7VwIfuNlYhttps://drive.google.com/uc?id=1w2XjDywFr2NjuUWaLQDRktH7VwIfuNlY)
+- Download **FFHQ-Aging-Dataset** & **Deeplab Model** from [original repo](https://github.com/royorel/FFHQ-Aging-Dataset) & [deeplab_model/R-101-GN-WS.pth.tar](https://drive.google.com/uc?id=1oRGgrI4KNdefbWVpw0rRkEP1gbJIRokM) & deeplab_model/deeplab_model.pth
   - The original **FFHQ-dataset** is stored on the [google drive](https://drive.google.com/drive/folders/1u2xu7bSrWxrbUxk-dT-UvEJq8IjdmNTP), By running the [original repo's get_ffhq_aging.sh](https://github.com/royorel/FFHQ-Aging-Dataset/blob/master/get_ffhq_aging.sh) , you can easily get **FFHQ-Aging-Dataset**.
 
 ## Run

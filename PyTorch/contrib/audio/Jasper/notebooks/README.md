@@ -10,7 +10,6 @@ This folder provides different notebooks to run Jasper inference step by step.
 - [Jasper Colab Notebook for TensorRT](#jasper-colab-notebook-for-tensorrt)
    * [Requirements](#requirements)
     * [Quick Start Guide](#quick-start-guide)
-- [Jasper Jupyter Notebook for TensorRT Inference Server](#jasper-colab-notebook-for-tensorrt-inference-server)
    * [Requirements](#requirements)
     * [Quick Start Guide](#quick-start-guide)
 

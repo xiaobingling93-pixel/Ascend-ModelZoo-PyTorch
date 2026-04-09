@@ -47,7 +47,6 @@ which is more natural and accurate.
   In MMDetection 1.x and previous version, the anchors are in `int` type and not center-aligned.
   This affects the anchor generation in RPN and all the anchor-based methods.
 
-- ROIAlign is better aligned with the image coordinate system. The new implementation is adopted from [Detectron2](https://github.com/facebookresearch/detectron2/tree/master/detectron2/layers/csrc/ROIAlign).
   The RoIs are shifted by half a pixel by default when they are used to cropping RoI features, compared to MMDetection 1.x.
   The old behavior is still available by setting `aligned=False` instead of `aligned=True`.
 
@@ -79,7 +78,7 @@ which is more natural and accurate.
   [model]_(model setting)_[backbone]_[neck]_(norm setting)_(misc)_(gpu x batch)_[schedule]_[dataset].py,
   ```
 
-  where the (`misc`) includes DCN and GCBlock, etc. More details are illustrated in the [documentation for config](config.md)
+ where the (`misc`) includes DCN and GCBlock, etc. More details are illustrated in the documentation for config
 
 - MMDetection V2.0 uses new ResNet Caffe backbones to reduce warnings when loading pre-trained models. Most of the new backbones' weights are the same as the former ones but do not have `conv.bias`, except that they use a different `img_norm_cfg`. Thus, the new backbone will not cause warning of unexpected keys.
 

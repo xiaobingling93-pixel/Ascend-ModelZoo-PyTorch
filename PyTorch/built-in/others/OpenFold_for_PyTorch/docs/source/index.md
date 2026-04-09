@@ -9,7 +9,6 @@ Welcome to the Documentation for [OpenFold](https://github.com/aqlaboratory/open
 [AlphaFold 2](https://github.com/deepmind/alphafold).
 
 Here, you will find guides and documentation for:
-- [Getting started with OpenFold](installation.md)!
 - Learn how to [run inference with OpenFold](Inference.md)
 - [Train your own OpenFold models](Training_OpenFold.md)
 - Find guidance for setup and running OpenFold in the [FAQ](FAQ.md).

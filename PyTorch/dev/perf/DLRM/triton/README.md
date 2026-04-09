@@ -188,7 +188,7 @@ When perf data are saved, `perf_client` can be used with following command:
 
 `/workspace/bin/perf_client --max-threads 10 -m dlrm-ts-trace-16 -x 1 -p 5000 -v -i gRPC -u localhost:8001 -b 4096 -l 5000 --concurrency-range 1 --input-data /location/for/perfdata -f result.csv`
 
-For more information about `perf_client` please refer to [official documentation](https://docs.nvidia.com/deeplearning/sdk/triton-inference-server-master-branch-guide/docs/optimization.html#perf-client).
+For more information about `perf_client` please refer to official documentation.
 
 ## Performance
 

@@ -15,5 +15,5 @@ cc_sbu_align
 
 Put the folder to any path you want.
 Then, set up the dataset path in the dataset config file 
-[here](../minigpt4/configs/datasets/cc_sbu/align.yaml#L5) at Line 5.
+here at Line 5.
 

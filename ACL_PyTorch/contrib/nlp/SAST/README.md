@@ -120,7 +120,7 @@ SAST模型提出了一个one-shot的文本检测器，基于多任务学习，�
 
    1. 获取权重文件。
 
-       训练权重链接为：https://paddleocr.bj.bcebos.com/dygraph_v2.0/en/det_r50_vd_sast_icdar15_v2.0_train.tar。
+ 训练权重链接为：
        在`SAST`工作目录下可通过以下命令获取训练权重并转为推理模型。
       
 

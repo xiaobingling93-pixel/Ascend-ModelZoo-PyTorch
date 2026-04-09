@@ -57,7 +57,7 @@ DNN based CTR estimation models consists of the following 4 modules:
 
 CCPM can extract local-global key features from an input instance with varied elements, which can be implemented for not only single ad impression but also sequential ad impression. 
 
-[**CCPM Model API**](./deepctr_torch.models.ccpm.html)
+**CCPM Model API**
 ![CCPM](../pics/CCPM.png)
 
 [Liu Q, Yu F, Wu S, et al. A convolutional click prediction model[C]//Proceedings of the 24th ACM International on Conference on Information and Knowledge Management. ACM, 2015: 1743-1746.](http://ir.ia.ac.cn/bitstream/173211/12337/1/A%20Convolutional%20Click%20Prediction%20Model.pdf) 
@@ -67,7 +67,7 @@ CCPM can extract local-global key features from an input instance with varied el
 
 PNN concatenates sparse feature embeddings and the product between  embedding vectors as the input of MLP. 
 
-[**PNN Model API**](./deepctr_torch.models.pnn.html)
+**PNN Model API**
 
 ![PNN](../pics/PNN.png)
 
@@ -79,7 +79,7 @@ PNN concatenates sparse feature embeddings and the product between  embedding ve
 WDL's deep part concatenates sparse feature embeddings as the input of MLP,the wide part use handcrafted feature as input.
 The logits of deep part and wide part are added to get the prediction probability.
 
-[**WDL Model API**](./deepctr_torch.models.wdl.html)
+**WDL Model API**
 
 ![WDL](../pics/WDL.png)
 
@@ -93,7 +93,7 @@ FM instead of LR in the wide part and use concatenation of embedding vectors as 
 Compared with FNN,the embedding vector of FM and input to MLP are same.
 And they do not need a FM pretrained vector to initialiaze,they are learned end2end. 
 
-[**DeepFM Model API**](./deepctr_torch.models.deepfm.html)
+**DeepFM Model API**
 
 ![DeepFM](../pics/DeepFM.png)
 
@@ -105,7 +105,7 @@ MLR can be viewed as a combination of $2m$ LR model, $m$  is the piece(region) n
 $m$ LR model learns the weight that the sample belong to each region,another m LR model learn sample's click probability in the region.
 Finally,the sample's CTR is a weighted sum of each region's click probability.Notice the weight is normalized weight.
 
-[**MLR Model API**](./deepctr_torch.models.mlr.html)
+**MLR Model API**
 
 ![MLR](../pics/MLR.png)
 
@@ -118,7 +118,7 @@ NFM use a bi-interaction pooling layer to learn feature interaction between
 embedding vectors and compress the result into a singe vector which has the same size as a single embedding vector.
 And then fed it into a MLP.The output logit of MLP and the output logit of linear part are added to get the prediction probability. 
 
-[**NFM Model API**](./deepctr_torch.models.nfm.html)
+**NFM Model API**
 
 ![NFM](../pics/NFM.png)
 
@@ -130,7 +130,7 @@ And then fed it into a MLP.The output logit of MLP and the output logit of linea
 AFM is a variant of FM,tradional FM sums the inner product of embedding vector uniformly.
 AFM can be seen as weighted sum of feature interactions.The weight is learned by a small MLP. 
 
-[**AFM Model API**](./deepctr_torch.models.afm.html)
+**AFM Model API**
 
 ![AFM](../pics/AFM.png)
 
@@ -142,7 +142,7 @@ AFM can be seen as weighted sum of feature interactions.The weight is learned by
 DCN use a Cross Net to learn both low and high order feature interaction explicitly,and use a MLP to learn feature interaction implicitly.
 The output of Cross Net and MLP are concatenated.The concatenated vector are feed into one fully connected layer to get the prediction probability. 
 
-[**DCN Model API**](./deepctr_torch.models.dcn.html)
+**DCN Model API**
 
 ![DCN](../pics/DCN.png)
 
@@ -155,7 +155,7 @@ The output of Cross Net and MLP are concatenated.The concatenated vector are fee
 
 DCN-Mix uses a matrix kernel instead of vector kernel in CrossNet compared with DCN,and it uses mixture of experts to learn feature interactions. 
 
-[**DCN-Mix Model API**](./deepctr_torch.models.dcnmix.html)
+**DCN-Mix Model API**
 
 ![DCN-Mix](../pics/DCN-Mix.png)
 
@@ -171,7 +171,7 @@ DIN use a local activation unit to get the activation score between candidate it
 User's interest are represented by weighted sum of user behaviors.
 user's interest vector and other embedding vectors are concatenated and fed into a MLP to get the prediction. 
 
-[**DIN Model API**](./deepctr_torch.models.din.html)  
+**DIN Model API** 
 
 [DIN example](https://github.com/shenweichen/DeepCTR-Torch/tree/master/examples/run_din.py)
 
@@ -183,7 +183,7 @@ user's interest vector and other embedding vectors are concatenated and fed into
 
 Deep Interest Evolution Network (DIEN) uses interest extractor layer to capture temporal interests from history behavior sequence. At this layer,  an auxiliary loss is proposed to supervise interest extracting at each step. As user interests are diverse, especially in the e-commerce system, interest evolving layer is proposed to capture interest evolving process that is relative to the target item. At interest evolving layer, attention mechanism is embedded into the sequential structure novelly, and the effects of relative interests are strengthened during interest evolution.
 
-[**DIEN Model API**](./deepctr_torch.models.dien.html) 
+**DIEN Model API** 
 
 [DIEN example](https://github.com/shenweichen/DeepCTR-Torch/tree/master/examples/run_dien.py)
 
@@ -198,7 +198,7 @@ xDeepFM use a Compressed Interaction Network (CIN) to learn both low and high or
 In each layer of CIN,first compute outer products between $x^k$ and $x_0$ to get a tensor $Z_{k+1}$,then use a 1DConv to learn feature maps $H_{k+1}$ on this tensor.
 Finally,apply sum pooling on all the feature maps $H_k$ to get one vector.The vector is used to compute the logit that CIN contributes.
 
-[**xDeepFM Model API**](./deepctr_torch.models.xdeepfm.html)
+**xDeepFM Model API**
 
 ![CIN](../pics/CIN.png)
 
@@ -213,7 +213,7 @@ AutoInt use a interacting layer to model the interactions between different feat
 Within each interacting layer, each feature is allowed to interact with all the other features and is able to automatically identify relevant features to form meaningful higher-order features via the multi-head attention mechanism.
 By stacking multiple interacting layers,AutoInt is able to model different orders of feature interactions. 
 
-[**AutoInt Model API**](./deepctr_torch.models.autoint.html)
+**AutoInt Model API**
 
 ![InteractingLayer](../pics/InteractingLayer.png)
 
@@ -225,7 +225,7 @@ By stacking multiple interacting layers,AutoInt is able to model different order
 
 ONN models second order feature interactions like like FFM and preserves second-order interaction information  as much as possible.Further more,deep neural network is used to learn higher-ordered feature interactions. 
 
-[**ONN Model API**](./deepctr_torch.models.onn.html)
+**ONN Model API**
 
 ![ONN](../pics/ONN.png)
 
@@ -235,7 +235,7 @@ ONN models second order feature interactions like like FFM and preserves second-
 
 Feature Importance and Bilinear feature Interaction NETwork is proposed to dynamically learn the feature importance and fine-grained feature interactions. On the one hand, the FiBiNET can dynamically learn the importance of fea- tures via the Squeeze-Excitation network (SENET) mechanism; on the other hand, it is able to effectively learn the feature interactions via bilinear function.
 
-[**FiBiNET Model API**](./deepctr_torch.models.fibinet.html)  
+**FiBiNET Model API** 
 
 ![FiBiNET](../pics/FiBiNET.png)
 
@@ -245,7 +245,7 @@ Feature Importance and Bilinear feature Interaction NETwork is proposed to dynam
 
 Input-aware Factorization Machine (IFM) learns a unique input-aware factor for the same feature in different instances via a neural network.
 
-[**IFM Model API**](./deepctr_torch.models.ifm.html)  
+**IFM Model API** 
 
 ![IFM](../pics/IFM.png)
 
@@ -255,7 +255,7 @@ Input-aware Factorization Machine (IFM) learns a unique input-aware factor for t
 
 Dual Inputaware Factorization Machines (DIFM) can adaptively reweight the original feature representations at the bit-wise and vector-wise levels simultaneously.Furthermore, DIFMs strategically integrate various components including Multi-Head Self-Attention, Residual Networks and DNNs into a unified end-to-end model.
 
-[**DFM Model API**](./deepctr_torch.models.difm.html)  
+**DFM Model API** 
 
 ![DIFM](../pics/DIFM.png)
 
@@ -268,4 +268,4 @@ Dual Inputaware Factorization Machines (DIFM) can adaptively reweight the origin
 The models of deepctr are modular,
 so you can use different modules to build your own models.
 
-You can see layers API in [Layers](./Layers.html) 
+You can see layers API in Layers 

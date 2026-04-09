@@ -8,7 +8,7 @@ To lower the computational cost, we want to utilize existing VAE models. Sora us
 
 The video training involves a large amount of tokens. Considering 24fps 1min videos, we have 1440 frames. With VAE downsampling 4x and patch size downsampling 2x, we have 1440x1024≈1.5M tokens. Full attention on 1.5M tokens leads to a huge computational cost. Thus, we use spatial-temporal attention to reduce the cost following [Latte](https://github.com/Vchitect/Latte).
 
-As shown in the figure, we insert a temporal attention right after each spatial attention in STDiT (ST stands for spatial-temporal). This is similar to variant 3 in Latte's paper. However, we do not control a similar number of parameters for these variants. While Latte's paper claims their variant is better than variant 3, our experiments on 16x256x256 videos show that with same number of iterations, the performance ranks as: DiT (full) > STDiT (Sequential) > STDiT (Parallel) ≈ Latte. Thus, we choose STDiT (Sequential) out of efficiency. Speed benchmark is provided [here](/docs/acceleration.md#efficient-stdit).
+As shown in the figure, we insert a temporal attention right after each spatial attention in STDiT (ST stands for spatial-temporal). This is similar to variant 3 in Latte's paper. However, we do not control a similar number of parameters for these variants. While Latte's paper claims their variant is better than variant 3, our experiments on 16x256x256 videos show that with same number of iterations, the performance ranks as: DiT (full) > STDiT (Sequential) > STDiT (Parallel) ≈ Latte. Thus, we choose STDiT (Sequential) out of efficiency. Speed benchmark is provided here.
 
 ![Architecture Comparison](/assets/readme/report_arch_comp.png)
 

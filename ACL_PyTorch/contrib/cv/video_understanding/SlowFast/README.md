@@ -21,7 +21,7 @@ SlowFast 是用于视频理解的双流框架的卷积神经网络，该网络�
     Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV), 2019, pp. 6202-6211  
 
 + 参考实现：  
-    url=https://github.com/open-mmlab/mmaction2/blob/master/configs/recognition/slowfast/slowfast_r50_8x8x1_256e_kinetics400_rgb.py  
+ url= 
     branch=master  
     commit_id=92e5517f1b3cbf937078d66c0dc5c4ba7abf7a08  
 

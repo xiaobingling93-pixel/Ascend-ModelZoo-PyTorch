@@ -60,7 +60,6 @@
 | 开源代码引入 | https://github.com/open-mmlab/mmaction2/blob/master/docs/en/notes/changelog.md|NonLocal/mmaction/datasets/activitynet_dataset.py	| https://github.com/open-mmlab/mmaction2/pull/286 | 源码实现 |
 | 开源代码引入 | https://github.com/open-mmlab/mmaction2/blob/master/mmaction/models/utils/blending_utils.py|NonLocal/mmaction/datasets/blending_utils.py	| https://arxiv.org/abs/1710.09412 | 模型相关说明 |
 | 开源代码引入 | https://github.com/open-mmlab/mmaction2/blob/master/docs/en/notes/changelog.md|NonLocal/mmaction/datasets/base.py	| https://github.com/open-mmlab/mmaction2/pull/286 | 源码实现 |
-| 开源代码引入 | https://github.com/open-mmlab/mmaction2/blob/master/mmaction/models/utils/blending_utils.py|NonLocal/mmaction/datasets/blending_utils.py	| https://github.com/open-mmlab/mmclassification/blob/master/mmcls/models/utils/mixup.py | 源码实现 |
 | 开源代码引入 | https://github.com/open-mmlab/mmaction2/blob/master/docs/en/notes/changelog.md|NonLocal/mmaction/datasets/base.py	| https://github.com/open-mmlab/mmaction2/pull/286 | 源码实现 |
 | 开发引入 | / | NonLocal/mmaction/datasets/builder.py	| https://github.com/pytorch/pytorch/issues/973 | 模型相关说明 |
 | 开源代码引入 | https://github.com/open-mmlab/mmaction2/blob/master/mmaction/models/utils/blending_utils.py|NonLocal/mmaction/datasets/blending_utils.py	| https://arxiv.org/abs/1905.04899 | 模型相关说明 |

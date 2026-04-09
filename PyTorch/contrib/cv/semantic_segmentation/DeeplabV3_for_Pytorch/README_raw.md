@@ -13,7 +13,7 @@
 
 Documentation: https://mmsegmentation.readthedocs.io/
 
-English | [简体中文](README_zh-CN.md)
+English | 简体中文
 
 ## Introduction
 
@@ -103,7 +103,7 @@ Please see [train.md](docs/train.md) and [inference.md](docs/inference.md) for t
 There are also tutorials for [customizing dataset](docs/tutorials/customize_datasets.md), [designing data pipeline](docs/tutorials/data_pipeline.md), [customizing modules](docs/tutorials/customize_models.md), and [customizing runtime](docs/tutorials/customize_runtime.md).
 We also provide many [training tricks](docs/tutorials/training_tricks.md).
 
-A Colab tutorial is also provided. You may preview the notebook [here](demo/MMSegmentation_Tutorial.ipynb) or directly on Colab.
+A Colab tutorial is also provided. You may preview the notebook here or directly on Colab.
 
 ## Citation
 
@@ -120,7 +120,7 @@ If you find this project useful in your research, please consider cite:
 
 ## Contributing
 
-We appreciate all contributions to improve MMSegmentation. Please refer to [CONTRIBUTING.md](.github/CONTRIBUTING.md) for the contributing guideline.
+We appreciate all contributions to improve MMSegmentation. Please refer to CONTRIBUTING.md for the contributing guideline.
 
 ## Acknowledgement
 

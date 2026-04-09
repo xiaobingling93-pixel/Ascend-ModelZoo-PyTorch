@@ -24,7 +24,7 @@
 |    --     |  R-50   |        1x         |        6        |   40.1   |    58.2    |    43.1    |            |
 |   R-101   |  R-50   |        1x         |        6        |   41.1   |    58.7    |    44.9    |    [config](https://github.com/open-mmlab/mmdetection/blob/master/configs/ld/ld_r50_gflv1_r101_fpn_coco_1x.py)        |
 |    --     |  R-101  |        2x         |        6        |   44.6   |    62.9    |    48.4    |           |
-| R-101-DCN |  R-101  |        2x         |        6        |   45.4   |    63.1    |    49.5    | [config](https://github.com/open-mmlab/mmdetection/blob/master/configs/ld/ld_r101_gflv1_r101dcn_fpn_coco_1x.py)           |
+| R-101-DCN | R-101 | 2x | 6 | 45.4 | 63.1 | 49.5 | config |
 
 ## Note
 

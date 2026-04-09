@@ -6,13 +6,13 @@ This implements training of SK-resNet50 on the ImageNet dataset, mainly modified
 
 ## SK-resNet50 Detail
 
-Base version of the model from [pytorch.torchvision](https://github.com/implus/PytorchInsight/blob/master/classification/models/imagenet/resnet_sk.py).
-The training script is adapted from [training script on imagenet](https://github.com/implus/PytorchInsight/blob/master/classification/imagenet_fast.py).
+Base version of the model from pytorch.torchvision.
+The training script is adapted from training script on imagenet.
 
 ## Requirements
 
 - pytorch_ascend, apex_ascend, tochvision
-  Note: pillow recommends installing a newer version. If the corresponding torchvision version cannot be installed directly, you can use the source code to install the corresponding version. The source code reference link: https://github.com/pytorch/vision，
+ Note: pillow recommends installing a newer version. If the corresponding torchvision version cannot be installed directly, you can use the source code to install the corresponding version. The source code reference link: 
 Suggestion the pillow is 9.1.0 and the torchvision is 0.6.0
 - Download the ImageNet dataset from http://www.image-net.org/
     - Then, and move validation images to labeled subfolders, using [the following shell script](https://raw.githubusercontent.com/soumith/imagenetloader.torch/master/valprep.sh).

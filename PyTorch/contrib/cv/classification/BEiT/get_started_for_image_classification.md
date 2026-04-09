@@ -2,10 +2,10 @@
 
 ## Setup
 
-1. [Setup environment](README.md#setup).
+1. Setup environment.
 2. Download and extract ImageNet-1k from http://image-net.org/.
 
-The directory structure is the standard layout of torchvision's [`datasets.ImageFolder`](https://pytorch.org/docs/stable/torchvision/datasets.html#imagefolder). The training and validation data are expected to be in the `train/` folder and `val` folder, respectively:
+The directory structure is the standard layout of torchvision's `datasets.ImageFolder`. The training and validation data are expected to be in the `train/` folder and `val` folder, respectively:
 
 ```
 /path/to/imagenet/

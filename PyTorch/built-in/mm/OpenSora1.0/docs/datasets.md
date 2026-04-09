@@ -8,11 +8,11 @@
 
 ### Inter4k
 
-[Inter4k](https://github.com/alexandrosstergiou/Inter4K) is a dataset containing 1k video clips with 4K resolution. The dataset is proposed for super-resolution tasks. We use the dataset for HQ training. The videos are processed as mentioned [here](/README.md#data-processing).
+[Inter4k](https://github.com/alexandrosstergiou/Inter4K) is a dataset containing 1k video clips with 4K resolution. The dataset is proposed for super-resolution tasks. We use the dataset for HQ training. The videos are processed as mentioned here.
 
 ### Pexels.com
 
-[Pexels.com](https://www.pexels.com/) is a website that provides free stock photos and videos. We collect 19K video clips from this website for HQ training. The videos are processed as mentioned [here](/README.md#data-processing).
+[Pexels.com](https://www.pexels.com/) is a website that provides free stock photos and videos. We collect 19K video clips from this website for HQ training. The videos are processed as mentioned here.
 
 ## Datasets watching list
 

@@ -1,10 +1,5 @@
 # FCN8s for PyTorch\_Owner
 
--   [概述](概述.md)
--   [准备训练环境](准备训练环境.md)
--   [开始训练](开始训练.md)
--   [训练结果展示](训练结果展示.md)
--   [版本说明](版本说明.md)
 
 
 # 概述
@@ -108,7 +103,6 @@ FCN8s是一个经典的语义分割网络，FCN8s使用全卷积结构，可以�
     ```
 
 
-  - 下载 [PASCALAug](http://www.eecs.berkeley.edu/Research/Projects/CS/vision/grouping/semantic_contours/benchmark.tgz)数据集。
   
     解压后，复制`benchmark_REALSE/dataset`到`VOCdevkit`文件夹下的`VOCaug`。
 

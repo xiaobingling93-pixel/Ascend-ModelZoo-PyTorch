@@ -7,7 +7,7 @@ At present, there are three kinds of data preprocessing in the project, namely, 
 
 ## Data processing: fine-tuning for classification tasks 
 
-There are two forms of tuning for classification tasks: one is fine-tuning, and the other is the [prompt-tuning](/docs/TUTORIAL_7_PROMPT_LEARNING.md). Prompt-tuning requires an additional cloze template for the task, which is more suitable for limited data. Let's take prompt learning as an example to introduce the data processing method in classification tasks:
+There are two forms of tuning for classification tasks: one is fine-tuning, and the other is the prompt-tuning. Prompt-tuning requires an additional cloze template for the task, which is more suitable for limited data. Let's take prompt learning as an example to introduce the data processing method in classification tasks:
 ### Application code
 
 ```python
@@ -59,7 +59,7 @@ The corresponding code module is shown below, which consists of two steps: autom
 
 `dataset_type`: It can be train/dev/test, which represents train/validation/test set is going to be preprocessed.
 
-`tokenizer`: Constructed tokenizer as introduced in [Tutorial1](/docs/TUTORIAL_1_TOKENIZER.md).
+`tokenizer`: Constructed tokenizer as introduced in Tutorial1.
 
 
 
@@ -72,7 +72,7 @@ FlagAI currently supports the following classification datasets:
 |------------------------------------------------------------------------------------------------------------------------------------------|---------------|----------|----------------------------------------------------|---------------|-------------|
 | [Broadcoverage Diagnostics](https://github.com/google-research-datasets/boolean-questions)                                               | boolq         | English  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅             | ✅           |
 | [CommitmentBank](https://github.com/mcdm/CommitmentBank)                                                                                 | cb            | English  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅             | ✅           |
-| [Choice of Plausible Alternatives](https://people.ict.usc.edu/~gordon/copa.html)                                                         | copa          | English  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅             | ✅           |
+| Choice of Plausible Alternatives | copa | English | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅ | ✅ |
 | [Multi-Sentence Reading Comprehension](https://cogcomp.org/multirc/ )                                                                    | muiltirc      | English  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅             | ✅           |
 | [Recognizing Textual Entailment](https://aclweb.org/aclwiki/Recognizing_Textual_Entailment )                                             | rte           | English  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅             | ✅           |
 | [Words in Context](https://pilehvar.github.io/wic/ )                                                                                     | wic           | English  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅             | ✅           |                                                   

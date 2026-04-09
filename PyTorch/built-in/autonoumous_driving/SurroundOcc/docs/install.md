@@ -1,5 +1,5 @@
 # Step-by-step installation instructions
-Following https://mmdetection3d.readthedocs.io/en/latest/getting_started.html#installation
+Following 
 
 **1. Create a conda virtual environment and activate it.**
 ```shell

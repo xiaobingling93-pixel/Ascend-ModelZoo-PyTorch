@@ -56,4 +56,4 @@ Before using it, make sure you have the latest pytorch-image-models package [`ti
 This repository is released under the Apache 2.0 license as found in the [LICENSE](LICENSE) file.
 
 # Contributing
-We actively welcome your pull requests! Please see [CONTRIBUTING.md](.github/CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](.github/CODE_OF_CONDUCT.md) for more info.
+We actively welcome your pull requests! Please see CONTRIBUTING.md and CODE_OF_CONDUCT.md for more info.

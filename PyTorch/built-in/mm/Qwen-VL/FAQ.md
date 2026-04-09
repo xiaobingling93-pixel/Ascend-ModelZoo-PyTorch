@@ -16,7 +16,7 @@ This is the merge file of the tokenizer. You have to download it. Note that if y
 
 #### transformers_stream_generator/tiktoken/accelerate not found
 
-Run the command `pip install -r requirements.txt`. You can find the file at [https://github.com/QwenLM/Qwen-VL/blob/main/requirements.txt](https://github.com/QwenLM/Qwen-VL/blob/main/requirements.txt).
+Run the command `pip install -r requirements.txt`. You can find the file at .
 <br><br>
 
 

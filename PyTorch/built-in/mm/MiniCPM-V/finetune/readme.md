@@ -138,7 +138,6 @@ A：When you face Out of Memory (OOM) issues during training large models, the f
 ```
 --tune_vision false
 ```
-- **Use LoRA finetuning**: Refer to the [LoRA finetuning](#LoRA-finetuning) section.
 
 #### Optimize with DeepSpeed
 - **Configure DeepSpeed Zero Stage 2**: Use the following configuration to offload optimizer parameters to the CPU, reducing memory pressure on the GPU:

@@ -52,7 +52,7 @@ In general, each new (or updated) component should provide a companion
 typically located in the same file as the component and are passed as arguments
 to the `register_*()` functions. Top-level configs that should be present in
 every fairseq application are placed in the
-[global](fairseq/dataclass/configs.py) config file and added to the
+global config file and added to the
 `FairseqConfig` object.
 
 Each dataclass is a plain-old-data object, similar to a `NamedTuple`. These

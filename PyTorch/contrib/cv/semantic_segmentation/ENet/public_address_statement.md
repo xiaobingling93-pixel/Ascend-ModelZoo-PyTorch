@@ -8,7 +8,6 @@
 | ModelZoo-PyTorch/PyTorch/contrib/cv/semantic_segmentation/ENet/core/data/downloader/pascal_voc.py  | http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtrainval_06-Nov-2007.tar                        | 数据集地址   |
 | ModelZoo-PyTorch/PyTorch/contrib/cv/semantic_segmentation/ENet/core/data/downloader/pascal_voc.py  | http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtest_06-Nov-2007.tar                            | 数据集地址   |
 | ModelZoo-PyTorch/PyTorch/contrib/cv/semantic_segmentation/ENet/core/data/downloader/pascal_voc.py  | http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar                        | 数据集地址   |
-| ModelZoo-PyTorch/PyTorch/contrib/cv/semantic_segmentation/ENet/core/data/downloader/pascal_voc.py  | http://www.eecs.berkeley.edu/Research/Projects/CS/vision/grouping/semantic_contours/benchmark.tgz | 数据集地址   |
 | ModelZoo-PyTorch/PyTorch/contrib/cv/semantic_segmentation/ENet/core/data/downloader/sbu_shadow.py  | http://www3.cs.stonybrook.edu/~cvl/content/datasets/shadow_db/SBU-shadow.zip                      | 数据集链接   |
 | ModelZoo-PyTorch/PyTorch/contrib/cv/semantic_segmentation/ENet/core/models/base_models/densenet.py | https://download.pytorch.org/models/densenet201-c1103571.pth                                      | 权重地址    |
 | ModelZoo-PyTorch/PyTorch/contrib/cv/semantic_segmentation/ENet/core/models/base_models/densenet.py | https://download.pytorch.org/models/densenet169-b2777c0a.pth                                      | 权重地址    |

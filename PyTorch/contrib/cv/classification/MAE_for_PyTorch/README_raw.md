@@ -58,7 +58,7 @@ The following table provides the pre-trained checkpoints used in the paper, conv
 </tbody></table>
 
 
-The fine-tuning instruction is in [FINETUNE.md](FINETUNE.md).
+The fine-tuning instruction is in .
 
 By fine-tuning these pre-trained models, we rank #1 in these classification tasks (detailed in the paper):
 <table><tbody>
@@ -150,7 +150,7 @@ By fine-tuning these pre-trained models, we rank #1 in these classification task
 
 ### Pre-training
 
-The pre-training instruction is in [PRETRAIN.md](PRETRAIN.md).
+The pre-training instruction is in .
 
 ### License
 

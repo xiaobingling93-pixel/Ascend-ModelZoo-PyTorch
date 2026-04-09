@@ -4,7 +4,6 @@
 
 
 # 目录
-- [MiniCPM-V](#MiniCPM-V-for-pytorch)
   - [概述](#概述)
   - [准备训练环境](#准备训练环境)
     - [创建Python环境](#创建python环境)

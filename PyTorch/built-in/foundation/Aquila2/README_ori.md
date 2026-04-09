@@ -110,7 +110,7 @@ Before running `dist_start.sh`, you should provide the required information:
   * `FlagScale_HOME`: the directory of the FlagScale.
   * `PROJ_HOME`: the directory for saving checkpoints, tensorboards and other information.
   * `EXPNAME`: the name of the current training experiment.
-  * `DATA_PATH`: the path of the training datasets following the [Megatron-LM format](./README_original.md#data-preprocessing). For quickly running the pretraining process, we also provide a small processed data ([bin](https://model.ks3-cn-beijing.ksyuncs.com/nlpdata/pile_wikipedia_demo.bin) and [idx](https://model.ks3-cn-beijing.ksyuncs.com/nlpdata/pile_wikipedia_demo.idx)) from the [Pile](https://pile.eleuther.ai/) dataset.
+ * `DATA_PATH`: the path of the training datasets following the Megatron-LM format. For quickly running the pretraining process, we also provide a small processed data ([bin](https://model.ks3-cn-beijing.ksyuncs.com/nlpdata/pile_wikipedia_demo.bin) and [idx](https://model.ks3-cn-beijing.ksyuncs.com/nlpdata/pile_wikipedia_demo.idx)) from the [Pile](https://pile.eleuther.ai/) dataset.
   * `HOSTFILE`: the hostfile of the nodes for the current training, which consists of a list of hostnames and slot counts. For example:
     ```
     hostnames-1/IP-1 slots=8
@@ -129,7 +129,7 @@ Before running `dist_stop.sh`, you should provide the required information:
 
 ### Do the heterogenous training 
 
-It is very simple to do the heterogeneous training on chips of different generations with the same architecture or compatible architectures. You only need to follow the steps below and everything else just remains the same as the above homogeneous training. In addition, you can also refer to the examples [1](./examples/aquila/34B/pretrain_aquila_34b_distributed_A800_16n_80g_A100_48n_40g_hetero_pp.sh), [2](./examples/aquila/34B/pretrain_aquila_34b_distributed_A800_16n_80g_A100_48n_40g_hetero_dp.sh), [3](./examples/aquila/70B/pretrain_aquila_70b_distributed_A800_16n_80g_A100_48n_40g_hetero_pp.sh) for better understanding.
+It is very simple to do the heterogeneous training on chips of different generations with the same architecture or compatible architectures. You only need to follow the steps below and everything else just remains the same as the above homogeneous training. In addition, you can also refer to the examples 1, 2, 3 for better understanding.
 
 1. Extend the hostfile
 

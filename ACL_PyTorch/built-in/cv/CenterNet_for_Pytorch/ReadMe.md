@@ -119,7 +119,7 @@ def _iter_filter(condition, allow_unknown=False, condition_msg=None,
     return _iter
 ```
 
-12、下载[ctdet_coco_dla_2x.pth](https://drive.google.com/open?id=1pl_-ael8wERdUREEnaIfqOV_VF2bEVRT)模型，放入`CenterNet/models`目录下
+12、下载ctdet_coco_dla_2x.pth模型，放入`CenterNet/models`目录下
 13、把`CenterNet/src/lib/opts.py中的add_argument('task', default='ctdet'....)`改为`add_argument('--task', default='ctdet'....)`
 14、把提供的代码和脚本放入`CenterNet/src`目录下。
 

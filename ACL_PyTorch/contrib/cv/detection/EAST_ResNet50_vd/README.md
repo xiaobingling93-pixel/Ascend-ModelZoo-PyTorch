@@ -135,7 +135,7 @@ EAST是一个高效准确的场景文本检测器，通过两步进行文本检�
 
    1. 获取权重文件。
 
-       训练权重链接为：https://paddleocr.bj.bcebos.com/dygraph_v2.0/en/det_r50_vd_east_v2.0_train.tar。
+ 训练权重链接为：
        ```
        wget -nc -P ./checkpoint https://paddleocr.bj.bcebos.com/dygraph_v2.0/en/det_r50_vd_east_v2.0_train.tar
        cd ./checkpoint && tar xf det_r50_vd_east_v2.0_train.tar && cd ..

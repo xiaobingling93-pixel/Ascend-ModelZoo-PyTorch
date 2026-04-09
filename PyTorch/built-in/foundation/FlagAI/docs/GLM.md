@@ -47,7 +47,7 @@ Single model, single task finetune on `dev`, (list part of results on CLU). Lear
 
 
 ## Supported pre-trained GLM models
-see [Tutorial 5: Simplify model and tokenizer Initialization by Using Autoloader](/docs/TUTORIAL_5_INSTRUCTIONS_FOR_AutoLoader.md).
+see Tutorial 5: Simplify model and tokenizer Initialization by Using Autoloader.
 
 ## Step-by-step procedure of GLM
 1) Following the example in the paper, the original text contains 6 tokens, and two spans are masked: first span contains the 3rd token and the second span contains the 5th and 6th token.

@@ -125,9 +125,9 @@ Since the huge differences between OUMVLP and CASIA-B, the network setting on OU
 GaitSet is authored by
 [Hanqing Chao](https://www.linkedin.com/in/hanqing-chao-9aa42412b/), 
 [Yiwei He](https://www.linkedin.com/in/yiwei-he-4a6a6bbb/),
-[Junping Zhang](http://www.pami.fudan.edu.cn/~jpzhang/)
+Junping Zhang
 and JianFeng Feng from Fudan Universiy.
-[Junping Zhang](http://www.pami.fudan.edu.cn/~jpzhang/)
+Junping Zhang
 is the corresponding author.
 The code is developed by
 [Hanqing Chao](https://www.linkedin.com/in/hanqing-chao-9aa42412b/)
@@ -153,4 +153,4 @@ Link to paper:
 
 ## License
 GaitSet is freely available for free non-commercial use, and may be redistributed under these conditions.
-For commercial queries, contact [Junping Zhang](http://www.pami.fudan.edu.cn/~jpzhang/).
+For commercial queries, contact Junping Zhang.

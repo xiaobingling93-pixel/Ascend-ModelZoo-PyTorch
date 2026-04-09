@@ -32,7 +32,6 @@ to achieve state-of-the-art accuracy and is tested and maintained by NVIDIA.
         * [Dataset guidelines](#dataset-guidelines)
         * [BYO dataset](#byo-dataset)
           * [Channel definitions and requirements](#channel-definitions-and-requirements)
-          * [BYO dataset constraints for the model](#BYO-dataset-constraints-for-the-model)
         * [Preprocessing](#preprocessing)
             * [NVTabular](#nvtabular)
             * [Spark](#spark)
@@ -55,7 +54,6 @@ to achieve state-of-the-art accuracy and is tested and maintained by NVIDIA.
             * [Training performance: NVIDIA DGX-1 (8x V100 32GB)](#training-performance-nvidia-dgx-1-8x-v100-32gb)
             * [Training performance: NVIDIA DGX-2 (16x V100 32GB)](#training-performance-nvidia-dgx-2-16x-v100-32gb)
         * [Inference performance results](#inference-performance-results)
-            * [Inference performance: NVIDIA DGX A100 (1x A100 80GB)](#inference-performance-nvidia-dgx-a100-1x-a100-80gb)
             * [Inference performance: NVIDIA DGX-1 (1x V100 32GB)](#inference-performance-nvidia-dgx-1-1x-v100-32gb)
 - [Release notes](#release-notes)
     * [Changelog](#changelog)
@@ -69,7 +67,7 @@ make use of both categorical and numerical inputs. It was first described in
 This repository provides a reimplementation of the codebase provided originally [here](https://github.com/facebookresearch/dlrm).
 The scripts provided enable you to train DLRM on the [Criteo Terabyte Dataset](https://labs.criteo.com/2013/12/download-terabyte-click-logs/). 
 
-Using the scripts provided here, you can efficiently train models that are too large to fit into a single GPU. This is because we use a hybrid-parallel approach, which combines model parallelism for the embedding tables with data parallelism for the Top MLP. This is explained in details in [next sections](#hybrid-parallel-multigpu-with-all-2-all-communication).
+Using the scripts provided here, you can efficiently train models that are too large to fit into a single GPU. This is because we use a hybrid-parallel approach, which combines model parallelism for the embedding tables with data parallelism for the Top MLP. This is explained in details in next sections.
 
 This model uses a slightly different preprocessing procedure than the one found in the original implementation. You can find a detailed description of the preprocessing steps in the [Dataset guidelines](#dataset-guidelines) section.
 
@@ -375,7 +373,6 @@ This repository contains Dockerfile which extends the PyTorch NGC container and 
 
 
 For more information about how to get started with NGC containers, see the following sections from the NVIDIA GPU Cloud Documentation and the Deep Learning Documentation:
-- [Getting Started Using NVIDIA GPU Cloud](https://docs.nvidia.com/ngc/ngc-getting-started-guide/index.html)
 - [Accessing And Pulling From The NGC Container Registry](https://docs.nvidia.com/deeplearning/frameworks/user-guide/index.html#accessing_registry)
 - [Running PyTorch](https://docs.nvidia.com/deeplearning/frameworks/pytorch-release-notes/running.html#running)
   

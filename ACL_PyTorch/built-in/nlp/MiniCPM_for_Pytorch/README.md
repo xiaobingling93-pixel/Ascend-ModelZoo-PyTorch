@@ -93,7 +93,7 @@ MiniCPM是面壁与清华大学自然语言处理实验室共同开源的系列�
    - protoc安装
       
       根据昇腾文档选择合适的protoc,此版本配套使用的protoc版本最低为 1.13.0  
-      进入https://github.com/protocolbuffers/protobuf/releases下载对应版本
+ 进入
       ```
       # 安装protoc==1.13.0， 找一空闲目录下载
       tar -zxvf protobuf-all-3.13.0.tar.gz

@@ -7,7 +7,7 @@
 3. [文件下载 Download](#文件下载)
 4. [预测步骤 How2predict](#预测步骤)
 5. [训练步骤 How2train](#训练步骤)
-6. [参考资料 Reference](#Reference)
+6. 参考资料 Reference
 
 ## 性能情况
 | 训练数据集 | 权值文件名称 | 测试数据集 | 输入图片大小 | mAP 0.5:0.95 | mAP 0.5 |

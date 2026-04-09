@@ -306,7 +306,7 @@ python -m torch.distributed.launch --use_env --nproc_per_node=1 eval_image_retri
 ```
 
 ## Evaluation: Copy detection on Copydays
-Step 1: Prepare [Copydays dataset](https://lear.inrialpes.fr/~jegou/data.php#copydays).
+Step 1: Prepare Copydays dataset.
 
 Step 2 (opt): Prepare a set of image distractors and a set of images on which to learn the whitening operator.
 In our paper, we use 10k random images from YFCC100M as distractors and 20k random images from YFCC100M (different from the distractors) for computing the whitening operation.

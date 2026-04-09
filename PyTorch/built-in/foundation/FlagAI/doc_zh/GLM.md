@@ -43,7 +43,7 @@ GLM的主要功能包括：
 |   GLM-10b-ch   |  75.42 |   69.94  |  62.15  |     85    |  86.17 |    70    |  87.009 | 88.335 |
 
 ## FlagAI支持的GLM预训练模型
-参考 [Tutorial 5: 使用AutoLoader工具快速构建模型](/doc_zh/TUTORIAL_5_INSTRUCTIONS_FOR_AutoLoader.md)。
+参考 Tutorial 5: 使用AutoLoader工具快速构建模型。
 
 ## Step-by-step procedure of GLM
 1) 如下图所示，原文包含6个token，两个区间被屏蔽：第一个区间包含第3个token，第二个区间包含第5个和第6个token。

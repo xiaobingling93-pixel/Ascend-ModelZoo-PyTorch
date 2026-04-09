@@ -4,7 +4,7 @@
 # Conceptual Captions Dataset
 
 ## Description
-(from https://huggingface.co/datasets/conceptual_captions)
+(from )
 
 Conceptual Captions 3M (CC3M) is a dataset consisting of ~3.3M images annotated with captions. In contrast with the curated style of other image caption annotations, Conceptual Caption images and their raw descriptions are harvested from the web, and therefore represent a wider variety of styles. More precisely, the raw descriptions are harvested from the Alt-text HTML attribute associated with web images. To arrive at the current version of the captions, we have developed an automatic pipeline that extracts, filters, and transforms candidate image/caption pairs, with the goal of achieving a balance of cleanliness, informativeness, fluency, and learnability of the resulting captions.
 

@@ -1,6 +1,5 @@
 # OpenFold_for_PyTorch
 
-- [OpenFold\_for\_PyTorch](#OpenFold_for_PyTorch)
 - [概述](#概述)
   - [简述](#简述)
 - [准备训练环境](#准备训练环境)

@@ -2,7 +2,6 @@
 |-----------------------------------------------------------------------------------------------------|----------------------------------------------------------------|---------|
 | ModelZoo-PyTorch/PyTorch/contrib/cv/classification/ReidStrongBaseline/data/datasets/dukemtmcreid.py | http://vision.cs.duke.edu/DukeMTMC/data/misc/DukeMTMC-reID.zip | 数据集链接   |
 | ModelZoo-PyTorch/PyTorch/contrib/cv/classification/ReidStrongBaseline/data/datasets/market1501.py   | http://www.liangzheng.org/Project/project_reid.html            | 相关说明    |
-| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/ReidStrongBaseline/data/datasets/msmt17.py       | http://www.pkuvmc.com/publications/msmt17.html                 | 相关说明    |
 | ModelZoo-PyTorch/PyTorch/contrib/cv/classification/ReidStrongBaseline/url.ini                       | https://download.pytorch.org/models/resnet101-5d3b4d8f.pth     | 权重地址    |
 | ModelZoo-PyTorch/PyTorch/contrib/cv/classification/ReidStrongBaseline/url.ini                       | https://download.pytorch.org/models/resnet152-b121ed2d.pth     | 权重地址    |
 | ModelZoo-PyTorch/PyTorch/contrib/cv/classification/ReidStrongBaseline/url.ini                       | https://download.pytorch.org/models/resnet50-19c8e357.pth      | 权重地址    |

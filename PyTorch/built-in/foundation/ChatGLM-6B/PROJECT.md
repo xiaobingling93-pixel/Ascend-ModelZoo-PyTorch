@@ -12,7 +12,6 @@
 基于或使用了 ChatGLM-6B 的开源项目：
 * [chatgpt_academic](https://github.com/binary-husky/chatgpt_academic): 支持ChatGLM-6B的学术写作与编程工具箱，具有模块化和多线程调用LLM的特点，可并行调用多种LLM。
 * [闻达](https://github.com/l15y/wenda)：大型语言模型调用平台，基于 ChatGLM-6B 实现了类 ChatPDF 功能
-* [glm-bot](https://github.com/initialencounter/glm-bot)：将ChatGLM接入Koishi可在各大聊天平台上调用ChatGLM
 * [Chinese-LangChain](https://github.com/yanqiangmiffy/Chinese-LangChain):中文langchain项目，基于ChatGLM-6b+langchain实现本地化知识库检索与智能答案生成，增加web search功能、知识库选择功能和支持知识增量更新
 * [bibliothecarius](https://github.com/coderabbit214/bibliothecarius)：快速构建服务以集成您的本地数据和AI模型，支持ChatGLM等本地化模型接入。
 * [langchain-ChatGLM](https://github.com/imClumsyPanda/langchain-ChatGLM)：基于 langchain 的 ChatGLM 应用，实现基于可扩展知识库的问答

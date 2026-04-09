@@ -51,7 +51,7 @@ As shown in the figure, a bucket is a triplet of `(resolution, num_frame, aspect
 
 Considering our computational resource is limited, we further introduce two attributes `keep_prob` and `batch_size` for each `(resolution, num_frame)` to reduce the computational cost and enable multi-stage training. Specifically, a high-resolution video will be downsampled to a lower resolution with probability `1-keep_prob` and the batch size for each bucket is `batch_size`. In this way, we can control the number of samples in different buckets and balance the GPU load by search a good batch size for each bucket.
 
-A detailed explanation of the bucket usage in training is available in [docs/config.md](/docs/config.md#training-bucket-configs).
+A detailed explanation of the bucket usage in training is available in docs/config.md.
 
 ## Masked DiT as Image/Video-to-Video Model
 
@@ -67,15 +67,15 @@ An illustration of masking strategy config to use in inference is given as follo
 
 ![mask strategy config](/assets/readme/report_mask_config.png)
 
-A detailed explanation of the mask strategy usage is available in [docs/config.md](/docs/config.md#advanced-inference-config).
+A detailed explanation of the mask strategy usage is available in docs/config.md.
 
 ## Data Collection & Pipeline
 
-As we found in Open-Sora 1.0, the data number and quality are crucial for training a good model, we work hard on scaling the dataset. First, we create an automatic pipeline following [SVD](https://arxiv.org/abs/2311.15127), inlcuding scene cutting, captioning, various scoring and filtering, and dataset management scripts and conventions. More infomation can be found in [docs/data_processing.md](/docs/data_processing.md).
+As we found in Open-Sora 1.0, the data number and quality are crucial for training a good model, we work hard on scaling the dataset. First, we create an automatic pipeline following [SVD](https://arxiv.org/abs/2311.15127), inlcuding scene cutting, captioning, various scoring and filtering, and dataset management scripts and conventions. More infomation can be found in docs/data_processing.md.
 
 ![pipeline](/assets/readme/report_data_pipeline.png)
 
-We plan to use [panda-70M](https://snap-research.github.io/Panda-70M/) and other data to traing the model, which is approximately 30M+ data. However, we find disk IO a botteleneck for training and data processing at the same time. Thus, we can only prepare a 10M dataset and did not go through all processing pipeline that we built. Finally, we use a dataset with 9.7M videos + 2.6M images for pre-training, and 560k videos + 1.6M images for fine-tuning. The pretraining dataset statistics are shown below. More information about the dataset can be found in [docs/datasets.md](/docs/datasets.md).
+We plan to use [panda-70M](https://snap-research.github.io/Panda-70M/) and other data to traing the model, which is approximately 30M+ data. However, we find disk IO a botteleneck for training and data processing at the same time. Thus, we can only prepare a 10M dataset and did not go through all processing pipeline that we built. Finally, we use a dataset with 9.7M videos + 2.6M images for pre-training, and 560k videos + 1.6M images for fine-tuning. The pretraining dataset statistics are shown below. More information about the dataset can be found in docs/datasets.md.
 
 Image text tokens (by T5 tokenizer):
 
@@ -94,11 +94,11 @@ Video duration:
 With limited computational resources, we have to carefully monitor the training process, and change the training strategy if we speculate the model is not learning well since there is no computation for ablation study. Thus, Open-Sora 1.1's training includes multiple changes, and as a result, ema is not applied.
 
 1. First, we fine-tune **6k** steps with images of different resolution from `Pixart-alpha-1024` checkpoints. We find the model easily adapts to generate images with different resolutions. We use [SpeeDiT](https://github.com/1zeryu/SpeeDiT) (iddpm-speed) to accelerate the diffusion training.
-2. **[Stage 1]** Then, we pretrain the model with gradient-checkpointing for **24k** steps, which takes **4 days** on 64 H800 GPUs. Although the number of samples seen by the model is the same, we find the model learns slowly compared to a smaller batch size. We speculate that at an early stage, the number of steps is more important for training. The most videos are in **240p** resolution, and the config is similar to [stage2.py](/configs/opensora-v1-1/train/stage2.py). The video looking is good, but the model does not know much about the temporal knowledge. We use mask ratio of 10%.
-3. **[Stage 1]** To increase the number of steps, we switch to a smaller batch size without gradient-checkpointing. We also add fps conditioning at this point. We trained **40k** steps for **2 days**. The most videos are in **144p** resolution, and the config file is [stage1.py](/configs/opensora-v1-1/train/stage1.py). We use a lower resolution as we find in Open-Sora 1.0 that the model can learn temporal knowledge with relatively low resolution.
-4. **[Stage 1]** We find the model cannot learn well for long videos, and find a noised generation result as speculated to be half-precision problem found in Open-Sora 1.0 training. Thus, we adopt the QK-normalization to stabilize the training. Similar to SD3, we find the model quickly adapt to the QK-normalization. We also switch iddpm-speed to iddpm, and increase the mask ratio to 25% as we find image-condition not learning well. We trained for **17k** steps for **14 hours**. The most videos are in **144p** resolution, and the config file is [stage1.py](/configs/opensora-v1-1/train/stage1.py). The stage 1 training lasts for approximately one week, with total step **81k**.
-5. **[Stage 2]** We switch to a higher resolution, where most videos are in **240p and 480p** resolution ([stage2.py](/configs/opensora-v1-1/train/stage2.py)). We trained **22k** steps for **one day** on all pre-training data.
-6. **[Stage 3]** We switch to a higher resolution, where most videos are in **480p and 720p** resolution ([stage3.py](/configs/opensora-v1-1/train/stage3.py)). We trained **4k** with **one day** on high-quality data. We find loading previous stage's optimizer state can help the model learn faster.
+2. **[Stage 1]** Then, we pretrain the model with gradient-checkpointing for **24k** steps, which takes **4 days** on 64 H800 GPUs. Although the number of samples seen by the model is the same, we find the model learns slowly compared to a smaller batch size. We speculate that at an early stage, the number of steps is more important for training. The most videos are in **240p** resolution, and the config is similar to stage2.py. The video looking is good, but the model does not know much about the temporal knowledge. We use mask ratio of 10%.
+3. **[Stage 1]** To increase the number of steps, we switch to a smaller batch size without gradient-checkpointing. We also add fps conditioning at this point. We trained **40k** steps for **2 days**. The most videos are in **144p** resolution, and the config file is stage1.py. We use a lower resolution as we find in Open-Sora 1.0 that the model can learn temporal knowledge with relatively low resolution.
+4. **[Stage 1]** We find the model cannot learn well for long videos, and find a noised generation result as speculated to be half-precision problem found in Open-Sora 1.0 training. Thus, we adopt the QK-normalization to stabilize the training. Similar to SD3, we find the model quickly adapt to the QK-normalization. We also switch iddpm-speed to iddpm, and increase the mask ratio to 25% as we find image-condition not learning well. We trained for **17k** steps for **14 hours**. The most videos are in **144p** resolution, and the config file is stage1.py. The stage 1 training lasts for approximately one week, with total step **81k**.
+5. **[Stage 2]** We switch to a higher resolution, where most videos are in **240p and 480p** resolution (stage2.py). We trained **22k** steps for **one day** on all pre-training data.
+6. **[Stage 3]** We switch to a higher resolution, where most videos are in **480p and 720p** resolution (stage3.py). We trained **4k** with **one day** on high-quality data. We find loading previous stage's optimizer state can help the model learn faster.
 
 To summarize, the training of Open-Sora 1.1 requires approximately **9 days** on 64 H800 GPUs.
 

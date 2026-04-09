@@ -7,7 +7,7 @@
 - [Training Args](#training-args)
 - [Training Bucket Configs](#training-bucket-configs)
 
-Our config files follows [MMEgine](https://github.com/open-mmlab/mmengine). MMEngine will reads the config file (a `.py` file) and parse it into a dictionary-like object. We expose some fields in the config file to the command line arguments (defined in [opensora/utils/config_util.py](/opensora/utils/config_utils.py)). To change the inference settings, you can directly modify the corresponding config file. Or you can pass arguments to overwrite the config file.
+Our config files follows [MMEgine](https://github.com/open-mmlab/mmengine). MMEngine will reads the config file (a `.py` file) and parse it into a dictionary-like object. We expose some fields in the config file to the command line arguments (defined in opensora/utils/config_util.py). To change the inference settings, you can directly modify the corresponding config file. Or you can pass arguments to overwrite the config file.
 
 ## Inference Config
 
@@ -61,7 +61,7 @@ save_dir = "./samples"         # path to save samples
 
 ## Advanced Inference config
 
-The [`inference-long.py`](/scripts/inference-long.py) script is used to generate long videos, and it also provides all functions of the [`inference.py`](/scripts/inference.py) script. The following arguments are specific to the `inference-long.py` script.
+The `inference-long.py` script is used to generate long videos, and it also provides all functions of the `inference.py` script. The following arguments are specific to the `inference-long.py` script.
 
 ```python
 loop = 10
@@ -124,7 +124,7 @@ You can use `python scripts/inference.py --help` to see the following arguments:
 - `--reference-path`: reference path for long video generation
 - `--mask-strategy`: mask strategy for long video generation
 
-Example commands for inference can be found in [commands.md](/docs/commands.md).
+Example commands for inference can be found in commands.md.
 
 ## Training Config
 
@@ -222,7 +222,7 @@ grad_clip = 1.0
 - `--load`: path to the checkpoint to load
 - `--data-path`: path to the dataset (`dataset["data_path"]`)
 
-See [commands.md](/docs/commands.md) for example commands.
+See commands.md for example commands.
 
 ## Training Bucket Configs
 
@@ -246,7 +246,7 @@ This looks a bit difficult to understand at the first glance. Let's understand t
 
 ![bucket](/assets/readme/report_bucket.png)
 
-We design a three-level bucket: `(resolution, num_frames, aspect_ratios)`. The resolution and aspect ratios is predefined in [aspect.py](/opensora/datasets/aspect.py). Commonly used resolutions (e.g., 240p, 1080p) are supported, and the name represents the number of pixels (e.g., 240p is 240x426, however, we define 240p to represent any size with HxW approximately 240x426=102240 pixels). The aspect ratios are defined for each resolution. You do not need to define the aspect ratios in the `bucket_config`.
+We design a three-level bucket: `(resolution, num_frames, aspect_ratios)`. The resolution and aspect ratios is predefined in aspect.py. Commonly used resolutions (e.g., 240p, 1080p) are supported, and the name represents the number of pixels (e.g., 240p is 240x426, however, we define 240p to represent any size with HxW approximately 240x426=102240 pixels). The aspect ratios are defined for each resolution. You do not need to define the aspect ratios in the `bucket_config`.
 
 The `num_frames` is the number of frames in each sample, with `num_frames=1` especially for images. If `frame_intervals` is not 1, a bucket with `num_frames=k` will contain videos with `k*frame_intervals` frames except for images. Only a video with more than `num_frames` and more than `resolution` pixels will be likely to be put into the bucket.
 
@@ -265,7 +265,7 @@ Given a 2K video with more than 16 frames, the program will first try to put it 
 
 ### Examples
 
-Let's see some simple examples to understand the bucket config. First, the aspect ratio bucket is compulsory, if you want to modify this you need to add your own resolution definition in [aspect.py](/opensora/datasets/aspect.py). Then, to keep only 256x256 resolution and 16 frames as OpenSora 1.0, you can use the following config:
+Let's see some simple examples to understand the bucket config. First, the aspect ratio bucket is compulsory, if you want to modify this you need to add your own resolution definition in aspect.py. Then, to keep only 256x256 resolution and 16 frames as OpenSora 1.0, you can use the following config:
 
 ```python
 bucket_config = {
@@ -273,7 +273,7 @@ bucket_config = {
 }
 ```
 
-If you want to train a model supporting different resolutions of images, you can use the following config (example [image.py](/configs/opensora-v1-1/train/image.py)):
+If you want to train a model supporting different resolutions of images, you can use the following config (example image.py):
 
 ```python
 bucket_config = {
@@ -297,7 +297,7 @@ bucket_config = {
 }
 ```
 
-And similarly for videos (example [video.py](/configs/opensora-v1-1/train/video.py)):
+And similarly for videos (example video.py):
 
 ```python
 bucket_config = {

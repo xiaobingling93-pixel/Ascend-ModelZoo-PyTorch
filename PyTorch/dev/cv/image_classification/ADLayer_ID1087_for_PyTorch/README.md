@@ -114,7 +114,7 @@ in the paper.
   `train-fullsup`. Note that we have annotated bounding boxes on ImageNetV2. 
 - CUB
   - "train" and "test" splits of original 
-  [CUB-200-2011](http://www.vision.caltech.edu/visipedia/CUB-200-2011.html) are 
+ CUB-200-2011 are 
   treated as our `train-weaksup` and `test`.
   - We contribute images and annotations that are similar as the original CUB, 
   namely CUBV2.
@@ -141,7 +141,7 @@ If the aim is to utilize the data for WSOL evaluation and/or training, please fo
 We utilize 10,000 images in the `Threshold0.7` split of 
 [ImageNetV2](https://github.com/modestyachts/ImageNetV2) for our `train-fullsup` 
 split. We have annotated bounding boxes on those images. 
-Box labels exist in [here](release/) and are licensed by NAVERCorp. under
+Box labels exist in here and are licensed by NAVERCorp. under
 [Attribution 2.0 Generic (CC-BY-2.0)](https://creativecommons.org/licenses/by/2.0/).
 
 #### CUBV2
@@ -152,7 +152,7 @@ We have ensured that the data distribution
 follows the original CUB dataset and there is no duplicate image.
 We have collected 5 images per class 
 (1,000 images total) from [Flickr](https://www.flickr.com/). 
-Box labels and license files of all images exist in [here](release/). 
+Box labels and license files of all images exist in here. 
 Both class and box labels are licensed by NAVERCorp under
 [Attribution 2.0 Generic (CC-BY-2.0)](https://creativecommons.org/licenses/by/2.0/).
 
@@ -168,7 +168,7 @@ we use 100 classes to ensure the minimum number of single-class samples for
 each class. We have randomly selected 29,819, 2,500, and 5,000 images from the 
 original "train", "val", and "test" splits of 
 [OpenImagesV5](https://storage.googleapis.com/openimages/web/index.html).
-Corresponding metadata can be found in [here](metadata/OpenImages/).
+Corresponding metadata can be found in here.
 The annotations are licensed by Google LLC under 
 [Attribution 4.0 International (CC-BY-4.0)](https://creativecommons.org/licenses/by/4.0/).
 The images are listed as having a 
@@ -190,7 +190,7 @@ The licenses corresponding to our dataset contribution are summarized as follows
 Dataset    | Images                                   | Class Annotations | Localization Annotations
 -----------|------------------------------------------|-------------------|----------------
 ImageNetV2 | See the [original Github](https://github.com/modestyachts/ImageNetV2) |  See the [original Github](https://github.com/modestyachts/ImageNetV2)  | CC-BY-2.0 NaverCorp.
-CUBV2      | Follows original image licenses. See [here](release/CUBV2_image_licenses.txt). | CC-BY-2.0 NaverCorp. | CC-BY-2.0 NaverCorp.
+CUBV2 | Follows original image licenses. See here. | CC-BY-2.0 NaverCorp. | CC-BY-2.0 NaverCorp.
 OpenImages | CC-BY-2.0 (Follows original image licenses. See [here](https://storage.googleapis.com/openimages/web/factsfigures.html)) | CC-BY-4.0 Google LLC | CC-BY-4.0 Google LLC
 
 Detailed license files are summarized in the [release](release) directory.  
@@ -436,12 +436,12 @@ dataset
         ├── ILSVRC2012_val_00000002.JPEG
         └── ...
 ```
-Corresponding annotation files can be found in [here](metadata/ILSVRC).
+Corresponding annotation files can be found in here.
 
 #### CUB
 
 Both the original 
-[CUB-200-2011](http://www.vision.caltech.edu/visipedia/CUB-200-2011.html) 
+CUB-200-2011 
 and our CUBV2 datasets are required for WSOL training. Note that CUBV2 is 
 considered as a validation split (`train-fullsup`). Then, run the following 
 command to download original CUB dataset and extract the image files on `root` 
@@ -466,7 +466,7 @@ dataset
     └── 002.Laysan_Albatross
     └── ...
 ```
-Corresponding annotation files can be found in [here](metadata/CUB).
+Corresponding annotation files can be found in here.
 
 
 #### OpenImages
@@ -516,7 +516,7 @@ dataset
         └── ...
 ```
 
-Corresponding annotation files can be found in [here](metadata/OpenImages). 
+Corresponding annotation files can be found in here. 
 
 ### Run train+eval
 

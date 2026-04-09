@@ -47,7 +47,7 @@ source /usr/local/Ascend/ascend-toolkit/set_env.sh
 # Disable TF32 mode
 --tf32 False
 ```
-Here is [finetune shell](scripts/v1_5/finetune_npu.sh) example on AscendNPU
+Here is finetune shell example on AscendNPU
 
 
 ## Inference/Evaluate Llava on AscendNPU

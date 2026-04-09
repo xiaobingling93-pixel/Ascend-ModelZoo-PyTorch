@@ -18,7 +18,7 @@ git reset 9c4e305bcc24a06932f6a65c8147429d8406cc63 --hard
 
 3. 下载网络权重文件并导出onnx
 
-下载链接：http://mobvoi-speech-public.ufile.ucloud.cn/public/wenet/aishell/20210601_u2pp_conformer_exp.tar.gz下载压缩文件，将文件解压，将文件夹内的文件放置到wenet/examples/aishell/s0/exp/conformer_u2文件夹下，若没有该文件夹，则创建该文件夹
+下载链接：
 
 将提供的diff文件放到wenet根目录下
 patch -p1 < wenet_onnx.diff文件适配导出onnx的代码
@@ -29,7 +29,7 @@ patch -p1 < wenet_onnx.diff文件适配导出onnx的代码
 
 4.  修改onnx
 
-首先使用改图工具om_gener改图，该工具链接为https://gitee.com/liurf_hw/om_gener，安装之后使用以下命令修改脚本，
+首先使用改图工具om_gener改图，该工具链接为
 
 python3 adaptdecoder.py生成decoder_final.onnx
 

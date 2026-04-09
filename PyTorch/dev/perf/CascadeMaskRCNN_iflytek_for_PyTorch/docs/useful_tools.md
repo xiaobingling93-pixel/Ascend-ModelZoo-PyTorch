@@ -126,7 +126,7 @@ python tools/misc/browse_dataset.py ${CONFIG} [-h] [--skip-type ${SKIP_TYPE[SKIP
 ### Visualize Models
 
 First, convert the model to ONNX as described
-[here](#convert-mmdetection-model-to-onnx-experimental).
+here.
 Note that currently only RetinaNet is supported, support for other models
  will be coming in later versions.
 The converted model could be visualized by tools like [Netron](https://github.com/lutzroeder/netron).

@@ -125,7 +125,7 @@ accelerate launch --num_cpu_threads_per_process 1 train_db.py
 对于使用v2.x模型在WebUI中生成图像的情况，需要单独的.yaml文件来描述模型的规格。对于v2.x base，需要v2-inference.yaml，对于768/v，则需要v2-inference-v.yaml。请将它们放置在相同的文件夹中，并将文件扩展名之前的部分命名为与模型相同的名称。
 ![image](https://user-images.githubusercontent.com/52813779/210776915-061d79c3-6582-42c2-8884-8b91d2f07313.png)
 
-每个yaml文件都在[Stability AI的SD2.0存储库](https://github.com/Stability-AI/stablediffusion/tree/main/configs/stable-diffusion)……之中。
+每个yaml文件都在Stability AI的SD2.0存储库……之中。
 
 # DreamBooth的其他主要选项
 

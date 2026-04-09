@@ -1,6 +1,6 @@
 # SAT CogVideoX-2B
 
-[Read this in English.](./README_zh)
+Read this in English.
 
 [日本語で読む](./README_ja.md)
 

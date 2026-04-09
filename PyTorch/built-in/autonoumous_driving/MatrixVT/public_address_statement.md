@@ -1,5 +1,4 @@
 | 文件位置                                                                                                  | 公网地址                                                                                     | 公网地址用途  |
 |-------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|---------|
 | ModelZoo-PyTorch/PyTorch/built-in/autonoumous_driving/MatrixVT/code_for_change/setup.py               | openmmlab@gmail.com                                                                      | 作者邮箱    |
-| ModelZoo-PyTorch/PyTorch/built-in/autonoumous_driving/MatrixVT/code_for_change/training_epoch_loop.py | https://pytorch-lightning.readthedocs.io/en/stable/advanced/fault_tolerant_training.html | 相关说明    |
 | ModelZoo-PyTorch/PyTorch/built-in/autonoumous_driving/MatrixVT/setup.py                               | liyinhao@megvii.com                                                                      | 作者邮箱    |

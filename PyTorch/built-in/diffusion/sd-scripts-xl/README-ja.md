@@ -1,6 +1,6 @@
 SDXLがサポートされました。sdxlブランチはmainブランチにマージされました。リポジトリを更新したときにはUpgradeの手順を実行してください。また accelerate のバージョンが上がっていますので、accelerate config を再度実行してください。
 
-SDXL学習については[こちら](./README.md#sdxl-training)をご覧ください（英語です）。
+SDXL学習についてはこちらをご覧ください（英語です）。
 
 ## リポジトリについて
 Stable Diffusionの学習、画像生成、その他のスクリプトを入れたリポジトリです。

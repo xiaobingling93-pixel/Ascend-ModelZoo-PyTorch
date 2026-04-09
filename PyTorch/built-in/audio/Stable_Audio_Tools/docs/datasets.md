@@ -1,5 +1,5 @@
 # Datasets
-`stable-audio-tools` supports loading data from local file storage, as well as loading audio files and JSON files in the [WebDataset](https://github.com/webdataset/webdataset/tree/main/webdataset) format from Amazon S3 buckets.
+`stable-audio-tools` supports loading data from local file storage, as well as loading audio files and JSON files in the WebDataset format from Amazon S3 buckets.
 
 # Dataset configs
 To specify the dataset used for training, you must provide a dataset config JSON file to `train.py`.

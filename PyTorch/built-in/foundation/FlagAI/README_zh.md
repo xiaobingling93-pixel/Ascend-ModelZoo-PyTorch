@@ -17,7 +17,7 @@
       
     提供 API 方便你快速下载模型，并在给定（中/英文）文本上使用这些预训练模型，在从[SuperGLUE](https://super.gluebenchmark.com/)和[CLUE](https://github.com/CLUEbenchmark/CLUE) benchmarks收集的广泛使用的数据集上对它们进行微调。
      
-      FlagAI 现已支持 30+ 主流模型，包括语言模型[**Aquila**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Aquila), 多模态模型 [**AltCLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP) 、文生图模型 [**AltDiffusion**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion) [![Huggingface space](https://img.shields.io/badge/🤗-Huggingface%20Space-cyan.svg)](https://huggingface.co/spaces/BAAI/bilingual_stable_diffusion)、最高百亿参数的 **[悟道GLM](/doc_zh/GLM.md)**，[**EVA-CLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/EVA_CLIP)、**[Galactica](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/galactica)**、**OPT**、**BERT**、**RoBERTa**、**GPT2**、**T5**、**ALM**、**Huggingface Transformers** 等。
+ FlagAI 现已支持 30+ 主流模型，包括语言模型[**Aquila**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/Aquila), 多模态模型 [**AltCLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltCLIP) 、文生图模型 [**AltDiffusion**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/AltDiffusion) [![Huggingface space](https://img.shields.io/badge/🤗-Huggingface%20Space-cyan.svg)](https://huggingface.co/spaces/BAAI/bilingual_stable_diffusion)、最高百亿参数的 **[悟道GLM](/doc_zh/GLM.md)**，[**EVA-CLIP**](https://github.com/FlagAI-Open/FlagAI/tree/master/examples/EVA_CLIP)、**Galactica**、**OPT**、**BERT**、**RoBERTa**、**GPT2**、**T5**、**ALM**、**Huggingface Transformers** 等。
       
 2.  **仅用十行代码即可进行并行训练**
 
@@ -35,34 +35,34 @@
 
 ## 工具包及已支持的模型
 
-> 本项目的部分代码基于 [GLM](https://github.com/THUDM/GLM)，[Transformers](https://github.com/huggingface/transformers)，[timm](https://github.com/rwightman/pytorch-image-models) 和 [DeepSpeedExamples](https://github.com/microsoft/DeepSpeedExamples/tree/master/Megatron-LM).
+> 本项目的部分代码基于 [GLM](https://github.com/THUDM/GLM)，[Transformers](https://github.com/huggingface/transformers)，[timm](https://github.com/rwightman/pytorch-image-models) 和 DeepSpeedExamples.
 
 
 ### 工具
 
 | 工具名称           | 描述         | 样例                |
 |:-------------- |:---------- |:------------------------------------------------------ |
-| 	`GLM_custom_pvp` | 自定义 PET 模板   | [README.md](./examples/glm_custom_pvp/README.md) |
+| `GLM_custom_pvp` | 自定义 PET 模板 | README.md |
 | `GLM_ptuning`    | p-tuning 工具 | ——                                                     |
-| `BMInf-generate` | 推理加速    | [README.md](./examples/bminf_generate/README.md) |
+| `BMInf-generate` | 推理加速 | README.md |
 
 ### 模型
 
 |    模型名称            | 任务      | 训练 | 微调 | 推理 | 样例           |                                                         
 | :---------------- | :------- | :-- |:-- | :-- | :--------------------------------------------- |
 | Aquila      | 自然语言处理  | ✅  | ✅  | ✅  | [README.md](examples/Aquila/README.md) 
-| ALM          | 阿拉伯语文本生成   |  ✅  | ❌  | ✅  | [README.md](/examples/ALM/README.md)  |                         
-| AltCLIP       | 文图匹配 | ✅  | ✅  | ✅  | [README.md](/examples/AltCLIP/README.md)   |  
-| AltCLIP-m18      | 文图匹配  | ✅  | ✅  | ✅  | [README.md](examples/AltCLIP-m18/README.md)   |                             
-| AltDiffusion    | 文生图  | ❌  | ❌  | ✅  | [README.md](/examples/AltDiffusion/README.md)    |
-| AltDiffusion-m18    | 文生图，支持 18 种语言   | ❌  | ❌  | ✅  | [README.md](/examples/AltDiffusion-m18/README.md)   |
-| BERT-title-generation-english     | 英文标题生成  | ✅  | ❌  | ✅  | [README.md](/examples/bert_title_generation_english/README.md) |
+| ALM | 阿拉伯语文本生成 | ✅ | ❌ | ✅ | README.md | 
+| AltCLIP | 文图匹配 | ✅ | ✅ | ✅ | README.md | 
+| AltCLIP-m18 | 文图匹配 | ✅ | ✅ | ✅ | README.md | 
+| AltDiffusion | 文生图 | ❌ | ❌ | ✅ | README.md |
+| AltDiffusion-m18 | 文生图，支持 18 种语言 | ❌ | ❌ | ✅ | README.md |
+| BERT-title-generation-english | 英文标题生成 | ✅ | ❌ | ✅ | README.md |
 | CLIP           | 图文匹配    | ✅  | ❌  | ✅  | ——   |                                                                 
 | CPM3-finetune       | 文本续写    | ❌  | ✅  | ❌  | ——    |                                                                
 | CPM3-generate    | 文本续写    | ❌  | ❌  | ✅  | ——   |                                                                 
 | CPM3_pretrain    | 文本续写    | ✅  | ❌  | ❌  | ——        |
-| CPM_1     | 文本续写    | ❌  | ❌  | ✅  | [README.md](/examples/cpm_1/README.md)      |
-| EVA-CLIP                          | 图文匹配    | ✅  | ✅  | ✅  | [README.md](/examples/EVA_CLIP/README.md)                             |
+| CPM_1 | 文本续写 | ❌ | ❌ | ✅ | README.md |
+| EVA-CLIP | 图文匹配 | ✅ | ✅ | ✅ | README.md |
 | Galactica       | 文本续写    | ❌  | ❌  | ✅  | ——      |                                                              
 | GLM-large-ch-blank-filling        | 完形填空问答  | ❌  | ❌  | ✅  | [TUTORIAL](/doc_zh/TUTORIAL_11_GLM_BLANK_FILLING_QA.md)               |
 | GLM-large-ch-poetry-generation    | 诗歌生成    | ✅  | ❌  | ✅  | [TUTORIAL](/doc_zh/TUTORIAL_13_GLM_EXAMPLE_PEOTRY_GENERATION.md)       |
@@ -73,11 +73,11 @@
 | GPT-2-text-writting      | 文本续写    | ❌  | ❌  | ✅  | [TUTORIAL](/doc_zh/TUTORIAL_18_GPT2_WRITING.md)        |
 | GPT2-text-writting                | 文本续写    | ❌  | ❌  | ✅  | —— |                                                                   
 | GPT2-title-generation             | 标题生成    | ❌  | ❌  | ✅  | ——  |                                                                  
-| OPT                               | 文本续写    | ❌  | ❌  | ✅  | [README.md](/examples/opt/README.md) |                                  
+| OPT | 文本续写 | ❌ | ❌ | ✅ | README.md | 
 | RoBERTa-base-ch-ner               | 命名实体识别  | ✅  | ❌  | ✅  | [TUTORIAL](/doc_zh/TUTORIAL_17_BERT_EXAMPLE_NER.md)     |
 | RoBERTa-base-ch-semantic-matching | 语义相似度匹配 | ✅  | ❌  | ✅  | [TUTORIAL](/doc_zh/TUTORIAL_16_BERT_EXAMPLE_SEMANTIC_MATCHING.md)      |
 | RoBERTa-base-ch-title-generation  | 标题生成    | ✅  | ❌  | ✅  | [TUTORIAL](/doc_zh/TUTORIAL_15_BERT_EXAMPLE_TITLE_GENERATION.md)       |
-| RoBERTa-faq      | 问答      | ❌  | ❌  | ✅  | [README.md](/examples/roberta_faq/README.md) |         
+| RoBERTa-faq | 问答 | ❌ | ❌ | ✅ | README.md | 
 | Swinv1                            | 图片分类    | ✅  | ❌  | ✅  | ——  |                                                                  
 | Swinv2                            | 图片分类    | ✅  | ❌  | ✅  | ——     |                                                               
 | T5-huggingface-11b                | 训练      | ✅  | ❌  | ❌  | [TUTORIAL](/doc_zh/TUTORIAL_14_HUGGINGFACE_T5.md)                      |

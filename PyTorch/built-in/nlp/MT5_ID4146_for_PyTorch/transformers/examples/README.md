@@ -15,9 +15,9 @@ limitations under the License.
 
 # Examples
 
-We host a wide range of example scripts for multiple learning frameworks. Simply choose your favorite: [TensorFlow](https://github.com/huggingface/transformers/tree/master/examples/tensorflow), [PyTorch](https://github.com/huggingface/transformers/tree/master/examples/pytorch) or [JAX/Flax](https://github.com/huggingface/transformers/tree/master/examples/flax).
+We host a wide range of example scripts for multiple learning frameworks. Simply choose your favorite: TensorFlow, [PyTorch](https://github.com/huggingface/transformers/tree/master/examples/pytorch) or JAX/Flax.
 
-We also have some [research projects](https://github.com/huggingface/transformers/tree/master/examples/research_projects), as well as some [legacy examples](https://github.com/huggingface/transformers/tree/master/examples/legacy). Note that unlike the main examples these are not actively maintained, and may require specific older versions of dependencies in order to run. 
+We also have some [research projects](https://github.com/huggingface/transformers/tree/master/examples/research_projects), as well as some legacy examples. Note that unlike the main examples these are not actively maintained, and may require specific older versions of dependencies in order to run. 
 
 While we strive to present as many use cases as possible, the example scripts are just that - examples. It is expected that they won't work out-of-the box on your specific problem and that you will be required to change a few lines of code to adapt them to your needs. To help you with that, most of the examples fully expose the preprocessing of the data, allowing you to tweak and edit them as required.
 
@@ -67,8 +67,8 @@ To browse the examples corresponding to released versions of 🤗 Transformers, 
 		<li><a href="https://github.com/huggingface/transformers/tree/v2.2.0/examples">v2.2.0</a></li>
 		<li><a href="https://github.com/huggingface/transformers/tree/v2.1.0/examples">v2.1.1</a></li>
 		<li><a href="https://github.com/huggingface/transformers/tree/v2.0.0/examples">v2.0.0</a></li>
-		<li><a href="https://github.com/huggingface/transformers/tree/v1.2.0/examples">v1.2.0</a></li>
-		<li><a href="https://github.com/huggingface/transformers/tree/v1.1.0/examples">v1.1.0</a></li>
+ <li>v1.2.0</li>
+ <li>v1.1.0</li>
 		<li><a href="https://github.com/huggingface/transformers/tree/v1.0.0/examples">v1.0.0</a></li>
 	</ul>
 </details>

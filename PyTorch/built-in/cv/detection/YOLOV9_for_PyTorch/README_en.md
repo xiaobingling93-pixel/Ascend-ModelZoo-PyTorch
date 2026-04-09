@@ -1,14 +1,5 @@
 # YoloV9 for PyTorch
 
--   [Overview](#Overview)
--   [Performance](#Performance)
--   [Installation](#Installation)
--   [Evaluation](#Evaluation)
--   [Training](#Training)
--   [Re-parameterization](#Re-parameterization)
--   [Inference](#Inference)
--   [Teaser](#Teaser)
--   [ReleaseNotes](#ReleaseNotes)
 
 
 
@@ -19,9 +10,8 @@ Brief Description
 Implementation of paper - [YOLOv9: Learning What You Want to Learn Using Programmable Gradient Information]
 
 <div align="center">
-    <a href="./">
+ 
         <img src="./figure/performance.jpeg" width="80%"/>
-    </a>
 </div>
 
 - Reference Implementation:
@@ -147,9 +137,8 @@ See [reparameterization.md](tools/reparameterization.md).
 # Inference
 
 <div align="center">
-    <a href="./">
+ 
         <img src="./figure/horses_prediction.jpeg" width="50%"/>
-    </a>
 </div>
 
 ``` shell
@@ -169,9 +158,8 @@ python detect.py --source './data/images/horses.jpeg' --img 640 --device 0 --wei
 Parts of code of [YOLOR-Based Multi-Task Learning] are released in the repository.
 
 <div align="center">
-    <a href="./">
+ 
         <img src="./figure/multitask.jpeg" width="100%"/>
-    </a>
 </div>
 
 ## Object Detection

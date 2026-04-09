@@ -1,10 +1,5 @@
 # MiniGPT-4 for PyTorch
 
--   [概述](概述.md)
--   [准备训练环境](准备训练环境.md)
--   [开始训练](开始训练.md)
--   [训练结果展示](训练结果展示.md)
--   [版本说明](版本说明.md)
 
 # 概述
 
@@ -101,7 +96,7 @@ MiniGPT-4使用一个投影层将来自BLIP-2的冻结视觉编码器与冻结�
    ├── pytorch_model.bin.index.json
    ├── pytorch_model-00001-of-00003.bin
    ```
-    在配置文件[minigpt4.yaml](minigpt4/configs/models/minigpt4.yaml#L16)中修改vicuna权重所在的路径。
+ 在配置文件minigpt4.yaml中修改vicuna权重所在的路径。
 
 2. 准备训练的MiniGPT-4检查点:
 
@@ -109,7 +104,7 @@ MiniGPT-4使用一个投影层将来自BLIP-2的冻结视觉编码器与冻结�
    | :----------------------------------------------------------: | :----------------------------------------------------------: |
    | 官网下载 | 官网下载 |
 
-   检查点数据请自行官网下载，并在评估配置文件[minigpt4_eval.yaml](eval_configs/minigpt4_eval.yaml#L10)的第11行中设置预训练检查点的路径。
+ 检查点数据请自行官网下载，并在评估配置文件minigpt4_eval.yaml的第11行中设置预训练检查点的路径。
 
 3. 准备只有第一阶段训练的MiniGPT-4检查点[链接](https://drive.google.com/file/d/1u9FRRBB3VovP1HxCAlpD9Lw4t4P6-Yq8/view?usp=share_link)。
 
@@ -144,7 +139,7 @@ cd /${模型文件夹名称}
 
 ## 在线演示
 
-1. 修改配置文件[minigpt4_eval.yaml](eval_configs/minigpt4_eval.yaml#L11)第11行，路径为微调好的权重所在路径。
+1. 修改配置文件minigpt4_eval.yaml第11行，路径为微调好的权重所在路径。
 
 2. 在线演示：
    ```bash
@@ -242,7 +237,7 @@ pkill -9 bash
 
 ### 自动混合精度GradScaler
 
-npu版本为控制loss的缩放比例，避免浮点数溢出，开启GradScaler的自动混合精度，将dynamic设为True，并设置缩放比例，让其动态对齐，在[runner_base.py](minigpt4/runner/runner_base.py)中的第137行进行修改，修改方式如下：
+npu版本为控制loss的缩放比例，避免浮点数溢出，开启GradScaler的自动混合精度，将dynamic设为True，并设置缩放比例，让其动态对齐，在runner_base.py中的第137行进行修改，修改方式如下：
 
 ```python
 self._scaler = torch.cuda.amp.GradScaler(dynamic=True, init_scale=2**16)

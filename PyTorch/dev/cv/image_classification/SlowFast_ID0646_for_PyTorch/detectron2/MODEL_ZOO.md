@@ -8,7 +8,7 @@ All numbers were obtained on [Big Basin](https://engineering.fb.com/data-center-
 servers with 8 NVIDIA V100 GPUs & NVLink. The speed numbers are periodically updated with latest PyTorch/CUDA/cuDNN versions.
 You can access these models from code using [detectron2.model_zoo](https://detectron2.readthedocs.io/modules/model_zoo.html) APIs.
 
-In addition to these official baseline models, you can find more models in [projects/](projects/).
+In addition to these official baseline models, you can find more models in .
 
 #### How to Read the Tables
 * The "Name" column contains a link to the config file. Models can be reproduced using `tools/train_net.py` with the corresponding yaml config file,
@@ -32,7 +32,7 @@ In addition to these official baseline models, you can find more models in [proj
   For example, our default training data augmentation uses scale jittering in addition to horizontal flipping.
 
   To make fair comparisons with Detectron's settings, see
-  [Detectron1-Comparisons](configs/Detectron1-Comparisons/) for accuracy comparison,
+ Detectron1-Comparisons for accuracy comparison,
   and [benchmarks](https://detectron2.readthedocs.io/notes/benchmarks.html)
   for speed comparison.
 * For Faster/Mask R-CNN, we provide baselines based on __3 different backbone combinations__:
@@ -54,7 +54,7 @@ It's common to initialize from backbone models pre-trained on ImageNet classific
 * [R-50.pkl](https://dl.fbaipublicfiles.com/detectron2/ImageNetPretrained/MSRA/R-50.pkl): converted copy of [MSRA's original ResNet-50](https://github.com/KaimingHe/deep-residual-networks) model.
 * [R-101.pkl](https://dl.fbaipublicfiles.com/detectron2/ImageNetPretrained/MSRA/R-101.pkl): converted copy of [MSRA's original ResNet-101](https://github.com/KaimingHe/deep-residual-networks) model.
 * [X-101-32x8d.pkl](https://dl.fbaipublicfiles.com/detectron2/ImageNetPretrained/FAIR/X-101-32x8d.pkl): ResNeXt-101-32x8d model trained with Caffe2 at FB.
-* [R-50.pkl (torchvision)](https://dl.fbaipublicfiles.com/detectron2/ImageNetPretrained/torchvision/R-50.pkl): converted copy of [torchvision's ResNet-50](https://pytorch.org/docs/stable/torchvision/models.html#torchvision.models.resnet50) model.
+* [R-50.pkl (torchvision)](https://dl.fbaipublicfiles.com/detectron2/ImageNetPretrained/torchvision/R-50.pkl): converted copy of torchvision's ResNet-50 model.
   More details can be found in [the conversion script](tools/convert-torchvision-to-d2.py).
 
 Note that the above models have __different__ format from those provided in Detectron: we do not fuse BatchNorm into an affine layer.

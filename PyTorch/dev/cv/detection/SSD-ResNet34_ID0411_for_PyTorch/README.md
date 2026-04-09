@@ -1,7 +1,7 @@
 # MLPerf_SSD-R34-Large
 SSD on Large images with a backbone of ResNet34 based on MLPerf-training single-stage-detector repo 
 ##Installation
-To install the environment please follow the instruction on [MLPerf-training single-stage-detector](https://github.com/mlperf/training/tree/master/single_stage_detector). The files in this repo replace the files in the ssd folder.
+To install the environment please follow the instruction on MLPerf-training single-stage-detector. The files in this repo replace the files in the ssd folder.
 #### Please note that the latest version of this repo reuquires [NVIDIA apex](https://github.com/NVIDIA/apex) as well. 
 
 ## Changes from original repo:

@@ -1,5 +1,4 @@
 # Warning
-- 当前README为原生mmdetection自带的，请参考[README_raw.md](https://gitcode.com/ascend/modelzoo/blob/master/contrib/PyTorch/Research/cv/image_object_detection/FCOS/README_raw.md)来进行FCOS模型训练
 
 
 
@@ -119,14 +118,14 @@ Please refer to [get_started.md](docs/get_started.md) for installation.
 ## Getting Started
 
 Please see [get_started.md](docs/get_started.md) for the basic usage of MMDetection.
-We provide [colab tutorial](demo/MMDet_Tutorial.ipynb), and full guidance for quick run [with existing dataset](docs/1_exist_data_model.md) and [with new dataset](docs/2_new_data_model.md) for beginners.
-There are also tutorials for [finetuning models](docs/tutorials/finetune.md), [adding new dataset](docs/tutorials/new_dataset.md), [designing data pipeline](docs/tutorials/data_pipeline.md), [customizing models](docs/tutorials/customize_models.md), [customizing runtime settings](docs/tutorials/customize_runtime.md) and [useful tools](docs/useful_tools.md).
+We provide colab tutorial, and full guidance for quick run [with existing dataset](docs/1_exist_data_model.md) and [with new dataset](docs/2_new_data_model.md) for beginners.
+There are also tutorials for [finetuning models](docs/tutorials/finetune.md), adding new dataset, [designing data pipeline](docs/tutorials/data_pipeline.md), [customizing models](docs/tutorials/customize_models.md), [customizing runtime settings](docs/tutorials/customize_runtime.md) and [useful tools](docs/useful_tools.md).
 
 Please refer to [FAQ](docs/faq.md) for frequently asked questions.
 
 ## Contributing
 
-We appreciate all contributions to improve MMDetection. Please refer to [CONTRIBUTING.md](.github/CONTRIBUTING.md) for the contributing guideline.
+We appreciate all contributions to improve MMDetection. Please refer to CONTRIBUTING.md for the contributing guideline.
 
 ## Acknowledgement
 

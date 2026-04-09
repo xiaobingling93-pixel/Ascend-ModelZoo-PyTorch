@@ -17,7 +17,7 @@ See requirements.txt
 - h5py 3.4.0
 - opencv-python 3.4.4.19
 - albumentations 0.4.5
-  Note: pillow recommends installing a newer version. If the corresponding torchvision version cannot be installed directly, you can use the source code to install the corresponding version. The source code reference link: https://github.com/pytorch/vision，
+ Note: pillow recommends installing a newer version. If the corresponding torchvision version cannot be installed directly, you can use the source code to install the corresponding version. The source code reference link: 
 Suggestion the pillow is 9.1.0 and the torchvision is 0.6.0
 - install densetorch as follow:
 

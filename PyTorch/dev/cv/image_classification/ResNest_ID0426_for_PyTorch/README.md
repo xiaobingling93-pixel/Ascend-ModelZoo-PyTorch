@@ -1,6 +1,6 @@
 # ResNEsts and DenseNEsts: Block-based DNN Models with Improved Representation Guarantees
 
-This repository is the official implementation of the empirical research presented in the supplementary material of the paper, [ResNEsts and DenseNEsts: Block-based DNN Models with Improved Representation Guarantees](#BibTex).
+This repository is the official implementation of the empirical research presented in the supplementary material of the paper, ResNEsts and DenseNEsts: Block-based DNN Models with Improved Representation Guarantees.
 
 ## Requirements
 
@@ -19,7 +19,7 @@ mkdir ckeckpoint
 
 ## Training
 
-To fully replicate the [results](#Results) below, train all the models by running the following two commands:
+To fully replicate the results below, train all the models by running the following two commands:
 
 ```replicate0
 ./train_cuda0.sh
@@ -49,7 +49,7 @@ python main.py --help
 
 ## Evaluation
 
-To evaluate all trained models on benchmarks reported in the [tables](#Results) below, run:
+To evaluate all trained models on benchmarks reported in the tables below, run:
 ```eval_all
 ./eval.sh
 ```

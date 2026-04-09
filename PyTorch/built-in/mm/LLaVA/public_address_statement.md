@@ -13,4 +13,3 @@
 | ModelZoo-PyTorch/PyTorch/built-in/mm/LLaVA/llava/serve/gradio_web_server.py | https://github.com/haotian-liu/LLaVA/blob/main/docs/MODEL_ZOO.md          | 模型相关说明    |
 | ModelZoo-PyTorch/PyTorch/built-in/mm/LLaVA/llava/serve/gradio_web_server.py | https://arxiv.org/abs/2304.08485                                          | 论文地址      |
 | ModelZoo-PyTorch/PyTorch/built-in/mm/LLaVA/llava/serve/gradio_web_server.py | https://llava-vl.github.io/blog/2024-01-30-llava-1-6/                     | 相关说明      |
-| ModelZoo-PyTorch/PyTorch/built-in/mm/LLaVA/llava/utils.py                   | https://api.openai.com/v1/moderations                                     | 模型相关说明    |

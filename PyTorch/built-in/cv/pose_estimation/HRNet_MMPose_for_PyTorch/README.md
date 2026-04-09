@@ -6,21 +6,18 @@
     <sup>
       <a href="https://openmmlab.com">
         <i>HOT</i>
-      </a>
     </sup>
     &nbsp;&nbsp;&nbsp;&nbsp;
     <b>OpenMMLab platform</b>
     <sup>
       <a href="https://platform.openmmlab.com">
         <i>TRY IT OUT</i>
-      </a>
     </sup>
     &nbsp;&nbsp;&nbsp;&nbsp;
     <b>MMPose 1.0</b>
     <sup>
       <a href="https://mmpose.readthedocs.io/en/latest/overview.html">
         <i>TRY</i>
-      </a>
     </sup>
   </div>
   <div>&nbsp;</div>
@@ -33,11 +30,11 @@
 [![Average time to resolve an issue](https://isitmaintained.com/badge/resolution/open-mmlab/mmpose.svg)](https://github.com/open-mmlab/mmpose/issues)
 [![Percentage of issues still open](https://isitmaintained.com/badge/open/open-mmlab/mmpose.svg)](https://github.com/open-mmlab/mmpose/issues)
 
-[📘Documentation](https://mmpose.readthedocs.io/en/v0.29.0/) |
-[🛠️Installation](https://mmpose.readthedocs.io/en/v0.29.0/install.html) |
-[👀Model Zoo](https://mmpose.readthedocs.io/en/v0.29.0/modelzoo.html) |
-[📜Papers](https://mmpose.readthedocs.io/en/v0.29.0/papers/algorithms.html) |
-[🆕Update News](https://mmpose.readthedocs.io/en/v0.29.0/changelog.html) |
+📘Documentation |
+🛠️Installation |
+👀Model Zoo |
+📜Papers |
+🆕Update News |
 [🤔Reporting Issues](https://github.com/open-mmlab/mmpose/issues/new/choose)
 
 </div>
@@ -172,9 +169,9 @@ A summary can be found in the [Model Zoo](https://mmpose.readthedocs.io/en/0.x/m
 <details open>
 <summary><b>Supported <a href="https://mmpose.readthedocs.io/en/0.x/datasets.html">datasets</a>:</b></summary>
 
-- [x] [AFLW](https://mmpose.readthedocs.io/en/0.x/papers/datasets.html#aflw-iccvw-2011) \[[homepage](https://www.tugraz.at/institute/icg/research/team-bischof/lrs/downloads/aflw/)\] (ICCVW'2011)
+- [x] [AFLW](https://mmpose.readthedocs.io/en/0.x/papers/datasets.html#aflw-iccvw-2011) \[homepage\] (ICCVW'2011)
 - [x] [sub-JHMDB](https://mmpose.readthedocs.io/en/0.x/papers/datasets.html#jhmdb-iccv-2013) \[[homepage](http://jhmdb.is.tue.mpg.de/dataset)\] (ICCV'2013)
-- [x] [COFW](https://mmpose.readthedocs.io/en/0.x/papers/datasets.html#cofw-iccv-2013) \[[homepage](http://www.vision.caltech.edu/xpburgos/ICCV13/)\] (ICCV'2013)
+- [x] [COFW](https://mmpose.readthedocs.io/en/0.x/papers/datasets.html#cofw-iccv-2013) \[homepage\] (ICCV'2013)
 - [x] [MPII](https://mmpose.readthedocs.io/en/0.x/papers/datasets.html#mpii-cvpr-2014) \[[homepage](http://human-pose.mpi-inf.mpg.de/)\] (CVPR'2014)
 - [x] [Human3.6M](https://mmpose.readthedocs.io/en/0.x/papers/datasets.html#human3-6m-tpami-2014) \[[homepage](http://vision.imar.ro/human3.6m/description.php)\] (TPAMI'2014)
 - [x] [COCO](https://mmpose.readthedocs.io/en/0.x/papers/datasets.html#coco-eccv-2014) \[[homepage](http://cocodataset.org/)\] (ECCV'2014)
@@ -203,7 +200,7 @@ A summary can be found in the [Model Zoo](https://mmpose.readthedocs.io/en/0.x/m
 - [x] [MacaquePose](https://mmpose.readthedocs.io/en/0.x/papers/datasets.html#macaquepose-biorxiv-2020) \[[homepage](http://www.pri.kyoto-u.ac.jp/datasets/macaquepose/index.html)\] (bioRxiv'2020)
 - [x] [InterHand2.6M](https://mmpose.readthedocs.io/en/0.x/papers/datasets.html#interhand2-6m-eccv-2020) \[[homepage](https://mks0601.github.io/InterHand2.6M/)\] (ECCV'2020)
 - [x] [AP-10K](https://mmpose.readthedocs.io/en/0.x/papers/datasets.html#ap-10k-neurips-2021) \[[homepage](https://github.com/AlexTheBad/AP-10K)\] (NeurIPS'2021)
-- [x] [Horse-10](https://mmpose.readthedocs.io/en/0.x/papers/datasets.html#horse-10-wacv-2021) \[[homepage](http://www.mackenziemathislab.org/horse10)\] (WACV'2021)
+- [x] [Horse-10](https://mmpose.readthedocs.io/en/0.x/papers/datasets.html#horse-10-wacv-2021) \[homepage\] (WACV'2021)
 
 </details>
 

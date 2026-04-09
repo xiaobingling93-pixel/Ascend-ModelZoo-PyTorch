@@ -16,7 +16,7 @@
 
 #### transformers_stream_generator/tiktoken/accelerate，这几个库提示找不到，怎么办？
 
-运行如下命令：`pip install -r requirements.txt`。相关依赖库在[https://github.com/QwenLM/Qwen-VL/blob/main/requirements.txt](https://github.com/QwenLM/Qwen-VL/blob/main/requirements.txt) 可以找到。
+运行如下命令：`pip install -r requirements.txt`。相关依赖库在 可以找到。
 <br><br>
 
 

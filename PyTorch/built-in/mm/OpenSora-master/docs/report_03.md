@@ -26,7 +26,7 @@ Besides features introduced in Open-Sora 1.1, Open-Sora 1.2 highlights:
 - Easy and effective model conditioning
 - Better evaluation metrics
 
-All implementations (both training and inference) of the above improvements are available in the Open-Sora 1.2 release. The following sections will introduce the details of the improvements. We also refine our codebase and documentation to make it easier to use and develop, and add a LLM to [refine input prompts](/README.md#gpt-4o-prompt-refinement) and support more languages.
+All implementations (both training and inference) of the above improvements are available in the Open-Sora 1.2 release. The following sections will introduce the details of the improvements. We also refine our codebase and documentation to make it easier to use and develop, and add a LLM to refine input prompts and support more languages.
 
 ## Video compression network
 
@@ -44,7 +44,7 @@ Our training involves three stages:
 2. For the next 260k steps, We remove the identity loss and just learn the 3D VAE.
 3. For the last 540k steps , since we find only reconstruction 2D VAE's feature cannot lead to further improvement, we remove the loss and train the whole VAE to reconstruct the original videos. This stage is trained on on 24 GPUs.
 
-For both stage 1 and stage 2 training, we adopt 20% images and 80% videos. Following [Magvit-v2](https://magvit.cs.cmu.edu/v2/), we train video using 17 frames, while zero-padding the first 16 frames for image. However, we find that this setting leads to blurring of videos with length different from 17 frames. Thus, in stage 3, we use a random number within 34 frames for mixed video length training (a.k.a., zero-pad the first  `43-n` frames if we want to train a `n` frame video), to make our VAE more robust to different video lengths. Our [training](/scripts/train_vae.py) and [inference](/scripts/inference_vae.py) code is available in the Open-Sora 1.2 release.
+For both stage 1 and stage 2 training, we adopt 20% images and 80% videos. Following [Magvit-v2](https://magvit.cs.cmu.edu/v2/), we train video using 17 frames, while zero-padding the first 16 frames for image. However, we find that this setting leads to blurring of videos with length different from 17 frames. Thus, in stage 3, we use a random number within 34 frames for mixed video length training (a.k.a., zero-pad the first `43-n` frames if we want to train a `n` frame video), to make our VAE more robust to different video lengths. Our training and inference code is available in the Open-Sora 1.2 release.
 
 When using the VAE for diffusion model, our stacked VAE requires small memory as the our VAE's input is already compressed. We also split the input videos input several 17 frames clips to make the inference more efficient.  The performance of our VAE is on par with another open-sourced 3D VAE in [Open-Sora-Plan](https://github.com/PKU-YuanGroup/Open-Sora-Plan/blob/main/docs/Report-v1.1.0.md).
 
@@ -87,11 +87,11 @@ Due to a limited computational budget, we carefully arrange the training data fr
 
 ### First stage
 
-We first train the model on Webvid-10M datasets (40k hours) for 30k steps (2 epochs). Since the video is all lower than 360p resolution and contains watermark, we train on this dataset first. The training mainly happens on 240p and 360p, with video length 2s~16s. We use the original caption in the dataset for training. The training config locates in [stage1.py](/configs/opensora-v1-2/train/stage1.py).
+We first train the model on Webvid-10M datasets (40k hours) for 30k steps (2 epochs). Since the video is all lower than 360p resolution and contains watermark, we train on this dataset first. The training mainly happens on 240p and 360p, with video length 2s~16s. We use the original caption in the dataset for training. The training config locates in stage1.py.
 
 ### Second stage
 
-Then we train the model on Panda-70M datasets. This dataset is large but the quality varies. We use the official 30M subset which clips are more diverse, and filter out videos with aesthetic score lower than 4.5. This leads to a 20M subset with 41k hours. The captions in the dataset are directly used for our training. The training config locates in [stage2.py](/configs/opensora-v1-2/train/stage2.py).
+Then we train the model on Panda-70M datasets. This dataset is large but the quality varies. We use the official 30M subset which clips are more diverse, and filter out videos with aesthetic score lower than 4.5. This leads to a 20M subset with 41k hours. The captions in the dataset are directly used for our training. The training config locates in stage2.py.
 
 The training mainly happens on 360p and 480p. We train the model for 23k steps, which is 0.5 epoch. The training is not fully done since we hope our new model can meet you earlier.
 
@@ -104,7 +104,7 @@ In this stage, we collect ~2M video clips with a total length of 5K hours from a
 - [Vript](https://github.com/mutonix/Vript/tree/main): a densely annotated dataset.
 - And some other datasets.
 
-While MiraData and Vript have captions from GPT, we use [PLLaVA](https://github.com/magic-research/PLLaVA) to caption the rest ones. Compared with LLaVA, which is only capable of single frame/image captioning, PLLaVA is specially designed and trained for video captioning. The [accelerated PLLaVA](/tools/caption/README.md#pllava-captioning) is released in our `tools/`. In practice, we use the pretrained PLLaVA 13B model and select 4 frames from each video for captioning with a spatial pooling shape of 2*2.
+While MiraData and Vript have captions from GPT, we use [PLLaVA](https://github.com/magic-research/PLLaVA) to caption the rest ones. Compared with LLaVA, which is only capable of single frame/image captioning, PLLaVA is specially designed and trained for video captioning. The accelerated PLLaVA is released in our `tools/`. In practice, we use the pretrained PLLaVA 13B model and select 4 frames from each video for captioning with a spatial pooling shape of 2*2.
 
 Some statistics of the video data used in this stage are shown below. We present basic statistics of duration and resolution, as well as aesthetic score and optical flow score distribution.
 We also extract tags for objects and actions from video captions and count their frequencies.
@@ -112,7 +112,7 @@ We also extract tags for objects and actions from video captions and count their
 ![object_count](/assets/readme/report-03_objects_count.png)
 ![object_count](/assets/readme/report-03_actions_count.png)
 
-We mainly train 720p and 1080p videos in this stage, aiming to extend the model's ability to larger resolutions. We use a mask ratio of 25% during training. The training config locates in [stage3.py](/configs/opensora-v1-2/train/stage3.py). We train the model for 15k steps, which is approximately 2 epochs.
+We mainly train 720p and 1080p videos in this stage, aiming to extend the model's ability to larger resolutions. We use a mask ratio of 25% during training. The training config locates in stage3.py. We train the model for 15k steps, which is approximately 2 epochs.
 
 ## Easy and effective model conditioning
 
@@ -139,7 +139,7 @@ In addition, we also keep track of [VBench](https://vchitect.github.io/VBench-pr
 
 ![VBench](/assets/readme/report_vbench_score.png)
 
-All the evaluation code is released in `eval` folder. Check the [README](/eval/README.md) for more details.
+All the evaluation code is released in `eval` folder. Check the README for more details.
 
 | Model          | Total Score | Quality Score | Semantic Score |
 | -------------- | ----------- | ------------- | -------------- |

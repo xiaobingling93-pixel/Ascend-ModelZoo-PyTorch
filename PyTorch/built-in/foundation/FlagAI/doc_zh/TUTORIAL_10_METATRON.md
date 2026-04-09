@@ -1,5 +1,4 @@
 # 转化一个模型为Megatron-LM的模型并行版本
-- [转化model为Megatron-LM版本](#转化model为megatron-lm版本)
   - [1.将MLP层转化为column/rowParallel版本](#1将mlp层转化为columnrowparallel版本)
   - [2.转化`self-Attention`](#2转化self-attention)
     - [2.1 将`x` proj 到  `q, k, v` 的`linear `层，转化为 `columnParalleLinear`](#21-将x-proj-到--q-k-v-的linear-层转化为-columnparallelinear)

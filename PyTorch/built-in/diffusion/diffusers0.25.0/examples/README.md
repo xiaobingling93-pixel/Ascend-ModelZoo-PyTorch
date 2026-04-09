@@ -36,13 +36,13 @@ Training examples show how to pretrain or fine-tune diffusion models for a varie
 
 | Task | 🤗 Accelerate | 🤗 Datasets | Colab
 |---|---|:---:|:---:|
-| [**Unconditional Image Generation**](./unconditional_image_generation) | ✅ | ✅ | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/huggingface/notebooks/blob/main/diffusers/training_example.ipynb)
+| **Unconditional Image Generation** | ✅ | ✅ | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/huggingface/notebooks/blob/main/diffusers/training_example.ipynb)
 | [**Text-to-Image fine-tuning**](./text_to_image) | ✅ | ✅ |
-| [**Textual Inversion**](./textual_inversion) | ✅ | - | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/huggingface/notebooks/blob/main/diffusers/sd_textual_inversion_training.ipynb)
+| **Textual Inversion** | ✅ | - | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/huggingface/notebooks/blob/main/diffusers/sd_textual_inversion_training.ipynb)
 | [**Dreambooth**](./dreambooth) | ✅ | - | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/huggingface/notebooks/blob/main/diffusers/sd_dreambooth_training.ipynb)
 | [**ControlNet**](./controlnet) | ✅ | ✅ | -
-| [**InstructPix2Pix**](./instruct_pix2pix) | ✅ | ✅ | -
-| [**Reinforcement Learning for Control**](https://github.com/huggingface/diffusers/blob/main/examples/reinforcement_learning/run_diffusers_locomotion.py)                    | - | - | coming soon.
+| **InstructPix2Pix** | ✅ | ✅ | -
+| **Reinforcement Learning for Control** | - | - | coming soon.
 
 ## Community
 

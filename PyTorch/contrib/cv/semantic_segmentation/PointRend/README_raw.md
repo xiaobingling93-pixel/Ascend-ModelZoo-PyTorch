@@ -14,7 +14,6 @@ It supports a number of computer vision research projects and production applica
 ### What's New
 * Includes new capabilities such as panoptic segmentation, Densepose, Cascade R-CNN, rotated bounding boxes, PointRend,
   DeepLab, etc.
-* Used as a library to support building [research projects](projects/) on top of it.
 * Models can be exported to TorchScript format or Caffe2 format for deployment.
 * It [trains much faster](https://detectron2.readthedocs.io/notes/benchmarks.html).
 
@@ -31,7 +30,7 @@ See [Getting Started with Detectron2](https://detectron2.readthedocs.io/tutorial
 to learn about basic usage.
 
 Learn more at our [documentation](https://detectron2.readthedocs.org).
-And see [projects/](projects/) for some projects that are built on top of detectron2.
+And see for some projects that are built on top of detectron2.
 
 ## Model Zoo and Baselines
 

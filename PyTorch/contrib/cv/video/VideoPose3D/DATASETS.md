@@ -93,7 +93,7 @@ cd ..
 ```
 
 ### Stacked Hourglass detections
-These detections (both pretrained and fine-tuned) are provided by [Martinez et al.](https://github.com/una-dinosauria/3d-pose-baseline) in their repository on 3D human pose estimation. The 2D poses produced by the pretrained model are in the same archive as the dataset ([h36m.zip](https://www.dropbox.com/s/e35qv3n6zlkouki/h36m.zip)). The fine-tuned poses can be downloaded [here](https://drive.google.com/open?id=0BxWzojlLp259S2FuUXJ6aUNxZkE). Put the two archives in the `data` directory and run:
+These detections (both pretrained and fine-tuned) are provided by [Martinez et al.](https://github.com/una-dinosauria/3d-pose-baseline) in their repository on 3D human pose estimation. The 2D poses produced by the pretrained model are in the same archive as the dataset ([h36m.zip](https://www.dropbox.com/s/e35qv3n6zlkouki/h36m.zip)). The fine-tuned poses can be downloaded here. Put the two archives in the `data` directory and run:
 
 ```sh
 cd data

@@ -11,11 +11,9 @@
     - [输入](#输入)
     - [输出](#输出)
   - [模型的init_from_json函数](#模型的init_from_json函数)
-    - [输入](#输入-1)
-    - [输出](#输出-1)
 ## 基类
 
-基类 BaseModel 实现了从本地文件或目录或从库提供的预训练模型配置（从BAAI modelhub 的 金山 S3 存储库下载）加载/保存模型的常用方法。现在对三种最常见的模型类型`encoder`，`decoder`和`encoder-decoder`进行了支持。同一种结构的模型，可以用同一个`Class`来进行加载。比如,`GLMModel`可以加载所有`GLM`系列的模型，详见 https://github.com/THUDM/GLM。
+基类 BaseModel 实现了从本地文件或目录或从库提供的预训练模型配置（从BAAI modelhub 的 金山 S3 存储库下载）加载/保存模型的常用方法。现在对三种最常见的模型类型`encoder`，`decoder`和`encoder-decoder`进行了支持。同一种结构的模型，可以用同一个`Class`来进行加载。比如,`GLMModel`可以加载所有`GLM`系列的模型，详见 
 
 ## From_pretrain
 

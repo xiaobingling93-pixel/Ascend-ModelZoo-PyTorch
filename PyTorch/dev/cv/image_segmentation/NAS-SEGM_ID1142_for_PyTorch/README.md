@@ -56,19 +56,19 @@ For the ease of reproduction, we have embedded all our examples inside Jupyter n
 
 ### CVPR 2019 Segmentation
 
-Please refer to results on [PASCAL VOC](./examples/inference/VOC-segm.ipynb)
+Please refer to results on PASCAL VOC
 
 ### CVPR 2019 Depth Estimation
 
-Please refer to results on [NYUD-v2](./examples/inference/NYU-depth.ipynb)
+Please refer to results on NYUD-v2
 
 ### WACV 2020 Segmentation CityScapes
 
-Please refer to results on [CityScapes](./examples/inference/WACV-CS-segm.ipynb)
+Please refer to results on CityScapes
 
 ### WACV 2020 Segmentation CamVid
 
-Please refer to results on [CamVid](./examples/inference/WACV-CV-segm.ipynb)
+Please refer to results on CamVid
 
 ## Note on the runtime of WACV 2020 models
 

@@ -121,9 +121,9 @@ ch_PP-OCRv3_det是基于PP-OCRv3的中文文本检测模型，PP-OCRv3在PP-OCR2
 
    1. 获取权重文件。
 
-       训练模型（在线推理使用）链接为：https://paddleocr.bj.bcebos.com/PP-OCRv3/chinese/ch_PP-OCRv3_det_distill_train.tar。
+ 训练模型（在线推理使用）链接为：
        
-       推理模型链接为：https://paddleocr.bj.bcebos.com/PP-OCRv3/chinese/ch_PP-OCRv3_det_infer.tar。
+ 推理模型链接为：
 
        在`ch_PP-OCRv3_det`工作目录下可通过以下命令获取训练模型、推理模型和辅助模型。
 

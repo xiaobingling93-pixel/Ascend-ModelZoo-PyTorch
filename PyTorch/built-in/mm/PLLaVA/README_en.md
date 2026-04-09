@@ -36,7 +36,6 @@
 <div align="center">
   <a href="https://pllava.github.io">
     <img src="assert/logo.png">
-  </a>
 </div>
 
 <div align="center">
@@ -57,7 +56,7 @@ The primary purpose of this repository is to support research and the developmen
 It's important to mention that we have not optimized the response speed of the application or the frontend logic. Our goal is to maintain simplicity, clarity, and ease of development, making it accessible for both researchers and students. If you have suggestions or want to enhance the application's performance, please feel free to contact us or contribute to the project.
 
 
-We've briefly introduce our work in section [PLLAVA](#%EF%B8%8F-pllava). For more details, feel free to read our paper. Check out section [Usage](#hammer-usage) to start using this repo. If you felt our works interesting, please star us, your support is all we want. If you find our work helpful, feel free to [cite](#page_facing_up-citation) us directly.
+We've briefly introduce our work in section PLLAVA. For more details, feel free to read our paper. Check out section [Usage](#hammer-usage) to start using this repo. If you felt our works interesting, please star us, your support is all we want. If you find our work helpful, feel free to [cite](#page_facing_up-citation) us directly.
 
 ## :fire: Updates
 
@@ -68,7 +67,6 @@ We've briefly introduce our work in section [PLLAVA](#%EF%B8%8F-pllava). For mor
 <div align="center">
   <a href="https://www.youtube.com/embed/nAEje8tu18U?si=GXxjgP93j77FzDbw">
     <img src="assert/teaser.jpg">
-  </a>
 </div>
 
 
@@ -226,7 +224,7 @@ Follow the following steps to reproduce our results or train your own variant:
 
 #### 1. Data Preparation
 
-To train our model from a starting Image-aligned Vision LLM, you would need to download the data first. Our data set up is mainly based on the original Videochat2's training data. Check out [Instruction Data](./DATA.md) to prepare the instruction training data. Ideally, setting up a root data directory and alter the code [here](./tasks/train/instruction_data.py#L6) would accomodate the data for training most smoothly.
+To train our model from a starting Image-aligned Vision LLM, you would need to download the data first. Our data set up is mainly based on the original Videochat2's training data. Check out Instruction Data to prepare the instruction training data. Ideally, setting up a root data directory and alter the code here would accomodate the data for training most smoothly.
 
 #### 2. Start Training
 
@@ -271,7 +269,7 @@ This section mainly introduce how to reproduce the evaluation or evaluate your o
 
 #### Set up Evaluation Data
 
-Make sure you set up the "DATAS" directory as in [DATA.md](DATA.md), then you would be able to run the inference with fortune! The evaluation data directory of DATAS would look like:
+Make sure you set up the "DATAS" directory as in, then you would be able to run the inference with fortune! The evaluation data directory of DATAS would look like:
 
 ```
 DATAS/:
@@ -341,7 +339,7 @@ bash scripts/gallery.sh
 Feel free to use the compare version to compare differnt models' results or use the single gallery version to check out one model's results. They are basically the same. Check out this [script](scripts/gallery.sh) for more details
 
 #### For Captioning and Recaptioning
-Follow instructions at [DATA.md](DATA.md#extending-reacptioning) and you can extend the recaptioning data with a few steps.
+Follow instructions at DATA.md and you can extend the recaptioning data with a few steps.
 
 Feel free to point out high quality dataset of videos, we would proceed on doing captioning on those datasets.
 

@@ -47,60 +47,60 @@ This project is released under the [Apache 2.0 license](LICENSE).
 ## Changelog
 
 v0.10.0 was released in 01/01/2021.
-Please refer to [changelog.md](docs/changelog.md) for details and release history.
+Please refer to changelog.md for details and release history.
 
 ## Benchmark and model zoo
 
-Results and models are available in the [model zoo](docs/model_zoo.md).
+Results and models are available in the model zoo.
 
 Supported backbones:
 
 - [x] ResNet
 - [x] ResNeXt
-- [x] [HRNet](configs/hrnet/README.md)
-- [x] [ResNeSt](configs/resnest/README.md)
-- [x] [MobileNetV2](configs/mobilenet_v2/README.md)
-- [x] [MobileNetV3](configs/mobilenet_v3/README.md)
+- [x] HRNet
+- [x] ResNeSt
+- [x] MobileNetV2
+- [x] MobileNetV3
 
 Supported methods:
 
-- [x] [FCN](configs/fcn)
-- [x] [PSPNet](configs/pspnet)
-- [x] [DeepLabV3](configs/deeplabv3)
-- [x] [PSANet](configs/psanet)
-- [x] [DeepLabV3+](configs/deeplabv3plus)
-- [x] [UPerNet](configs/upernet)
-- [x] [NonLocal Net](configs/nonlocal_net)
-- [x] [EncNet](configs/encnet)
-- [x] [CCNet](configs/ccnet)
-- [x] [DANet](configs/danet)
-- [x] [APCNet](configs/apcnet)
-- [x] [GCNet](configs/gcnet)
-- [x] [DMNet](configs/dmnet)
-- [x] [ANN](configs/ann)
-- [x] [OCRNet](configs/ocrnet)
-- [x] [Fast-SCNN](configs/fastscnn)
-- [x] [Semantic FPN](configs/sem_fpn)
-- [x] [PointRend](configs/point_rend)
-- [x] [EMANet](configs/emanet)
-- [x] [DNLNet](configs/dnlnet)
-- [x] [CGNet](configs/cgnet)
-- [x] [Mixed Precision (FP16) Training](configs/fp16/README.md)
+- [x] FCN
+- [x] PSPNet
+- [x] DeepLabV3
+- [x] PSANet
+- [x] DeepLabV3+
+- [x] UPerNet
+- [x] NonLocal Net
+- [x] EncNet
+- [x] CCNet
+- [x] DANet
+- [x] APCNet
+- [x] GCNet
+- [x] DMNet
+- [x] ANN
+- [x] OCRNet
+- [x] Fast-SCNN
+- [x] Semantic FPN
+- [x] PointRend
+- [x] EMANet
+- [x] DNLNet
+- [x] CGNet
+- [x] Mixed Precision (FP16) Training
 
 ## Installation
 
-Please refer to [INSTALL.md](docs/install.md) for installation and dataset preparation.
+Please refer to INSTALL.md for installation and dataset preparation.
 
 ## Get Started
 
-Please see [getting_started.md](docs/getting_started.md) for the basic usage of MMSegmentation.
-There are also tutorials for [adding new dataset](docs/tutorials/new_dataset.md), [designing data pipeline](docs/tutorials/data_pipeline.md), and [adding new modules](docs/tutorials/new_modules.md).
+Please see getting_started.md for the basic usage of MMSegmentation.
+There are also tutorials for adding new dataset, designing data pipeline, and adding new modules.
 
-A Colab tutorial is also provided. You may preview the notebook [here](demo/MMSegmentation_Tutorial.ipynb) or directly [run](https://colab.research.google.com/github/open-mmlab/mmsegmentation/blob/master/demo/MMSegmentation_Tutorial.ipynb) on Colab.
+A Colab tutorial is also provided. You may preview the notebook here or directly [run](https://colab.research.google.com/github/open-mmlab/mmsegmentation/blob/master/) on Colab.
 
 ## Contributing
 
-We appreciate all contributions to improve MMSegmentation. Please refer to [CONTRIBUTING.md](.github/CONTRIBUTING.md) for the contributing guideline.
+We appreciate all contributions to improve MMSegmentation. Please refer to CONTRIBUTING.md for the contributing guideline.
 
 ## Acknowledgement
 

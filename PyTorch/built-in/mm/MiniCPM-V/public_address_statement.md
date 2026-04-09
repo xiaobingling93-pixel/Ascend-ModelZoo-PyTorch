@@ -3,7 +3,6 @@
 | ModelZoo-PyTorch/PyTorch/built-in/mm/MiniCPM-V/eval_mm/vlmevalkit/script/run_inference.sh | https://hf-mirror.com                                                          | 模型相关说明  |
 | ModelZoo-PyTorch/PyTorch/built-in/mm/MiniCPM-V/eval_mm/vlmevalkit/vlmeval/api/gpt.py      | https://api.openai.com/v1/chat/completions                                     | 模型相关说明  |
 | ModelZoo-PyTorch/PyTorch/built-in/mm/MiniCPM-V/eval_mm/vlmevalkit/vlmeval/api/gpt_int.py  | http://ecs.sv.us.alles-apin.openxlab.org.cn/v1/openai/v2/text/chat             | 模型相关说明  |
-| ModelZoo-PyTorch/PyTorch/built-in/mm/MiniCPM-V/omnilmm/utils.py                           | https://api.openai.com/v1/moderations                                          | 模型相关说明  |
 | ModelZoo-PyTorch/PyTorch/built-in/mm/MiniCPM-V/web_demo_2.6.py                            | http://thunlp.oss-cn-qingdao.aliyuncs.com/multi_modal/never_delete/m_bear2.gif | 图片示例    |
 | ModelZoo-PyTorch/PyTorch/built-in/mm/MiniCPM-V/web_demo_2.6.py                            | http://thunlp.oss-cn-qingdao.aliyuncs.com/multi_modal/never_delete/fshot.gif   | 图片示例    |
 | ModelZoo-PyTorch/PyTorch/built-in/mm/MiniCPM-V/web_demo_2.6.py                            | http://thunlp.oss-cn-qingdao.aliyuncs.com/multi_modal/never_delete/video2.gif  | 图片示例    |

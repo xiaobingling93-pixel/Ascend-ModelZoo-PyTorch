@@ -1,5 +1,5 @@
 | 文件位置                                                                                            | 公网地址                                                      | 公网地址用途  |
 |-------------------------------------------------------------------------------------------------|-----------------------------------------------------------|---------|
-| ModelZoo-PyTorch/PyTorch/contrib/foundation/ChatGLM3-6B/script/transformers_op/training_args.py | https://docs.ray.io/en/latest/tune/api_docs/analysis.html | 相关说明    |
+| ModelZoo-PyTorch/PyTorch/contrib/foundation/ChatGLM3-6B/script/transformers_op/training_args.py | | 相关说明 |
 | ModelZoo-PyTorch/PyTorch/contrib/foundation/ChatGLM3-6B/script/transformers_op/training_args.py | https://arxiv.org/abs/2310.05914                          | 论文地址    |
 | ModelZoo-PyTorch/PyTorch/contrib/foundation/ChatGLM3-6B/script/transformers_op/training_args.py | https://github.com/neelsjain/NEFTune                      | 源码地址    |

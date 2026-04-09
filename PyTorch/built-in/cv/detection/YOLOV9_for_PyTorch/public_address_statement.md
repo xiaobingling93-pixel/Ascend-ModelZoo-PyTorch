@@ -8,4 +8,3 @@
 | ModelZoo-PyTorch/PyTorch/built-in/cv/detection/YOLOV9_for_PyTorch/hubconf.py          | https://ultralytics.com/images/zidane.jpg     | 数据集链接            |
 | ModelZoo-PyTorch/PyTorch/built-in/cv/detection/YOLOV9_for_PyTorch/scripts/get_coco.sh | http://images.cocodataset.org/zips/           | 数据集地址            |
 | ModelZoo-PyTorch/PyTorch/built-in/cv/detection/YOLOV9_for_PyTorch/utils/general.py    | https://url.com/file.txt?auth                 | 开源代码链接           |
-| ModelZoo-PyTorch/PyTorch/built-in/cv/detection/YOLOV9_for_PyTorch/utils/general.py    | https://ultralytics.com/assets/{font.name}    | 下载相关配置           |

@@ -10,8 +10,6 @@
 | ModelZoo-PyTorch/PyTorch/built-in/nlp/XLM_ID0740_for_PyTorch/get-data-nmt.sh  | http://www.statmt.org/wmt14/training-monolingual-news-crawl/news.2007.en.shuffled.gz           | 数据集链接   |
 | ModelZoo-PyTorch/PyTorch/built-in/nlp/XLM_ID0740_for_PyTorch/get-data-nmt.sh  | http://www.statmt.org/wmt14/training-monolingual-news-crawl/news.2007.de.shuffled.gz           | 数据集链接   |
 | ModelZoo-PyTorch/PyTorch/built-in/nlp/XLM_ID0740_for_PyTorch/get-data-nmt.sh  | http://data.statmt.org/wmt16/translation-task/news.2015.ro.shuffled.gz                         | 数据集链接   |
-| ModelZoo-PyTorch/PyTorch/built-in/nlp/XLM_ID0740_for_PyTorch/get-data-para.sh | http://www.cfilt.iitb.ac.in/iitb_parallel/iitb_corpus_download/parallel.tgz                    | 数据集链接   |
-| ModelZoo-PyTorch/PyTorch/built-in/nlp/XLM_ID0740_for_PyTorch/get-data-wiki.sh | https://dumps.wikimedia.org/${lg}wiki/latest/$WIKI_DUMP_NAME                                   | 数据集说明   |
 | ModelZoo-PyTorch/PyTorch/built-in/nlp/XLM_ID0740_for_PyTorch/get-data-xnli.sh | https://dl.fbaipublicfiles.com/XNLI/XNLI-MT-1.0.zip                                            | 数据集链接   |
 | ModelZoo-PyTorch/PyTorch/built-in/nlp/XLM_ID0740_for_PyTorch/get-data-xnli.sh | https://dl.fbaipublicfiles.com/XNLI/XNLI-1.0.zip                                               | 数据集链接   |
 | ModelZoo-PyTorch/PyTorch/built-in/nlp/XLM_ID0740_for_PyTorch/install-tools.sh | https://nlp.stanford.edu/software/stanford-segmenter-2018-10-16.zip                            | 模型相关配置  |

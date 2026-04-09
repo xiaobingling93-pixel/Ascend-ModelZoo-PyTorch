@@ -122,7 +122,7 @@ PETRv2: We provide a 3D object detection baseline and a BEV segmentation baselin
 
 | config            | Drive      | Lane   |  Vehicle     |backbone   |   config |download  |
 |:--------:|:----------:|:---------:|:--------:|:--------:|:--------:|:-------------:|
-| PETRv2_BEVseg   | 85.6%     | 49.0%   | 46.3%     | V2-99  | [config](projects/configs/petrv2/PETRv2_BEVseg.py)  | [log](https://drive.google.com/drive/folders/1PdSsni_EePHlkCB-FJTIkhr979hwd8X6?usp=sharing) / [gdrive](https://drive.google.com/drive/folders/1PdSsni_EePHlkCB-FJTIkhr979hwd8X6?usp=sharing) 
+| PETRv2_BEVseg | 85.6% | 49.0% | 46.3% | V2-99 | config | [log](https://drive.google.com/drive/folders/1PdSsni_EePHlkCB-FJTIkhr979hwd8X6?usp=sharing) / [gdrive](https://drive.google.com/drive/folders/1PdSsni_EePHlkCB-FJTIkhr979hwd8X6?usp=sharing) 
 
 | config            | F-score      | X-near   |  X-far     |  Z-near   |  Z-far   |backbone   |   config |download  |
 |:--------:|:----------:|:---------:|:--------:|:--------:|:--------:|:-------------:|:-------------:|:-------------:|

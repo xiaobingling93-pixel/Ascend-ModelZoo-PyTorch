@@ -68,7 +68,7 @@ python inference.py --conf sample_configs/base_config.yaml \
 For a detailed usage example, check the [colab tutorial](#tutorials).
 
 ## Tutorials
-- [Tutorial: [Using pretrained model | Inference scripts | Training]](notebooks/keyword_mlp_tutorial.ipynb)
+- [Tutorial: [Using pretrained model | Inference scripts | Training]]()
     
 ## Weights & Biases
 

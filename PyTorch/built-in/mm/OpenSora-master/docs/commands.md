@@ -14,7 +14,7 @@
 
 ## Inference
 
-You can modify corresponding config files to change the inference settings. See more details [here](/docs/structure.md#inference-config-demos).
+You can modify corresponding config files to change the inference settings. See more details here.
 
 ### Inference with Open-Sora 1.2
 
@@ -46,7 +46,7 @@ python scripts/inference.py configs/opensora-v1-1/inference/sample.py \
     --ckpt-path CKPT_PATH --prompt "A beautiful sunset over the city" --num-frames 16 --image-size 480 854
 ```
 
-You can adjust the `--num-frames` and `--image-size` to generate different results. We recommend you to use the same image size as the training resolution, which is defined in [aspect.py](/opensora/datasets/aspect.py). Some examples are shown below.
+You can adjust the `--num-frames` and `--image-size` to generate different results. We recommend you to use the same image size as the training resolution, which is defined in aspect.py. Some examples are shown below.
 
 - 240p
   - 16:9 240x426
@@ -148,7 +148,7 @@ type="dmp-solver"
 num_sampling_steps=20
 ```
 
-2. You can use [SVD](https://huggingface.co/stabilityai/stable-video-diffusion-img2vid-xt)'s finetuned VAE decoder on videos for inference (consumes more memory). However, we do not see significant improvement in the video result. To use it, download [the pretrained weights](https://huggingface.co/maxin-cn/Latte/tree/main/t2v_required_models/vae_temporal_decoder) into `./pretrained_models/vae_temporal_decoder` and modify the config file as follows.
+2. You can use [SVD](https://huggingface.co/stabilityai/stable-video-diffusion-img2vid-xt)'s finetuned VAE decoder on videos for inference (consumes more memory). However, we do not see significant improvement in the video result. To use it, download the pretrained weights into `./pretrained_models/vae_temporal_decoder` and modify the config file as follows.
 
 ```python
 vae = dict(
@@ -171,7 +171,7 @@ To enable wandb logging, add `--wandb` to the command.
 WANDB_API_KEY=YOUR_WANDB_API_KEY torchrun --nnodes=1 --nproc_per_node=8 scripts/train.py configs/opensora/train/64x512x512.py --data-path YOUR_CSV_PATH --wandb True
 ```
 
-You can modify corresponding config files to change the training settings. See more details [here](/docs/structure.md#training-config-demos).
+You can modify corresponding config files to change the training settings. See more details here.
 
 ### Training Hyperparameters
 

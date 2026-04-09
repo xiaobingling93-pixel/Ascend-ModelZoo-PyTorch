@@ -1,7 +1,7 @@
 # Datasets
 
 For Open-Sora 1.1, we conduct mixed training with both images and videos. The main datasets we use are listed below.
-Please refer to [README](/README.md#data-processing) for data processing.
+Please refer to README for data processing.
 
 ## Panda-70M
 [Panda-70M](https://github.com/snap-research/Panda-70M) is a large-scale dataset with 70M video-caption pairs.

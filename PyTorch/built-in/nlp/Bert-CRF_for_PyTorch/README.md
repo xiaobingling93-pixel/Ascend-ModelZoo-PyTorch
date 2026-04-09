@@ -1,10 +1,5 @@
 # Bert-CRF for PyTorch
 
--   [概述](概述.md)
--   [准备训练环境](准备训练环境.md)
--   [开始训练](开始训练.md)
--   [训练结果展示](训练结果展示.md)
--   [版本说明](版本说明.md)
 
 # 概述
 
@@ -56,7 +51,6 @@ bert4torch是一个基于pytorch的训练框架，前期以效仿和实现bert4k
   pip install -r requirements.txt
   ```
 - 本模型在X86平台上性能显著高于ARM。
-- 请注意开启cpu性能模式，否则会影响模型性能，详细参考 [将cpu设置为performance模式](https://gitcode.com/ascend/pytorch/blob/master/docs/zh/PyTorch%E8%AE%AD%E7%BB%83%E8%B0%83%E4%BC%98&%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97/PyTorch%E8%AE%AD%E7%BB%83%E8%B0%83%E4%BC%98&%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97.md#%E5%B0%86cpu%E8%AE%BE%E7%BD%AE%E4%B8%BAperformance%E6%A8%A1%E5%BC%8F)。
 
 
 ## 准备数据集

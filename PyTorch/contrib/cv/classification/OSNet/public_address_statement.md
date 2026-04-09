@@ -1,10 +1,7 @@
 | 文件位置                                                                                                      | 公网地址                                                                      | 公网地址用途  |
 |-----------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------|---------|
 | ModelZoo-PyTorch/PyTorch/contrib/cv/classification/OSNet/torchreid/data/datasets/image/dukemtmcreid.py    | http://vision.cs.duke.edu/DukeMTMC/data/misc/DukeMTMC-reID.zip            | 数据集链接   |
-| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/OSNet/torchreid/data/datasets/image/ilids.py           | http://www.eecs.qmul.ac.uk/~jason/data/i-LIDS_Pedestrian.tgz              | 数据集链接   |
-| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/OSNet/torchreid/data/datasets/image/viper.py           | http://users.soe.ucsc.edu/~manduchi/VIPeR.v1.0.zip                        | 数据集链接   |
 | ModelZoo-PyTorch/PyTorch/contrib/cv/classification/OSNet/torchreid/data/datasets/video/dukemtmcvidreid.py | http://vision.cs.duke.edu/DukeMTMC/data/misc/DukeMTMC-VideoReID.zip       | 数据集链接   |
-| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/OSNet/torchreid/data/datasets/video/ilidsvid.py        | http://www.eecs.qmul.ac.uk/~xiatian/iLIDS-VID/iLIDS-VID.tar               | 数据集链接   |
 | ModelZoo-PyTorch/PyTorch/contrib/cv/classification/OSNet/torchreid/metrics/rank_cylib/rank_cy.pyx         | https://cython.readthedocs.io/en/latest/src/userguide/numpy_tutorial.html | 相关说明    |
 | ModelZoo-PyTorch/PyTorch/contrib/cv/classification/OSNet/torchreid/models/densenet.py                     | https://download.pytorch.org/models/densenet201-c1103571.pth              | 权重地址    |
 | ModelZoo-PyTorch/PyTorch/contrib/cv/classification/OSNet/torchreid/models/densenet.py                     | https://download.pytorch.org/models/densenet169-b2777c0a.pth              | 权重地址    |

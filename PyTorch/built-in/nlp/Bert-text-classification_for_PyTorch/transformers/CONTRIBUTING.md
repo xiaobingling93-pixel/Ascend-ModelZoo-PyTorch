@@ -92,7 +92,7 @@ If you are willing to contribute the model yourself, let us know so we can best
 guide you.
 
 We have added a **detailed guide and templates** to guide you in the process of adding a new model. You can find them
-in the [`templates`](https://github.com/huggingface/transformers/tree/master/templates) folder.
+in the `templates` folder.
 
 ### Do you want a new feature (that is not a model)?
 
@@ -114,7 +114,7 @@ If your issue is well written we're already 80% of the way there by the time you
 post it.
 
 We have added **templates** to guide you in the process of adding a new example script for training or testing the
-models in the library. You can find them in the [`templates`](https://github.com/huggingface/transformers/tree/master/templates)
+models in the library. You can find them in the `templates`
 folder.
 
 ## Start contributing! (Pull Requests)
@@ -312,7 +312,7 @@ Follow these steps to start contributing:
    If an external contribution, feel free to add the images to your PR and ask a Hugging Face member to migrate your images
    to this dataset.
 
-See more about the checks run on a pull request in our [PR guide](pr_checks)
+See more about the checks run on a pull request in our PR guide
 
 ### Tests
 

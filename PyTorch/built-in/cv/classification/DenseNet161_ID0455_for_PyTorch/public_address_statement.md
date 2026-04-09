@@ -10,7 +10,6 @@
 | ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DenseNet161_ID0455_for_PyTorch/url.ini                         | https://download.pytorch.org/whl/torch_stable.html                                    | 三方库地址          |
 | ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DenseNet161_ID0455_for_PyTorch/url.ini                         | https://download.pytorch.org/whl/nightly/torch_nightly.html                           | 三方库地址          |
 | ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DenseNet161_ID0455_for_PyTorch/url.ini                         | https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html                       | 权重地址           |
-| ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DenseNet161_ID0455_for_PyTorch/url.ini                         | https://www.7-zip.org/a/7z1805-x64.exe                                                | 依赖地址           |
 | ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DenseNet161_ID0455_for_PyTorch/url.ini                         | http://docs.scipy.org/doc/numpy/                                                      | 相关依赖           |
 | ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DenseNet161_ID0455_for_PyTorch/url.ini                         | https://download.pytorch.org/whl/                                                     | 三方库连接          |
 | ModelZoo-PyTorch/PyTorch/built-in/cv/classification/DenseNet161_ID0455_for_PyTorch/url.ini                         | https://www.dropbox.com/s/9mcolalfdj4n979/NvToolsExt.7z?dl=1                          | 下载依赖           |

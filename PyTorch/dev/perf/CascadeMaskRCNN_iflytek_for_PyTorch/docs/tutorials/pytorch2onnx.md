@@ -8,9 +8,6 @@
 		- [Usage](#usage)
 		- [Description of all arguments](#description-of-all-arguments)
 	- [How to evaluate the exported models](#how-to-evaluate-the-exported-models)
-		- [Prerequisite](#prerequisite-1)
-		- [Usage](#usage-1)
-		- [Description of all arguments](#description-of-all-arguments-1)
 		- [Results and Models](#results-and-models)
 	- [List of supported models exportable to ONNX](#list-of-supported-models-exportable-to-onnx)
 	- [The Parameters of Non-Maximum Suppression in ONNX Export](#the-parameters-of-non-maximum-suppression-in-onnx-export)
@@ -100,7 +97,6 @@ We prepare a tool `tools/deplopyment/test.py` to evaluate ONNX models with ONNXR
   pip install onnx onnxruntime-gpu
   ```
 
-- Install TensorRT by referring to [how-to-build-tensorrt-plugins-in-mmcv](https://mmcv.readthedocs.io/en/latest/tensorrt_plugin.html#how-to-build-tensorrt-plugins-in-mmcv)(optional)
 
 ### Usage
 
@@ -239,7 +235,7 @@ Notes:
 - Minimum required version of MMCV is `1.3.5`
 
 - *All models above are tested with Pytorch==1.6.0 and onnxruntime==1.5.1*, except for CornerNet. For more details about the
-torch version when exporting CornerNet to ONNX, which involves `mmcv::cummax`, please refer to the [Known Issues](https://github.com/open-mmlab/mmcv/blob/master/docs/onnxruntime_op.md#known-issues) in mmcv.
+torch version when exporting CornerNet to ONNX, which involves `mmcv::cummax`, please refer to the Known Issues in mmcv.
 
 - Currently only single-scale evaluation is supported with ONNX Runtime, also `mmcv::SoftNonMaxSuppression` is only supported for single image by now.
 
@@ -265,8 +261,7 @@ In the process of exporting the ONNX model, we set some parameters for the NMS o
 
 ## Reminders
 
-- When the input model has custom op such as `RoIAlign` and if you want to verify the exported ONNX model, you may have to build `mmcv` with [ONNXRuntime](https://mmcv.readthedocs.io/en/latest/onnxruntime_op.html) from source.
-- `mmcv.onnx.simplify` feature is based on [onnx-simplifier](https://github.com/daquexian/onnx-simplifier). If you want to try it, please refer to [onnx in `mmcv`](https://mmcv.readthedocs.io/en/latest/onnx.html) and [onnxruntime op in `mmcv`](https://mmcv.readthedocs.io/en/latest/onnxruntime_op.html) for more information.
+- `mmcv.onnx.simplify` feature is based on [onnx-simplifier](https://github.com/daquexian/onnx-simplifier). If you want to try it, please refer to onnx in `mmcv` and onnxruntime op in `mmcv` for more information.
 - If you meet any problem with the listed models above, please create an issue and it would be taken care of soon. For models not included in the list, please try to dig a little deeper and debug a little bit more and hopefully solve them by yourself.
 - Because this feature is experimental and may change fast, please always try with the latest `mmcv` and `mmdetecion`.
 

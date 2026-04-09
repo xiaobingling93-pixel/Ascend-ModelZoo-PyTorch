@@ -41,8 +41,6 @@ Loss (x axis unit is 100 iterations)
 
 # Resources Used
 * [Dataloader tutorial](https://pytorch.org/tutorials/beginner/data_loading_tutorial.html)
-* [Transforms](https://pytorch.org/docs/stable/torchvision/transforms.html?highlight=transforms)
-* [ImageFolder](https://pytorch.org/docs/stable/torchvision/datasets.html?highlight=imagefolder#torchvision.datasets.ImageFolder)
 * [DCGAN Paper](https://arxiv.org/pdf/1511.06434.pdf)
 * [GAN Paper](https://arxiv.org/abs/1406.2661)
 * [PyTorch Tutorial](https://pytorch.org/tutorials/beginner/dcgan_faces_tutorial.html)

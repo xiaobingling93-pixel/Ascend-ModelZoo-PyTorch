@@ -22,7 +22,7 @@ of the Dice Coefficient.
 
 ## What does the PyTorch compute graph of Vnet look like?
 
-You can see the compute graph [here](images/vnet.png),
+You can see the compute graph here,
 which I created with [make_graph.py](https://github.com/mattmacy/vnet.pytorch/blob/master/make_graph.py),
 which I copied from [densenet.pytorch](https://github.com/bamos/densenet.pytorch) which in turn was
 copied from [Adam Paszke's gist](https://gist.github.com/apaszke/01aae7a0494c55af6242f06fad1f8b70).

@@ -32,8 +32,8 @@ We can group $C$ continuous frames $x_t, x_{t+1}, x_{t+C}$ as one chunk for the 
 ### Interface Design
 
 We use LibTorch to implement U2 runtime in WeNet, and we export several interfaces in PyTorch python code
-by @torch.jit.export (see [asr_model.py](https://github.com/wenet-e2e/wenet/tree/main/wenet/transformer/asr_model.py)),
-which are required and used in C++ runtime in [torch_asr_model.cc](https://github.com/wenet-e2e/wenet/tree/main/runtime/libtorch/decoder/torch_asr_model.cc).
+by @torch.jit.export (see asr_model.py),
+which are required and used in C++ runtime in torch_asr_model.cc.
 Here we just list the interface and give a brief introduction.
 
 | interface                        | description                             |
@@ -53,7 +53,7 @@ For streaming scenario, the *Shared Encoder* module works in an incremental way.
 * att_cache: the attention cache of the *Shared Encoder*(Conformer/Transformer) module.
 * cnn_cache: the cnn cache of the *Shared Encoder*, which caches the left context for causal CNN computation in Conformer.
 
-Please see [encoder.py:forward_chunk()](https://github.com/wenet-e2e/wenet/tree/main/wenet/transformer/encoder.py) and [torch_asr_model.cc](https://github.com/wenet-e2e/wenet/tree/main/runtime/libtorch/decoder/torch_asr_model.cc) for details of the caches.
+Please see encoder.py:forward_chunk() and torch_asr_model.cc for details of the caches.
 
 In practice, CNN is also used for subsampling, we should handle the CNN cache in subsampling.
 However, there are different CNN layers in subsampling with different left contexts, right contexts and strides, which makes it tircky to directly implement the CNN cache in subsampling.

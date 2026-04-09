@@ -16,7 +16,7 @@
 
 #### transformers_stream_generator/tiktoken/accelerate が見つかりません。
 
-コマンド `pip install -r requirements.txt` を実行してください。このファイルは [https://github.com/QwenLM/Qwen-VL/blob/main/requirements.txt](https://github.com/QwenLM/Qwen-VL/blob/main/requirements.txt) にあります。
+コマンド `pip install -r requirements.txt` を実行してください。このファイルは にあります。
 <br><br>
 
 

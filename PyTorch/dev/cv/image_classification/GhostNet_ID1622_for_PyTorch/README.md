@@ -4,7 +4,6 @@ including GhostNet, TinyNet, TNT (Transformer in Transformer) developed by Huawe
 - [TinyNet Code](#tinynet-code)
 - [TNT Code](#tnt-code)
 - [Citation](#citation)
-- [Other versions](#other-versions)
 
 **News** 
 
@@ -14,7 +13,7 @@ including GhostNet, TinyNet, TNT (Transformer in Transformer) developed by Huawe
 
 2020/10/31 GhostNet+TinyNet achieves better performance. See details in our NeurIPS 2020 paper: [arXiv](https://arxiv.org/abs/2010.14819).
 
-2020/09/24 We release GhostNet models for more vision tasks on [MindSpore Hub](https://www.mindspore.cn/resources/hub) and [MindSpore Model Zoo](https://gitee.com/mindspore/mindspore/tree/master/model_zoo/research/cv).
+2020/09/24 We release GhostNet models for more vision tasks on MindSpore Hub and [MindSpore Model Zoo](https://gitee.com/mindspore/mindspore/tree/master/model_zoo/research/cv).
 
 2020/06/10 GhostNet is included in [PyTorch Hub](https://pytorch.org/hub/pytorch_vision_ghostnet/).
 
@@ -25,9 +24,9 @@ including GhostNet, TinyNet, TNT (Transformer in Transformer) developed by Huawe
 This repo provides **pretrained models** and **inference code** for TensorFlow and PyTorch:
 - Tensorflow: [./ghostnet_tensorflow](https://github.com/huawei-noah/CV-backbones/tree/master/ghostnet_tensorflow) with pretrained model.
 - PyTorch: [./ghostnet_pytorch](https://github.com/huawei-noah/CV-backbones/tree/master/ghostnet_pytorch) with pretrained model.
-- We also opensource code on [MindSpore Hub](https://www.mindspore.cn/resources/hub) and [MindSpore Model Zoo](https://gitee.com/mindspore/mindspore/tree/master/model_zoo/research/cv).
+- We also opensource code on MindSpore Hub and [MindSpore Model Zoo](https://gitee.com/mindspore/mindspore/tree/master/model_zoo/research/cv).
 
-For **training**, please refer to [tinynet](https://gitee.com/mindspore/mindspore/tree/master/model_zoo/research/cv/tinynet) or [timm](https://rwightman.github.io/pytorch-image-models/training_hparam_examples/#mobilenetv3-large-100-75766-top-1-92542-top-5).
+For **training**, please refer to [tinynet](https://gitee.com/mindspore/mindspore/tree/master/model_zoo/research/cv/tinynet) or timm.
 
 ## TinyNet Code
 

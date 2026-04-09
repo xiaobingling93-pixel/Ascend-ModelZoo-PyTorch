@@ -32,7 +32,7 @@ wget https://storage.googleapis.com/vit_models/imagenet21k+imagenet2012/{MODEL_N
 ```
 python3 train.py --name cifar10-100_500 --dataset cifar10 --model_type ViT-B_16 --pretrained_dir checkpoint/ViT-B_16.npz
 ```
-CIFAR-10 and CIFAR-100 are automatically download and train. In order to use a different dataset you need to customize [data_utils.py](./utils/data_utils.py).
+CIFAR-10 and CIFAR-100 are automatically download and train. In order to use a different dataset you need to customize data_utils.py.
 
 The default batch size is 512. When GPU memory is insufficient, you can proceed with training by adjusting the value of `--gradient_accumulation_steps`.
 
@@ -91,7 +91,7 @@ To verify that the converted model weight is correct, we simply compare it with 
 The ViT consists of a Standard Transformer Encoder, and the encoder consists of Self-Attention and MLP module.
 The attention map for the input image can be visualized through the attention score of self-attention.
 
-Visualization code can be found at [visualize_attention_map](./visualize_attention_map.ipynb).
+Visualization code can be found at visualize_attention_map.
 
 ![fig3](./img/figure3.png)
 

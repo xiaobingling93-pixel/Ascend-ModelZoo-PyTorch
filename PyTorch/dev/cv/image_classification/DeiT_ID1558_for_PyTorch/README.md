@@ -18,7 +18,7 @@ We provide baseline DeiT models pretrained on ImageNet 2012.
 This repository is released under the Apache 2.0 license as found in the [LICENSE](LICENSE) file.
 
 # Contributing
-We actively welcome your pull requests! Please see [CONTRIBUTING.md](.github/CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](.github/CODE_OF_CONDUCT.md) for more info.
+We actively welcome your pull requests! Please see CONTRIBUTING.md and CODE_OF_CONDUCT.md for more info.
 
 # 公网地址说明
 代码涉及公网地址参考 public_address_statement.md

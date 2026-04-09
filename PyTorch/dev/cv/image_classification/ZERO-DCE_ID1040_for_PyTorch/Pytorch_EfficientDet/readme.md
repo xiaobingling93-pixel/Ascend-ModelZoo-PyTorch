@@ -22,7 +22,7 @@ I'll post the trained weights in this repo along with the evaluation result.
 
 Hope it help whoever wants to try efficientdet in pytorch.
 
-Training examples can be found here. [tutorials](tutorial/). The trained weights can be found here. [weights](https://github.com/zylo117/Yet-Another-EfficientDet-Pytorch/releases/tag/custom_datasets)
+Training examples can be found here. tutorials. The trained weights can be found here. [weights](https://github.com/zylo117/Yet-Another-EfficientDet-Pytorch/releases/tag/custom_datasets)
 
 
 ## Performance
@@ -59,7 +59,7 @@ The speed/FPS test includes the time of post-processing with no jit/data precisi
 
 [2020-04-14] fixed loss function bug. please pull the latest code.
 
-[2020-04-14] for those who needs help or can't get a good result after several epochs, check out this [tutorial](tutorial/train_shape.ipynb). You can run it on colab with GPU support.
+[2020-04-14] for those who needs help or can't get a good result after several epochs, check out this tutorial. You can run it on colab with GPU support.
 
 [2020-04-10] warp the loss function within the training model, so that the memory usage will be balanced when training with multiple gpus, enabling training with bigger batchsize.
 
@@ -93,7 +93,7 @@ The speed/FPS test includes the time of post-processing with no jit/data precisi
 
 Training EfficientDet is a painful and time-consuming task. You shouldn't expect to get a good result within a day or two. Please be patient.
 
-Check out this [tutorial](tutorial/) if you are new to this. You can run it on colab with GPU support.
+Check out this tutorial if you are new to this. You can run it on colab with GPU support.
 
 ### 1. Prepare your dataset
 
@@ -295,7 +295,7 @@ The second one:
 
 And finally some common issues, their anchor decoder and encoder are different from the original one, but it's not the main reason that it performs badly.
 
-Also, Conv2dStaticSamePadding from [EfficientNet-PyTorch](https://github.com/lukemelas/EfficientNet-PyTorch) does not perform like TensorFlow, the padding strategy is different. So I implement a real tensorflow-style [Conv2dStaticSamePadding](efficientnet/utils_extra.py#L9) and [MaxPool2dStaticSamePadding](efficientnet/utils_extra.py#L55) myself.
+Also, Conv2dStaticSamePadding from [EfficientNet-PyTorch](https://github.com/lukemelas/EfficientNet-PyTorch) does not perform like TensorFlow, the padding strategy is different. So I implement a real tensorflow-style Conv2dStaticSamePadding and MaxPool2dStaticSamePadding myself.
 
 Despite of the above issues, they are great repositories that enlighten me, hence there is this repository.
 

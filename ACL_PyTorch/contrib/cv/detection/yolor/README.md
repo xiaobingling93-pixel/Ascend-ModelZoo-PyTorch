@@ -7,13 +7,11 @@
 
 - [快速上手](#ZH-CN_TOPIC_0000001126281700)
 
-  - [获取源码](#section4622531142816)
   - [准备数据集](#section183221994411)
   - [模型推理](#section741711594517)
 
 - [模型推理性能](#ZH-CN_TOPIC_0000001172201573)
 
-- [配套环境](#ZH-CN_TOPIC_0000001126121892)
 
   ******
 
@@ -134,7 +132,7 @@ yolor将统一网络的隐性知识(implicit knowledge)和显性知识(explicit 
    1. 获取权重文件。
 
        从源码包中获取权重文件：“yolor_p6.pt”。
-       或者从此处下载https://drive.google.com/u/0/uc?id=1Tdn3yqpZ79X7R1Ql0zNlNScB1Dv9Fp76&export=download
+ 或者从此处下载
 
    2. 导出onnx文件。
 

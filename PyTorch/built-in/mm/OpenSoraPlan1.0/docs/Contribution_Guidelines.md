@@ -45,7 +45,7 @@ As a contributor, before submitting your request, kindly follow these guidelines
    git checkout -b my-docs-branch main
    ```
 
-6. While making modifications and committing changes, adhere to our [Commit Message Format](#Commit-Message-Format).
+6. While making modifications and committing changes, adhere to our Commit Message Format.
 
    ```bash
    git commit -m "[docs]: xxxx"

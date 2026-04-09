@@ -65,14 +65,14 @@ and the parameters of the trained model (`model.pt`).
 
 Here is an overview of the differences between a regular CNN and a CORAL-CNN:
 
-[![](github-images/differences-at-a-glance-small.png)](github-images/differences-at-a-glance.pdf)  
+[![](github-images/differences-at-a-glance-small.png)]() 
 (Click to see a high resolution version.)
 
 ---
 
 ## Training Logs and Trained Models from the Paper
 
-We share all training logs in this GitHub repository under the [./experiment-logs](experiment-logs) subdirectory. Due to the large file-size (85 Mb per model), we could not share the trained models on GitHub; however, all trained models can be downloaded from Google Drive via the following link: [https://drive.google.com/drive/folders/168ijUQyvGLhHoQUQMlFS2fVt2p5ZV2bD?usp=sharing](https://drive.google.com/drive/folders/168ijUQyvGLhHoQUQMlFS2fVt2p5ZV2bD?usp=sharing).
+We share all training logs in this GitHub repository under the ./ subdirectory. Due to the large file-size (85 Mb per model), we could not share the trained models on GitHub; however, all trained models can be downloaded from Google Drive via the following link: .
 
 
 **Image files**
@@ -115,7 +115,7 @@ We share the pre-trained models from the paper that can be used to make predicti
 
 ### Porting Guide
 
-Our models were originally implemented in PyTorch 1.5. We provide a recipe for porting the code is provided at [coral-implementation-recipe.ipynb](coral-implementation-recipe.ipynb). Also see the [the file-diff comparing CORAL with regular CNN.](github-images/differences-at-a-glance.pdf)
+Our models were originally implemented in PyTorch 1.5. We provide a recipe for porting the code is provided at . Also see the the file-diff comparing CORAL with regular CNN.
 
 ### Keras
 

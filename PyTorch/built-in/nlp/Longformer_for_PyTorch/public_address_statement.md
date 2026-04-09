@@ -2,4 +2,3 @@
 |---------------------------------------------------------------------------------------------------------|-----------------------------------------------------------|---------|
 | ModelZoo-PyTorch/PyTorch/built-in/nlp/Longformer_for_PyTorch/transformers_modify/modeling_longformer.py | https://pytorch.org/docs/stable/nn.html#torch.nn.Module   | 源码实现    |
 | ModelZoo-PyTorch/PyTorch/built-in/nlp/Longformer_for_PyTorch/transformers_modify/modeling_longformer.py | https://arxiv.org/abs/2004.05150                          | 论文地址    |
-| ModelZoo-PyTorch/PyTorch/built-in/nlp/Longformer_for_PyTorch/transformers_modify/training_args.py       | https://docs.ray.io/en/latest/tune/api_docs/analysis.html | 模型相关说明  |

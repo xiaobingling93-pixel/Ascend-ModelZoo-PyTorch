@@ -95,7 +95,7 @@ Logging Arguments
 
 - **wandb_host**: str
 
-    Default = https://api.wandb.ai
+ Default = 
 
     url of the wandb host
 

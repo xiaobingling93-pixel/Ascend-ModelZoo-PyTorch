@@ -121,4 +121,4 @@ year={2018}
 ```
 
 ## Acknowledgements
-This work was mainly done while the first author did a research internship at [Clova AI Research, NAVER](https://clova.ai/en/research/research-area-detail.html?id=0). We thank all the researchers at NAVER, especially Donghyun Kwak, for insightful discussions.
+This work was mainly done while the first author did a research internship at Clova AI Research, NAVER. We thank all the researchers at NAVER, especially Donghyun Kwak, for insightful discussions.

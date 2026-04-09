@@ -69,7 +69,7 @@ Dataset website:[RESIDE](https://sites.google.com/view/reside-dehaze-datasets/) 
 
 #### Train
 
-*Remove annotation from [main.py](net/main.py) if you want to use `tensorboard` or view `intermediate predictions`*
+*Remove annotation from main.py if you want to use `tensorboard` or view `intermediate predictions`*
 
 *If you have more computing resources, expanding `bs`, `crop_size`, `gps`, `blocks` will lead to better results*
 

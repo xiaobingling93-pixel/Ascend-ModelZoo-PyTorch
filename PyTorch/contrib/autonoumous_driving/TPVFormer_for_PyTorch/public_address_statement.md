@@ -1,6 +1,5 @@
 | 类型     | 开源代码地址                                                | 文件名                                                    | 公网IP地址/公网URL地址/域名/邮箱地址                                                                                   | 用途说明    |
 |--------|-------------------------------------------------------|--------------------------------------------------------|----------------------------------------------------------------------------------------------------------|---------|
-|开源代码引入|https://github.com/wzzheng/TPVFormer.git|tpvformer10/modules/tpvformer_layer.py|https://arxiv.org/abs/2002.04745>|参考论文地址|
 |开源代码引入|https://github.com/wzzheng/TPVFormer.git|tpvformer10/modules/image_cross_attention.py|https://arxiv.org/pdf/2010.04159.pdf|参考论文地址|
 |开源代码引入|https://github.com/wzzheng/TPVFormer.git|tpvformer04/modules/tpvformer_layer.py|https://arxiv.org/abs/2002.04745|参考论文地址|
 |开源代码引入|https://github.com/wzzheng/TPVFormer.git|tpvformer04/modules/image_cross_attention.py|https://arxiv.org/pdf/2010.04159.pdf|参考论文地址|

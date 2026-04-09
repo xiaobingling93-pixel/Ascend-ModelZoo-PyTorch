@@ -21,13 +21,13 @@ Accuracy.
 (Ranked by accurarcy on test-dev.)
 | Rank | Model  | Acc. | Resources |
 | ---- | :----: | :-------: | :-------: |
-| 1    |  ALPro  |  42.1 |  [paper](https://arxiv.org/abs/2112.09583), [code](https://github.com/salesforce/ALPRO), [blog](https://blog.salesforceairesearch.com/alpro/) |
+| 1 | ALPro | 42.1 | [paper](https://arxiv.org/abs/2112.09583), [code](https://github.com/salesforce/ALPRO), blog |
 | 2   |  VQA-T  |  41.5 | [paper](https://openaccess.thecvf.com/content/ICCV2021/papers/Yang_Just_Ask_Learning_To_Answer_Questions_From_Millions_of_Narrated_ICCV_2021_paper.pdf), [code](https://github.com/antoyang/just-ask), [demo](http://videoqa.paris.inria.fr/) |
 | 3   |  CoMVT | 39.5 | [paper](https://openaccess.thecvf.com/content/CVPR2021/papers/Seo_Look_Before_You_Speak_Visually_Contextualized_Utterances_CVPR_2021_paper.pdf) |
 | 4   |  SSML | 35.1 | [paper](https://arxiv.org/abs/2003.03186) |
 | 5   |  ClipBERT | 37.4 | [paper](https://arxiv.org/abs/2102.06183) [code](https://github.com/jayleicn/ClipBERT)|
 | 6   |  HCRN | 35.6 | [paper](https://arxiv.org/abs/2002.10698) [code](https://github.com/thaolmk54/hcrn-videoqa) |
-| 7   |  HGA | 35.5 | [paper](https://ojs.aaai.org/index.php/AAAI/article/view/6767) [code](https://github.com/Jumpin2/HGA) |
+| 7 | HGA | 35.5 | [paper](https://ojs.aaai.org/index.php/AAAI/article/view/6767) code |
 | 8   |  DualVGR | 35.5 | [paper](https://arxiv.org/pdf/2107.04768v1.pdf) [code](https://github.com/NJUPT-MCC/DualVGR-VideoQA) |
 | 9   |  HME | 33.0 | [paper](https://arxiv.org/pdf/1904.04357.pdf), [code](https://github.com/fanchenyou/HME-VideoQA) |
 | 10   |  AMU | 32.5 | [paper](http://staff.ustc.edu.cn/~hexn/papers/mm17-videoQA.pdf), [code](https://github.com/xudejing/video-question-answering) |

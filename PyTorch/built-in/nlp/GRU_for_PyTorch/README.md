@@ -1,10 +1,5 @@
 # GRU for PyTorch
 
--   [概述](#gaishu)
--   [准备训练环境](#huanjing)
--   [开始训练](#xunlian)
--   [训练结果展示](#jieguo)
--   [版本说明](版本说明.md)
 
 
 

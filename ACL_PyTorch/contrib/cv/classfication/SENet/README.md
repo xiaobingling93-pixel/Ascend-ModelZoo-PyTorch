@@ -13,7 +13,6 @@
 
 - [模型推理性能](#ZH-CN_TOPIC_0000001172201573)
 
-- [配套环境](#ZH-CN_TOPIC_0000001126121892)
 
   ******
 
@@ -119,7 +118,7 @@
 
    1. 获取权重文件。
 
-   参考[源码说明](https://github.com/Cadene/pretrained-models.pytorch#senet)获取权重文件，权重文件链接为：http://data.lip6.fr/cadene/pretrainedmodels/se_resnet50-ce0d4300.pth。
+ 参考[源码说明](https://github.com/Cadene/pretrained-models.pytorch#senet)获取权重文件，权重文件链接为：
 
    在当前目录下可通过`wget`命令获取。
 

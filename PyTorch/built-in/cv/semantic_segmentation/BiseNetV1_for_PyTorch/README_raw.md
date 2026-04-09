@@ -6,14 +6,12 @@
     <sup>
       <a href="https://openmmlab.com">
         <i><font size="4">HOT</font></i>
-      </a>
     </sup>
     &nbsp;&nbsp;&nbsp;&nbsp;
     <b><font size="5">OpenMMLab platform</font></b>
     <sup>
       <a href="https://platform.openmmlab.com">
         <i><font size="4">TRY IT OUT</font></i>
-      </a>
     </sup>
   </div>
   <div>&nbsp;</div>
@@ -32,14 +30,14 @@
 [📘Documentation](https://mmsegmentation.readthedocs.io/en/latest/) |
 [🛠️Installation](https://mmsegmentation.readthedocs.io/en/latest/get_started.html) |
 [👀Model Zoo](https://mmsegmentation.readthedocs.io/en/latest/model_zoo.html) |
-[🆕Update News](https://mmsegmentation.readthedocs.io/en/latest/changelog.html) |
+🆕Update News |
 [🤔Reporting Issues](https://github.com/open-mmlab/mmsegmentation/issues/new/choose)
 
 </div>
 
 <div align="center">
 
-English | [简体中文](README_zh-CN.md)
+English | 简体中文
 
 </div>
 
@@ -90,7 +88,6 @@ A brand new version of **MMSegmentation v1.0.0rc0** was released in 31/8/2022:
 
 - Unifies interfaces of all components based on [MMEngine](https://github.com/open-mmlab/mmengine).
 - Faster training and testing speed with complete support of mixed precision training.
-- Refactored and more flexible [architecture](https://mmsegmentation.readthedocs.io/en/1.x/overview.html).
 
 Find more new features in [1.x branch](https://github.com/open-mmlab/mmsegmentation/tree/1.x). Issues and PRs are welcome!
 
@@ -110,7 +107,7 @@ There are also tutorials for:
 - [training tricks](docs/en/tutorials/training_tricks.md)
 - [useful tools](docs/en/useful_tools.md)
 
-A Colab tutorial is also provided. You may preview the notebook [here](demo/MMSegmentation_Tutorial.ipynb) or directly [run](https://colab.research.google.com/github/open-mmlab/mmsegmentation/blob/master/demo/MMSegmentation_Tutorial.ipynb) on Colab.
+A Colab tutorial is also provided. You may preview the notebook here or directly [run](https://colab.research.google.com/github/open-mmlab/mmsegmentation/blob/master/) on Colab.
 
 ## Benchmark and model zoo
 

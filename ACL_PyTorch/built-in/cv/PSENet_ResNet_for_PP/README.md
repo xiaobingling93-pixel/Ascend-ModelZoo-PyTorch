@@ -4,7 +4,6 @@
 
     - [输入输出数据](#section540883920406)
 
-- [推理环境准备](#ZH-CN_TOPIC_0000001126281702)
 
 - [快速上手](#ZH-CN_TOPIC_0000001126281700)
 
@@ -133,7 +132,7 @@ PSENet([Shape Robust Text Detection with Progressive Scale Expansion Network](ht
 
    1. 获取权重文件。
 
-      训练权重[链接](https://paddleocr.bj.bcebos.com/dygraph_v2.1/en_det/det_r50_vd_pse_v2.0_train.tar。)
+ 训练权重链接
 
       在工作目录下可通过以下命令获取训练权重并转为推理模型。
       ```

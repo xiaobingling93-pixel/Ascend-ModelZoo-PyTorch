@@ -25,7 +25,7 @@ The FixRes code requires
 * Python 3.6 or higher
 * PyTorch 1.0 or higher
 
-and the requirements highlighted in [requirements.txt](requirements.txt) (for Anaconda)
+and the requirements highlighted in (for Anaconda)
 
 # Cluster settings
 
@@ -52,12 +52,12 @@ We provide pre-trained networks with different trunks, we report in the table va
 | FixPNASNet-5 | 480 |     86.1M     |  83.7 /  96.8 | [FixPNASNet.pth](https://github.com/facebookresearch/FixRes)  |
 | FixResNeXt-101 32x48d | 320 | 829M |  86.3 / 97.9 |[FixResNeXt101_32x48d.pth](https://github.com/facebookresearch/FixRes) |
 | FixResNeXt-101 32x48d (*)| 320 | 829M |  86.4 / 98.0 |[FixResNeXt101_32x48d_v2.pth](https://github.com/facebookresearch/FixRes) |
-| FixEfficientNet-B0 (+)| 320 | 5.3M |  80.2 / 95.4 |[FixEfficientNet](README_FixEfficientNet.md) |
-| FixEfficientNet-L2 (+)| 600 | 480M |  88.5 / 98.7 |[FixEfficientNet](README_FixEfficientNet.md) |
+| FixEfficientNet-B0 (+)| 320 | 5.3M | 80.2 / 95.4 |FixEfficientNet |
+| FixEfficientNet-L2 (+)| 600 | 480M | 88.5 / 98.7 |FixEfficientNet |
 
-(*)  We use Horizontal flip, shifted Center Crop and color jittering for fine-tuning (described in [transforms_v2.py](transforms_v2.py))
+(*) We use Horizontal flip, shifted Center Crop and color jittering for fine-tuning (described in )
 
-(+) We report different results with our FixEfficientNet (see [FixEfficientNet](README_FixEfficientNet.md) for more details)
+(+) We report different results with our FixEfficientNet (see FixEfficientNet for more details)
 
 To load a network, use the following PyTorch code: 
 
@@ -97,7 +97,7 @@ Embedding files are matrixes of size 50000 by 2048 for all models except for PNA
 | FixResNeXt-101 32x48d|[FixResNeXt101_32x48d_Softmax.npy](https://github.com/facebookresearch/FixRes) |[FixResNeXt101_32x48d_Embedding.npy](https://github.com/facebookresearch/FixRes) |
 | FixResNeXt-101 32x48d  (*)|[FixResNeXt101_32x48d_Softmax_v2.npy](https://github.com/facebookresearch/FixRes) |[FixResNeXt101_32x48d_Embedding_v2.npy](https://github.com/facebookresearch/FixRes) |
 
-(*)  We use Horizontal flip, shifted Center Crop and color jittering for fine-tuning (described in [transforms_v2.py](transforms_v2.py))
+(*) We use Horizontal flip, shifted Center Crop and color jittering for fine-tuning (described in )
 
 ## Evaluation of the networks
 

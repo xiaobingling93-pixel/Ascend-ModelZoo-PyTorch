@@ -13,8 +13,8 @@ We provided original pretrained models from Caffe2 on heavy models (testing Caff
 | Slow | R50 | - | 8 x 8 | 74.8 | 91.6 | [`link`](https://dl.fbaipublicfiles.com/pyslowfast/model_zoo/kinetics400/SLOWONLY_8x8_R50.pkl) | Kinetics/c2/SLOW_8x8_R50 |
 | SlowFast | R50 | - | 4 x 16 | 75.6 | 92.0 | [`link`](https://dl.fbaipublicfiles.com/pyslowfast/model_zoo/kinetics400/SLOWFAST_4x16_R50.pkl) | Kinetics/c2/SLOWFAST_4x16_R50 |
 | SlowFast | R50 | - | 8 x 8 | 77.0 | 92.6 | [`link`](https://dl.fbaipublicfiles.com/pyslowfast/model_zoo/kinetics400/SLOWFAST_8x8_R50.pkl) | Kinetics/c2/SLOWFAST_8x8_R50 |
-| SlowFast | R101 | - | 8 x 8 | 78.0 | 93.3 | [`link`](coming_soon) | Kinetics/c2/SLOWFAST_8x8_R101_101_101|
-| SlowFast | R101 | - | 16 x 8 | 78.9 | 93.5 | [`link`](coming_soon) | Kinetics/c2/SLOWFAST_16x8_R101_50_50 |
+| SlowFast | R101 | - | 8 x 8 | 78.0 | 93.3 | `link` | Kinetics/c2/SLOWFAST_8x8_R101_101_101|
+| SlowFast | R101 | - | 16 x 8 | 78.9 | 93.5 | `link` | Kinetics/c2/SLOWFAST_16x8_R101_50_50 |
 
 ## X3D models (details in projects/x3d)
 

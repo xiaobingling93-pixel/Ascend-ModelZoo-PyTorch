@@ -16,6 +16,4 @@
 | ModelZoo-PyTorch/PyTorch/built-in/mm/OpenSora1.1/gradio/app.py                                 | https://img.shields.io/badge/Discord-join-blueviolet?logo=discord&amp                          | 图片示例      |
 | ModelZoo-PyTorch/PyTorch/built-in/mm/OpenSora1.1/opensora/utils/ckpt_utils.py                  | https://dl.fbaipublicfiles.com/DiT/models/DiT-XL-2-512x512.pt                                  | 模型地址      |
 | ModelZoo-PyTorch/PyTorch/built-in/mm/OpenSora1.1/opensora/utils/ckpt_utils.py                  | https://dl.fbaipublicfiles.com/DiT/models/DiT-XL-2-256x256.pt                                  | 模型地址      |
-| ModelZoo-PyTorch/PyTorch/built-in/mm/OpenSora1.1/tools/caption/caption_gpt4.py                 | https://api.openai.com/v3/chat/completions                                                     | 模型相关说明    |
 | ModelZoo-PyTorch/PyTorch/built-in/mm/OpenSora1.1/tools/frame_interpolation/utils/flow_utils.py | http://vision.middlebury.edu/flow/flowEval-iccv07.pdf                                          | 论文地址      |
-| ModelZoo-PyTorch/PyTorch/built-in/mm/OpenSora1.1/tools/scoring/ocr/dbnetpp.py                  | https://download.openmmlab.com/mmocr/textdet/dbnetpp/                                          | 权重地址      |

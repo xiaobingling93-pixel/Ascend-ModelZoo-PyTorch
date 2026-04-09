@@ -13,7 +13,6 @@
 
 - [模型推理性能](#ZH-CN_TOPIC_0000001172201573)
 
-- [配套环境](#ZH-CN_TOPIC_0000001126121892)
 
 
 # 概述<a name="ZH-CN_TOPIC_0000001172161501"></a>
@@ -118,9 +117,9 @@ ch_PP-OCRv3_rec是基于[[PP-OCRv3](https://github.com/PaddlePaddle/PaddleOCR/bl
 
    1. 获取权重文件。
 
-       训练模型链接为：https://paddleocr.bj.bcebos.com/PP-OCRv3/chinese/ch_PP-OCRv3_rec_train.tar。
+ 训练模型链接为：
 
-       推理模型链接为：https://paddleocr.bj.bcebos.com/PP-OCRv3/chinese/ch_PP-OCRv3_rec_infer.tar。
+ 推理模型链接为：
 
        在`ch_PP-OCRv3_rec`工作目录下可通过以下命令获取Paddle训练模型和推理模型。
 

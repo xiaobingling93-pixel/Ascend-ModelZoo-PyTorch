@@ -1,7 +1,5 @@
 | 类型     | 开源代码地址                                     | 文件名                    | 公网IP地址/公网URL地址/域名/邮箱地址 | 用途说明 |
 |--------|--------------------------------------------|------------------------| ------------------------------------ |--|
-| 开源代码引入 | https://github.com/facebookresearch/maskrnn-benchmark   | RetinaMask/maskrcnn_benchmark/config/paths_catalog.py | https://dl.fbaipublicfiles.com/detectron | 下载依赖 |
-| 开源代码引入 | https://github.com/facebookresearch/maskrnn-benchmark   | RefineDet/setup.py | https://github.com/facebookresearch/maskrnn-benchmark | 下载依赖 |
 | 开发引入 | / | RetinaMask/maskrcnn_benchmark/structures/boxlist_ops.py | https://github.com/kuangliu/torchcv/blob/master/torchcv/utils/box.py | 源码实现 |
 | 开发引入 | / | RetinaMask/maskrcnn_benchmark/layers/misc.py | https://github.com/pytorch/pytorch/issues/12013 | 相关说明 |
 | 开发引入 | / | RetinaMask/maskrcnn_benchmark/layers/sigmoid_focal_loss.py | https://arxiv.org/abs/1708.02002 | 论文地址 |

@@ -100,7 +100,6 @@ or multi-turn language interactions to create the picture.
   - [📈 Comparisons](#-comparisons)
   - [🎥 Visualization](#-visualization)
   - [📜 Requirements](#-requirements)
-  - [🛠 Dependencies and Installation](#%EF%B8%8F-dependencies-and-installation)
   - [🧱 Download Pretrained Models](#-download-pretrained-models)
   - [:truck: Training](#truck-training)
     - [Data Preparation](#data-preparation)
@@ -816,4 +815,3 @@ If you find [Hunyuan-DiT](https://arxiv.org/abs/2405.08748) or [DialogGen](https
    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Tencent/HunyuanDiT&type=Date" />
    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Tencent/HunyuanDiT&type=Date" />
  </picture>
-</a>

@@ -36,7 +36,7 @@ and other existing recipes for new additions. For the Kaldi-style recipe archite
 For each recipe, we ask you to report the following: experiments results and environment, model information.
 For reproducibility, a link to upload the pre-trained model may also be added. All this information should be written
 in a markdown file called `RESULTS.md` and put at the recipe root. You can refer to
-[tedlium2-example](https://github.com/espnet/espnet/blob/master/egs/tedlium2/asr1/RESULTS.md) for an example.
+tedlium2-example for an example.
 
 To generate `RESULTS.md` for a recipe, please follow the following instructions:
 - Execute `~/espnet/utils/show_result.sh` at the recipe root (where `run.sh` is located).
@@ -74,7 +74,7 @@ unaware which files/directories are shared. Noted that in espnet2, some of them 
 and `decode.yaml` and put in `conf/`. Additional or variant configurations should be put in `conf/tuning/` and named accordingly
 to its differences.
 - If a recipe for a new corpus is proposed, you should add its name and information to:
-https://github.com/espnet/espnet/blob/master/egs/README.md if it's a ESPnet1 recipe,
+ if it's a ESPnet1 recipe,
 or https://github.com/espnet/espnet/blob/master/egs2/README.md + `db.sh` if it's a ESPnet2 recipe.
 
 ## 2 Pull Request
@@ -152,9 +152,6 @@ cd egs/mini_an4/your_task
 ### 5.1 Configuration files
 
 - [setup.cfg](setup.cfg) configures pytest, black and flake8.
-- [.travis.yml](.travis.yml) configures Travis-CI (unittests, doc deploy).
-- [.circleci/config.yml](.circleci/config.yml) configures Circle-CI (unittests, integration tests).
-- [.github/workflows](.github/workflows/) configures Github Actions (unittests, integration tests).
 - [codecov.yml](codecov.yml) configures CodeCov (code coverage).
 
 ## 6 Writing new tools

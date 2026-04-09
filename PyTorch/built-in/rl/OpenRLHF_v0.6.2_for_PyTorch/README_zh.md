@@ -8,18 +8,14 @@
 <p align="center">
       <a href="https://github.com/OpenRLHF/OpenRLHF/graphs/contributors">
         <img alt="GitHub Contributors" src="https://img.shields.io/github/contributors/OpenRLHF/OpenRLHF" />
-      </a>
       <a href="https://github.com/OpenRLHF/OpenRLHF/issues">
         <img alt="Issues" src="https://img.shields.io/github/issues/OpenRLHF/OpenRLHF?color=0088ff" />
-      </a>
       <a href="https://github.com/OpenRLHF/OpenRLHF/discussions">
         <img alt="Issues" src="https://img.shields.io/github/discussions/OpenRLHF/OpenRLHF?color=0088ff" />
-      </a>
       <a href="https://github.com/OpenRLHF/OpenRLHF/pulls">
         <img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr/OpenRLHF/OpenRLHF?color=0088ff" />
       <a href="https://github.com/OpenRLHF/OpenRLHF/stargazers">
         <img alt="GitHub stars" src="https://img.shields.io/github/stars/OpenRLHF/OpenRLHF?color=ccf" />
-      </a>
       <br>
       <em>开源 / 全面 / 轻量级 / 易用</em>
     </p>
@@ -28,7 +24,7 @@
 
 <hr>
 
-<span>[ <a href="README.md">English</a> | 中文 | <a href="README_ja.md">日本語</a> ]</span>
+<span>[ English | 中文 | <a href="README_ja.md">日本語</a> ]</span>
 
 OpenRLHF 是一个基于 Ray、DeepSpeed 和 HF Transformers 构建的高性能 RLHF 框架：
 
@@ -66,7 +62,6 @@ OpenRLHF 是一个基于 Ray、DeepSpeed 和 HF Transformers 构建的高性能 
 - 集成 [过程奖励模型（PRM）](./examples/scripts/train_prm_mistral.sh)。  
 - 支持 SFT、DPO、RM、PRM 和 PPO 的训练样本打包（`--packing_samples`）。  
 - 实现 [RingAttention](./examples/scripts/train_dpo_ring_llama.sh)（`--ring_attn_size`，`--ring_head_stride`）。  
-- 支持 [专家混合模型（MoE）](./examples/test_scripts/train_sft_mixtral_lora.sh)（`--aux_loss_coef`）。  
 - 集成 FlashAttention2（`--flash_attn`）。  
 - 支持 QLoRA（`--load_in_4bit`）和 [LoRA](./examples/scripts/train_sft_mixtral_lora.sh)（`--lora_rank`，`--target_modules`）。  
 - 兼容 HuggingFace 的 `tokenizer.apply_chat_template` 数据集格式（`--apply_chat_template` 和 `--input_key`）。  
@@ -121,7 +116,7 @@ pip install -e .
 
 > [!NOTE]
 >我们推荐使用 vLLM 0.7.2 及以上版本。
->我们也提供了 [Dockerfiles for vLLM](./dockerfile/) 和 [Nvidia-Docker 一键安装脚本](./examples/scripts/nvidia_docker_install.sh)。
+>我们也提供了 Dockerfiles for vLLM 和 [Nvidia-Docker 一键安装脚本](./examples/scripts/nvidia_docker_install.sh)。
 
 ### 准备数据集
 OpenRLHF 在其数据集类中提供了多种数据处理方法。
@@ -178,7 +173,7 @@ data
 
 OpenRLHF 的模型检查点完全兼容 HuggingFace 模型。您可以使用 `--pretrain  {name or path}`、`--reward_pretrain  {name or path}` 和 `--critic_pretrain  {name or path}` 指定模型名称或路径。我们在 [HuggingFace OpenRLHF](https://huggingface.co/OpenRLHF) 上提供了一些预训练的检查点和数据集。
 
-然后您可以使用我们在 [examples/scripts](./examples/scripts/) 目录中提供的启动脚本，或者使用以下命令启动训练：
+然后您可以使用我们在 examples/scripts 目录中提供的启动脚本，或者使用以下命令启动训练：
 
 ```bash 
 deepspeed --module openrlhf.cli.train_sft \
@@ -344,7 +339,7 @@ ray job submit --address="http://127.0.0.1:8265" \
 > export RAY_EXPERIMENTAL_NOSET_CUDA_VISIBLE_DEVICES=1
 > ```
 
-所有支持算法的启动脚本和文档在 [example/scripts](./examples/scripts/) 和 [Documents - Usage](https://openrlhf.readthedocs.io/en/latest/usage.html)
+所有支持算法的启动脚本和文档在 example/scripts 和 Documents - Usage
 
 ### Reinforced Fine-tuning
 
@@ -450,7 +445,6 @@ python -m openrlhf.cli.lora_combiner \
 
 <a href="https://github.com/OpenRLHF/OpenRLHF/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=OpenRLHF/OpenRLHF" />
-</a>
 
 ## 引用与致谢
 
@@ -462,7 +456,7 @@ python -m openrlhf.cli.lora_combiner \
 - [DeepSpeed ↗](https://github.com/microsoft/DeepSpeed)
 - [Ray ↗](https://github.com/ray-project/ray)
 
-我们的项目还想要感谢 [ColossalChat](https://github.com/hpcaitech/ColossalAI/tree/main/applications/Chat) 和 [DeepSpeedChat](https://github.com/microsoft/DeepSpeedExamples/tree/master/applications/DeepSpeed-Chat)。在项目的早期阶段，我们参考了他们的代码设计。
+我们的项目还想要感谢 ColossalChat 和 [DeepSpeedChat](https://github.com/microsoft/DeepSpeedExamples/tree/master/applications/DeepSpeed-Chat)。在项目的早期阶段，我们参考了他们的代码设计。
 我们的项目还想要感谢 [Netmind.AI](https://www.netmind.ai/) 对于ring attention开发的GPU支持。
 
 (2024/7) 我们的 GitHub 组织从 OpenLLMAI 迁移到了 OpenRLHF.

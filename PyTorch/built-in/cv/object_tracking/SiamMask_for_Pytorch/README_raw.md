@@ -33,8 +33,8 @@ If you find this code useful, please consider citing:
 ## Contents
 1. [Environment Setup](#environment-setup)
 2. [Demo](#demo)
-3. [Testing Models](#testing-models)
-4. [Training Models](#training-models)
+3. Testing Models
+4. Training Models
 
 ## Environment setup
 This code has been tested on Ubuntu 16.04, Python 3.6, Pytorch 0.4.1, CUDA 9.2, RTX 2080 GPUs
@@ -108,7 +108,7 @@ python ../../tools/eval.py --dataset VOT2019 --tracker_prefix C --result_dir ./t
 bash test_mask_refine.sh config_davis.json SiamMask_DAVIS.pth DAVIS2016 0
 bash test_mask_refine.sh config_davis.json SiamMask_DAVIS.pth DAVIS2017 0
 ```
-- Evaluate performance on [Youtube-VOS](https://youtube-vos.org/) (need download data from [website](https://youtube-vos.org/dataset/download))
+- Evaluate performance on [Youtube-VOS](https://youtube-vos.org/) (need download data from website)
 ```shell
 bash test_mask_refine.sh config_davis.json SiamMask_DAVIS.pth ytb_vos 0
 ```
@@ -131,7 +131,6 @@ These are the reproduction results from this repository. All results can be down
 ## Training
 
 ### Training Data 
-- Download the [Youtube-VOS](https://youtube-vos.org/dataset/download/), 
 [COCO](http://cocodataset.org/#download), 
 [ImageNet-DET](http://image-net.org/challenges/LSVRC/2015/), 
 and [ImageNet-VID](http://image-net.org/challenges/LSVRC/2015/).

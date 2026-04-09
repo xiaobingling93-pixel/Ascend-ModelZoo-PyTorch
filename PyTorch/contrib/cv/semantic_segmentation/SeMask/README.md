@@ -74,7 +74,7 @@ SeMask是一个图像语义分割框架，通过以下两种技术将语义信�
 
 ## 准备数据集
 
-1. 用户自行准备好数据集，包含训练集和验证集两部分，可选用的数据集包括Cityscapes，ADE20K等。以Cityscapes为例，可进入Cityscapes官网进行下载：https://www.cityscapes-dataset.com/。
+1. 用户自行准备好数据集，包含训练集和验证集两部分，可选用的数据集包括Cityscapes，ADE20K等。以Cityscapes为例，可进入Cityscapes官网进行下载：
 
 	
 2. Cityscapes目录结构如下：

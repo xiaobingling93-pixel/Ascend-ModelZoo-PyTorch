@@ -8,7 +8,6 @@
 | ModelZoo-PyTorch/PyTorch/contrib/cv/semantic_segmentation/FastSCNN/segmentron/data/downloader/pascal_voc.py | http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtrainval_06-Nov-2007.tar                        | 数据集地址   |
 | ModelZoo-PyTorch/PyTorch/contrib/cv/semantic_segmentation/FastSCNN/segmentron/data/downloader/pascal_voc.py | http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtest_06-Nov-2007.tar                            | 数据集地址   |
 | ModelZoo-PyTorch/PyTorch/contrib/cv/semantic_segmentation/FastSCNN/segmentron/data/downloader/pascal_voc.py | http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar                        | 数据集地址   |
-| ModelZoo-PyTorch/PyTorch/contrib/cv/semantic_segmentation/FastSCNN/segmentron/data/downloader/pascal_voc.py | http://www.eecs.berkeley.edu/Research/Projects/CS/vision/grouping/semantic_contours/benchmark.tgz | 数据集地址   |
 | ModelZoo-PyTorch/PyTorch/contrib/cv/semantic_segmentation/FastSCNN/segmentron/data/downloader/sbu_shadow.py | http://www3.cs.stonybrook.edu/~cvl/content/datasets/shadow_db/SBU-shadow.zip                      | 数据集地址   |
 | ModelZoo-PyTorch/PyTorch/contrib/cv/semantic_segmentation/FastSCNN/segmentron/models/backbones/build.py     | https://download.pytorch.org/models/resnet18-5c106cde.pth                                         | 权重地址    |
 | ModelZoo-PyTorch/PyTorch/contrib/cv/semantic_segmentation/FastSCNN/segmentron/models/backbones/build.py     | https://download.pytorch.org/models/resnet34-333f7ec4.pth                                         | 权重地址    |

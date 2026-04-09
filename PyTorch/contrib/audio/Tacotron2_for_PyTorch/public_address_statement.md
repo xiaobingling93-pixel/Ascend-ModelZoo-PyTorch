@@ -1,3 +1,2 @@
 | 文件位置                                                                                    | 公网地址                                             | 公网地址用途  |
 |-----------------------------------------------------------------------------------------|--------------------------------------------------|---------|
-| ModelZoo-PyTorch/PyTorch/contrib/audio/Tacotron2_for_PyTorch/scripts/prepare_dataset.sh | http://data.keithito.com/data/speech/$BZ2ARCHIVE | 数据集地址   |

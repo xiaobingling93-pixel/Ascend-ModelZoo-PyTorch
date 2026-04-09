@@ -1,7 +1,5 @@
 | 文件位置                                                                                | 公网地址                                                                                                        | 公网地址用途      |
 |-------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------|-------------|
-| ModelZoo-PyTorch/PyTorch/contrib/cv/detection/SOLOv1/.travis.yml                    | http://developer.download.nvidia.com/compute/cuda/repos/${UBUNTU_VERSION}/x86_64/${INSTALLER}               | 权重地址        |
-| ModelZoo-PyTorch/PyTorch/contrib/cv/detection/SOLOv1/.travis.yml                    | https://developer.download.nvidia.com/compute/cuda/repos/${UBUNTU_VERSION}/x86_64/7fa2af80.pub              | 权重地址        |
 | ModelZoo-PyTorch/PyTorch/contrib/cv/detection/SOLOv1/mmcv/mmcv/runner/checkpoint.py | https://s3.ap-northeast-2.amazonaws.com/open-mmlab/pretrain/third_party/vgg16_caffe-292e1171.pth            | mmlab模型url  |
 | ModelZoo-PyTorch/PyTorch/contrib/cv/detection/SOLOv1/mmcv/mmcv/runner/checkpoint.py | https://s3.ap-northeast-2.amazonaws.com/open-mmlab/pretrain/third_party/resnet50_caffe-788b5fa3.pth         | mmlab模型url  |
 | ModelZoo-PyTorch/PyTorch/contrib/cv/detection/SOLOv1/mmcv/mmcv/runner/checkpoint.py | https://s3.ap-northeast-2.amazonaws.com/open-mmlab/pretrain/third_party/resnet101_caffe-3ad79236.pth        | mmlab模型url  |

@@ -12,7 +12,6 @@
   + [模型转换](#模型转换)
   + [推理验证](#推理验证)
 
-- [精度&性能](#精度性能)
 
 
 # 概述
@@ -81,7 +80,7 @@ SSD-MobileNetV2 采用 SSD 的思想，在MobileNetV2基础上，中间层提取
 
 1. 获取原始数据集
 
-    使用[**VOC2007的测试集**](https://pjreddie.com/media/files/VOCtest_06-Nov-2007.tar)作为测试数据集，参考以下命令下载测试图片与标签，并解压：
+ 使用**VOC2007的测试集**作为测试数据集，参考以下命令下载测试图片与标签，并解压：
     ```bash
     wget https://pjreddie.com/media/files/VOCtest_06-Nov-2007.tar
     tar -xvf VOCtest_06-Nov-2007.tar

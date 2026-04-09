@@ -14,7 +14,6 @@
 
 - [模型推理性能](#ZH-CN_TOPIC_0000001172201573)
 
-- [配套环境](#ZH-CN_TOPIC_0000001126121892)
 
 # 概述<a name="ZH-CN_TOPIC_0000001172161501"></a>
 
@@ -163,7 +162,7 @@ YOLOv3是一种端到端的one-stage目标检测模型。相比与YOLOv2，YOLOv
      
      从源码包中获取训练后的权重文件yolov3.pt。
      
-     源码包下载链接(https://www.hiascend.com/zh/software/modelzoo/models/detail/1/36ea401e0d844f549da2693c6289ad89)
+ 源码包下载链接()
 
     b. 导出onnx文件。
 

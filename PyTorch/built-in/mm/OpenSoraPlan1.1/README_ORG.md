@@ -84,7 +84,7 @@ Thanks to **HUAWEI Ascend Team** for supporting us. In the second stage, we used
 
 **[2024.04.07]** 🔥🔥🔥 Today, we are thrilled to present Open-Sora-Plan v1.0.0, which significantly enhances video generation quality and text control capabilities. See our [report](docs/Report-v1.0.0.md). Thanks to HUAWEI NPU for supporting us.
 
-**[2024.03.27]** 🚀🚀🚀 We release the report of [VideoCausalVAE](docs/CausalVideoVAE.md), which supports both images and videos. We present our reconstructed video in this demonstration as follows. The text-to-video model is on the way.
+**[2024.03.27]** 🚀🚀🚀 We release the report of VideoCausalVAE, which supports both images and videos. We present our reconstructed video in this demonstration as follows. The text-to-video model is on the way.
 
 <details>
 <summary>View more</summary>
@@ -101,7 +101,7 @@ Thanks to **HUAWEI Ascend Team** for supporting us. In the second stage, we used
 
 **[2024.03.03]** We open some [discussions](https://github.com/PKU-YuanGroup/Open-Sora-Plan/discussions) to clarify several issues.
 
-**[2024.03.01]** Training code is available now! Learn more on our [project page](https://pku-yuangroup.github.io/Open-Sora-Plan/). Please feel free to watch 👀 this repository for the latest updates.
+**[2024.03.01]** Training code is available now! Learn more on our project page. Please feel free to watch 👀 this repository for the latest updates.
 
 </details>
 
@@ -131,8 +131,8 @@ Project stages:
 <summary>✊ Todo</summary>
 
 #### Setup the codebase and train an unconditional model on landscape dataset
-- [x] Fix typos & Update readme. 🤝 Thanks to [@mio2333](https://github.com/mio2333), [@CreamyLong](https://github.com/CreamyLong), [@chg0901](https://github.com/chg0901), [@Nyx-177](https://github.com/Nyx-177), [@HowardLi1984](https://github.com/HowardLi1984), [@sennnnn](https://github.com/sennnnn), [@Jason-fan20](https://github.com/Jason-fan20)
-- [x] Setup environment. 🤝 Thanks to [@nameless1117](https://github.com/nameless1117)
+- [x] Fix typos & Update readme. 🤝 Thanks to [@mio2333](https://github.com/mio2333), [@CreamyLong](https://github.com/CreamyLong), [@chg0901](https://github.com/chg0901), @Nyx-177, [@HowardLi1984](https://github.com/HowardLi1984), @sennnnn, [@Jason-fan20](https://github.com/Jason-fan20)
+- [x] Setup environment. 🤝 Thanks to @nameless1117
 - [ ] Add docker file. ⌛ [WIP] 🤝 Thanks to [@Mon-ius](https://github.com/Mon-ius), [@SimonLeeGit](https://github.com/SimonLeeGit)
 - [ ] Enable type hints for functions. 🤝 Thanks to [@RuslanPeresy](https://github.com/RuslanPeresy), 🙏 **[Need your contribution]**
 - [x] Resume from checkpoint.
@@ -145,7 +145,7 @@ Project stages:
 - [x] Joint dynamic mask input with VAE.
 - [ ] Add VQVAE from [VQGAN](https://github.com/CompVis/taming-transformers). 🙏 **[Need your contribution]**
 - [ ] Make the codebase ready for the cluster training. Add SLURM scripts. 🙏 **[Need your contribution]**
-- [x] Refactor VideoGPT. 🤝 Thanks to [@qqingzheng](https://github.com/qqingzheng), [@luo3300612](https://github.com/luo3300612), [@sennnnn](https://github.com/sennnnn)
+- [x] Refactor VideoGPT. 🤝 Thanks to [@qqingzheng](https://github.com/qqingzheng), [@luo3300612](https://github.com/luo3300612), @sennnnn
 - [x] Add sampling script.
 - [ ] Add DDP sampling script. ⌛ [WIP]
 - [x] Use accelerate on multi-node. 🤝 Thanks to [@sysuyy](https://github.com/sysuyy)
@@ -156,7 +156,7 @@ Project stages:
 - [x] Add [PI](https://arxiv.org/abs/2306.15595) to support out-of-domain size. 🤝 Thanks to [@jpthu17](https://github.com/jpthu17)
 - [x] Add 2D RoPE to improve generalization ability as [FiT](https://github.com/whlzy/FiT). 🤝 Thanks to [@jpthu17](https://github.com/jpthu17)
 - [x] Compress KV according to [PixArt-sigma](https://pixart-alpha.github.io/PixArt-sigma-project). 
-- [x] Support deepspeed for videogpt training. 🤝 Thanks to [@sennnnn](https://github.com/sennnnn)
+- [x] Support deepspeed for videogpt training. 🤝 Thanks to @sennnnn
 - [x] Train a **low dimension** Video-AE, whether it is VAE or VQVAE.
 - [x] Extract offline feature.
 - [x] Train with offline feature.
@@ -189,11 +189,11 @@ Project stages:
 - [x] Finish data loading, and pre-processing utils.
 - [x] Support memory friendly training.
   - [x] Add flash-attention2 from pytorch.
-  - [x] Add xformers.  🤝 Thanks to [@jialin-zhao](https://github.com/jialin-zhao)
+ - [x] Add xformers. 🤝 Thanks to @jialin-zhao
   - [x] Support mixed precision training.
   - [x] Add gradient checkpoint.
   - [x] Support for ReBased and Ring attention. 🤝 Thanks to [@kabachuha](https://github.com/kabachuha)
-  - [x] Train using the deepspeed engine. 🤝 Thanks to [@sennnnn](https://github.com/sennnnn)
+ - [x] Train using the deepspeed engine. 🤝 Thanks to @sennnnn
 - [ ] Train with a text condition. Here we could conduct different experiments: 🚀 **[Require more computation]**
   - [x] Train with T5 conditioning.
   - [ ] Train with CLIP conditioning.
@@ -274,7 +274,7 @@ Highly recommend trying out our web demo by the following command. We also provi
   
 Highly recommend trying out our web demo by the following command. We also provide [online demo](https://huggingface.co/spaces/LanguageBind/Open-Sora-Plan-v1.0.0) [![hf_space](https://img.shields.io/badge/🤗-Open%20In%20Spaces-blue.svg)](https://huggingface.co/spaces/LanguageBind/Open-Sora-Plan-v1.0.0) and [![hf_space](https://img.shields.io/badge/🤗-Open%20In%20Spaces-blue.svg)](https://huggingface.co/spaces/fffiloni/Open-Sora-Plan-v1-0-0) in Huggingface Spaces. 
 
-🤝 Enjoying the [![Replicate demo and cloud API](https://replicate.com/camenduru/open-sora-plan-512x512/badge)](https://replicate.com/camenduru/open-sora-plan-512x512) and [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/camenduru/Open-Sora-Plan-jupyter/blob/main/Open_Sora_Plan_jupyter.ipynb), created by [@camenduru](https://github.com/camenduru), who generously supports our research!
+🤝 Enjoying the [![Replicate demo and cloud API](/badge)]() and [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/camenduru/Open-Sora-Plan-jupyter/blob/main/Open_Sora_Plan_jupyter.ipynb), created by [@camenduru](https://github.com/camenduru), who generously supports our research!
 
 </details>
 
@@ -407,4 +407,3 @@ For more details, please refer to the [Contribution Guidelines](docs/Contributio
 
 <a href="https://github.com/PKU-YuanGroup/Open-Sora-Plan/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=PKU-YuanGroup/Open-Sora-Plan" />
-</a>

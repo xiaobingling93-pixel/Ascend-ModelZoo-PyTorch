@@ -42,7 +42,6 @@ v1.6 models to achieve state of the art accuracy, and is tested and maintained b
          * [Training curves](#training-curves)
       * [Training performance results](#training-performance-results)
          * [Training performance: NVIDIA DGX A100 (8x A100 40GB)](#training-performance-nvidia-dgx-a100-8x-a100-40gb)
-         * [Training performance: NVIDIA DGX-1 (8x V100 16GB)](#training-performance-nvidia-dgx-1-8x-v100-16gB)
          * [Expected training time](#expected-training-time)
       * [Inference performance results](#inference-performance-results)
          * [Inference performance: NVIDIA DGX A100 (1x A100 40GB)](#inference-performance-nvidia-dgx-a100-1x-a100-40gb)
@@ -509,8 +508,8 @@ python inference.py --tacotron2 <Tacotron2_checkpoint> --waveglow <WaveGlow_chec
 Here, `Tacotron2_checkpoint` and `WaveGlow_checkpoint` are pre-trained
 checkpoints for the respective models, and `phrases/phrase.txt` contains input
 phrases. The number of text lines determines the inference batch size. Audio
-will be saved in the output folder. The audio files [audio_fp16](./audio/audio_fp16.wav)
-and [audio_fp32](./audio/audio_fp32.wav) were generated using checkpoints from
+will be saved in the output folder. The audio files audio_fp16
+and audio_fp32 were generated using checkpoints from
 mixed precision and FP32 training, respectively.
 
 You can find all the available options by calling `python inference.py --help`.
@@ -847,7 +846,6 @@ January 2020
 * Updated batch sizes and performance results for Tacotron 2.
 
 December 2019
-* Added export and inference scripts for TensorRT. See [Tacotron2 TensorRT README](trt/README.md).
 
 November 2019
 * Implemented training resume from checkpoint

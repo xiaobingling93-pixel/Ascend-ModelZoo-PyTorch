@@ -16,7 +16,7 @@ python3 -m fastchat.serve.controller
 LangChain uses OpenAI model names by default, so we need to assign some faux OpenAI model names to our local model.
 Here, we use Vicuna as an example and use it for three endpoints: chat completion, completion, and embedding.
 `--model-path` can be a local folder or a Hugging Face repo name.
-See a full list of supported models [here](../README.md#supported-models).
+See a full list of supported models here.
 
 ```bash
 python3 -m fastchat.serve.model_worker --model-names "gpt-3.5-turbo,text-davinci-003,text-embedding-ada-002" --model-path lmsys/vicuna-7b-v1.3

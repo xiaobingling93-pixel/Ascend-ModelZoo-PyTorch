@@ -74,7 +74,7 @@ cd ../../..
 
 ## 4、数据预处理
 
-若有另外需求，请参考[数据处理](docs_zh_CN/data_preparation.md)。
+若有另外需求，请参考数据处理。
 
 运行预处理脚本。将对videos_val中的所有视频进行抽帧处理，并将结果放置在data/kinetics400/rawframes_val目录下。本脚本采用Opencv对mp4格式的视频，采用4线程抽取256*256大小的RGB帧，输出格式为jpg。
 

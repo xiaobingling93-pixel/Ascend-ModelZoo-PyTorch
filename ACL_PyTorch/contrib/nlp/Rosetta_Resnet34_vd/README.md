@@ -13,7 +13,6 @@
 
 - [模型推理性能](#ZH-CN_TOPIC_0000001172201573)
 
-- [配套环境](#ZH-CN_TOPIC_0000001126121892)
 
 
 # 概述<a name="ZH-CN_TOPIC_0000001172161501"></a>
@@ -136,7 +135,7 @@
 
    1. 获取权重文件。
 
-       训练权重链接为：https://paddleocr.bj.bcebos.com/dygraph_v2.0/en/rec_r34_vd_none_none_ctc_v2.0_train.tar。
+ 训练权重链接为：
        
        在`Rosetta_Resnet34_vd`工作目录下可通过以下命令获取训练权重并转为推理模型。
 

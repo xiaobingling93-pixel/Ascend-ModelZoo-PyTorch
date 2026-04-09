@@ -2,5 +2,4 @@
 |----------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------|---------|
 | ModelZoo-PyTorch/PyTorch/contrib/cv/classification/EfficientNet-B1/pycls/core/io.py          | https://dl.fbaipublicfiles.com/pycls                                        | 权重地址    |
 | ModelZoo-PyTorch/PyTorch/contrib/cv/classification/EfficientNet-B1/pycls/models/model_zoo.py | https://dl.fbaipublicfiles.com/pycls                                        | 权重地址    |
-| ModelZoo-PyTorch/PyTorch/contrib/cv/classification/EfficientNet-B1/pycls/models/model_zoo.py | https://raw.githubusercontent.com/facebookresearch/pycls/master/configs     | 下载配置文件  |
 | ModelZoo-PyTorch/PyTorch/contrib/cv/classification/EfficientNet-B1/url.ini                   | https://bbs-img.huaweicloud.com/blogs/img/thumb/1591951315139_8989_1363.png | 数据集地址   |

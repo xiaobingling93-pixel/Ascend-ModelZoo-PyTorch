@@ -17,5 +17,4 @@
 | 开源代码引入 | https://github.com/dbolya/yolact/blob/master/layers/modules/multibox_loss.py|YOLACT/layers/modules/multibox_loss.py	| https://arxiv.org/pdf/1512.02325.pdf | 参考论文地址 |
 | 开源代码引入 | https://github.com/dbolya/yolact/blob/master/data/config.py|YOLACT/layers/modules/multibox_loss.py	| https://arxiv.org/pdf/1708.02002.pdf | 参考论文地址 |
 | 开源代码引入 | https://github.com/dbolya/yolact/blob/master/layers/modules/multibox_loss.py|YOLACT/layers/modules/multibox_loss.py	| https://github.com/clcarwin/focal_loss_pytorch/blob/master/focalloss.py | 源码实现 |
-| 开源代码引入 | https://github.com/dbolya/yolact/blob/master/layers/modules/multibox_loss.py|YOLACT/layers/modules/multibox_loss.py	| https://github.com/pytorch/pytorch/blob/master/modules/detectron/softmax_focal_loss_op.cu | 源码实现 |
 | 开源代码引入 | https://github.com/dbolya/yolact/blob/master/layers/modules/multibox_loss.py|YOLACT/layers/modules/multibox_loss.py	| https://github.com/kuangliu/pytorch-retinanet/blob/master/utils.py | 源码实现 |

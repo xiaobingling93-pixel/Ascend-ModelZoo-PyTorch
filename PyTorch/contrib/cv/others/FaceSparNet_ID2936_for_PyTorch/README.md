@@ -3,7 +3,6 @@
 - [概述](#概述.md)
 - [训练环境准备](#训练环境准备.md)
 - [快速上手](#快速上手.md)
-- [迁移学习指导](#迁移学习指导.md)
 - [高级参考](#高级参考.md)
 
 <h2 id="基本信息.md">基本信息</h2>
@@ -122,7 +121,6 @@ pip3 install requirements.txt
 1.训练使用数据集为Celeba
 2.测试数据集下载提供以下两种方式：
 
-- [GoogleDrive](https://drive.google.com/drive/folders/1PZ_TP77_rs0z56WZausgK0m2oTxZsgB2?usp=sharing)  
 - [BaiduNetDisk](https://pan.baidu.com/s/1zYimaAnIgMIKBf9KANpxog), extract code: `2nax` 
 
 

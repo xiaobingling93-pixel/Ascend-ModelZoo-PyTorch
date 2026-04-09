@@ -6,14 +6,12 @@
     <sup>
       <a href="https://openmmlab.com">
         <i><font size="4">HOT</font></i>
-      </a>
     </sup>
     &nbsp;&nbsp;&nbsp;&nbsp;
     <b><font size="5">OpenMMLab 开放平台</font></b>
     <sup>
       <a href="https://platform.openmmlab.com">
         <i><font size="4">TRY IT OUT</font></i>
-      </a>
     </sup>
   </div>
   <div>&nbsp;</div>
@@ -32,7 +30,7 @@
 [📘使用文档](https://mmsegmentation.readthedocs.io/en/latest/) |
 [🛠️安装指南](https://mmsegmentation.readthedocs.io/en/latest/get_started.html) |
 [👀模型库](https://mmsegmentation.readthedocs.io/en/latest/model_zoo.html) |
-[🆕更新日志](https://mmsegmentation.readthedocs.io/en/latest/changelog.html) |
+🆕更新日志 |
 [🤔报告问题](https://github.com/open-mmlab/mmsegmentation/issues/new/choose)
 
 [English](README.md) | 简体中文
@@ -87,13 +85,12 @@ MMSegmentation 是一个基于 PyTorch 的语义分割开源工具箱。它是 O
 
 - 基于 [MMEngine](https://github.com/open-mmlab/mmengine) 统一了各组件接口。
 - 全面支持混合精度，训练测试速度更快。
-- 重构之后更加灵活的[架构](https://mmsegmentation.readthedocs.io/en/1.x/overview.html)。
 
 欢迎在 [1.x branch](https://github.com/open-mmlab/mmsegmentation/tree/1.x) 发现更多的新特性。欢迎 issue 和 PR。
 
 ## 安装
 
-请参考[快速入门文档](docs/zh_cn/get_started.md#installation)进行安装，参考[数据集准备](docs/zh_cn/dataset_prepare.md)处理数据。
+请参考快速入门文档进行安装，参考[数据集准备](docs/zh_cn/dataset_prepare.md)处理数据。
 
 ## 快速入门
 
@@ -107,7 +104,7 @@ MMSegmentation 是一个基于 PyTorch 的语义分割开源工具箱。它是 O
 - [训练技巧说明](docs/zh_cn/tutorials/training_tricks.md)
 - [有用的工具](docs/zh_cn/useful_tools.md)。
 
-同时，我们提供了 Colab 教程。你可以在[这里](demo/MMSegmentation_Tutorial.ipynb)浏览教程，或者直接在 Colab 上[运行](https://colab.research.google.com/github/open-mmlab/mmsegmentation/blob/master/demo/MMSegmentation_Tutorial.ipynb)。
+同时，我们提供了 Colab 教程。你可以在这里浏览教程，或者直接在 Colab 上[运行](https://colab.research.google.com/github/open-mmlab/mmsegmentation/blob/master/)。
 
 ## 基准测试和模型库
 

@@ -126,7 +126,7 @@ located method:
      path_to_video_N label_N
      ```
   
-  4. check if the all videos are lossless according to the scripts provided by project [mmaction2](https://github.com/open-mmlab/mmaction2) . Here, we  provide the [list](mytest\Vinput\error_video) of  corrupted videos that have been checked out
+ 4. check if the all videos are lossless according to the scripts provided by project [mmaction2](https://github.com/open-mmlab/mmaction2) . Here, we provide the list of corrupted videos that have been checked out
 5. remove the those corrupted videos from the three csv
 
 ## Training

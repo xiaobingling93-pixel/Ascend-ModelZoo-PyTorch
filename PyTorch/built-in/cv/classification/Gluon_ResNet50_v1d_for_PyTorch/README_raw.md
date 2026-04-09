@@ -186,7 +186,6 @@ I'm fortunate to be able to dedicate significant time and money of my own suppor
 * Add SE-ResNet-152D weights
   * 256x256 val, 0.94 crop top-1 - 83.75
   * 320x320 val, 1.0 crop - 84.36
-* Update [results files](results/)
 
 
 ## Introduction
@@ -197,9 +196,9 @@ The work of many others is present here. I've tried to make sure all source mate
 
 ## Models
 
-All model architecture families include variants with pretrained weights. There are specific model variants without any weights, it is NOT a bug. Help training new or better weights is always appreciated. Here are some example [training hparams](https://rwightman.github.io/pytorch-image-models/training_hparam_examples) to get you started.
+All model architecture families include variants with pretrained weights. There are specific model variants without any weights, it is NOT a bug. Help training new or better weights is always appreciated. Here are some example training hparams to get you started.
 
-A full version of the list below with source links can be found in the [documentation](https://rwightman.github.io/pytorch-image-models/models/).
+A full version of the list below with source links can be found in the documentation.
 
 * Big Transfer ResNetV2 (BiT) - https://arxiv.org/abs/1912.11370
 * Bottleneck Transformers - https://arxiv.org/abs/2101.11605
@@ -272,15 +271,12 @@ Several (less common) features that I often utilize in my projects are included.
 
 * All models have a common default configuration interface and API for
     * accessing/changing the classifier - `get_classifier` and `reset_classifier`
-    * doing a forward pass on just the features - `forward_features` (see [documentation](https://rwightman.github.io/pytorch-image-models/feature_extraction/))
     * these makes it easy to write consistent network wrappers that work with any of the models
-* All models support multi-scale feature map extraction (feature pyramids) via create_model (see [documentation](https://rwightman.github.io/pytorch-image-models/feature_extraction/))
     * `create_model(name, features_only=True, out_indices=..., output_stride=...)`
     * `out_indices` creation arg specifies which feature maps to return, these indices are 0 based and generally correspond to the `C(i + 1)` feature level.
     * `output_stride` creation arg controls output stride of the network by using dilated convolutions. Most networks are stride 32 by default. Not all networks support this.
     * feature map channel counts, reduction level (stride) can be queried AFTER model creation via the `.feature_info` member
 * All models have a consistent pretrained weight loader that adapts last linear if necessary, and from 3 to 1 channel input if desired
-* High performance [reference training, validation, and inference scripts](https://rwightman.github.io/pytorch-image-models/scripts/) that work in several process/GPU modes:
     * NVIDIA DDP w/ a single GPU per process, multiple processes with APEX present (AMP mixed-precision optional)
     * PyTorch DistributedDataParallel w/ multi-gpu, single process (AMP disabled as it crashes when enabled)
     * PyTorch w/ single GPU single process (AMP optional)
@@ -330,11 +326,11 @@ Several (less common) features that I often utilize in my projects are included.
 
 ## Results
 
-Model validation results can be found in the [documentation](https://rwightman.github.io/pytorch-image-models/results/) and in the [results tables](results/README.md)
+Model validation results can be found in the documentation and in the [results tables](results/README.md)
 
 ## Getting Started (Documentation)
 
-My current [documentation](https://rwightman.github.io/pytorch-image-models/) for `timm` covers the basics.
+My current documentation for `timm` covers the basics.
 
 [timmdocs](https://fastai.github.io/timmdocs/) is quickly becoming a much more comprehensive set of documentation for `timm`. A big thanks to [Aman Arora](https://github.com/amaarora) for his efforts creating timmdocs.
 
@@ -342,7 +338,7 @@ My current [documentation](https://rwightman.github.io/pytorch-image-models/) fo
 
 ## Train, Validation, Inference Scripts
 
-The root folder of the repository contains reference train, validation, and inference scripts that work with the included models and other features of this repository. They are adaptable for other datasets and use cases with a little hacking. See [documentation](https://rwightman.github.io/pytorch-image-models/scripts/) for some basics and [training hparams](https://rwightman.github.io/pytorch-image-models/training_hparam_examples) for some train examples that produce SOTA ImageNet results.
+The root folder of the repository contains reference train, validation, and inference scripts that work with the included models and other features of this repository. They are adaptable for other datasets and use cases with a little hacking. See documentation for some basics and training hparams for some train examples that produce SOTA ImageNet results.
 
 ## Awesome PyTorch Resources
 
@@ -373,7 +369,7 @@ One of the greatest assets of PyTorch is the community and their contributions. 
 The code here is licensed Apache 2.0. I've taken care to make sure any third party code included or adapted has compatible (permissive) licenses such as MIT, BSD, etc. I've made an effort to avoid any GPL / LGPL conflicts. That said, it is your responsibility to ensure you comply with licenses here and conditions of any dependent licenses. Where applicable, I've linked the sources/references for various components in docstrings. If you think I've missed anything please create an issue.
 
 ### Pretrained Weights
-So far all of the pretrained weights available here are pretrained on ImageNet with a select few that have some additional pretraining (see extra note below). ImageNet was released for non-commercial research purposes only (http://www.image-net.org/download-faq). It's not clear what the implications of that are for the use of pretrained weights from that dataset. Any models I have trained with ImageNet are done for research purposes and one should assume that the original dataset license applies to the weights. It's best to seek legal advice if you intend to use the pretrained weights in a commercial product.
+So far all of the pretrained weights available here are pretrained on ImageNet with a select few that have some additional pretraining (see extra note below). ImageNet was released for non-commercial research purposes only (). It's not clear what the implications of that are for the use of pretrained weights from that dataset. Any models I have trained with ImageNet are done for research purposes and one should assume that the original dataset license applies to the weights. It's best to seek legal advice if you intend to use the pretrained weights in a commercial product.
 
 #### Pretrained on more than ImageNet
 Several weights included or references here were pretrained with proprietary datasets that I do not have access to. These include the Facebook WSL, SSL, SWSL ResNe(Xt) and the Google Noisy Student EfficientNet models. The Facebook models have an explicit non-commercial license (CC-BY-NC 4.0, https://github.com/facebookresearch/semi-supervised-ImageNet1K-models, https://github.com/facebookresearch/WSL-Images). The Google models do not appear to have any restriction beyond the Apache 2.0 license (and ImageNet concerns). In either case, you should contact Facebook or Google with any questions.

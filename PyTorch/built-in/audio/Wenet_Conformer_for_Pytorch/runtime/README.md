@@ -19,11 +19,11 @@ Here is a brief summary of all platforms and OSs. please note the corresponding 
 | runtime         | OS                  | inference engine     | Description                                                                                      |
 |-----------------|---------------------|----------------------|--------------------------------------------------------------------------------------------------|
 | core            | /                   | /                    | common core code of all runtime                                                                  |
-| android         | android             | libtorch             | android demo, [English demo](https://www.youtube.com/shorts/viEnvmZf03s ), [Chinese demo](TODO)  |
+| android | android | libtorch | android demo, [English demo](https://www.youtube.com/shorts/viEnvmZf03s ), Chinese demo |
 | bingding/python | linux, windows, mac | libtorch             | python binding of wenet, mac M1/M2 are is not supported now.                                     |
 | gpu             | linux               | onnxruntime/tensorrt | GPU inference with NV's Triton and TensorRT                                                      |
 | horizonbpu      | linux               | bpu runtime          | Horizon BPU runtime                                                                              |
-| ios             | ios                 | libtorch             | ios demo, [link](TODO)                                                                           |
+| ios | ios | libtorch | ios demo, link |
 | kunlun          | linux               | xpu runtime          | Kunlun XPU runtime                                                                               |
 | libtorch        | linux, windows, mac | libtorch             | c++ build with libtorch                                                                          |
 | ipex            | linux               | libtorch + ipex      | c++ build with libtorch with ipex optimization                                                                         |

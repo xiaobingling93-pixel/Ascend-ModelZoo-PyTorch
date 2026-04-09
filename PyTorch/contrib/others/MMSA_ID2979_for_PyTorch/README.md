@@ -2,7 +2,6 @@
 - [概述](#概述.md)
 - [训练环境准备](#训练环境准备.md)
 - [快速上手](#快速上手.md)
-- [迁移学习指导](#迁移学习指导.md)
 - [高级参考](#高级参考.md)
 <h2 id="基本信息.md">基本信息</h2>
 
@@ -183,7 +182,7 @@ pip3 install requirements.txt
 
 ## 数据集准备<a name="section361114841316"></a>
 
-1、用户自行准备好数据集，https://github.com/thuiar/Self-MM（Baidu Cloud Drive with code: ctgs）。
+1、用户自行准备好数据集， Cloud Drive with code: ctgs）。
 
 2、MMSA训练的模型及数据集可以参考"简述 -> 参考实现"
 

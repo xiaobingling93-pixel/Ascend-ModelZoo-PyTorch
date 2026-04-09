@@ -10,8 +10,6 @@ Detailed information on each model can be found here:
 * [Validation accuracy results](#validation-accuracy-results)
 * [Training performance results](#training-performance-results)
   * [Training performance: NVIDIA DGX A100 (8x A100 40GB)](#training-performance-nvidia-dgx-a100-8x-a100-40gb)
-  * [Training performance: NVIDIA DGX-1 16GB (8x V100 16GB)](#training-performance-nvidia-dgx-1-16gb-8x-v100-16gb)
-  * [Training performance: NVIDIA DGX-2 (16x V100 32GB)](#training-performance-nvidia-dgx-2-16x-v100-32gb)
 * [Model comparison](#model-comparison)
   * [Accuracy vs FLOPS](#accuracy-vs-flops)
   * [Latency vs Throughput on different batch sizes](#latency-vs-throughput-on-different-batch-sizes)

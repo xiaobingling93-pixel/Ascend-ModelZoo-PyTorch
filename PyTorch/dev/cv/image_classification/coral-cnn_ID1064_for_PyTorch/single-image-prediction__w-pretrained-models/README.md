@@ -6,7 +6,7 @@ Due to the large file sizes of the model, the pre-trained models are not availab
 
 ## 1) Downloading the models
 
-Visit the Google Drive link via your web browser at [https://drive.google.com/drive/folders/168ijUQyvGLhHoQUQMlFS2fVt2p5ZV2bD?usp=sharing](https://drive.google.com/drive/folders/168ijUQyvGLhHoQUQMlFS2fVt2p5ZV2bD?usp=sharing). There should be 3 subfolders,
+Visit the Google Drive link via your web browser at . There should be 3 subfolders,
 
 - morph2 (725 Mb)
 - cacd (744 Mb)

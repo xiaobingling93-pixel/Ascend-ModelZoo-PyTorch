@@ -58,19 +58,12 @@ Experience the CogVideoX-5B model online at <a href="https://huggingface.co/spac
 
 Jump to a specific section:
 
-- [Quick Start](#Quick-Start)
     - [SAT](#sat)
-    - [Diffusers](#Diffusers)
-- [CogVideoX-2B Video Works](#cogvideox-2b-gallery)
-- [Introduction to the CogVideoX Model](#Model-Introduction)
 - [Full Project Structure](#project-structure)
     - [Inference](#inference)
     - [SAT](#sat)
     - [Tools](#tools)
 - [Introduction to CogVideo(ICLR'23) Model](#cogvideoiclr23)
-- [Citations](#Citation)
-- [Open Source Project Plan](#Open-Source-Project-Plan)
-- [Model License](#Model-License)
 
 ## Quick Start
 

@@ -1,10 +1,5 @@
 # DB++ for PyTorch
 
--   [概述](概述.md)
--   [准备训练环境](准备训练环境.md)
--   [开始训练](开始训练.md)
--   [训练结果展示](训练结果展示.md)
--   [版本说明](版本说明.md)
 
 # 概述
 
@@ -85,7 +80,6 @@ MMOCR是基于PyTorch和MMDetection的开源工具包，支持众多OCR相关模
   > **说明：** 
   >只需执行一条对应的PyTorch版本requirements.txt安装命令。
   
-- 请注意在x86下开启cpu性能模式 [将cpu设置为performance模式](https://gitcode.com/ascend/pytorch/blob/master/docs/zh/PyTorch%E8%AE%AD%E7%BB%83%E8%B0%83%E4%BC%98&%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97/PyTorch%E8%AE%AD%E7%BB%83%E8%B0%83%E4%BC%98&%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97.md#%E5%B0%86cpu%E8%AE%BE%E7%BD%AE%E4%B8%BAperformance%E6%A8%A1%E5%BC%8F)
   
 
 

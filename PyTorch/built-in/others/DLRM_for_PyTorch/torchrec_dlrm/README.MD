@@ -17,7 +17,7 @@ A basic understanding of [TorchRec](https://github.com/pytorch/torchrec) will he
 `pip install tqdm torchmetrics`
 
 ## Torchx
-We recommend using [torchx](https://pytorch.org/torchx/main/quickstart.html) to run. Here we use the [DDP builtin](https://pytorch.org/torchx/main/components/distributed.html)
+We recommend using torchx to run. Here we use the DDP builtin
 
 1. pip install torchx
 2. (optional) setup a slurm or kubernetes cluster
@@ -68,7 +68,7 @@ For an alternative way of preprocessing the dataset using NVTabular, which can d
 
 Preprocessing command (numpy):
 
-After downloading and uncompressing the [Criteo 1TB Click Logs dataset](consisting of 24 files from [day 0](https://storage.googleapis.com/criteo-cail-datasets/day_0.gz) to [day 23](https://storage.googleapis.com/criteo-cail-datasets/day_23.gz)), process the raw tsv files into the proper format for training by running `./scripts/process_Criteo_1TB_Click_Logs_dataset.sh` with necessary command line arguments.
+After downloading and uncompressing the [Criteo 1TB Click Logs dataset](consisting of 24 files from day 0 to day 23), process the raw tsv files into the proper format for training by running `./scripts/process_Criteo_1TB_Click_Logs_dataset.sh` with necessary command line arguments.
 
 Example usage:
 
@@ -130,12 +130,12 @@ The in-memory dataloader can take approximately 20-30 minutes to load the data i
 of QPS.
 
 **Inference**
-A module which can be used for DLRM inference exists [here](https://github.com/pytorch/torchrec/blob/main/examples/inference/dlrm_predict.py#L49). Please see the [TorchRec inference examples](https://github.com/pytorch/torchrec/tree/main/examples/inference) for more information.
+A module which can be used for DLRM inference exists here. Please see the TorchRec inference examples for more information.
 
 # Running the MLPerf DLRM v2 benchmark
 
 ## Create the synthetic multi-hot dataset
-### Step 1: Download and uncompressing the [Criteo 1TB Click Logs dataset](https://storage.googleapis.com/criteo-cail-datasets/day_{0-23}.gz)
+### Step 1: Download and uncompressing the Criteo 1TB Click Logs dataset
 
 ### Step 2: Run the 1TB Criteo Preprocess script.
 Example usage:
@@ -223,10 +223,10 @@ torchx run -s local_cwd dist.ddp -j 1x8 --script dlrm_main.py -- \
     --multi_hot_distribution_type uniform \
     --multi_hot_sizes=3,2,1,2,6,1,1,1,1,7,3,8,1,6,9,5,1,1,1,12,100,27,10,3,1,1
 ```
-# Replicating the MLPerf DLRM v1 benchmark using the [TorchRec-based implementation](./torchrec_dlrm/dlrm_main.py)
+# Replicating the MLPerf DLRM v1 benchmark using the TorchRec-based implementation
 
 ## Create the 1-hot preprocessed dataset
-### Step 1: [Download](./torchrec_dlrm/scripts/download_Criteo_1TB_Click_Logs_dataset.sh) and uncompressing the Criteo 1TB Click Logs dataset (24 files from [day 0](https://storage.googleapis.com/criteo-cail-datasets/day_0.gz) to [day 23](https://storage.googleapis.com/criteo-cail-datasets/day_23.gz))
+### Step 1: Download and uncompressing the Criteo 1TB Click Logs dataset (24 files from day 0 to day 23)
 
 ### Step 2: Run the 1TB Criteo Preprocess script.
 Example usage:
@@ -269,7 +269,7 @@ torchx run -s local_cwd dist.ddp -j 1x8 --script dlrm_main.py -- \
 |Learning rate|1.0|0.005|
 |Batch size|16384|65536|
 |Interaction type|Dot product|DCN v2|
-|Benchmark Script|[v1](https://github.com/facebookresearch/dlrm/blob/mlperf/dlrm_s_pytorch.py)|[v2 (using TorchRec)](./torchrec_dlrm/dlrm_main.py)|
+|Benchmark Script|[v1](https://github.com/facebookresearch/dlrm/blob/mlperf/dlrm_s_pytorch.py)|v2 (using TorchRec)|
 |Dataset preprocessing scripts/instructions|[v1](https://github.com/facebookresearch/dlrm/blob/main/data_utils.py)|[v2](https://github.com/facebookresearch/dlrm/tree/main/torchrec_dlrm#create-the-synthetic-multi-hot-dataset)|
 |Synthetically-generated multi-hot sparse features|No (Uses 1-hot sparse features) |Yes (synthetically-generatated multi-hot sparse features generated from the original 1-hot sparse features)|
 

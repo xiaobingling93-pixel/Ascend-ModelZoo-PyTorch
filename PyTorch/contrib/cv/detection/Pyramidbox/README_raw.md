@@ -68,5 +68,4 @@ python demo.py
 
 ### References
 * [PyramidBox: A Context-assisted Single Shot Face Detector](https://arxiv.org/abs/1803.07737)
-* [PyramidBox model](https://github.com/PaddlePaddle/models/tree/develop/fluid/PaddleCV/face_detection)
 * [ssd.pytorch](https://github.com/amdegroot/ssd.pytorch)

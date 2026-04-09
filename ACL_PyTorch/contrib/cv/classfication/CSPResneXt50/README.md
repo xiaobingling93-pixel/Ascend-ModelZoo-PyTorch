@@ -122,7 +122,7 @@ CSPResNeXt50提出了跨阶段局部网络（CSPNet），用来缓解以往工�
 
    使用PyTorch将模型权重文件.pth转换为.onnx文件，再使用ATC工具将.onnx文件转为离线推理模型文件.om文件。
 
-   1. [获取权重文件](https://drive.google.com/open?id=1IxKu5lAYCo4UpzAl5pOBIDAvC843vjn1)
+ 1. 获取权重文件
      cspresnext50_ra_224-648b4713.pth
 
    2. 导出onnx文件。

@@ -4,7 +4,7 @@ In this guide, we will OpenFold and its dependencies.
 
 **Pre-requisites**
 
-This package is currently supported for CUDA 11 and Pytorch 1.12. All dependencies are listed in the [`environment.yml`](https://github.com/aqlaboratory/openfold/blob/main/environment.yml). To install OpenFold for CUDA 12, please refer to the [Environment specific modifications](#Environment-specific-modifications) section.
+This package is currently supported for CUDA 11 and Pytorch 1.12. All dependencies are listed in the [`environment.yml`](https://github.com/aqlaboratory/openfold/blob/main/environment.yml). To install OpenFold for CUDA 12, please refer to the Environment specific modifications section.
 
 At this time, only Linux systems are supported.
 
@@ -14,7 +14,6 @@ At this time, only Linux systems are supported.
 ### Installation:
 1. Clone the repository, e.g. `git clone https://github.com/aqlaboratory/openfold.git`
 1. From the `openfold` repo:
-    - Create a [Mamba]("https://github.com/conda-forge/miniforge/releases/latest/download/) environment, e.g.
         `mamba env create -n openfold_env -f environment.yml`
       Mamba is recommended as the dependencies required by OpenFold are quite large and mamba can speed up the process.
     - Activate the environment, e.g `conda activate openfold_env`
@@ -56,7 +55,7 @@ Certain tests perform equivalence comparisons with the AlphaFold implementation.
 ### CUDA 12
 To use OpenFold on CUDA 12 environment rather than a CUDA 11 environment.
 	In step 1, use the branch [`pl_upgrades`](https://github.com/aqlaboratory/openfold/tree/pl_upgrades) rather than the main branch, i.e. replace the command in step 1 with `git clone -b pl_upgrades https://github.com/aqlaboratory/openfold.git`
-	and follow the rest of the steps of [Installation Guide](#Installation)
+	and follow the rest of the steps of Installation Guide
 
 
 ### MPI

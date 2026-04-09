@@ -54,18 +54,18 @@ Detection identifies objects as axis-aligned boxes in an image. Most successful 
 |DLA-34  |32 |96.9|87.8|79.2|93.9 |84.3 |75.7 |34.0 |30.5 |26.8 |
 
 
-All models and details are available in our [Model zoo](readme/MODEL_ZOO.md).
+All models and details are available in our Model zoo.
 
 ## Installation
 
-Please refer to [INSTALL.md](readme/INSTALL.md) for installation instructions.
+Please refer to INSTALL.md for installation instructions.
 
 ## Use CenterNet
 
 We support demo for image/ image folder, video, and webcam. 
 
 First, download the models (By default, ctdet_coco_dla_2x for detection and multi_pose_dla_3x for human pose estimation) 
-from the [Model zoo](readme/MODEL_ZOO.md) and put them in `CenterNet_ROOT/models/`.
+from the Model zoo and put them in `CenterNet_ROOT/models/`.
 
 For object detection on images/ video, run:
 
@@ -116,12 +116,12 @@ ret = detector.run(img)['results']
 
 ## Benchmark Evaluation and Training
 
-After [installation](readme/INSTALL.md), follow the instructions in [DATA.md](readme/DATA.md) to setup the datasets. Then check [GETTING_STARTED.md](readme/GETTING_STARTED.md) to reproduce the results in the paper.
+After installation, follow the instructions in DATA.md to setup the datasets. Then check GETTING_STARTED.md to reproduce the results in the paper.
 We provide scripts for all the experiments in the [experiments](experiments) folder.
 
 ## Develop
 
-If you are interested in training CenterNet in a new dataset, use CenterNet in a new task, or use a new network architecture for CenterNet, please refer to [DEVELOP.md](readme/DEVELOP.md). Also feel free to send us emails for discussions or suggestions.
+If you are interested in training CenterNet in a new dataset, use CenterNet in a new task, or use a new network architecture for CenterNet, please refer to DEVELOP.md. Also feel free to send us emails for discussions or suggestions.
 
 ## Third-party resources
 
@@ -138,7 +138,7 @@ If you are interested in training CenterNet in a new dataset, use CenterNet in a
 ## License
 
 CenterNet itself is released under the MIT License (refer to the LICENSE file for details).
-Portions of the code are borrowed from [human-pose-estimation.pytorch](https://github.com/Microsoft/human-pose-estimation.pytorch) (image transform, resnet), [CornerNet](https://github.com/princeton-vl/CornerNet) (hourglassnet, loss functions), [dla](https://github.com/ucbdrive/dla) (DLA network), [DCNv2](https://github.com/CharlesShang/DCNv2)(deformable convolutions), [tf-faster-rcnn](https://github.com/endernewton/tf-faster-rcnn)(Pascal VOC evaluation) and [kitti_eval](https://github.com/prclibo/kitti_eval) (KITTI dataset evaluation). Please refer to the original License of these projects (See [NOTICE](NOTICE)).
+Portions of the code are borrowed from [human-pose-estimation.pytorch](https://github.com/Microsoft/human-pose-estimation.pytorch) (image transform, resnet), [CornerNet](https://github.com/princeton-vl/CornerNet) (hourglassnet, loss functions), [dla](https://github.com/ucbdrive/dla) (DLA network), [DCNv2](https://github.com/CharlesShang/DCNv2)(deformable convolutions), [tf-faster-rcnn](https://github.com/endernewton/tf-faster-rcnn)(Pascal VOC evaluation) and [kitti_eval](https://github.com/prclibo/kitti_eval) (KITTI dataset evaluation). Please refer to the original License of these projects (See ).
 
 ## Citation
 

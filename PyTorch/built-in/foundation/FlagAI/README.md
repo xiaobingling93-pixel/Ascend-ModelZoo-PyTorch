@@ -38,7 +38,7 @@ FlagAI (Fast LArge-scale General AI models) is a fast, easy-to-use and extensibl
 
 ## Toolkits and Pre-trained Models 
 
-> The code is partially based on [GLM](https://github.com/THUDM/GLM), [Transformers](https://github.com/huggingface/transformers)，[timm](https://github.com/rwightman/pytorch-image-models) and [DeepSpeedExamples](https://github.com/microsoft/DeepSpeedExamples/tree/master/Megatron-LM).
+> The code is partially based on [GLM](https://github.com/THUDM/GLM), [Transformers](https://github.com/huggingface/transformers)，[timm](https://github.com/rwightman/pytorch-image-models) and DeepSpeedExamples.
 
 
 ### Toolkits
@@ -46,9 +46,9 @@ FlagAI (Fast LArge-scale General AI models) is a fast, easy-to-use and extensibl
 
 | Name       | Description       | Examples            |
 |:-------------- |:---------- |:------------------------------------------------------ |
-| 	`GLM_custom_pvp` | Customizing PET templates   | [README.md](http:///examples/glm_custom_pvp/README.md) |
+| `GLM_custom_pvp` | Customizing PET templates | README.md |
 | `GLM_ptuning`    | p-tuning tool | ——                                                     |
-| `BMInf-generate` | Accelerating generation | [README.md](http:///examples/bminf_generate/README.md) | 
+| `BMInf-generate` | Accelerating generation | README.md | 
 
 
 ### Pre-trained Models 
@@ -57,18 +57,18 @@ FlagAI (Fast LArge-scale General AI models) is a fast, easy-to-use and extensibl
 |   Model          |  Task    | Train | Finetune | Inference/Generate | Examples       |                                                         
 | :---------------- | :------- | :-- |:-- | :-- | :--------------------------------------------- |
 | Aquila      | Natural Language Processing  | ✅  | ✅  | ✅  | [README.md](examples/Aquila/README.md) 
-| ALM          | Arabic Text Generation  |  ✅  | ❌  | ✅  | [README.md](/examples/ALM/README.md)  |                         
-| AltCLIP       | Image-Text Matching  | ✅  | ✅  | ✅  | [README.md](/examples/AltCLIP/README.md)   |  
-| AltCLIP-m18      | Image-Text Matching  | ✅  | ✅  | ✅  | [README.md](examples/AltCLIP-m18/README.md)   |                             
-| AltDiffusion    | Text-to-Image Generation    | ❌  | ❌  | ✅  | [README.md](/examples/AltDiffusion/README.md)    |
-| AltDiffusion-m18    | Text-to-Image Generation,supporting 18 languages    | ❌  | ❌  | ✅  |[README.md](/examples/AltDiffusion-m18/README.md)   |
-| BERT-title-generation-english     | English Title Generation | ✅  | ❌  | ✅  | [README.md](/examples/bert_title_generation_english/README.md) |
+| ALM | Arabic Text Generation | ✅ | ❌ | ✅ | README.md | 
+| AltCLIP | Image-Text Matching | ✅ | ✅ | ✅ | README.md | 
+| AltCLIP-m18 | Image-Text Matching | ✅ | ✅ | ✅ | README.md | 
+| AltDiffusion | Text-to-Image Generation | ❌ | ❌ | ✅ | README.md |
+| AltDiffusion-m18 | Text-to-Image Generation,supporting 18 languages | ❌ | ❌ | ✅ |README.md |
+| BERT-title-generation-english | English Title Generation | ✅ | ❌ | ✅ | README.md |
 | CLIP           | Image-Text Matching    | ✅  | ❌  | ✅  | ——   |                                                                 
 | CPM3-finetune       | Text Continuation   | ❌  | ✅  | ❌  | ——    |                                                                
 | CPM3-generate    | Text Continuation  | ❌  | ❌  | ✅  | ——   |                                                                 
 | CPM3_pretrain    | Text Continuation  | ✅  | ❌  | ❌  | ——        |
-| CPM_1     | Text Continuation   | ❌  | ❌  | ✅  | [README.md](/examples/cpm_1/README.md)      |
-| EVA-CLIP                          | Image-Text Matching  | ✅  | ✅  | ✅  | [README.md](/examples/EVA_CLIP/README.md)                             |
+| CPM_1 | Text Continuation | ❌ | ❌ | ✅ | README.md |
+| EVA-CLIP | Image-Text Matching | ✅ | ✅ | ✅ | README.md |
 | Galactica       | Text Continuation    | ❌  | ❌  | ✅  | ——      |                                                              
 | GLM-large-ch-blank-filling        | Blank Filling     | ❌  | ❌  | ✅  | [TUTORIAL](/docs/TUTORIAL_11_GLM_BLANK_FILLING_QA.md)               |
 | GLM-large-ch-poetry-generation    | Poetry Generation     | ✅  | ❌  | ✅  | [TUTORIAL](/docs/TUTORIAL_13_GLM_EXAMPLE_PEOTRY_GENERATION.md)       |
@@ -79,11 +79,11 @@ FlagAI (Fast LArge-scale General AI models) is a fast, easy-to-use and extensibl
 | GPT-2-text-writting      | Text Continuation   | ❌  | ❌  | ✅  | [TUTORIAL](/docs/TUTORIAL_18_GPT2_WRITING.md)        |
 | GPT2-text-writting                | Text Continuation   | ❌  | ❌  | ✅  | —— |                                                                   
 | GPT2-title-generation             | Title Generation   | ❌  | ❌  | ✅  | ——  |                                                                  
-| OPT                               | Text Continuation   | ❌  | ❌  | ✅  | [README.md](/examples/opt/README.md) |                                  
+| OPT | Text Continuation | ❌ | ❌ | ✅ | README.md | 
 | RoBERTa-base-ch-ner               | Named Entity Recognition| ✅  | ❌  | ✅  | [TUTORIAL](/docs/TUTORIAL_17_BERT_EXAMPLE_NER.md)     |
 | RoBERTa-base-ch-semantic-matching |Semantic Similarity Matching | ✅  | ❌  | ✅  | [TUTORIAL](/docs/TUTORIAL_16_BERT_EXAMPLE_SEMANTIC_MATCHING.md)      |
 | RoBERTa-base-ch-title-generation  | Title Generation     | ✅  | ❌  | ✅  | [TUTORIAL](/docs/TUTORIAL_15_BERT_EXAMPLE_TITLE_GENERATION.md)       |
-| RoBERTa-faq      |   Question-Answer   | ❌  | ❌  | ✅  | [README.md](/examples/roberta_faq/README.md) |         
+| RoBERTa-faq | Question-Answer | ❌ | ❌ | ✅ | README.md | 
 | Swinv1                            | Image Classification | ✅  | ❌  | ✅  | ——  |                                                                  
 | Swinv2                            | Image Classification   | ✅  | ❌  | ✅  | ——     |                                                               
 | T5-huggingface-11b                | Train   | ✅  | ❌  | ❌  | [TUTORIAL](/docs/TUTORIAL_14_HUGGINGFACE_T5.md)                      |
@@ -93,7 +93,7 @@ FlagAI (Fast LArge-scale General AI models) is a fast, easy-to-use and extensibl
 
 
 > * More excamples in  [./examples](https://github.com/FlagAI-Open/FlagAI/tree/master/examples) 
-> * More tutorials in [./docs](https://github.com/FlagAI-Open/FlagAI/tree/master/doc) 
+> * More tutorials in ./docs 
 
 
 

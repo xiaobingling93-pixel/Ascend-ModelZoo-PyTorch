@@ -7,29 +7,27 @@
     <sup>
       <a href="https://openmmlab.com">
         <i><font size="4">HOT</font></i>
-      </a>
     </sup>
     &nbsp;&nbsp;&nbsp;&nbsp;
     <b><font size="5">OpenMMLab 开放平台</font></b>
     <sup>
       <a href="https://platform.openmmlab.com">
         <i><font size="4">TRY IT OUT</font></i>
-      </a>
     </sup>
   </div>
   <div>&nbsp;</div>
 
 [![PyPI](https://img.shields.io/pypi/v/mmcls)](https://pypi.org/project/mmcls)
-[![Docs](https://img.shields.io/badge/docs-latest-blue)](https://mmclassification.readthedocs.io/zh_CN/latest/)
+[![Docs](https://img.shields.io/badge/docs-latest-blue)]()
 [![Build Status](https://github.com/open-mmlab/mmclassification/workflows/build/badge.svg)](https://github.com/open-mmlab/mmclassification/actions)
 [![codecov](https://codecov.io/gh/open-mmlab/mmclassification/branch/master/graph/badge.svg)](https://codecov.io/gh/open-mmlab/mmclassification)
 [![license](https://img.shields.io/github/license/open-mmlab/mmclassification.svg)](https://github.com/open-mmlab/mmclassification/blob/master/LICENSE)
 [![open issues](https://isitmaintained.com/badge/open/open-mmlab/mmclassification.svg)](https://github.com/open-mmlab/mmclassification/issues)
 [![issue resolution](https://isitmaintained.com/badge/resolution/open-mmlab/mmclassification.svg)](https://github.com/open-mmlab/mmclassification/issues)
 
-[📘 中文文档](https://mmclassification.readthedocs.io/zh_CN/latest/) |
-[🛠️ 安装教程](https://mmclassification.readthedocs.io/zh_CN/latest/install.html) |
-[👀 模型库](https://mmclassification.readthedocs.io/zh_CN/latest/model_zoo.html) |
+📘 中文文档 |
+🛠️ 安装教程 |
+👀 模型库 |
 [🆕 更新日志](https://mmclassification.readthedocs.io/en/latest/changelog.html) |
 [🤔 报告问题](https://github.com/open-mmlab/mmclassification/issues/new/choose)
 
@@ -72,7 +70,7 @@ MMClassification 1.0 已经发布！目前仍在公测中，如果希望试用�
 - 支持在 IPU 上进行训练。
 - 更新了 API 文档的样式，更方便查阅，[欢迎查阅](https://mmclassification.readthedocs.io/en/master/api/models.html)。
 
-发布历史和更新细节请参考 [更新日志](docs/en/changelog.md)
+发布历史和更新细节请参考 更新日志
 
 ## 安装
 
@@ -88,19 +86,12 @@ cd mmclassification
 pip3 install -e .
 ```
 
-更详细的步骤请参考 [安装指南](https://mmclassification.readthedocs.io/zh_CN/latest/install.html) 进行安装。
+更详细的步骤请参考 安装指南 进行安装。
 
 ## 基础教程
 
-请参考 [基础教程](https://mmclassification.readthedocs.io/zh_CN/latest/getting_started.html) 来了解 MMClassification 的基本使用。MMClassification 也提供了其他更详细的教程：
+请参考 基础教程 来了解 MMClassification 的基本使用。MMClassification 也提供了其他更详细的教程：
 
-- [如何编写配置文件](https://mmclassification.readthedocs.io/zh_CN/latest/tutorials/config.html)
-- [如何微调模型](https://mmclassification.readthedocs.io/zh_CN/latest/tutorials/finetune.html)
-- [如何增加新数据集](https://mmclassification.readthedocs.io/zh_CN/latest/tutorials/new_dataset.html)
-- [如何设计数据处理流程](https://mmclassification.readthedocs.io/zh_CN/latest/tutorials/data_pipeline.html)
-- [如何增加新模块](https://mmclassification.readthedocs.io/zh_CN/latest/tutorials/new_modules.html)
-- [如何自定义优化策略](https://mmclassification.readthedocs.io/zh_CN/latest/tutorials/schedule.html)
-- [如何自定义运行参数](https://mmclassification.readthedocs.io/zh_CN/latest/tutorials/runtime.html)
 
 我们也提供了相应的中文 Colab 教程：
 
@@ -149,7 +140,7 @@ pip3 install -e .
 
 ## 参与贡献
 
-我们非常欢迎任何有助于提升 MMClassification 的贡献，请参考 [贡献指南](https://mmclassification.readthedocs.io/zh_CN/latest/community/CONTRIBUTING.html) 来了解如何参与贡献。
+我们非常欢迎任何有助于提升 MMClassification 的贡献，请参考 贡献指南 来了解如何参与贡献。
 
 ## 致谢
 

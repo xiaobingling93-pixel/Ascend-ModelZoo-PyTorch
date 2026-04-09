@@ -79,7 +79,7 @@ globalised multi-racial testset contains 242,143 identities and 1,624,305 images
 | Glint360k      | r100                | 89.52       | 97.55       | 96.38       | [click me](https://raw.githubusercontent.com/anxiangsir/insightface_arcface_log/master/glint360k_r100/training.log)                 |
 | WF4M           | r100                | 89.87       | 97.19       | 95.48       | [click me](https://raw.githubusercontent.com/anxiangsir/insightface_arcface_log/master/wf4m_r100/training.log)                      |
 | WF12M-PFC-0.2  | r100                | 94.75       | 97.60       | 95.90       | [click me](https://raw.githubusercontent.com/anxiangsir/insightface_arcface_log/master/wf12m_pfc02_r100/training.log)               |
-| WF12M-PFC-0.3  | r100                | 94.71       | 97.64       | 96.01       | [click me](https://raw.githubusercontent.com/anxiangsir/insightface_arcface_log/master/wf12m_pfc03_r100/training.log)               |
+| WF12M-PFC-0.3 | r100 | 94.71 | 97.64 | 96.01 | click me |
 | WF12M          | r100                | 94.69       | 97.59       | 95.97       | [click me](https://raw.githubusercontent.com/anxiangsir/insightface_arcface_log/master/wf12m_r100/training.log)                     |
 | WF42M-PFC-0.2  | r100                | 96.27       | 97.70       | 96.31       | [click me](https://raw.githubusercontent.com/anxiangsir/insightface_arcface_log/master/wf42m_pfc02_r100/training.log)               |
 | WF42M-PFC-0.2  | ViT-T-1.5G          | 92.04       | 97.27       | 95.68       | [click me](https://raw.githubusercontent.com/anxiangsir/insightface_arcface_log/master/wf42m_pfc02_40epoch_8gpu_vit_t/training.log) |

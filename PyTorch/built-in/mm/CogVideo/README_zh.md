@@ -1,6 +1,6 @@
 # CogVideo && CogVideoX
 
-[Read this in English.](./README_zh)
+Read this in English.
 
 [日本語で読む](./README_ja.md)
 
@@ -49,8 +49,6 @@
 
 - [快速开始](#快速开始)
     - [SAT](#sat)
-    - [Diffusers](#Diffusers)
-- [CogVideoX-2B 视频作品](#cogvideox-2b-视频作品)
 - [CogVideoX模型介绍](#模型介绍)
 - [完整项目代码结构](#完整项目代码结构)
     - [Inference](#inference)

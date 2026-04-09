@@ -48,7 +48,6 @@ ISSN={1941-0077},
 
 ## Authors
 - [Hao Luo](https://github.com/michuanhaohao)
-- [Youzhi Gu](https://github.com/shaoniangu)
 - [Xingyu Liao](https://github.com/L1aoXingyu)
 - [Shenqi Lai](https://github.com/xiaolai-sqlai)
 
@@ -146,7 +145,6 @@ The designed architecture follows this guide [PyTorch-Project-Template](https://
     ```
     （2）DukeMTMC-reID
 
-    * Download dataset to `data/` from https://github.com/layumi/DukeMTMC-reID_evaluation#download-dataset
     * Extract dataset and rename to `dukemtmc-reid`. The data structure would like:
 
     ```bash

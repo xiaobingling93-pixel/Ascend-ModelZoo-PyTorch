@@ -173,7 +173,6 @@ python -m torch.distributed.launch --nproc_per_node <num-of-gpus-to-use> --maste
 **Notes**:
 
 - Make sure the `<config-file>`, `<output-directory>` and `<tag>` are the same as in the pre-training stage.
-- Note that some configurations are fixed in [`moby_linear.py`](moby_linear.py#L78) for simplicity.
 
 For example, to evaluate `MoBY Swin-T` with 8 GPU on a single node on ImageNet-1K linear evluation, run:
 

@@ -16,10 +16,8 @@
     - [1.3a 构建完形填空模板](#构建完形填空模板)
     - [1.3b 分词并构造输入样例](#分词并构造输入样例)
   - [1.4 创建加载器](#创建加载器)
-- [2 预训练](#预训练)
   - [2.1 预训练任务数据格式样例](#预训练任务数据格式样例)
   - [2.2 预训练的任务处理实例代码](#预训练的任务处理实例代码)
-- [3 生成任务微调](#生成任务微调)
   - [3.1 生成任务应用代码](#生成任务应用代码)
   - [3.1 生成任务支持数据集](#生成任务支持数据集)
   - [3.2 生成任务里将数据整理成模型的输入](#生成任务里将数据整理成模型的输入)
@@ -81,7 +79,7 @@ dataset = SuperGlueDataset(task_name='cb',
 
 `dataset_type`: 可以为 train/dev/test, 分别代表要处理的是训练集/验证集/测试集
 
-`tokenizer`: 如[Tutorial1](/doc_zh/TUTORIAL_1_TOKENIZER.md)所介绍的构建完成的分词器
+`tokenizer`: 如Tutorial1所介绍的构建完成的分词器
 
 
 #### 加载数据集
@@ -91,7 +89,7 @@ FlagAI目前支持下列分类数据集：
 | 数据集名称                                                                                                                                    | 数据集简称         | 语言  | 所属评测基准                                             | 支持提示学习 | 可自动下载 | 已测试通过 |
 |------------------------------------------------------------------------------------------------------------------------------------------|---------------|-----|----------------------------------------------------|-------|---------------|-------------|
 | [CommitmentBank](https://github.com/mcdm/CommitmentBank)                                                                                 | cb            | 英文  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅     | ✅             | ✅           |
-| [Choice of Plausible Alternatives](https://people.ict.usc.edu/~gordon/copa.html)                                                         | copa          | 英文  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅     | ✅             | ✅           |
+| Choice of Plausible Alternatives | copa | 英文 | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅ | ✅ | ✅ |
 | [Multi-Sentence Reading Comprehension](https://cogcomp.org/multirc/ )                                                                    | muiltirc      | 英文  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅     | ✅             | ✅           |
 | [Recognizing Textual Entailment](https://aclweb.org/aclwiki/Recognizing_Textual_Entailment )                                             | rte           | 英文  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅     | ✅             | ✅           |
 | [Words in Context](https://pilehvar.github.io/wic/ )                                                                                     | wic           | 英文  | [SuperGLUE](https://super.gluebenchmark.com/tasks) | ✅     | ✅             | ✅           |                                                   

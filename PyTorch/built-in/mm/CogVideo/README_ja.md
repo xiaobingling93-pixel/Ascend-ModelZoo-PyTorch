@@ -1,6 +1,6 @@
 # CogVideo && CogVideoX
 
-[Read this in English.](./README_zh)
+Read this in English.
 
 [中文阅读](./README_zh.md)
 
@@ -53,16 +53,11 @@
 
 - [クイックスタート](#クイックスタート)
     - [SAT](#sat)
-    - [Diffusers](#Diffusers)
-- [CogVideoX-2B ギャラリー](#CogVideoX-2B-ギャラリー)
 - [モデル紹介](#モデル紹介)
 - [プロジェクト構造](#プロジェクト構造)
     - [推論](#推論)
     - [sat](#sat)
     - [ツール](#ツール)
-- [プロジェクト計画](#プロジェクト計画)
-- [モデルライセンス](#モデルライセンス)
-- [CogVideo(ICLR'23)モデル紹介](#CogVideoICLR23)
 - [引用](#引用)
 
 ## クイックスタート

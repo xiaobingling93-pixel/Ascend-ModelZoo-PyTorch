@@ -4,7 +4,7 @@ Official implementation of the paper [*"Improved Techniques for Training Single-
 
 For a short summary of our paper see our [blog post](https://www.tobiashinz.com/2020/03/24/improved-techniques-for-training-single-image-gans.html).
 
-Additional data: [Video](https://ln2.sync.com/dl/b02fe0000/mapn8w8r-v5m2vaze-84jrrkma-av9mhhmc) and [Supplementary Material](ConSinGAN-Supplementary.pdf).
+Additional data: [Video](https://ln2.sync.com/dl/b02fe0000/mapn8w8r-v5m2vaze-84jrrkma-av9mhhmc) and Supplementary Material.
 
 We examine and recomment new techniques for training GANs on a *single* image.
 Our model is trained iteratively on several different resolutions of the original training image, where the resolution increases as training proceeds.

@@ -13,12 +13,11 @@
 
 - [模型推理性能](#ZH-CN_TOPIC_0000001172201573)
 
-- [配套环境](#ZH-CN_TOPIC_0000001126121892)
 
 
 # 概述<a name="ZH-CN_TOPIC_0000001172161501"></a>
 
-参考论文[[STAR-Net: a spatial attention residue network for scene text recognition](http://www.bmva.org/bmvc/2016/papers/paper043/paper043.pdf)]， StarNet 强调了通过空间注意机制和残差学习策略从文本区域中提取基于图像的代表性特征的重要性。它是迄今为止提出的用于场景文本识别的最深的神经网络。
+参考论文[STAR-Net: a spatial attention residue network for scene text recognition]， StarNet 强调了通过空间注意机制和残差学习策略从文本区域中提取基于图像的代表性特征的重要性。它是迄今为止提出的用于场景文本识别的最深的神经网络。
 
 - 参考实现：
 
@@ -141,7 +140,7 @@
 
    1. 获取权重文件。
 
-       训练权重链接为：https://paddleocr.bj.bcebos.com/dygraph_v2.0/en/rec_mv3_tps_bilstm_ctc_v2.0_train.tar。
+ 训练权重链接为：
        
        在`StarNet_MobileNetV3`工作目录下可通过以下命令获取训练权重并转为推理模型。
 

@@ -73,7 +73,7 @@
 
 
 1. 获取原始数据集  
-    OBS： [lfw.bin](obs://l-resnet100e-ir/infer/lfw.bin) 云盘： [lfw.bin](https://drive.google.com/file/d/1mRB0A8f0b5GhH7w0vNMGdPjSWF-VJJLY/view?usp=sharing) 
+ OBS： lfw.bin 云盘： [lfw.bin](https://drive.google.com/file/d/1mRB0A8f0b5GhH7w0vNMGdPjSWF-VJJLY/view?usp=sharing) 
  
     ```bash
     mkdir data
@@ -94,7 +94,7 @@
 1. PyTroch 模型转 ONNX 模型  
 
     获取模型权重，并放在工作目录的model文件夹下
-    OBS： [model_ir_se100.pth](obs://l-resnet100e-ir/infer/model_ir_se100.pth)  云盘：[model_ir_se100.pth](https://drive.google.com/file/d/1rbStth01wP20qFpot06Cy6tiIXEEL8ju/view?usp=sharing)
+ OBS： model_ir_se100.pth 云盘：[model_ir_se100.pth](https://drive.google.com/file/d/1rbStth01wP20qFpot06Cy6tiIXEEL8ju/view?usp=sharing)
 
     ```bash
     mkdir model

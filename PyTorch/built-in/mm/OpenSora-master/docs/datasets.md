@@ -1,7 +1,7 @@
 # Datasets
 
 For Open-Sora 1.2, we conduct mixed training with both images and videos. The main datasets we use are listed below.
-Please refer to [README](/README.md#data-processing) for data processing.
+Please refer to README for data processing.
 
 ## Video
 

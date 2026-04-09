@@ -1,6 +1,6 @@
 # RetinaFace in PyTorch
 
-A [PyTorch](https://pytorch.org/) implementation of [RetinaFace: Single-stage Dense Face Localisation in the Wild](https://arxiv.org/abs/1905.00641). Model size only 1.7M, when Retinaface use mobilenet0.25 as backbone net. We also provide resnet50 as backbone net to get better result. The official code in Mxnet can be found [here](https://github.com/deepinsight/insightface/tree/master/RetinaFace).
+A [PyTorch](https://pytorch.org/) implementation of [RetinaFace: Single-stage Dense Face Localisation in the Wild](https://arxiv.org/abs/1905.00641). Model size only 1.7M, when Retinaface use mobilenet0.25 as backbone net. We also provide resnet50 as backbone net to get better result. The official code in Mxnet can be found here.
 
 ## Mobile or Edge device deploy
 We also provide a set of Face Detector for edge device in [here](https://github.com/biubug6/Face-Detector-1MB-with-landmark) from python training to C++ inference.
@@ -110,7 +110,7 @@ python evaluation.py
 python test_fddb.py --trained_model weight_file --network mobile0.25 or resnet50
 ```
 
-3. Download [eval_tool](https://bitbucket.org/marcopede/face-eval) to evaluate the performance.
+3. Download eval_tool to evaluate the performance.
 
 <p align="center"><img src="curve/1.jpg" width="640"\></p>
 
@@ -119,7 +119,6 @@ python test_fddb.py --trained_model weight_file --network mobile0.25 or resnet50
 
 ## References
 - [FaceBoxes](https://github.com/zisianw/FaceBoxes.PyTorch)
-- [Retinaface (mxnet)](https://github.com/deepinsight/insightface/tree/master/RetinaFace)
 ```
 @inproceedings{deng2019retinaface,
 title={RetinaFace: Single-stage Dense Face Localisation in the Wild},

@@ -76,7 +76,7 @@ pip install timm==0.3.2
 ## Data preparation
 
 Download and extract ImageNet train and val images from 
-The directory structure is the standard layout for the torchvision [`datasets.ImageFolder`](https://pytorch.org/docs/stable/torchvision/datasets.html#imagefolder), and the training and validation data is expected to be in the `train/` folder and `val` folder respectively:
+The directory structure is the standard layout for the torchvision `datasets.ImageFolder`, and the training and validation data is expected to be in the `train/` folder and `val` folder respectively:
 
 ```
 /path/to/imagenet/
@@ -247,4 +247,4 @@ python run_with_submitit.py --model deit_base_patch16_384 --batch-size 32 --fine
 This repository is released under the Apache 2.0 license as found in the [LICENSE](LICENSE) file.
 
 # Contributing
-We actively welcome your pull requests! Please see [CONTRIBUTING.md](.github/CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](.github/CODE_OF_CONDUCT.md) for more info.
+We actively welcome your pull requests! Please see CONTRIBUTING.md and CODE_OF_CONDUCT.md for more info.

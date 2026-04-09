@@ -1,5 +1,4 @@
 | 文件位置                                                                                              | 公网地址                                               | 公网地址用途  |
 |---------------------------------------------------------------------------------------------------|----------------------------------------------------|---------|
 | ModelZoo-PyTorch/PyTorch/built-in/cv/detection/ABINet_for_PyTorch/mmocr/core/visualize.py         | https://download.openmmlab.com/mmocr/data/font.TTF | 数据集链接   |
-| ModelZoo-PyTorch/PyTorch/built-in/cv/detection/ABINet_for_PyTorch/mmocr/datasets/utils/backend.py | https://mmocr.readthedocs.io/en/latest/tools.html  | 相关说明    |
 | ModelZoo-PyTorch/PyTorch/built-in/cv/detection/ABINet_for_PyTorch/mmocr/datasets/utils/parser.py  | https://mmocr.readthedocs.io/en/latest/            | 相关文档    |

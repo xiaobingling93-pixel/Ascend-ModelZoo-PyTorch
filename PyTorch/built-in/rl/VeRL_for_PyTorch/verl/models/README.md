@@ -26,7 +26,6 @@ Common modelzoo such as huggingface/transformers stuggles when using Pytorch nat
 
 ### Step 4: Add a function to apply data parallelism
 - Please use FSDP2 APIs
-- See demo here https://github.com/pytorch/torchtitan/blob/main/torchtitan/parallelisms/parallelize_llama.py#L413
 
 ### Step 5: Add a function to apply pipeline parallelism
 - Comes in Pytorch 2.4

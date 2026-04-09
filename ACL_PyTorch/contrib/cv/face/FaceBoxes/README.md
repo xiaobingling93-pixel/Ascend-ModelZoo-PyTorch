@@ -132,7 +132,7 @@ FaceBoxes的新型人脸检测器，它在速度和准确性方面都有卓越�
 
    使用PyTorch将模型权重文件.pth转换为.onnx文件，再使用ATC工具将.onnx文件转为离线推理模型文件.om文件。
 
-   1. 获取权重文件 [FaceBoxesProd.pth](https://drive.google.com/file/d/1tRVwOlu0QtjvADQ2H7vqrRwsWEmaqioI)。
+ 1. 获取权重文件 FaceBoxesProd.pth。
 
    2. 导出onnx文件。
 

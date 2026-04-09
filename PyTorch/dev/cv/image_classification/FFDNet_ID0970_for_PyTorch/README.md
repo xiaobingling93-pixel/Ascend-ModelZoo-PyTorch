@@ -4,7 +4,6 @@
 
 ### Dataset
 
-+ [Waterloo Exploration Database](https://ece.uwaterloo.ca/~k29ma/exploration/)
 
 ### Usage
 

@@ -242,7 +242,7 @@ We support two types of training examples:
 
 Research training examples are located in [examples/research_projects](https://github.com/huggingface/diffusers/tree/main/examples/research_projects) whereas official training examples include all folders under [examples](https://github.com/huggingface/diffusers/tree/main/examples) except the `research_projects` and `community` folders.
 The official training examples are maintained by the Diffusers' core maintainers whereas the research training examples are maintained by the community.
-This is because of the same reasons put forward in [6. Contribute a community pipeline](#contribute-a-community-pipeline) for official pipelines vs. community pipelines: It is not feasible for the core maintainers to maintain all possible training methods for diffusion models.
+This is because of the same reasons put forward in 6. Contribute a community pipeline for official pipelines vs. community pipelines: It is not feasible for the core maintainers to maintain all possible training methods for diffusion models.
 If the Diffusers core maintainers and the community consider a certain training paradigm to be too experimental or not popular enough, the corresponding training code should be put in the `research_projects` folder and maintained by the author.
 
 Both official training and research examples consist of a directory that contains one or more training scripts, a requirements.txt file, and a README.md file. In order for the user to make use of the
@@ -273,7 +273,7 @@ Once an example script works, please make sure to add a comprehensive `README.md
 - A link to some training results (logs, models, ...) that show what the user can expect as shown [here e.g.](https://api.wandb.ai/report/patrickvonplaten/xm6cd5q5).
 - If you are adding a non-official/research training example, **please don't forget** to add a sentence that you are maintaining this training example which includes your git handle as shown [here](https://github.com/huggingface/diffusers/tree/main/examples/research_projects/intel_opts#diffusers-examples-with-intel-optimizations).
 
-If you are contributing to the official training examples, please also make sure to add a test to [examples/test_examples.py](https://github.com/huggingface/diffusers/blob/main/examples/test_examples.py). This is not necessary for non-official training examples.
+If you are contributing to the official training examples, please also make sure to add a test to examples/test_examples.py. This is not necessary for non-official training examples.
 
 ### 8. Fixing a "Good second issue"
 
