@@ -105,12 +105,11 @@
    ```
 
 4. 因DeformConv没有在cpu上执行，修改deform_conv.py文件
-
-   将deform.patch移入python路径/mmcv/ops/
-
-   进入python路径/mmcv/ops/
    ```
-   patch -p 1 deform_conv.py deform.patch
+   # 查看mmcv安装路径
+   pip show mmcv-full | grep Location
+   # 应用补丁
+   patch -p 1 /path/to/site-packages/mmcv/ops/deform_conv.py deform.patch
    ```
 
 ## 准备数据集<a name="section183221994411"></a>
