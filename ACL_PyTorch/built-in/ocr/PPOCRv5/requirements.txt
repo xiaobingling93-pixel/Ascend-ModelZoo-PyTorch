@@ -9,3 +9,5 @@ scikit-image==0.26.0
 scikit-learn==1.5.0
 albumentations==2.0.8
 lmdb==1.7.5
+rapidfuzz==3.14.3
+cmake==3.22
