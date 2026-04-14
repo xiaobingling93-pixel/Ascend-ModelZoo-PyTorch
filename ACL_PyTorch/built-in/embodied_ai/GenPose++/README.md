@@ -31,7 +31,10 @@ export PYTHONPATH=$PWD:$PYTHONPATH
 git clone https://github.com/Omni6DPose/GenPose2.git
 cd GenPose2
 git reset d0993c0
+
+#应用本仓修改，该命令只能执行一次
 git apply ../diff.patch
+
 export ROOT=$PWD
 ```
 
