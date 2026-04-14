@@ -11,7 +11,7 @@ index da8bee6b..194f4b0f 100644
      rename_map: dict[str, str] = field(default_factory=dict)
      # Explicit consent to execute remote code from the Hub (required for hub environments).
 diff --git a/src/lerobot/policies/pi05/modeling_pi05.py b/src/lerobot/policies/pi05/modeling_pi05.py
-index 104ec63b..c60c4b6a 100644
+index 104ec63b..c75712fb 100644
 --- a/src/lerobot/policies/pi05/modeling_pi05.py
 +++ b/src/lerobot/policies/pi05/modeling_pi05.py
 @@ -22,6 +22,9 @@ from pathlib import Path
@@ -24,7 +24,49 @@ index 104ec63b..c60c4b6a 100644
  import torch.nn.functional as F  # noqa: N812
  from torch import Tensor, nn
  from typing_extensions import Unpack
-@@ -335,7 +338,7 @@ class PaliGemmaWithExpertModel(
+@@ -51,6 +54,32 @@ from lerobot.utils.constants import (
+     OPENPI_ATTENTION_MASK_VALUE,
+ )
+ 
++import transformers
++
++
++def apply_npu_rope(q, k, cos, sin, position_ids=None, unsqueeze_dim=1):
++    cos = cos.unsqueeze(unsqueeze_dim)
++    sin = sin.unsqueeze(unsqueeze_dim)
++    n_q = q.shape[1]
++    n_k = k.shape[1]
++    merged_states = torch.cat([q, k], dim=1) # [B, n_q + n_k, S, D]
++    merged_rot = torch_npu.npu_rotary_mul(merged_states, cos, sin)
++    q_embed, k_embed = merged_rot.split([n_q, n_k], dim=1)
++    return q_embed, k_embed
++
++
++transformers.models.gemma.modeling_gemma.apply_rotary_pos_emb = apply_npu_rope
++
++
++def format_cast_to_NZ(model):
++    FRACTAL_NZ = 29
++    for name, module in model.named_modules():
++        if isinstance(module, nn.Linear):
++            if hasattr(module, 'weight') and module.weight is not None:
++                weight_nz = torch_npu.npu_format_cast(module.weight, FRACTAL_NZ)
++                module.weight = nn.Parameter(weight_nz, requires_grad=False)
++                print(f"✅  converted:  {name} -> FRACTAL_NZ")
++    return model
+ 
+ class ActionSelectKwargs(TypedDict, total=False):
+     inference_delay: int | None
+@@ -188,7 +217,7 @@ def resize_with_pad_torch(  # see openpi `resize_with_pad_torch` (exact copy)
+     # Handle dtype-specific clipping
+     if images.dtype == torch.uint8:
+         resized_images = torch.round(resized_images).clamp(0, 255).to(torch.uint8)
+-    elif images.dtype == torch.float32:
++    elif images.dtype == torch.float32 or images.dtype == torch.float16:
+         resized_images = resized_images.clamp(-1.0, 1.0)
+     else:
+         raise ValueError(f"Unsupported image dtype: {images.dtype}")
+@@ -335,7 +364,7 @@ class PaliGemmaWithExpertModel(
          vlm_config,
          action_expert_config,
          use_adarms=None,
@@ -33,7 +75,15 @@ index 104ec63b..c60c4b6a 100644
          image_size: int = DEFAULT_IMAGE_SIZE,
          freeze_vision_encoder: bool = False,
          train_expert_only: bool = False,
-@@ -384,12 +387,12 @@ class PaliGemmaWithExpertModel(
+@@ -365,6 +394,7 @@ class PaliGemmaWithExpertModel(
+         vlm_config_hf.vision_config.projection_dim = 2048
+         vlm_config_hf.vision_config.projector_hidden_act = "gelu_fast"
+         vlm_config_hf.vision_config.torch_dtype = "float32"
++        vlm_config_hf.vision_config._attn_implementation = "eager"
+ 
+         action_expert_config_hf = CONFIG_MAPPING["gemma"](
+             head_dim=action_expert_config.head_dim,
+@@ -384,12 +414,12 @@ class PaliGemmaWithExpertModel(
          self.gemma_expert = GemmaForCausalLM(config=action_expert_config_hf)
          self.gemma_expert.model.embed_tokens = None
  
@@ -50,7 +100,7 @@ index 104ec63b..c60c4b6a 100644
          elif precision == "float32":
              self.to(dtype=torch.float32)
              return
-@@ -551,7 +554,7 @@ class PI05Pytorch(nn.Module):  # see openpi `PI0Pytorch`
+@@ -551,7 +581,7 @@ class PI05Pytorch(nn.Module):  # see openpi `PI0Pytorch`
              paligemma_config,
              action_expert_config,
              use_adarms=[False, True],
@@ -59,7 +109,7 @@ index 104ec63b..c60c4b6a 100644
              image_size=config.image_resolution[0],
              freeze_vision_encoder=config.freeze_vision_encoder,
              train_expert_only=config.train_expert_only,
-@@ -569,9 +572,13 @@ class PI05Pytorch(nn.Module):  # see openpi `PI0Pytorch`
+@@ -569,9 +599,13 @@ class PI05Pytorch(nn.Module):  # see openpi `PI0Pytorch`
          # Compile model if requested
          if config.compile_model:
              torch.set_float32_matmul_precision("high")
@@ -76,7 +126,48 @@ index 104ec63b..c60c4b6a 100644
  
          msg = """An incorrect transformer version is used, please create an issue on https://github.com/huggingface/lerobot/issues"""
  
-@@ -688,7 +695,7 @@ class PI05Pytorch(nn.Module):  # see openpi `PI0Pytorch`
+@@ -620,8 +654,8 @@ class PI05Pytorch(nn.Module):  # see openpi `PI0Pytorch`
+             mean=0.0,
+             std=1.0,
+             size=shape,
+-            dtype=torch.float32,
+-            device=device,
++            dtype=torch.float16,
++            device=device
+         )
+ 
+     def sample_time(self, bsize, device):
+@@ -640,17 +674,20 @@ class PI05Pytorch(nn.Module):  # see openpi `PI0Pytorch`
+         att_masks = []
+ 
+         # Process images
+-        for img, img_mask in zip(images, img_masks, strict=True):
++        batch_size = images[0].shape[0] # correspond to 1 img, therefore batch_size is 1
++        image_batch = torch.cat(images, dim=0)
++        def image_embed_func(img):
++            return self.paligemma_with_expert.embed_image(img)
+ 
+-            def image_embed_func(img):
+-                return self.paligemma_with_expert.embed_image(img)
++        img_emb = self._apply_checkpoint(image_embed_func, image_batch)
++        num_img_embs_per_img = img_emb.shape[1]
++        img_emb = img_emb.view(batch_size, -1, img_emb.shape[-1]) # keep batch size to 1, stack on the second dim
++        bsize, num_img_embs = img_emb.shape[:2]
++        embs.append(img_emb)
+ 
+-            img_emb = self._apply_checkpoint(image_embed_func, img)
+-            bsize, num_img_embs = img_emb.shape[:2]
+-
+-            embs.append(img_emb)
+-            pad_masks.append(img_mask[:, None].expand(bsize, num_img_embs))
+-            att_masks += [0] * num_img_embs
++        att_masks += [0] * num_img_embs
++        img_mask = torch.stack(img_masks).expand(-1, num_img_embs_per_img).reshape(batch_size, -1) # same, keep batch size to 1
++        pad_masks.append(img_mask)
+ 
+         # Process language tokens
+         def lang_embed_func(tokens):
+@@ -688,7 +725,7 @@ class PI05Pytorch(nn.Module):  # see openpi `PI0Pytorch`
              max_period=self.config.max_period,
              device=timestep.device,
          )
@@ -85,7 +176,77 @@ index 104ec63b..c60c4b6a 100644
  
          # Fuse timestep + action information using an MLP
          def action_proj_func(noisy_actions):
-@@ -1206,8 +1213,6 @@ class PI05Policy(PreTrainedPolicy):
+@@ -823,7 +860,7 @@ class PI05Pytorch(nn.Module):  # see openpi `PI0Pytorch`
+         x_t = noise
+         for step in range(num_steps):
+             time = 1.0 + step * dt
+-            time_tensor = torch.tensor(time, dtype=torch.float32, device=device).expand(bsize)
++            time_tensor = torch.tensor(time, dtype=torch.float16, device=device).expand(bsize)
+ 
+             def denoise_step_partial_call(input_x_t, current_timestep=time_tensor):
+                 return self.denoise_step(
+@@ -891,7 +928,6 @@ class PI05Pytorch(nn.Module):  # see openpi `PI0Pytorch`
+ 
+         suffix_out = outputs_embeds[1]
+         suffix_out = suffix_out[:, -self.config.chunk_size :]
+-        suffix_out = suffix_out.to(dtype=torch.float32)
+         return self.action_out_proj(suffix_out)
+ 
+ 
+@@ -916,13 +952,13 @@ class PI05Policy(PreTrainedPolicy):
+ 
+         # Initialize the core PI05 model
+         self.init_rtc_processor()
+-        self.model = PI05Pytorch(config, rtc_processor=self.rtc_processor)
++        self.model = PI05Pytorch(config, rtc_processor=self.rtc_processor).to(torch.float16)
+ 
+         # Enable gradient checkpointing if requested
+         if config.gradient_checkpointing:
+             self.model.gradient_checkpointing_enable()
+ 
+-        self.model.to(config.device)
++        self.model.to(device="npu")
+ 
+         self.reset()
+ 
+@@ -1046,6 +1082,7 @@ class PI05Policy(PreTrainedPolicy):
+         except Exception as e:
+             print(f"Warning: Could not remap state dict keys: {e}")
+ 
++        model = format_cast_to_NZ(model)
+         return model
+ 
+     def _fix_pytorch_state_dict_keys(
+@@ -1158,15 +1195,8 @@ class PI05Policy(PreTrainedPolicy):
+                 img = img.to(device)
+ 
+             # Ensure float32 dtype for consistency
+-            if img.dtype != torch.float32:
+-                img = img.to(torch.float32)
+-
+-            # from openpi preprocess_observation_pytorch: Handle both [B, C, H, W] and [B, H, W, C] formats
+-            is_channels_first = img.shape[1] == 3  # Check if channels are in dimension 1
+-
+-            if is_channels_first:
+-                # Convert [B, C, H, W] to [B, H, W, C] for processing
+-                img = img.permute(0, 2, 3, 1)
++            if img.dtype != torch.float16:
++                img = img.to(torch.float16)
+ 
+             # from openpi preprocess_observation_pytorch: Resize with padding if needed
+             if img.shape[1:3] != self.config.image_resolution:
+@@ -1175,10 +1205,6 @@ class PI05Policy(PreTrainedPolicy):
+             # Normalize from [0,1] to [-1,1] as expected by siglip
+             img = img * 2.0 - 1.0
+ 
+-            # from openpi preprocess_observation_pytorch: Convert back to [B, C, H, W] format if it was originally channels-first
+-            if is_channels_first:
+-                img = img.permute(0, 3, 1, 2)  # [B, H, W, C] -> [B, C, H, W]
+-
+             images.append(img)
+             # Create mask (all ones for real images)
+             bsize = img.shape[0]
+@@ -1206,8 +1232,6 @@ class PI05Policy(PreTrainedPolicy):
              "RTC is not supported for select_action, use it with predict_action_chunk"
          )
  
@@ -94,7 +255,7 @@ index 104ec63b..c60c4b6a 100644
          # Action queue logic for n_action_steps > 1
          if len(self._action_queue) == 0:
              actions = self.predict_action_chunk(batch)[:, : self.config.n_action_steps]
-@@ -1219,7 +1224,6 @@ class PI05Policy(PreTrainedPolicy):
+@@ -1219,7 +1243,6 @@ class PI05Policy(PreTrainedPolicy):
      @torch.no_grad()
      def predict_action_chunk(self, batch: dict[str, Tensor], **kwargs: Unpack[ActionSelectKwargs]) -> Tensor:
          """Predict a chunk of actions given environment observations."""
@@ -103,18 +264,10 @@ index 104ec63b..c60c4b6a 100644
          # Prepare inputs
          images, img_masks = self._preprocess_images(batch)
 diff --git a/src/lerobot/scripts/lerobot_eval.py b/src/lerobot/scripts/lerobot_eval.py
-index e32b8040..43dd6007 100644
+index e32b8040..20994823 100644
 --- a/src/lerobot/scripts/lerobot_eval.py
 +++ b/src/lerobot/scripts/lerobot_eval.py
-@@ -1,5 +1,7 @@
- #!/usr/bin/env python
- 
-+# Copyright (c) 2026 Institute of Software, Chinese Academy of Sciences (ISCAS). All rights reserved.
-+# Copyright (c) 2026, HUAWEI CORPORATION.  All rights reserved.
- # Copyright 2024 The HuggingFace Inc. team. All rights reserved.
- #
- # Licensed under the Apache License, Version 2.0 (the "License");
-@@ -61,10 +63,16 @@ from pathlib import Path
+@@ -61,10 +61,16 @@ from pathlib import Path
  from pprint import pformat
  from typing import Any, TypedDict
  
@@ -132,7 +285,7 @@ index e32b8040..43dd6007 100644
  from termcolor import colored
  from torch import Tensor, nn
  from tqdm import trange
-@@ -538,6 +546,8 @@ def eval_main(cfg: EvalPipelineConfig):
+@@ -538,6 +544,8 @@ def eval_main(cfg: EvalPipelineConfig):
          "device_processor": {"device": str(policy.config.device)},
          "rename_observations_processor": {"rename_map": cfg.rename_map},
      }
@@ -141,7 +294,7 @@ index e32b8040..43dd6007 100644
  
      preprocessor, postprocessor = make_pre_post_processors(
          policy_cfg=cfg.policy,
-@@ -804,6 +814,7 @@ def eval_policy_all(
+@@ -804,6 +812,7 @@ def eval_policy_all(
  
  
  def main():

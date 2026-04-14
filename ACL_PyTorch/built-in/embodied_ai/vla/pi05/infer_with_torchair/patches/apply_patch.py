@@ -16,30 +16,16 @@
 import os
 import subprocess
 import lerobot
-import transformers
 
 
 def main():
     lerobot_path = lerobot.__path__
-    transformers_path = transformers.__path__
 
     subprocess.check_call(
         ["git", "apply", "--whitespace=fix", os.path.abspath("lerobot_diff.patch")],
         cwd=lerobot_path[0],
     )
     print("lerobot patch applied successfully.")
-
-    siglip_dir = os.path.join(
-        transformers_path[0],
-        "models",
-        "siglip"
-    )
-
-    subprocess.check_call(
-        ["patch", "-p0", "-i", os.path.abspath("modeling_siglip.patch")],
-        cwd=siglip_dir,
-    )
-    print("modeling_siglip patch applied successfully.")
 
 
 if __name__ == '__main__':
