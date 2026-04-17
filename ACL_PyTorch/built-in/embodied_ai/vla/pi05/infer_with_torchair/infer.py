@@ -70,8 +70,8 @@ def main():
         policy.reset()
         t0 = time.time()
         pred_action = policy.select_action(batch)
-        pred_action = postprocess(pred_action)
         time_elapsed = time.time() - t0
+        pred_action = postprocess(pred_action)
         print(f"inference duration: {time_elapsed}")
         print(f"action dim: {pred_action.shape}, action vector: {pred_action}")
 
