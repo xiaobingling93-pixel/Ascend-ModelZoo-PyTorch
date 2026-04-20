@@ -21,6 +21,7 @@
 | CANN| torch | torch_npu | torchtitan | triton-ascend |
 | --- | --- | --- | --- | --- |
 | 8.5.0.B120 | 2.9.0 | 2.9.0.post1.dev20260108 | 0.2.0 | 3.4.0.dev2026010713 |
+| 8.5.0.B120 | 2.10.0 | 2.10.0.post1.dev20260320 | 0.2.1 | 3.4.0.dev2026010713 |
 
 ### 昇腾CANN安装配置
 
@@ -85,6 +86,7 @@ pip config set global.index-url https://mirrors.tuna.tsinghua.edu.cn/pypi/web/si
 pip config set global.extra-index-url "https://download.pytorch.org/whl/cpu/ https://mirrors.huaweicloud.com/ascend/repos/pypi"
 
 # Install pytorch
+# Choose the version based on torchtitan version
 pip install torch==2.9.0
 
 # Install torch-npu prerequest
@@ -95,6 +97,7 @@ pip install scipy
 pip install decorator
 pip install numpy==1.2x
 # Install torch-npu
+# Choose the version based on torchtitan version
 pip install torch_npu==2.9.0.post1.dev20260108 --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi
 
 # Install triton-ascend
@@ -175,7 +178,7 @@ expert_parallel_degree = 1
 expert_tensor_parallel_degree = 1
 
 [compile]
-enable=false #目前版本尚不支持compile选项，相应配置应为false
+enable=false
 components = ["model", "loss"]
 ```
 
@@ -198,7 +201,7 @@ expert_parallel_degree = 8
 expert_tensor_parallel_degree = 1
 
 [compile]
-enable=false #目前版本尚不支持compile选项，相应配置应为false
+enable=false #目前版本EP尚不支持compile选项，相应配置应为false
 components = ["model", "loss"]
 ```
 
@@ -221,7 +224,7 @@ expert_parallel_degree = 4
 expert_tensor_parallel_degree = 1
 
 [compile]
-enable=false #目前版本尚不支持compile选项，相应配置应为false
+enable=false #目前版本EP尚不支持compile选项，相应配置应为false
 components = ["model", "loss"]
 ```
 
@@ -248,7 +251,7 @@ mode = "none"  #["none", "selective", "full"] 上述配置需将该项配置为n
 selective_ac_option = 'op'  # 'int' = ac every positive int layer or 'op', ac based on ops policy
 
 [compile]
-enable=false #目前版本尚不支持compile选项，相应配置应为false
+enable=false #目前版本EP尚不支持compile选项，相应配置应为false
 components = ["model", "loss"]
 ```
 
@@ -292,6 +295,27 @@ torch.manual_seed(seed)
 torch.use_deterministic_algorithms(True)
 torch_npu.npu.manual_seed_all(seed)
 torch_npu.npu.manual_seed(seed)
+```
+
+### 入图配置说明
+
+可通过模型配置文件中使能如图。使用`torch.compile`进行模型编译。开启后模型会自动编译，并且在运行时直接使用编译后的模型。
+**当前入图编译仅支持FSDP，其余并行配置入图仍处于实验状态中。**
+
+通过配置文件开启
+```toml
+[compile]
+enable=true
+backend="inductor" # ["inductor", "aot_eager"]
+components = ["model", "loss"]
+```
+
+当前在inductor后端+aclgraph的情景下，由于部分算子还不支持，需在将环境变量NPU_INDUCTOR_FALLBACK_ALL设置为1。
+```bash
+#Enable NPUGraph
+export TORCHINDUCTOR_CUDAGRAPHS=1
+#Set NPU Inductor FallBack for operators
+export NPU_INDUCTOR_FALLBACK_ALL=1
 ```
 
 ### 环境变量与训练启动

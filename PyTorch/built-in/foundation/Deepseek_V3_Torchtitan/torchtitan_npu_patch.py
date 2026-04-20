@@ -127,6 +127,7 @@ import os
 import time
 import subprocess
 from typing import Any, Optional, Union
+from pathlib import Path
 import contextlib
 import torchtitan
 import torch
@@ -163,6 +164,19 @@ from torchtitan.models.deepseek_v3 import deepseekv3_args
 from torchtitan.models.moe.moe import TokenReorderer
 
 ##=====================patch for torchtitan==========================
+
+
+## get torchtitan version
+def get_titan_version():
+    HERE = Path(__file__).resolve().parent
+    version_txt = HERE.parent / "assets" / "version.txt"  # go up to .../torchtitan/, then assets/version.txt
+    try:
+        version = version_txt.read_text(encoding="utf-8").strip()
+        logger.info(f'Using the version of {version} for Torchtitan patches on Ascend')
+        return version
+    except Exception:
+        logger.warning('No version matched for Torchtitan. Using the low version of v0.1.0 for patches on Ascend')
+        return "0.1.0" # return the lowest version when no version found
 
 
 ## obtain NPU peak_flops
@@ -306,9 +320,12 @@ def maybe_enable_profiling(
 
 ## patch for disable flex_attn
 ## torch_npu does not support the flex_atten operator now, 
-## so this parameter should be set to false.
+## so we disable the flex_attn, and use sdpa instead.
 for config in deepseekv3_args.values():
-    config.use_flex_attn = False
+    if get_titan_version() >= "0.2.1" and config.attn_type == "flex":
+        config.attn_type = "sdpa"
+    elif get_titan_version() == "0.2.0":
+        config.use_flex_attn = False
 
 
 ## patch for enable torch._grouped_mm
@@ -328,9 +345,15 @@ def update_from_config(self, job_config: JobConfig, **kwargs) -> None:
             "CP support for FlexAttention is still in progress."
         )
 
-    self.moe_args._debug_force_load_balance = (
-        job_config.training.debug_moe_force_load_balance
-    )
+    if get_titan_version() >= "0.2.1":
+        self.moe_args._debug_force_load_balance = (
+            job_config.debug.moe_force_load_balance
+        )
+        self.moe_impl = job_config.parallelism.expert_parallel_comm_backend
+    else:
+        self.moe_args._debug_force_load_balance = (
+            job_config.training.debug_moe_force_load_balance
+        )
 
 
 ## patch for float type used in argsort
