@@ -106,16 +106,17 @@
    ```
    export LD_LIBRARY_PATH=/usr/local/python3.11.10/lib:$LD_LIBRARY_PATH
    ```
+   > 执行ATC命令生成om模型耗时可能较长（在Atlas 300I Pro大约需要1.5个小时），请耐心等待。
 
 ### 运行推理脚本infer.py
 获取示例图像存放在工作路径，并执行推理脚本，脚本通过调用PaddleOCR接口进行产线推理，通过指定文本检测模块以及文本识别模块，解决了文本识别任务，将图片中的文字信息以文本形式输出。
    ```
    wget https://paddle-model-ecology.bj.bcebos.com/paddlex/imgs/demo_image/layout.jpg
-   python3 infer.py --data_dir layout.jpg
+   python3 infer.py --image_dir layout.jpg
    ```
 
 - 参数说明
-  - data_dir: 待预测数据，可以是图像文件或者包含图片的本地目录
+  - image_dir: 待预测数据，可以是图像文件或者包含图片的本地目录
   - model_name: 布局检测模型的名称，默认为PP-DocLayoutV2
   - model_dir: 布局检测模型的目录路径，默认为PP-DocLayoutV2
 

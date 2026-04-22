@@ -21,7 +21,7 @@ from paddleocr import LayoutDetection
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--data_dir", type=str, default="layout.jpg")
+    parser.add_argument("--image_dir", type=str, default="layout.jpg")
     parser.add_argument("--model_name", type=str, default="PP-DocLayoutV2")
     parser.add_argument("--model_dir", type=str, default="PP-DocLayoutV2")
     return parser.parse_args()
