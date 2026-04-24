@@ -51,7 +51,7 @@ def _furthest_point_sampling(xyz, npoints):
         distance = torch.min(distance, dist)
         farthest = torch.argmax(distance, dim=-1)
         idx[:, i] = farthest
-    return idx.to(torch.int32)
+    return idx
 
 
 def _gather_points(features, idx):
@@ -71,29 +71,33 @@ def _gather_points_grad(grad_out, idx, N):
 
 
 def _ball_query(new_xyz, xyz, radius, nsample):
+    """
+    Vectorized ball query for ONNX compatibility.
+    Selects points in INDEX ORDER (not distance order), matching original logic.
+    """
     B, N, _ = xyz.shape
     M = new_xyz.shape[1]
     radius2 = radius * radius
 
-    dists = torch.cdist(new_xyz, xyz, p=2) ** 2
-    mask = dists < radius2
-    indices = torch.arange(N, device=xyz.device).unsqueeze(0).unsqueeze(1).expand(B, M, -1)
-    idx = torch.zeros((B, M, nsample), dtype=torch.int32, device=xyz.device)
+    # Compute squared distances
+    dists = torch.cdist(new_xyz, xyz, p=2) ** 2  # [B, M, N]
+    mask = dists < radius2  # [B, M, N]
+    indices = torch.arange(N, device=xyz.device).unsqueeze(0).unsqueeze(0).expand(B, M, -1)  # [B, M, N]
+    mask_cumsum = mask.float().cumsum(dim=-1)  # [B, M, N]
+    idx = torch.zeros((B, M, nsample), dtype=torch.int64, device=xyz.device)
 
-    for b in range(B):
-        for m in range(M):
-            valid_indices = indices[b, m][mask[b, m]]  
+    # For each position k (1 to nsample), find points where cumsum == k
+    for k in range(1, nsample + 1):
+        kth_mask = (mask_cumsum == k) & mask  # [B, M, N
+        kth_indices = torch.where(kth_mask, indices, torch.zeros(1, dtype=torch.int64, device=xyz.device))
+        idx_k = kth_indices.max(dim=-1)[0]  # [B, M]
+        first_mask = (mask_cumsum == 1) & mask
+        first_indices = torch.where(first_mask, indices, torch.zeros(1, dtype=torch.int64, device=xyz.device))
+        first_idx = first_indices.max(dim=-1)[0]  # [B, M]
+        has_kth = kth_mask.any(dim=-1)  # [B, M]
+        idx[:, :, k - 1] = torch.where(has_kth, idx_k, first_idx)
 
-            if len(valid_indices) == 0:
-                continue
-            elif len(valid_indices) < nsample:
-                first_idx = valid_indices[0]
-                idx[b, m, :len(valid_indices)] = valid_indices
-                idx[b, m, len(valid_indices):] = first_idx
-            else:
-                idx[b, m, :] = valid_indices[:nsample]
-
-    return idx.to(torch.int32)
+    return idx
 
 
 def _group_points(points, idx):

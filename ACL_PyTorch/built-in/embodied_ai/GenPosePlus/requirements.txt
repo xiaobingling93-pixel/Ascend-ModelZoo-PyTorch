@@ -1,0 +1,10 @@
+torch==2.1.0
+torch_npu==2.1.0.post17
+torchvision==0.16.0
+torchaudio==2.1.0
+pyyaml
+ipdb
+cutoop
+decorator
+attrs==21.4.0
+psutil
