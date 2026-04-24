@@ -24,14 +24,14 @@ checkpoint_config:
 num_gpus_per_node: 16
 
 
-max_steps: 100
+max_steps: 200
 save_steps: 100
 logging_steps: 1
 eval_steps: 10
 resume_from_checkpoint: false
 
 
-rollout_batch_size: 32  # prompt
+rollout_batch_size: 16  # prompt
 prompt_length: 2048
 response_length: 8192
 
@@ -114,9 +114,9 @@ actor_train:
     preprocessing_num_workers: 16
   strategy_args:
     strategy_name: deepspeed_train
-    strategy_config: ${deepspeed_zero3}
+    strategy_config: ${deepspeed_zero3_cpuoffload}
   device_mapping: list(range(0,8))
-  infer_batch_size: 2
+  infer_batch_size: 1
 
 actor_infer:
   model_args:
